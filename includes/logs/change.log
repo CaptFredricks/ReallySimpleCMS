@@ -1,0 +1,329 @@
+----------------------------------------------------------------------------------------------------
+Legend: N - new file, D - deprecated file, R - removed file, M - minor change
+Versions: X.x.x (major releases), x.X.x (standard releases), x.x.X (minor releases/bug fixes)
+
+----------------------------------------------------------------------------------------------------
+Alpha 1.3.5 (2019-03-26)
+
+- Moved Query object initialization to init.php
+- Added config.php to .gitignore (prevents issues arising with db configs on different clients)
+- Built the login form
+- Styled the login page
+- Created login captcha
+- Added some documentation
+- Rebranding "Really Simple CMS" to "ReallySimpleCMS"
+- Minor styling tweaks to the installation page
+
+Modified files:
+- .gitignore
+- init.php
+- login.php
+- admin/install.php
+- admin/setup.php (M)
+- admin/includes/functions.php (M)
+- admin/includes/css/install.css (M)
+- includes/captcha.php (N)
+- includes/functions.php (M)
+- includes/globals.php (M)
+- includes/css/style.css
+
+----------------------------------------------------------------------------------------------------
+Alpha 1.3.4 (2019-03-24)
+
+- Created LICENSE and README files
+- Created .gitignore file (added LICENSE and todo.txt)
+
+Modified files:
+- .gitignore (N)
+- LICENSE.md (N)
+- README.md (N)
+
+----------------------------------------------------------------------------------------------------
+Alpha 1.3.3 (2019-03-22)
+
+- Created content directory
+- Created CSS and JS files in content directory for later use
+- Added error if the CMS has already been installed to prevent multiple installs
+- Created Query function to show all tables in the database
+- Created login page (without form)
+- Install page will now redirect to setup page if config.php doesn't exist
+- Buttons now have the cursor hand if hovered over
+- Created functions to fetch stylesheets and scripts for the front end
+- Moved getSetting, trimWords, and trailingSlash functions to globals.php
+- Created front end scripts directory
+- Created front end styles file
+- Front end init file now loads all required files
+- Fixed a bug in the installation that allowed users to navigate to the login screen before they're supposed to
+- Initialization and functions files are included in the header files of both the front end and admin dashboard
+- Removed PATH constant from config setup (PATH is defined in the initialization file)
+
+Modified files:
+- header.php
+- init.php
+- login.php (N)
+- admin/header.php
+- admin/install.php
+- content/script.js (N)
+- content/style.css (N)
+- includes/class-query.php
+- includes/config-setup.php (M)
+- includes/functions.php
+- includes/globals.php
+- includes/css/buttons.css (M)
+- includes/css/style.css (N)
+
+----------------------------------------------------------------------------------------------------
+Alpha 1.3.2 (2019-03-20)
+
+- Moved change.log to its own directory (includes/logs/)
+
+Modified files:
+- n/a
+
+----------------------------------------------------------------------------------------------------
+Alpha 1.3.1 (2019-03-19)
+
+- Fixed a bug in the setup process that allowed the config.php file to be created without data
+- Fixed a file path issue in functions file
+- Created function that adds a trailing slash to text
+- Cleaned up admin header
+- Code cleanup
+- Created function to populate the users table
+- Created admin stylesheet
+- Added basic styles to the admin area
+
+Modified files:
+- admin/header.php
+- admin/install.php
+- admin/setup.php (M)
+- admin/includes/functions.php
+- admin/includes/style.css (N)
+- includes/config-setup.php (M)
+
+----------------------------------------------------------------------------------------------------
+Alpha 1.3.0 (2019-03-18)
+
+- Created file to initialize the CMS
+- Added __DIR__ to require statements
+- Created file to set up the database connection
+- Created file for config setup
+- Added stylesheet for the setup and install pages
+- Added stylesheet for buttons
+- Created file for installing the CMS
+- Added a variable to test the db connection
+- Added exception handling to Query class constructor
+- Created and tested installation functionality
+- Created function for running generic SQL queries in the Query class
+- Added more documentation
+
+Modified files:
+- header.php (M)
+- index.php (M)
+- init.php (N)
+- admin/install.php (N)
+- admin/setup.php (N)
+- admin/includes/functions.php
+- admin/includes/css/install.css (N)
+- includes/class-query.php
+- includes/config-setup.php (N)
+- includes/debug.php (M)
+- includes/schema.php
+- includes/css/buttons.css (N)
+
+----------------------------------------------------------------------------------------------------
+Alpha 1.2.6 (2019-03-12)
+
+- Created function to construct the database schema
+- Created settings admin page
+
+Modified files:
+- admin/settings.php (N)
+- includes/schema.php (N)
+
+----------------------------------------------------------------------------------------------------
+Alpha 1.2.5 (2019-03-08)
+
+- Added a function to retrieve statistics data
+- Added a function for trimming words from a set of text
+- Added a function for retrieving settings from the database
+- Added a function to construct admin nav items
+
+Modified files:
+- admin/header.php
+- admin/index.php
+- admin/includes/functions.php
+
+----------------------------------------------------------------------------------------------------
+Alpha 1.2.4 (2019-02-26)
+
+- Added function to verify passwords
+- Added function to retrieve user avatar
+- Fixed a small bug that was triggered if a query returns null
+- Added a function to create and display a statistics bar graph
+
+Modified files:
+- admin/includes/class-user.php
+- admin/includes/functions.php
+- includes/class-query.php (M)
+- includes/globals.php (M)
+
+----------------------------------------------------------------------------------------------------
+Alpha 1.2.3 (2019-02-22)
+
+- Added validation for edit user form data
+- Added function to delete users
+- Added reset password form
+- Added validation for reset password form data
+
+Modified files:
+- admin/users.php
+- admin/includes/class-user.php
+
+----------------------------------------------------------------------------------------------------
+Alpha 1.2.2 (2019-02-21)
+
+- Added more documentation
+- Added function to retrieve user metadata
+
+Modified files:
+- admin/includes/class-user.php
+- admin/includes/functions.php (M)
+- includes/class-query.php (M)
+- includes/globals.php (M)
+
+----------------------------------------------------------------------------------------------------
+Alpha 1.2.1 (2019-02-20)
+
+- Added more documentation
+- Created function to list all users in a table
+- Created admin pagination function
+- Created functions for assembling admin tables
+- Created a function to format date strings
+- Created a function to implement admin page navigation
+- Added edit user form
+
+Modified files:
+- admin/users.php
+- admin/includes/class-user.php
+- admin/includes/functions.php
+- includes/class-query.php (M)
+
+----------------------------------------------------------------------------------------------------
+Alpha 1.2.0 (2019-02-19)
+
+- Added CMS copyright and version to admin footer
+- Created file to hold global functions
+- Created function for assembling form tags (works with the form row function)
+- Finished create user form and added validation
+- Created functions for loading admin scripts and stylesheets
+- Added documentation for numerous functions
+
+Modified files:
+- admin/footer.php
+- admin/includes/class-user.php
+- admin/includes/functions.php
+- includes/config.php (M)
+- includes/globals.php (N)
+
+----------------------------------------------------------------------------------------------------
+Alpha 1.1.2 (2019-02-18)
+
+- Created function for assembling form rows
+- Added create user form
+
+Modified files:
+- admin/users.php
+- admin/includes/class-user.php
+- admin/includes/functions.php
+
+----------------------------------------------------------------------------------------------------
+Alpha 1.1.1 (2019-02-11)
+
+- Minor updates to SELECT function
+- Added function to select single rows from the database
+
+Modified files:
+- includes/class-query.php
+
+----------------------------------------------------------------------------------------------------
+Alpha 1.1.0 (2019-02-07)
+
+- Rebuilt functions for SELECT, INSERT, and UPDATE statements
+- Created file for deprecated functions
+- Extended Query class' range to work on back end
+
+Modified files:
+- admin/users.php (N)
+- admin/includes/class-user.php (N)
+- admin/includes/functions.php
+- includes/class-query.php
+- includes/config.php (M)
+- includes/deprecated.php (N)
+- includes/functions.php (M)
+
+----------------------------------------------------------------------------------------------------
+Alpha 1.0.3 (2019-02-04)
+
+- Renamed some functions in Query class
+- Created a function to check for query errors
+- Rebuilt function for DELETE statement
+
+Modified files:
+- includes/class-query.php
+- includes/functions.php (M)
+
+----------------------------------------------------------------------------------------------------
+Alpha 1.0.2 (2019-01-17)
+
+- Created and tested basic functionality for UPDATE statement
+- Created class for retrieving post data
+- Added class autoloading
+- Added basic HTML to header and footer files
+- Created admin directory and basic files
+
+Modified files:
+- footer.php
+- header.php
+- index.php (M)
+- admin/footer.php (N)
+- admin/header.php (N)
+- admin/index.php (N)
+- admin/includes/functions.php (N)
+- includes/class-post.php (N)
+- includes/class-query.php
+- includes/config.php
+- includes/functions.php (M)
+
+----------------------------------------------------------------------------------------------------
+Alpha 1.0.1 (2019-01-15)
+
+- Created changelog for tracking project milestones (change.log will henceforth be ommitted from list of modified files)
+- Created file with basic debugging functions
+- Created and tested basic functionality for query SELECT, INSERT, and DELETE statements
+
+Modified files:
+- change.log (N)
+- includes/class-query.php
+- includes/config.php
+- includes/debug.php (N)
+- includes/functions.php (M)
+
+----------------------------------------------------------------------------------------------------
+Alpha 1.0.0 (2019-01-14)
+
+- Set up database and tables
+- Created most of the necessary core files
+- Created core database connection class
+- Built basic query functionality
+
+Modified files:
+- .htaccess (N)
+- 404.php (N)
+- footer.php (N)
+- header.php (N)
+- index.php (N)
+- page.php (N)
+- robots.txt (N)
+- includes/class-query.php (N)
+- includes/config.php (N)
+- includes/functions.php (N)

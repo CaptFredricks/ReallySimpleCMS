@@ -1,0 +1,22 @@
+/**
+ * Styles for the admin dashboard
+ * @since Alpha 1.3.1
+ */
+*, *::before, *::after {
+	box-sizing: border-box;
+}
+
+html {
+	background-color: #2f2f2f;
+	min-height: 100%;
+}
+
+body {
+	color: #fefefe;
+	font-family: 'Segoe UI', Helvetica, sans-serif;
+	font-size: 100%;
+}
+
+a {
+	color: #b6e0fa;
+}
