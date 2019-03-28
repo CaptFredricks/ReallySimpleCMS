@@ -46,7 +46,8 @@ if(file_exists(PATH.INC.'/config.php')) {
 	if(!defined('SCRIPTS')) define('SCRIPTS', INC.'/js');
 	
 	// Path to the uploads directory
-	if(!defined('UPLOADS')) define('UPLOADS', PATH.'/content/uploads');
+	if(!defined('UPLOADS')) define('UPLOADS', '/content/uploads');
 } else {
+	// Redirect to the setup page
 	header('Location: '.ADMIN.'/setup.php');
 }

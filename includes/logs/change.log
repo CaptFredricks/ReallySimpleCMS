@@ -3,6 +3,17 @@ Legend: N - new file, D - deprecated file, R - removed file, M - minor change
 Versions: X.x.x (major releases), x.X.x (standard releases), x.x.X (minor releases/bug fixes)
 
 ----------------------------------------------------------------------------------------------------
+Alpha 1.3.6 (2019-03-27)
+
+- Added a line of documentation to init.php
+- Removed PATH from UPLOADS filepath
+- Added __DIR__ to admin index.php require statements
+
+Modified files:
+- init.php (M)
+- admin/index.php (M)
+
+----------------------------------------------------------------------------------------------------
 Alpha 1.3.5 (2019-03-26)
 
 - Moved Query object initialization to init.php

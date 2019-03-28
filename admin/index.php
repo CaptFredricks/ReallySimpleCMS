@@ -1,4 +1,4 @@
-<?php require_once 'header.php'; ?>
+<?php require_once __DIR__.'/header.php'; ?>
 
 	<div class="wrapper">
 		<h1>Admin Dashboard</h1>
@@ -13,4 +13,4 @@
 		?>
 	</div>
 
-<?php require_once 'footer.php'; ?>
+<?php require_once __DIR__.'/footer.php'; ?>
