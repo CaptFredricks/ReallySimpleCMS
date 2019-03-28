@@ -1,7 +1,7 @@
 <?php
 /**
  * Admin class used to implement the User object.
- * @since Alpha 1.1.0
+ * @since 1.1.0[a]
  *
  * Users have various privileges on the website not afforded to visitors, depending on their access level.
  * Users can be created, modified, and deleted.
@@ -9,26 +9,27 @@
 class User {
 	/**
 	 * Set minimum username length.
-	 * @since Alpha 1.1.0
+	 * @since 1.1.0[a]
 	 * @var int
 	 */
 	const UN_LENGTH = 4;
 	
 	/**
 	 * Set minimum password length.
-	 * @since Alpha 1.1.0
+	 * @since 1.1.0[a]
 	 * @var int
 	 */
 	const PW_LENGTH = 8;
 	
 	/**
 	 * Construct users table.
-	 * @since Alpha 1.2.1
+	 * @since 1.2.1[a]
 	 *
 	 * @access public
 	 * @return null
 	 */
 	public function listEntries() {
+		// Extend the Query class
 		global $rs_query;
 		
 		$page = isset($_GET['page']) ? paginate($_GET['page']) : paginate();
@@ -68,7 +69,7 @@ class User {
 	
 	/**
 	 * Construct the 'Create User' form.
-	 * @since Alpha 1.1.2
+	 * @since 1.1.2[a]
 	 * @see formRow()
 	 *
 	 * @access public
@@ -96,14 +97,14 @@ class User {
 	
 	/**
 	 * Construct the 'Edit User' form.
-	 * @since Alpha 1.2.1
-	 * @see formRow()
+	 * @since 1.2.1[a]
 	 *
 	 * @access public
 	 * @param int $id
 	 * @return null
 	 */
 	public function editEntry($id) {
+		// Extend the Query class
 		global $rs_query;
 		
 		if(empty($id) || $id <= 0) {
@@ -135,13 +136,14 @@ class User {
 	
 	/**
 	 * Delete a user from the database.
-	 * @since Alpha 1.2.3
+	 * @since 1.2.3[a]
 	 *
 	 * @access public
 	 * @param int $id
 	 * @return null
 	 */
 	public function deleteEntry($id) {
+		// Extend the Query class
 		global $rs_query;
 		
 		if(empty($id) || $id <= 0) {
@@ -156,8 +158,7 @@ class User {
 	
 	/**
 	 * Validate the form data.
-	 * @since Alpha 1.2.0
-	 * @see statusMessage()
+	 * @since 1.2.0[a]
 	 *
 	 * @access private
 	 * @param array $data
@@ -165,6 +166,7 @@ class User {
 	 * @return null|string (null on $id == 0; string on $id != 0)
 	 */
 	private function validateData($data, $id = 0) {
+		// Extend the Query class
 		global $rs_query;
 		
 		if(empty($data['username']) || empty($data['email']))
@@ -209,7 +211,7 @@ class User {
 	
 	/**
 	 * Check if username already exists in the database.
-	 * @since Alpha 1.2.0
+	 * @since 1.2.0[a]
 	 *
 	 * @access private
 	 * @param string $username
@@ -217,6 +219,7 @@ class User {
 	 * @return bool
 	 */
 	private function usernameExists($username, $id = 0) {
+		// Extend the Query class
 		global $rs_query;
 		
 		if($id === 0)
@@ -229,13 +232,14 @@ class User {
 	
 	/**
 	 * Retrieve user metadata.
-	 * @since Alpha 1.2.2
+	 * @since 1.2.2[a]
 	 *
 	 * @access private
 	 * @param int $id
 	 * @return array
 	 */
 	private function getUserMeta($id) {
+		// Extend the Query class
 		global $rs_query;
 		
 		$usermeta = $rs_query->select('usermeta', array('_key', 'value'), array('user'=>$id));
@@ -253,13 +257,14 @@ class User {
 	
 	/**
 	 * Retrieve URL of a user's avatar.
-	 * @since Alpha 1.2.4
+	 * @since 1.2.4[a]
 	 *
 	 * @access private
 	 * @param int $id
 	 * @return string
 	 */
 	private function getAvatar($id) {
+		// Extend the Query class
 		global $rs_query;
 		
 		$meta = $rs_query->selectRow('usermeta', 'value', array('id'=>$id));
@@ -272,7 +277,7 @@ class User {
 	
 	/**
 	 * Construct the 'Reset Password' form.
-	 * @since Alpha 1.2.3
+	 * @since 1.2.3[a]
 	 *
 	 * @access public
 	 * @param int $id
@@ -300,7 +305,7 @@ class User {
 	
 	/**
 	 * Validate the password form data.
-	 * @since Alpha 1.2.3
+	 * @since 1.2.3[a]
 	 *
 	 * @access private
 	 * @param array $data
@@ -308,6 +313,7 @@ class User {
 	 * @return
 	 */
 	private function validatePasswordData($data, $id = 0) {
+		// Extend the Query class
 		global $rs_query;
 		
 		if(empty($data['new_pass']) || empty($data['confirm_pass']))
@@ -348,7 +354,7 @@ class User {
 	
 	/**
 	 * Verify that the current user's password matches what's in the database.
-	 * @since Alpha 1.2.4
+	 * @since 1.2.4[a]
 	 *
 	 * @access private
 	 * @param array $session_data
@@ -356,6 +362,7 @@ class User {
 	 * @return bool
 	 */
 	private function verifyPassword($session_data, $password) {
+		// Extend the Query class
 		global $rs_query;
 		
 		$user = $rs_query->selectRow('users', 'password', array('id'=>$session_data['id'], 'session'=>$session_data['session']));

@@ -1,9 +1,35 @@
 ----------------------------------------------------------------------------------------------------
 Legend: N - new file, D - deprecated file, R - removed file, M - minor change
 Versions: X.x.x (major releases), x.X.x (standard releases), x.x.X (minor releases/bug fixes)
+Other: [a] - alpha, [b] - beta
 
 ----------------------------------------------------------------------------------------------------
-Alpha 1.3.6 (2019-03-27)
+Version 1.3.7[a] (2019-03-28)
+
+- Added and updated documentation in various places
+- Cleaned up some admin files
+- Created Settings admin class
+- Version numbers will now be denoted as "Version <version><[a/b]>" or "@since <version><[a/b]>"
+- Added 'maxlength' attribute to input tag in formTag function
+- Added '*' attribute to input tag in formTag function (this is for miscellaneous attributes like 'readonly' or 'checked')
+- Allowed 0 to be passed as a legitimate value to an input
+- Fixed a bug in the formRow function that prevented adding a label to a single input argument
+- Initialization now terminates if database is not installed (prevents an error from generating in error_log)
+- A sample page will now be created on installation (it is set as the default home page)
+
+Modified files:
+- index.php
+- init.php (M)
+- admin/index.php
+- admin/install.php
+- admin/settings.php
+- admin/users.php
+- admin/includes/class-settings.php (N)
+- admin/includes/class-user.php
+- admin/includes/functions.php
+
+----------------------------------------------------------------------------------------------------
+Version 1.3.6[a] (2019-03-27)
 
 - Added a line of documentation to init.php
 - Removed PATH from UPLOADS filepath
@@ -14,7 +40,7 @@ Modified files:
 - admin/index.php (M)
 
 ----------------------------------------------------------------------------------------------------
-Alpha 1.3.5 (2019-03-26)
+Version 1.3.5[a] (2019-03-26)
 
 - Moved Query object initialization to init.php
 - Added config.php to .gitignore (prevents issues arising with db configs on different clients)
@@ -39,7 +65,7 @@ Modified files:
 - includes/css/style.css
 
 ----------------------------------------------------------------------------------------------------
-Alpha 1.3.4 (2019-03-24)
+Version 1.3.4[a] (2019-03-24)
 
 - Created LICENSE and README files
 - Created .gitignore file (added LICENSE and todo.txt)
@@ -50,7 +76,7 @@ Modified files:
 - README.md (N)
 
 ----------------------------------------------------------------------------------------------------
-Alpha 1.3.3 (2019-03-22)
+Version 1.3.3[a] (2019-03-22)
 
 - Created content directory
 - Created CSS and JS files in content directory for later use
@@ -84,7 +110,7 @@ Modified files:
 - includes/css/style.css (N)
 
 ----------------------------------------------------------------------------------------------------
-Alpha 1.3.2 (2019-03-20)
+Version 1.3.2[a] (2019-03-20)
 
 - Moved change.log to its own directory (includes/logs/)
 
@@ -92,7 +118,7 @@ Modified files:
 - n/a
 
 ----------------------------------------------------------------------------------------------------
-Alpha 1.3.1 (2019-03-19)
+Version 1.3.1[a] (2019-03-19)
 
 - Fixed a bug in the setup process that allowed the config.php file to be created without data
 - Fixed a file path issue in functions file
@@ -112,7 +138,7 @@ Modified files:
 - includes/config-setup.php (M)
 
 ----------------------------------------------------------------------------------------------------
-Alpha 1.3.0 (2019-03-18)
+Version 1.3.0[a] (2019-03-18)
 
 - Created file to initialize the CMS
 - Added __DIR__ to require statements
@@ -142,7 +168,7 @@ Modified files:
 - includes/css/buttons.css (N)
 
 ----------------------------------------------------------------------------------------------------
-Alpha 1.2.6 (2019-03-12)
+Version 1.2.6[a] (2019-03-12)
 
 - Created function to construct the database schema
 - Created settings admin page
@@ -152,7 +178,7 @@ Modified files:
 - includes/schema.php (N)
 
 ----------------------------------------------------------------------------------------------------
-Alpha 1.2.5 (2019-03-08)
+Version 1.2.5[a] (2019-03-08)
 
 - Added a function to retrieve statistics data
 - Added a function for trimming words from a set of text
@@ -165,7 +191,7 @@ Modified files:
 - admin/includes/functions.php
 
 ----------------------------------------------------------------------------------------------------
-Alpha 1.2.4 (2019-02-26)
+Version 1.2.4[a] (2019-02-26)
 
 - Added function to verify passwords
 - Added function to retrieve user avatar
@@ -179,7 +205,7 @@ Modified files:
 - includes/globals.php (M)
 
 ----------------------------------------------------------------------------------------------------
-Alpha 1.2.3 (2019-02-22)
+Version 1.2.3[a] (2019-02-22)
 
 - Added validation for edit user form data
 - Added function to delete users
@@ -191,7 +217,7 @@ Modified files:
 - admin/includes/class-user.php
 
 ----------------------------------------------------------------------------------------------------
-Alpha 1.2.2 (2019-02-21)
+Version 1.2.2[a] (2019-02-21)
 
 - Added more documentation
 - Added function to retrieve user metadata
@@ -203,7 +229,7 @@ Modified files:
 - includes/globals.php (M)
 
 ----------------------------------------------------------------------------------------------------
-Alpha 1.2.1 (2019-02-20)
+Version 1.2.1[a] (2019-02-20)
 
 - Added more documentation
 - Created function to list all users in a table
@@ -220,7 +246,7 @@ Modified files:
 - includes/class-query.php (M)
 
 ----------------------------------------------------------------------------------------------------
-Alpha 1.2.0 (2019-02-19)
+Version 1.2.0[a] (2019-02-19)
 
 - Added CMS copyright and version to admin footer
 - Created file to hold global functions
@@ -237,7 +263,7 @@ Modified files:
 - includes/globals.php (N)
 
 ----------------------------------------------------------------------------------------------------
-Alpha 1.1.2 (2019-02-18)
+Version 1.1.2[a] (2019-02-18)
 
 - Created function for assembling form rows
 - Added create user form
@@ -248,7 +274,7 @@ Modified files:
 - admin/includes/functions.php
 
 ----------------------------------------------------------------------------------------------------
-Alpha 1.1.1 (2019-02-11)
+Version 1.1.1[a] (2019-02-11)
 
 - Minor updates to SELECT function
 - Added function to select single rows from the database
@@ -257,7 +283,7 @@ Modified files:
 - includes/class-query.php
 
 ----------------------------------------------------------------------------------------------------
-Alpha 1.1.0 (2019-02-07)
+Version 1.1.0[a] (2019-02-07)
 
 - Rebuilt functions for SELECT, INSERT, and UPDATE statements
 - Created file for deprecated functions
@@ -273,7 +299,7 @@ Modified files:
 - includes/functions.php (M)
 
 ----------------------------------------------------------------------------------------------------
-Alpha 1.0.3 (2019-02-04)
+Version 1.0.3[a] (2019-02-04)
 
 - Renamed some functions in Query class
 - Created a function to check for query errors
@@ -284,7 +310,7 @@ Modified files:
 - includes/functions.php (M)
 
 ----------------------------------------------------------------------------------------------------
-Alpha 1.0.2 (2019-01-17)
+Version 1.0.2[a] (2019-01-17)
 
 - Created and tested basic functionality for UPDATE statement
 - Created class for retrieving post data
@@ -306,7 +332,7 @@ Modified files:
 - includes/functions.php (M)
 
 ----------------------------------------------------------------------------------------------------
-Alpha 1.0.1 (2019-01-15)
+Version 1.0.1[a] (2019-01-15)
 
 - Created changelog for tracking project milestones (change.log will henceforth be ommitted from list of modified files)
 - Created file with basic debugging functions
@@ -320,7 +346,7 @@ Modified files:
 - includes/functions.php (M)
 
 ----------------------------------------------------------------------------------------------------
-Alpha 1.0.0 (2019-01-14)
+Version 1.0.0[a] (2019-01-14)
 
 - Set up database and tables
 - Created most of the necessary core files

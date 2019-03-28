@@ -1,7 +1,7 @@
 <?php
 /**
  * Install the ReallySimpleCMS.
- * @since Alpha 1.3.0
+ * @since 1.3.0[a]
  */
 
 // Absolute path to the root directory
@@ -57,7 +57,7 @@ $step = intval($_GET['step'] ?? 1);
 
 /**
  * Run the installation.
- * @since Alpha 1.3.0
+ * @since 1.3.0[a]
  *
  * @param array $data
  */
@@ -74,17 +74,20 @@ function runInstall($data) {
 	foreach($tables as $table)
 		$rs_query->doQuery($table);
 	
-	// Get the settings data
-	$settings = array('site_title'=>$data['site_title'], 'admin_email'=>$data['admin_email'], 'do_robots'=>$data['do_robots']);
-	
-	// Populate the settings table
-	populateSettings($settings);
-	
 	// Get the user data
 	$user = array('username'=>$data['username'], 'password'=>$data['password'], 'email'=>$data['admin_email']);
 	
 	// Populate the users table
-	populateUsers($user);
+	$author = populateUsers($user);
+	
+	// Populate the posts table
+	$home_page = populatePosts($author);
+	
+	// Get the settings data
+	$settings = array('site_title'=>$data['site_title'], 'admin_email'=>$data['admin_email'], 'home_page'=>$home_page, 'do_robots'=>$data['do_robots']);
+	
+	// Populate the settings table
+	populateSettings($settings);
 }
 ?>
 <!DOCTYPE html>
@@ -103,7 +106,7 @@ function runInstall($data) {
 <?php
 /**
  * Display the installation form.
- * @since Alpha 1.3.0
+ * @since 1.3.0[a]
  *
  * @param string $error (optional; default: null)
  * @return null

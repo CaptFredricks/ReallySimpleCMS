@@ -1,7 +1,7 @@
 <?php
 /**
  * Initialize the CMS.
- * @since Alpha 1.3.0
+ * @since 1.3.0[a]
  */
 
 // Absolute path to the root directory
@@ -33,7 +33,10 @@ if(file_exists(PATH.INC.'/config.php')) {
 		$data = $rs_query->showTables();
 		
 		// Redirect to the install page if there are no tables
-		if(empty($data)) header('Location: '.ADMIN.'/install.php');
+		if(empty($data)) {
+			header('Location: '.ADMIN.'/install.php');
+			exit;
+		}
 	}
 	
 	// Include global functions

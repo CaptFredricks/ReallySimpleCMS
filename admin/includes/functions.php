@@ -1,7 +1,7 @@
 <?php
 /**
  * Administrative functions.
- * @since Alpha 1.0.2
+ * @since 1.0.2[a]
  */
 
 // Path to the admin stylesheets directory
@@ -17,7 +17,7 @@ spl_autoload_register(function($class_name) {
 
 /**
  * Fetch an admin stylesheet.
- * @since Alpha 1.2.0
+ * @since 1.2.0[a]
  *
  * @param string $stylesheet
  * @param bool $echo (optional; default: true)
@@ -32,7 +32,7 @@ function getAdminStylesheet($stylesheet, $echo = true) {
 
 /**
  * Fetch an admin script.
- * @since Alpha 1.2.0
+ * @since 1.2.0[a]
  *
  * @param string $script
  * @param bool $echo (optional; default: true)
@@ -47,7 +47,7 @@ function getAdminScript($script, $echo = true) {
 
 /**
  * Construct a status message.
- * @since Alpha 1.2.0
+ * @since 1.2.0[a]
  *
  * @param string $text
  * @param bool $success (optional; default: false)
@@ -73,31 +73,14 @@ function statusMessage($text, $success = false) {
 }
 
 /**
- * Populate the settings table.
- * @since Alpha 1.3.0
- *
- * @param array $data
- * @return null
- */
-function populateSettings($data) {
-	global $rs_query;
-	
-	// Settings
-	$settings = array('site_title'=>$data['site_title'], 'description'=>'', 'site_url'=>'', 'admin_email'=>$data['admin_email'], 'default_user_role'=>'', 'home_page'=>'', 'do_robots'=>$data['do_robots']);
-	
-	// Create the settings
-	foreach($settings as $name=>$value)
-		$rs_query->insert('settings', array('name'=>$name, 'value'=>$value));
-}
-
-/**
  * Populate the users table.
- * @since Alpha 1.3.1
+ * @since 1.3.1[a]
  *
  * @param array $data
  * @return null
  */
 function populateUsers($data) {
+	// Extend the Query class
 	global $rs_query;
 	
 	// Encrypt password
@@ -112,11 +95,58 @@ function populateUsers($data) {
 	// Create user metadata
 	foreach($usermeta as $key=>$value)
 		$rs_query->insert('usermeta', array('user'=>$user, '_key'=>$key, 'value'=>$value));
+	
+	// Return the user id (for posts table)
+	return $user;
+}
+
+/**
+ * Populate the posts table.
+ * @since 1.3.7[a]
+ *
+ * @param int $author
+ * @return null
+ */
+function populatePosts($author) {
+	// Extend the Query class
+	global $rs_query;
+	
+	// Create sample page
+	$post = $rs_query->insert('posts', array('title'=>'Sample Page', 'author'=>$author, 'date'=>'NOW()', 'content'=>'This is just a sample page to get you started.', 'status'=>'published', 'slug'=>'sample', 'type'=>'page'));
+	
+	// Metadata
+	$postmeta = array('title'=>'Sample Page', 'slug'=>'sample', 'description'=>'Just a simple meta description for your sample page.');
+	
+	// Create post metadata
+	foreach($postmeta as $key=>$value)
+		$rs_query->insert('postmeta', array('post'=>$post, '_key'=>$key, 'value'=>$value));
+	
+	// Return the post id (for settings table)
+	return $post;
+}
+
+/**
+ * Populate the settings table.
+ * @since 1.3.0[a]
+ *
+ * @param array $data
+ * @return null
+ */
+function populateSettings($data) {
+	// Extend the Query class
+	global $rs_query;
+	
+	// Settings
+	$settings = array('site_title'=>$data['site_title'], 'description'=>'', 'site_url'=>'', 'admin_email'=>$data['admin_email'], 'default_user_role'=>'', 'home_page'=>$data['home_page'], 'do_robots'=>$data['do_robots']);
+	
+	// Create the settings
+	foreach($settings as $name=>$value)
+		$rs_query->insert('settings', array('name'=>$name, 'value'=>$value));
 }
 
 /**
  * Create a nav item for the admin navigation.
- * @since Alpha 1.2.5
+ * @since 1.2.5[a]
  *
  * @param string $caption (optional; default: 'Nav Item')
  * @param string $link (optional; default: '')
@@ -144,7 +174,7 @@ function adminNavItem($caption = 'Nav Item', $link = '', $subnav = '') {
 
 /**
  * Get statistics for a specific set of table entries.
- * @since Alpha 1.2.5
+ * @since 1.2.5[a]
  *
  * @param string $table
  * @param string $field (optional; default: '')
@@ -152,6 +182,7 @@ function adminNavItem($caption = 'Nav Item', $link = '', $subnav = '') {
  * @return int
  */
 function getStatistics($table, $field = '', $value = '') {
+	// Extend the Query class
 	global $rs_query;
 	
 	if(empty($field) || empty($value))
@@ -162,13 +193,13 @@ function getStatistics($table, $field = '', $value = '') {
 
 /**
  * Create and display a bar graph of site statistics.
- * @since Alpha 1.2.4
+ * @since 1.2.4[a]
  *
  * @param array $bars
  * @return null
  */
 function statsBarGraph($bars) {
-	//if(!is_countable($bars)) return;  Requires PHP 7.3
+	//if(!is_countable($bars)) return;  <-- Requires PHP 7.3
 	
 	$stats = $links = array();
 	
@@ -222,7 +253,7 @@ function statsBarGraph($bars) {
 
 /**
  * Enable pagination.
- * @since Alpha 1.2.1
+ * @since 1.2.1[a]
  *
  * @param int $current (optional; default: 1)
  * @param int $per_page (optional; default: 20)
@@ -242,7 +273,7 @@ function paginate($current = 1, $per_page = 20) {
 
 /**
  * Construct pager navigation.
- * @since Alpha 1.2.1
+ * @since 1.2.1[a]
  *
  * @param int $current
  * @param int $page_count
@@ -254,7 +285,7 @@ function pagerNav($current, $page_count) {
 
 /**
  * Construct a table header row.
- * @since Alpha 1.2.1
+ * @since 1.2.1[a]
  *
  * @param array $items
  * @return string
@@ -270,7 +301,7 @@ function tableHeaderRow($items) {
 
 /**
  * Construct a table cell.
- * @since Alpha 1.2.1
+ * @since 1.2.1[a]
  *
  * @param string $data
  * @param string $class (optional; default: '')
@@ -282,7 +313,7 @@ function tableCell($data, $class = '') {
 
 /**
  * Construct a form HTML tag.
- * @since Alpha 1.2.0
+ * @since 1.2.0[a]
  *
  * @param array $args
  * @return string
@@ -290,24 +321,31 @@ function tableCell($data, $class = '') {
 function formTag($args) {
 	switch($args['tag']) {
 		case 'input':
-			$tag = '<input type="'.($args['type'] ?? 'text').'"'.(!empty($args['id']) ? ' id="'.$args['id'].'"' : '').(!empty($args['class']) ? ' class="'.$args['class'].'"' : '').(!empty($args['name']) ? ' name="'.$args['name'].'"' : '').(!empty($args['value']) ? ' value="'.$args['value'].'"' : '').'>';
+			// Construct an input tag
+			$tag = '<input type="'.($args['type'] ?? 'text').'"'.(!empty($args['id']) ? ' id="'.$args['id'].'"' : '').(!empty($args['class']) ? ' class="'.$args['class'].'"' : '').(!empty($args['name']) ? ' name="'.$args['name'].'"' : '').(!empty($args['maxlength']) ? ' maxlength="'.$args['maxlength'].'"' : '').(!empty($args['value']) || (isset($args['value']) && $args['value'] == 0) ? ' value="'.$args['value'].'"' : '').(!empty($args['*']) ? $args['*'] : '').'>';
 			break;
 		case 'select':
+			// Construct a select tag
 			$tag = '<select'.(!empty($args['class']) ? ' class="'.$args['class'].'"' : '').(!empty($args['name']) ? ' name="'.$args['name'].'"' : '').'>'.$args['content'].'</select>';
 			break;
 		case 'textarea':
+			// Construct a textarea tag
 			$tag = '<textarea'.(!empty($args['class']) ? ' class="'.$args['class'].'"' : '').(!empty($args['name']) ? ' name="'.$args['name'].'"' : '').(!empty($args['cols']) ? ' cols="'.$args['cols'].'"' : '').(!empty($args['rows']) ? ' rows="'.$args['rows'].'"' : '').'>'.$args['value'].'</textarea>';
 			break;
 		case 'img':
+			// Construct an img tag
 			$tag = '<img'.(!empty($args['src']) ? ' src="'.$args['src'].'"' : '').(!empty($args['width']) ? ' width="'.$args['width'].'"' : '').'>';
 			break;
 		case 'hr':
+			// Construct an hr tag
 			$tag = '<hr'.(!empty($args['class']) ? ' class="'.$args['class'].'"' : '').'>';
 			break;
 		case 'br':
+			// Construct a br tag
 			$tag = '<br'.(!empty($args['class']) ? ' class="'.$args['class'].'"' : '').'>';
 			break;
 		default:
+			// Don't construct a tag
 			$tag = '';
 	}
 	
@@ -322,15 +360,16 @@ function formTag($args) {
 
 /**
  * Construct a form row.
- * @since Alpha 1.1.2
+ * @since 1.1.2[a]
  *
  * @param string|array $label (optional; default: '')
  * @param array $args (optional; unlimited)
  * @return string
  */
 function formRow($label = '', ...$args) {
-	if(count($args) !== count($args, COUNT_RECURSIVE) && count($args) === 1)
-		$args = array_merge(...$args);
+	// Breaks formTag if only one arg is supplied with a label
+	//if(count($args) !== count($args, COUNT_RECURSIVE) && count($args) === 1)
+		//$args = array_merge(...$args);
 	
 	if(!empty($label)) {
 		if(is_array($label)) {
@@ -371,7 +410,7 @@ function formRow($label = '', ...$args) {
 
 /**
  * Format a date string.
- * @since Alpha 1.2.1
+ * @since 1.2.1[a]
  *
  * @param string $date
  * @param string $format (optional; default: 'Y-m-d H:i:s')
@@ -383,7 +422,7 @@ function formatDate($date, $format = 'Y-m-d H:i:s') {
 
 /**
  * Generate a random password.
- * @since Alpha 1.3.0
+ * @since 1.3.0[a]
  *
  * @param int $length (optional; default: 15)
  * @param bool $special_chars (optional; default: true)
