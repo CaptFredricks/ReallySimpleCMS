@@ -4,6 +4,25 @@ Versions: X.x.x (major releases), x.X.x (standard releases), x.x.X (minor releas
 Other: [a] - alpha, [b] - beta
 
 ----------------------------------------------------------------------------------------------------
+Version 1.3.8[a] (2019-03-29)
+
+- Robots.txt is now created on install (added it to .gitignore)
+- Replaced "\n" with chr(10) in the logError function
+- Added error_log to .gitignore (home and admin directories)
+- Robots.txt is updated if the 'do_robots' setting is changed
+- The intval function will now be removed in favor of (int) type casting
+- Added and updated more documentation
+- Removed LICENSE.md from .gitignore
+
+Modified files:
+- .gitignore
+- admin/install.php
+- admin/setup.php
+- admin/includes/class-settings.php
+- includes/debug.php (M)
+- includes/globals.php
+
+----------------------------------------------------------------------------------------------------
 Version 1.3.7[a] (2019-03-28)
 
 - Added and updated documentation in various places
@@ -16,6 +35,7 @@ Version 1.3.7[a] (2019-03-28)
 - Fixed a bug in the formRow function that prevented adding a label to a single input argument
 - Initialization now terminates if database is not installed (prevents an error from generating in error_log)
 - A sample page will now be created on installation (it is set as the default home page)
+- Cleaned up change.log a bit (mostly rewording and adding a few things that had been ommitted)
 
 Modified files:
 - index.php
@@ -87,7 +107,6 @@ Version 1.3.3[a] (2019-03-22)
 - Buttons now have the cursor hand if hovered over
 - Created functions to fetch stylesheets and scripts for the front end
 - Moved getSetting, trimWords, and trailingSlash functions to globals.php
-- Created front end scripts directory
 - Created front end styles file
 - Front end init file now loads all required files
 - Fixed a bug in the installation that allowed users to navigate to the login screen before they're supposed to
@@ -122,10 +141,10 @@ Version 1.3.1[a] (2019-03-19)
 
 - Fixed a bug in the setup process that allowed the config.php file to be created without data
 - Fixed a file path issue in functions file
-- Created function that adds a trailing slash to text
-- Cleaned up admin header
+- Created a function that adds a trailing slash to text
+- Cleaned up the admin header
 - Code cleanup
-- Created function to populate the users table
+- Created a function to populate the users table
 - Created admin stylesheet
 - Added basic styles to the admin area
 
@@ -134,7 +153,7 @@ Modified files:
 - admin/install.php
 - admin/setup.php (M)
 - admin/includes/functions.php
-- admin/includes/style.css (N)
+- admin/includes/css/style.css (N)
 - includes/config-setup.php (M)
 
 ----------------------------------------------------------------------------------------------------
@@ -170,7 +189,7 @@ Modified files:
 ----------------------------------------------------------------------------------------------------
 Version 1.2.6[a] (2019-03-12)
 
-- Created function to construct the database schema
+- Created a function to construct the database schema
 - Created settings admin page
 
 Modified files:
@@ -180,10 +199,10 @@ Modified files:
 ----------------------------------------------------------------------------------------------------
 Version 1.2.5[a] (2019-03-08)
 
-- Added a function to retrieve statistics data
-- Added a function for trimming words from a set of text
-- Added a function for retrieving settings from the database
-- Added a function to construct admin nav items
+- Created a function to retrieve statistics data
+- Created a function for trimming words from a set of text
+- Created a function for retrieving settings from the database
+- Created a function to construct admin nav items
 
 Modified files:
 - admin/header.php
@@ -193,10 +212,10 @@ Modified files:
 ----------------------------------------------------------------------------------------------------
 Version 1.2.4[a] (2019-02-26)
 
-- Added function to verify passwords
-- Added function to retrieve user avatar
+- Created function to verify passwords
+- Created function to retrieve user avatar
 - Fixed a small bug that was triggered if a query returns null
-- Added a function to create and display a statistics bar graph
+- Created a function to create and display a statistics bar graph
 
 Modified files:
 - admin/includes/class-user.php
@@ -208,7 +227,7 @@ Modified files:
 Version 1.2.3[a] (2019-02-22)
 
 - Added validation for edit user form data
-- Added function to delete users
+- Created a function to delete users
 - Added reset password form
 - Added validation for reset password form data
 
@@ -220,7 +239,7 @@ Modified files:
 Version 1.2.2[a] (2019-02-21)
 
 - Added more documentation
-- Added function to retrieve user metadata
+- Created a function to retrieve user metadata
 
 Modified files:
 - admin/includes/class-user.php
@@ -232,7 +251,7 @@ Modified files:
 Version 1.2.1[a] (2019-02-20)
 
 - Added more documentation
-- Created function to list all users in a table
+- Created a function to list all users in a table
 - Created admin pagination function
 - Created functions for assembling admin tables
 - Created a function to format date strings
@@ -248,9 +267,9 @@ Modified files:
 ----------------------------------------------------------------------------------------------------
 Version 1.2.0[a] (2019-02-19)
 
-- Added CMS copyright and version to admin footer
-- Created file to hold global functions
-- Created function for assembling form tags (works with the form row function)
+- Added ReallySimpleCMS copyright and version to admin footer
+- Created a file to hold global functions
+- Created a function for assembling form tags (works with the formRow function)
 - Finished create user form and added validation
 - Created functions for loading admin scripts and stylesheets
 - Added documentation for numerous functions
@@ -286,8 +305,9 @@ Modified files:
 Version 1.1.0[a] (2019-02-07)
 
 - Rebuilt functions for SELECT, INSERT, and UPDATE statements
-- Created file for deprecated functions
+- Created file to store deprecated functions (for potential future use)
 - Extended Query class' range to work on back end
+- Created admin users page
 
 Modified files:
 - admin/users.php (N)
@@ -350,6 +370,7 @@ Version 1.0.0[a] (2019-01-14)
 
 - Set up database and tables
 - Created most of the necessary core files
+- Created includes directory
 - Created core database connection class
 - Built basic query functionality
 

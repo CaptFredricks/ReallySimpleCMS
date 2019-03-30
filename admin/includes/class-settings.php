@@ -77,9 +77,32 @@ class Settings {
 		// Set the value of 'do_robots'
 		$data['do_robots'] = isset($data['do_robots']) ? 0 : 1;
 		
+		// Fetch current value of 'do_robots' in the database
+		$db_data = $rs_query->selectRow('settings', 'value', array('name'=>'do_robots'));
+		
 		// Update the settings in the database
 		foreach($data as $name=>$value)
 			$rs_query->update('settings', array('value'=>$value), array('name'=>$name));
+		
+		// File path for robots.txt
+		$file_path = PATH.'/robots.txt';
+		
+		// Fetch the robots.txt file
+		$file = file($file_path, FILE_IGNORE_NEW_LINES);
+		
+		// Check whether 'do_robots' has changed
+		if($data['do_robots'] !== (int)$db_data['value']) {
+			if($data['do_robots'] === 0) {
+				// Block robots from crawling the site
+				$file[1] = 'Disallow: /';
+			} else {
+				// Allow crawling to all directories except for /admin/
+				$file[1] = 'Disallow: /admin/';
+			}
+			
+			// Output changes to the file
+			file_put_contents($file_path, implode(chr(10), $file));
+		}
 		
 		// Return a success message
 		return statusMessage('Settings updated!', 1);

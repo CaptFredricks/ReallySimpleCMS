@@ -1,7 +1,7 @@
 <?php
 /**
  * Set up the ReallySimpleCMS.
- * @since Alpha 1.3.0
+ * @since 1.3.0[a]
  */
 
 // Absolute path to the root directory
@@ -100,6 +100,7 @@ switch($step) {
 		// Create a Query object
 		$rs_query = new Query;
 		
+		// Stop execution if the database connection can't be established
 		if(!$rs_query->conn_status) {
 			?>
 			<p><strong>Error!</strong> ReallySimpleCMS could not connect to the database. Please return to the previous page and make sure all the provided information is correct.</p>
@@ -108,7 +109,9 @@ switch($step) {
 			exit;
 		}
 		
+		// Loop through the file
 		foreach($config_file as $line_num=>$line) {
+			// Skip over unmatched lines
 			if(!preg_match('/^define\(\s*\'([A-Z_]+)\'/', $line, $match)) continue;
 			
 			// Matched constant names
@@ -118,15 +121,19 @@ switch($step) {
 			$config_file[$line_num] = "define('".$constant."', '".addcslashes(constant($constant), "\\'")."');\r\n";
 		}
 		
+		// Destroy the line variable
 		unset($line);
 		
+		// Make sure the home directory can be written to
 		if(!is_writable(PATH)) {
 			?>
 			<p><strong>Error!</strong> The <code>config.php</code> file cannot be created. Write permissions may be disabled on your server.</p>
 			<p>If that's the case, just copy the code below and create <code>config.php</code> in the <code>includes</code> directory of ReallySimpleCMS.</p>
 			<?php
+			// Create an empty text
 			$text = '';
 			
+			// Loop through the file
 			foreach($config_file as $line)
 				$text .= htmlentities($line, ENT_COMPAT, 'UTF-8');
 			?>

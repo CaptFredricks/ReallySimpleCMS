@@ -88,6 +88,33 @@ function runInstall($data) {
 	
 	// Populate the settings table
 	populateSettings($settings);
+	
+	// Make sure that the home directory can be written to
+	if(is_writable(PATH)) {
+		// File path for robots.txt
+		$file_path = PATH.'/robots.txt';
+		
+		// Open file stream
+		$handle = fopen($file_path, 'w');
+		
+		// Address all user-agents (robots)
+		fwrite($handle, 'User-agent: *'.chr(10));
+		
+		// Check whether robots are being blocked
+		if((int)$data['do_robots'] === 0) {
+			// Block robots from crawling the site
+			fwrite($handle, 'Disallow: /');
+		} else {
+			// Allow crawling to all directories except for /admin/
+			fwrite($handle, 'Disallow: /admin/');
+		}
+		
+		// Close the file
+		fclose($handle);
+		
+		// Set file permissions
+		chmod($file_path, 0666);
+	}
 }
 ?>
 <!DOCTYPE html>

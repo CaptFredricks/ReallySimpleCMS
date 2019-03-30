@@ -1,15 +1,15 @@
 <?php
 /**
  * Global functions (front end and back end accessible).
- * @since Alpha 1.2.0
+ * @since 1.2.0[a]
  */
 
 // Current CMS version
-const VERSION = 'Version 1.3.3 (&alpha;)';
+const VERSION = 'Version 1.3.8 (&alpha;)';
 
 /**
  * Display copyright on the admin dashboard.
- * @since Alpha 1.2.0
+ * @since 1.2.0[a]
  *
  * @param bool $echo (optional; default: true)
  * @return null|string (null on $echo == true; string on $echo == false)
@@ -25,7 +25,7 @@ function RSCopyright($echo = true) {
 
 /**
  * Display CMS version on the admin dashboard.
- * @since Alpha 1.2.0
+ * @since 1.2.0[a]
  *
  * @param bool $echo (optional; default: true)
  * @return null|string (null on $echo == true; string on $echo == false)
@@ -39,7 +39,7 @@ function RSVersion($echo = true) {
 
 /**
  * Retrieve a setting from the database.
- * @since Alpha 1.2.5
+ * @since 1.2.5[a]
  *
  * @param string $name
  * @param bool $echo (optional; default: true)
@@ -58,7 +58,7 @@ function getSetting($name, $echo = true) {
 
 /**
  * Trim text down to a certain number of words.
- * @since Alpha 1.2.5
+ * @since 1.2.5[a]
  *
  * @param string $text
  * @param int $num_words (optional; default: 50)
@@ -82,7 +82,7 @@ function trimWords($text, $num_words = 50, $more = '') {
 
 /**
  * Add a trailing slash to a string.
- * @since Alpha 1.3.1
+ * @since 1.3.1[a]
  *
  * @param string $text
  * @return string

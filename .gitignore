@@ -1,3 +1,5 @@
-LICENSE.md
+error_log
+robots.txt
 todo.txt
+admin/error_log
 includes/config.php
