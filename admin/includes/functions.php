@@ -300,6 +300,18 @@ function tableHeaderRow($items) {
 }
 
 /**
+ * Construct a table row.
+ * @since 1.4.0[a]
+ *
+ * @param array $cells (optional; unlimited)
+ * @return string
+ */
+function tableRow(...$cells) {
+	// Return the table row (at least one cell must be provided)
+	if(!empty($cells)) return '<tr>'.implode('', $cells).'</tr>';
+}
+
+/**
  * Construct a table cell.
  * @since 1.2.1[a]
  *
@@ -308,6 +320,7 @@ function tableHeaderRow($items) {
  * @return string
  */
 function tableCell($data, $class = '') {
+	// Return the table cell
 	return '<td'.(!empty($class) ? ' class="'.$class.'"' : '').'>'.$data.'</td>';
 }
 
@@ -447,4 +460,18 @@ function generatePassword($length = 15, $special_chars = true, $extra_special_ch
 		$password .= substr($chars, rand(0, strlen($chars) - 1), 1);
 	
 	return $password;
+}
+
+// For PHP < 7.3 compatibility
+if(!function_exists('array_key_last')) {
+	function array_key_last($array) {
+		$key = null;
+
+		if(is_array($array)) {
+			end($array);
+			$key = key($array);
+		}
+
+		return $key;
+	}
 }

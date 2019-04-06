@@ -124,7 +124,7 @@ class Settings {
 		$list = '';
 		
 		// Fetch the pages from the database
-		$pages = $rs_query->select('posts', array('id', 'title'), array('type'=>'page'));
+		$pages = $rs_query->select('posts', array('id', 'title'), array('status'=>'published', 'type'=>'page'));
 		
 		// Add the pages to the list
 		foreach($pages as $page)

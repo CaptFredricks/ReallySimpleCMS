@@ -13,6 +13,7 @@ require_once PATH.ADMIN.INC.'/functions.php';
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="robots" content="noindex, nofollow">
 		<meta name="theme-color" content="#e0e0e0">
+		<?php getStylesheet('buttons.css'); ?>
 		<?php getAdminStylesheet('style.css'); ?>
 	</head>
 	<body>
@@ -23,8 +24,8 @@ require_once PATH.ADMIN.INC.'/functions.php';
 			<ul class="nav">
 				<?php
 				adminNavItem('Dashboard', 'index.php');
-				adminNavItem('Pages', '', array(array('List Pages', 'Create Page'), array()));
-				adminNavItem('Posts', '', array(array('List Posts', 'Create Post'), array()));
+				adminNavItem('Pages', '', array(array('List Pages', 'Create Page'), array('posts.php?type=page', 'posts.php?type=page&action=create')));
+				adminNavItem('Posts', '', array(array('List Posts', 'Create Post'), array('posts.php', 'posts.php?action=create')));
 				adminNavItem('Media', '', array(array('List Media', 'Upload Media'), array()));
 				adminNavItem('Navigation', '', array(array('', ''), array()));
 				adminNavItem('Widgets', '', array(array('List Widgets', 'Create Widget'), array()));

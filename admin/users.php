@@ -11,7 +11,7 @@ $rs_user = new User;
 	$action = $_GET['action'] ?? '';
 	
 	// Get the user id
-	$id = intval($_GET['id'] ?? 0);
+	$id = (int)($_GET['id'] ?? 0);
 	
 	switch($action) {
 		case 'create':
@@ -39,4 +39,3 @@ $rs_user = new User;
 <?php
 // Include footer
 require_once __DIR__.'/footer.php';
-?>

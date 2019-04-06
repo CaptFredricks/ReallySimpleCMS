@@ -8,21 +8,21 @@
  */
 class User {
 	/**
-	 * Set minimum username length.
+	 * Set the minimum username length.
 	 * @since 1.1.0[a]
 	 * @var int
 	 */
 	const UN_LENGTH = 4;
 	
 	/**
-	 * Set minimum password length.
+	 * Set the minimum password length.
 	 * @since 1.1.0[a]
 	 * @var int
 	 */
 	const PW_LENGTH = 8;
 	
 	/**
-	 * Construct users table.
+	 * Construct a list of all users in the database.
 	 * @since 1.2.1[a]
 	 *
 	 * @access public
@@ -32,45 +32,66 @@ class User {
 		// Extend the Query class
 		global $rs_query;
 		
+		// Set up pagination
 		$page = isset($_GET['page']) ? paginate($_GET['page']) : paginate();
+		?>
+		<h1>Users</h1>
+		<a class="button" href="?action=create">Create User</a>
+		<?php
+		// Display any status messages
+		echo isset($_GET['exit_status']) && $_GET['exit_status'] === 'success' ? statusMessage('User was successfully deleted.', true) : '';
 		
-		$content = '<h1 id="admin-heading">Users</h1><a class="" href="?action=create">Create User</a>';
-		$content .= isset($_GET['exit_status']) && $_GET['exit_status'] === 'success' ? statusMessage('User was successfully deleted.', true) : '';
-		
+		// Get the user count
 		$count = $rs_query->select('users', 'COUNT(*)');
+		
+		// Set the page count
 		$page['count'] = ceil($count / $page['per_page']);
+		?>
+		<div class="entry-count">
+			<?php
+			// Display entry count
+			echo $count.' '.($count === 1 ? 'entry' : 'entries');
+			?>
+		</div>
+		<table class="data-table">
+			<thead>
+				<?php
+				// Construct the table header
+				echo tableHeaderRow(array('Username', 'Full Name', 'Email', 'Registered', 'Role', 'Status', 'Last Login'));
+				?>
+			</thead>
+			<tbody>
+				<?php
+				// Fetch users from the database
+				$users = $rs_query->select('users', '*', '', 'username', 'ASC', array($page['start'], $page['per_page']));
 		
-		$content .= '<div class="entry-count">'.$count.' '.($count === 1 ? 'entry' : 'entries').'</div>';
-		$content .= '<table class="data-table"><thead>';
-		$content .= tableHeaderRow(array('Username', 'Full Name', 'Email', 'Registered', 'Role', 'Status', 'Last Login'));
-		$content .= '</thead>';
-		
-		$users = $rs_query->select('users', '*', '', 'username', 'ASC', array($page['start'], $page['per_page']));
-		
-		foreach($users as $user) {
-			$meta = $this->getUserMeta($user['id']);
-			
-			$content .= '<tr>';
-			$content .= tableCell('<img class="avatar" src="'.(!empty($meta['avatar']) ? '' : '').'" width="32" height="32"><strong>'.$user['username'].'</strong><div class="actions"><a href="?id='.$user['id'].'&action=edit">Edit</a> &bull; <a class="delete-item" href="javascript:void(0)" rel="'.$user['id'].'">Delete</a></div>', 'username');
-			$content .= tableCell($meta['first_name'].' '.$meta['last_name'], 'full-name');
-			$content .= tableCell($user['email'], 'email');
-			$content .= tableCell(formatDate($user['registered'], 'd M Y @ g:i A'), 'registered');
-			$content .= tableCell('', 'role');
-			$content .= tableCell((!empty($user['session']) ? 'Online' : 'Offline'), 'status');
-			$content .= tableCell(($user['last_login'] === null ? 'Never' : formatDate($user['last_login'], 'd M Y @ g:i A')), 'last-login');
-			$content .= '</tr>';
-		}
-		
-		$content .= '</table>';
-		$content .= pagerNav($page['current'], $page['count']);
-		
-		echo $content;
+				// Loop through the users
+				foreach($users as $user) {
+					// Fetch the user metadata
+					$meta = $this->getUserMeta($user['id']);
+					
+					// Construct the current row
+					echo tableRow(
+						tableCell('<img class="avatar" src="'.(!empty($meta['avatar']) ? '' : '').'" width="32" height="32"><strong>'.$user['username'].'</strong><div class="actions"><a href="?id='.$user['id'].'&action=edit">Edit</a> &bull; <a class="delete-item" href="javascript:void(0)" rel="'.$user['id'].'">Delete</a></div>', 'username'),
+						tableCell($meta['first_name'].' '.$meta['last_name'], 'full-name'),
+						tableCell($user['email'], 'email'),
+						tableCell(formatDate($user['registered'], 'd M Y @ g:i A'), 'registered'),
+						tableCell('', 'role'),
+						tableCell((!empty($user['session']) ? 'Online' : 'Offline'), 'status'),
+						tableCell(($user['last_login'] === null ? 'Never' : formatDate($user['last_login'], 'd M Y @ g:i A')), 'last-login')
+					);
+				}
+				?>
+			</tbody>
+		</table>
+		<?php
+		// Set up page navigation
+		echo pagerNav($page['current'], $page['count']);
 	}
 	
 	/**
 	 * Construct the 'Create User' form.
 	 * @since 1.1.2[a]
-	 * @see formRow()
 	 *
 	 * @access public
 	 * @return null
@@ -210,7 +231,7 @@ class User {
 	}
 	
 	/**
-	 * Check if username already exists in the database.
+	 * Check if the username already exists in the database.
 	 * @since 1.2.0[a]
 	 *
 	 * @access private

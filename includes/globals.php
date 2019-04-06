@@ -5,7 +5,7 @@
  */
 
 // Current CMS version
-const VERSION = 'Version 1.3.8 (&alpha;)';
+const VERSION = 'Version 1.4.0 (&alpha;)';
 
 /**
  * Display copyright on the admin dashboard.
@@ -35,6 +35,36 @@ function RSVersion($echo = true) {
 		echo VERSION;
 	else
 		return VERSION;
+}
+
+/**
+ * Fetch a stylesheet.
+ * @since 1.3.3[a]
+ *
+ * @param string $stylesheet
+ * @param bool $echo (optional; default: true)
+ * @return null|string (null on $echo == true; string on $echo == false)
+ */
+function getStylesheet($stylesheet, $echo = true) {
+	if($echo)
+		echo '<link rel="stylesheet" href="'.trailingSlash(STYLES).$stylesheet.'">';
+	else
+		return '<link rel="stylesheet" href="'.trailingSlash(STYLES).$stylesheet.'">';
+}
+
+/**
+ * Fetch a script.
+ * @since 1.3.3[a]
+ *
+ * @param string $script
+ * @param bool $echo (optional; default: true)
+ * @return null|string (null on $echo == true; string on $echo == false)
+ */
+function getScript($script, $echo = true) {
+	if($echo)
+		echo '<script src="'.trailingSlash(SCRIPTS).$script.'"></script>';
+	else
+		return '<script src="'.trailingSlash(SCRIPTS).$script.'"></script>';
 }
 
 /**

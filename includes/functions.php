@@ -1,7 +1,7 @@
 <?php
 /**
  * Front end functions.
- * @since Alpha 1.0.0
+ * @since 1.0.0[a]
  */
 
 // Autoload classes
@@ -10,36 +10,6 @@ spl_autoload_register(function($class_name) {
 });
 
 //$rs_post = new Post;
-
-/**
- * Fetch a stylesheet.
- * @since Alpha 1.3.3
- *
- * @param string $stylesheet
- * @param bool $echo (optional; default: true)
- * @return null|string (null on $echo == true; string on $echo == false)
- */
-function getStylesheet($stylesheet, $echo = true) {
-	if($echo)
-		echo '<link rel="stylesheet" href="'.trailingSlash(STYLES).$stylesheet.'">';
-	else
-		return '<link rel="stylesheet" href="'.trailingSlash(STYLES).$stylesheet.'">';
-}
-
-/**
- * Fetch a script.
- * @since Alpha 1.3.3
- *
- * @param string $script
- * @param bool $echo (optional; default: true)
- * @return null|string (null on $echo == true; string on $echo == false)
- */
-function getScript($script, $echo = true) {
-	if($echo)
-		echo '<script src="'.trailingSlash(SCRIPTS).$script.'"></script>';
-	else
-		return '<script src="'.trailingSlash(SCRIPTS).$script.'"></script>';
-}
 
 function getTestId($id) {
 	global $rs_query;
