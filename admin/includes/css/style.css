@@ -66,6 +66,7 @@ a {
 
 #admin-nav {
 	background-color: #4f4f4f;
+	border-top: 1px dashed #7f7f7f;
 	position: fixed;
 	z-index: 999;
 	width: 150px;
@@ -75,6 +76,62 @@ a {
 	list-style: none;
 	margin: 0;
 	padding: 0;
+}
+
+#admin-nav .nav > li {
+	border-bottom: 1px dashed #7f7f7f;
+	position: relative;
+}
+
+#admin-nav .nav > li:hover,
+#admin-nav .subnav > li:hover {
+	background-color: #2f2f2f;
+}
+
+#admin-nav .nav > li:hover .subnav {
+	display: block;
+}
+
+#admin-nav .nav > li.current {
+	background-color: #2f2f2f;
+	font-weight: 500;
+}
+
+#admin-nav .nav > li.current > a {
+	color: #b6e0fa;
+}
+
+#admin-nav .nav > li > a {
+	color: #ededed;
+	display: block;
+	font-size: 1.05em;
+	padding: 8px 0 8px 20px;
+	text-decoration: none;
+}
+
+#admin-nav .subnav {
+	background-color: #4f4f4f;
+	box-shadow: 2px 0 3px rgba(0,0,0,0.5);
+	display: none;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	position: absolute;
+	top: 0;
+	left: 150px;
+	white-space: nowrap;
+}
+
+#admin-nav .subnav > li:not(:last-child) {
+	border-bottom: 1px dashed #7f7f7f;
+}
+
+#admin-nav .subnav > li > a {
+	color: #ededed;
+	display: block;
+	font-size: 0.95em;
+	padding: 9px 12px;
+	text-decoration: none;
 }
 
 /* Content Area */

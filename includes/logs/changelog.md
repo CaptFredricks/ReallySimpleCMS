@@ -4,7 +4,37 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
-# Version 1.4.0[a] (2019-04-05)
+## Version 1.4.2[a] (2019-04-10)
+
+* Added more styling to the admin navigation
+* Cleaned up adminNavItem function
+* Added 'current' functionality to admin nav items (doesn't work for subnav items)
+
+**Modified files:**
+* admin/includes/functions.php
+* admin/includes/css/style.css
+
+----------------------------------------------------------------------------------------------------
+## Version 1.4.1[a] (2019-04-09)
+
+* Minor tweak to the changelog's formatting
+* Created a function to contstruct the 'Create Post' form (form is empty)
+* Cleaned up User::createEntry function
+* Added and styled the admin header
+* Styled the admin navigation
+* Put admin page heading inside a wrapper
+* Added more documentation
+
+**Modified files:**
+* admin/header.php
+* admin/index.php (M)
+* admin/includes/class-post.php
+* admin/includes/class-settings.php (M)
+* admin/includes/class-user.php
+* admin/includes/css/style.css
+
+----------------------------------------------------------------------------------------------------
+## Version 1.4.0[a] (2019-04-05)
 
 * Created admin posts page and posts class
 * Replaced intval with int type cast on users page
@@ -35,7 +65,7 @@
 * includes/logs/changelog.md
 
 ----------------------------------------------------------------------------------------------------
-# Version 1.3.8[a] (2019-03-29)
+## Version 1.3.8[a] (2019-03-29)
 
 * Robots.txt is now created on install (added it to .gitignore)
 * Replaced "\n" with chr(10) in the logError function
@@ -54,7 +84,7 @@
 * includes/globals.php
 
 ----------------------------------------------------------------------------------------------------
-# Version 1.3.7[a] (2019-03-28)
+## Version 1.3.7[a] (2019-03-28)
 
 * Added and updated documentation in various places
 * Cleaned up some admin files
@@ -80,7 +110,7 @@
 * admin/includes/functions.php
 
 ----------------------------------------------------------------------------------------------------
-# Version 1.3.6[a] (2019-03-27)
+## Version 1.3.6[a] (2019-03-27)
 
 * Added a line of documentation to init.php
 * Removed PATH from UPLOADS filepath
@@ -91,7 +121,7 @@
 * admin/index.php (M)
 
 ----------------------------------------------------------------------------------------------------
-# Version 1.3.5[a] (2019-03-26)
+## Version 1.3.5[a] (2019-03-26)
 
 * Moved Query object initialization to init.php
 * Added config.php to .gitignore (prevents issues arising with db configs on different clients)
@@ -116,7 +146,7 @@
 * includes/css/style.css
 
 ----------------------------------------------------------------------------------------------------
-# Version 1.3.4[a] (2019-03-24)
+## Version 1.3.4[a] (2019-03-24)
 
 * Created LICENSE and README files
 * Created .gitignore file (added LICENSE and todo.txt)
@@ -127,7 +157,7 @@
 * README.md (N)
 
 ----------------------------------------------------------------------------------------------------
-# Version 1.3.3[a] (2019-03-22)
+## Version 1.3.3[a] (2019-03-22)
 
 * Created content directory
 * Created CSS and JS files in content directory for later use
@@ -160,7 +190,7 @@
 * includes/css/style.css (N)
 
 ----------------------------------------------------------------------------------------------------
-# Version 1.3.2[a] (2019-03-20)
+## Version 1.3.2[a] (2019-03-20)
 
 * Moved change.log to its own directory (includes/logs/)
 
@@ -168,7 +198,7 @@
 * n/a
 
 ----------------------------------------------------------------------------------------------------
-# Version 1.3.1[a] (2019-03-19)
+## Version 1.3.1[a] (2019-03-19)
 
 * Fixed a bug in the setup process that allowed the config.php file to be created without data
 * Fixed a file path issue in functions file
@@ -188,7 +218,7 @@
 * includes/config-setup.php (M)
 
 ----------------------------------------------------------------------------------------------------
-# Version 1.3.0[a] (2019-03-18)
+## Version 1.3.0[a] (2019-03-18)
 
 * Created file to initialize the CMS
 * Added __DIR__ to require statements
@@ -218,7 +248,7 @@
 * includes/css/buttons.css (N)
 
 ----------------------------------------------------------------------------------------------------
-# Version 1.2.6[a] (2019-03-12)
+## Version 1.2.6[a] (2019-03-12)
 
 * Created a function to construct the database schema
 * Created settings admin page
@@ -228,7 +258,7 @@
 * includes/schema.php (N)
 
 ----------------------------------------------------------------------------------------------------
-# Version 1.2.5[a] (2019-03-08)
+## Version 1.2.5[a] (2019-03-08)
 
 * Created a function to retrieve statistics data
 * Created a function for trimming words from a set of text
@@ -241,7 +271,7 @@
 * admin/includes/functions.php
 
 ----------------------------------------------------------------------------------------------------
-# Version 1.2.4[a] (2019-02-26)
+## Version 1.2.4[a] (2019-02-26)
 
 * Created function to verify passwords
 * Created function to retrieve user avatar
@@ -255,7 +285,7 @@
 * includes/globals.php (M)
 
 ----------------------------------------------------------------------------------------------------
-# Version 1.2.3[a] (2019-02-22)
+## Version 1.2.3[a] (2019-02-22)
 
 * Added validation for edit user form data
 * Created a function to delete users
@@ -267,7 +297,7 @@
 * admin/includes/class-user.php
 
 ----------------------------------------------------------------------------------------------------
-# Version 1.2.2[a] (2019-02-21)
+## Version 1.2.2[a] (2019-02-21)
 
 * Added more documentation
 * Created a function to retrieve user metadata
@@ -279,7 +309,7 @@
 * includes/globals.php (M)
 
 ----------------------------------------------------------------------------------------------------
-# Version 1.2.1[a] (2019-02-20)
+## Version 1.2.1[a] (2019-02-20)
 
 * Added more documentation
 * Created a function to list all users in a table
@@ -296,7 +326,7 @@
 * includes/class-query.php (M)
 
 ----------------------------------------------------------------------------------------------------
-# Version 1.2.0[a] (2019-02-19)
+## Version 1.2.0[a] (2019-02-19)
 
 * Added ReallySimpleCMS copyright and version to admin footer
 * Created a file to hold global functions
@@ -313,7 +343,7 @@
 * includes/globals.php (N)
 
 ----------------------------------------------------------------------------------------------------
-# Version 1.1.2[a] (2019-02-18)
+## Version 1.1.2[a] (2019-02-18)
 
 * Created function for assembling form rows
 * Added create user form
@@ -324,7 +354,7 @@
 * admin/includes/functions.php
 
 ----------------------------------------------------------------------------------------------------
-# Version 1.1.1[a] (2019-02-11)
+## Version 1.1.1[a] (2019-02-11)
 
 * Minor updates to SELECT function
 * Added function to select single rows from the database
@@ -333,7 +363,7 @@
 * includes/class-query.php
 
 ----------------------------------------------------------------------------------------------------
-# Version 1.1.0[a] (2019-02-07)
+## Version 1.1.0[a] (2019-02-07)
 
 * Rebuilt functions for SELECT, INSERT, and UPDATE statements
 * Created file to store deprecated functions (for potential future use)
@@ -350,7 +380,7 @@
 * includes/functions.php (M)
 
 ----------------------------------------------------------------------------------------------------
-# Version 1.0.3[a] (2019-02-04)
+## Version 1.0.3[a] (2019-02-04)
 
 * Renamed some functions in Query class
 * Created a function to check for query errors
@@ -361,7 +391,7 @@
 * includes/functions.php (M)
 
 ----------------------------------------------------------------------------------------------------
-# Version 1.0.2[a] (2019-01-17)
+## Version 1.0.2[a] (2019-01-17)
 
 * Created and tested basic functionality for UPDATE statement
 * Created class for retrieving post data
@@ -383,7 +413,7 @@
 * includes/functions.php (M)
 
 ----------------------------------------------------------------------------------------------------
-# Version 1.0.1[a] (2019-01-15)
+## Version 1.0.1[a] (2019-01-15)
 
 * Created changelog for tracking project milestones (change.log will henceforth be ommitted from list of modified files)
 * Created file with basic debugging functions
@@ -397,7 +427,7 @@
 * includes/functions.php (M)
 
 ----------------------------------------------------------------------------------------------------
-# Version 1.0.0[a] (2019-01-14)
+## Version 1.0.0[a] (2019-01-14)
 
 * Set up database and tables
 * Created most of the necessary core files

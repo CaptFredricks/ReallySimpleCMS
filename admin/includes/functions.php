@@ -154,22 +154,35 @@ function populateSettings($data) {
  * @return null;
  */
 function adminNavItem($caption = 'Nav Item', $link = '', $subnav = '') {
-	$content = '<li><a href="'.(!empty($link) ? trailingSlash(ADMIN).$link : 'javascript:void(0)').'">'.$caption.'</a>';
+	// Get the current page
+	$current = basename($_SERVER['PHP_SELF']);
 	
-	if(!empty($subnav)) {
-		if(!is_array($subnav)) return;
-		
-		$content .= '<ul class="subnav">';
-		
-		for($i = 0; $i < count($subnav[0]); $i++)
-			$content .= '<li><a href="'.(!empty($subnav[1][$i]) ? trailingSlash(ADMIN).$subnav[1][$i] : 'javascript:void(0)').'">'.(!empty($subnav[0][$i]) ? $subnav[0][$i] : 'Subnav Item').'</a></li>';
-		
-		$content .= '</ul>';
-	}
-	
-	$content .= '</li>';
-	
-	echo $content;
+	// Set current class
+	//if($link === $current)
+	?>
+	<li <?php echo $link === $current ? 'class="current"' : ''; ?>>
+		<a href="<?php echo !empty($link) ? trailingSlash(ADMIN).$link : 'javascript:void(0)'; ?>"><?php echo $caption; ?></a>
+		<?php
+		// Construct the subnav if parameters are provided
+		if(!empty($subnav)) {
+			// Return if the subnav isn't an array
+			if(!is_array($subnav)) return;
+			?>
+			<ul class="subnav">
+				<?php
+				// Loop through the subnav items
+				for($i = 0; $i < count($subnav[0]); $i++) {
+					?>
+					<li><a href="<?php echo !empty($subnav[1][$i]) ? trailingSlash(ADMIN).$subnav[1][$i] : 'javascript:void(0)'; ?>"><?php echo !empty($subnav[0][$i]) ? $subnav[0][$i] : 'Subnav Item'; ?></a></li>
+					<?php
+				}
+				?>
+			</ul>
+			<?php
+		}
+		?>
+	</li>
+	<?php
 }
 
 /**
