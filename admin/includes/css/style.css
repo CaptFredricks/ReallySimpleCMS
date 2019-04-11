@@ -1,22 +1,140 @@
 /**
  * Styles for the admin dashboard
- * @since Alpha 1.3.1
+ * @since 1.3.1[a]
  */
+
 *, *::before, *::after {
 	box-sizing: border-box;
 }
 
 html {
 	background-color: #2f2f2f;
-	min-height: 100%;
+	height: calc(100% - 30px);
+	padding-top: 30px;
 }
 
 body {
 	color: #fefefe;
 	font-family: 'Segoe UI', Helvetica, sans-serif;
 	font-size: 100%;
+	height: calc(100% - 30px);
+	margin: 0;
+	min-height: 100%;
 }
 
 a {
 	color: #b6e0fa;
+}
+
+/*------------------------------------*\
+    STRUCTURE
+\*------------------------------------*/
+
+/* Header */
+
+#admin-header {
+	background-color: #4f4f4f;
+	box-shadow: 0 2px 3px rgba(0,0,0,0.5);
+	height: 30px;
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 999;
+	width: 100%;
+}
+
+#site-title {
+	float: left;
+	padding: 3px 10px 6px;
+	text-decoration: none;
+}
+
+#site-title:hover {
+	background-color: #2f2f2f;
+}
+
+/* Navigation */
+
+#admin-nav-wrap {
+	background-color: #4f4f4f;
+	box-shadow: 2px 0 3px rgba(0,0,0,0.5);
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	width: 150px;
+}
+
+#admin-nav {
+	background-color: #4f4f4f;
+	position: fixed;
+	z-index: 999;
+	width: 150px;
+}
+
+#admin-nav .nav {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+/* Content Area */
+
+.wrapper {
+	margin-left: 150px;
+	min-height: 100%;
+	padding: 20px 30px;
+}
+
+.heading-wrap {
+	margin-bottom: 10px;
+}
+
+.heading-wrap h1 {
+	display: inline-block;
+	font-size: 1.5em;
+	margin: 0 10px 0 -10px;
+}
+
+.heading-wrap .button {
+	vertical-align: top;
+}
+
+.heading-wrap .entry-count {
+	float: right;
+	font-size: 0.9em;
+	margin-top: 12px;
+}
+
+.status-message {
+	color: #000;
+	font-weight: 200;
+	margin: 10px 0 20px;
+	padding: 8px;
+}
+
+.status-message.success {
+	background-color: #e0f9af;
+    border-left: 5px solid #2c0;
+}
+
+.status-message.failure {
+	background-color: #f9d0c0;
+    border-left: 5px solid #f00;
+}
+
+/* Footer */
+
+#admin-footer {
+	margin-left: 150px;
+	padding: 0 30px;
+}
+
+#admin-footer .copyright {
+	float: left;
+	font-size: 0.8em;
+}
+
+#admin-footer .version {
+	float: right;
+	font-size: 0.8em;
 }

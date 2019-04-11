@@ -3,7 +3,9 @@
 require_once __DIR__.'/header.php';
 ?>
 <div class="wrapper">
-	<h1>Admin Dashboard</h1>
+	<div class="heading-wrap">
+		<h1>Admin Dashboard</h1>
+	</div>
 	<?php
 	// Bars for the graph
 	$bars = array(

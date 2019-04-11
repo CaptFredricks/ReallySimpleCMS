@@ -35,23 +35,25 @@ class User {
 		// Set up pagination
 		$page = isset($_GET['page']) ? paginate($_GET['page']) : paginate();
 		?>
-		<h1>Users</h1>
-		<a class="button" href="?action=create">Create User</a>
-		<?php
-		// Display any status messages
-		echo isset($_GET['exit_status']) && $_GET['exit_status'] === 'success' ? statusMessage('User was successfully deleted.', true) : '';
-		
-		// Get the user count
-		$count = $rs_query->select('users', 'COUNT(*)');
-		
-		// Set the page count
-		$page['count'] = ceil($count / $page['per_page']);
-		?>
-		<div class="entry-count">
+		<div class="heading-wrap">
+			<h1>Users</h1>
+			<a class="button" href="?action=create">Create User</a>
 			<?php
-			// Display entry count
-			echo $count.' '.($count === 1 ? 'entry' : 'entries');
+			// Display any status messages
+			echo isset($_GET['exit_status']) && $_GET['exit_status'] === 'success' ? statusMessage('User was successfully deleted.', true) : '';
+			
+			// Get the user count
+			$count = $rs_query->select('users', 'COUNT(*)');
+			
+			// Set the page count
+			$page['count'] = ceil($count / $page['per_page']);
 			?>
+			<div class="entry-count">
+				<?php
+				// Display entry count
+				echo $count.' '.($count === 1 ? 'entry' : 'entries');
+				?>
+			</div>
 		</div>
 		<table class="data-table">
 			<thead>
@@ -97,23 +99,33 @@ class User {
 	 * @return null
 	 */
 	public function createEntry() {
+		// Validate the form data and return any messages
 		$message = isset($_POST['submit']) ? $this->validateData($_POST) : '';
-		
-		$content = '<h1 id="admin-heading">Create User</h1>';
-		$content .= $message;
-		$content .= '<form action="" method="post" autocomplete="off"><table class="form-table">';
-		$content .= formRow(array('Username', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'username', 'value'=>($_POST['username'] ?? '')));
-		$content .= formRow(array('Email', true), array('tag'=>'input', 'type'=>'email', 'class'=>'text-input required invalid init', 'name'=>'email', 'value'=>($_POST['email'] ?? '')));
-		$content .= formRow('First Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'first_name', 'value'=>($_POST['first_name'] ?? '')));
-		$content .= formRow('Last Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'last_name', 'value'=>($_POST['last_name'] ?? '')));
-		$content .= formRow(array('Password', true), array('tag'=>'input', 'id'=>'pw-input', 'class'=>'text-input required invalid init', 'name'=>'password'), array('tag'=>'input', 'type'=>'button', 'id'=>'pw-btn', 'class'=>'button-input', 'value'=>'Generate Password'), array('tag'=>'br'), array('tag'=>'input', 'type'=>'checkbox', 'id'=>'pw-chk', 'class'=>'checkbox-input', 'name'=>'pass_saved', 'value'=>'checked', 'label'=>array('id'=>'chk-label', 'class'=>'checkbox-label required invalid init', 'content'=>'I have copied the password to a safe place.')));
-		$content .= formRow('Avatar', array('tag'=>'input', 'type'=>'hidden', 'id'=>'img-input', 'name'=>'avatar', 'value'=>($_POST['avatar'] ?? '')), array('tag'=>'input', 'type'=>'button', 'id'=>'img-choose', 'class'=>'button-input', 'value'=>'Choose Image'));
-		$content .= formRow('Role', array('tag'=>'select', 'class'=>'select-input', 'name'=>'role', 'content'=>'<option></option>'));
-		$content .= formRow('', array('tag'=>'hr', 'class'=>'divider'));
-		$content .= formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input', 'name'=>'submit', 'value'=>'Create User'));
-		$content .= '</table></form>';
-		
-		echo $content;
+		?>
+		<div class="heading-wrap">
+			<h1>Create User</h1>
+			<?php
+			// Display status messages
+			echo $message;
+			?>
+		</div>
+		<form action="" method="post" autocomplete="off">
+			<table class="form-table">
+				<?php
+				// Display form rows
+				echo formRow(array('Username', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'username', 'value'=>($_POST['username'] ?? '')));
+				echo formRow(array('Email', true), array('tag'=>'input', 'type'=>'email', 'class'=>'text-input required invalid init', 'name'=>'email', 'value'=>($_POST['email'] ?? '')));
+				echo formRow('First Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'first_name', 'value'=>($_POST['first_name'] ?? '')));
+				echo formRow('Last Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'last_name', 'value'=>($_POST['last_name'] ?? '')));
+				echo formRow(array('Password', true), array('tag'=>'input', 'id'=>'pw-input', 'class'=>'text-input required invalid init', 'name'=>'password'), array('tag'=>'input', 'type'=>'button', 'id'=>'pw-btn', 'class'=>'button-input', 'value'=>'Generate Password'), array('tag'=>'br'), array('tag'=>'input', 'type'=>'checkbox', 'id'=>'pw-chk', 'class'=>'checkbox-input', 'name'=>'pass_saved', 'value'=>'checked', 'label'=>array('id'=>'chk-label', 'class'=>'checkbox-label required invalid init', 'content'=>'I have copied the password to a safe place.')));
+				echo formRow('Avatar', array('tag'=>'input', 'type'=>'hidden', 'id'=>'img-input', 'name'=>'avatar', 'value'=>($_POST['avatar'] ?? '')), array('tag'=>'input', 'type'=>'button', 'id'=>'img-choose', 'class'=>'button-input', 'value'=>'Choose Image'));
+				echo formRow('Role', array('tag'=>'select', 'class'=>'select-input', 'name'=>'role', 'content'=>'<option></option>'));
+				echo formRow('', array('tag'=>'hr', 'class'=>'divider'));
+				echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input', 'name'=>'submit', 'value'=>'Create User'));
+				?>
+			</table>
+		</form>
+		<?php
 	}
 	
 	/**
@@ -131,27 +143,37 @@ class User {
 		if(empty($id) || $id <= 0) {
 			header('Location: users.php');
 		} else {
+			// Validate the form data and return any messages
 			$message = isset($_POST['submit']) ? $this->validateData($_POST, $id) : '';
 			
 			$user = $rs_query->selectRow('users', '*', array('id'=>$id));
 
 			$meta = $this->getUserMeta($id);
-			
-			$content = '<h1 id="admin-heading">Edit User</h1>';
-			$content .= $message;
-			$content .= '<form action="" method="post" autocomplete="off"><table class="form-table">';
-			$content .= formRow(array('Username', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'username', 'value'=>$user['username']));
-			$content .= formRow(array('Email', true), array('tag'=>'input', 'type'=>'email', 'class'=>'text-input required invalid init', 'name'=>'email', 'value'=>$user['email']));
-			$content .= formRow('First Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'first_name', 'value'=>$meta['first_name']));
-			$content .= formRow('Last Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'last_name', 'value'=>$meta['last_name']));
-			$content .= formRow('Avatar', array('tag'=>'img', 'src'=>$this->getAvatar($meta['avatar']), 'width'=>150), array('tag'=>'br'), array('tag'=>'input', 'type'=>'hidden', 'id'=>'img-input', 'name'=>'avatar', 'value'=>$meta['avatar']), array('tag'=>'input', 'type'=>'button', 'id'=>'img-choose', 'class'=>'button-input', 'value'=>'Choose Image'));
-			$content .= formRow('Role', array('tag'=>'select', 'class'=>'select-input', 'name'=>'role', 'content'=>'<option></option>'));
-			$content .= formRow('', array('tag'=>'hr', 'class'=>'divider'));
-			$content .= formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input', 'name'=>'submit', 'value'=>'Update User'));
-			$content .= '</table></form>';
-			$content .= '<a href="?id='.$id.'&action=reset_password">Reset Password</a>';
-			
-			echo $content;
+			?>
+			<div class="heading-wrap">
+				<h1>Edit User</h1>
+				<?php
+				// Display status messages
+				echo $message;
+				?>
+			</div>
+			<form action="" method="post" autocomplete="off">
+				<table class="form-table">
+					<?php
+					// Display form rows
+					echo formRow(array('Username', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'username', 'value'=>$user['username']));
+					echo formRow(array('Email', true), array('tag'=>'input', 'type'=>'email', 'class'=>'text-input required invalid init', 'name'=>'email', 'value'=>$user['email']));
+					echo formRow('First Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'first_name', 'value'=>$meta['first_name']));
+					echo formRow('Last Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'last_name', 'value'=>$meta['last_name']));
+					echo formRow('Avatar', array('tag'=>'img', 'src'=>$this->getAvatar($meta['avatar']), 'width'=>150), array('tag'=>'br'), array('tag'=>'input', 'type'=>'hidden', 'id'=>'img-input', 'name'=>'avatar', 'value'=>$meta['avatar']), array('tag'=>'input', 'type'=>'button', 'id'=>'img-choose', 'class'=>'button-input', 'value'=>'Choose Image'));
+					echo formRow('Role', array('tag'=>'select', 'class'=>'select-input', 'name'=>'role', 'content'=>'<option></option>'));
+					echo formRow('', array('tag'=>'hr', 'class'=>'divider'));
+					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input', 'name'=>'submit', 'value'=>'Update User'));
+					?>
+				</table>
+			</form>
+			<a href="?id=<?php echo $id; ?>&action=reset_password">Reset Password</a>
+			<?php
 		}
 	}
 	
@@ -308,19 +330,25 @@ class User {
 		if(empty($id) || $id <= 0) {
 			header('Location: users.php');
 		} else {
+			// Validate the form data and return any messages
 			$message = isset($_POST['submit']) ? $this->validatePasswordData($_POST, $id) : '';
-			
-			$content = '<h1 id="admin-heading">Reset Password</h1>';
-			$content .= $message;
-			$content .= '<form action="" method="post" autocomplete="off"><table class="form-table">';
-			$content .= formRow('Admin Password', array('tag'=>'input', 'type'=>'password', 'class'=>'text-input required invalid init', 'name'=>'admin_pass'));
-			$content .= formRow('New User Password', array('tag'=>'input', 'id'=>'pw-input', 'class'=>'text-input required invalid init', 'name'=>'new_pass'), array('tag'=>'input', 'type'=>'button', 'id'=>'pw-btn', 'class'=>'button-input', 'value'=>'Generate Password'), array('tag'=>'br'), array('tag'=>'input', 'type'=>'checkbox', 'id'=>'pw-chk', 'class'=>'checkbox-input', 'name'=>'pass_saved', 'value'=>'checked', 'label'=>array('id'=>'chk-label', 'class'=>'checkbox-label required invalid init', 'content'=>'I have copied the password to a safe place.')));
-			$content .= formRow('New User Password (confirm)', array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'confirm_pass'));
-			$content .= formRow('', array('tag'=>'hr', 'class'=>'divider'));
-			$content .= formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input', 'name'=>'submit', 'value'=>'Update Password'));
-			$content .= '</table></form>';
-			
-			echo $content;
+			?>
+			<div class="heading-wrap">
+				<h1 id="admin-heading">Reset Password</h1>
+				<?php echo $message; ?>
+			</div>
+			<form action="" method="post" autocomplete="off">
+				<table class="form-table">
+					<?php
+					echo formRow('Admin Password', array('tag'=>'input', 'type'=>'password', 'class'=>'text-input required invalid init', 'name'=>'admin_pass'));
+					echo formRow('New User Password', array('tag'=>'input', 'id'=>'pw-input', 'class'=>'text-input required invalid init', 'name'=>'new_pass'), array('tag'=>'input', 'type'=>'button', 'id'=>'pw-btn', 'class'=>'button-input', 'value'=>'Generate Password'), array('tag'=>'br'), array('tag'=>'input', 'type'=>'checkbox', 'id'=>'pw-chk', 'class'=>'checkbox-input', 'name'=>'pass_saved', 'value'=>'checked', 'label'=>array('id'=>'chk-label', 'class'=>'checkbox-label required invalid init', 'content'=>'I have copied the password to a safe place.')));
+					echo formRow('New User Password (confirm)', array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'confirm_pass'));
+					echo formRow('', array('tag'=>'hr', 'class'=>'divider'));
+					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input', 'name'=>'submit', 'value'=>'Update Password'));
+					?>
+				</table>
+			</form>
+			<?php
 		}
 	}
 	

@@ -30,36 +30,38 @@ class Post {
 		// Get the post count (by type)
 		$count = array('all'=>$this->getPostCount($type), 'published'=>$this->getPostCount($type, 'published'), 'draft'=>$this->getPostCount($type, 'draft'), 'trash'=>$this->getPostCount($type, 'trash'));
 		?>
-		<h1><?php echo ucfirst($type).'s'; ?></h1>
-		<a class="button" href="?<?php echo $type === 'post' ? '' : 'type='.$type.'&'; ?>action=create">Create <?php echo ucfirst($type); ?></a>
-		<hr>
-		<?php
-		// Display any status messages
-		echo isset($_GET['exit_status']) && $_GET['exit_status'] === 'success' ? statusMessage(ucfirst($type).' was successfully deleted.', true) : '';
-		?>
-		<ul class="post-status-nav">
+		<div class="heading-wrap">
+			<h1><?php echo ucfirst($type).'s'; ?></h1>
+			<a class="button" href="?<?php echo $type === 'post' ? '' : 'type='.$type.'&'; ?>action=create">Create <?php echo ucfirst($type); ?></a>
+			<hr>
 			<?php
-			// Loop through the post counts (by status)
-			foreach($count as $key=>$value) {
-				?>
-				<li><a href="?type=<?php echo $type.($key === 'all' ? '' : '&status='.$key); ?>"><?php echo ucfirst($key); ?> <span class="count">(<?php echo $value; ?>)</span></a></li>
+			// Display any status messages
+			echo isset($_GET['exit_status']) && $_GET['exit_status'] === 'success' ? statusMessage(ucfirst($type).' was successfully deleted.', true) : '';
+			?>
+			<ul class="post-status-nav">
 				<?php
-				// Add bullets in between
-				if($key !== array_key_last($count)) {
-					?> &bull; <?php
+				// Loop through the post counts (by status)
+				foreach($count as $key=>$value) {
+					?>
+					<li><a href="?type=<?php echo $type.($key === 'all' ? '' : '&status='.$key); ?>"><?php echo ucfirst($key); ?> <span class="count">(<?php echo $value; ?>)</span></a></li>
+					<?php
+					// Add bullets in between
+					if($key !== array_key_last($count)) {
+						?> &bull; <?php
+					}
 				}
-			}
-			?>
-		</ul>
-		<?php
-		// Set the page count
-		$page['count'] = ceil($count[$status] / $page['per_page']);
-		?>
-		<div class="entry-count">
+				?>
+			</ul>
 			<?php
-			// Display entry count
-			echo $count[$status].' '.($count[$status] === 1 ? 'entry' : 'entries');
+			// Set the page count
+			$page['count'] = ceil($count[$status] / $page['per_page']);
 			?>
+			<div class="entry-count">
+				<?php
+				// Display entry count
+				echo $count[$status].' '.($count[$status] === 1 ? 'entry' : 'entries');
+				?>
+			</div>
 		</div>
 		<table class="data-table">
 			<thead>
@@ -96,6 +98,32 @@ class Post {
 		<?php
 		// Set up page navigation
 		echo pagerNav($page['current'], $page['count']);
+	}
+	
+	/**
+	 * Construct the 'Create Post' form.
+	 * @since 1.4.1[a]
+	 *
+	 * @access public
+	 * @return null
+	 */
+	public function createEntry() {
+		// Get the post type
+		$type = $_GET['type'] ?? 'post';
+		
+		// Validate the form data and return any messages
+		$message = isset($_POST['submit']) ? $this->validateData($_POST) : '';
+		?>
+		<div class="heading-wrap">
+			<h1>Create <?php echo ucwords($type); ?></h1>
+			<?php echo $message; ?>
+		</div>
+		<form action="" method="post" autocomplete="off">
+			<table class="form-table">
+			
+			</table>
+		</form>
+		<?php
 	}
 	
 	/**

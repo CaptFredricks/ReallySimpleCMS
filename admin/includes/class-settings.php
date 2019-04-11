@@ -18,7 +18,7 @@ class Settings {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Validate the form data
+		// Validate the form data and return any messages
 		$message = isset($_POST['submit']) ? $this->validateData($_POST) : '';
 		
 		// Fetch all settings from the database
@@ -28,11 +28,13 @@ class Settings {
 		foreach($db_settings as $db_setting)
 			$setting[$db_setting['name']] = $db_setting['value'];
 		?>
-		<h1 id="admin-heading">General Settings</h1>
-		<?php
-		// Display status messages
-		echo $message;
-		?>
+		<div class="heading-wrap">
+			<h1>General Settings</h1>
+			<?php
+			// Display status messages
+			echo $message;
+			?>
+		</div>
 		<form action="" method="post" autocomplete="off">
 			<table class="form-table">
 				<?php
@@ -105,7 +107,7 @@ class Settings {
 		}
 		
 		// Return a success message
-		return statusMessage('Settings updated!', 1);
+		return statusMessage('Settings updated!', true);
 	}
 	
 	/**

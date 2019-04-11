@@ -18,6 +18,7 @@ require_once PATH.ADMIN.INC.'/functions.php';
 	</head>
 	<body>
 		<header id="admin-header">
+			<a id="site-title" href="/"><?php getSetting('site_title'); ?></a>
 		</header>
 		<div id="admin-nav-wrap"></div>
 		<nav id="admin-nav">
