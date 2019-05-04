@@ -1,7 +1,22 @@
 ----------------------------------------------------------------------------------------------------
-*Legend: N - new file, D - deprecated file, R - removed file, M - minor change*
-*Versions: X.x.x (major releases), x.X.x (standard releases), x.x.X (minor releases/bug fixes)*
+*Legend: N - new file, D - deprecated file, R - removed file, M - minor change*<br>
+*Versions: X.x.x (major releases), x.X.x (standard releases), x.x.X (minor releases/bug fixes)*<br>
 *Other: [a] - alpha, [b] - beta*
+
+----------------------------------------------------------------------------------------------------
+## Version 1.4.3[a] (2019-04-22)
+
+* Added 'button' class to form submit buttons
+* Added more documentation
+* Added placeholder to input tag in formTag function
+* Fixed a minor bug in the formRow function
+* Continued work on 'Create Post' form
+
+**Modified files:**
+* admin/includes/class-post.php
+* admin/includes/class-settings.php (M)
+* admin/includes/class-user.php
+* admin/includes/functions.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.4.2[a] (2019-04-10)

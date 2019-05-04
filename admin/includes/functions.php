@@ -348,7 +348,7 @@ function formTag($args) {
 	switch($args['tag']) {
 		case 'input':
 			// Construct an input tag
-			$tag = '<input type="'.($args['type'] ?? 'text').'"'.(!empty($args['id']) ? ' id="'.$args['id'].'"' : '').(!empty($args['class']) ? ' class="'.$args['class'].'"' : '').(!empty($args['name']) ? ' name="'.$args['name'].'"' : '').(!empty($args['maxlength']) ? ' maxlength="'.$args['maxlength'].'"' : '').(!empty($args['value']) || (isset($args['value']) && $args['value'] == 0) ? ' value="'.$args['value'].'"' : '').(!empty($args['*']) ? $args['*'] : '').'>';
+			$tag = '<input type="'.($args['type'] ?? 'text').'"'.(!empty($args['id']) ? ' id="'.$args['id'].'"' : '').(!empty($args['class']) ? ' class="'.$args['class'].'"' : '').(!empty($args['name']) ? ' name="'.$args['name'].'"' : '').(!empty($args['maxlength']) ? ' maxlength="'.$args['maxlength'].'"' : '').(!empty($args['value']) || (isset($args['value']) && $args['value'] == 0) ? ' value="'.$args['value'].'"' : '').(!empty($args['placeholder']) ? ' placeholder="'.$args['placeholder'].'"' : '').(!empty($args['*']) ? $args['*'] : '').'>';
 			break;
 		case 'select':
 			// Construct a select tag
@@ -403,7 +403,7 @@ function formRow($label = '', ...$args) {
 			$label = implode('', $label);
 		}
 		
-		$row = '<th><label'.(!empty($args['name']) ? ' for="'.$args['name'].'"' : '').'>'.$label.(!empty($required) && $required === true ? ' <span class="small">(required)</span>' : '').'</label></th>';
+		$row = '<th><label'.(!empty($args[0]['name']) ? ' for="'.$args[0]['name'].'"' : '').'>'.$label.(!empty($required) && $required === true ? ' <span class="small">(required)</span>' : '').'</label></th>';
 		$row .= '<td>';
 		
 		if(count($args) > 0) {

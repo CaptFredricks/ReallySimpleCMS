@@ -116,12 +116,35 @@ class Post {
 		?>
 		<div class="heading-wrap">
 			<h1>Create <?php echo ucwords($type); ?></h1>
-			<?php echo $message; ?>
+			<?php
+			// Display status messages
+			echo $message;
+			?>
 		</div>
 		<form action="" method="post" autocomplete="off">
-			<table class="form-table">
-			
-			</table>
+			<div class="form-container">
+				<div class="content">
+					<?php
+					// Display form rows
+					echo formRow('', array('tag'=>'input', 'type'=>'hidden', 'name'=>'type', 'value'=>$type));
+					echo formRow('', array('tag'=>'input', 'type'=>'text', 'id'=>'title-field', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>$_POST['title'] ?? '', 'placeholder'=>ucfirst($type).' title'));
+					?>
+					<div class="permalink">
+						<?php
+						// Display permalink form row
+						echo formRow('<strong>Permalink:</strong> '.getSetting('site_url', false).'/', array('tag'=>'input', 'type'=>'text', 'id'=>'slug-field', 'class'=>'text-input required invalid init', 'name'=>'slug')).'/';
+						?>
+					</div>
+					<?php
+					// Display form rows
+					echo formRow('', array('tag'=>'input', 'type'=>'button', 'class'=>'button-input button', 'value'=>'Insert Image'));
+					echo formRow('', array('tag'=>'textarea', 'class'=>'textarea-input', 'name'=>'content', 'cols'=>30, 'rows'=>20, 'value'=>isset($_POST['content']) ? htmlspecialchars($_POST['content']) : ''));
+					?>
+				</div>
+				<div class="sidebar">
+				
+				</div>
+			</div>
 		</form>
 		<?php
 	}
