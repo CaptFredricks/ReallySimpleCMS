@@ -341,11 +341,12 @@ function tableCell($data, $class = '') {
  * Construct a form HTML tag.
  * @since 1.2.0[a]
  *
- * @param array $args
+ * @param string $tag
+ * @param array $args (optional; default: null)
  * @return string
  */
-function formTag($args) {
-	switch($args['tag']) {
+function formTag($tag, $args = null) {
+	switch($tag) {
 		case 'input':
 			// Construct an input tag
 			$tag = '<input type="'.($args['type'] ?? 'text').'"'.(!empty($args['id']) ? ' id="'.$args['id'].'"' : '').(!empty($args['class']) ? ' class="'.$args['class'].'"' : '').(!empty($args['name']) ? ' name="'.$args['name'].'"' : '').(!empty($args['maxlength']) ? ' maxlength="'.$args['maxlength'].'"' : '').(!empty($args['value']) || (isset($args['value']) && $args['value'] == 0) ? ' value="'.$args['value'].'"' : '').(!empty($args['placeholder']) ? ' placeholder="'.$args['placeholder'].'"' : '').(!empty($args['*']) ? $args['*'] : '').'>';
@@ -356,7 +357,7 @@ function formTag($args) {
 			break;
 		case 'textarea':
 			// Construct a textarea tag
-			$tag = '<textarea'.(!empty($args['class']) ? ' class="'.$args['class'].'"' : '').(!empty($args['name']) ? ' name="'.$args['name'].'"' : '').(!empty($args['cols']) ? ' cols="'.$args['cols'].'"' : '').(!empty($args['rows']) ? ' rows="'.$args['rows'].'"' : '').'>'.$args['value'].'</textarea>';
+			$tag = '<textarea'.(!empty($args['class']) ? ' class="'.$args['class'].'"' : '').(!empty($args['name']) ? ' name="'.$args['name'].'"' : '').(!empty($args['cols']) ? ' cols="'.$args['cols'].'"' : '').(!empty($args['rows']) ? ' rows="'.$args['rows'].'"' : '').'>'.$args['content'].'</textarea>';
 			break;
 		case 'img':
 			// Construct an img tag
@@ -370,6 +371,10 @@ function formTag($args) {
 			// Construct a br tag
 			$tag = '<br'.(!empty($args['class']) ? ' class="'.$args['class'].'"' : '').'>';
 			break;
+		case 'label':
+			// Construct a label tag
+			$tag = '<label'.(!empty($args['id']) ? ' id="'.$args['id'].'"' : '').(!empty($args['class']) ? ' class="'.$args['class'].'"' : '').(!empty($args['for']) ? ' for="'.$args['for'].'"' : '').'>'.$args['content'].'</label>';
+			break;
 		default:
 			// Don't construct a tag
 			$tag = '';
@@ -381,6 +386,7 @@ function formTag($args) {
 		$tag = $label.$tag.$content;
 	}
 	
+	// Return the constructed tag
 	return $tag;
 }
 
@@ -398,20 +404,32 @@ function formRow($label = '', ...$args) {
 		//$args = array_merge(...$args);
 	
 	if(!empty($label)) {
+		// Check if the label is an array
 		if(is_array($label)) {
+			// Pop second value from the array
 			$required = array_pop($label);
+			
+			// Convert the label array to a string
 			$label = implode('', $label);
 		}
 		
-		$row = '<th><label'.(!empty($args[0]['name']) ? ' for="'.$args[0]['name'].'"' : '').'>'.$label.(!empty($required) && $required === true ? ' <span class="small">(required)</span>' : '').'</label></th>';
+		for($i = 0; $i < count($args); $i++) {
+			// Break out of the loop if 'name' key is found
+			if(array_key_exists('name', $args[$i])) break;
+		}
+		
+		$row = '<th><label'.(!empty($args[$i]['name']) ? ' for="'.$args[$i]['name'].'"' : '').'>'.$label.(!empty($required) && $required === true ? ' <span class="small">(required)</span>' : '').'</label></th>';
 		$row .= '<td>';
 		
 		if(count($args) > 0) {
 			if(count($args) !== count($args, COUNT_RECURSIVE)) {
-				foreach($args as $arg)
-					$row .= formTag($arg);
+				foreach($args as $arg) {
+					$tag = $arg['tag'];
+					$row .= formTag($tag, $arg);
+				}
 			} else {
-				$row .= formTag($args);
+				$tag = $arg['tag'];
+				$row .= formTag($tag, $args);
 			}
 		}
 		
@@ -421,10 +439,13 @@ function formRow($label = '', ...$args) {
 		
 		if(count($args) > 0) {
 			if(count($args) !== count($args, COUNT_RECURSIVE)) {
-				foreach($args as $arg)
-					$row .= formTag($arg);
+				foreach($args as $arg) {
+					$tag = $arg['tag'];
+					$row .= formTag($tag, $arg);
+				}
 			} else {
-				$row .= formTag($args);
+				$tag = $arg['tag'];
+				$row .= formTag($tag, $args);
 			}
 		}
 		

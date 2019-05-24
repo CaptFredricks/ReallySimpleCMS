@@ -125,24 +125,75 @@ class Post {
 			<div class="form-container">
 				<div class="content">
 					<?php
-					// Display form rows
-					echo formRow('', array('tag'=>'input', 'type'=>'hidden', 'name'=>'type', 'value'=>$type));
-					echo formRow('', array('tag'=>'input', 'type'=>'text', 'id'=>'title-field', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>$_POST['title'] ?? '', 'placeholder'=>ucfirst($type).' title'));
+					// Construct hidden 'type' form tag
+					echo formTag('input', array('type'=>'hidden', 'name'=>'type', 'value'=>$type));
+					
+					// Construct 'title' form tag
+					echo formTag('input', array('type'=>'text', 'id'=>'title-field', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>$_POST['title'] ?? '', 'placeholder'=>ucfirst($type).' title'));
 					?>
 					<div class="permalink">
 						<?php
-						// Display permalink form row
-						echo formRow('<strong>Permalink:</strong> '.getSetting('site_url', false).'/', array('tag'=>'input', 'type'=>'text', 'id'=>'slug-field', 'class'=>'text-input required invalid init', 'name'=>'slug')).'/';
+						// Construct 'permalink' form tag
+						echo formTag('label', array('for'=>'slug', 'content'=>'<strong>Permalink:</strong> '.getSetting('site_url', false).'/'));
+						echo formTag('input', array('type'=>'text', 'id'=>'slug-field', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>$_POST['slug'] ?? ''));
+						echo '/';
 						?>
 					</div>
 					<?php
-					// Display form rows
-					echo formRow('', array('tag'=>'input', 'type'=>'button', 'class'=>'button-input button', 'value'=>'Insert Image'));
-					echo formRow('', array('tag'=>'textarea', 'class'=>'textarea-input', 'name'=>'content', 'cols'=>30, 'rows'=>20, 'value'=>isset($_POST['content']) ? htmlspecialchars($_POST['content']) : ''));
+					// Construct 'insert image' button form tag
+					echo formTag('input', array('type'=>'button', 'class'=>'button-input button', 'value'=>'Insert Image'));
+					
+					// Construct 'content' form tag
+					echo formTag('textarea', array('class'=>'textarea-input', 'name'=>'content', 'cols'=>30, 'rows'=>20, 'content'=>isset($_POST['content']) ? htmlspecialchars($_POST['content']) : ''));
 					?>
 				</div>
 				<div class="sidebar">
-				
+					<div class="block">
+						<h2>Publish</h2>
+						<div class="row">
+							<?php
+							// Construct 'status' form tag
+							echo formTag('label', array('for'=>'status', 'content'=>'Status'));
+							echo formTag('select', array('name'=>'status', 'content'=>'<option value="draft">Draft</option><option value="published">Published</option>'));
+							?>
+						</div>
+						<div class="row">
+							<?php
+							// Construct 'author' form tag
+							echo formTag('label', array('for'=>'author', 'content'=>'Author'));
+							echo formTag('select', array('name'=>'author', 'content'=>$this->getAuthorList()));
+							?>
+						</div>
+						<div id="submit" class="row">
+							<?php
+							// Construct 'submit' button form tag
+							echo formTag('input', array('type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Publish'));
+							?>
+						</div>
+					</div>
+					<div class="block">
+						<h2>Attributes</h2>
+						<div class="row">
+							<?php
+							// Construct 'parent' form tag
+							echo formTag('label', array('for'=>'parent', 'content'=>'Parent'));
+							echo formTag('select', array('name'=>'parent', 'content'=>'<option value="0">(none)</option>'.$this->getParentList($type)));
+							?>
+						</div>
+					</div>
+					<div class="block">
+						<h2>Featured Image</h2>
+						<div class="row">
+							<?php
+							// Display the featured image if it's been selected
+							isset($_POST['featured']) && strlen($_POST['featured']) > 0 ? '<img src=""><span></span>' : '';
+							
+							// Construct hidden 'featured' form tag
+							echo formTag('input', array('type'=>'hidden', 'name'=>'featured'));
+							?>
+							<a href="#">Choose Image</a>
+						</div>
+					</div>
 				</div>
 			</div>
 		</form>
@@ -182,6 +233,92 @@ class Post {
 		
 		// Return the author's username
 		return $author['username'];
+	}
+	
+	/**
+	 * Construct a list of authors.
+	 * @since 1.4.4[a]
+	 *
+	 * @access protected
+	 * @param int $id (optional; default: 0)
+	 * @return string
+	 */
+	protected function getAuthorList($id = 0) {
+		// Extend the Query class
+		global $rs_query;
+		
+		// Create an empty list
+		$list = '';
+		
+		// Fetch all authors from the database
+		$authors = $rs_query->select('users', 'id', '', 'username');
+		
+		// Loop through the authors
+		foreach($authors as $author) {
+			// Construct the list
+			$list .= '<option value="'.$author['id'].'"'.($author['id'] === $id ? ' selected' : '').'>'.$this->getAuthor($author['id']).'</option>';
+		}
+		
+		// Return the list
+		return $list;
+	}
+	
+	/**
+	 * Fetch a post's parent.
+	 * @since 1.4.4[a]
+	 *
+	 * @access private
+	 * @param int $id
+	 * @return string
+	 */
+	private function getParent($id) {
+		// Extend the Query class
+		global $rs_query;
+		
+		// Fetch the parent from the database
+		$parent = $rs_query->selectRow('posts', 'title', array('id'=>$id));
+		
+		// Return the parent's title
+		return $parent['title'];
+	}
+	
+	/**
+	 * Construct a list of parents.
+	 * @since 1.4.4[a]
+	 *
+	 * @access private
+	 * @param string $type
+	 * @param int $parent (optional; default: 0)
+	 * @param int $id (optional; default: 0)
+	 * @return string
+	 */
+	private function getParentList($type, $parent = 0, $id = 0) {
+		// Extend the Query class
+		global $rs_query;
+		
+		// Create an empty list
+		$list = '';
+		
+		// Fetch all posts from the database (by type)
+		$posts = $rs_query->select('posts', 'id', array('type'=>$type));
+		
+		// Loop through the posts
+		foreach($posts as $post) {
+			// Do some extra checks if an id is provided
+			if($id !== 0) {
+				// Skip the current post
+				if($post['id'] === $id) continue;
+				
+				// Skip all ancestor posts
+				if($this->isDescendant($post['id'], $id)) continue;
+			}
+			
+			// Construct the list
+			$list .= '<option value="'.$post['id'].'"'.($post['id'] === $parent ? ' selected' : '').'>'.$this->getParent($post['id']).'</option>';
+		}
+		
+		// Return the list
+		return $list;
 	}
 	
 	/**

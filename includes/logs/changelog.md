@@ -4,13 +4,27 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.4.4[a] (2019-05-03)
+
+* Continued building the 'Create Post' form
+* Added a new parameter to the formTag function and functionality for building a label tag
+* Fixed some issues in the formRow function caused by updates to the formTag function
+* Created a function that constructs a list of post authors
+* Created a function that constructs a list of post parents
+* Created a function to get the post's parent
+
+**Modified files:**
+* admin/includes/class-post.php
+* admin/includes/functions.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.4.3[a] (2019-04-22)
 
 * Added 'button' class to form submit buttons
 * Added more documentation
 * Added placeholder to input tag in formTag function
 * Fixed a minor bug in the formRow function
-* Continued work on 'Create Post' form
+* Continued building the 'Create Post' form
 
 **Modified files:**
 * admin/includes/class-post.php
