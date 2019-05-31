@@ -330,11 +330,12 @@ function tableRow(...$cells) {
  *
  * @param string $data
  * @param string $class (optional; default: '')
+ * @param int $colspan (optional; default: 1)
  * @return string
  */
-function tableCell($data, $class = '') {
+function tableCell($data, $class = '', $colspan = 1) {
 	// Return the table cell
-	return '<td'.(!empty($class) ? ' class="'.$class.'"' : '').'>'.$data.'</td>';
+	return '<td'.(!empty($class) ? ' class="'.$class.'"' : '').($colspan > 1 ? ' colspan="'.$colspan.'"' : '').'>'.$data.'</td>';
 }
 
 /**
