@@ -92,6 +92,11 @@ class Post {
 //$content .= '<td class="parent">'.$this->getParent($post['parent_id']).'</td>';
 
 				}
+				
+				if(count($posts) === 0) {
+					// Display notice if no posts are found
+					echo tableRow(tableCell('There are no '.$type.'s to display.', '', 4));
+				}
 				?>
 			</tbody>
 		</table>
@@ -192,6 +197,27 @@ class Post {
 							echo formTag('input', array('type'=>'hidden', 'name'=>'featured'));
 							?>
 							<a href="#">Choose Image</a>
+						</div>
+					</div>
+				</div>
+				<div class="metadata">
+					<div class="block">
+						<h2>Metadata</h2>
+						<div class="row">
+							<?php
+							// Construct 'meta title' form tag
+							echo formTag('label', array('for'=>'meta_title', 'content'=>'Title'));
+							echo formTag('br');
+							echo formTag('input', array('type'=>'text', 'class'=>'text-input', 'name'=>'meta_title', 'value'=>$_POST['meta_title'] ?? ''));
+							?>
+						</div>
+						<div class="row">
+							<?php
+							// Construct 'meta description' form tag
+							echo formTag('label', array('for'=>'meta_description', 'content'=>'Description'));
+							echo formTag('br');
+							echo formTag('textarea', array('class'=>'textarea-input', 'name'=>'meta_description', 'cols'=>30, 'rows'=>3, 'content'=>$_POST['meta_description'] ?? ''));
+							?>
 						</div>
 					</div>
 				</div>

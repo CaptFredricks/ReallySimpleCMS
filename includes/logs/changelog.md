@@ -4,6 +4,19 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.4.5[a] (2019-05-29)
+
+* Finished building the 'Create Post' form
+* Styled list entries pages
+* Added an optional parameter to the tableCell function to allow a cell to span multiple columns
+* Added a notice to be shown if no posts can be retrieved from the database on the 'List Posts' page
+
+**Modified files:**
+* admin/includes/class-post.php
+* admin/includes/functions.php
+* admin/includes/css/style.css
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.4.4[a] (2019-05-03)
 
 * Continued building the 'Create Post' form

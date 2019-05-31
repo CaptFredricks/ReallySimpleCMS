@@ -24,6 +24,11 @@ body {
 
 a {
 	color: #b6e0fa;
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
 }
 
 /*------------------------------------*\
@@ -156,10 +161,32 @@ a {
 	vertical-align: top;
 }
 
+.heading-wrap hr {
+	margin: 0;
+	visibility: hidden;
+}
+
+.heading-wrap .post-status-nav {
+	float: left;
+	font-size: 0.9em;
+	list-style: none;
+	margin: 6px 0;
+	padding: 0;
+}
+
+.heading-wrap .post-status-nav li {
+	display: inline-block;
+}
+
+.heading-wrap .post-status-nav li a .count {
+	color: #fff;
+}
+
 .heading-wrap .entry-count {
 	float: right;
 	font-size: 0.9em;
-	margin-top: 12px;
+	margin: 6px 0;
+	/* margin-top: 12px; */
 }
 
 .status-message {
@@ -177,6 +204,17 @@ a {
 .status-message.failure {
 	background-color: #f9d0c0;
     border-left: 5px solid #f00;
+}
+
+.data-table {
+	background-color: #ededed;
+	border-collapse: collapse;
+	color: #101010;
+	width: 100%;
+}
+
+.data-table thead {
+	border-bottom: 1px solid #cfcfcf;
 }
 
 /* Footer */
