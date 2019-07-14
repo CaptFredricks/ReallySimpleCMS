@@ -115,7 +115,7 @@ function populatePosts($author) {
 	$post = $rs_query->insert('posts', array('title'=>'Sample Page', 'author'=>$author, 'date'=>'NOW()', 'content'=>'This is just a sample page to get you started.', 'status'=>'published', 'slug'=>'sample', 'type'=>'page'));
 	
 	// Metadata
-	$postmeta = array('title'=>'Sample Page', 'slug'=>'sample', 'description'=>'Just a simple meta description for your sample page.');
+	$postmeta = array('title'=>'Sample Page', 'description'=>'Just a simple meta description for your sample page.');
 	
 	// Create post metadata
 	foreach($postmeta as $key=>$value)

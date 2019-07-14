@@ -67,7 +67,7 @@ class Post {
 			<thead>
 				<?php
 				// Construct the table header
-				echo tableHeaderRow(array('Title', 'Author', 'Publish Date', 'Status'));
+				echo tableHeaderRow(array('Title', 'Author', 'Publish Date', 'Status', 'Meta Title', 'Meta Desc.'));
 				?>
 			</thead>
 			<tbody>
@@ -80,12 +80,21 @@ class Post {
 				
 				// Loop through the posts
 				foreach($posts as $post) {
+					// Fetch postmeta from the database
+					$postmeta = $rs_query->select('postmeta', '*', array('post'=>$post['id']));
+					
+					// Assign metadata to its own array
+					foreach($postmeta as $metadata)
+						$meta[$metadata['_key']] = $metadata['value'];
+					
 					// Construct the current row
 					echo tableRow(
 						tableCell('<strong>'.$post['title'].'</strong><div class="actions">'.($status !== 'trash' ? '<a href="?id='.$post['id'].'&action=edit">Edit</a> &bull; <a href="?id='.$post['id'].'&action=trash">Trash</a> &bull; <a href="'.($post['status'] === 'published' ? ($this->isHomePage($post['id']) ? '/' : '' /* $this->getPermalink($post['parent'], $post['slug']) */).'">View' : ('/?id='.$post['id'].'&preview=true').'">Preview').'</a>' : '<a href="?id='.$post['id'].'&action=restore">Restore</a> &bull; <a href="" rel="">Delete</a>').'</div>', 'title'),
 						tableCell($this->getAuthor($post['author']), 'author'),
 						tableCell(formatDate($post['date'], 'd M Y @ g:i A'), 'publish-date'),
-						tableCell(ucfirst($post['status']), 'status')
+						tableCell(ucfirst($post['status']), 'status'),
+						tableCell(!empty($meta['title']) ? 'Yes' : 'No', 'meta_title'),
+						tableCell(!empty($meta['description']) ? 'Yes' : 'No', 'meta_description')
 					);
 
 // '<div class="actions">'.($status !== 'trash' ? '<a href="?id='.$post['id'].'&action=edit">Edit</a> &bull; <a href="?id='.$post['id'].'&action=trash">Trash</a> &bull; <a href="'.($post['status'] === 'published' ? ($post['slug'] !== 'home' ? $this->getPermalink($post['parent_id'], $post['slug']) : '/').'">View' : ('/?id='.$post['id'].'&preview=true').'">Preview').'</a>' : '<a href="?id='.$post['id'].'&action=restore">Restore</a> &bull; <a class="delete-item" href="javascript:void(0)" rel="'.($type === 'post' ? $post['id'] : $type.'-'.$post['id']).'">Delete</a>').'</div>';
@@ -95,7 +104,7 @@ class Post {
 				
 				if(count($posts) === 0) {
 					// Display notice if no posts are found
-					echo tableRow(tableCell('There are no '.$type.'s to display.', '', 4));
+					echo tableRow(tableCell('There are no '.$type.'s to display.', '', 6));
 				}
 				?>
 			</tbody>
@@ -224,6 +233,50 @@ class Post {
 			</div>
 		</form>
 		<?php
+	}
+	
+	/**
+	 * Send a post to the trash.
+	 * @since 1.4.6[a]
+	 *
+	 * @access public
+	 * @param int $id
+	 * @return null
+	 */
+	public function trashEntry($id) {
+		// Extend the Query class
+		global $rs_query;
+		
+		// Fetch the post from the database
+		$post = $rs_query->selectRow('posts', 'type', array('id'=>$id));
+		
+		// Set the post's status to 'trash'
+		$rs_query->update('posts', array('status'=>'trash'), array('id'=>$id));
+		
+		// Redirect to the 'All Posts' page
+		header('Location: posts.php'.($post['type'] !== 'post' ? '?type='.$post['type'] : ''));
+	}
+	
+	/**
+	 * Restore a post from the trash.
+	 * @since 1.4.6[a]
+	 *
+	 * @access public
+	 * @param int $id
+	 * @return null
+	 */
+	public function restoreEntry($id) {
+		// Extend the Query class
+		global $rs_query;
+		
+		// Fetch the post from the database
+		$post = $rs_query->selectRow('posts', 'type', array('id'=>$id));
+		
+		// Set the post's status to 'draft'
+		$rs_query->update('posts', array('status'=>'draft'), array('id'=>$id));
+		
+		// Redirect to the 'All Posts' trash page
+		header('Location: posts.php'.($post['type'] !== 'post' ? '?type='.$post['type'].'&' : '?').'status=trash');
 	}
 	
 	/**

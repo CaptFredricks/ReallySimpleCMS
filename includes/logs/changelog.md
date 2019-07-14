@@ -4,6 +4,20 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.4.6[a] (2019-06-20)
+
+* Buttons will no longer have underlined text on mouse hover
+* The 'All Posts' table now tells whether metadata has been provided
+* Created a function for trashing a post
+* A post slug postmeta entry will no longer be created during the CMS install
+* Created a function for restoring a trashed post
+
+**Modified files:**
+* admin/includes/class-post.php
+* admin/includes/functions.php (M)
+* includes/css/buttons.css (M)
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.4.5[a] (2019-05-29)
 
 * Finished building the 'Create Post' form
