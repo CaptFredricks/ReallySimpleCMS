@@ -67,7 +67,7 @@ class Post {
 			<thead>
 				<?php
 				// Construct the table header
-				echo tableHeaderRow(array('Title', 'Author', 'Publish Date', 'Status', 'Meta Title', 'Meta Desc.'));
+				echo tableHeaderRow(array('Title', 'Author', 'Publish Date', 'Parent', 'Meta Title', 'Meta Desc.'));
 				?>
 			</thead>
 			<tbody>
@@ -80,25 +80,24 @@ class Post {
 				
 				// Loop through the posts
 				foreach($posts as $post) {
-					// Fetch postmeta from the database
+					// Fetch the post metadata from the database
 					$postmeta = $rs_query->select('postmeta', '*', array('post'=>$post['id']));
 					
-					// Assign metadata to its own array
+					// Loop through the post metadata
 					foreach($postmeta as $metadata)
 						$meta[$metadata['_key']] = $metadata['value'];
 					
 					// Construct the current row
 					echo tableRow(
-						tableCell('<strong>'.$post['title'].'</strong><div class="actions">'.($status !== 'trash' ? '<a href="?id='.$post['id'].'&action=edit">Edit</a> &bull; <a href="?id='.$post['id'].'&action=trash">Trash</a> &bull; <a href="'.($post['status'] === 'published' ? ($this->isHomePage($post['id']) ? '/' : '' /* $this->getPermalink($post['parent'], $post['slug']) */).'">View' : ('/?id='.$post['id'].'&preview=true').'">Preview').'</a>' : '<a href="?id='.$post['id'].'&action=restore">Restore</a> &bull; <a href="" rel="">Delete</a>').'</div>', 'title'),
+						tableCell('<strong>'.$post['title'].'</strong>'.($post['status'] !== 'published' && $status === 'all' ? ' &ndash; <em>'.$post['status'].'</em>' : '').'<div class="actions">'.($status !== 'trash' ? '<a href="?id='.$post['id'].'&action=edit">Edit</a> &bull; <a href="?id='.$post['id'].'&action=trash">Trash</a> &bull; <a href="'.($post['status'] === 'published' ? ($this->isHomePage($post['id']) ? '/' : '' /* $this->getPermalink($post['parent'], $post['slug']) */).'">View' : ('/?id='.$post['id'].'&preview=true').'">Preview').'</a>' : '<a href="?id='.$post['id'].'&action=restore">Restore</a> &bull; <a href="?id='.$post['id'].'&action=delete" rel="">Delete</a>').'</div>', 'title'),
 						tableCell($this->getAuthor($post['author']), 'author'),
 						tableCell(formatDate($post['date'], 'd M Y @ g:i A'), 'publish-date'),
-						tableCell(ucfirst($post['status']), 'status'),
+						tableCell($this->getParent($post['parent']), 'parent'),
 						tableCell(!empty($meta['title']) ? 'Yes' : 'No', 'meta_title'),
 						tableCell(!empty($meta['description']) ? 'Yes' : 'No', 'meta_description')
 					);
 
 // '<div class="actions">'.($status !== 'trash' ? '<a href="?id='.$post['id'].'&action=edit">Edit</a> &bull; <a href="?id='.$post['id'].'&action=trash">Trash</a> &bull; <a href="'.($post['status'] === 'published' ? ($post['slug'] !== 'home' ? $this->getPermalink($post['parent_id'], $post['slug']) : '/').'">View' : ('/?id='.$post['id'].'&preview=true').'">Preview').'</a>' : '<a href="?id='.$post['id'].'&action=restore">Restore</a> &bull; <a class="delete-item" href="javascript:void(0)" rel="'.($type === 'post' ? $post['id'] : $type.'-'.$post['id']).'">Delete</a>').'</div>';
-//$content .= '<td class="parent">'.$this->getParent($post['parent_id']).'</td>';
 
 				}
 				
@@ -200,10 +199,10 @@ class Post {
 						<div class="row">
 							<?php
 							// Display the featured image if it's been selected
-							isset($_POST['featured']) && strlen($_POST['featured']) > 0 ? '<img src=""><span></span>' : '';
+							isset($_POST['feat_image']) && strlen($_POST['feat_image']) > 0 ? '<img src=""><span></span>' : '';
 							
 							// Construct hidden 'featured' form tag
-							echo formTag('input', array('type'=>'hidden', 'name'=>'featured'));
+							echo formTag('input', array('type'=>'hidden', 'name'=>'feat_image'));
 							?>
 							<a href="#">Choose Image</a>
 						</div>
@@ -247,14 +246,19 @@ class Post {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Fetch the post from the database
-		$post = $rs_query->selectRow('posts', 'type', array('id'=>$id));
-		
-		// Set the post's status to 'trash'
-		$rs_query->update('posts', array('status'=>'trash'), array('id'=>$id));
-		
-		// Redirect to the 'All Posts' page
-		header('Location: posts.php'.($post['type'] !== 'post' ? '?type='.$post['type'] : ''));
+		if(!empty($id)) {
+			// Fetch the post from the database
+			$post = $rs_query->selectRow('posts', 'type', array('id'=>$id));
+			
+			// Set the post's status to 'trash'
+			$rs_query->update('posts', array('status'=>'trash'), array('id'=>$id));
+			
+			// Redirect to the 'All Posts' page
+			header('Location: posts.php'.($post['type'] !== 'post' ? '?type='.$post['type'] : ''));
+		} else {
+			// Redirect to the posts page
+			header('Location: posts.php');
+		}
 	}
 	
 	/**
@@ -269,14 +273,77 @@ class Post {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Fetch the post from the database
-		$post = $rs_query->selectRow('posts', 'type', array('id'=>$id));
+		if(!empty($id)) {
+			// Fetch the post from the database
+			$post = $rs_query->selectRow('posts', 'type', array('id'=>$id));
+			
+			// Set the post's status to 'draft'
+			$rs_query->update('posts', array('status'=>'draft'), array('id'=>$id));
+			
+			// Redirect to the 'All Posts' trash page
+			header('Location: posts.php'.($post['type'] !== 'post' ? '?type='.$post['type'].'&' : '?').'status=trash');
+		} else {
+			// Redirect to the posts page
+			header('Location: posts.php');
+		}
+	}
+	
+	/**
+	 * Delete a post from the database.
+	 * @since 1.4.7[a]
+	 *
+	 * @access public
+	 * @param int $id
+	 * @return null
+	 */
+	public function deleteEntry($id) {
+		// Extend the Query class
+		global $rs_query;
 		
-		// Set the post's status to 'draft'
-		$rs_query->update('posts', array('status'=>'draft'), array('id'=>$id));
+		if(!empty($id)) {
+			// Fetch the post from the database
+			$post = $rs_query->selectRow('posts', 'type', array('id'=>$id));
+			
+			// Delete the post metadata from the database
+			$rs_query->delete('postmeta', array('post'=>$id));
+			
+			// Delete the post from the database
+			$rs_query->delete('posts', array('id'=>$id));
+			
+			// Redirect to the 'All Posts' page
+			header('Location: posts.php'.($post['type'] !== 'post' ? '?type='.$post['type'].'&' : '?').'status=trash&exit_status=success');
+		} else {
+			// Redirect to the posts page
+			header('Location: posts.php');
+		}
+	}
+	
+	/**
+	 * Validate the form data.
+	 * @since 1.4.7[a]
+	 *
+	 * @access private
+	 * @param array $data
+	 * @param int $id (optional; default: 0)
+	 * @return null|string (null on $id == 0; string on $id != 0)
+	 */
+	private function validateData($data, $id = 0) {
+		// Extend the Query class
+		global $rs_query;
 		
-		// Redirect to the 'All Posts' trash page
-		header('Location: posts.php'.($post['type'] !== 'post' ? '?type='.$post['type'].'&' : '?').'status=trash');
+		if($id === 0) {
+			// Insert new post to the database
+			$insert_id = $rs_query->insert('posts', array('title'=>$data['title'], 'author'=>$data['author'], 'date'=>'NOW()', 'content'=>$data['content'], 'status'=>$data['status'], 'slug'=>$data['slug'], 'parent'=>$data['parent'], 'type'=>$data['type']));
+			
+			$postmeta = array('feat_image'=>$data['feat_image'], 'title'=>$data['meta_title'], 'description'=>$data['meta_description']);
+			
+			foreach($postmeta as $key=>$value)
+				$rs_query->insert('postmeta', array('_key'=>$key, 'value'=>$value, 'post'=>$insert_id));
+				
+			header('Location: posts.php?id='.$insert_id.'&action=edit');
+		} else {
+			
+		}
 	}
 	
 	/**
@@ -357,8 +424,8 @@ class Post {
 		// Fetch the parent from the database
 		$parent = $rs_query->selectRow('posts', 'title', array('id'=>$id));
 		
-		// Return the parent's title
-		return $parent['title'];
+		// Return the parent's title (if post has a parent)
+		return !empty($parent) ? $parent['title'] : '';
 	}
 	
 	/**

@@ -4,13 +4,27 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.4.7[a] (2019-07-21)
+
+* Improved styling on list entries pages
+* Improved exception handling in the following Post class functions: trashEntry, restoreEntry, getParent
+* A post's status will now display next to the post title on the list posts page (unless the post is published)
+* Added a column to display the post's parent (if it has one) on the list posts page
+* Posts can now be deleted
+* Tweaked a previous entry in the changelog
+* Posts can now be created (no validation yet)
+
+**Modified files:**
+* admin/includes/class-post.php
+* admin/includes/css/style.css
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.4.6[a] (2019-06-20)
 
 * Buttons will no longer have underlined text on mouse hover
 * The 'All Posts' table now tells whether metadata has been provided
-* Created a function for trashing a post
+* Posts can now be trashed and restored
 * A post slug postmeta entry will no longer be created during the CMS install
-* Created a function for restoring a trashed post
 
 **Modified files:**
 * admin/includes/class-post.php

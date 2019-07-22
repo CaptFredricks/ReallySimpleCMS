@@ -209,12 +209,44 @@ a:hover {
 .data-table {
 	background-color: #ededed;
 	border-collapse: collapse;
+	box-shadow: 0 2px 4px #000;
 	color: #101010;
 	width: 100%;
 }
 
-.data-table thead {
-	border-bottom: 1px solid #cfcfcf;
+.data-table thead tr,
+.data-table tbody tr:not(:last-child) {
+	border-bottom: 1px solid #cdcdcd;
+}
+
+.data-table tbody tr:nth-child(odd) {
+	background-color: #ddd;
+}
+
+.data-table tbody tr:hover {
+	background-color: #fdfdfd;
+}
+
+.data-table th,
+.data-table td {
+	padding: 0.5rem;
+}
+
+.data-table th:not(:last-child),
+.data-table td:not(:last-child) {
+	border-right: 1px solid #cdcdcd;
+}
+
+.data-table td {
+	font-size: 0.95em;
+}
+
+.data-table a {
+	color: #46708a;
+}
+
+.data-table .actions {
+	font-size: 0.85em;
 }
 
 /* Footer */
