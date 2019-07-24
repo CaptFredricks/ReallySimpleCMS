@@ -134,99 +134,97 @@ class Post {
 			echo $message;
 			?>
 		</div>
-		<form action="" method="post" autocomplete="off">
-			<div class="form-container">
-				<div class="content">
+		<form class="data-form clear" action="" method="post" autocomplete="off">
+			<div class="content">
+				<?php
+				// Construct hidden 'type' form tag
+				echo formTag('input', array('type'=>'hidden', 'name'=>'type', 'value'=>$type));
+				
+				// Construct 'title' form tag
+				echo formTag('input', array('type'=>'text', 'id'=>'title-field', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>$_POST['title'] ?? '', 'placeholder'=>ucfirst($type).' title'));
+				?>
+				<div class="permalink">
 					<?php
-					// Construct hidden 'type' form tag
-					echo formTag('input', array('type'=>'hidden', 'name'=>'type', 'value'=>$type));
-					
-					// Construct 'title' form tag
-					echo formTag('input', array('type'=>'text', 'id'=>'title-field', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>$_POST['title'] ?? '', 'placeholder'=>ucfirst($type).' title'));
+					// Construct 'permalink' form tag
+					echo formTag('label', array('for'=>'slug', 'content'=>'<strong>Permalink:</strong> '.getSetting('site_url', false).'/'));
+					echo formTag('input', array('type'=>'text', 'id'=>'slug-field', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>$_POST['slug'] ?? ''));
+					echo '/';
 					?>
-					<div class="permalink">
+				</div>
+				<?php
+				// Construct 'insert image' button form tag
+				echo formTag('input', array('type'=>'button', 'class'=>'button-input button', 'value'=>'Insert Image'));
+				
+				// Construct 'content' form tag
+				echo formTag('textarea', array('class'=>'textarea-input', 'name'=>'content', 'cols'=>30, 'rows'=>20, 'content'=>isset($_POST['content']) ? htmlspecialchars($_POST['content']) : ''));
+				?>
+			</div>
+			<div class="sidebar">
+				<div class="block">
+					<h2>Publish</h2>
+					<div class="row">
 						<?php
-						// Construct 'permalink' form tag
-						echo formTag('label', array('for'=>'slug', 'content'=>'<strong>Permalink:</strong> '.getSetting('site_url', false).'/'));
-						echo formTag('input', array('type'=>'text', 'id'=>'slug-field', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>$_POST['slug'] ?? ''));
-						echo '/';
+						// Construct 'status' form tag
+						echo formTag('label', array('for'=>'status', 'content'=>'Status'));
+						echo formTag('select', array('class'=>'select-input', 'name'=>'status', 'content'=>'<option value="draft">Draft</option><option value="published">Published</option>'));
 						?>
 					</div>
-					<?php
-					// Construct 'insert image' button form tag
-					echo formTag('input', array('type'=>'button', 'class'=>'button-input button', 'value'=>'Insert Image'));
-					
-					// Construct 'content' form tag
-					echo formTag('textarea', array('class'=>'textarea-input', 'name'=>'content', 'cols'=>30, 'rows'=>20, 'content'=>isset($_POST['content']) ? htmlspecialchars($_POST['content']) : ''));
-					?>
-				</div>
-				<div class="sidebar">
-					<div class="block">
-						<h2>Publish</h2>
-						<div class="row">
-							<?php
-							// Construct 'status' form tag
-							echo formTag('label', array('for'=>'status', 'content'=>'Status'));
-							echo formTag('select', array('name'=>'status', 'content'=>'<option value="draft">Draft</option><option value="published">Published</option>'));
-							?>
-						</div>
-						<div class="row">
-							<?php
-							// Construct 'author' form tag
-							echo formTag('label', array('for'=>'author', 'content'=>'Author'));
-							echo formTag('select', array('name'=>'author', 'content'=>$this->getAuthorList()));
-							?>
-						</div>
-						<div id="submit" class="row">
-							<?php
-							// Construct 'submit' button form tag
-							echo formTag('input', array('type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Publish'));
-							?>
-						</div>
+					<div class="row">
+						<?php
+						// Construct 'author' form tag
+						echo formTag('label', array('for'=>'author', 'content'=>'Author'));
+						echo formTag('select', array('class'=>'select-input', 'name'=>'author', 'content'=>$this->getAuthorList()));
+						?>
 					</div>
-					<div class="block">
-						<h2>Attributes</h2>
-						<div class="row">
-							<?php
-							// Construct 'parent' form tag
-							echo formTag('label', array('for'=>'parent', 'content'=>'Parent'));
-							echo formTag('select', array('name'=>'parent', 'content'=>'<option value="0">(none)</option>'.$this->getParentList($type)));
-							?>
-						</div>
-					</div>
-					<div class="block">
-						<h2>Featured Image</h2>
-						<div class="row">
-							<?php
-							// Display the featured image if it's been selected
-							isset($_POST['feat_image']) && strlen($_POST['feat_image']) > 0 ? '<img src=""><span></span>' : '';
-							
-							// Construct hidden 'featured' form tag
-							echo formTag('input', array('type'=>'hidden', 'name'=>'feat_image'));
-							?>
-							<a href="#">Choose Image</a>
-						</div>
+					<div id="submit" class="row">
+						<?php
+						// Construct 'submit' button form tag
+						echo formTag('input', array('type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Publish'));
+						?>
 					</div>
 				</div>
-				<div class="metadata">
-					<div class="block">
-						<h2>Metadata</h2>
-						<div class="row">
-							<?php
-							// Construct 'meta title' form tag
-							echo formTag('label', array('for'=>'meta_title', 'content'=>'Title'));
-							echo formTag('br');
-							echo formTag('input', array('type'=>'text', 'class'=>'text-input', 'name'=>'meta_title', 'value'=>$_POST['meta_title'] ?? ''));
-							?>
-						</div>
-						<div class="row">
-							<?php
-							// Construct 'meta description' form tag
-							echo formTag('label', array('for'=>'meta_description', 'content'=>'Description'));
-							echo formTag('br');
-							echo formTag('textarea', array('class'=>'textarea-input', 'name'=>'meta_description', 'cols'=>30, 'rows'=>3, 'content'=>$_POST['meta_description'] ?? ''));
-							?>
-						</div>
+				<div class="block">
+					<h2>Attributes</h2>
+					<div class="row">
+						<?php
+						// Construct 'parent' form tag
+						echo formTag('label', array('for'=>'parent', 'content'=>'Parent'));
+						echo formTag('select', array('class'=>'select-input', 'name'=>'parent', 'content'=>'<option value="0">(none)</option>'.$this->getParentList($type)));
+						?>
+					</div>
+				</div>
+				<div class="block">
+					<h2>Featured Image</h2>
+					<div class="row">
+						<?php
+						// Display the featured image if it's been selected
+						isset($_POST['feat_image']) && strlen($_POST['feat_image']) > 0 ? '<img src=""><span></span>' : '';
+						
+						// Construct hidden 'featured' form tag
+						echo formTag('input', array('type'=>'hidden', 'name'=>'feat_image'));
+						?>
+						<a href="#">Choose Image</a>
+					</div>
+				</div>
+			</div>
+			<div class="metadata">
+				<div class="block">
+					<h2>Metadata</h2>
+					<div class="row">
+						<?php
+						// Construct 'meta title' form tag
+						echo formTag('label', array('for'=>'meta_title', 'content'=>'Title'));
+						echo formTag('br');
+						echo formTag('input', array('type'=>'text', 'class'=>'text-input', 'name'=>'meta_title', 'value'=>$_POST['meta_title'] ?? ''));
+						?>
+					</div>
+					<div class="row">
+						<?php
+						// Construct 'meta description' form tag
+						echo formTag('label', array('for'=>'meta_description', 'content'=>'Description'));
+						echo formTag('br');
+						echo formTag('textarea', array('class'=>'textarea-input', 'name'=>'meta_description', 'cols'=>30, 'rows'=>4, 'content'=>$_POST['meta_description'] ?? ''));
+						?>
 					</div>
 				</div>
 			</div>
@@ -331,19 +329,59 @@ class Post {
 		// Extend the Query class
 		global $rs_query;
 		
+		// Make sure no required fields are empty
+		if(empty($data['title']) || empty($data['slug']))
+			return statusMessage('R');
+		
+		// Make sure the slug is not already being used
+		if($this->slugExists($data['slug'], $id))
+			return statusMessage('That slug is already in use. Please choose another one.');
+		
+		// Prevent post from being published with an invalid status
+		if($data['status'] !== 'draft' && $data['status'] !== 'published')
+			$data['status'] = 'draft';
+		
+		// Create an array to hold post metadata
+		$postmeta = array('feat_image'=>$data['feat_image'], 'title'=>$data['meta_title'], 'description'=>$data['meta_description']);
+		
 		if($id === 0) {
-			// Insert new post to the database
+			// Insert the new post into the database
 			$insert_id = $rs_query->insert('posts', array('title'=>$data['title'], 'author'=>$data['author'], 'date'=>'NOW()', 'content'=>$data['content'], 'status'=>$data['status'], 'slug'=>$data['slug'], 'parent'=>$data['parent'], 'type'=>$data['type']));
 			
-			$postmeta = array('feat_image'=>$data['feat_image'], 'title'=>$data['meta_title'], 'description'=>$data['meta_description']);
-			
+			// Insert the post metadata into the database
 			foreach($postmeta as $key=>$value)
 				$rs_query->insert('postmeta', array('_key'=>$key, 'value'=>$value, 'post'=>$insert_id));
-				
+			
+			// Redirect to the 'Edit Post' page
 			header('Location: posts.php?id='.$insert_id.'&action=edit');
 		} else {
 			
 		}
+	}
+	
+	/**
+	 * Check whether a slug exists in the database.
+	 * @since 1.4.8[a]
+	 *
+	 * @access protected
+	 * @param string $slug
+	 * @param int $id
+	 * @return bool
+	 */
+	protected function slugExists($slug, $id) {
+		// Extend the Query class
+		global $rs_query;
+		
+		if($id === 0) {
+			// Fetch the number of times the slug appears
+			$count = $rs_query->selectRow('posts', 'COUNT(slug)', array('slug'=>$slug));
+		} else {
+			// Fetch the number of times the slug appears (minus the current post)
+			$count = $rs_query->selectRow('posts', 'COUNT(slug)', array('slug'=>$slug, 'id'=>array('<>', $id)));
+		}
+		
+		// Return true if the count is greater than zero
+		return $count > 0;
 	}
 	
 	/**
@@ -358,7 +396,7 @@ class Post {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Return true if the post is the home page and false if not
+		// Return true if the post is the home page
 		return $rs_query->selectRow('settings', 'COUNT(*)', array('name'=>'home_page', 'value'=>$id));
 	}
 	
@@ -446,7 +484,7 @@ class Post {
 		$list = '';
 		
 		// Fetch all posts from the database (by type)
-		$posts = $rs_query->select('posts', 'id', array('type'=>$type));
+		$posts = $rs_query->select('posts', 'id', array('status'=>array('<>', 'trash'), 'type'=>$type));
 		
 		// Loop through the posts
 		foreach($posts as $post) {

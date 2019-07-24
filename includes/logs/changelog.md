@@ -4,6 +4,20 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.4.8[a] (2019-07-22)
+
+* Added form validation to Post::createEntry function
+* Created a function to check whether a post slug already exists in the database
+* Added styling to 'Create Post' form
+* Tweaked styling on the admin footer
+* Trashed posts will no longer appear in post parent dropdowns
+
+**Modified files:**
+* admin/footer.php (M)
+* admin/includes/class-post.php
+* admin/includes/css/style.css
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.4.7[a] (2019-07-21)
 
 * Improved styling on list entries pages
