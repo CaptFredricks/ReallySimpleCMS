@@ -233,6 +233,158 @@ class Post {
 	}
 	
 	/**
+	 * Construct the 'Edit Post' form.
+	 * @since 1.4.9[a]
+	 *
+	 * @access public
+	 * @param int $id
+	 * @return null
+	 */
+	public function editEntry($id) {
+		// Extend the Query class
+		global $rs_query;
+		
+		if(empty($id) || $id <= 0) {
+			// Redirect to the 'List Posts' page if the post id is invalid
+			header('Location: posts.php');
+		} else {
+			// Fetch the post from the database
+			$post = $rs_query->selectRow('posts', '*', array('id'=>$id));
+			
+			if(empty($post)) {
+				// Redirect to the 'List Posts' page if the post doesn't exist
+				header('Location: posts.php');
+			} else {
+				if($this->isTrash($id)) {
+					// Redirect to the 'List Posts' trash page if the post is in the trash
+					header('Location: posts.php'.($post['type'] !== 'post' ? '?type='.$post['type'].'&' : '?').'status=trash');
+				} else {
+					// Validate the form data and return any messages
+					$message = isset($_POST['submit']) ? $this->validateData($_POST, $id) : '';
+					
+					// Fetch the post metadata from the database
+					$postmeta = $rs_query->select('postmeta', '*', array('post'=>$id));
+					
+					// Loop through the post metadata
+					foreach($postmeta as $metadata)
+						$meta[$metadata['_key']] = $metadata['value'];
+					?>
+					<div class="heading-wrap">
+						<h1>Edit <?php echo ucwords($post['type']); ?></h1>
+						<?php
+						// Display status messages
+						echo $message;
+						?>
+					</div>
+					<form class="data-form clear" action="" method="post" autocomplete="off">
+						<div class="content">
+							<?php
+							// Construct 'title' form tag
+							echo formTag('input', array('type'=>'text', 'id'=>'title-field', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>$post['title'], 'placeholder'=>ucfirst($post['type']).' title'));
+							?>
+							<div class="permalink">
+								<?php
+								// Construct 'permalink' form tag
+								echo formTag('label', array('for'=>'slug', 'content'=>'<strong>Permalink:</strong> '.getSetting('site_url', false).($post['parent'] !== 0 ? $this->getPermalink($post['parent']) : '/')));
+								echo formTag('input', array('type'=>'text', 'id'=>'slug-field', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>$post['slug']));
+								echo '/';
+								?>
+							</div>
+							<?php
+							// Construct 'insert image' button form tag
+							echo formTag('input', array('type'=>'button', 'class'=>'button-input button', 'value'=>'Insert Image'));
+							
+							// Construct 'content' form tag
+							echo formTag('textarea', array('class'=>'textarea-input', 'name'=>'content', 'cols'=>30, 'rows'=>20, 'content'=>htmlspecialchars($post['content'])));
+							?>
+						</div>
+						<div class="sidebar">
+							<div class="block">
+								<h2>Publish</h2>
+								<div class="row">
+									<?php
+									// Construct 'status' form tag
+									echo formTag('label', array('for'=>'status', 'content'=>'Status'));
+									echo formTag('select', array('class'=>'select-input', 'name'=>'status', 'content'=>'<option value="'.$post['status'].'">'.ucfirst($post['status']).'</option>'.($post['status'] === 'draft' ? '<option value="published">Published</option>' : '<option value="draft">Draft</option>')));
+									?>
+								</div>
+								<div class="row">
+									<?php
+									// Construct 'author' form tag
+									echo formTag('label', array('for'=>'author', 'content'=>'Author'));
+									echo formTag('select', array('class'=>'select-input', 'name'=>'author', 'content'=>$this->getAuthorList($post['author'])));
+									?>
+								</div>
+								<div class="row">
+									<?php
+									// Construct 'publish date' form tag label
+									echo formTag('label', array('for'=>'date', 'content'=>'Published on'));
+									echo '<span id="date">'.formatDate($post['date'], 'M d Y @ h:i A').'</span>';
+									?>
+								</div>
+								<div id="submit" class="row">
+									<?php
+									// Construct view/preview link
+									echo $post['status'] === 'published' ? '<a href="'.($this->isHomePage($post['id']) ? '/' : $this->getPermalink($post['parent'], $post['slug'])).'">View</a>' : '<a href="/?id='.$post['id'].'&preview=true">Preview</a>';
+									
+									// Construct 'submit' button form tag
+									echo formTag('input', array('type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update'));
+									?>
+								</div>
+							</div>
+							<div class="block">
+								<h2>Attributes</h2>
+								<div class="row">
+									<?php
+									// Construct 'parent' form tag
+									echo formTag('label', array('for'=>'parent', 'content'=>'Parent'));
+									echo formTag('select', array('class'=>'select-input', 'name'=>'parent', 'content'=>'<option value="0">(none)</option>'.$this->getParentList($post['type'], $post['parent'], $post['id'])));
+									?>
+								</div>
+							</div>
+							<div class="block">
+								<h2>Featured Image</h2>
+								<div class="row">
+									<?php
+									// Display the featured image if it's been selected
+									isset($_POST['feat_image']) && strlen($_POST['feat_image']) > 0 ? '<img src=""><span></span>' : '';
+									
+									// Construct hidden 'featured' form tag
+									echo formTag('input', array('type'=>'hidden', 'name'=>'feat_image'));
+									?>
+									<a href="#">Choose Image</a>
+								</div>
+							</div>
+						</div>
+						<div class="metadata">
+							<div class="block">
+								<h2>Metadata</h2>
+								<div class="row">
+									<?php
+									// Construct 'meta title' form tag
+									echo formTag('label', array('for'=>'meta_title', 'content'=>'Title'));
+									echo formTag('br');
+									echo formTag('input', array('type'=>'text', 'class'=>'text-input', 'name'=>'meta_title', 'value'=>$meta['title'] ?? ''));
+									?>
+								</div>
+								<div class="row">
+									<?php
+									// Construct 'meta description' form tag
+									echo formTag('label', array('for'=>'meta_description', 'content'=>'Description'));
+									echo formTag('br');
+									echo formTag('textarea', array('class'=>'textarea-input', 'name'=>'meta_description', 'cols'=>30, 'rows'=>4, 'content'=>$meta['description'] ?? ''));
+									?>
+								</div>
+							</div>
+						</div>
+					</form>
+					<?php
+				}
+			}
+		}
+	}
+	
+	/**
 	 * Send a post to the trash.
 	 * @since 1.4.6[a]
 	 *
@@ -251,7 +403,7 @@ class Post {
 			// Set the post's status to 'trash'
 			$rs_query->update('posts', array('status'=>'trash'), array('id'=>$id));
 			
-			// Redirect to the 'All Posts' page
+			// Redirect to the 'List Posts' page
 			header('Location: posts.php'.($post['type'] !== 'post' ? '?type='.$post['type'] : ''));
 		} else {
 			// Redirect to the posts page
@@ -278,7 +430,7 @@ class Post {
 			// Set the post's status to 'draft'
 			$rs_query->update('posts', array('status'=>'draft'), array('id'=>$id));
 			
-			// Redirect to the 'All Posts' trash page
+			// Redirect to the 'List Posts' trash page
 			header('Location: posts.php'.($post['type'] !== 'post' ? '?type='.$post['type'].'&' : '?').'status=trash');
 		} else {
 			// Redirect to the posts page
@@ -308,7 +460,7 @@ class Post {
 			// Delete the post from the database
 			$rs_query->delete('posts', array('id'=>$id));
 			
-			// Redirect to the 'All Posts' page
+			// Redirect to the 'List Posts' page
 			header('Location: posts.php'.($post['type'] !== 'post' ? '?type='.$post['type'].'&' : '?').'status=trash&exit_status=success');
 		} else {
 			// Redirect to the posts page
@@ -401,6 +553,53 @@ class Post {
 	}
 	
 	/**
+	 * Check whether a post is in the trash.
+	 * @since 1.4.9[a]
+	 *
+	 * @access private
+	 * @param int $id
+	 * @return bool
+	 */
+	private function isTrash($id) {
+		// Extend the Query class
+		global $rs_query;
+		
+		// Fetch the post from the database
+		$post = $rs_query->selectRow('posts', 'status', array('id'=>$id));
+		
+		// Return true if the post is in the trash
+		return $post['status'] === 'trash';
+	}
+	
+	/**
+	 * Check whether a post is a descendant of another post.
+	 * @since 1.4.9[a]
+	 *
+	 * @access private
+	 * @param int $id
+	 * @param int $ancestor
+	 * @return bool
+	 */
+	private function isDescendant($id, $ancestor) {
+		// Extend the Query class
+		global $rs_query;
+		
+		do {
+			// Fetch the parent post from the database
+			$post = $rs_query->selectRow('posts', 'parent', array('id'=>$id));
+			
+			// Set the new id
+			$id = (int)$post['parent'];
+			
+			// Return true if the post's ancestor is found
+			if($id === $ancestor) return true;
+		} while($id !== 0);
+		
+		// Return false if no ancestor is found
+		return false;
+	}
+	
+	/**
 	 * Fetch a post's author.
 	 * @since 1.4.0[a]
 	 *
@@ -459,7 +658,7 @@ class Post {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Fetch the parent from the database
+		// Fetch the parent post from the database
 		$parent = $rs_query->selectRow('posts', 'title', array('id'=>$id));
 		
 		// Return the parent's title (if post has a parent)
@@ -503,6 +702,43 @@ class Post {
 		
 		// Return the list
 		return $list;
+	}
+	
+	/**
+	 * Construct the post permalink.
+	 * @since 1.4.9[a]
+	 *
+	 * @access private
+	 * @param int $parent
+	 * @param string $slug (optional; default: '')
+	 * @return string
+	 */
+	private function getPermalink($parent, $slug = '') {
+		// Extend the Query class
+		global $rs_query;
+		
+		// Create an empty permalink array
+		$permalink = array();
+		
+		while($parent !== 0) {
+			// Fetch the parent post from the database
+			$post = $rs_query->selectRow('posts', array('slug', 'parent'), array('id'=>$parent));
+			
+			// Set the new parent id
+			$parent = (int)$post['parent'];
+			
+			// Add to the permalink array
+			$permalink[] = $post['slug'];
+		};
+		
+		// Reverse and merge the permalink array
+		$permalink = implode('/', array_reverse($permalink));
+		
+		// Construct the full permalink
+		$permalink = (!empty($permalink) ? '/'.$permalink : '').(!empty($slug) ? '/'.$slug : '').'/';
+		
+		// Return the permalink
+		return $permalink;
 	}
 	
 	/**

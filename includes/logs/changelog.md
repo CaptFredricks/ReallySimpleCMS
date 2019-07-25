@@ -4,6 +4,19 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.4.9[a] (2019-07-23)
+
+* Improved styling on 'Create Post' form
+* Created a function that checks whether a post is in the trash
+* Created a function that constructs a post permalink
+* Created a function that checks whether the current post is a descendant of other posts
+* Built 'Edit Post' page (posts cannot be submitted yet)
+
+**Modified files:**
+* admin/includes/class-post.php
+* admin/includes/css/style.css
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.4.8[a] (2019-07-22)
 
 * Added form validation to Post::createEntry function
