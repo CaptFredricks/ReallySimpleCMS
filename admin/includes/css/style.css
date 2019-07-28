@@ -238,6 +238,10 @@ a:hover {
     border-left: 5px solid #f00;
 }
 
+.status-message a {
+	color: #46708a;
+}
+
 /* Data tables */
 
 .data-table {
@@ -302,7 +306,16 @@ a:hover {
 	margin-right: 0.375em;
 }
 
+.data-form label .required {
+	color: #f00;
+}
+
+.data-form .form-table label {
+	margin-right: 0;
+}
+
 .data-form .text-input {
+	border: 2px solid #cdcdcd;
 	padding: 0.25em;
 }
 
@@ -441,6 +454,10 @@ a:hover {
 	border: 2px solid #0d0;
 }
 
-.required.init {
+.required.init:not(label) {
 	border: 2px solid #cdcdcd;
+}
+
+label.required.init {
+	border: none;
 }

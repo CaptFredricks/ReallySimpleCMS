@@ -66,8 +66,14 @@ class Post {
 		<table class="data-table">
 			<thead>
 				<?php
+				// Fill an array with the table header columns
+				if($type === 'post')
+					$table_header_cols = array('Title', 'Author', 'Categories', 'Publish Date', 'Parent', 'Meta Title', 'Meta Desc.');
+				else
+					$table_header_cols = array('Title', 'Author', 'Publish Date', 'Parent', 'Meta Title', 'Meta Desc.');
+				
 				// Construct the table header
-				echo tableHeaderRow(array('Title', 'Author', 'Publish Date', 'Parent', 'Meta Title', 'Meta Desc.'));
+				echo tableHeaderRow($table_header_cols);
 				?>
 			</thead>
 			<tbody>
@@ -81,29 +87,26 @@ class Post {
 				// Loop through the posts
 				foreach($posts as $post) {
 					// Fetch the post metadata from the database
-					$postmeta = $rs_query->select('postmeta', '*', array('post'=>$post['id']));
-					
-					// Loop through the post metadata
-					foreach($postmeta as $metadata)
-						$meta[$metadata['_key']] = $metadata['value'];
+					$meta = $this->getPostMeta($post['id']);
 					
 					// Construct the current row
 					echo tableRow(
-						tableCell('<strong>'.$post['title'].'</strong>'.($post['status'] !== 'published' && $status === 'all' ? ' &ndash; <em>'.$post['status'].'</em>' : '').'<div class="actions">'.($status !== 'trash' ? '<a href="?id='.$post['id'].'&action=edit">Edit</a> &bull; <a href="?id='.$post['id'].'&action=trash">Trash</a> &bull; <a href="'.($post['status'] === 'published' ? ($this->isHomePage($post['id']) ? '/' : '' /* $this->getPermalink($post['parent'], $post['slug']) */).'">View' : ('/?id='.$post['id'].'&preview=true').'">Preview').'</a>' : '<a href="?id='.$post['id'].'&action=restore">Restore</a> &bull; <a href="?id='.$post['id'].'&action=delete" rel="">Delete</a>').'</div>', 'title'),
+						tableCell('<strong>'.$post['title'].'</strong>'.($post['status'] !== 'published' && $status === 'all' ? ' &ndash; <em>'.$post['status'].'</em>' : '').'<div class="actions">'.($status !== 'trash' ? '<a href="?id='.$post['id'].'&action=edit">Edit</a> &bull; <a href="?id='.$post['id'].'&action=trash">Trash</a> &bull; <a href="'.($post['status'] === 'published' ? ($this->isHomePage($post['id']) ? '/' : $this->getPermalink($post['parent'], $post['slug'])).'">View' : ('/?id='.$post['id'].'&preview=true').'">Preview').'</a>' : '<a href="?id='.$post['id'].'&action=restore">Restore</a> &bull; <a href="?id='.$post['id'].'&action=delete" rel="">Delete</a>').'</div>', 'title'),
 						tableCell($this->getAuthor($post['author']), 'author'),
+						$type === 'post' ? tableCell('', 'categories') : '',
 						tableCell(formatDate($post['date'], 'd M Y @ g:i A'), 'publish-date'),
 						tableCell($this->getParent($post['parent']), 'parent'),
 						tableCell(!empty($meta['title']) ? 'Yes' : 'No', 'meta_title'),
 						tableCell(!empty($meta['description']) ? 'Yes' : 'No', 'meta_description')
 					);
 
-// '<div class="actions">'.($status !== 'trash' ? '<a href="?id='.$post['id'].'&action=edit">Edit</a> &bull; <a href="?id='.$post['id'].'&action=trash">Trash</a> &bull; <a href="'.($post['status'] === 'published' ? ($post['slug'] !== 'home' ? $this->getPermalink($post['parent_id'], $post['slug']) : '/').'">View' : ('/?id='.$post['id'].'&preview=true').'">Preview').'</a>' : '<a href="?id='.$post['id'].'&action=restore">Restore</a> &bull; <a class="delete-item" href="javascript:void(0)" rel="'.($type === 'post' ? $post['id'] : $type.'-'.$post['id']).'">Delete</a>').'</div>';
+// ($status !== 'trash' ? : <a class="delete-item" href="javascript:void(0)" rel="'.($type === 'post' ? $post['id'] : $type.'-'.$post['id']).'">Delete</a>');
 
 				}
 				
 				if(count($posts) === 0) {
 					// Display notice if no posts are found
-					echo tableRow(tableCell('There are no '.$type.'s to display.', '', 6));
+					echo tableRow(tableCell('There are no '.$type.'s to display.', '', count($table_header_cols)));
 				}
 				?>
 			</tbody>
@@ -263,11 +266,7 @@ class Post {
 					$message = isset($_POST['submit']) ? $this->validateData($_POST, $id) : '';
 					
 					// Fetch the post metadata from the database
-					$postmeta = $rs_query->select('postmeta', '*', array('post'=>$id));
-					
-					// Loop through the post metadata
-					foreach($postmeta as $metadata)
-						$meta[$metadata['_key']] = $metadata['value'];
+					$meta = $this->getPostMeta($id);
 					?>
 					<div class="heading-wrap">
 						<h1>Edit <?php echo ucwords($post['type']); ?></h1>
@@ -507,7 +506,18 @@ class Post {
 			// Redirect to the 'Edit Post' page
 			header('Location: posts.php?id='.$insert_id.'&action=edit');
 		} else {
+			// Update the post in the database
+			$rs_query->update('posts', array('title'=>$data['title'], 'author'=>$data['author'], 'content'=>$data['content'], 'status'=>$data['status'], 'slug'=>$data['slug'], 'parent'=>$data['parent']), array('id'=>$id));
 			
+			// Update the post metadata in the database
+			foreach($postmeta as $key=>$value)
+				$rs_query->update('postmeta', array('value'=>$value), array('post'=>$id, '_key'=>$key));
+			
+			// Fetch the post type from the database
+			$post = $rs_query->selectRow('posts', 'type', array('id'=>$id));
+			
+			// Return a status message
+			return statusMessage(ucfirst($post['type']).' updated! <a href="posts.php'.($post['type'] === 'post' ? '' : '?type='.$post['type']).'">Return to list</a>?', true);
 		}
 	}
 	
@@ -702,6 +712,40 @@ class Post {
 		
 		// Return the list
 		return $list;
+	}
+	
+	/**
+	 * Fetch the post metadata.
+	 * @since 1.4.10[a]
+	 *
+	 * @access private
+	 * @param int $id
+	 * @return array
+	 */
+	private function getPostMeta($id) {
+		// Extend the Query class
+		global $rs_query;
+		
+		// Fetch the post metadata from the database
+		$postmeta = $rs_query->select('postmeta', array('_key', 'value'), array('post'=>$id));
+		
+		// Create an empty array to hold the metadata
+		$meta = array();
+		
+		// Loop through the metadata
+		foreach($postmeta as $metadata) {
+			// Get the meta values
+			$values = array_values($metadata);
+			
+			// Loop through the individual metadata entries
+			for($i = 0; $i < count($metadata); $i += 2) {
+				// Assign the metadata to the meta array
+				$meta[$values[$i]] = $values[$i + 1];
+			}
+		}
+		
+		// Return the metadata
+		return $meta;
 	}
 	
 	/**

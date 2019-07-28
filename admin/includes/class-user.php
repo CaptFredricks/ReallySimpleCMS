@@ -69,7 +69,7 @@ class User {
 		
 				// Loop through the users
 				foreach($users as $user) {
-					// Fetch the user metadata
+					// Fetch the user metadata from the database
 					$meta = $this->getUserMeta($user['id']);
 					
 					// Construct the current row
@@ -109,7 +109,7 @@ class User {
 			echo $message;
 			?>
 		</div>
-		<form action="" method="post" autocomplete="off">
+		<form class="data-form" action="" method="post" autocomplete="off">
 			<table class="form-table">
 				<?php
 				// Display form rows
@@ -141,41 +141,47 @@ class User {
 		global $rs_query;
 		
 		if(empty($id) || $id <= 0) {
+			// Redirect to the 'List Users' page if the user id is invalid
 			header('Location: users.php');
 		} else {
-			// Validate the form data and return any messages
-			$message = isset($_POST['submit']) ? $this->validateData($_POST, $id) : '';
-			
-			// Fetch user data from the database
+			// Fetch the user from the database
 			$user = $rs_query->selectRow('users', '*', array('id'=>$id));
+			
+			if(empty($user)) {
+				// Redirect to the 'List Users' page if the user doesn't exist
+				header('Location: users.php');
+			} else {
+				// Validate the form data and return any messages
+				$message = isset($_POST['submit']) ? $this->validateData($_POST, $id) : '';
 
-			// Fetch user metadata from the database
-			$meta = $this->getUserMeta($id);
-			?>
-			<div class="heading-wrap">
-				<h1>Edit User</h1>
-				<?php
-				// Display status messages
-				echo $message;
+				// Fetch the user metadata from the database
+				$meta = $this->getUserMeta($id);
 				?>
-			</div>
-			<form action="" method="post" autocomplete="off">
-				<table class="form-table">
+				<div class="heading-wrap">
+					<h1>Edit User</h1>
 					<?php
-					// Display form rows
-					echo formRow(array('Username', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'username', 'value'=>$user['username']));
-					echo formRow(array('Email', true), array('tag'=>'input', 'type'=>'email', 'class'=>'text-input required invalid init', 'name'=>'email', 'value'=>$user['email']));
-					echo formRow('First Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'first_name', 'value'=>$meta['first_name']));
-					echo formRow('Last Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'last_name', 'value'=>$meta['last_name']));
-					echo formRow('Avatar', array('tag'=>'img', 'src'=>$this->getAvatar($meta['avatar']), 'width'=>150), array('tag'=>'br'), array('tag'=>'input', 'type'=>'hidden', 'id'=>'img-input', 'name'=>'avatar', 'value'=>$meta['avatar']), array('tag'=>'input', 'type'=>'button', 'id'=>'img-choose', 'class'=>'button-input button', 'value'=>'Choose Image'));
-					echo formRow('Role', array('tag'=>'select', 'class'=>'select-input', 'name'=>'role', 'content'=>'<option></option>'));
-					echo formRow('', array('tag'=>'hr', 'class'=>'divider'));
-					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update User'));
+					// Display status messages
+					echo $message;
 					?>
-				</table>
-			</form>
-			<a href="?id=<?php echo $id; ?>&action=reset_password">Reset Password</a>
-			<?php
+				</div>
+				<form class="data-form" action="" method="post" autocomplete="off">
+					<table class="form-table">
+						<?php
+						// Display form rows
+						echo formRow(array('Username', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'username', 'value'=>$user['username']));
+						echo formRow(array('Email', true), array('tag'=>'input', 'type'=>'email', 'class'=>'text-input required invalid init', 'name'=>'email', 'value'=>$user['email']));
+						echo formRow('First Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'first_name', 'value'=>$meta['first_name']));
+						echo formRow('Last Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'last_name', 'value'=>$meta['last_name']));
+						echo formRow('Avatar', array('tag'=>'img', 'src'=>$this->getAvatar($meta['avatar']), 'width'=>150), array('tag'=>'br'), array('tag'=>'input', 'type'=>'hidden', 'id'=>'img-input', 'name'=>'avatar', 'value'=>$meta['avatar']), array('tag'=>'input', 'type'=>'button', 'id'=>'img-choose', 'class'=>'button-input button', 'value'=>'Choose Image'));
+						echo formRow('Role', array('tag'=>'select', 'class'=>'select-input', 'name'=>'role', 'content'=>'<option></option>'));
+						echo formRow('', array('tag'=>'hr', 'class'=>'divider'));
+						echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update User'));
+						?>
+					</table>
+				</form>
+				<a href="?id=<?php echo $id; ?>&action=reset_password">Reset Password</a>
+				<?php
+			}
 		}
 	}
 	
@@ -276,7 +282,7 @@ class User {
 	}
 	
 	/**
-	 * Retrieve user metadata.
+	 * Fetch the user metadata.
 	 * @since 1.2.2[a]
 	 *
 	 * @access private
@@ -287,21 +293,30 @@ class User {
 		// Extend the Query class
 		global $rs_query;
 		
+		// Fetch the user metadata from the database
 		$usermeta = $rs_query->select('usermeta', array('_key', 'value'), array('user'=>$id));
+		
+		// Create an empty array to hold the metadata
 		$meta = array();
 		
+		// Loop through the metadata
 		foreach($usermeta as $metadata) {
+			// Get the meta values
 			$values = array_values($metadata);
 			
-			for($i = 0; $i < count($metadata); $i += 2)
+			// Loop through the individual metadata entries
+			for($i = 0; $i < count($metadata); $i += 2) {
+				// Assign the metadata to the meta array
 				$meta[$values[$i]] = $values[$i + 1];
+			}
 		}
 		
+		// Return the metadata
 		return $meta;
 	}
 	
 	/**
-	 * Retrieve URL of a user's avatar.
+	 * Fetch the URL of a user's avatar.
 	 * @since 1.2.4[a]
 	 *
 	 * @access private

@@ -137,7 +137,7 @@ function populateSettings($data) {
 	global $rs_query;
 	
 	// Settings
-	$settings = array('site_title'=>$data['site_title'], 'description'=>'', 'site_url'=>'', 'admin_email'=>$data['admin_email'], 'default_user_role'=>'', 'home_page'=>$data['home_page'], 'do_robots'=>$data['do_robots']);
+	$settings = array('site_title'=>$data['site_title'], 'description'=>'', 'site_url'=>$data['site_url'], 'admin_email'=>$data['admin_email'], 'default_user_role'=>'', 'home_page'=>$data['home_page'], 'do_robots'=>$data['do_robots']);
 	
 	// Create the settings
 	foreach($settings as $name=>$value)
@@ -419,7 +419,7 @@ function formRow($label = '', ...$args) {
 			if(array_key_exists('name', $args[$i])) break;
 		}
 		
-		$row = '<th><label'.(!empty($args[$i]['name']) ? ' for="'.$args[$i]['name'].'"' : '').'>'.$label.(!empty($required) && $required === true ? ' <span class="small">(required)</span>' : '').'</label></th>';
+		$row = '<th><label'.(!empty($args[$i]['name']) ? ' for="'.$args[$i]['name'].'"' : '').'>'.$label.(!empty($required) && $required === true ? ' <span class="required">*</span>' : '').'</label></th>';
 		$row .= '<td>';
 		
 		if(count($args) > 0) {

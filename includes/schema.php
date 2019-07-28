@@ -1,7 +1,7 @@
 <?php
 /**
  * Construct the database schema.
- * @since Alpha 1.2.6
+ * @since 1.2.6[a]
  *
  * @return array
  */
@@ -55,8 +55,8 @@ function dbSchema() {
 		KEY name (name)
 	);";
 	
-	// Rp_link table
-	$tables['rp_link'] = "CREATE TABLE rp_link (
+	// Rp_relationships table
+	$tables['rp_relationships'] = "CREATE TABLE rp_relationships (
 		id bigint(20) unsigned PRIMARY KEY auto_increment,
 		role bigint(20) unsigned NOT NULL default '0',
 		privilege bigint(20) unsigned NOT NULL default '0',
@@ -70,6 +70,34 @@ function dbSchema() {
 		name varchar(255) NOT NULL,
 		value longtext NOT NULL,
 		KEY name (name)
+	);";
+	
+	// Taxonomies table
+	$tables['taxonomies'] = "CREATE TABLE taxonomies (
+		id bigint(20) unsigned PRIMARY KEY auto_increment,
+		name varchar(255) NOT NULL,
+		KEY name (name)
+	);";
+	
+	// Term_relationships table
+	$tables['term_relationships'] = "CREATE TABLE term_relationships (
+		id bigint(20) unsigned PRIMARY KEY auto_increment,
+		term bigint(20) unsigned NOT NULL default '0',
+		post bigint(20) unsigned NOT NULL default '0',
+		KEY term (term),
+		KEY post (post)
+	);";
+	
+	// Terms table
+	$tables['terms'] = "CREATE TABLE terms (
+		id bigint(20) unsigned PRIMARY KEY auto_increment,
+		name varchar(255) NOT NULL,
+		slug varchar(255) NOT NULL,
+		taxonomy bigint(20) unsigned NOT NULL default '0',
+		parent bigint(20) unsigned NOT NULL default '0',
+		count bigint(20) unsigned NOT NULL default '0',
+		KEY slug (slug),
+		KEY taxonomy (taxonomy)
 	);";
 	
 	// Usermeta table

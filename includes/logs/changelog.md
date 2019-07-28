@@ -4,6 +4,31 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.4.10[a] (2019-07-26)
+
+* Added terms, taxonomies, and term_relationships tables to the schema
+* Renamed 'rp_link' table to 'rp_relationships'
+* Added a line of documentation to the CMS installation file
+* Added form validation to Post::editEntry function
+* Changed the link color on status messages
+* Added table column for categories on 'post' post type page
+* Published pages now have proper permalinks for the 'view' link
+* The site url is now set during installation
+* Required field labels now have a red asterisk next to them instead of '(required)'
+* Improved styling on form pages using the form table layout
+* Improved documentation for the User class
+* Improved validation in the User::editEntry function
+* Created a function to retrieve post metadata
+
+**Modified files:**
+* admin/install.php
+* admin/includes/class-post.php
+* admin/includes/class-user.php
+* admin/includes/functions.php
+* admin/includes/css/style.css
+* includes/schema.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.4.9[a] (2019-07-23)
 
 * Improved styling on 'Create Post' form
