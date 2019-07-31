@@ -82,16 +82,25 @@ function runInstall($data) {
 	$author = populateUsers($user);
 	
 	// Populate the posts table
-	$home_page = populatePosts($author);
+	$post = populatePosts($author);
 	
 	// Get the site's url
 	$site_url = (!empty($_SERVER['HTTPS']) ? 'https://' : 'http://').$_SERVER['HTTP_HOST'];
 	
 	// Get the settings data
-	$settings = array('site_title'=>$data['site_title'], 'site_url'=>$site_url, 'admin_email'=>$data['admin_email'], 'home_page'=>$home_page, 'do_robots'=>$data['do_robots']);
+	$settings = array('site_title'=>$data['site_title'], 'site_url'=>$site_url, 'admin_email'=>$data['admin_email'], 'home_page'=>$post['home_page'], 'do_robots'=>$data['do_robots']);
 	
 	// Populate the settings table
 	populateSettings($settings);
+	
+	// Populate the taxonomies table
+	populateTaxonomies(array('category'));
+	
+	// Populate the terms table
+	$term = populateTerms(array('name'=>'Uncategorized', 'slug'=>'uncategorized', 'taxonomy'=>getTaxonomyId('category')));
+	
+	// Populate the term_relationships table
+	populateTermRelationships(array('term'=>$term, 'post'=>$post['blog_post']));
 	
 	// Make sure that the home directory can be written to
 	if(is_writable(PATH)) {

@@ -4,6 +4,37 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.5.0[a] (2019-07-28)
+
+* Created admin 'List Categories' page
+* Added the categories page to the admin navigation
+* Created the Category class
+* The 'Create <classname>' buttons have been relabeled as 'Create New'
+* Modified the logic of the status message display on the list entries pages
+* Fixed some erroneous documentation in the functions file
+* Created a function to populate the taxonomies table
+* Created a function to fetch a taxonomy's id based on its name
+* Created a function to populate the terms table
+* Created a function that constructs a list of all categories in the database
+* A sample blog post is now created on CMS install in addition to the sample home page
+* Created a function to populate the term_relationships table
+* Created a function to fetch the post categories
+* Created a function to fetch a category's parent
+* Created a function to construct the 'Create Category' form
+* Created a function that constructs a list of parent categories
+* Created a function that checks whether the current category is a descendant of other categories
+* Removed 'parent' column from 'List Posts' page (the 'post' post type is not meant to be hierarchial)
+
+**Modified files:**
+* admin/categories.php (N)
+* admin/header.php
+* admin/install.php
+* admin/includes/class-category.php (N)
+* admin/includes/class-post.php
+* admin/includes/class-user.php (M)
+* admin/includes/functions.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.4.10[a] (2019-07-26)
 
 * Added terms, taxonomies, and term_relationships tables to the schema
@@ -103,8 +134,8 @@
 * Added a new parameter to the formTag function and functionality for building a label tag
 * Fixed some issues in the formRow function caused by updates to the formTag function
 * Created a function that constructs a list of post authors
-* Created a function that constructs a list of post parents
-* Created a function to get the post's parent
+* Created a function that constructs a list of parent posts
+* Created a function to fetch a post's parent
 
 **Modified files:**
 * admin/includes/class-post.php
@@ -158,7 +189,7 @@
 ----------------------------------------------------------------------------------------------------
 ## Version 1.4.0[a] (2019-04-05)
 
-* Created admin posts page and posts class
+* Created admin 'List Posts' page and Post class
 * Replaced intval with int type cast on users page
 * Updated and added documentation to the user class
 * Included buttons stylesheet in admin dashboard
@@ -373,7 +404,7 @@
 ## Version 1.2.6[a] (2019-03-12)
 
 * Created a function to construct the database schema
-* Created settings admin page
+* Created admin settings page
 
 **Modified files:**
 * admin/settings.php (N)
@@ -490,7 +521,7 @@
 * Rebuilt functions for SELECT, INSERT, and UPDATE statements
 * Created file to store deprecated functions (for potential future use)
 * Extended Query class' range to work on back end
-* Created admin users page
+* Created admin 'List Users' page
 
 **Modified files:**
 * admin/users.php (N)

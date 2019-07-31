@@ -26,7 +26,7 @@ require_once PATH.ADMIN.INC.'/functions.php';
 				<?php
 				adminNavItem('Dashboard', 'index.php');
 				adminNavItem('Pages', '', array(array('List Pages', 'Create Page'), array('posts.php?type=page', 'posts.php?type=page&action=create')));
-				adminNavItem('Posts', '', array(array('List Posts', 'Create Post'), array('posts.php', 'posts.php?action=create')));
+				adminNavItem('Posts', '', array(array('List Posts', 'Create Post', 'List Categories'), array('posts.php', 'posts.php?action=create', 'categories.php')));
 				adminNavItem('Media', '', array(array('List Media', 'Upload Media'), array()));
 				adminNavItem('Navigation', '', array(array('', ''), array()));
 				adminNavItem('Widgets', '', array(array('List Widgets', 'Create Widget'), array()));

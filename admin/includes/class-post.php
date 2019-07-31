@@ -32,11 +32,12 @@ class Post {
 		?>
 		<div class="heading-wrap">
 			<h1><?php echo ucfirst($type).'s'; ?></h1>
-			<a class="button" href="?<?php echo $type === 'post' ? '' : 'type='.$type.'&'; ?>action=create">Create <?php echo ucfirst($type); ?></a>
+			<a class="button" href="?<?php echo $type === 'post' ? '' : 'type='.$type.'&'; ?>action=create">Create New</a>
 			<hr>
 			<?php
 			// Display any status messages
-			echo isset($_GET['exit_status']) && $_GET['exit_status'] === 'success' ? statusMessage(ucfirst($type).' was successfully deleted.', true) : '';
+			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
+				echo statusMessage(ucfirst($type).' was successfully deleted.', true);
 			?>
 			<ul class="post-status-nav">
 				<?php
@@ -68,7 +69,7 @@ class Post {
 				<?php
 				// Fill an array with the table header columns
 				if($type === 'post')
-					$table_header_cols = array('Title', 'Author', 'Categories', 'Publish Date', 'Parent', 'Meta Title', 'Meta Desc.');
+					$table_header_cols = array('Title', 'Author', 'Categories', 'Publish Date', 'Meta Title', 'Meta Desc.');
 				else
 					$table_header_cols = array('Title', 'Author', 'Publish Date', 'Parent', 'Meta Title', 'Meta Desc.');
 				
@@ -78,7 +79,7 @@ class Post {
 			</thead>
 			<tbody>
 				<?php
-				// Fetch posts from the database
+				// Fetch all posts from the database
 				if($status === 'all')
 					$posts = $rs_query->select('posts', '*', array('status'=>array('<>', 'trash'), 'type'=>$type), 'title', 'ASC', array($page['start'], $page['per_page']));
 				else
@@ -93,9 +94,9 @@ class Post {
 					echo tableRow(
 						tableCell('<strong>'.$post['title'].'</strong>'.($post['status'] !== 'published' && $status === 'all' ? ' &ndash; <em>'.$post['status'].'</em>' : '').'<div class="actions">'.($status !== 'trash' ? '<a href="?id='.$post['id'].'&action=edit">Edit</a> &bull; <a href="?id='.$post['id'].'&action=trash">Trash</a> &bull; <a href="'.($post['status'] === 'published' ? ($this->isHomePage($post['id']) ? '/' : $this->getPermalink($post['parent'], $post['slug'])).'">View' : ('/?id='.$post['id'].'&preview=true').'">Preview').'</a>' : '<a href="?id='.$post['id'].'&action=restore">Restore</a> &bull; <a href="?id='.$post['id'].'&action=delete" rel="">Delete</a>').'</div>', 'title'),
 						tableCell($this->getAuthor($post['author']), 'author'),
-						$type === 'post' ? tableCell('', 'categories') : '',
+						$type === 'post' ? tableCell($this->getCategories($post['id']), 'categories') : '',
 						tableCell(formatDate($post['date'], 'd M Y @ g:i A'), 'publish-date'),
-						tableCell($this->getParent($post['parent']), 'parent'),
+						$type !== 'post' ? tableCell($this->getParent($post['parent']), 'parent') : '',
 						tableCell(!empty($meta['title']) ? 'Yes' : 'No', 'meta_title'),
 						tableCell(!empty($meta['description']) ? 'Yes' : 'No', 'meta_description')
 					);
@@ -702,7 +703,7 @@ class Post {
 				// Skip the current post
 				if($post['id'] === $id) continue;
 				
-				// Skip all ancestor posts
+				// Skip all descendant posts
 				if($this->isDescendant($post['id'], $id)) continue;
 			}
 			
@@ -805,5 +806,36 @@ class Post {
 			// Return the count of all posts by the status
 			return $rs_query->select('posts', 'COUNT(*)', array('status'=>$status, 'type'=>$type));
 		}
+	}
+	
+	/**
+	 * Fetch a post's categories.
+	 * @since 1.5.0[a]
+	 *
+	 * @access private
+	 * @param int $id
+	 * @return string
+	 */
+	private function getCategories($id) {
+		// Extend the Query class
+		global $rs_query;
+		
+		// Create an empty array to hold the categories
+		$categories = array();
+		
+		// Fetch the term relationships from the database
+		$relationships = $rs_query->select('term_relationships', 'term', array('post'=>$id));
+		
+		// Loop through the term relationships
+		foreach($relationships as $relationship) {
+			// Fetch the terms from the database
+			$terms = $rs_query->selectRow('terms', 'name', array('id'=>$relationship['term'], 'taxonomy'=>getTaxonomyId('category')));
+			
+			// Assign the term name to the categories array
+			$categories[] = $terms['name'];
+		}
+		
+		// Return the categories
+		return implode(', ', $categories);
 	}
 }

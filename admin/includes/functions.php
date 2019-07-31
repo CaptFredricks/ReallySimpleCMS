@@ -77,7 +77,7 @@ function statusMessage($text, $success = false) {
  * @since 1.3.1[a]
  *
  * @param array $data
- * @return null
+ * @return int
  */
 function populateUsers($data) {
 	// Extend the Query class
@@ -86,17 +86,17 @@ function populateUsers($data) {
 	// Encrypt password
 	$hashed_password = password_hash($data['password'], PASSWORD_BCRYPT, array('cost'=>10));
 	
-	// Create admin user
+	// Create an admin user
 	$user = $rs_query->insert('users', array('username'=>$data['username'], 'password'=>$hashed_password, 'email'=>$data['email'], 'registered'=>'NOW()'));
 	
-	// Metadata
+	// User metadata
 	$usermeta = array('first_name'=>'', 'last_name'=>'', 'avatar'=>0);
 	
-	// Create user metadata
+	// Insert the user metadata into the database
 	foreach($usermeta as $key=>$value)
 		$rs_query->insert('usermeta', array('user'=>$user, '_key'=>$key, 'value'=>$value));
 	
-	// Return the user id (for posts table)
+	// Return the user id
 	return $user;
 }
 
@@ -105,23 +105,35 @@ function populateUsers($data) {
  * @since 1.3.7[a]
  *
  * @param int $author
- * @return null
+ * @return array
  */
 function populatePosts($author) {
 	// Extend the Query class
 	global $rs_query;
 	
-	// Create sample page
-	$post = $rs_query->insert('posts', array('title'=>'Sample Page', 'author'=>$author, 'date'=>'NOW()', 'content'=>'This is just a sample page to get you started.', 'status'=>'published', 'slug'=>'sample', 'type'=>'page'));
+	// Create a sample page
+	$post['home_page'] = $rs_query->insert('posts', array('title'=>'Sample Page', 'author'=>$author, 'date'=>'NOW()', 'content'=>'This is just a sample page to get you started.', 'status'=>'published', 'slug'=>'sample-page', 'type'=>'page'));
 	
-	// Metadata
-	$postmeta = array('title'=>'Sample Page', 'description'=>'Just a simple meta description for your sample page.');
+	// Create a sample blog post
+	$post['blog_post'] = $rs_query->insert('posts', array('title'=>'Sample Blog Post', 'author'=>$author, 'date'=>'NOW()', 'content'=>'This is your first blog post. Feel free to remove this text and replace it with your own.', 'status'=>'published', 'slug'=>'sample-post', 'type'=>'post'));
 	
-	// Create post metadata
-	foreach($postmeta as $key=>$value)
-		$rs_query->insert('postmeta', array('post'=>$post, '_key'=>$key, 'value'=>$value));
+	// Post metadata
+	$postmeta = array(
+		'home_page'=>array('title'=>'Sample Page', 'description'=>'Just a simple meta description for your sample page.'),
+		'blog_post'=>array('title'=>'Sample Blog Post', 'description'=>'Just a simple meta description for your first blog post.')
+	);
 	
-	// Return the post id (for settings table)
+	// Loop through the post metadata
+	foreach($postmeta as $metadata) {
+		// Insert the post metadata into the database
+		foreach($metadata as $key=>$value)
+			$rs_query->insert('postmeta', array('post'=>$post[key($postmeta)], '_key'=>$key, 'value'=>$value));
+		
+		// Move the array pointer to the next element
+		next($postmeta);
+	}
+	
+	// Return the post ids
 	return $post;
 }
 
@@ -139,9 +151,61 @@ function populateSettings($data) {
 	// Settings
 	$settings = array('site_title'=>$data['site_title'], 'description'=>'', 'site_url'=>$data['site_url'], 'admin_email'=>$data['admin_email'], 'default_user_role'=>'', 'home_page'=>$data['home_page'], 'do_robots'=>$data['do_robots']);
 	
-	// Create the settings
+	// Insert the settings into the database
 	foreach($settings as $name=>$value)
 		$rs_query->insert('settings', array('name'=>$name, 'value'=>$value));
+}
+
+/**
+ * Populate the taxonomies table.
+ * @since 1.5.0[a]
+ *
+ * @param array $taxonomies
+ * @return null
+ */
+function populateTaxonomies($taxonomies) {
+	// Extend the Query class
+	global $rs_query;
+	
+	// Insert the taxonomies into the database
+	foreach($taxonomies as $taxonomy)
+		$rs_query->insert('taxonomies', array('name'=>$taxonomy));
+}
+
+/**
+ * Populate the terms table.
+ * @since 1.5.0[a]
+ *
+ * @param array $data
+ * @return int
+ */
+function populateTerms($data) {
+	// Extend the Query class
+	global $rs_query;
+	
+	// Insert the terms into the database
+	$term = $rs_query->insert('terms', array('name'=>$data['name'], 'slug'=>$data['slug'], 'taxonomy'=>$data['taxonomy']));
+	
+	// Return the term id
+	return $term;
+}
+
+/**
+ * Populate the term_relationships table.
+ * @since 1.5.0[a]
+ *
+ * @param array $data
+ * @return null
+ */
+function populateTermRelationships($data) {
+	// Extend the Query class
+	global $rs_query;
+	
+	// Insert the term relationships into the database
+	$rs_query->insert('term_relationships', array('term'=>$data['term'], 'post'=>$data['post']));
+	
+	// Update the term's count
+	$rs_query->update('terms', array('count'=>1), array('id'=>$data['term']));
 }
 
 /**
@@ -466,6 +530,24 @@ function formRow($label = '', ...$args) {
  */
 function formatDate($date, $format = 'Y-m-d H:i:s') {
 	return date_format(date_create($date), $format);
+}
+
+/**
+ * Fetch a taxonomy's id.
+ * @since 1.5.0[a]
+ *
+ * @param string $name
+ * @return int
+ */
+function getTaxonomyId($name) {
+	// Extend the Query class
+	global $rs_query;
+	
+	// Fetch the taxonomy id from the database
+	$taxonomy = $rs_query->selectRow('taxonomies', 'id', array('name'=>$name));
+	
+	// Return the taxonomy id
+	return $taxonomy['id'] ?? 0;
 }
 
 /**

@@ -37,10 +37,11 @@ class User {
 		?>
 		<div class="heading-wrap">
 			<h1>Users</h1>
-			<a class="button" href="?action=create">Create User</a>
+			<a class="button" href="?action=create">Create New</a>
 			<?php
 			// Display any status messages
-			echo isset($_GET['exit_status']) && $_GET['exit_status'] === 'success' ? statusMessage('User was successfully deleted.', true) : '';
+			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
+				echo statusMessage('User was successfully deleted.', true);
 			
 			// Get the user count
 			$count = $rs_query->select('users', 'COUNT(*)');
@@ -64,7 +65,7 @@ class User {
 			</thead>
 			<tbody>
 				<?php
-				// Fetch users from the database
+				// Fetch all users from the database
 				$users = $rs_query->select('users', '*', '', 'username', 'ASC', array($page['start'], $page['per_page']));
 		
 				// Loop through the users
