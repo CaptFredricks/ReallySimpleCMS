@@ -96,13 +96,107 @@ class Category {
 				// Display form rows
 				echo formRow(array('Name', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'name', 'value'=>($_POST['name'] ?? '')));
 				echo formRow(array('Slug', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>($_POST['slug'] ?? '')));
-				echo formRow('Parent', array('tag'=>'select', 'class'=>'select-input', 'name'=>'parent', 'content'=>$this->getParentList()));
+				echo formRow('Parent', array('tag'=>'select', 'class'=>'select-input', 'name'=>'parent', 'content'=>'<option value="0">(none)</option>'.$this->getParentList()));
 				echo formRow('', array('tag'=>'hr', 'class'=>'divider'));
 				echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Create Category'));
 				?>
 			</table>
 		</form>
 		<?php
+	}
+	
+	/**
+	 * Construct the 'Edit Category' form.
+	 * @since 1.5.1[a]
+	 *
+	 * @access public
+	 * @param int $id
+	 * @return null
+	 */
+	public function editEntry($id) {
+		// Extend the Query class
+		global $rs_query;
+		
+		if(empty($id) || $id <= 0) {
+			// Redirect to the 'List Categories' page if the category id is invalid
+			header('Location: categories.php');
+		} else {
+			// Fetch the category from the database
+			$category = $rs_query->selectRow('terms', '*', array('id'=>$id, 'taxonomy'=>getTaxonomyId('category')));
+			
+			if(empty($category)) {
+				// Redirect to the 'List Categories' page if the category doesn't exist
+				header('Location: categories.php');
+			} else {
+				// Validate the form data and return any messages
+				$message = isset($_POST['submit']) ? $this->validateData($_POST, $id) : '';
+				?>
+				<div class="heading-wrap">
+					<h1>Edit Category</h1>
+					<?php
+					// Display status messages
+					echo $message;
+					?>
+				</div>
+				<form class="data-form" action="" method="post" autocomplete="off">
+					<table class="form-table">
+						<?php
+						// Display form rows
+						echo formRow(array('Name', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'name', 'value'=>$category['name']));
+						echo formRow(array('Slug', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>$category['slug']));
+						echo formRow('Parent', array('tag'=>'select', 'class'=>'select-input', 'name'=>'parent', 'content'=>'<option value="0">(none)</option>'.$this->getParentList($category['parent'], $category['id'])));
+						echo formRow('', array('tag'=>'hr', 'class'=>'divider'));
+						echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Category'));
+						?>
+					</table>
+				</form>
+				<?php
+			}
+		}
+	}
+	
+	/**
+	 * Delete a category from the database.
+	 * @since 1.5.1[a]
+	 *
+	 * @access public
+	 * @param int $id
+	 * @return null
+	 */
+	public function deleteEntry($id) {
+		// Extend the Query class
+		global $rs_query;
+		
+		if(empty($id) || $id <= 0) {
+			// Redirect to the 'List Categories' page if the category id is invalid
+			header('Location: categories.php');
+		} else {
+			// Delete the term relationship(s) from the database
+			$rs_query->delete('term_relationships', array('term'=>$id));
+			
+			// Delete the category from the database
+			$rs_query->delete('terms', array('id'=>$id));
+			
+			// Redirect to the 'List Categories' page (with a success message)
+			header('Location: categories.php?exit_status=success');
+		}
+	}
+	
+	/**
+	 * Validate the form data.
+	 * @since 1.5.1[a]
+	 *
+	 * @access private
+	 * @param array $data
+	 * @param int $id (optional; default: 0)
+	 * @return null|string (null on $id == 0; string on $id != 0)
+	 */
+	private function validateData($data, $id = 0) {
+		// Extend the Query class
+		global $rs_query;
+		
+		// Make sure no required fields are empty
+		if(empty($data['name']) || empty($data['slug']))
 	}
 	
 	/**

@@ -450,7 +450,10 @@ class Post {
 		// Extend the Query class
 		global $rs_query;
 		
-		if(!empty($id)) {
+		if(empty($id) || $id <= 0) {
+			// Redirect to the 'List Posts' page if the post id is invalid
+			header('Location: posts.php');
+		} else {
 			// Fetch the post from the database
 			$post = $rs_query->selectRow('posts', 'type', array('id'=>$id));
 			
@@ -460,11 +463,8 @@ class Post {
 			// Delete the post from the database
 			$rs_query->delete('posts', array('id'=>$id));
 			
-			// Redirect to the 'List Posts' page
+			// Redirect to the 'List Posts' page (with a success message)
 			header('Location: posts.php'.($post['type'] !== 'post' ? '?type='.$post['type'].'&' : '?').'status=trash&exit_status=success');
-		} else {
-			// Redirect to the posts page
-			header('Location: posts.php');
 		}
 	}
 	

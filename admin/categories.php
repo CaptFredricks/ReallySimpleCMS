@@ -20,11 +20,11 @@ $rs_category = new Category;
 			break;
 		case 'edit':
 			// Edit an existing category
-			//$rs_category->editEntry($id);
+			$rs_category->editEntry($id);
 			break;
 		case 'delete':
 			// Delete an existing category
-			//$rs_category->deleteEntry($id);
+			$rs_category->deleteEntry($id);
 			break;
 		default:
 			// List all categories

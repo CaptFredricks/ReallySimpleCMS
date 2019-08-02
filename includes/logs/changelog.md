@@ -4,6 +4,21 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.5.1[a] (2019-07-30)
+
+* Created a function that constructs the 'Edit Category' form
+* Created a function to delete categories from the database
+* Tweaked validation in Post::deleteEntry function
+* Added more documentation to the User class
+* The category's parent can now be set to 'none' on the 'Create Category' form
+
+**Modified files:**
+* admin/categories.php
+* admin/includes/class-category.php
+* admin/includes/class-post.php (M)
+* admin/includes/class-user.php (M)
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.5.0[a] (2019-07-28)
 
 * Created admin 'List Categories' page
@@ -20,7 +35,7 @@
 * Created a function to populate the term_relationships table
 * Created a function to fetch the post categories
 * Created a function to fetch a category's parent
-* Created a function to construct the 'Create Category' form
+* Created a function that constructs the 'Create Category' form
 * Created a function that constructs a list of parent categories
 * Created a function that checks whether the current category is a descendant of other categories
 * Removed 'parent' column from 'List Posts' page (the 'post' post type is not meant to be hierarchial)

@@ -199,11 +199,16 @@ class User {
 		global $rs_query;
 		
 		if(empty($id) || $id <= 0) {
+			// Redirect to the 'List Users' page if the user id is invalid
 			header('Location: users.php');
 		} else {
-			$rs_query->delete('users', array('id'=>$id));
+			// Delete the user metadata from the database
 			$rs_query->delete('usermeta', array('user'=>$id));
 			
+			// Delete the user from the database
+			$rs_query->delete('users', array('id'=>$id));
+			
+			// Redirect to the 'List Users' page (with a success message)
 			header('Location: users.php?exit_status=success');
 		}
 	}
@@ -221,9 +226,11 @@ class User {
 		// Extend the Query class
 		global $rs_query;
 		
+		// Make sure no required fields are empty
 		if(empty($data['username']) || empty($data['email']))
 			return statusMessage('R');
-		elseif(strlen($data['username']) < self::UN_LENGTH)
+		
+		if(strlen($data['username']) < self::UN_LENGTH)
 			return statusMessage('Username must be at least '.self::UN_LENGTH.' characters long.');
 		
 		if($id === 0) {
