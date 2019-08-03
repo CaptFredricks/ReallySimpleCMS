@@ -184,7 +184,7 @@ class Category {
 	
 	/**
 	 * Validate the form data.
-	 * @since 1.5.1[a]
+	 * @since 1.5.2[a]
 	 *
 	 * @access private
 	 * @param array $data
@@ -197,6 +197,50 @@ class Category {
 		
 		// Make sure no required fields are empty
 		if(empty($data['name']) || empty($data['slug']))
+			return statusMessage('R');
+		
+		// Make sure the slug is not already being used
+		if($this->slugExists($data['slug'], $id))
+			return statusMessage('That slug is already in use. Please choose another one.');
+		
+		if($id === 0) {
+			// Insert the new category into the database
+			$insert_id = $rs_query->insert('terms', array('name'=>$data['name'], 'slug'=>$data['slug'], 'taxonomy'=>getTaxonomyId('category'), 'parent'=>$data['parent']));
+			
+			// Redirect to the 'Edit Category' page
+			header('Location: categories.php?id='.$insert_id.'&action=edit');
+		} else {
+			// Update the category in the database
+			$rs_query->update('terms', array('name'=>$data['name'], 'slug'=>$data['slug'], 'parent'=>$data['parent']), array('id'=>$id));
+			
+			// Return a status message
+			return statusMessage('Category updated! <a href="categories.php">Return to list</a>?', true);
+		}
+	}
+	
+	/**
+	 * Check whether a slug exists in the database.
+	 * @since 1.5.2[a]
+	 *
+	 * @access private
+	 * @param string $slug
+	 * @param int $id
+	 * @return bool
+	 */
+	private function slugExists($slug, $id) {
+		// Extend the Query class
+		global $rs_query;
+		
+		if($id === 0) {
+			// Fetch the number of times the slug appears in the database
+			$count = $rs_query->selectRow('terms', 'COUNT(slug)', array('slug'=>$slug));
+		} else {
+			// Fetch the number of times the slug appears in the database (minus the current category)
+			$count = $rs_query->selectRow('terms', 'COUNT(slug)', array('slug'=>$slug, 'id'=>array('<>', $id)));
+		}
+		
+		// Return true if the count is greater than zero
+		return $count > 0;
 	}
 	
 	/**

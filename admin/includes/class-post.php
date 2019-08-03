@@ -191,9 +191,14 @@ class Post {
 					<h2>Attributes</h2>
 					<div class="row">
 						<?php
-						// Construct 'parent' form tag
-						echo formTag('label', array('for'=>'parent', 'content'=>'Parent'));
-						echo formTag('select', array('class'=>'select-input', 'name'=>'parent', 'content'=>'<option value="0">(none)</option>'.$this->getParentList($type)));
+						if($type === 'post') {
+							// Construct 'categories' form checklist
+							echo $this->getCategoriesList();
+						} else {
+							// Construct 'parent' form tag
+							echo formTag('label', array('for'=>'parent', 'content'=>'Parent'));
+							echo formTag('select', array('class'=>'select-input', 'name'=>'parent', 'content'=>'<option value="0">(none)</option>'.$this->getParentList($type)));
+						}
 						?>
 					</div>
 				</div>
@@ -336,9 +341,14 @@ class Post {
 								<h2>Attributes</h2>
 								<div class="row">
 									<?php
-									// Construct 'parent' form tag
-									echo formTag('label', array('for'=>'parent', 'content'=>'Parent'));
-									echo formTag('select', array('class'=>'select-input', 'name'=>'parent', 'content'=>'<option value="0">(none)</option>'.$this->getParentList($post['type'], $post['parent'], $post['id'])));
+									if($post['type'] === 'post') {
+										// Construct 'categories' form checklist
+										echo $this->getCategoriesList($id);
+									} else {
+										// Construct 'parent' form tag
+										echo formTag('label', array('for'=>'parent', 'content'=>'Parent'));
+										echo formTag('select', array('class'=>'select-input', 'name'=>'parent', 'content'=>'<option value="0">(none)</option>'.$this->getParentList($post['type'], $post['parent'], $post['id'])));
+									}
 									?>
 								</div>
 							</div>
@@ -493,20 +503,44 @@ class Post {
 		if($data['status'] !== 'draft' && $data['status'] !== 'published')
 			$data['status'] = 'draft';
 		
-		// Create an array to hold post metadata
+		// Create an array to hold the post metadata
 		$postmeta = array('feat_image'=>$data['feat_image'], 'title'=>$data['meta_title'], 'description'=>$data['meta_description']);
 		
 		if($id === 0) {
+			// Set the parent to zero if the post type is 'post' (non-hierarchical)
+			if($data['type'] === 'post') $data['parent'] = 0;
+			
 			// Insert the new post into the database
 			$insert_id = $rs_query->insert('posts', array('title'=>$data['title'], 'author'=>$data['author'], 'date'=>'NOW()', 'content'=>$data['content'], 'status'=>$data['status'], 'slug'=>$data['slug'], 'parent'=>$data['parent'], 'type'=>$data['type']));
 			
 			// Insert the post metadata into the database
 			foreach($postmeta as $key=>$value)
-				$rs_query->insert('postmeta', array('_key'=>$key, 'value'=>$value, 'post'=>$insert_id));
+				$rs_query->insert('postmeta', array('post'=>$insert_id, '_key'=>$key, 'value'=>$value));
+			
+			// Check whether any categories have been selected
+			if(!empty($data['categories'])) {
+				// Loop through the categories
+				foreach($data['categories'] as $category) {
+					// Insert the term relationship into the database
+					$rs_query->insert('term_relationships', array('term'=>$category, 'post'=>$insert_id));
+					
+					// Fetch the current category's post count
+					$count = $rs_query->selectRow('terms', 'count', array('id'=>$category));
+					
+					// Increment the category's post count
+					$rs_query->update('terms', array('count'=>(++$count)), array('id'=>$category));
+				}
+			}
 			
 			// Redirect to the 'Edit Post' page
 			header('Location: posts.php?id='.$insert_id.'&action=edit');
 		} else {
+			// Fetch the post type from the database
+			$post = $rs_query->selectRow('posts', 'type', array('id'=>$id));
+			
+			// Set the parent to zero if the post type is 'post' (non-hierarchical)
+			if($post['type'] === 'post') $data['parent'] = 0;
+			
 			// Update the post in the database
 			$rs_query->update('posts', array('title'=>$data['title'], 'author'=>$data['author'], 'content'=>$data['content'], 'status'=>$data['status'], 'slug'=>$data['slug'], 'parent'=>$data['parent']), array('id'=>$id));
 			
@@ -514,8 +548,28 @@ class Post {
 			foreach($postmeta as $key=>$value)
 				$rs_query->update('postmeta', array('value'=>$value), array('post'=>$id, '_key'=>$key));
 			
-			// Fetch the post type from the database
-			$post = $rs_query->selectRow('posts', 'type', array('id'=>$id));
+			// Check whether any categories have been selected
+			if(!empty($data['categories'])) {
+				// Loop through the categories
+				foreach($data['categories'] as $category) {
+					// Fetch the term relationships from the database
+					$relationship = $rs_query->selectRow('term_relationships', 'COUNT(*)', array('term'=>$category, 'post'=>$id));
+					
+					if($relationship) {
+						// Skip to the next category if the relationship already exists
+						continue;
+					} else {
+						// Insert the term relationship into the database
+						$rs_query->insert('term_relationships', array('term'=>$category, 'post'=>$id));
+						
+						// Fetch the current category's post count
+						$count = $rs_query->selectRow('terms', 'count', array('id'=>$category));
+						
+						// Increment the category's post count
+						$rs_query->update('terms', array('count'=>(++$count)), array('id'=>$category));
+					}
+				}
+			}
 			
 			// Return a status message
 			return statusMessage(ucfirst($post['type']).' updated! <a href="posts.php'.($post['type'] === 'post' ? '' : '?type='.$post['type']).'">Return to list</a>?', true);
@@ -536,10 +590,10 @@ class Post {
 		global $rs_query;
 		
 		if($id === 0) {
-			// Fetch the number of times the slug appears
+			// Fetch the number of times the slug appears in the database
 			$count = $rs_query->selectRow('posts', 'COUNT(slug)', array('slug'=>$slug));
 		} else {
-			// Fetch the number of times the slug appears (minus the current post)
+			// Fetch the number of times the slug appears in the database (minus the current post)
 			$count = $rs_query->selectRow('posts', 'COUNT(slug)', array('slug'=>$slug, 'id'=>array('<>', $id)));
 		}
 		
@@ -652,6 +706,71 @@ class Post {
 			// Construct the list
 			$list .= '<option value="'.$author['id'].'"'.($author['id'] === $id ? ' selected' : '').'>'.$this->getAuthor($author['id']).'</option>';
 		}
+		
+		// Return the list
+		return $list;
+	}
+	
+	/**
+	 * Fetch a post's categories.
+	 * @since 1.5.0[a]
+	 *
+	 * @access private
+	 * @param int $id
+	 * @return string
+	 */
+	private function getCategories($id) {
+		// Extend the Query class
+		global $rs_query;
+		
+		// Create an empty array to hold the categories
+		$categories = array();
+		
+		// Fetch the term relationships from the database
+		$relationships = $rs_query->select('term_relationships', 'term', array('post'=>$id));
+		
+		// Loop through the term relationships
+		foreach($relationships as $relationship) {
+			// Fetch the terms from the database
+			$terms = $rs_query->selectRow('terms', 'name', array('id'=>$relationship['term'], 'taxonomy'=>getTaxonomyId('category')));
+			
+			// Assign the term name to the categories array
+			$categories[] = $terms['name'];
+		}
+		
+		// Return the categories
+		return implode(', ', $categories);
+	}
+	
+	/**
+	 * Construct a list of categories.
+	 * @since 1.5.2[a]
+	 *
+	 * @access private
+	 * @param int $id (optional; default: 0)
+	 * @return string
+	 */
+	private function getCategoriesList($id = 0) {
+		// Extend the Query class
+		global $rs_query;
+		
+		// Create a list with an opening unordered list tag
+		$list = '<ul id="categories-list">';
+		
+		// Fetch all categories from the database
+		$categories = $rs_query->select('terms', array('id', 'name'), array('taxonomy'=>getTaxonomyId('category')), 'name');
+		
+		// Loop through the categories
+		foreach($categories as $category) {
+			// Fetch any existing term relationship from the database
+			$relationship = $rs_query->selectRow('term_relationships', 'COUNT(*)', array('term'=>$category['id'], 'post'=>$id));
+			
+			// Construct the list
+			$list .= '<li>'.formTag('input', array('type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'categories[]', 'value'=>$category['id'], '*'=>($relationship ? 'checked' : ''), 'label'=>array('content'=>'<span>'.$category['name'].'</span>'))).'</li>';
+		}
+		
+		// Close the unordered list
+		$list .= '</ul>';
 		
 		// Return the list
 		return $list;
@@ -806,36 +925,5 @@ class Post {
 			// Return the count of all posts by the status
 			return $rs_query->select('posts', 'COUNT(*)', array('status'=>$status, 'type'=>$type));
 		}
-	}
-	
-	/**
-	 * Fetch a post's categories.
-	 * @since 1.5.0[a]
-	 *
-	 * @access private
-	 * @param int $id
-	 * @return string
-	 */
-	private function getCategories($id) {
-		// Extend the Query class
-		global $rs_query;
-		
-		// Create an empty array to hold the categories
-		$categories = array();
-		
-		// Fetch the term relationships from the database
-		$relationships = $rs_query->select('term_relationships', 'term', array('post'=>$id));
-		
-		// Loop through the term relationships
-		foreach($relationships as $relationship) {
-			// Fetch the terms from the database
-			$terms = $rs_query->selectRow('terms', 'name', array('id'=>$relationship['term'], 'taxonomy'=>getTaxonomyId('category')));
-			
-			// Assign the term name to the categories array
-			$categories[] = $terms['name'];
-		}
-		
-		// Return the categories
-		return implode(', ', $categories);
 	}
 }

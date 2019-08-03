@@ -230,40 +230,51 @@ class User {
 		if(empty($data['username']) || empty($data['email']))
 			return statusMessage('R');
 		
+		// Make sure the username is long enough
 		if(strlen($data['username']) < self::UN_LENGTH)
 			return statusMessage('Username must be at least '.self::UN_LENGTH.' characters long.');
 		
+		// Make sure the username is not already being used
+		if($this->usernameExists($data['username'], $id))
+			return statusMessage('That username has already been taken. Please choose another one.');
+		
+		// Create an array to hold the user metadata
+		$usermeta = array('first_name'=>$data['first_name'], 'last_name'=>$data['last_name'], 'avatar'=>$data['avatar']);
+		
 		if($id === 0) {
+			// Make sure the password field is not empty
 			if(empty($data['password']))
 				return statusMessage('R');
-			elseif($this->usernameExists($data['username']))
-				return statusMessage('That username has already been taken. Please choose another one.');
-			elseif(strlen($data['password']) < self::PW_LENGTH)
+			
+			// Make sure the password is long enough
+			if(strlen($data['password']) < self::PW_LENGTH)
 				return statusMessage('Password must be at least '.self::PW_LENGTH.' characters long.');
-			elseif(!isset($data['pass_saved']) || $data['pass_saved'] !== 'checked')
+			
+			// Make sure the password saved checkbox has been checked
+			if(!isset($data['pass_saved']) || $data['pass_saved'] !== 'checked')
 				return statusMessage('Please confirm that you\'ve saved your password to a safe location.');
 			
+			// Hash the password (encrypts the password for security purposes)
 			$hashed_password = password_hash($data['password'], PASSWORD_BCRYPT, array('cost'=>10));
 			
+			// Insert the new user into the database
 			$insert_id = $rs_query->insert('users', array('username'=>$data['username'], 'password'=>$hashed_password, 'email'=>$data['email'], 'registered'=>'NOW()')); //role
 			
-			$meta = array('first_name'=>$data['first_name'], 'last_name'=>$data['last_name'], 'avatar'=>$data['avatar']);
+			// Insert the user metadata into the database
+			foreach($usermeta as $key=>$value)
+				$rs_query->insert('usermeta', array('user'=>$insert_id, '_key'=>$key, 'value'=>$value));
 			
-			foreach($meta as $key => $value)
-				$rs_query->insert('usermeta', array('_key'=>$key, 'value'=>$value, 'user'=>$insert_id));
-			
+			// Redirect to the 'Edit User' page
 			header('Location: users.php?id='.$insert_id.'&action=edit');
 		} else {
-			if($this->usernameExists($data['username'], $id))
-				return statusMessage('That username has already been taken. Please choose another one.');
-			
+			// Update the user in the database
 			$rs_query->update('users', array('username'=>$data['username'], 'email'=>$data['email']), array('id'=>$id)); //role
 			
-			$meta = array('first_name'=>$data['first_name'], 'last_name'=>$data['last_name'], 'avatar'=>$data['avatar']);
+			// Update the user metadata in the database
+			foreach($usermeta as $key=>$value)
+				$rs_query->update('usermeta', array('value'=>$value), array('user'=>$id, '_key'=>$key));
 			
-			foreach($meta as $key => $value)
-				$rs_query->update('usermeta', array('value'=>$value), array('_key'=>$key, 'user'=>$id));
-			
+			// Return a status message
 			return statusMessage('User updated! <a href="users.php">Return to list</a>?', true);
 		}
 	}
@@ -274,19 +285,23 @@ class User {
 	 *
 	 * @access private
 	 * @param string $username
-	 * @param int $id (optional; default: 0)
+	 * @param int $id
 	 * @return bool
 	 */
-	private function usernameExists($username, $id = 0) {
+	private function usernameExists($username, $id) {
 		// Extend the Query class
 		global $rs_query;
 		
-		if($id === 0)
+		if($id === 0) {
+			// Fetch the number of times the username appears in the database
 			$count = $rs_query->selectRow('users', 'COUNT(username)', array('username'=>$username));
-		else
+		} else {
+			// Fetch the number of times the username appears in the database (minus the current user)
 			$count = $rs_query->selectRow('users', 'COUNT(username)', array('username'=>$username, 'id'=>array('<>', $id)));
+		}
 		
-		return ($count > 0);
+		// Return true if the count is greater than zero
+		return $count > 0;
 	}
 	
 	/**

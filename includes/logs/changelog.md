@@ -4,6 +4,28 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.5.2[a] (2019-08-01)
+
+* Changed the default value for datetime columns in the schema to avoid major errors during installation in newer versions of MySQL
+* Tweaked some documentation in the Post class
+* Created a function that checks whether a category slug exists in the database
+* Categories can now be created
+* Added more documentation to the User class
+* Cleaned up the code in the User::validateData function
+* The $id param for the User::usernameExists function is no longer optional
+* Categories can now be edited
+* Added styling for the categories list
+* Removed parent list and added categories list to 'Create Post' page
+* Categories can now be added to posts (they cannot yet be removed)
+
+**Modified files:**
+* admin/includes/class-category.php
+* admin/includes/class-post.php
+* admin/includes/class-user.php
+* admin/includes/css/style.css
+* includes/schema.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.5.1[a] (2019-07-30)
 
 * Created a function that constructs the 'Edit Category' form
@@ -38,7 +60,7 @@
 * Created a function that constructs the 'Create Category' form
 * Created a function that constructs a list of parent categories
 * Created a function that checks whether the current category is a descendant of other categories
-* Removed 'parent' column from 'List Posts' page (the 'post' post type is not meant to be hierarchial)
+* Removed 'parent' column from 'List Posts' page (the 'post' post type is not meant to be hierarchical)
 
 **Modified files:**
 * admin/categories.php (N)

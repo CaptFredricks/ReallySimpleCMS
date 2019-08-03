@@ -413,6 +413,29 @@ a:hover {
 	line-height: 2rem;
 }
 
+.data-form .sidebar #categories-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.data-form .sidebar #categories-list label {
+	cursor: pointer;
+	margin-right: 0;
+}
+
+.data-form .sidebar #categories-list label span {
+	display: inline-block;
+	-webkit-transform: translateY(-0.125em);
+	transform: translateY(-0.125em);
+}
+
+.data-form .sidebar #categories-list .checkbox-input {
+	height: 1.125em;
+	margin-right: 0.5em;
+	width: 1.125em;
+}
+
 .data-form .metadata {
 	float: left;
 	width: calc(100% - 300px);
