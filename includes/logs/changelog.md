@@ -4,6 +4,19 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.5.3[a] (2019-08-02)
+
+* Categories can now be removed from posts
+* The Settings form now has styling
+* Tweaked the documentation of the Settings class
+* Tweaked the styling of form tables
+
+**Modified files:**
+* admin/includes/class-post.php
+* admin/includes/class-settings.php (M)
+* admin/includes/css/style.css
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.5.2[a] (2019-08-01)
 
 * Changed the default value for datetime columns in the schema to avoid major errors during installation in newer versions of MySQL

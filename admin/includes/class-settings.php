@@ -35,7 +35,7 @@ class Settings {
 			echo $message;
 			?>
 		</div>
-		<form action="" method="post" autocomplete="off">
+		<form class="data-form" action="" method="post" autocomplete="off">
 			<table class="form-table">
 				<?php
 				// Check if 'do_robots' has been set
@@ -72,7 +72,7 @@ class Settings {
 		// Remove 'submit' from data
 		array_pop($data);
 		
-		// Return if required data is not provided
+		// Make sure no required fields are empty
 		if(empty($data['site_title']) || empty($data['site_url']) || empty($data['admin_email']))
 			return statusMessage('R');
 		

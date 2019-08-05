@@ -521,10 +521,10 @@ class Post {
 			if(!empty($data['categories'])) {
 				// Loop through the categories
 				foreach($data['categories'] as $category) {
-					// Insert the term relationship into the database
+					// Insert a new term relationship into the database
 					$rs_query->insert('term_relationships', array('term'=>$category, 'post'=>$insert_id));
 					
-					// Fetch the current category's post count
+					// Fetch the current category's post count from the database
 					$count = $rs_query->selectRow('terms', 'count', array('id'=>$category));
 					
 					// Increment the category's post count
@@ -548,25 +548,43 @@ class Post {
 			foreach($postmeta as $key=>$value)
 				$rs_query->update('postmeta', array('value'=>$value), array('post'=>$id, '_key'=>$key));
 			
+			// Fetch all term relationships associated with the post from the database
+			$relationships = $rs_query->select('term_relationships', '*', array('post'=>$id));
+			
+			// Loop through the relationships
+			foreach($relationships as $relationship) {
+				// Check whether the relationship still exists
+				if(empty($data['categories']) || !in_array($relationship['term'], $data['categories'], true)) {
+					// Delete the unused relationship from the database
+					$rs_query->delete('term_relationships', array('id'=>$relationship['id']));
+					
+					// Fetch the number of times the category shares a relationship with a post in the database
+					$count = $rs_query->selectRow('term_relationships', 'COUNT(*)', array('term'=>$relationship['term']));
+					
+					// Update the category's post count
+					$rs_query->update('terms', array('count'=>$count), array('id'=>$relationship['term']));
+				}
+			}
+			
 			// Check whether any categories have been selected
 			if(!empty($data['categories'])) {
 				// Loop through the categories
 				foreach($data['categories'] as $category) {
-					// Fetch the term relationships from the database
+					// Fetch any relationships between the current category and the post from the database
 					$relationship = $rs_query->selectRow('term_relationships', 'COUNT(*)', array('term'=>$category, 'post'=>$id));
 					
 					if($relationship) {
 						// Skip to the next category if the relationship already exists
 						continue;
 					} else {
-						// Insert the term relationship into the database
+						// Insert a new term relationship into the database
 						$rs_query->insert('term_relationships', array('term'=>$category, 'post'=>$id));
 						
-						// Fetch the current category's post count
-						$count = $rs_query->selectRow('terms', 'count', array('id'=>$category));
+						// Fetch the number of times the category shares a relationship with a post in the database
+						$count = $rs_query->selectRow('term_relationships', 'COUNT(*)', array('term'=>$category));
 						
-						// Increment the category's post count
-						$rs_query->update('terms', array('count'=>(++$count)), array('id'=>$category));
+						// Update the category's post count
+						$rs_query->update('terms', array('count'=>$count), array('id'=>$category));
 					}
 				}
 			}

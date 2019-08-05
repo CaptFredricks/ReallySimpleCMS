@@ -467,6 +467,16 @@ a:hover {
 	border-color: #7d7d7d;
 }
 
+/** Form tables **/
+
+.data-form .form-table {
+	width: 100%;
+}
+
+.data-form .form-table th {
+	width: 175px;
+}
+
 /** Required fields **/
 
 .required.invalid {
