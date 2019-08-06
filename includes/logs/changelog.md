@@ -4,6 +4,27 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.5.5[a] (2019-08-05)
+
+* Created an index page for the content directory
+* Created functions to include theme header and footer files
+* Moved the front end header and footer files to the content directory
+* The root index file now includes the content index file
+* Created a new defined constant for the content directory
+* Updated documentation in the deprecated functions file
+
+**Modified files:**
+* footer.php (R)
+* header.php (R)
+* index.php
+* init.php (M)
+* content/footer.php (N)
+* content/header.php (N)
+* content/index.php (N)
+* includes/deprecated.php
+* includes/functions.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.5.4[a] (2019-08-04)
 
 * When a post is deleted, its term relationships are also deleted and the category counts are updated

@@ -2,8 +2,8 @@
 
 /**
  * Select one or more rows from the database and return them.
- * @since Alpha 1.0.1
- * @deprecated since Alpha 1.1.0
+ * @since 1.0.1[a]
+ * @deprecated since 1.1.0[a]
  *
  * @param array $args
  * @return array
@@ -51,8 +51,8 @@ function selectQuery($args) {
 
 /**
  * Insert a row into the database.
- * @since Alpha 1.0.1
- * @deprecated since Alpha 1.1.0
+ * @since 1.0.1[a]
+ * @deprecated since 1.1.0[a]
  *
  * @param array $args
  * @return null
@@ -94,8 +94,8 @@ function insertQuery($args) {
 
 /**
  * Update an existing row in the database.
- * @since Alpha 1.0.2
- * @deprecated since Alpha 1.1.0
+ * @since 1.0.2[a]
+ * @deprecated since 1.1.0[a]
  *
  * @param array $args
  * @return null
@@ -148,8 +148,8 @@ function updateQuery($args) {
 
 /**
  * Delete a row from the database.
- * @since Alpha 1.0.1
- * @deprecated since Alpha 1.0.3
+ * @since 1.0.1[a]
+ * @deprecated since 1.0.3[a]
  *
  * @param array $args
  * @return null
@@ -187,8 +187,8 @@ function deleteQuery($args) {
 
 /**
  * Unduplicate query placeholder keys.
- * @since Alpha 1.0.1
- * @deprecated since Alpha 1.1.0
+ * @since 1.0.1[a]
+ * @deprecated since 1.1.0[a]
  *
  * @param array $keys
  * @return array

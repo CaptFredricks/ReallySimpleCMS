@@ -13,6 +13,9 @@ if(!defined('INC')) define('INC', '/includes');
 // Path to the admin directory
 if(!defined('ADMIN')) define('ADMIN', '/admin');
 
+// Path to the content directory
+if(!defined('CONT')) define('CONT', '/content');
+
 // Try to initialize the CMS or run setup if config file doesn't exist
 if(file_exists(PATH.INC.'/config.php')) {
 	// Include debugging

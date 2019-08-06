@@ -1,11 +1,10 @@
 <?php
-// Include header
-require_once __DIR__.'/header.php';
-?>
-<div class="wrapper">
-	Hello World!
-</div>
-<?php
-// Include footer
-require_once __DIR__.'/footer.php';
+// Load initialization files
+require_once __DIR__.'/init.php';
+
+// Include functions
+require_once PATH.INC.'/functions.php';
+
+// Include the theme's index file
+require_once PATH.CONT.'/index.php';
 ?>
