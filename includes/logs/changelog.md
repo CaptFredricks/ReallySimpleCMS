@@ -4,6 +4,26 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.5.4[a] (2019-08-04)
+
+* When a post is deleted, its term relationships are also deleted and the category counts are updated
+* Added the 'button' class to the pager nav links
+* Styled the pager nav buttons
+* Tweaked styling to the entry count
+* Created a function to fetch the current admin page
+* The admin body tag is now assigned a class based on the current page
+* Changed some class names relating to the admin nav menu
+* Renamed the adminNavItem function to adminNavMenuItem
+* The admin nav menu now properly displays the current nav menu item
+* Submenus are now visible if they are children of the current nav menu item
+
+**Modified files:**
+* admin/header.php (M)
+* admin/includes/class-post.php
+* admin/includes/functions.php
+* admin/includes/css/style.css
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.5.3[a] (2019-08-02)
 
 * Categories can now be removed from posts

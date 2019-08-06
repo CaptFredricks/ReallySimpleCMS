@@ -16,6 +16,50 @@ spl_autoload_register(function($class_name) {
 });
 
 /**
+ * Fetch the current admin page.
+ * @since 1.5.4[a]
+ *
+ * @return string
+ */
+function getCurrentPage() {
+	// Extend the Query class
+	global $rs_query;
+	
+	// Fetch the current page from the PHP filename
+	$current = basename($_SERVER['PHP_SELF'], '.php');
+	
+	// Check whether the server request contains a query string
+	if(!empty($_SERVER['QUERY_STRING'])) {
+		// Fetch the query string and separate it by its parameters
+		$query_params = explode('&', $_SERVER['QUERY_STRING']);
+		
+		// Loop through the query parameters
+		foreach($query_params as $query_param) {
+			// Check whether the query parameter contains 'type'
+			if(strpos($query_param, 'type') !== false) {
+				// Set the current page 
+				$current = substr($query_param, strpos($query_param, '=') + 1).'s';
+				
+				// Exit the loop
+				break;
+			}
+		}
+		
+		// Check whether the current page is the 'Edit Post' or 'Edit Page' page
+		if($current === 'posts' && isset($_GET['id'])) {
+			// Fetch the post from the database
+			$post = $rs_query->selectRow('posts', 'type', array('id'=>$_GET['id']));
+			
+			// Check whether the current post is of type 'post', and set the current page accordingly
+			if($post['type'] !== 'post') $current = $post['type'].'s';
+		}
+	}
+	
+	// Return the current page
+	return $current === 'index' ? 'dashboard' : $current;
+}
+
+/**
  * Fetch an admin stylesheet.
  * @since 1.2.0[a]
  *
@@ -209,35 +253,47 @@ function populateTermRelationships($data) {
 }
 
 /**
- * Create a nav item for the admin navigation.
+ * Create a nav menu item for the admin navigation.
  * @since 1.2.5[a]
  *
+ * @param string|array $menu (optional; default: '')
  * @param string $caption (optional; default: 'Nav Item')
  * @param string $link (optional; default: '')
- * @param string|array $subnav (optional; default: '')
+ * @param string|array $submenu (optional; default: '')
  * @return null;
  */
-function adminNavItem($caption = 'Nav Item', $link = '', $subnav = '') {
-	// Get the current page
-	$current = basename($_SERVER['PHP_SELF']);
+function adminNavMenuItem($menu = '', $link = '', $submenu = '') {
+	// Fetch the current page
+	$current = getCurrentPage();
 	
-	// Set current class
-	//if($link === $current)
+	if(empty($menu)) {
+		// Set a default menu item caption
+		$caption = 'Nav Item';
+	} elseif(is_array($menu)) {
+		// Get the menu item caption
+		$caption = array_pop($menu);
+		
+		// Convert the array into a string
+		$menu = implode('', $menu);
+	} else {
+		// Set the menu item caption based on the menu value
+		$caption = ucwords($menu);
+	}
 	?>
-	<li <?php echo $link === $current ? 'class="current"' : ''; ?>>
+	<li <?php echo $menu === $current ? 'class="current-nav-menu-item"' : ''; ?>>
 		<a href="<?php echo !empty($link) ? trailingSlash(ADMIN).$link : 'javascript:void(0)'; ?>"><?php echo $caption; ?></a>
 		<?php
-		// Construct the subnav if parameters are provided
-		if(!empty($subnav)) {
-			// Return if the subnav isn't an array
-			if(!is_array($subnav)) return;
+		// Construct the submenu if parameters are provided
+		if(!empty($submenu)) {
+			// Return if the submenu isn't an array
+			if(!is_array($submenu)) return;
 			?>
-			<ul class="subnav">
+			<ul class="submenu">
 				<?php
-				// Loop through the subnav items
-				for($i = 0; $i < count($subnav[0]); $i++) {
+				// Loop through the submenu items
+				for($i = 0; $i < count($submenu[0]); $i++) {
 					?>
-					<li><a href="<?php echo !empty($subnav[1][$i]) ? trailingSlash(ADMIN).$subnav[1][$i] : 'javascript:void(0)'; ?>"><?php echo !empty($subnav[0][$i]) ? $subnav[0][$i] : 'Subnav Item'; ?></a></li>
+					<li><a href="<?php echo !empty($submenu[1][$i]) ? trailingSlash(ADMIN).$submenu[1][$i] : 'javascript:void(0)'; ?>"><?php echo !empty($submenu[0][$i]) ? $submenu[0][$i] : 'Submenu Item'; ?></a></li>
 					<?php
 				}
 				?>
@@ -357,7 +413,7 @@ function paginate($current = 1, $per_page = 20) {
  * @return string
  */
 function pagerNav($current, $page_count) {
-	return '<div class="pager">'.($current > 1 ? '<a class="pager-nav" href="?page=1" title="First Page">&laquo;</a><a class="pager-nav" href="?page='.($current - 1).'" title="Previous Page">&lsaquo;</a>' : '').($page_count > 0 ? ' Page '.$current.' of '.$page_count.' ' : '').($current < $page_count ? '<a class="pager-nav" href="?page='.($current + 1).'" title="Next Page">&rsaquo;</a><a class="pager-nav" href="?page='.$page_count.'" title="Last Page">&raquo;</a>' : '').'</div>';
+	return '<div class="pager">'.($current > 1 ? '<a class="pager-nav button" href="?page=1" title="First Page">&laquo;</a><a class="pager-nav button" href="?page='.($current - 1).'" title="Previous Page">&lsaquo;</a>' : '').($page_count > 0 ? ' Page '.$current.' of '.$page_count.' ' : '').($current < $page_count ? '<a class="pager-nav button" href="?page='.($current + 1).'" title="Next Page">&rsaquo;</a><a class="pager-nav button" href="?page='.$page_count.'" title="Last Page">&raquo;</a>' : '').'</div>';
 }
 
 /**

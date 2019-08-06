@@ -25,7 +25,7 @@ class Post {
 		$status = $_GET['status'] ?? 'all';
 		
 		// Set up pagination
-		$page = isset($_GET['page']) ? paginate($_GET['page']) : paginate();
+		$page = isset($_GET['page']) ? paginate($_GET['page'], 4) : paginate(1, 4);
 		
 		// Get the post count (by type)
 		$count = array('all'=>$this->getPostCount($type), 'published'=>$this->getPostCount($type, 'published'), 'draft'=>$this->getPostCount($type, 'draft'), 'trash'=>$this->getPostCount($type, 'trash'));
@@ -57,7 +57,7 @@ class Post {
 			// Set the page count
 			$page['count'] = ceil($count[$status] / $page['per_page']);
 			?>
-			<div class="entry-count">
+			<div class="entry-count post">
 				<?php
 				// Display entry count
 				echo $count[$status].' '.($count[$status] === 1 ? 'entry' : 'entries');
@@ -467,11 +467,26 @@ class Post {
 			// Fetch the post from the database
 			$post = $rs_query->selectRow('posts', 'type', array('id'=>$id));
 			
+			// Delete the post from the database
+			$rs_query->delete('posts', array('id'=>$id));
+			
 			// Delete the post metadata from the database
 			$rs_query->delete('postmeta', array('post'=>$id));
 			
-			// Delete the post from the database
-			$rs_query->delete('posts', array('id'=>$id));
+			// Fetch all term relationships associated with the post from the database
+			$relationships = $rs_query->select('term_relationships', '*', array('post'=>$id));
+			
+			// Loop through the relationships
+			foreach($relationships as $relationship) {
+				// Delete the unused relationship from the database
+				$rs_query->delete('term_relationships', array('id'=>$relationship['id']));
+				
+				// Fetch the number of times a category shares a relationship with the post in the database
+				$count = $rs_query->selectRow('term_relationships', 'COUNT(*)', array('term'=>$relationship['term']));
+				
+				// Update the category's post count
+				$rs_query->update('terms', array('count'=>$count), array('id'=>$relationship['term']));
+			}
 			
 			// Redirect to the 'List Posts' page (with a success message)
 			header('Location: posts.php'.($post['type'] !== 'post' ? '?type='.$post['type'].'&' : '?').'status=trash&exit_status=success');
