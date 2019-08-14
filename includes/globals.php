@@ -5,7 +5,7 @@
  */
 
 // Current CMS version
-const VERSION = 'Version 1.5.5 (&alpha;)';
+const VERSION = 'Version 1.5.6 (&alpha;)';
 
 /**
  * Display copyright on the admin dashboard.
@@ -42,14 +42,15 @@ function RSVersion($echo = true) {
  * @since 1.3.3[a]
  *
  * @param string $stylesheet
+ * @param string $version (optional; default '')
  * @param bool $echo (optional; default: true)
  * @return null|string (null on $echo == true; string on $echo == false)
  */
-function getStylesheet($stylesheet, $echo = true) {
+function getStylesheet($stylesheet, $version = '', $echo = true) {
 	if($echo)
-		echo '<link rel="stylesheet" href="'.trailingSlash(STYLES).$stylesheet.'">';
+		echo '<link rel="stylesheet" href="'.trailingSlash(STYLES).$stylesheet.(!empty($version) ? '?version='.$version : '').'">';
 	else
-		return '<link rel="stylesheet" href="'.trailingSlash(STYLES).$stylesheet.'">';
+		return '<link rel="stylesheet" href="'.trailingSlash(STYLES).$stylesheet.(!empty($version) ? '?version='.$version : '').'">';
 }
 
 /**
@@ -57,14 +58,15 @@ function getStylesheet($stylesheet, $echo = true) {
  * @since 1.3.3[a]
  *
  * @param string $script
+ * @param string $version (optional; default '')
  * @param bool $echo (optional; default: true)
  * @return null|string (null on $echo == true; string on $echo == false)
  */
-function getScript($script, $echo = true) {
+function getScript($script, $version = '', $echo = true) {
 	if($echo)
-		echo '<script src="'.trailingSlash(SCRIPTS).$script.'"></script>';
+		echo '<script src="'.trailingSlash(SCRIPTS).$script.(!empty($version) ? '?version='.$version : '').'"></script>';
 	else
-		return '<script src="'.trailingSlash(SCRIPTS).$script.'"></script>';
+		return '<script src="'.trailingSlash(SCRIPTS).$script.(!empty($version) ? '?version='.$version : '').'"></script>';
 }
 
 /**

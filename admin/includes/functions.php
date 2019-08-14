@@ -64,14 +64,15 @@ function getCurrentPage() {
  * @since 1.2.0[a]
  *
  * @param string $stylesheet
+ * @param string $version (optional; default '')
  * @param bool $echo (optional; default: true)
  * @return null|string (null on $echo == true; string on $echo == false)
  */
-function getAdminStylesheet($stylesheet, $echo = true) {
+function getAdminStylesheet($stylesheet, $version = '', $echo = true) {
 	if($echo)
-		echo '<link rel="stylesheet" href="'.trailingSlash(ADMIN_STYLES).$stylesheet.'">';
+		echo '<link rel="stylesheet" href="'.trailingSlash(ADMIN_STYLES).$stylesheet.(!empty($version) ? '?version='.$version : '').'">';
 	else
-		return '<link rel="stylesheet" href="'.trailingSlash(ADMIN_STYLES).$stylesheet.'">';
+		return '<link rel="stylesheet" href="'.trailingSlash(ADMIN_STYLES).$stylesheet.(!empty($version) ? '?version='.$version : '').'">';
 }
 
 /**
@@ -79,14 +80,15 @@ function getAdminStylesheet($stylesheet, $echo = true) {
  * @since 1.2.0[a]
  *
  * @param string $script
+ * @param string $version (optional; default '')
  * @param bool $echo (optional; default: true)
  * @return null|string (null on $echo == true; string on $echo == false)
  */
-function getAdminScript($script, $echo = true) {
+function getAdminScript($script, $version = '', $echo = true) {
 	if($echo)
-		echo '<script src="'.trailingSlash(ADMIN_SCRIPTS).$script.'"></script>';
+		echo '<script src="'.trailingSlash(ADMIN_SCRIPTS).$script.(!empty($version) ? '?version='.$version : '').'"></script>';
 	else
-		return '<script src="'.trailingSlash(ADMIN_SCRIPTS).$script.'"></script>';
+		return '<script src="'.trailingSlash(ADMIN_SCRIPTS).$script.(!empty($version) ? '?version='.$version : '').'"></script>';
 }
 
 /**
@@ -353,12 +355,12 @@ function statsBarGraph($bars) {
 	$num *= 5;
 	
 	$content = '<input type="hidden" id="max-ct" value="'.($num * 5).'">';
-	$content .= '<div id="graph"><ul id="graph-y">';
+	$content .= '<div id="stats-graph"><ul class="graph-y">';
 	
 	for($i = 5; $i >= 0; $i--)
-		$content .= '<li><div class="y-value">'.($i * $num).'</div></li>';
+		$content .= '<li><span class="value">'.($i * $num).'</span></li>';
 	
-	$content .= '</ul><ul id="graph-content">';
+	$content .= '</ul><ul class="graph-content">';
 	$j = 0;
 	
 	foreach($bars as $bar) {
@@ -366,20 +368,20 @@ function statsBarGraph($bars) {
 		$j++;
 	}
 	
-	$content .= '<ul id="graph-overlay">';
+	$content .= '<ul class="graph-overlay">';
 	
 	for($k = 5; $k >= 0; $k--)
 		$content .= '<li></li>';
 	
-	$content .= '</ul></ul><ul id="graph-x">';
+	$content .= '</ul></ul><ul class="graph-x">';
 	$l = 0;
 	
 	foreach($bars as $bar) {
-		$content .= '<li style="width:'.(1 / count($bars) * 100).'%;"><a href="'.$links[$l].'" title="'.ucfirst(isset($bar[2]) ? $bar[2].'s' : $bar[0]).': '.$stats[$l].($stats[$l] === 1 ? ' entry' : ' entries').'">'.ucfirst(isset($bar[2]) ? $bar[2].'s' : $bar[0]).'</a></li>';
+		$content .= '<li style="width:'.(1 / count($bars) * 100).'%;"><a class="value" href="'.$links[$l].'" title="'.ucfirst(isset($bar[2]) ? $bar[2].'s' : $bar[0]).': '.$stats[$l].($stats[$l] === 1 ? ' entry' : ' entries').'">'.ucfirst(isset($bar[2]) ? $bar[2].'s' : $bar[0]).'</a></li>';
 		$l++;
 	}
 	
-	$content .= '</ul><span id="y-title">Count</span><span id="x-title">Category</span></div>';
+	$content .= '</ul><span class="graph-y-label">Count</span><span class="graph-x-label">Category</span></div>';
 	
 	echo $content;
 }
@@ -633,18 +635,4 @@ function generatePassword($length = 15, $special_chars = true, $extra_special_ch
 		$password .= substr($chars, rand(0, strlen($chars) - 1), 1);
 	
 	return $password;
-}
-
-// For PHP < 7.3 compatibility
-if(!function_exists('array_key_last')) {
-	function array_key_last($array) {
-		$key = null;
-
-		if(is_array($array)) {
-			end($array);
-			$key = key($array);
-		}
-
-		return $key;
-	}
 }

@@ -105,10 +105,9 @@ class Post {
 
 				}
 				
-				if(count($posts) === 0) {
-					// Display notice if no posts are found
+				// Display a notice if no posts are found
+				if(count($posts) === 0)
 					echo tableRow(tableCell('There are no '.$type.'s to display.', '', count($table_header_cols)));
-				}
 				?>
 			</tbody>
 		</table>

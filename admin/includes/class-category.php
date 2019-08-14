@@ -45,8 +45,11 @@ class Category {
 		<table class="data-table">
 			<thead>
 				<?php
+				// Fill an array with the table header columns
+				$table_header_cols = array('Name', 'Slug', 'Parent', 'Count');
+				
 				// Construct the table header
-				echo tableHeaderRow(array('Name', 'Slug', 'Parent', 'Count'));
+				echo tableHeaderRow($table_header_cols);
 				?>
 			</thead>
 			<tbody>
@@ -64,6 +67,10 @@ class Category {
 						tableCell($category['count'], 'count')
 					);
 				}
+				
+				// Display a notice if no categories are found
+				if(count($categories) === 0)
+					echo tableRow(tableCell('There are no categories to display.', '', count($table_header_cols)));
 				?>
 			</tbody>
 		</table>

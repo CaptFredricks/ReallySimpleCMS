@@ -4,6 +4,31 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.5.6[a] (2019-08-14)
+
+* A notice will now be displayed on the List Categories page if there are no categories in the database
+* Minor code tweak in the Post class
+* Adjusted the margins for status messages
+* Removed some deprecated code from the admin functions file
+* Changed some class and id names for the statistics graph
+* Added styling to the statistics graph
+* Created a file for admin scripts
+* Created a file for the jquery library
+* Added admin scripts and jquery to the admin footer file
+* Added optional version parameter to stylesheet and script fetching functions
+* Created a script that generates the bars for the statistics graph
+
+**Modified files:**
+* admin/footer.php
+* admin/includes/class-category.php
+* admin/includes/class-post.php (M)
+* admin/includes/functions.php
+* admin/includes/css/style.css
+* admin/includes/js/script.js (N)
+* includes/globals.php
+* includes/js/jquery.min.js (N)
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.5.5[a] (2019-08-05)
 
 * Created an index page for the content directory
