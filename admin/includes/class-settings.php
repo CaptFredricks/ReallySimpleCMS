@@ -49,7 +49,7 @@ class Settings {
 				echo formRow('Default User Role', array('tag'=>'select', 'class'=>'select-input', 'name'=>'default_user_role', 'content'=>''));
 				echo formRow('Home Page', array('tag'=>'select', 'class'=>'select-input', 'name'=>'home_page', 'content'=>$this->getPageList($setting['home_page'])));
 				echo formRow('Search Engine Visibility', array('tag'=>'input', 'type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'do_robots', 'value'=>(int)$setting['do_robots'], '*'=>$do_robots, 'label'=>array('class'=>'checkbox-label', 'content'=>'Discourage search engines from indexing this site')));
-				echo formRow('', array('tag'=>'hr', 'class'=>'divider'));
+				echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
 				echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Settings'));
 				?>
 			</table>

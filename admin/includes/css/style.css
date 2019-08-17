@@ -97,16 +97,19 @@ a:hover {
 	display: block;
 }
 
-#admin-nav-menu .menu > li.current-nav-menu-item {
+#admin-nav-menu .menu > li.current-menu-item,
+#admin-nav-menu .menu > li.child-is-current {
 	background-color: #2f2f2f;
 }
 
-#admin-nav-menu .menu > li.current-nav-menu-item > a {
+#admin-nav-menu .menu > li.current-menu-item > a,
+#admin-nav-menu .menu > li.child-is-current > a {
 	color: #b6e0fa;
 	font-weight: 600;
 }
 
-#admin-nav-menu .menu > li.current-nav-menu-item .submenu {
+#admin-nav-menu .menu > li.current-menu-item .submenu,
+#admin-nav-menu .menu > li.child-is-current .submenu {
 	background-color: #5f5f5f;
 	border-top: 1px dashed #7f7f7f;
 	box-shadow: none;
@@ -114,7 +117,8 @@ a:hover {
 	position: static;
 }
 
-#admin-nav-menu .menu > li.current-nav-menu-item .submenu > li > a {
+#admin-nav-menu .menu > li.current-menu-item .submenu > li > a,
+#admin-nav-menu .menu > li.child-is-current .submenu > li > a {
 	padding: 0.5rem 0 0.5rem 1.75rem;
 }
 
@@ -138,6 +142,15 @@ a:hover {
 
 #admin-nav-menu .submenu > li:not(:last-child) {
 	border-bottom: 1px dashed #7f7f7f;
+}
+
+#admin-nav-menu .submenu > li.current-submenu-item {
+	background-color: #2f2f2f;
+}
+
+#admin-nav-menu .submenu > li.current-submenu-item > a {
+	color: #b6e0fa;
+	font-weight: 600;
 }
 
 #admin-nav-menu .submenu > li > a {
@@ -458,10 +471,6 @@ a:hover {
 	color: #f00;
 }
 
-.data-form .form-table label {
-	margin-right: 0;
-}
-
 .data-form .text-input {
 	border: 2px solid #cdcdcd;
 	padding: 0.25em;
@@ -623,6 +632,14 @@ a:hover {
 
 .data-form .form-table th {
 	width: 175px;
+}
+
+.data-form .form-table label {
+	margin-right: 0;
+}
+
+.data-form .form-table .separator {
+	border: 1px dashed #5f5f5f;
 }
 
 /** Required fields **/

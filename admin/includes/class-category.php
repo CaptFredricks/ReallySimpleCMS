@@ -19,7 +19,7 @@ class Category {
 		global $rs_query;
 		
 		// Set up pagination
-		$page = isset($_GET['page']) ? paginate($_GET['page']) : paginate();
+		$page = paginate((int)($_GET['page'] ?? 1));
 		?>
 		<div class="heading-wrap">
 			<h1>Categories</h1>
@@ -29,7 +29,7 @@ class Category {
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
 				echo statusMessage('Category was successfully deleted.', true);
 			
-			// Get the category count
+			// Fetch the category entry count from the database
 			$count = $rs_query->select('terms', 'COUNT(*)', array('taxonomy'=>getTaxonomyId('category')));
 			
 			// Set the page count
@@ -37,7 +37,7 @@ class Category {
 			?>
 			<div class="entry-count">
 				<?php
-				// Display entry count
+				// Display the entry count
 				echo $count.' '.($count === 1 ? 'entry' : 'entries');
 				?>
 			</div>
@@ -104,7 +104,7 @@ class Category {
 				echo formRow(array('Name', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'name', 'value'=>($_POST['name'] ?? '')));
 				echo formRow(array('Slug', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>($_POST['slug'] ?? '')));
 				echo formRow('Parent', array('tag'=>'select', 'class'=>'select-input', 'name'=>'parent', 'content'=>'<option value="0">(none)</option>'.$this->getParentList()));
-				echo formRow('', array('tag'=>'hr', 'class'=>'divider'));
+				echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
 				echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Create Category'));
 				?>
 			</table>
@@ -152,7 +152,7 @@ class Category {
 						echo formRow(array('Name', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'name', 'value'=>$category['name']));
 						echo formRow(array('Slug', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>$category['slug']));
 						echo formRow('Parent', array('tag'=>'select', 'class'=>'select-input', 'name'=>'parent', 'content'=>'<option value="0">(none)</option>'.$this->getParentList($category['parent'], $category['id'])));
-						echo formRow('', array('tag'=>'hr', 'class'=>'divider'));
+						echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
 						echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Category'));
 						?>
 					</table>

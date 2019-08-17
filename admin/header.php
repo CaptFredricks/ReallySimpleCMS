@@ -28,14 +28,13 @@ $current_page = getCurrentPage();
 			<ul class="menu">
 				<?php
 				// Construct the admin nav menu
-				adminNavMenuItem('dashboard', 'index.php');
-				adminNavMenuItem('pages', '', array(array('caption'=>'List Pages', 'link'=>'posts.php?type=page'), array('caption'=>'Create Page', 'link'=>'posts.php?type=page&action=create')));
-				adminNavMenuItem('posts', '', array(array('caption'=>'List Posts', 'link'=>'posts.php'), array('caption'=>'Create Post', 'link'=>'posts.php?action=create'), array('caption'=>'List Categories', 'link'=>'categories.php')));
-				adminNavMenuItem('media', '', array(array('caption'=>'List Media'), array('caption'=>'Upload Media')));
-				adminNavMenuItem('navigation', '', array(array(), array()));
-				adminNavMenuItem('widgets', '', array(array('caption'=>'List Widgets'), array('caption'=>'Create Widget')));
-				adminNavMenuItem('users', '', array(array('caption'=>'List Users', 'link'=>'users.php'), array('caption'=>'Create User', 'link'=>'users.php?action=create'), array('caption'=>'Your Profile')));
-				adminNavMenuItem('settings', 'settings.php');
+				adminNavMenuItem(array('id'=>'dashboard', 'link'=>'index.php'));
+				adminNavMenuItem(array('id'=>'pages'), array(array('link'=>'posts.php?type=page', 'caption'=>'List Pages'), array('id'=>'pages-create', 'link'=>'posts.php?type=page&action=create', 'caption'=>'Create Page')));
+				adminNavMenuItem(array('id'=>'posts'), array(array('link'=>'posts.php', 'caption'=>'List Posts'), array('id'=>'posts-create', 'link'=>'posts.php?action=create', 'caption'=>'Create Post'), array('id'=>'categories', 'link'=>'categories.php', 'caption'=>'List Categories')));
+				adminNavMenuItem(array('id'=>'media'), array(array('caption'=>'List Media'), array('id'=>'media-upload', 'caption'=>'Upload Media')));
+				adminNavMenuItem(array('id'=>'customization'), array(array('id'=>'menus', 'caption'=>'List Menus'), array('id'=>'widgets', 'link'=>'widgets.php', 'caption'=>'List Widgets')));
+				adminNavMenuItem(array('id'=>'users'), array(array('link'=>'users.php', 'caption'=>'List Users'), array('id'=>'users-create', 'link'=>'users.php?action=create', 'caption'=>'Create User'), array('id'=>'profile', 'caption'=>'Your Profile')));
+				adminNavMenuItem(array('id'=>'settings', 'link'=>'settings.php'));
 				?>
 			</ul>
 		</nav>

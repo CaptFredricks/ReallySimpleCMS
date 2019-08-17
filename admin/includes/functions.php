@@ -39,9 +39,23 @@ function getCurrentPage() {
 			if(strpos($query_param, 'type') !== false) {
 				// Set the current page 
 				$current = substr($query_param, strpos($query_param, '=') + 1).'s';
+			}
+			
+			// Check whether the query parameter contains 'action'
+			if(strpos($query_param, 'action') !== false) {
+				// Fetch the current action
+				$action = substr($query_param, strpos($query_param, '=') + 1);
 				
-				// Exit the loop
-				break;
+				// Only use the desired actions
+				switch($action) {
+					case 'create':
+					case 'upload':
+						// Add the action's name to the current page
+						$current .= '-'.$action;
+						
+						// Break out of the switch statement
+						break;
+				}
 			}
 		}
 		
@@ -64,7 +78,7 @@ function getCurrentPage() {
  * @since 1.2.0[a]
  *
  * @param string $stylesheet
- * @param string $version (optional; default '')
+ * @param string $version (optional; default: '')
  * @param bool $echo (optional; default: true)
  * @return null|string (null on $echo == true; string on $echo == false)
  */
@@ -80,7 +94,7 @@ function getAdminStylesheet($stylesheet, $version = '', $echo = true) {
  * @since 1.2.0[a]
  *
  * @param string $script
- * @param string $version (optional; default '')
+ * @param string $version (optional; default: '')
  * @param bool $echo (optional; default: true)
  * @return null|string (null on $echo == true; string on $echo == false)
  */
@@ -258,53 +272,72 @@ function populateTermRelationships($data) {
  * Create a nav menu item for the admin navigation.
  * @since 1.2.5[a]
  *
- * @param string|array $menu (optional; default: '')
- * @param string $caption (optional; default: 'Nav Item')
- * @param string $link (optional; default: '')
- * @param string|array $submenu (optional; default: '')
- * @return null;
+ * @param array $item (optional; default: array())
+ * @param array $submenu (optional; default: array())
+ * @return null
  */
-function adminNavMenuItem($menu = '', $link = '', $submenu = '') {
+function adminNavMenuItem($item = array(), $submenu = array()) {
 	// Fetch the current page
 	$current = getCurrentPage();
 	
-	if(empty($menu)) {
-		// Set a default menu item caption
-		$caption = 'Nav Item';
-	} elseif(is_array($menu)) {
-		// Get the menu item caption
-		$caption = array_pop($menu);
-		
-		// Convert the array into a string
-		$menu = implode('', $menu);
-	} else {
-		// Set the menu item caption based on the menu value
-		$caption = ucwords($menu);
-	}
+	// Return if the menu item is not an array
+	if(!empty($item) && !is_array($item)) return;
 	
-	// Check whether the menu has a submenu
-	if(!empty($submenu)) {
-		// Set the submenu flag to true
-		$has_submenu = true;
-	} else {
-		// Set the submenu flag to false
-		$has_submenu = false;
+	// Fetch the menu item id
+	$item_id = $item['id'] ?? 'menu-item';
+	
+	// Fetch the menu item link
+	$item_link = isset($item['link']) ? trailingSlash(ADMIN).$item['link'] : 'javascript:void(0)';
+	
+	// Fetch the menu item caption
+	$item_caption = $item['caption'] ?? ucwords(str_replace('-', ' ', $item_id));
+	
+	// Check whether the item id matches the current page
+	if($item_id === $current) {
+		// Give the menu item a CSS class
+		$item_class = 'current-menu-item';
+	} // Otherwise, check whether or not the submenu is empty
+	elseif(!empty($submenu)) {
+		// Loop through the submenu items
+		foreach($submenu as $sub_item) {
+			// Check whether the submenu item id matches the current page
+			if(!empty($sub_item['id']) && $sub_item['id'] === $current) {
+				// Give the menu item a CSS class
+				$item_class = 'child-is-current';
+				
+				// Break out of the loop
+				break;
+			}
+		}
 	}
 	?>
-	<li <?php echo $menu === $current ? 'class="current-nav-menu-item"' : ''; ?>>
-		<a href="<?php echo !empty($link) ? trailingSlash(ADMIN).$link : 'javascript:void(0)'; ?>"><?php echo $caption; ?></a>
+	<li<?php echo !empty($item_class) ? ' class="'.$item_class.'"' : ''; ?>>
+		<a href="<?php echo $item_link; ?>"><?php echo $item_caption; ?></a>
 		<?php
-		// Construct the submenu if its parameters are provided
-		if($has_submenu) {
-			// Return if the submenu isn't an array
+		// Check whether or not the submenu parameters have been specified
+		if(!empty($submenu)) {
+			// Return if the submenu is not an array
 			if(!is_array($submenu)) return;
 			?>
 			<ul class="submenu">
 				<?php
 				// Loop through the submenu items
-				foreach($submenu as $sub) {
+				foreach($submenu as $sub_item) {
+					// Break out of the loop if the menu item is not an array
+					if(!empty($sub_item) && !is_array($sub_item)) break;
+					
+					// Fetch the submenu item id
+					$sub_item_id = $sub_item['id'] ?? $item_id;
+					
+					// Fetch the submenu item link
+					$sub_item_link = isset($sub_item['link']) ? trailingSlash(ADMIN).$sub_item['link'] : 'javascript:void(0)';
+					
+					// Fetch the submenu item caption
+					$sub_item_caption = $sub_item['caption'] ?? ucwords(str_replace('-', ' ', $sub_item_id));
 					?>
-					<li><a href="<?php echo !empty($sub['link']) ? trailingSlash(ADMIN).$sub['link'] : 'javascript:void(0)'; ?>"><?php echo !empty($sub['caption']) ? $sub['caption'] : 'Submenu Item'; ?></a></li>
+					<li<?php echo $sub_item_id === $current ? ' class="current-submenu-item"' : ''; ?>>
+						<a href="<?php echo $sub_item_link; ?>"><?php echo $sub_item_caption; ?></a>
+					</li>
 					<?php
 				}
 				?>

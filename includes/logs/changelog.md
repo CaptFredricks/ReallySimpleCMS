@@ -4,6 +4,32 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.6.0[a] (2019-08-16)
+
+* The admin nav menu now properly displays the current page, even if it's in a submenu
+* Reorganized the admin nav menu items
+* Improved styling of the admin nav menu
+* The getCurrentPage function now adds any action in the url to the end of the current page
+* Added more documentation to the User class and fixed the styling on the reset password form
+* Renamed the data form's hr class from 'divider' to 'separator' and added styling for it
+* Created admin 'List Widgets' page and added a link to the nav menu
+* Created the Widget class
+* Fixed some documentation in the Category class
+* Created a function that constructs the 'Create Widget' form
+* Tweaked the documentation in the installation stylesheet
+
+**Modified files:**
+* admin/header.php
+* admin/widgets.php (N)
+* admin/includes/class-category.php
+* admin/includes/class-settings.php (M)
+* admin/includes/class-user.php
+* admin/includes/class-widget.php (N)
+* admin/includes/functions.php
+* admin/includes/css/install.css (M)
+* admin/includes/css/style.css
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.5.7[a] (2019-08-15)
 
 * Improved styling of the statistics graph

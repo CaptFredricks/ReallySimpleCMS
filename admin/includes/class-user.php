@@ -121,7 +121,7 @@ class User {
 				echo formRow(array('Password', true), array('tag'=>'input', 'id'=>'pw-input', 'class'=>'text-input required invalid init', 'name'=>'password'), array('tag'=>'input', 'type'=>'button', 'id'=>'pw-btn', 'class'=>'button-input button', 'value'=>'Generate Password'), array('tag'=>'br'), array('tag'=>'input', 'type'=>'checkbox', 'id'=>'pw-chk', 'class'=>'checkbox-input', 'name'=>'pass_saved', 'value'=>'checked', 'label'=>array('id'=>'chk-label', 'class'=>'checkbox-label required invalid init', 'content'=>'I have copied the password to a safe place.')));
 				echo formRow('Avatar', array('tag'=>'input', 'type'=>'hidden', 'id'=>'img-input', 'name'=>'avatar', 'value'=>($_POST['avatar'] ?? '')), array('tag'=>'input', 'type'=>'button', 'id'=>'img-choose', 'class'=>'button-input button', 'value'=>'Choose Image'));
 				echo formRow('Role', array('tag'=>'select', 'class'=>'select-input', 'name'=>'role', 'content'=>'<option></option>'));
-				echo formRow('', array('tag'=>'hr', 'class'=>'divider'));
+				echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
 				echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Create User'));
 				?>
 			</table>
@@ -176,7 +176,7 @@ class User {
 						echo formRow('Last Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'last_name', 'value'=>$meta['last_name']));
 						echo formRow('Avatar', array('tag'=>'img', 'src'=>$this->getAvatar($meta['avatar']), 'width'=>150), array('tag'=>'br'), array('tag'=>'input', 'type'=>'hidden', 'id'=>'img-input', 'name'=>'avatar', 'value'=>$meta['avatar']), array('tag'=>'input', 'type'=>'button', 'id'=>'img-choose', 'class'=>'button-input button', 'value'=>'Choose Image'));
 						echo formRow('Role', array('tag'=>'select', 'class'=>'select-input', 'name'=>'role', 'content'=>'<option></option>'));
-						echo formRow('', array('tag'=>'hr', 'class'=>'divider'));
+						echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
 						echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update User'));
 						?>
 					</table>
@@ -376,17 +376,21 @@ class User {
 			$message = isset($_POST['submit']) ? $this->validatePasswordData($_POST, $id) : '';
 			?>
 			<div class="heading-wrap">
-				<h1 id="admin-heading">Reset Password</h1>
-				<?php echo $message; ?>
+				<h1>Reset Password</h1>
+				<?php
+				// Display status messages
+				echo $message;
+				?>
 			</div>
-			<form action="" method="post" autocomplete="off">
+			<form class="data-form" action="" method="post" autocomplete="off">
 				<table class="form-table">
 					<?php
+					// Display form rows
 					echo formRow('Admin Password', array('tag'=>'input', 'type'=>'password', 'class'=>'text-input required invalid init', 'name'=>'admin_pass'));
 					echo formRow('New User Password', array('tag'=>'input', 'id'=>'pw-input', 'class'=>'text-input required invalid init', 'name'=>'new_pass'), array('tag'=>'input', 'type'=>'button', 'id'=>'pw-btn', 'class'=>'button-input', 'value'=>'Generate Password'), array('tag'=>'br'), array('tag'=>'input', 'type'=>'checkbox', 'id'=>'pw-chk', 'class'=>'checkbox-input', 'name'=>'pass_saved', 'value'=>'checked', 'label'=>array('id'=>'chk-label', 'class'=>'checkbox-label required invalid init', 'content'=>'I have copied the password to a safe place.')));
 					echo formRow('New User Password (confirm)', array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'confirm_pass'));
-					echo formRow('', array('tag'=>'hr', 'class'=>'divider'));
-					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input', 'name'=>'submit', 'value'=>'Update Password'));
+					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
+					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Password'));
 					?>
 				</table>
 			</form>
@@ -401,44 +405,66 @@ class User {
 	 * @access private
 	 * @param array $data
 	 * @param int $id (optional; default: 0)
-	 * @return
+	 * @return null|string (null on $id == 0; string on $id != 0)
 	 */
 	private function validatePasswordData($data, $id = 0) {
 		// Extend the Query class
 		global $rs_query;
 		
+		// Make sure no required fields are empty
 		if(empty($data['new_pass']) || empty($data['confirm_pass']))
 			return statusMessage('R');
-		elseif($data['new_pass'] !== $data['confirm_pass'])
+		
+		// Make sure the new and confirm password fields match
+		if($data['new_pass'] !== $data['confirm_pass'])
 			return statusMessage('New and confirm passwords do not match.');
-		elseif(strlen($data['new_pass']) < self::PW_LENGTH || strlen($data['confirm_pass']) < self::PW_LENGTH)
+		
+		// Make sure the new and confirm passwords are long enough
+		if(strlen($data['new_pass']) < self::PW_LENGTH || strlen($data['confirm_pass']) < self::PW_LENGTH)
 			return statusMessage('New password must be at least '.self::PW_LENGTH.' characters long.');
-		elseif(!isset($data['pass_saved']) || $data['pass_saved'] !== 'checked')
+		
+		// Make sure the password saved checkbox has been checked
+		if(!isset($data['pass_saved']) || $data['pass_saved'] !== 'checked')
 			return statusMessage('Please confirm that you\'ve saved your password to a safe location.');
 		
 		if($id === 0) {
+			// Make sure the current password field is not empty
 			if(empty($data['current_pass']))
 				return statusMessage('R');
 		} else {
+			// Make sure the admin password field is not empty
 			if(empty($data['admin_pass']))
 				return statusMessage('R');
-			elseif(!$this->verifyPassword($session_data, $data['admin_pass']))
+			
+			// Make sure the admin password is correctly entered
+			if(!$this->verifyPassword($session_data, $data['admin_pass']))
 				return statusMessage('Admin password is incorrect.');
 			
+			// Hash the password (encrypts the password for security purposes)
 			$hashed_password = password_hash($data['new_pass'], PASSWORD_BCRYPT, array('cost'=>10));
 			
+			// Update the user's password in the database
 			$rs_query->update('users', array('password'=>$hashed_password), array('id'=>$id));
 			
+			// Fetch the user's session from the database
 			$user = $rs_query->selectRow('users', 'session', array('id'=>$id));
 			
-			$rs_query->update('users', array('session'=>null), array('id'=>$id, 'session'=>$user['session']));
-			
-			if($user['session'] != null) {
+			// Check whether the user's session is null
+			if(!is_null($user['session'])) {
+				// Set the user's session to null in the database
+				$rs_query->update('users', array('session'=>null), array('id'=>$id, 'session'=>$user['session']));
+				
+				// Fetch the session id
 				session_id($user['session']);
+				
+				// Unset all of the session variables
 				unset($_SESSION['id'], $_SESSION['username'], $_SESSION['avatar'], $_SESSION['role'], $_SESSION['session']);
+				
+				// Destroy the session
 				session_destroy();
 			}
 			
+			// Return a status message
 			return statusMessage('Password updated! Return to <a href="users.php">Return to list</a>?', true);
 		}
 	}
@@ -456,8 +482,10 @@ class User {
 		// Extend the Query class
 		global $rs_query;
 		
+		// Fetch the password from the database
 		$user = $rs_query->selectRow('users', 'password', array('id'=>$session_data['id'], 'session'=>$session_data['session']));
 		
+		// Return true if the password is valid
 		return !empty($user['password']) && password_verify($password, $user['password']);
 	}
 }
