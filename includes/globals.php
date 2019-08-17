@@ -5,7 +5,7 @@
  */
 
 // Current CMS version
-const VERSION = 'Version 1.5.6 (&alpha;)';
+const VERSION = '1.5.7';
 
 /**
  * Display copyright on the admin dashboard.
@@ -32,9 +32,9 @@ function RSCopyright($echo = true) {
  */
 function RSVersion($echo = true) {
 	if($echo)
-		echo VERSION;
+		echo 'Version '.VERSION.' (&alpha;)';
 	else
-		return VERSION;
+		return 'Version '.VERSION.' (&alpha;)';
 }
 
 /**
@@ -42,7 +42,7 @@ function RSVersion($echo = true) {
  * @since 1.3.3[a]
  *
  * @param string $stylesheet
- * @param string $version (optional; default '')
+ * @param string $version (optional; default: '')
  * @param bool $echo (optional; default: true)
  * @return null|string (null on $echo == true; string on $echo == false)
  */
@@ -58,7 +58,7 @@ function getStylesheet($stylesheet, $version = '', $echo = true) {
  * @since 1.3.3[a]
  *
  * @param string $script
- * @param string $version (optional; default '')
+ * @param string $version (optional; default: '')
  * @param bool $echo (optional; default: true)
  * @return null|string (null on $echo == true; string on $echo == false)
  */

@@ -14,4 +14,3 @@ $rs_settings = new Settings;
 <?php
 // Include footer
 require_once __DIR__.'/footer.php';
-?>

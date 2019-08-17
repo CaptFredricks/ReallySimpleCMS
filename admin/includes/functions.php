@@ -281,21 +281,30 @@ function adminNavMenuItem($menu = '', $link = '', $submenu = '') {
 		// Set the menu item caption based on the menu value
 		$caption = ucwords($menu);
 	}
+	
+	// Check whether the menu has a submenu
+	if(!empty($submenu)) {
+		// Set the submenu flag to true
+		$has_submenu = true;
+	} else {
+		// Set the submenu flag to false
+		$has_submenu = false;
+	}
 	?>
 	<li <?php echo $menu === $current ? 'class="current-nav-menu-item"' : ''; ?>>
 		<a href="<?php echo !empty($link) ? trailingSlash(ADMIN).$link : 'javascript:void(0)'; ?>"><?php echo $caption; ?></a>
 		<?php
-		// Construct the submenu if parameters are provided
-		if(!empty($submenu)) {
+		// Construct the submenu if its parameters are provided
+		if($has_submenu) {
 			// Return if the submenu isn't an array
 			if(!is_array($submenu)) return;
 			?>
 			<ul class="submenu">
 				<?php
 				// Loop through the submenu items
-				for($i = 0; $i < count($submenu[0]); $i++) {
+				foreach($submenu as $sub) {
 					?>
-					<li><a href="<?php echo !empty($submenu[1][$i]) ? trailingSlash(ADMIN).$submenu[1][$i] : 'javascript:void(0)'; ?>"><?php echo !empty($submenu[0][$i]) ? $submenu[0][$i] : 'Submenu Item'; ?></a></li>
+					<li><a href="<?php echo !empty($sub['link']) ? trailingSlash(ADMIN).$sub['link'] : 'javascript:void(0)'; ?>"><?php echo !empty($sub['caption']) ? $sub['caption'] : 'Submenu Item'; ?></a></li>
 					<?php
 				}
 				?>

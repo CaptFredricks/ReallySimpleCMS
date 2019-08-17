@@ -9,8 +9,8 @@ require_once __DIR__.'/header.php';
 	<?php
 	// Bars for the graph
 	$bars = array(
-		array('posts', 'type', 'post'),
 		array('posts', 'type', 'page'),
+		array('posts', 'type', 'post'),
 		array('users')
 	);
 	
@@ -21,4 +21,3 @@ require_once __DIR__.'/header.php';
 <?php
 // Include footer
 require_once __DIR__.'/footer.php';
-?>

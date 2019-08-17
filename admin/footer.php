@@ -3,6 +3,6 @@
 			<div class="version"><?php RSVersion(); ?></div>
 		</footer>
 		<?php getScript('jquery.min.js', '3.4.1'); ?>
-		<?php getAdminScript('script.js'); ?>
+		<?php getAdminScript('script.js', VERSION); ?>
 	</body>
 </html>

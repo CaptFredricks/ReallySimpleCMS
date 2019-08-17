@@ -81,7 +81,7 @@ class User {
 						tableCell(formatDate($user['registered'], 'd M Y @ g:i A'), 'registered'),
 						tableCell('', 'role'),
 						tableCell((!empty($user['session']) ? 'Online' : 'Offline'), 'status'),
-						tableCell(($user['last_login'] === null ? 'Never' : formatDate($user['last_login'], 'd M Y @ g:i A')), 'last-login')
+						tableCell($user['last_login'] === null ? 'Never' : formatDate($user['last_login'], 'd M Y @ g:i A'), 'last-login')
 					);
 				}
 				?>
@@ -141,8 +141,9 @@ class User {
 		// Extend the Query class
 		global $rs_query;
 		
+		// Check whether or not the user id is valid
 		if(empty($id) || $id <= 0) {
-			// Redirect to the 'List Users' page if the user id is invalid
+			// Redirect to the 'List Users' page
 			header('Location: users.php');
 		} else {
 			// Fetch the user from the database
@@ -198,15 +199,16 @@ class User {
 		// Extend the Query class
 		global $rs_query;
 		
+		// Check whether or not the user id is valid
 		if(empty($id) || $id <= 0) {
-			// Redirect to the 'List Users' page if the user id is invalid
+			// Redirect to the 'List Users' page
 			header('Location: users.php');
 		} else {
-			// Delete the user metadata from the database
-			$rs_query->delete('usermeta', array('user'=>$id));
-			
 			// Delete the user from the database
 			$rs_query->delete('users', array('id'=>$id));
+			
+			// Delete the user metadata from the database
+			$rs_query->delete('usermeta', array('user'=>$id));
 			
 			// Redirect to the 'List Users' page (with a success message)
 			header('Location: users.php?exit_status=success');

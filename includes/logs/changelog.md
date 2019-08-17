@@ -4,6 +4,34 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.5.7[a] (2019-08-15)
+
+* Improved styling of the statistics graph
+* Reordered the bars in the statistics graph
+* Rebuilt the admin submenu item functionality
+* Removed a closing PHP tag in the admin settings file
+* Tweaked some code in the setup file
+* Tweaked some code and fixed some documentation in the installation file
+* The CMS version constant now only displays the version number (e.g., 1.5.7); the RSVersion function now includes the long form
+* Added the CMS version to the admin stylesheets and scripts
+* Fixed some documentation in the global functions file
+* Removed a closing PHP tag in the admin index file
+* Tweaked some code in the settings and user classes
+
+**Modified files:**
+* admin/footer.php (M)
+* admin/header.php
+* admin/index.php (M)
+* admin/install.php
+* admin/settings.php (M)
+* admin/setup.php (M)
+* admin/includes/class-settings.php (M)
+* admin/includes/class-user.php (M)
+* admin/includes/functions.php
+* admin/includes/css/style.css
+* includes/globals.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.5.6[a] (2019-08-14)
 
 * A notice will now be displayed on the List Categories page if there are no categories in the database
