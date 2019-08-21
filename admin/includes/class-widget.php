@@ -46,7 +46,7 @@ class Widget extends Post {
 			<thead>
 				<?php
 				// Fill an array with the table header columns
-				$table_header_cols = array('Title', 'Slug');
+				$table_header_cols = array('Title', 'Slug', 'Status');
 				
 				// Construct the table header
 				echo tableHeaderRow($table_header_cols);
@@ -62,7 +62,8 @@ class Widget extends Post {
 					// Construct the current row
 					echo tableRow(
 						tableCell('<strong>'.$widget['title'].'</strong><div class="actions"><a href="?id='.$widget['id'].'&action=edit">Edit</a> &bull; <a href="?id='.$widget['id'].'&action=delete">Delete</a></div>', 'title'),
-						tableCell($widget['slug'], 'slug')
+						tableCell($widget['slug'], 'slug'),
+						tableCell(ucfirst($widget['status']), 'status')
 					);
 				}
 				
@@ -90,18 +91,15 @@ class Widget extends Post {
 		?>
 		<div class="heading-wrap">
 			<h1>Create Widget</h1>
-			<?php
-			// Display status messages
-			echo $message;
-			?>
+			<?php echo $message; ?>
 		</div>
 		<form class="data-form" action="" method="post" autocomplete="off">
 			<table class="form-table">
 				<?php
-				// Display form rows
 				echo formRow(array('Title', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>($_POST['title'] ?? '')));
 				echo formRow(array('Slug', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>($_POST['slug'] ?? '')));
 				echo formRow('Content', array('tag'=>'textarea', 'class'=>'textarea-input', 'name'=>'content', 'cols'=>30, 'rows'=>10, 'content'=>(isset($_POST['content']) ? htmlspecialchars($_POST['content']) : '')));
+				echo formRow('Status', array('tag'=>'select', 'class'=>'select-input', 'name'=>'status', 'content'=>'<option value="draft">Draft</option><option value="published">Published</option>'));
 				echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
 				echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Create Widget'));
 				?>
@@ -143,18 +141,15 @@ class Widget extends Post {
 				?>
 				<div class="heading-wrap">
 					<h1>Edit Widget</h1>
-					<?php
-					// Display status messages
-					echo $message;
-					?>
+					<?php echo $message; ?>
 				</div>
 				<form class="data-form" action="" method="post" autocomplete="off">
 					<table class="form-table">
 						<?php
-						// Display form rows
 						echo formRow(array('Title', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>$widget['title']));
 						echo formRow(array('Slug', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>$widget['slug']));
 						echo formRow('Content', array('tag'=>'textarea', 'class'=>'textarea-input', 'name'=>'content', 'cols'=>30, 'rows'=>10, 'content'=>htmlspecialchars($widget['content'])));
+						echo formRow('Status', array('tag'=>'select', 'class'=>'select-input', 'name'=>'status', 'content'=>'<option value="'.$widget['status'].'">'.ucfirst($widget['status']).'</option>'.($widget['status'] === 'draft' ? '<option value="published">Published</option>' : '<option value="draft">Draft</option>')));
 						echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
 						echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Widget'));
 						?>
@@ -170,7 +165,7 @@ class Widget extends Post {
 	 * @since 1.6.1[a]
 	 *
 	 * @access public
-	 & @param int $id
+	 * @param int $id
 	 * @return null
 	 */
 	public function deleteEntry($id) {
@@ -187,6 +182,46 @@ class Widget extends Post {
 			
 			// Redirect to the 'List Posts' page (with a success message)
 			header('Location: widgets.php?exit_status=success');
+		}
+	}
+	
+	/**
+	 * Validate the form data.
+	 * @since 1.6.2[a]
+	 *
+	 * @access private
+	 * @param array $data
+	 * @param int $id (optional; default: 0)
+	 * @return null|string (null on $id == 0; string on $id != 0)
+	 */
+	private function validateData($data, $id = 0) {
+		// Extend the Query class
+		global $rs_query;
+		
+		// Make sure no required fields are empty
+		if(empty($data['title']) || empty($data['slug']))
+			return statusMessage('R');
+		
+		// Make sure the slug is not already being used
+		if($this->slugExists($data['slug'], $id))
+			return statusMessage('That slug is already in use. Please choose another one.');
+		
+		// Make sure the widget has a valid status
+		if($data['status'] !== 'draft' && $data['status'] !== 'published')
+			$data['status'] = 'draft';
+		
+		if($id === 0) {
+			// Insert the new widget into the database
+			$insert_id = $rs_query->insert('posts', array('title'=>$data['title'], 'date'=>'NOW()', 'content'=>$data['content'], 'status'=>$data['status'], 'slug'=>$data['slug'], 'type'=>'widget'));
+			
+			// Redirect to the 'Edit Widget' page
+			header('Location: widgets.php?id='.$insert_id.'&action=edit');
+		} else {
+			// Update the widget in the database
+			$rs_query->update('posts', array('title'=>$data['title'], 'modified'=>'NOW()', 'content'=>$data['content'], 'status'=>$data['status'], 'slug'=>$data['slug']), array('id'=>$id));
+			
+			// Return a status message
+			return statusMessage('Widget updated! <a href="widgets.php">Return to list</a>?', true);
 		}
 	}
 }

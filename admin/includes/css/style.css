@@ -486,7 +486,24 @@ a:hover {
 }
 
 .data-form .textarea-input {
+	border: 2px solid #cdcdcd;
+	padding: 0.5em;
 	resize: none;
+	width: 100%;
+}
+
+.data-form .checkbox-label {
+	cursor: pointer;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+.data-form .checkbox-label input {
+	cursor: pointer;
+}
+
+.data-form .checkbox-label span {
+	vertical-align: top;
 }
 
 .data-form .block {
@@ -531,12 +548,6 @@ a:hover {
 
 .data-form .content .button-input {
 	margin-bottom: 0.75em;
-}
-
-.data-form .content .textarea-input {
-	border: 2px solid #cdcdcd;
-	padding: 0.5em;
-	width: 100%;
 }
 
 .data-form .sidebar {
@@ -632,6 +643,10 @@ a:hover {
 
 .data-form .form-table th {
 	width: 175px;
+}
+
+.data-form .form-table td:not([colspan="2"]) {
+	padding: 0.5em 0;
 }
 
 .data-form .form-table label {

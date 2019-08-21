@@ -25,7 +25,7 @@ class Post {
 		$status = $_GET['status'] ?? 'all';
 		
 		// Set up pagination
-		$page = isset($_GET['page']) ? paginate($_GET['page'], 4) : paginate(1, 4);
+		$page = paginate((int)($_GET['page'] ?? 1));
 		
 		// Get the post count (by type)
 		$count = array('all'=>$this->getPostCount($type), 'published'=>$this->getPostCount($type, 'published'), 'draft'=>$this->getPostCount($type, 'draft'), 'trash'=>$this->getPostCount($type, 'trash'));
@@ -132,10 +132,7 @@ class Post {
 		?>
 		<div class="heading-wrap">
 			<h1>Create <?php echo ucwords($type); ?></h1>
-			<?php
-			// Display status messages
-			echo $message;
-			?>
+			<?php echo $message; ?>
 		</div>
 		<form class="data-form clear" action="" method="post" autocomplete="off">
 			<div class="content">
@@ -281,10 +278,7 @@ class Post {
 					?>
 					<div class="heading-wrap">
 						<h1>Edit <?php echo ucwords($post['type']); ?></h1>
-						<?php
-						// Display status messages
-						echo $message;
-						?>
+						<?php echo $message; ?>
 					</div>
 					<form class="data-form clear" action="" method="post" autocomplete="off">
 						<div class="content">
@@ -522,7 +516,7 @@ class Post {
 		if($this->slugExists($data['slug'], $id))
 			return statusMessage('That slug is already in use. Please choose another one.');
 		
-		// Prevent post from being published with an invalid status
+		// Make sure the post has a valid status
 		if($data['status'] !== 'draft' && $data['status'] !== 'published')
 			$data['status'] = 'draft';
 		
@@ -565,7 +559,7 @@ class Post {
 			if($post['type'] === 'post') $data['parent'] = 0;
 			
 			// Update the post in the database
-			$rs_query->update('posts', array('title'=>$data['title'], 'author'=>$data['author'], 'content'=>$data['content'], 'status'=>$data['status'], 'slug'=>$data['slug'], 'parent'=>$data['parent']), array('id'=>$id));
+			$rs_query->update('posts', array('title'=>$data['title'], 'author'=>$data['author'], 'modified'=>'NOW()', 'content'=>$data['content'], 'status'=>$data['status'], 'slug'=>$data['slug'], 'parent'=>$data['parent']), array('id'=>$id));
 			
 			// Update the post metadata in the database
 			foreach($postmeta as $key=>$value)

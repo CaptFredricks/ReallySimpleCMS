@@ -92,15 +92,11 @@ class Category {
 		?>
 		<div class="heading-wrap">
 			<h1>Create Category</h1>
-			<?php
-			// Display status messages
-			echo $message;
-			?>
+			<?php echo $message; ?>
 		</div>
 		<form class="data-form" action="" method="post" autocomplete="off">
 			<table class="form-table">
 				<?php
-				// Display form rows
 				echo formRow(array('Name', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'name', 'value'=>($_POST['name'] ?? '')));
 				echo formRow(array('Slug', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>($_POST['slug'] ?? '')));
 				echo formRow('Parent', array('tag'=>'select', 'class'=>'select-input', 'name'=>'parent', 'content'=>'<option value="0">(none)</option>'.$this->getParentList()));
@@ -145,15 +141,11 @@ class Category {
 				?>
 				<div class="heading-wrap">
 					<h1>Edit Category</h1>
-					<?php
-					// Display status messages
-					echo $message;
-					?>
+					<?php echo $message; ?>
 				</div>
 				<form class="data-form" action="" method="post" autocomplete="off">
 					<table class="form-table">
 						<?php
-						// Display form rows
 						echo formRow(array('Name', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'name', 'value'=>$category['name']));
 						echo formRow(array('Slug', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>$category['slug']));
 						echo formRow('Parent', array('tag'=>'select', 'class'=>'select-input', 'name'=>'parent', 'content'=>'<option value="0">(none)</option>'.$this->getParentList($category['parent'], $category['id'])));

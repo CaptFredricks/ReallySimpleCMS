@@ -46,14 +46,11 @@ function getCurrentPage() {
 				// Fetch the current action
 				$action = substr($query_param, strpos($query_param, '=') + 1);
 				
-				// Only use the desired actions
 				switch($action) {
 					case 'create':
 					case 'upload':
 						// Add the action's name to the current page
 						$current .= '-'.$action;
-						
-						// Break out of the switch statement
 						break;
 				}
 			}
@@ -78,11 +75,11 @@ function getCurrentPage() {
  * @since 1.2.0[a]
  *
  * @param string $stylesheet
- * @param string $version (optional; default: '')
+ * @param string $version (optional; default: VERSION)
  * @param bool $echo (optional; default: true)
  * @return null|string (null on $echo == true; string on $echo == false)
  */
-function getAdminStylesheet($stylesheet, $version = '', $echo = true) {
+function getAdminStylesheet($stylesheet, $version = VERSION, $echo = true) {
 	if($echo)
 		echo '<link rel="stylesheet" href="'.trailingSlash(ADMIN_STYLES).$stylesheet.(!empty($version) ? '?version='.$version : '').'">';
 	else
@@ -94,11 +91,11 @@ function getAdminStylesheet($stylesheet, $version = '', $echo = true) {
  * @since 1.2.0[a]
  *
  * @param string $script
- * @param string $version (optional; default: '')
+ * @param string $version (optional; default: VERSION)
  * @param bool $echo (optional; default: true)
  * @return null|string (null on $echo == true; string on $echo == false)
  */
-function getAdminScript($script, $version = '', $echo = true) {
+function getAdminScript($script, $version = VERSION, $echo = true) {
 	if($echo)
 		echo '<script src="'.trailingSlash(ADMIN_SCRIPTS).$script.(!empty($version) ? '?version='.$version : '').'"></script>';
 	else
@@ -376,7 +373,8 @@ function getStatistics($table, $field = '', $value = '') {
  * @return null
  */
 function statsBarGraph($bars) {
-	//if(!is_countable($bars)) return;  <-- Requires PHP 7.3
+	// Return if $bars is not countable
+	if(!is_countable($bars)) return;
 	
 	$stats = $links = array();
 	
@@ -468,11 +466,14 @@ function pagerNav($current, $page_count) {
  * @return string
  */
 function tableHeaderRow($items) {
+	// Create an empty row
 	$row = '';
 	
+	// Loop through the column headings
 	foreach($items as $item)
 		$row .= '<th>'.$item.'</th>';
 	
+	// Return the row
 	return '<tr>'.$row.'</tr>';
 }
 
@@ -518,11 +519,11 @@ function formTag($tag, $args = null) {
 			break;
 		case 'select':
 			// Construct a select tag
-			$tag = '<select'.(!empty($args['class']) ? ' class="'.$args['class'].'"' : '').(!empty($args['name']) ? ' name="'.$args['name'].'"' : '').'>'.$args['content'].'</select>';
+			$tag = '<select'.(!empty($args['class']) ? ' class="'.$args['class'].'"' : '').(!empty($args['name']) ? ' name="'.$args['name'].'"' : '').'>'.($args['content'] ?? '').'</select>';
 			break;
 		case 'textarea':
 			// Construct a textarea tag
-			$tag = '<textarea'.(!empty($args['class']) ? ' class="'.$args['class'].'"' : '').(!empty($args['name']) ? ' name="'.$args['name'].'"' : '').(!empty($args['cols']) ? ' cols="'.$args['cols'].'"' : '').(!empty($args['rows']) ? ' rows="'.$args['rows'].'"' : '').'>'.$args['content'].'</textarea>';
+			$tag = '<textarea'.(!empty($args['class']) ? ' class="'.$args['class'].'"' : '').(!empty($args['name']) ? ' name="'.$args['name'].'"' : '').(!empty($args['cols']) ? ' cols="'.$args['cols'].'"' : '').(!empty($args['rows']) ? ' rows="'.$args['rows'].'"' : '').'>'.($args['content'] ?? '').'</textarea>';
 			break;
 		case 'img':
 			// Construct an img tag

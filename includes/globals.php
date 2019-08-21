@@ -5,7 +5,7 @@
  */
 
 // Current CMS version
-const VERSION = '1.6.1';
+const VERSION = '1.6.2';
 
 /**
  * Display copyright on the admin dashboard.
@@ -42,11 +42,11 @@ function RSVersion($echo = true) {
  * @since 1.3.3[a]
  *
  * @param string $stylesheet
- * @param string $version (optional; default: '')
+ * @param string $version (optional; default: VERSION)
  * @param bool $echo (optional; default: true)
  * @return null|string (null on $echo == true; string on $echo == false)
  */
-function getStylesheet($stylesheet, $version = '', $echo = true) {
+function getStylesheet($stylesheet, $version = VERSION, $echo = true) {
 	if($echo)
 		echo '<link rel="stylesheet" href="'.trailingSlash(STYLES).$stylesheet.(!empty($version) ? '?version='.$version : '').'">';
 	else
@@ -58,11 +58,11 @@ function getStylesheet($stylesheet, $version = '', $echo = true) {
  * @since 1.3.3[a]
  *
  * @param string $script
- * @param string $version (optional; default: '')
+ * @param string $version (optional; default: VERSION)
  * @param bool $echo (optional; default: true)
  * @return null|string (null on $echo == true; string on $echo == false)
  */
-function getScript($script, $version = '', $echo = true) {
+function getScript($script, $version = VERSION, $echo = true) {
 	if($echo)
 		echo '<script src="'.trailingSlash(SCRIPTS).$script.(!empty($version) ? '?version='.$version : '').'"></script>';
 	else
@@ -78,10 +78,13 @@ function getScript($script, $version = '', $echo = true) {
  * @return null|string (null on $echo == true; string on $echo == false)
  */
 function getSetting($name, $echo = true) {
+	// Extend the Query class
 	global $rs_query;
-
+	
+	// Fetch the setting from the database
 	$setting = $rs_query->selectRow('settings', 'value', array('name'=>$name));
-
+	
+	// Display or return the setting based upon the value of $echo
 	if($echo)
 		echo $setting['value'];
 	else
@@ -89,27 +92,28 @@ function getSetting($name, $echo = true) {
 }
 
 /**
- * Trim text down to a certain number of words.
+ * Trim text down to a specified number of words.
  * @since 1.2.5[a]
  *
  * @param string $text
  * @param int $num_words (optional; default: 50)
- * @param string $more (optional; default: '')
+ * @param string $more (optional; default: '&hellip;')
  * @return string
  */
-function trimWords($text, $num_words = 50, $more = '') {
-	if(empty($more)) $more = '&hellip;';
-
+function trimWords($text, $num_words = 50, $more = '&hellip;') {
+	// Split the text into an array of words
 	$words = explode(' ', $text);
-
+	
 	if(count($words) > $num_words) {
+		// Trim the text down to the number of words specified
 		$words = array_slice($words, 0, $num_words);
-		$trimmed_text = implode(' ', $words).$more;
+		
+		// Return the trimmed text
+		return implode(' ', $words).$more;
 	} else {
-		$trimmed_text = $text;
+		// Return the untrimmed text
+		return $text;
 	}
-
-	return $trimmed_text;
 }
 
 /**

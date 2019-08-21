@@ -22,9 +22,6 @@ if(!defined('STYLES')) define('STYLES', INC.'/css');
 // Path to the admin stylesheets directory
 if(!defined('ADMIN_STYLES')) define('ADMIN_STYLES', ADMIN.INC.'/css');
 
-// Path to scripts directory
-if(!defined('SCRIPTS')) define('SCRIPTS', INC.'/js');
-
 // Minimum username length
 const UN_LENTH = 4;
 
@@ -192,7 +189,7 @@ function runInstall($data) {
 						</tr>
 						<tr>
 							<th><label for="do_robots">Search Engine Visibility</label></th>
-							<td><label id="clickable-text" for="do_robots"><input type="checkbox" name="do_robots" value="0"> <small>Discourage search engines from indexing this site</small></label></td>
+							<td><label class="clickable"><input type="checkbox" name="do_robots" value="0"> <small>Discourage search engines from indexing this site</small></label></td>
 						</tr>
 					</table>
 					<input type="submit" class="button" name="submit" value="Install">
@@ -273,25 +270,5 @@ function runInstall($data) {
 			}
 			?>
 		</div>
-		<script src="<?php echo SCRIPTS; ?>/jquery.min.js"></script>
-		<script>
-		/**
-		 * Allow for clicking of the text to the right of the checkbox.
-		 * @since 1.6.1[a]
-		 */
-		$('#clickable-text').on('click', function() {
-			// Fetch the checkbox input
-			let elem = $(this).children('input');
-			
-			// Check whether the checkbox has been selected
-			if($(elem).prop('checked')) {
-				// Uncheck the checkbox
-				$(elem).prop('checked', false);
-			} else {
-				// Check the checkbox
-				$(elem).prop('checked', true);
-			}
-		});
-		</script>
 	</body>
 </html>

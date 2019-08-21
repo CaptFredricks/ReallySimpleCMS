@@ -4,10 +4,45 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.6.2[a] (2019-08-20)
+
+* Fixed an issue with the Search Engine Visibility checkbox label that prevented the checkbox from being checked
+* Removed the jQuery library and script from the installation page (no longer needed since clicking the checkbox now works)
+* Renamed a CSS class on the installation page
+* Changed the default value for the getStylesheet and getScript functions' version parameter to the VERSION constant
+* Added more documentation to the global functions
+* Cleaned up the trimWords function
+* Changed the default value for the getAdminStylesheet and getAdminScript functions' version parameter to the VERSION constant
+* Added more documentation to the admin functions
+* Tweaked the styling of data form tables
+* An error will no longer display if no content is specified for a select or textarea in the formTag function
+* Added a status field to the Widget class forms
+* Tweaked documentation in the Post class
+* Added form validation for widgets
+* Modified date is now set when a post is edited
+* Removed a line of documentation from the widgets file
+* Tweaked the pagination code for the Post class
+* Removed a few lines of documentation from the Category class
+* Tweaked the styling of some elements on the 'General Settings' page
+
+**Modified files:**
+* admin/install.php
+* admin/widgets.php (M)
+* admin/includes/class-category.php (M)
+* admin/includes/class-post.php
+* admin/includes/class-settings.php
+* admin/includes/class-widget.php
+* admin/includes/functions.php
+* admin/includes/css/install.css (M)
+* admin/includes/css/style.css
+* includes/globals.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.6.1[a] (2019-08-18)
 
 * Fixed an issue with form submissions where old data would be fetched before the new data was submitted
 * The text for the Search Engine Visibility checkbox on the installation form can now be used to check the checkbox
+* Included the jQuery library on the installation page and added a custom script
 * Added more documentation to the Post class
 * Created a function that constructs the 'Edit Widget' form
 

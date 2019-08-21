@@ -13,7 +13,6 @@ $rs_widget = new Widget;
 	// Fetch the widget id
 	$id = (int)($_GET['id'] ?? 0);
 	
-	// Choose the appropriate function based on the current action
 	switch($action) {
 		case 'create':
 			// Create a new widget
