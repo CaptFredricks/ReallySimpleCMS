@@ -124,19 +124,24 @@ class Category {
 		// Extend the Query class
 		global $rs_query;
 		
+		// Check whether or not the category id is valid
 		if(empty($id) || $id <= 0) {
-			// Redirect to the 'List Categories' page if the category id is invalid
+			// Redirect to the 'List Categories' page
 			header('Location: categories.php');
 		} else {
-			// Fetch the category from the database
-			$category = $rs_query->selectRow('terms', '*', array('id'=>$id, 'taxonomy'=>getTaxonomyId('category')));
+			// Fetch the number of times the category appears in the database
+			$count = $rs_query->selectRow('terms', 'COUNT(*)', array('id'=>$id, 'taxonomy'=>getTaxonomyId('category')));
 			
-			if(empty($category)) {
-				// Redirect to the 'List Categories' page if the category doesn't exist
+			// Check whether or not the count is zero
+			if($count === 0) {
+				// Redirect to the 'List Categories' page
 				header('Location: categories.php');
 			} else {
 				// Validate the form data and return any messages
 				$message = isset($_POST['submit']) ? $this->validateData($_POST, $id) : '';
+				
+				// Fetch the category from the database
+				$category = $rs_query->selectRow('terms', '*', array('id'=>$id, 'taxonomy'=>getTaxonomyId('category')));
 				?>
 				<div class="heading-wrap">
 					<h1>Edit Category</h1>
@@ -174,8 +179,9 @@ class Category {
 		// Extend the Query class
 		global $rs_query;
 		
+		// Check whether or not the category id is valid
 		if(empty($id) || $id <= 0) {
-			// Redirect to the 'List Categories' page if the category id is invalid
+			// Redirect to the 'List Categories' page
 			header('Location: categories.php');
 		} else {
 			// Delete the term relationship(s) from the database

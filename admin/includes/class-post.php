@@ -252,23 +252,29 @@ class Post {
 		// Extend the Query class
 		global $rs_query;
 		
+		// Check whether or not the post id is valid
 		if(empty($id) || $id <= 0) {
-			// Redirect to the 'List Posts' page if the post id is invalid
+			// Redirect to the 'List Posts' page
 			header('Location: posts.php');
 		} else {
-			// Fetch the post from the database
-			$post = $rs_query->selectRow('posts', '*', array('id'=>$id));
+			// Fetch the number of times the post appears in the database
+			$count = $rs_query->selectRow('posts', 'COUNT(*)', array('id'=>$id));
 			
-			if(empty($post)) {
+			// Check whether or not the count is zero
+			if($count === 0) {
 				// Redirect to the 'List Posts' page if the post doesn't exist
 				header('Location: posts.php');
 			} else {
+				// Check whether the post is in the trash
 				if($this->isTrash($id)) {
 					// Redirect to the 'List Posts' trash page if the post is in the trash
 					header('Location: posts.php'.($post['type'] !== 'post' ? '?type='.$post['type'].'&' : '?').'status=trash');
 				} else {
 					// Validate the form data and return any messages
 					$message = isset($_POST['submit']) ? $this->validateData($_POST, $id) : '';
+					
+					// Fetch the post from the database
+					$post = $rs_query->selectRow('posts', '*', array('id'=>$id));
 					
 					// Fetch the post metadata from the database
 					$meta = $this->getPostMeta($id);
@@ -405,7 +411,11 @@ class Post {
 		// Extend the Query class
 		global $rs_query;
 		
-		if(!empty($id)) {
+		// Check whether or not the post id is valid
+		if(empty($id) || $id <= 0) {
+			// Redirect to the 'List Posts' page
+			header('Location: posts.php');
+		} else {
 			// Fetch the post from the database
 			$post = $rs_query->selectRow('posts', 'type', array('id'=>$id));
 			
@@ -414,9 +424,6 @@ class Post {
 			
 			// Redirect to the 'List Posts' page
 			header('Location: posts.php'.($post['type'] !== 'post' ? '?type='.$post['type'] : ''));
-		} else {
-			// Redirect to the posts page
-			header('Location: posts.php');
 		}
 	}
 	
@@ -432,7 +439,11 @@ class Post {
 		// Extend the Query class
 		global $rs_query;
 		
-		if(!empty($id)) {
+		// Check whether or not the post id is valid
+		if(empty($id) || $id <= 0) {
+			// Redirect to the 'List Posts' page
+			header('Location: posts.php');
+		} else {
 			// Fetch the post from the database
 			$post = $rs_query->selectRow('posts', 'type', array('id'=>$id));
 			
@@ -441,9 +452,6 @@ class Post {
 			
 			// Redirect to the 'List Posts' trash page
 			header('Location: posts.php'.($post['type'] !== 'post' ? '?type='.$post['type'].'&' : '?').'status=trash');
-		} else {
-			// Redirect to the posts page
-			header('Location: posts.php');
 		}
 	}
 	
@@ -459,8 +467,9 @@ class Post {
 		// Extend the Query class
 		global $rs_query;
 		
+		// Check whether or not the post id is valid
 		if(empty($id) || $id <= 0) {
-			// Redirect to the 'List Posts' page if the post id is invalid
+			// Redirect to the 'List Posts' page
 			header('Location: posts.php');
 		} else {
 			// Fetch the post from the database

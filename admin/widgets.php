@@ -20,7 +20,13 @@ $rs_widget = new Widget;
 			$rs_widget->createEntry();
 			break;
 		case 'edit':
+			// Edit an existing widget
+			$rs_widget->editEntry($id);
+			break;
 		case 'delete':
+			// Delete an existing widget
+			$rs_widget->deleteEntry($id);
+			break;
 		default:
 			// List all widgets
 			$rs_widget->listEntries();

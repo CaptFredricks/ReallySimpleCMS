@@ -4,6 +4,23 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.6.1[a] (2019-08-18)
+
+* Fixed an issue with form submissions where old data would be fetched before the new data was submitted
+* The text for the Search Engine Visibility checkbox on the installation form can now be used to check the checkbox
+* Added more documentation to the Post class
+* Created a function that constructs the 'Edit Widget' form
+
+**Modified files:**
+* admin/install.php
+* admin/widgets.php
+* admin/includes/class-category.php
+* admin/includes/class-post.php
+* admin/includes/class-user.php
+* admin/includes/class-widget.php
+* admin/includes/css/install.css
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.6.0[a] (2019-08-16)
 
 * The admin nav menu now properly displays the current page, even if it's in a submenu

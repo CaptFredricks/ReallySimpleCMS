@@ -146,16 +146,20 @@ class User {
 			// Redirect to the 'List Users' page
 			header('Location: users.php');
 		} else {
-			// Fetch the user from the database
-			$user = $rs_query->selectRow('users', '*', array('id'=>$id));
+			// Fetch the number of times the user appears in the database
+			$count = $rs_query->selectRow('users', 'COUNT(*)', array('id'=>$id));
 			
-			if(empty($user)) {
+			// Check whether or not the count is zero
+			if($count === 0) {
 				// Redirect to the 'List Users' page if the user doesn't exist
 				header('Location: users.php');
 			} else {
 				// Validate the form data and return any messages
 				$message = isset($_POST['submit']) ? $this->validateData($_POST, $id) : '';
-
+				
+				// Fetch the user from the database
+				$user = $rs_query->selectRow('users', '*', array('id'=>$id));
+				
 				// Fetch the user metadata from the database
 				$meta = $this->getUserMeta($id);
 				?>

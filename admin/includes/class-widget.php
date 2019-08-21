@@ -109,4 +109,84 @@ class Widget extends Post {
 		</form>
 		<?php
 	}
+	
+	/**
+	 * Construct the 'Edit Widget' form.
+	 * @since 1.6.1[a]
+	 *
+	 * @access public
+	 * @param int $id
+	 * @return null
+	 */
+	public function editEntry($id) {
+		// Extend the Query class
+		global $rs_query;
+		
+		// Check whether or not the widget id is valid
+		if(empty($id) || $id <= 0) {
+			// Redirect to the 'List Widgets' page
+			header('Location: widgets.php');
+		} else {
+			// Fetch the number of times the widget appears in the database
+			$count = $rs_query->selectRow('posts', 'COUNT(*)', array('id'=>$id, 'type'=>'widget'));
+			
+			// Check whether or not the count is zero
+			if($count === 0) {
+				// Redirect to the 'List Widgets' page
+				header('Location: widgets.php');
+			} else {
+				// Validate the form data and return any messages
+				$message = isset($_POST['submit']) ? $this->validateData($_POST, $id) : '';
+				
+				// Fetch the widget from the database
+				$widget = $rs_query->selectRow('posts', '*', array('id'=>$id, 'type'=>'widget'));
+				?>
+				<div class="heading-wrap">
+					<h1>Edit Widget</h1>
+					<?php
+					// Display status messages
+					echo $message;
+					?>
+				</div>
+				<form class="data-form" action="" method="post" autocomplete="off">
+					<table class="form-table">
+						<?php
+						// Display form rows
+						echo formRow(array('Title', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>$widget['title']));
+						echo formRow(array('Slug', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>$widget['slug']));
+						echo formRow('Content', array('tag'=>'textarea', 'class'=>'textarea-input', 'name'=>'content', 'cols'=>30, 'rows'=>10, 'content'=>htmlspecialchars($widget['content'])));
+						echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
+						echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Widget'));
+						?>
+					</table>
+				</form>
+				<?php
+			}
+		}
+	}
+	
+	/**
+	 * Delete a widget from the database.
+	 * @since 1.6.1[a]
+	 *
+	 * @access public
+	 & @param int $id
+	 * @return null
+	 */
+	public function deleteEntry($id) {
+		// Extend the Query class
+		global $rs_query;
+		
+		// Check whether or not the widget id is valid
+		if(empty($id) || $id <= 0) {
+			// Redirect to the 'List Widgets' page
+			header('Location: widgets.php');
+		} else {
+			// Delete the widget from the database
+			$rs_query->delete('posts', array('id'=>$id, 'type'=>'widget'));
+			
+			// Redirect to the 'List Posts' page (with a success message)
+			header('Location: widgets.php?exit_status=success');
+		}
+	}
 }
