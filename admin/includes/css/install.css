@@ -54,6 +54,30 @@ code {
 	padding: 15px;
 }
 
+/* Data form */
+
+.data-form input:not(.button) {
+	font-size: 0.95rem;
+	padding: 2px;
+}
+
+.data-form .checkbox-label {
+	cursor: pointer;
+	font-size: 0.875em;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+.data-form .checkbox-label input {
+	cursor: pointer;
+}
+
+.data-form .checkbox-label span {
+	vertical-align: top;
+}
+
+/** Form table **/
+
 .form-table {
 	margin-bottom: 1rem;
 	width: 100%;
@@ -66,16 +90,6 @@ code {
 .form-table th {
 	font-size: 0.9rem;
 	text-align: left;
-}
-
-.form-table input {
-	font-size: 0.95rem;
-	padding: 2px;
-}
-
-.form-table input[type=checkbox],
-.form-table small {
-	vertical-align: top;
 }
 
 .no-resize {
@@ -93,11 +107,4 @@ code {
 .status-message.failure {
 	background-color: #f9d7d5;
     border-left: 5px solid #f00;
-}
-
-.clickable,
-.clickable * {
-	cursor: pointer;
-	-webkit-user-select: none;
-	user-select: none;
 }

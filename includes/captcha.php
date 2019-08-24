@@ -1,7 +1,7 @@
 <?php
 /**
  * Create a captcha for the login form.
- * @since Alpha 1.3.5
+ * @since 1.3.5[a]
  */
 
 // Generate md5 hash

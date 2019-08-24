@@ -58,11 +58,20 @@ function getCurrentPage() {
 		
 		// Check whether the current page is the 'Edit Post' or 'Edit Page' page
 		if($current === 'posts' && isset($_GET['id'])) {
-			// Fetch the post from the database
-			$post = $rs_query->selectRow('posts', 'type', array('id'=>$_GET['id']));
+			// Fetch the number of times the post appears in the database
+			$count = $rs_query->selectRow('posts', 'COUNT(*)', array('id'=>$_GET['id']));
 			
-			// Check whether the current post is of type 'post', and set the current page accordingly
-			if($post['type'] !== 'post') $current = $post['type'].'s';
+			// Check whether or not the count is zero
+			if($count === 0) {
+				// Redirect to the 'List Posts' page
+				header('Location: posts.php');
+			} else {
+				// Fetch the post from the database
+				$post = $rs_query->selectRow('posts', 'type', array('id'=>$_GET['id']));
+				
+				// Check whether the current post is of type 'post', and set the current page accordingly
+				if($post['type'] !== 'post') $current = $post['type'].'s';
+			}
 		}
 	}
 	

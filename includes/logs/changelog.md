@@ -4,6 +4,35 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.6.3[a] (2019-08-22)
+
+* Tweaked documentation in the Post class
+* Improved validation for the 'Edit Post' form
+* Widgets can no longer be edited via the 'Edit Post' form
+* Fixed some errors that would pop up if the post id was invalid
+* Tweaked the pagination code for the User class
+* A notice is now displayed on the 'List Users' page if no users exist in the database
+* Tweaked documentation in the User class
+* Improved some styling of elements on the installation form
+* Added and renamed some CSS classes on the installation page
+* Minor CSS cleanup in the admin stylesheet
+* The page.php file is now deprecated
+* Updated documentation in the config setup and captcha files
+* Updated documentation in the Query class
+
+**Modified files:**
+* page.php (D)
+* admin/install.php
+* admin/includes/class-post.php
+* admin/includes/class-user.php
+* admin/includes/functions.php
+* admin/includes/css/install.css
+* admin/includes/css/style.css (M)
+* includes/captcha.php (M)
+* includes/class-query.php
+* includes/config-setup.php (M)
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.6.2[a] (2019-08-20)
 
 * Fixed an issue with the Search Engine Visibility checkbox label that prevented the checkbox from being checked
@@ -94,7 +123,7 @@
 * Added the CMS version to the admin stylesheets and scripts
 * Fixed some documentation in the global functions file
 * Removed a closing PHP tag in the admin index file
-* Tweaked some code in the settings and user classes
+* Tweaked some code in the Settings and User classes
 
 **Modified files:**
 * admin/footer.php (M)

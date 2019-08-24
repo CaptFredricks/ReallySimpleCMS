@@ -33,7 +33,7 @@ class User {
 		global $rs_query;
 		
 		// Set up pagination
-		$page = isset($_GET['page']) ? paginate($_GET['page']) : paginate();
+		$page = paginate((int)($_GET['page'] ?? 1));
 		?>
 		<div class="heading-wrap">
 			<h1>Users</h1>
@@ -59,8 +59,11 @@ class User {
 		<table class="data-table">
 			<thead>
 				<?php
+				// Fill an array with the table header columns
+				$table_header_cols = array('Username', 'Full Name', 'Email', 'Registered', 'Role', 'Status', 'Last Login');
+				
 				// Construct the table header
-				echo tableHeaderRow(array('Username', 'Full Name', 'Email', 'Registered', 'Role', 'Status', 'Last Login'));
+				echo tableHeaderRow($table_header_cols);
 				?>
 			</thead>
 			<tbody>
@@ -84,6 +87,10 @@ class User {
 						tableCell($user['last_login'] === null ? 'Never' : formatDate($user['last_login'], 'd M Y @ g:i A'), 'last-login')
 					);
 				}
+				
+				// Display a notice if no users are found
+				if(count($users) === 0)
+					echo tableRow(tableCell('There are no users to display.', '', count($table_header_cols)));
 				?>
 			</tbody>
 		</table>
@@ -105,15 +112,11 @@ class User {
 		?>
 		<div class="heading-wrap">
 			<h1>Create User</h1>
-			<?php
-			// Display status messages
-			echo $message;
-			?>
+			<?php echo $message; ?>
 		</div>
 		<form class="data-form" action="" method="post" autocomplete="off">
 			<table class="form-table">
 				<?php
-				// Display form rows
 				echo formRow(array('Username', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'username', 'value'=>($_POST['username'] ?? '')));
 				echo formRow(array('Email', true), array('tag'=>'input', 'type'=>'email', 'class'=>'text-input required invalid init', 'name'=>'email', 'value'=>($_POST['email'] ?? '')));
 				echo formRow('First Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'first_name', 'value'=>($_POST['first_name'] ?? '')));
@@ -165,15 +168,11 @@ class User {
 				?>
 				<div class="heading-wrap">
 					<h1>Edit User</h1>
-					<?php
-					// Display status messages
-					echo $message;
-					?>
+					<?php echo $message; ?>
 				</div>
 				<form class="data-form" action="" method="post" autocomplete="off">
 					<table class="form-table">
 						<?php
-						// Display form rows
 						echo formRow(array('Username', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'username', 'value'=>$user['username']));
 						echo formRow(array('Email', true), array('tag'=>'input', 'type'=>'email', 'class'=>'text-input required invalid init', 'name'=>'email', 'value'=>$user['email']));
 						echo formRow('First Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'first_name', 'value'=>$meta['first_name']));
@@ -373,7 +372,9 @@ class User {
 	 * @return null
 	 */
 	public function resetPassword($id) {
+		// Check whether or not the user id is valid
 		if(empty($id) || $id <= 0) {
+			// Redirect to the 'List Users' page
 			header('Location: users.php');
 		} else {
 			// Validate the form data and return any messages
@@ -381,15 +382,11 @@ class User {
 			?>
 			<div class="heading-wrap">
 				<h1>Reset Password</h1>
-				<?php
-				// Display status messages
-				echo $message;
-				?>
+				<?php echo $message; ?>
 			</div>
 			<form class="data-form" action="" method="post" autocomplete="off">
 				<table class="form-table">
 					<?php
-					// Display form rows
 					echo formRow('Admin Password', array('tag'=>'input', 'type'=>'password', 'class'=>'text-input required invalid init', 'name'=>'admin_pass'));
 					echo formRow('New User Password', array('tag'=>'input', 'id'=>'pw-input', 'class'=>'text-input required invalid init', 'name'=>'new_pass'), array('tag'=>'input', 'type'=>'button', 'id'=>'pw-btn', 'class'=>'button-input', 'value'=>'Generate Password'), array('tag'=>'br'), array('tag'=>'input', 'type'=>'checkbox', 'id'=>'pw-chk', 'class'=>'checkbox-input', 'name'=>'pass_saved', 'value'=>'checked', 'label'=>array('id'=>'chk-label', 'class'=>'checkbox-label required invalid init', 'content'=>'I have copied the password to a safe place.')));
 					echo formRow('New User Password (confirm)', array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'confirm_pass'));

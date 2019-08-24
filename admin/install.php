@@ -169,7 +169,7 @@ function runInstall($data) {
 				if(!is_null($error))
 					echo '<p class="status-message failure">'.$error.'</p>';
 				?>
-				<form action="?step=2" method="post">
+				<form class="data-form" action="?step=2" method="post">
 					<table class="form-table">
 						<tr>
 							<th><label for="site_title">Site Title</label></th>
@@ -189,7 +189,7 @@ function runInstall($data) {
 						</tr>
 						<tr>
 							<th><label for="do_robots">Search Engine Visibility</label></th>
-							<td><label class="clickable"><input type="checkbox" name="do_robots" value="0"> <small>Discourage search engines from indexing this site</small></label></td>
+							<td><label class="checkbox-label"><input type="checkbox" name="do_robots" value="0"> <span>Discourage search engines from indexing this site</span></label></td>
 						</tr>
 					</table>
 					<input type="submit" class="button" name="submit" value="Install">

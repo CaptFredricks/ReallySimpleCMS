@@ -1,14 +1,14 @@
 <?php
 /**
  * Core class used to implement the Query object.
- * @since Alpha 1.0.0
+ * @since 1.0.0[a]
  * @author Jace Fincham <finchamjace@gmail.com>
  * @copyright (c) 2019, Jace Fincham. All rights reserved.
  */
 class Query {
 	/**
 	 * The database connection.
-	 * @since Alpha 1.0.0
+	 * @since 1.0.0[a]
 	 * @access private
 	 * @var object
 	 */
@@ -16,7 +16,7 @@ class Query {
 	
 	/**
 	 * The status of the database connection.
-	 * @since Alpha 1.3.0
+	 * @since 1.3.0[a]
 	 * @access public
 	 * @var bool
 	 */
@@ -24,7 +24,7 @@ class Query {
 	
 	/**
 	 * Class constructor. Initializes the database connection.
-	 * @since Alpha 1.0.0
+	 * @since 1.0.0[a]
 	 * @access public
 	 */
 	public function __construct() {
@@ -45,7 +45,7 @@ class Query {
 	
 	/**
 	 * Select one or more rows from the database and return them.
-	 * @since Alpha 1.1.0
+	 * @since 1.1.0[a]
 	 *
 	 * @access public
 	 * @param string $table
@@ -128,7 +128,7 @@ class Query {
 	
 	/**
 	 * Select only a single row from the database and return it.
-	 * @since Alpha 1.1.1
+	 * @since 1.1.1[a]
 	 *
 	 * @access public
 	 * @param string $table
@@ -150,7 +150,7 @@ class Query {
 	
 	/**
 	 * Insert a row into the database.
-	 * @since Alpha 1.1.0
+	 * @since 1.1.0[a]
 	 *
 	 * @access public
 	 * @param string $table
@@ -192,7 +192,7 @@ class Query {
 	
 	/**
 	 * Update an existing row in the database.
-	 * @since Alpha 1.1.0
+	 * @since 1.1.0[a]
 	 *
 	 * @access public
 	 * @param string $table
@@ -258,7 +258,7 @@ class Query {
 	
 	/**
 	 * Delete a row from the database.
-	 * @since Alpha 1.0.3
+	 * @since 1.0.3[a]
 	 *
 	 * @access public
 	 * @param string $table
@@ -309,7 +309,7 @@ class Query {
 	
 	/**
 	 * Run a generic SQL query. Does not return data.
-	 * @since Alpha 1.3.0
+	 * @since 1.3.0[a]
 	 *
 	 * @access public
 	 * @param string $sql
@@ -326,7 +326,7 @@ class Query {
 	
 	/**
 	 * Show tables in the database.
-	 * @since Alpha 1.3.3
+	 * @since 1.3.3[a]
 	 *
 	 * @access public
 	 * @return string
@@ -349,7 +349,7 @@ class Query {
 	
 	/**
 	 * Return an error message for poorly executed queries.
-	 * @since Alpha 1.0.3
+	 * @since 1.0.3[a]
 	 *
 	 * @access private
 	 * @param string $type

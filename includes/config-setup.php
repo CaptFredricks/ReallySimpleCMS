@@ -1,7 +1,7 @@
 <?php
 /**
  * Define constants for the database connection.
- * @since Alpha 1.3.0
+ * @since 1.3.0[a]
  */
 
 // Database name

@@ -254,12 +254,12 @@ class Post {
 			// Redirect to the 'List Posts' page
 			header('Location: posts.php');
 		} else {
-			// Fetch the number of times the post appears in the database
-			$count = $rs_query->selectRow('posts', 'COUNT(*)', array('id'=>$id));
+			// Fetch the post type from the database
+			$post = $rs_query->selectRow('posts', 'type', array('id'=>$id));
 			
-			// Check whether or not the count is zero
-			if($count === 0) {
-				// Redirect to the 'List Posts' page if the post doesn't exist
+			// Check whether or not the post data is empty
+			if(empty($post) || $post['type'] === 'widget') {
+				// Redirect to the 'List Posts' page
 				header('Location: posts.php');
 			} else {
 				// Check whether the post is in the trash
