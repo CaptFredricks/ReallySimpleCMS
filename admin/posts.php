@@ -7,6 +7,10 @@ $rs_post = new Post;
 ?>
 <div class="wrapper">
 	<?php
+	// Redirect to the widgets page if the post type is 'widget'
+	if(isset($_GET['type']) && $_GET['type'] === 'widget')
+		header('Location: widgets.php');
+	
 	// Get the current action
 	$action = $_GET['action'] ?? '';
 	

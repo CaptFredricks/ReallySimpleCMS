@@ -1,4 +1,146 @@
-<?php // A list of deprecated functions that may be used again later on.
+<?php // A list of deprecated functions that may be used again later on (ordered by descending deprecated version).
+
+/**
+ * Populate the users table.
+ * @since 1.3.1[a]
+ * @deprecated since 1.6.4[a]
+ *
+ * @param array $data
+ * @return int
+ */
+function populateUsers($data) {
+	// Extend the Query class
+	global $rs_query;
+	
+	// Encrypt password
+	$hashed_password = password_hash($data['password'], PASSWORD_BCRYPT, array('cost'=>10));
+	
+	// Create an admin user
+	$user = $rs_query->insert('users', array('username'=>$data['username'], 'password'=>$hashed_password, 'email'=>$data['email'], 'registered'=>'NOW()'));
+	
+	// User metadata
+	$usermeta = array('first_name'=>'', 'last_name'=>'', 'avatar'=>0);
+	
+	// Insert the user metadata into the database
+	foreach($usermeta as $key=>$value)
+		$rs_query->insert('usermeta', array('user'=>$user, '_key'=>$key, 'value'=>$value));
+	
+	// Return the user id
+	return $user;
+}
+
+/**
+ * Populate the posts table.
+ * @since 1.3.7[a]
+ * @deprecated since 1.6.4[a]
+ *
+ * @param int $author
+ * @return array
+ */
+function populatePosts($author) {
+	// Extend the Query class
+	global $rs_query;
+	
+	// Create a sample page
+	$post['home_page'] = $rs_query->insert('posts', array('title'=>'Sample Page', 'author'=>$author, 'date'=>'NOW()', 'content'=>'This is just a sample page to get you started.', 'status'=>'published', 'slug'=>'sample-page', 'type'=>'page'));
+	
+	// Create a sample blog post
+	$post['blog_post'] = $rs_query->insert('posts', array('title'=>'Sample Blog Post', 'author'=>$author, 'date'=>'NOW()', 'content'=>'This is your first blog post. Feel free to remove this text and replace it with your own.', 'status'=>'published', 'slug'=>'sample-post', 'type'=>'post'));
+	
+	// Post metadata
+	$postmeta = array(
+		'home_page'=>array('title'=>'Sample Page', 'description'=>'Just a simple meta description for your sample page.'),
+		'blog_post'=>array('title'=>'Sample Blog Post', 'description'=>'Just a simple meta description for your first blog post.')
+	);
+	
+	// Loop through the post metadata
+	foreach($postmeta as $metadata) {
+		// Insert the post metadata into the database
+		foreach($metadata as $key=>$value)
+			$rs_query->insert('postmeta', array('post'=>$post[key($postmeta)], '_key'=>$key, 'value'=>$value));
+		
+		// Move the array pointer to the next element
+		next($postmeta);
+	}
+	
+	// Return the post ids
+	return $post;
+}
+
+/**
+ * Populate the settings table.
+ * @since 1.3.0[a]
+ * @deprecated since 1.6.4[a]
+ *
+ * @param array $data
+ * @return null
+ */
+function populateSettings($data) {
+	// Extend the Query class
+	global $rs_query;
+	
+	// Settings
+	$settings = array('site_title'=>$data['site_title'], 'description'=>'', 'site_url'=>$data['site_url'], 'admin_email'=>$data['admin_email'], 'default_user_role'=>'', 'home_page'=>$data['home_page'], 'do_robots'=>$data['do_robots']);
+	
+	// Insert the settings into the database
+	foreach($settings as $name=>$value)
+		$rs_query->insert('settings', array('name'=>$name, 'value'=>$value));
+}
+
+/**
+ * Populate the taxonomies table.
+ * @since 1.5.0[a]
+ * @deprecated since 1.6.4[a]
+ *
+ * @param array $taxonomies
+ * @return null
+ */
+function populateTaxonomies($taxonomies) {
+	// Extend the Query class
+	global $rs_query;
+	
+	// Insert the taxonomies into the database
+	foreach($taxonomies as $taxonomy)
+		$rs_query->insert('taxonomies', array('name'=>$taxonomy));
+}
+
+/**
+ * Populate the terms table.
+ * @since 1.5.0[a]
+ * @deprecated since 1.6.4[a]
+ *
+ * @param array $data
+ * @return int
+ */
+function populateTerms($data) {
+	// Extend the Query class
+	global $rs_query;
+	
+	// Insert the terms into the database
+	$term = $rs_query->insert('terms', array('name'=>$data['name'], 'slug'=>$data['slug'], 'taxonomy'=>$data['taxonomy']));
+	
+	// Return the term id
+	return $term;
+}
+
+/**
+ * Populate the term_relationships table.
+ * @since 1.5.0[a]
+ * @deprecated since 1.6.4[a]
+ *
+ * @param array $data
+ * @return null
+ */
+function populateTermRelationships($data) {
+	// Extend the Query class
+	global $rs_query;
+	
+	// Insert the term relationships into the database
+	$rs_query->insert('term_relationships', array('term'=>$data['term'], 'post'=>$data['post']));
+	
+	// Update the term's count
+	$rs_query->update('terms', array('count'=>1), array('id'=>$data['term']));
+}
 
 /**
  * Select one or more rows from the database and return them.
@@ -147,6 +289,41 @@ function updateQuery($args) {
 }
 
 /**
+ * Unduplicate query placeholder keys.
+ * @since 1.0.1[a]
+ * @deprecated since 1.1.0[a]
+ *
+ * @param array $keys
+ * @return array
+ */
+function unduplicateKeys($keys) {
+	$undup_keys = $arr_values = array();
+	$arr_count = array_count_values($keys);
+	$arr_keys = array_keys($arr_count);
+	$index = 0;
+	
+	for($i = 0; $i < count($arr_keys); $i++)
+		$arr_values[] = 2;
+	
+	foreach($keys as $key) {
+		if(in_array($key, $undup_keys, true)) {
+			for($j = 0; $j < count($arr_keys); $j++) {
+				if($arr_keys[$j] === $key) {
+					$undup_keys[$index] = $key.'_'.$arr_values[$j];
+					$arr_values[$j]++;
+				}
+			}
+		} else {
+			$undup_keys[$index] = $key;
+		}
+		
+		$index++;
+	}
+	
+	return $undup_keys;
+}
+
+/**
  * Delete a row from the database.
  * @since 1.0.1[a]
  * @deprecated since 1.0.3[a]
@@ -183,39 +360,4 @@ function deleteQuery($args) {
 	} else {
 		echo 'Query parameters not selected!';
 	}
-}
-
-/**
- * Unduplicate query placeholder keys.
- * @since 1.0.1[a]
- * @deprecated since 1.1.0[a]
- *
- * @param array $keys
- * @return array
- */
-function unduplicateKeys($keys) {
-	$undup_keys = $arr_values = array();
-	$arr_count = array_count_values($keys);
-	$arr_keys = array_keys($arr_count);
-	$index = 0;
-	
-	for($i = 0; $i < count($arr_keys); $i++)
-		$arr_values[] = 2;
-	
-	foreach($keys as $key) {
-		if(in_array($key, $undup_keys, true)) {
-			for($j = 0; $j < count($arr_keys); $j++) {
-				if($arr_keys[$j] === $key) {
-					$undup_keys[$index] = $key.'_'.$arr_values[$j];
-					$arr_values[$j]++;
-				}
-			}
-		} else {
-			$undup_keys[$index] = $key;
-		}
-		
-		$index++;
-	}
-	
-	return $undup_keys;
 }

@@ -257,12 +257,15 @@ class Post {
 			// Fetch the post type from the database
 			$post = $rs_query->selectRow('posts', 'type', array('id'=>$id));
 			
-			// Check whether or not the post data is empty
-			if(empty($post) || $post['type'] === 'widget') {
+			// Check whether or not the post is valid and of the proper type
+			if(empty($post)) {
 				// Redirect to the 'List Posts' page
 				header('Location: posts.php');
+			} elseif($post['type'] === 'widget') {
+				// Redirect to the appropriate 'Edit Widget' form
+				header('Location: widgets.php?id='.$id.'&action=edit');
 			} else {
-				// Check whether the post is in the trash
+				// Check whether or not the post is in the trash
 				if($this->isTrash($id)) {
 					// Redirect to the 'List Posts' trash page if the post is in the trash
 					header('Location: posts.php'.($post['type'] !== 'post' ? '?type='.$post['type'].'&' : '?').'status=trash');
@@ -734,13 +737,11 @@ class Post {
 		$list = '';
 		
 		// Fetch all authors from the database
-		$authors = $rs_query->select('users', 'id', '', 'username');
+		$authors = $rs_query->select('users', array('id', 'username'), '', 'username');
 		
-		// Loop through the authors
-		foreach($authors as $author) {
-			// Construct the list
-			$list .= '<option value="'.$author['id'].'"'.($author['id'] === $id ? ' selected' : '').'>'.$this->getAuthor($author['id']).'</option>';
-		}
+		// Add each author to the list
+		foreach($authors as $author)
+			$list .= '<option value="'.$author['id'].'"'.($author['id'] === $id ? ' selected' : '').'>'.$author['username'].'</option>';
 		
 		// Return the list
 		return $list;
@@ -848,7 +849,7 @@ class Post {
 		$list = '';
 		
 		// Fetch all posts from the database (by type)
-		$posts = $rs_query->select('posts', 'id', array('status'=>array('<>', 'trash'), 'type'=>$type));
+		$posts = $rs_query->select('posts', array('id', 'title'), array('status'=>array('<>', 'trash'), 'type'=>$type));
 		
 		// Loop through the posts
 		foreach($posts as $post) {
@@ -862,7 +863,7 @@ class Post {
 			}
 			
 			// Construct the list
-			$list .= '<option value="'.$post['id'].'"'.($post['id'] === $parent ? ' selected' : '').'>'.$this->getParent($post['id']).'</option>';
+			$list .= '<option value="'.$post['id'].'"'.($post['id'] === $parent ? ' selected' : '').'>'.$post['title'].'</option>';
 		}
 		
 		// Return the list

@@ -4,6 +4,43 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.7.0[a] (2019-08-24)
+
+* Changed possible statuses for widgets from 'draft' and 'published' to 'active' and 'inactive'
+* Added a warning to all admin pages if the user has JavaScript disabled in their browser
+* Added a redirect from the 'List Posts' page to the 'List Widgets' page if the requested post type is 'widget'
+* Added a redirect from the 'Edit Post' page to the 'Edit Widget' page if the requested id corresponds to a widget
+* Renamed the 'roles' table to 'user_roles', the 'privileges' table to 'user_privileges', and the 'rp_relationships' table to 'user_relationships'
+* The user_roles table is now populated during installation
+* Consolidated all database table populate functions into one and moved the old functions to the deprecated functions file
+* The user created on installation is now given the administrator user role
+* Replaced the UPL_DIR constant with UPLOADS in the User::getAvatar function (the former is no longer used)
+* Created a function that constructs a list of user roles (Settings class)
+* Tweaked the username column's styling on the 'List Users' page
+* Created a function that fetches a specified user's role (User class)
+* Created a function that constructs a list of user roles (User class)
+* The Post::getAuthorList function no longer calls the Post::getAuthor function
+* The Post::getParentList function no longer calls the Post::getParent function
+* User roles now appear on the 'Create User' and 'Edit User' forms
+* Added a missing class to a button on the 'Reset Password' form
+* Fixed the alignment of the pass_saved labels on the 'Create User' and 'Reset Password' forms
+* The Category::getParentList function no longer calls the Category::getParent function
+
+**Modified files:**
+* admin/header.php
+* admin/install.php
+* admin/posts.php
+* admin/includes/class-category.php
+* admin/includes/class-post.php
+* admin/includes/class-settings.php
+* admin/includes/class-user.php
+* admin/includes/class-widget.php
+* admin/includes/functions.php
+* admin/includes/css/style.css
+* includes/deprecated.php
+* includes/schema.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.6.3[a] (2019-08-22)
 
 * Tweaked documentation in the Post class

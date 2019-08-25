@@ -312,7 +312,7 @@ class Category {
 		$list = '';
 		
 		// Fetch all categories from the database
-		$categories = $rs_query->select('terms', 'id', array('taxonomy'=>getTaxonomyId('category')));
+		$categories = $rs_query->select('terms', array('id', 'name'), array('taxonomy'=>getTaxonomyId('category')));
 		
 		// Loop through the categories
 		foreach($categories as $category) {
@@ -326,7 +326,7 @@ class Category {
 			}
 			
 			// Construct the list
-			$list .= '<option value="'.$category['id'].'"'.($category['id'] === $parent ? ' selected' : '').'>'.$this->getParent($category['id']).'</option>';
+			$list .= '<option value="'.$category['id'].'"'.($category['id'] === $parent ? ' selected' : '').'>'.$category['name'].'</option>';
 		}
 		
 		// Return the list

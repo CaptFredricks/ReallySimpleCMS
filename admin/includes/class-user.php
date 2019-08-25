@@ -82,7 +82,7 @@ class User {
 						tableCell($meta['first_name'].' '.$meta['last_name'], 'full-name'),
 						tableCell($user['email'], 'email'),
 						tableCell(formatDate($user['registered'], 'd M Y @ g:i A'), 'registered'),
-						tableCell('', 'role'),
+						tableCell($this->getRole($user['role']), 'role'),
 						tableCell((!empty($user['session']) ? 'Online' : 'Offline'), 'status'),
 						tableCell($user['last_login'] === null ? 'Never' : formatDate($user['last_login'], 'd M Y @ g:i A'), 'last-login')
 					);
@@ -121,9 +121,9 @@ class User {
 				echo formRow(array('Email', true), array('tag'=>'input', 'type'=>'email', 'class'=>'text-input required invalid init', 'name'=>'email', 'value'=>($_POST['email'] ?? '')));
 				echo formRow('First Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'first_name', 'value'=>($_POST['first_name'] ?? '')));
 				echo formRow('Last Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'last_name', 'value'=>($_POST['last_name'] ?? '')));
-				echo formRow(array('Password', true), array('tag'=>'input', 'id'=>'pw-input', 'class'=>'text-input required invalid init', 'name'=>'password'), array('tag'=>'input', 'type'=>'button', 'id'=>'pw-btn', 'class'=>'button-input button', 'value'=>'Generate Password'), array('tag'=>'br'), array('tag'=>'input', 'type'=>'checkbox', 'id'=>'pw-chk', 'class'=>'checkbox-input', 'name'=>'pass_saved', 'value'=>'checked', 'label'=>array('id'=>'chk-label', 'class'=>'checkbox-label required invalid init', 'content'=>'I have copied the password to a safe place.')));
+				echo formRow(array('Password', true), array('tag'=>'input', 'id'=>'pw-input', 'class'=>'text-input required invalid init', 'name'=>'password'), array('tag'=>'input', 'type'=>'button', 'id'=>'pw-btn', 'class'=>'button-input button', 'value'=>'Generate Password'), array('tag'=>'br'), array('tag'=>'input', 'type'=>'checkbox', 'id'=>'pw-chk', 'class'=>'checkbox-input', 'name'=>'pass_saved', 'value'=>'checked', 'label'=>array('id'=>'chk-label', 'class'=>'checkbox-label required invalid init', 'content'=>' <span>I have copied the password to a safe place.</span>')));
 				echo formRow('Avatar', array('tag'=>'input', 'type'=>'hidden', 'id'=>'img-input', 'name'=>'avatar', 'value'=>($_POST['avatar'] ?? '')), array('tag'=>'input', 'type'=>'button', 'id'=>'img-choose', 'class'=>'button-input button', 'value'=>'Choose Image'));
-				echo formRow('Role', array('tag'=>'select', 'class'=>'select-input', 'name'=>'role', 'content'=>'<option></option>'));
+				echo formRow('Role', array('tag'=>'select', 'class'=>'select-input', 'name'=>'role', 'content'=>$this->getRoleList()));
 				echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
 				echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Create User'));
 				?>
@@ -178,7 +178,7 @@ class User {
 						echo formRow('First Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'first_name', 'value'=>$meta['first_name']));
 						echo formRow('Last Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'last_name', 'value'=>$meta['last_name']));
 						echo formRow('Avatar', array('tag'=>'img', 'src'=>$this->getAvatar($meta['avatar']), 'width'=>150), array('tag'=>'br'), array('tag'=>'input', 'type'=>'hidden', 'id'=>'img-input', 'name'=>'avatar', 'value'=>$meta['avatar']), array('tag'=>'input', 'type'=>'button', 'id'=>'img-choose', 'class'=>'button-input button', 'value'=>'Choose Image'));
-						echo formRow('Role', array('tag'=>'select', 'class'=>'select-input', 'name'=>'role', 'content'=>'<option></option>'));
+						echo formRow('Role', array('tag'=>'select', 'class'=>'select-input', 'name'=>'role', 'content'=>$this->getRoleList($user['role'])));
 						echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
 						echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update User'));
 						?>
@@ -263,7 +263,7 @@ class User {
 			$hashed_password = password_hash($data['password'], PASSWORD_BCRYPT, array('cost'=>10));
 			
 			// Insert the new user into the database
-			$insert_id = $rs_query->insert('users', array('username'=>$data['username'], 'password'=>$hashed_password, 'email'=>$data['email'], 'registered'=>'NOW()')); //role
+			$insert_id = $rs_query->insert('users', array('username'=>$data['username'], 'password'=>$hashed_password, 'email'=>$data['email'], 'registered'=>'NOW()', 'role'=>$data['role']));
 			
 			// Insert the user metadata into the database
 			foreach($usermeta as $key=>$value)
@@ -273,7 +273,7 @@ class User {
 			header('Location: users.php?id='.$insert_id.'&action=edit');
 		} else {
 			// Update the user in the database
-			$rs_query->update('users', array('username'=>$data['username'], 'email'=>$data['email']), array('id'=>$id)); //role
+			$rs_query->update('users', array('username'=>$data['username'], 'email'=>$data['email'], 'role'=>$data['role']), array('id'=>$id));
 			
 			// Update the user metadata in the database
 			foreach($usermeta as $key=>$value)
@@ -358,9 +358,54 @@ class User {
 		$meta = $rs_query->selectRow('usermeta', 'value', array('id'=>$id));
 		
 		if(!empty($meta['value']))
-			return UPL_DIR.$meta['value'];
+			return trailingSlash(UPLOADS).$meta['value'];
 		else
 			return '//:0';
+	}
+	
+	/**
+	 * Fetch a user's role.
+	 * @since 1.6.4[a]
+	 *
+	 * @access private
+	 * @param int $id
+	 * @return string
+	 */
+	private function getRole($id) {
+		// Extend the Query class
+		global $rs_query;
+		
+		// Fetch the role from the database
+		$role = $rs_query->selectRow('user_roles', 'name', array('id'=>$id));
+		
+		// Return the role's name
+		return $role['name'];
+	}
+	
+	/**
+	 * Construct a list of roles.
+	 * @since 1.6.4[a]
+	 *
+	 * @access private
+	 * @param int $id (optional; default: 0)
+	 * @return string
+	 */
+	private function getRoleList($id = 0) {
+		// Extend the Query class
+		global $rs_query;
+		
+		// Create an empty list
+		$list = '';
+		
+		// Fetch all roles from the database
+		$roles = $rs_query->select('user_roles', '*', '', 'id');
+		
+		// Add each role to the list
+		foreach($roles as $role)
+			$list .= '<option value="'.$role['id'].'"'.($role['id'] === $id ? ' selected' : '').'>'.$role['name'].'</option>';
+		
+		// Return the list
+		return $list;
 	}
 	
 	/**
@@ -388,7 +433,7 @@ class User {
 				<table class="form-table">
 					<?php
 					echo formRow('Admin Password', array('tag'=>'input', 'type'=>'password', 'class'=>'text-input required invalid init', 'name'=>'admin_pass'));
-					echo formRow('New User Password', array('tag'=>'input', 'id'=>'pw-input', 'class'=>'text-input required invalid init', 'name'=>'new_pass'), array('tag'=>'input', 'type'=>'button', 'id'=>'pw-btn', 'class'=>'button-input', 'value'=>'Generate Password'), array('tag'=>'br'), array('tag'=>'input', 'type'=>'checkbox', 'id'=>'pw-chk', 'class'=>'checkbox-input', 'name'=>'pass_saved', 'value'=>'checked', 'label'=>array('id'=>'chk-label', 'class'=>'checkbox-label required invalid init', 'content'=>'I have copied the password to a safe place.')));
+					echo formRow('New User Password', array('tag'=>'input', 'id'=>'pw-input', 'class'=>'text-input required invalid init', 'name'=>'new_pass'), array('tag'=>'input', 'type'=>'button', 'id'=>'pw-btn', 'class'=>'button-input button', 'value'=>'Generate Password'), array('tag'=>'br'), array('tag'=>'input', 'type'=>'checkbox', 'id'=>'pw-chk', 'class'=>'checkbox-input', 'name'=>'pass_saved', 'value'=>'checked', 'label'=>array('id'=>'chk-label', 'class'=>'checkbox-label required invalid init', 'content'=>' <span>I have copied the password to a safe place.</span>')));
 					echo formRow('New User Password (confirm)', array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'confirm_pass'));
 					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
 					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Password'));

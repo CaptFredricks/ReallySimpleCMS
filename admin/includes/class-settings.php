@@ -42,8 +42,8 @@ class Settings {
 				echo formRow('Description', array('tag'=>'input', 'class'=>'text-input', 'name'=>'description', 'maxlength'=>155, 'value'=>$setting['description']));
 				echo formRow(array('Site URL', true), array('tag'=>'input', 'type'=>'url', 'class'=>'text-input required invalid init', 'name'=>'site_url', 'value'=>$setting['site_url']));
 				echo formRow(array('Admin Email', true), array('tag'=>'input', 'type'=>'email', 'class'=>'text-input required invalid init', 'name'=>'admin_email', 'value'=>$setting['admin_email']));
-				echo formRow('Default User Role', array('tag'=>'select', 'class'=>'select-input', 'name'=>'default_user_role', 'content'=>''));
-				echo formRow('Home Page', array('tag'=>'select', 'class'=>'select-input', 'name'=>'home_page', 'content'=>$this->getPageList($setting['home_page'])));
+				echo formRow('Default User Role', array('tag'=>'select', 'class'=>'select-input', 'name'=>'default_user_role', 'content'=>$this->getUserRoles((int)$setting['default_user_role'])));
+				echo formRow('Home Page', array('tag'=>'select', 'class'=>'select-input', 'name'=>'home_page', 'content'=>$this->getPageList((int)$setting['home_page'])));
 				echo formRow('Search Engine Visibility', array('tag'=>'input', 'type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'do_robots', 'value'=>(int)$setting['do_robots'], '*'=>$do_robots, 'label'=>array('class'=>'checkbox-label', 'content'=>' <span>Discourage search engines from indexing this site</span>')));
 				echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
 				echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Settings'));
@@ -108,6 +108,32 @@ class Settings {
 	}
 	
 	/**
+	 * Construct a list of user roles.
+	 * @since 1.6.4[a]
+	 *
+	 * @access private
+	 * @param int $default
+	 * @return string
+	 */
+	private function getUserRoles($default) {
+		// Extend the Query class
+		global $rs_query;
+		
+		// Create an empty list
+		$list = '';
+		
+		// Fetch all user roles from the database
+		$roles = $rs_query->select('user_roles', '*', '', 'id');
+		
+		// Add each role to the list
+		foreach($roles as $role)
+			$list .= '<option value="'.$role['id'].'"'.($role['id'] === $default ? ' selected' : '').'>'.$role['name'].'</option>';
+		
+		// Return the list
+		return $list;
+	}
+	
+	/**
 	 * Construct a list of existing pages.
 	 * @since 1.3.7[a]
 	 *
@@ -122,12 +148,12 @@ class Settings {
 		// Create an empty list
 		$list = '';
 		
-		// Fetch the pages from the database
-		$pages = $rs_query->select('posts', array('id', 'title'), array('status'=>'published', 'type'=>'page'));
+		// Fetch all pages from the database
+		$pages = $rs_query->select('posts', array('id', 'title'), array('status'=>'published', 'type'=>'page'), 'title');
 		
-		// Add the pages to the list
+		// Add each page to the list
 		foreach($pages as $page)
-			$list .= '<option value="'.$page['id'].'" '.($page['id'] === (int)$home_page ? 'selected' : '').'>'.$page['title'].'</option>';
+			$list .= '<option value="'.$page['id'].'"'.($page['id'] === $home_page ? ' selected' : '').'>'.$page['title'].'</option>';
 		
 		// Return the list
 		return $list;

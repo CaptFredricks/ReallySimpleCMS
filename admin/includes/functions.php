@@ -139,21 +139,35 @@ function statusMessage($text, $success = false) {
 }
 
 /**
- * Populate the users table.
- * @since 1.3.1[a]
+ * Populate the database tables.
+ * @since 1.6.4[a]
  *
- * @param array $data
- * @return int
+ * @param array $user_data
+ * @param array $settings_data
+ * @return
  */
-function populateUsers($data) {
+function populateTables($user_data, $settings_data) {
 	// Extend the Query class
 	global $rs_query;
 	
+	// Create an array of user roles
+	$roles = array('User', 'Editor', 'Moderator', 'Administrator');
+	
+	// Insert the user roles into the database
+	foreach($roles as $role) {
+		if($role === 'User')
+			$default_user_role = $rs_query->insert('user_roles', array('name'=>$role));
+		elseif($role === 'Administrator')
+			$admin_user_role = $rs_query->insert('user_roles', array('name'=>$role));
+		else
+			$rs_query->insert('user_roles', array('name'=>$role));
+	}
+	
 	// Encrypt password
-	$hashed_password = password_hash($data['password'], PASSWORD_BCRYPT, array('cost'=>10));
+	$hashed_password = password_hash($user_data['password'], PASSWORD_BCRYPT, array('cost'=>10));
 	
 	// Create an admin user
-	$user = $rs_query->insert('users', array('username'=>$data['username'], 'password'=>$hashed_password, 'email'=>$data['email'], 'registered'=>'NOW()'));
+	$user = $rs_query->insert('users', array('username'=>$user_data['username'], 'password'=>$hashed_password, 'email'=>$user_data['email'], 'registered'=>'NOW()', 'role'=>$admin_user_role));
 	
 	// User metadata
 	$usermeta = array('first_name'=>'', 'last_name'=>'', 'avatar'=>0);
@@ -162,26 +176,11 @@ function populateUsers($data) {
 	foreach($usermeta as $key=>$value)
 		$rs_query->insert('usermeta', array('user'=>$user, '_key'=>$key, 'value'=>$value));
 	
-	// Return the user id
-	return $user;
-}
-
-/**
- * Populate the posts table.
- * @since 1.3.7[a]
- *
- * @param int $author
- * @return array
- */
-function populatePosts($author) {
-	// Extend the Query class
-	global $rs_query;
-	
 	// Create a sample page
-	$post['home_page'] = $rs_query->insert('posts', array('title'=>'Sample Page', 'author'=>$author, 'date'=>'NOW()', 'content'=>'This is just a sample page to get you started.', 'status'=>'published', 'slug'=>'sample-page', 'type'=>'page'));
+	$post['home_page'] = $rs_query->insert('posts', array('title'=>'Sample Page', 'author'=>$user, 'date'=>'NOW()', 'content'=>'This is just a sample page to get you started.', 'status'=>'published', 'slug'=>'sample-page', 'type'=>'page'));
 	
 	// Create a sample blog post
-	$post['blog_post'] = $rs_query->insert('posts', array('title'=>'Sample Blog Post', 'author'=>$author, 'date'=>'NOW()', 'content'=>'This is your first blog post. Feel free to remove this text and replace it with your own.', 'status'=>'published', 'slug'=>'sample-post', 'type'=>'post'));
+	$post['blog_post'] = $rs_query->insert('posts', array('title'=>'Sample Blog Post', 'author'=>$user, 'date'=>'NOW()', 'content'=>'This is your first blog post. Feel free to remove this text and replace it with your own.', 'status'=>'published', 'slug'=>'sample-post', 'type'=>'post'));
 	
 	// Post metadata
 	$postmeta = array(
@@ -199,79 +198,25 @@ function populatePosts($author) {
 		next($postmeta);
 	}
 	
-	// Return the post ids
-	return $post;
-}
-
-/**
- * Populate the settings table.
- * @since 1.3.0[a]
- *
- * @param array $data
- * @return null
- */
-function populateSettings($data) {
-	// Extend the Query class
-	global $rs_query;
-	
 	// Settings
-	$settings = array('site_title'=>$data['site_title'], 'description'=>'', 'site_url'=>$data['site_url'], 'admin_email'=>$data['admin_email'], 'default_user_role'=>'', 'home_page'=>$data['home_page'], 'do_robots'=>$data['do_robots']);
+	$settings = array('site_title'=>$settings_data['site_title'], 'description'=>'A New ReallySimpleCMS Website!', 'site_url'=>$settings_data['site_url'], 'admin_email'=>$settings_data['admin_email'], 'default_user_role'=>$default_user_role, 'home_page'=>$post['home_page'], 'do_robots'=>$settings_data['do_robots']);
 	
 	// Insert the settings into the database
 	foreach($settings as $name=>$value)
 		$rs_query->insert('settings', array('name'=>$name, 'value'=>$value));
-}
-
-/**
- * Populate the taxonomies table.
- * @since 1.5.0[a]
- *
- * @param array $taxonomies
- * @return null
- */
-function populateTaxonomies($taxonomies) {
-	// Extend the Query class
-	global $rs_query;
+	
+	// Create an array of taxonomies
+	$taxonomies = array('category');
 	
 	// Insert the taxonomies into the database
 	foreach($taxonomies as $taxonomy)
 		$rs_query->insert('taxonomies', array('name'=>$taxonomy));
-}
-
-/**
- * Populate the terms table.
- * @since 1.5.0[a]
- *
- * @param array $data
- * @return int
- */
-function populateTerms($data) {
-	// Extend the Query class
-	global $rs_query;
 	
 	// Insert the terms into the database
-	$term = $rs_query->insert('terms', array('name'=>$data['name'], 'slug'=>$data['slug'], 'taxonomy'=>$data['taxonomy']));
-	
-	// Return the term id
-	return $term;
-}
-
-/**
- * Populate the term_relationships table.
- * @since 1.5.0[a]
- *
- * @param array $data
- * @return null
- */
-function populateTermRelationships($data) {
-	// Extend the Query class
-	global $rs_query;
+	$term = $rs_query->insert('terms', array('name'=>'Uncategorized', 'slug'=>'uncategorized', 'taxonomy'=>getTaxonomyId('category'), 'count'=>1));
 	
 	// Insert the term relationships into the database
-	$rs_query->insert('term_relationships', array('term'=>$data['term'], 'post'=>$data['post']));
-	
-	// Update the term's count
-	$rs_query->update('terms', array('count'=>1), array('id'=>$data['term']));
+	$rs_query->insert('term_relationships', array('term'=>$term, 'post'=>$post['blog_post']));
 }
 
 /**

@@ -16,8 +16,8 @@ $current_page = getCurrentPage();
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="robots" content="noindex, nofollow">
 		<meta name="theme-color" content="#e0e0e0">
-		<?php getStylesheet('buttons.css', VERSION); ?>
-		<?php getAdminStylesheet('style.css', VERSION); ?>
+		<?php getStylesheet('buttons.css'); ?>
+		<?php getAdminStylesheet('style.css'); ?>
 	</head>
 	<body class="<?php echo $current_page; ?>">
 		<header id="admin-header">
@@ -27,7 +27,6 @@ $current_page = getCurrentPage();
 		<nav id="admin-nav-menu">
 			<ul class="menu">
 				<?php
-				// Construct the admin nav menu
 				adminNavMenuItem(array('id'=>'dashboard', 'link'=>'index.php'));
 				adminNavMenuItem(array('id'=>'pages'), array(array('link'=>'posts.php?type=page', 'caption'=>'List Pages'), array('id'=>'pages-create', 'link'=>'posts.php?type=page&action=create', 'caption'=>'Create Page')));
 				adminNavMenuItem(array('id'=>'posts'), array(array('link'=>'posts.php', 'caption'=>'List Posts'), array('id'=>'posts-create', 'link'=>'posts.php?action=create', 'caption'=>'Create Post'), array('id'=>'categories', 'link'=>'categories.php', 'caption'=>'List Categories')));
@@ -38,3 +37,4 @@ $current_page = getCurrentPage();
 				?>
 			</ul>
 		</nav>
+		<noscript class="notice-nojs">Warning! Your browser either does not support or is set to disable <a href="https://www.w3schools.com/js/default.asp" target="_blank">JavaScript</a>. Some features may not work as expected.</noscript>

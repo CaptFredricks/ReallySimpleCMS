@@ -77,31 +77,16 @@ function runInstall($data) {
 		$rs_query->doQuery($table);
 	
 	// Fetch the user data
-	$user = array('username'=>$data['username'], 'password'=>$data['password'], 'email'=>$data['admin_email']);
-	
-	// Populate the users table
-	$author = populateUsers($user);
-	
-	// Populate the posts table
-	$post = populatePosts($author);
+	$user_data = array('username'=>$data['username'], 'password'=>$data['password'], 'email'=>$data['admin_email']);
 	
 	// Fetch the site's url
 	$site_url = (!empty($_SERVER['HTTPS']) ? 'https://' : 'http://').$_SERVER['HTTP_HOST'];
 	
 	// Fetch the settings data
-	$settings = array('site_title'=>$data['site_title'], 'site_url'=>$site_url, 'admin_email'=>$data['admin_email'], 'home_page'=>$post['home_page'], 'do_robots'=>$data['do_robots']);
+	$settings_data = array('site_title'=>$data['site_title'], 'site_url'=>$site_url, 'admin_email'=>$data['admin_email'], 'do_robots'=>$data['do_robots']);
 	
-	// Populate the settings table
-	populateSettings($settings);
-	
-	// Populate the taxonomies table
-	populateTaxonomies(array('category'));
-	
-	// Populate the terms table
-	$term = populateTerms(array('name'=>'Uncategorized', 'slug'=>'uncategorized', 'taxonomy'=>getTaxonomyId('category')));
-	
-	// Populate the term_relationships table
-	populateTermRelationships(array('term'=>$term, 'post'=>$post['blog_post']));
+	// Populate the database tables
+	populateTables($user_data, $settings_data);
 	
 	// Make sure that the home directory can be written to
 	if(is_writable(PATH)) {
@@ -208,7 +193,7 @@ function runInstall($data) {
 					break;
 				case 2:
 					// Get site title
-					$data['site_title'] = isset($_POST['site_title']) ? (!empty($_POST['site_title']) ? trim(strip_tags($_POST['site_title'])): 'My Website') : '';
+					$data['site_title'] = isset($_POST['site_title']) ? (!empty($_POST['site_title']) ? trim(strip_tags($_POST['site_title'])) : 'My Website') : '';
 
 					// Get username
 					$data['username'] = isset($_POST['username']) ? trim(strip_tags($_POST['username'])) : '';

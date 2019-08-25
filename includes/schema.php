@@ -33,35 +33,12 @@ function dbSchema() {
 		KEY parent (parent)
 	);";
 	
-	// Privileges table
-	$tables['privileges'] = "CREATE TABLE privileges (
-		id bigint(20) unsigned PRIMARY KEY auto_increment,
-		name varchar(255) NOT NULL,
-		KEY name (name)
-	);";
-	
 	// Redirects table
 	$tables['redirects'] = "CREATE TABLE redirects (
 		id bigint(20) unsigned PRIMARY KEY auto_increment,
 		post bigint(20) unsigned NOT NULL default '0',
 		slug varchar(255) NOT NULL,
 		KEY post (post)
-	);";
-	
-	// Roles table
-	$tables['roles'] = "CREATE TABLE roles (
-		id bigint(20) unsigned PRIMARY KEY auto_increment,
-		name varchar(255) NOT NULL,
-		KEY name (name)
-	);";
-	
-	// Rp_relationships table
-	$tables['rp_relationships'] = "CREATE TABLE rp_relationships (
-		id bigint(20) unsigned PRIMARY KEY auto_increment,
-		role bigint(20) unsigned NOT NULL default '0',
-		privilege bigint(20) unsigned NOT NULL default '0',
-		KEY role (role),
-		KEY privilege (privilege)
 	);";
 	
 	// Settings table
@@ -98,6 +75,29 @@ function dbSchema() {
 		count bigint(20) unsigned NOT NULL default '0',
 		KEY slug (slug),
 		KEY taxonomy (taxonomy)
+	);";
+	
+	// User_privileges table
+	$tables['user_privileges'] = "CREATE TABLE user_privileges (
+		id bigint(20) unsigned PRIMARY KEY auto_increment,
+		name varchar(255) NOT NULL,
+		KEY name (name)
+	);";
+	
+	// User_relationships table
+	$tables['user_relationships'] = "CREATE TABLE user_relationships (
+		id bigint(20) unsigned PRIMARY KEY auto_increment,
+		role bigint(20) unsigned NOT NULL default '0',
+		privilege bigint(20) unsigned NOT NULL default '0',
+		KEY role (role),
+		KEY privilege (privilege)
+	);";
+	
+	// User_roles table
+	$tables['user_roles'] = "CREATE TABLE user_roles (
+		id bigint(20) unsigned PRIMARY KEY auto_increment,
+		name varchar(255) NOT NULL,
+		KEY name (name)
 	);";
 	
 	// Usermeta table

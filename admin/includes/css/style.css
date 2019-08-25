@@ -193,6 +193,21 @@ a:hover {
 	display: table;
 }
 
+.notice-nojs {
+	background-color: #0f0f0f;
+	color: #f00;
+	display: inline-block;
+	margin-left: 150px;
+	padding: 1em;
+	text-align: center;
+	width: calc(100% - 150px);
+}
+
+.notice-nojs a {
+	color: #f00;
+	text-decoration: underline;
+}
+
 .wrapper {
 	margin-left: 150px;
 	min-height: 100%;
@@ -432,6 +447,20 @@ a:hover {
 
 .data-table .actions {
 	font-size: 0.85em;
+}
+
+.data-table .username strong {
+	line-height: 1;
+	vertical-align: top;
+}
+
+.data-table .username .avatar {
+	float: left;
+	margin-right: 0.5em;
+}
+
+.data-table .username .actions {
+	line-height: 1;
 }
 
 /** Pager **/
