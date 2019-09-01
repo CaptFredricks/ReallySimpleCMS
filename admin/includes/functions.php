@@ -54,6 +54,15 @@ function getCurrentPage() {
 						break;
 				}
 			}
+			
+			// Check whether the query parameter contains 'page'
+			if(strpos($query_param, 'page') !== false) {
+				// Fetch the current page
+				$page = substr($query_param, strpos($query_param, '=') + 1);
+				
+				// Make sure the page isn't numeric and replace any underscores with dashes
+				if(!(int)$page) $current = str_replace('_', '-', $page);
+			}
 		}
 		
 		// Check whether the current page is the 'Edit Post' or 'Edit Page' page
@@ -161,6 +170,69 @@ function populateTables($user_data, $settings_data) {
 			$admin_user_role = $rs_query->insert('user_roles', array('name'=>$role));
 		else
 			$rs_query->insert('user_roles', array('name'=>$role));
+	}
+	
+	// Create an array of admin pages (for privileges)
+	$admin_pages = array('pages', 'posts', 'categories', 'comments', 'media', 'menus', 'widgets', 'users', 'settings', 'user_roles');
+	
+	// Create an array of user privileges
+	$privileges = array('can_view_', 'can_create_', 'can_edit_', 'can_delete_');
+	
+	// Loop through the admin pages
+	foreach($admin_pages as $admin_page) {
+		// Loop through the user privileges
+		foreach($privileges as $privilege) {
+			switch($admin_page) {
+				case 'comments':
+					// Skip comments for now (will be added later)
+					continue 2;
+				case 'media':
+					// Change the 'can_create_' privilege to 'can_upload_'
+					if($privilege === 'can_create_') $privilege = 'can_upload_';
+					
+					// Insert the user privilege into the database
+					$rs_query->insert('user_privileges', array('name'=>$privilege.$admin_page));
+					break;
+				case 'settings':
+					// Skip 'can_view_', 'can_create_', and 'can_delete_' for settings
+					if($privilege === 'can_view_' || $privilege === 'can_create_' || $privilege === 'can_delete_') continue 2;
+				case 'user_roles':
+					// Skip 'can_view_' for user_roles
+					if($privilege === 'can_view_') continue 2;
+				default:
+					// Insert the user privilege into the database
+					$rs_query->insert('user_privileges', array('name'=>$privilege.$admin_page));
+			}
+		}
+	}
+	
+	// Fetch all user roles from the database
+	$roles = $rs_query->select('user_roles', 'id', '', 'id');
+	
+	// Loop through the user roles
+	foreach($roles as $role) {
+		switch($role['id']) {
+			case 1:
+				// Set the privileges for the 'user' role
+				$privileges = array();
+				break;
+			case 2:
+				// Set the privileges for the 'editor' role
+				$privileges = array(1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19, 21, 22, 23, 25);
+				break;
+			case 3:
+				// Set the privileges for the 'moderator' role
+				$privileges = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28);
+				break;
+			case 4:
+				// Set the privileges for the 'administrator' role
+				$privileges = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32);
+				break;
+		}
+		
+		// Insert the user relationships into the database
+		foreach($privileges as $privilege)
+			$rs_query->insert('user_relationships', array('role'=>$role['id'], 'privilege'=>$privilege));
 	}
 	
 	// Encrypt password

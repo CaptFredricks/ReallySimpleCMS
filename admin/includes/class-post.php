@@ -27,7 +27,7 @@ class Post {
 		// Set up pagination
 		$page = paginate((int)($_GET['page'] ?? 1));
 		
-		// Get the post count (by type)
+		// Fetch the post count (by type)
 		$count = array('all'=>$this->getPostCount($type), 'published'=>$this->getPostCount($type, 'published'), 'draft'=>$this->getPostCount($type, 'draft'), 'trash'=>$this->getPostCount($type, 'trash'));
 		?>
 		<div class="heading-wrap">
@@ -267,7 +267,7 @@ class Post {
 			} else {
 				// Check whether or not the post is in the trash
 				if($this->isTrash($id)) {
-					// Redirect to the 'List Posts' trash page if the post is in the trash
+					// Redirect to the 'List Posts' trash page
 					header('Location: posts.php'.($post['type'] !== 'post' ? '?type='.$post['type'].'&' : '?').'status=trash');
 				} else {
 					// Validate the form data and return any messages
@@ -544,11 +544,11 @@ class Post {
 					// Insert a new term relationship into the database
 					$rs_query->insert('term_relationships', array('term'=>$category, 'post'=>$insert_id));
 					
-					// Fetch the current category's post count from the database
-					$count = $rs_query->selectRow('terms', 'count', array('id'=>$category));
+					// Fetch the number of times the category shares a relationship with a post in the database
+					$count = $rs_query->selectRow('term_relationships', 'COUNT(*)', array('term'=>$category));
 					
-					// Increment the category's post count
-					$rs_query->update('terms', array('count'=>(++$count)), array('id'=>$category));
+					// Update the category's post count
+					$rs_query->update('terms', array('count'=>$count), array('id'=>$category));
 				}
 			}
 			

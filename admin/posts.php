@@ -5,7 +5,7 @@ require_once __DIR__.'/header.php';
 // Create a Post object
 $rs_post = new Post;
 ?>
-<div class="wrapper">
+<div class="wrapper clear">
 	<?php
 	// Redirect to the widgets page if the post type is 'widget'
 	if(isset($_GET['type']) && $_GET['type'] === 'widget')

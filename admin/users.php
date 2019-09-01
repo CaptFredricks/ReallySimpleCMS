@@ -5,7 +5,7 @@ require_once __DIR__.'/header.php';
 // Create a User object
 $rs_user = new User;
 ?>
-<div class="wrapper">
+<div class="wrapper clear">
 	<?php
 	// Get the current action
 	$action = $_GET['action'] ?? '';

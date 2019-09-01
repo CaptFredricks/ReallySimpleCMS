@@ -2,7 +2,7 @@
 // Include header
 require_once __DIR__.'/header.php';
 ?>
-<div class="wrapper">
+<div class="wrapper clear">
 	<div class="heading-wrap">
 		<h1>Admin Dashboard</h1>
 	</div>

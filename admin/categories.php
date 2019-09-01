@@ -5,12 +5,12 @@ require_once __DIR__.'/header.php';
 // Create a Category object
 $rs_category = new Category;
 ?>
-<div class="wrapper">
+<div class="wrapper clear">
 	<?php
-	// Get the current action
+	// Fetch the current action
 	$action = $_GET['action'] ?? '';
 	
-	// Get the category id
+	// Fetch the category id
 	$id = (int)($_GET['id'] ?? 0);
 	
 	switch($action) {

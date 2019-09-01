@@ -33,7 +33,7 @@ $current_page = getCurrentPage();
 				adminNavMenuItem(array('id'=>'media'), array(array('caption'=>'List Media'), array('id'=>'media-upload', 'caption'=>'Upload Media')));
 				adminNavMenuItem(array('id'=>'customization'), array(array('id'=>'menus', 'caption'=>'List Menus'), array('id'=>'widgets', 'link'=>'widgets.php', 'caption'=>'List Widgets')));
 				adminNavMenuItem(array('id'=>'users'), array(array('link'=>'users.php', 'caption'=>'List Users'), array('id'=>'users-create', 'link'=>'users.php?action=create', 'caption'=>'Create User'), array('id'=>'profile', 'caption'=>'Your Profile')));
-				adminNavMenuItem(array('id'=>'settings', 'link'=>'settings.php'));
+				adminNavMenuItem(array('id'=>'settings'), array(array('link'=>'settings.php', 'caption'=>'General'), array('id'=>'user-roles', 'link'=>'settings.php?page=user_roles', 'caption'=>'User Roles')));
 				?>
 			</ul>
 		</nav>

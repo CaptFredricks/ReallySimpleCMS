@@ -8,13 +8,13 @@
  */
 class Settings {
 	/**
-	 * Construct a list of all settings.
+	 * Construct a list of general settings.
 	 * @since 1.3.7[a]
 	 *
 	 * @access public
 	 * @return null
 	 */
-	public function listSettings() {
+	public function generalSettings() {
 		// Extend the Query class
 		global $rs_query;
 		
@@ -157,5 +157,21 @@ class Settings {
 		
 		// Return the list
 		return $list;
+	}
+	
+	/**
+	 * Construct a list of user roles settings.
+	 * @since 1.7.1[a]
+	 *
+	 * @access public
+	 * @return null
+	 */
+	public function userRolesSettings() {
+		?>
+		<div class="heading-wrap">
+			<h1>User Roles</h1>
+			<a class="button" href="settings.php?page=user_roles&action=create">Create New</a>
+		</div>
+		<?php
 	}
 }

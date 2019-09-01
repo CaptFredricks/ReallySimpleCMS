@@ -4,6 +4,32 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.7.1[a] (2019-08-30)
+
+* Tweaked some documentation in the Post class
+* Tweaked how the category post count is calculated when a post is created
+* The user_privileges table is now populated during installation
+* The user_relationships table is now populated during installation
+* Added the 'clear' class to all admin page wrapper elements (prevents page content from overflowing into the footer)
+* Removed a line of documentation from the categories file
+* Renamed the Settings::listSettings function to Settings::generalSettings
+* Added a settings page for user roles
+* Added a nav menu item for the user roles settings page
+* Added an extra check in the getCurrentPage function to look for the page GET parameter (for settings pages)
+
+**Modified files:**
+* admin/categories.php (M)
+* admin/header.php
+* admin/index.php (M)
+* admin/posts.php (M)
+* admin/settings.php
+* admin/users.php (M)
+* admin/widgets.php (M)
+* admin/includes/class-post.php
+* admin/includes/class-settings.php
+* admin/includes/functions.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.7.0[a] (2019-08-24)
 
 * Changed possible statuses for widgets from 'draft' and 'published' to 'active' and 'inactive'
