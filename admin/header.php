@@ -7,6 +7,8 @@ require_once PATH.ADMIN.INC.'/functions.php';
 
 // Fetch the current page
 $current_page = getCurrentPage();
+
+$_SESSION['role'] = 4; // temporary
 ?>
 <!DOCTYPE html>
 <html>

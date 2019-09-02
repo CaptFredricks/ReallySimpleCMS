@@ -19,7 +19,7 @@ class Category {
 		global $rs_query;
 		
 		// Set up pagination
-		$page = paginate((int)($_GET['page'] ?? 1));
+		$page = paginate((int)($_GET['paged'] ?? 1));
 		?>
 		<div class="heading-wrap">
 			<h1>Categories</h1>
@@ -59,7 +59,6 @@ class Category {
 				
 				// Loop through the categories
 				foreach($categories as $category) {
-					// Construct the current row
 					echo tableRow(
 						tableCell('<strong>'.$category['name'].'</strong><div class="actions"><a href="?id='.$category['id'].'&action=edit">Edit</a> &bull; <a href="?id='.$category['id'].'&action=delete">Delete</a></div>', 'name'),
 						tableCell($category['slug'], 'slug'),
@@ -123,7 +122,7 @@ class Category {
 		// Check whether or not the category id is valid
 		if(empty($id) || $id <= 0) {
 			// Redirect to the 'List Categories' page
-			header('Location: categories.php');
+			redirect('categories.php');
 		} else {
 			// Fetch the number of times the category appears in the database
 			$count = $rs_query->selectRow('terms', 'COUNT(*)', array('id'=>$id, 'taxonomy'=>getTaxonomyId('category')));
@@ -131,7 +130,7 @@ class Category {
 			// Check whether or not the count is zero
 			if($count === 0) {
 				// Redirect to the 'List Categories' page
-				header('Location: categories.php');
+				redirect('categories.php');
 			} else {
 				// Validate the form data and return any messages
 				$message = isset($_POST['submit']) ? $this->validateData($_POST, $id) : '';
@@ -174,16 +173,16 @@ class Category {
 		// Check whether or not the category id is valid
 		if(empty($id) || $id <= 0) {
 			// Redirect to the 'List Categories' page
-			header('Location: categories.php');
+			redirect('categories.php');
 		} else {
-			// Delete the term relationship(s) from the database
-			$rs_query->delete('term_relationships', array('term'=>$id));
-			
 			// Delete the category from the database
 			$rs_query->delete('terms', array('id'=>$id));
 			
+			// Delete the term relationship(s) from the database
+			$rs_query->delete('term_relationships', array('term'=>$id));
+			
 			// Redirect to the 'List Categories' page (with a success message)
-			header('Location: categories.php?exit_status=success');
+			redirect('categories.php?exit_status=success');
 		}
 	}
 	
@@ -213,7 +212,7 @@ class Category {
 			$insert_id = $rs_query->insert('terms', array('name'=>$data['name'], 'slug'=>$data['slug'], 'taxonomy'=>getTaxonomyId('category'), 'parent'=>$data['parent']));
 			
 			// Redirect to the 'Edit Category' page
-			header('Location: categories.php?id='.$insert_id.'&action=edit');
+			redirect('categories.php?id='.$insert_id.'&action=edit');
 		} else {
 			// Update the category in the database
 			$rs_query->update('terms', array('name'=>$data['name'], 'slug'=>$data['slug'], 'parent'=>$data['parent']), array('id'=>$id));

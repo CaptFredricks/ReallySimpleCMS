@@ -25,7 +25,7 @@ class Post {
 		$status = $_GET['status'] ?? 'all';
 		
 		// Set up pagination
-		$page = paginate((int)($_GET['page'] ?? 1));
+		$page = paginate((int)($_GET['paged'] ?? 1));
 		
 		// Fetch the post count (by type)
 		$count = array('all'=>$this->getPostCount($type), 'published'=>$this->getPostCount($type, 'published'), 'draft'=>$this->getPostCount($type, 'draft'), 'trash'=>$this->getPostCount($type, 'trash'));
@@ -90,7 +90,6 @@ class Post {
 					// Fetch the post metadata from the database
 					$meta = $this->getPostMeta($post['id']);
 					
-					// Construct the current row
 					echo tableRow(
 						tableCell('<strong>'.$post['title'].'</strong>'.($post['status'] !== 'published' && $status === 'all' ? ' &ndash; <em>'.$post['status'].'</em>' : '').'<div class="actions">'.($status !== 'trash' ? '<a href="?id='.$post['id'].'&action=edit">Edit</a> &bull; <a href="?id='.$post['id'].'&action=trash">Trash</a> &bull; <a href="'.($post['status'] === 'published' ? ($this->isHomePage($post['id']) ? '/' : $this->getPermalink($post['parent'], $post['slug'])).'">View' : ('/?id='.$post['id'].'&preview=true').'">Preview').'</a>' : '<a href="?id='.$post['id'].'&action=restore">Restore</a> &bull; <a href="?id='.$post['id'].'&action=delete" rel="">Delete</a>').'</div>', 'title'),
 						tableCell($this->getAuthor($post['author']), 'author'),
@@ -252,7 +251,7 @@ class Post {
 		// Check whether or not the post id is valid
 		if(empty($id) || $id <= 0) {
 			// Redirect to the 'List Posts' page
-			header('Location: posts.php');
+			redirect('posts.php');
 		} else {
 			// Fetch the post type from the database
 			$post = $rs_query->selectRow('posts', 'type', array('id'=>$id));
@@ -260,15 +259,15 @@ class Post {
 			// Check whether or not the post is valid and of the proper type
 			if(empty($post)) {
 				// Redirect to the 'List Posts' page
-				header('Location: posts.php');
+				redirect('posts.php');
 			} elseif($post['type'] === 'widget') {
 				// Redirect to the appropriate 'Edit Widget' form
-				header('Location: widgets.php?id='.$id.'&action=edit');
+				redirect('widgets.php?id='.$id.'&action=edit');
 			} else {
 				// Check whether or not the post is in the trash
 				if($this->isTrash($id)) {
 					// Redirect to the 'List Posts' trash page
-					header('Location: posts.php'.($post['type'] !== 'post' ? '?type='.$post['type'].'&' : '?').'status=trash');
+					redirect('posts.php'.($post['type'] !== 'post' ? '?type='.$post['type'].'&' : '?').'status=trash');
 				} else {
 					// Validate the form data and return any messages
 					$message = isset($_POST['submit']) ? $this->validateData($_POST, $id) : '';
@@ -411,7 +410,7 @@ class Post {
 		// Check whether or not the post id is valid
 		if(empty($id) || $id <= 0) {
 			// Redirect to the 'List Posts' page
-			header('Location: posts.php');
+			redirect('posts.php');
 		} else {
 			// Fetch the post from the database
 			$post = $rs_query->selectRow('posts', 'type', array('id'=>$id));
@@ -420,7 +419,7 @@ class Post {
 			$rs_query->update('posts', array('status'=>'trash'), array('id'=>$id));
 			
 			// Redirect to the 'List Posts' page
-			header('Location: posts.php'.($post['type'] !== 'post' ? '?type='.$post['type'] : ''));
+			redirect('posts.php'.($post['type'] !== 'post' ? '?type='.$post['type'] : ''));
 		}
 	}
 	
@@ -439,7 +438,7 @@ class Post {
 		// Check whether or not the post id is valid
 		if(empty($id) || $id <= 0) {
 			// Redirect to the 'List Posts' page
-			header('Location: posts.php');
+			redirect('posts.php');
 		} else {
 			// Fetch the post from the database
 			$post = $rs_query->selectRow('posts', 'type', array('id'=>$id));
@@ -448,7 +447,7 @@ class Post {
 			$rs_query->update('posts', array('status'=>'draft'), array('id'=>$id));
 			
 			// Redirect to the 'List Posts' trash page
-			header('Location: posts.php'.($post['type'] !== 'post' ? '?type='.$post['type'].'&' : '?').'status=trash');
+			redirect('posts.php'.($post['type'] !== 'post' ? '?type='.$post['type'].'&' : '?').'status=trash');
 		}
 	}
 	
@@ -467,7 +466,7 @@ class Post {
 		// Check whether or not the post id is valid
 		if(empty($id) || $id <= 0) {
 			// Redirect to the 'List Posts' page
-			header('Location: posts.php');
+			redirect('posts.php');
 		} else {
 			// Fetch the post from the database
 			$post = $rs_query->selectRow('posts', 'type', array('id'=>$id));
@@ -494,7 +493,7 @@ class Post {
 			}
 			
 			// Redirect to the 'List Posts' page (with a success message)
-			header('Location: posts.php'.($post['type'] !== 'post' ? '?type='.$post['type'].'&' : '?').'status=trash&exit_status=success');
+			redirect('posts.php'.($post['type'] !== 'post' ? '?type='.$post['type'].'&' : '?').'status=trash&exit_status=success');
 		}
 	}
 	
@@ -553,7 +552,7 @@ class Post {
 			}
 			
 			// Redirect to the 'Edit Post' page
-			header('Location: posts.php?id='.$insert_id.'&action=edit');
+			redirect('posts.php?id='.$insert_id.'&action=edit');
 		} else {
 			// Fetch the post type from the database
 			$post = $rs_query->selectRow('posts', 'type', array('id'=>$id));
@@ -574,7 +573,7 @@ class Post {
 			// Loop through the relationships
 			foreach($relationships as $relationship) {
 				// Check whether the relationship still exists
-				if(empty($data['categories']) || !in_array($relationship['term'], $data['categories'], true)) {
+				if(empty($data['categories']) || !in_array($relationship['term'], $data['categories'])) {
 					// Delete the unused relationship from the database
 					$rs_query->delete('term_relationships', array('id'=>$relationship['id']));
 					
@@ -593,8 +592,9 @@ class Post {
 					// Fetch any relationships between the current category and the post from the database
 					$relationship = $rs_query->selectRow('term_relationships', 'COUNT(*)', array('term'=>$category, 'post'=>$id));
 					
+					// Check whether the relationship already exists
 					if($relationship) {
-						// Skip to the next category if the relationship already exists
+						// Skip to the next category
 						continue;
 					} else {
 						// Insert a new term relationship into the database
@@ -767,15 +767,15 @@ class Post {
 		
 		// Loop through the term relationships
 		foreach($relationships as $relationship) {
-			// Fetch the terms from the database
-			$terms = $rs_query->selectRow('terms', 'name', array('id'=>$relationship['term'], 'taxonomy'=>getTaxonomyId('category')));
+			// Fetch the term's name from the database
+			$term = $rs_query->selectRow('terms', 'name', array('id'=>$relationship['term'], 'taxonomy'=>getTaxonomyId('category')));
 			
-			// Assign the term name to the categories array
-			$categories[] = $terms['name'];
+			// Assign the term to the array
+			$categories[] = $term['name'];
 		}
 		
 		// Return the categories
-		return implode(', ', $categories);
+		return empty($categories) ? '&mdash;' : implode(', ', $categories);
 	}
 	
 	/**

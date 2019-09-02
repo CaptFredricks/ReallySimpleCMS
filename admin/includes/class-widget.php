@@ -19,7 +19,7 @@ class Widget extends Post {
 		global $rs_query;
 		
 		// Set up pagination
-		$page = paginate((int)($_GET['page'] ?? 1));
+		$page = paginate((int)($_GET['paged'] ?? 1));
 		?>
 		<div class="heading-wrap">
 			<h1>Widgets</h1>

@@ -5,7 +5,7 @@
  */
 
 // Current CMS version
-const VERSION = '1.7.1';
+const VERSION = '1.7.2';
 
 /**
  * Display copyright on the admin dashboard.
@@ -35,6 +35,21 @@ function RSVersion($echo = true) {
 		echo 'Version '.VERSION.' (&alpha;)';
 	else
 		return 'Version '.VERSION.' (&alpha;)';
+}
+
+/**
+ * Redirect to a specified url.
+ * @since 1.7.2[a]
+ *
+ * @param string $url
+ * @return null
+ */
+function redirect($url) {
+	// Set the header location to the specified url
+	header('Location: '.$url);
+	
+	// Stop any further script execution
+	exit;
 }
 
 /**
@@ -89,6 +104,28 @@ function getSetting($name, $echo = true) {
 		echo $setting['value'];
 	else
 		return $setting['value'];
+}
+
+/**
+ * Determine whether a user has the specified privilege.
+ * @since 1.7.2[a]
+ *
+ * @param int $role
+ * @param string $privilege
+ * @return bool
+ */
+function userHasPrivilege($role, $privilege) {
+	// Extend the Query class
+	global $rs_query;
+	
+	// Fetch the privilege's id from the database
+	$db_privilege = $rs_query->selectRow('user_privileges', 'id', array('name'=>$privilege));
+	
+	// Fetch any relationships between the user's role and the specified privilege
+	$relationship = $rs_query->selectRow('user_relationships', 'COUNT(*)', array('role'=>$role, 'privilege'=>$db_privilege['id']));
+	
+	// Return true if the relationship count is greater than zero
+	return $relationship > 0;
 }
 
 /**

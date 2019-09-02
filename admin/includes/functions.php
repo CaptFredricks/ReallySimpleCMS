@@ -60,8 +60,8 @@ function getCurrentPage() {
 				// Fetch the current page
 				$page = substr($query_param, strpos($query_param, '=') + 1);
 				
-				// Make sure the page isn't numeric and replace any underscores with dashes
-				if(!(int)$page) $current = str_replace('_', '-', $page);
+				// Replace any underscores with dashes
+				$current = str_replace('_', '-', $page);
 			}
 		}
 		
@@ -196,15 +196,25 @@ function populateTables($user_data, $settings_data) {
 				case 'settings':
 					// Skip 'can_view_', 'can_create_', and 'can_delete_' for settings
 					if($privilege === 'can_view_' || $privilege === 'can_create_' || $privilege === 'can_delete_') continue 2;
-				case 'user_roles':
-					// Skip 'can_view_' for user_roles
-					if($privilege === 'can_view_') continue 2;
 				default:
 					// Insert the user privilege into the database
 					$rs_query->insert('user_privileges', array('name'=>$privilege.$admin_page));
 			}
 		}
 	}
+	
+	/**
+	 * List of privileges:
+	 * 1=>'can_view_pages', 2=>'can_create_pages', 3=>'can_edit_pages', 4=>'can_delete_pages',
+	 * 5=>'can_view_posts', 6=>'can_create_posts', 7=>'can_edit_posts', 8=>'can_delete_posts',
+	 * 9=>'can_view_categories', 10=>'can_create_categories', 11=>'can_edit_categories', 12=>'can_delete_categories',
+	 * 13=>'can_view_media', 14=>'can_upload_media', 15=>'can_edit_media', 16=>'can_delete_media',
+	 * 17=>'can_view_menus', 18=>'can_create_menus', 19=>'can_edit_menus', 20=>'can_delete_menus',
+	 * 21=>'can_view_widgets', 22=>'can_create_widgets', 23=>'can_edit_widgets', 24=>'can_delete_widgets',
+	 * 25=>'can_view_users', 26=>'can_create_users', 27=>'can_edit_users', 28=>'can_delete_users',
+	 * 29=>'can_edit_settings',
+	 * 30=>'can_view_user_roles', 31=>'can_create_user_roles', 32=>'can_edit_user_roles', 33=>'can_delete_user_roles'
+	 */
 	
 	// Fetch all user roles from the database
 	$roles = $rs_query->select('user_roles', 'id', '', 'id');
@@ -226,7 +236,7 @@ function populateTables($user_data, $settings_data) {
 				break;
 			case 4:
 				// Set the privileges for the 'administrator' role
-				$privileges = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32);
+				$privileges = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33);
 				break;
 		}
 		
@@ -461,14 +471,22 @@ function statsBarGraph($bars) {
  * @return array
  */
 function paginate($current = 1, $per_page = 20) {
+	// Set the current page
 	$page['current'] = $current;
+	
+	// Set the number of results per page
 	$page['per_page'] = $per_page;
 	
-	if($page['current'] === 1)
+	// Check whether the current page is '1'
+	if($page['current'] === 1) {
+		// Set the starting value to zero
 		$page['start'] = 0;
-	else
+	} else {
+		// Set the starting value to offset based on the number of results per page
 		$page['start'] = ($page['current'] * $page['per_page']) - $page['per_page'];
+	}
 	
+	// Return the page data
 	return $page;
 }
 
@@ -481,7 +499,7 @@ function paginate($current = 1, $per_page = 20) {
  * @return string
  */
 function pagerNav($current, $page_count) {
-	return '<div class="pager">'.($current > 1 ? '<a class="pager-nav button" href="?page=1" title="First Page">&laquo;</a><a class="pager-nav button" href="?page='.($current - 1).'" title="Previous Page">&lsaquo;</a>' : '').($page_count > 0 ? ' Page '.$current.' of '.$page_count.' ' : '').($current < $page_count ? '<a class="pager-nav button" href="?page='.($current + 1).'" title="Next Page">&rsaquo;</a><a class="pager-nav button" href="?page='.$page_count.'" title="Last Page">&raquo;</a>' : '').'</div>';
+	return '<div class="pager">'.($current > 1 ? '<a class="pager-nav button" href="?paged=1" title="First Page">&laquo;</a><a class="pager-nav button" href="?paged='.($current - 1).'" title="Previous Page">&lsaquo;</a>' : '').($page_count > 0 ? ' Page '.$current.' of '.$page_count.' ' : '').($current < $page_count ? '<a class="pager-nav button" href="?paged='.($current + 1).'" title="Next Page">&rsaquo;</a><a class="pager-nav button" href="?paged='.$page_count.'" title="Last Page">&raquo;</a>' : '').'</div>';
 }
 
 /**
@@ -511,7 +529,6 @@ function tableHeaderRow($items) {
  * @return string
  */
 function tableRow(...$cells) {
-	// Return the table row (at least one cell must be provided)
 	if(!empty($cells)) return '<tr>'.implode('', $cells).'</tr>';
 }
 
@@ -525,7 +542,6 @@ function tableRow(...$cells) {
  * @return string
  */
 function tableCell($data, $class = '', $colspan = 1) {
-	// Return the table cell
 	return '<td'.(!empty($class) ? ' class="'.$class.'"' : '').($colspan > 1 ? ' colspan="'.$colspan.'"' : '').'>'.$data.'</td>';
 }
 
@@ -572,9 +588,15 @@ function formTag($tag, $args = null) {
 			$tag = '';
 	}
 	
+	// Check whether a label argument has been provided
 	if(!empty($args['label'])) {
+		// Construct a label tag
 		$label = '<label'.(!empty($args['label']['id']) ? ' id="'.$args['label']['id'].'"' : '').(!empty($args['label']['class']) ? ' class="'.$args['label']['class'].'"' : '').'>';
+		
+		// Construct the content of the label
 		$content = (!empty($args['label']['content']) ? $args['label']['content'] : '').'</label>';
+		
+		// Put everything together
 		$tag = $label.$tag.$content;
 	}
 	
@@ -591,12 +613,9 @@ function formTag($tag, $args = null) {
  * @return string
  */
 function formRow($label = '', ...$args) {
-	// Breaks formTag if only one arg is supplied with a label
-	//if(count($args) !== count($args, COUNT_RECURSIVE) && count($args) === 1)
-		//$args = array_merge(...$args);
-	
+	// Check whether or not the label parameter is empty
 	if(!empty($label)) {
-		// Check if the label is an array
+		// Check whether the label parameter is an array
 		if(is_array($label)) {
 			// Pop second value from the array
 			$required = array_pop($label);
@@ -605,45 +624,65 @@ function formRow($label = '', ...$args) {
 			$label = implode('', $label);
 		}
 		
+		// Loop through the args
 		for($i = 0; $i < count($args); $i++) {
-			// Break out of the loop if 'name' key is found
-			if(array_key_exists('name', $args[$i])) break;
+			// Break out of the loop if the 'name' key is found
+			if(is_array($args[$i]) && array_key_exists('name', $args[$i])) break;
 		}
 		
+		// Create the label for the form row
 		$row = '<th><label'.(!empty($args[$i]['name']) ? ' for="'.$args[$i]['name'].'"' : '').'>'.$label.(!empty($required) && $required === true ? ' <span class="required">*</span>' : '').'</label></th>';
+		
+		// Open the table cell tag
 		$row .= '<td>';
 		
+		// Check wether any args have been provided
 		if(count($args) > 0) {
+			// Check whether or not the args are a multidimensional array
 			if(count($args) !== count($args, COUNT_RECURSIVE)) {
+				// Loop through the args
 				foreach($args as $arg) {
+					// Fetch the arg's HTML tag
 					$tag = $arg['tag'];
+					
+					// Construct the form tag and add it to the row
 					$row .= formTag($tag, $arg);
 				}
 			} else {
-				$tag = $arg['tag'];
-				$row .= formTag($tag, $args);
+				// Loop through the args and add any content to the row
+				foreach($args as $arg) $row .= $arg;
 			}
 		}
 		
+		// Close the table cell tag
 		$row .= '</td>';
 	} else {
+		// Open the table cell tag
 		$row = '<td colspan="2">';
 		
+		// Check wether any args have been provided
 		if(count($args) > 0) {
+			// Check whether or not the args are a multidimensional array
 			if(count($args) !== count($args, COUNT_RECURSIVE)) {
+				// Loop through the args
 				foreach($args as $arg) {
+					// Fetch the arg's HTML tag
 					$tag = $arg['tag'];
+					
+					// Construct the form tag and add it to the row
 					$row .= formTag($tag, $arg);
 				}
 			} else {
-				$tag = $arg['tag'];
-				$row .= formTag($tag, $args);
+				// Loop through the args and add any content to the row
+				foreach($args as $arg) $row .= $arg;
 			}
 		}
 		
+		// Close the table cell tag
 		$row .= '</td>';
 	}
 	
+	// Return the form row
 	return '<tr>'.$row.'</tr>';
 }
 

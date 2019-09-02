@@ -10,14 +10,35 @@ $rs_settings = new Settings;
 	// Fetch the current settings page
 	$page = $_GET['page'] ?? '';
 	
+	// Fetch the current action
+	$action = $_GET['action'] ?? '';
+	
+	// Fetch the current id
+	$id = (int)($_GET['id'] ?? 0);
+	
 	switch($page) {
 		case 'user_roles':
-			// User roles settings
-			$rs_settings->userRolesSettings();
+			switch($action) {
+				case 'create':
+					// Create a new user role
+					userHasPrivilege($_SESSION['role'], 'can_create_user_roles') ? $rs_settings->createUserRole() : redirect('settings.php?page=user_roles');
+					break;
+				case 'edit':
+					// Edit an existing user role
+					userHasPrivilege($_SESSION['role'], 'can_edit_user_roles') ? $rs_settings->editUserRole($id) : redirect('settings.php?page=user_roles');
+					break;
+				case 'delete':
+					// Delete an existing user role
+					userHasPrivilege($_SESSION['role'], 'can_delete_user_roles') ? $rs_settings->deleteUserRole($id) : redirect('settings.php?page=user_roles');
+					break;
+				default:
+					// List all user roles
+					userHasPrivilege($_SESSION['role'], 'can_view_user_roles') ? $rs_settings->listUserRoles() : redirect('index.php');
+			}
 			break;
 		default:
 			// General settings
-			$rs_settings->generalSettings();
+			userHasPrivilege($_SESSION['role'], 'can_edit_settings') ? $rs_settings->generalSettings() : redirect('index.php');
 	}
 	?>
 </div>

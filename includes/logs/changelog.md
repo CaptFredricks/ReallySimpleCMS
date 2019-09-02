@@ -4,6 +4,45 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.7.2[a] (2019-09-01)
+
+* Changed the pagination 'page' GET varible to 'paged' to differentiate it from the settings 'page' GET variable
+* Added more documentation to the admin functions
+* The 'can_view_user_roles' privilege is now created on installation
+* Created a global function that checks whether a user has a specified privilege (to protect certain pages from users with limited privileges)
+* Created a global function for easy url redirection
+* Added a temporary $_SESSION variable to the admin header (to test user roles/privileges)
+* The settings pages now check whether a logged in user has sufficient privileges to view the pages
+* Created a function to fetch the user privileges
+* Tweaked some documentation in the Post class
+* The Post::getCategories function now returns an em dash if a post has no categories
+* Renamed the Settings::userRolesSettings function to Settings::listUserRoles
+* Renamed the Settings::validateData function to Settings::validateSettingsData
+* Created a function that constructs the 'Create User Role' form
+* The formRow function now can accept string values in its 'args' parameters
+* Cleaned up the formRow function's code and added more documentation
+* Added styling for the user privilege list
+* Tweaked styling of the post category list
+* Created a function that constructs a list of user privileges
+* Created a function that constructs the 'Edit User Role' form
+* Created a function to validate the user role form data
+* Replaced all occurrences of the header function with the new redirect function in the Post and Category classes
+* Fixed an issue where categories would get deleted from a post unnecessarily
+* Created a function to delete user roles
+
+**Modified files:**
+* admin/header.php (M)
+* admin/settings.php
+* admin/includes/class-category.php
+* admin/includes/class-post.php
+* admin/includes/class-settings.php
+* admin/includes/class-user.php (M)
+* admin/includes/class-widget.php (M)
+* admin/includes/functions.php
+* admin/includes/css/style.css
+* includes/globals.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.7.1[a] (2019-08-30)
 
 * Tweaked some documentation in the Post class
@@ -13,7 +52,7 @@
 * Added the 'clear' class to all admin page wrapper elements (prevents page content from overflowing into the footer)
 * Removed a line of documentation from the categories file
 * Renamed the Settings::listSettings function to Settings::generalSettings
-* Added a settings page for user roles
+* Created the 'User Roles' settings page
 * Added a nav menu item for the user roles settings page
 * Added an extra check in the getCurrentPage function to look for the page GET parameter (for settings pages)
 
