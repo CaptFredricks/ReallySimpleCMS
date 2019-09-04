@@ -37,7 +37,7 @@ class Post {
 			<?php
 			// Display any status messages
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
-				echo statusMessage(ucfirst($type).' was successfully deleted.', true);
+				echo statusMessage('The '.$type.' was successfully deleted.', true);
 			?>
 			<ul class="post-status-nav">
 				<?php
@@ -827,8 +827,8 @@ class Post {
 		// Fetch the parent post from the database
 		$parent = $rs_query->selectRow('posts', 'title', array('id'=>$id));
 		
-		// Return the parent's title (if post has a parent)
-		return !empty($parent) ? $parent['title'] : '';
+		// Return the parent's title
+		return empty($parent) ? '&mdash;' : $parent['title'];
 	}
 	
 	/**

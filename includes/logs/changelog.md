@@ -4,6 +4,28 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.7.3[a] (2019-09-02)
+
+* Tweaked the deleted entry status message for all classes
+* Replaced all occurrences of the header function with the new redirect function in the User and Widget classes
+* Replaced a null comparison an empty with is_null in the User::listEntries function
+* The 'Full Name' column on the 'List Users' page now displays an em dash if the user has no first name or last name
+* The Post::getParent function now returns an em dash if a post has no parent
+* Fixed some issues with the getCurrentPage function that caused some pages not to show as the current nav menu item
+* Added a '_default' column to the user_roles table (this will be used to protect default roles from tampering)
+* Removed edit and delete actions from default user roles on the 'List User Roles' page
+* Attempting to edit a default user role will now redirect the user to the 'List User Roles' page
+
+**Modified files:**
+* admin/includes/class-category.php (M)
+* admin/includes/class-post.php
+* admin/includes/class-settings.php
+* admin/includes/class-user.php
+* admin/includes/class-widget.php
+* admin/includes/functions.php
+* includes/schema.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.7.2[a] (2019-09-01)
 
 * Changed the pagination 'page' GET varible to 'paged' to differentiate it from the settings 'page' GET variable

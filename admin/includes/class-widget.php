@@ -27,7 +27,7 @@ class Widget extends Post {
 			<?php
 			// Display any status messages
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
-				echo statusMessage('Widget was successfully deleted.', true);
+				echo statusMessage('The widget was successfully deleted.', true);
 			
 			// Fetch the widget entry count from the database
 			$count = $rs_query->select('posts', 'COUNT(*)', array('type'=>'widget'));
@@ -59,7 +59,6 @@ class Widget extends Post {
 				
 				// Loop through the widgets
 				foreach($widgets as $widget) {
-					// Construct the current row
 					echo tableRow(
 						tableCell('<strong>'.$widget['title'].'</strong><div class="actions"><a href="?id='.$widget['id'].'&action=edit">Edit</a> &bull; <a href="?id='.$widget['id'].'&action=delete">Delete</a></div>', 'title'),
 						tableCell($widget['slug'], 'slug'),
@@ -123,7 +122,7 @@ class Widget extends Post {
 		// Check whether or not the widget id is valid
 		if(empty($id) || $id <= 0) {
 			// Redirect to the 'List Widgets' page
-			header('Location: widgets.php');
+			redirect('widgets.php');
 		} else {
 			// Fetch the number of times the widget appears in the database
 			$count = $rs_query->selectRow('posts', 'COUNT(*)', array('id'=>$id, 'type'=>'widget'));
@@ -131,7 +130,7 @@ class Widget extends Post {
 			// Check whether or not the count is zero
 			if($count === 0) {
 				// Redirect to the 'List Widgets' page
-				header('Location: widgets.php');
+				redirect('widgets.php');
 			} else {
 				// Validate the form data and return any messages
 				$message = isset($_POST['submit']) ? $this->validateData($_POST, $id) : '';
@@ -175,13 +174,13 @@ class Widget extends Post {
 		// Check whether or not the widget id is valid
 		if(empty($id) || $id <= 0) {
 			// Redirect to the 'List Widgets' page
-			header('Location: widgets.php');
+			redirect('widgets.php');
 		} else {
 			// Delete the widget from the database
 			$rs_query->delete('posts', array('id'=>$id, 'type'=>'widget'));
 			
 			// Redirect to the 'List Posts' page (with a success message)
-			header('Location: widgets.php?exit_status=success');
+			redirect('widgets.php?exit_status=success');
 		}
 	}
 	
@@ -215,7 +214,7 @@ class Widget extends Post {
 			$insert_id = $rs_query->insert('posts', array('title'=>$data['title'], 'date'=>'NOW()', 'content'=>$data['content'], 'status'=>$data['status'], 'slug'=>$data['slug'], 'type'=>'widget'));
 			
 			// Redirect to the 'Edit Widget' page
-			header('Location: widgets.php?id='.$insert_id.'&action=edit');
+			redirect('widgets.php?id='.$insert_id.'&action=edit');
 		} else {
 			// Update the widget in the database
 			$rs_query->update('posts', array('title'=>$data['title'], 'modified'=>'NOW()', 'content'=>$data['content'], 'status'=>$data['status'], 'slug'=>$data['slug']), array('id'=>$id));

@@ -56,12 +56,13 @@ function getCurrentPage() {
 			}
 			
 			// Check whether the query parameter contains 'page'
-			if(strpos($query_param, 'page') !== false) {
+			if(strpos($query_param, 'page=') !== false) {
 				// Fetch the current page
 				$page = substr($query_param, strpos($query_param, '=') + 1);
 				
 				// Replace any underscores with dashes
 				$current = str_replace('_', '-', $page);
+				break;
 			}
 		}
 		
@@ -73,7 +74,7 @@ function getCurrentPage() {
 			// Check whether or not the count is zero
 			if($count === 0) {
 				// Redirect to the 'List Posts' page
-				header('Location: posts.php');
+				redirect('posts.php');
 			} else {
 				// Fetch the post from the database
 				$post = $rs_query->selectRow('posts', 'type', array('id'=>$_GET['id']));
@@ -165,11 +166,11 @@ function populateTables($user_data, $settings_data) {
 	// Insert the user roles into the database
 	foreach($roles as $role) {
 		if($role === 'User')
-			$default_user_role = $rs_query->insert('user_roles', array('name'=>$role));
+			$default_user_role = $rs_query->insert('user_roles', array('name'=>$role, '_default'=>'yes'));
 		elseif($role === 'Administrator')
-			$admin_user_role = $rs_query->insert('user_roles', array('name'=>$role));
+			$admin_user_role = $rs_query->insert('user_roles', array('name'=>$role, '_default'=>'yes'));
 		else
-			$rs_query->insert('user_roles', array('name'=>$role));
+			$rs_query->insert('user_roles', array('name'=>$role, '_default'=>'yes'));
 	}
 	
 	// Create an array of admin pages (for privileges)

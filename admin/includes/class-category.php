@@ -27,7 +27,7 @@ class Category {
 			<?php
 			// Display any status messages
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
-				echo statusMessage('Category was successfully deleted.', true);
+				echo statusMessage('The category was successfully deleted.', true);
 			
 			// Fetch the category entry count from the database
 			$count = $rs_query->select('terms', 'COUNT(*)', array('taxonomy'=>getTaxonomyId('category')));

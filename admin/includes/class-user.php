@@ -41,7 +41,7 @@ class User {
 			<?php
 			// Display any status messages
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
-				echo statusMessage('User was successfully deleted.', true);
+				echo statusMessage('The user was successfully deleted.', true);
 			
 			// Get the user count
 			$count = $rs_query->select('users', 'COUNT(*)');
@@ -76,15 +76,14 @@ class User {
 					// Fetch the user metadata from the database
 					$meta = $this->getUserMeta($user['id']);
 					
-					// Construct the current row
 					echo tableRow(
 						tableCell('<img class="avatar" src="'.(!empty($meta['avatar']) ? '' : '').'" width="32" height="32"><strong>'.$user['username'].'</strong><div class="actions"><a href="?id='.$user['id'].'&action=edit">Edit</a> &bull; <a class="delete-item" href="javascript:void(0)" rel="'.$user['id'].'">Delete</a></div>', 'username'),
-						tableCell($meta['first_name'].' '.$meta['last_name'], 'full-name'),
+						tableCell(empty($meta['first_name']) && empty($meta['last_name']) ? '&mdash;' : $meta['first_name'].' '.$meta['last_name'], 'full-name'),
 						tableCell($user['email'], 'email'),
 						tableCell(formatDate($user['registered'], 'd M Y @ g:i A'), 'registered'),
 						tableCell($this->getRole($user['role']), 'role'),
-						tableCell((!empty($user['session']) ? 'Online' : 'Offline'), 'status'),
-						tableCell($user['last_login'] === null ? 'Never' : formatDate($user['last_login'], 'd M Y @ g:i A'), 'last-login')
+						tableCell(is_null($user['session']) ? 'Offline' : 'Online', 'status'),
+						tableCell(is_null($user['last_login']) ? 'Never' : formatDate($user['last_login'], 'd M Y @ g:i A'), 'last-login')
 					);
 				}
 				
@@ -147,15 +146,15 @@ class User {
 		// Check whether or not the user id is valid
 		if(empty($id) || $id <= 0) {
 			// Redirect to the 'List Users' page
-			header('Location: users.php');
+			redirect('users.php');
 		} else {
 			// Fetch the number of times the user appears in the database
 			$count = $rs_query->selectRow('users', 'COUNT(*)', array('id'=>$id));
 			
 			// Check whether or not the count is zero
 			if($count === 0) {
-				// Redirect to the 'List Users' page if the user doesn't exist
-				header('Location: users.php');
+				// Redirect to the 'List Users' page
+				redirect('users.php');
 			} else {
 				// Validate the form data and return any messages
 				$message = isset($_POST['submit']) ? $this->validateData($_POST, $id) : '';
@@ -205,7 +204,7 @@ class User {
 		// Check whether or not the user id is valid
 		if(empty($id) || $id <= 0) {
 			// Redirect to the 'List Users' page
-			header('Location: users.php');
+			redirect('users.php');
 		} else {
 			// Delete the user from the database
 			$rs_query->delete('users', array('id'=>$id));
@@ -214,7 +213,7 @@ class User {
 			$rs_query->delete('usermeta', array('user'=>$id));
 			
 			// Redirect to the 'List Users' page (with a success message)
-			header('Location: users.php?exit_status=success');
+			redirect('users.php?exit_status=success');
 		}
 	}
 	
@@ -270,7 +269,7 @@ class User {
 				$rs_query->insert('usermeta', array('user'=>$insert_id, '_key'=>$key, 'value'=>$value));
 			
 			// Redirect to the 'Edit User' page
-			header('Location: users.php?id='.$insert_id.'&action=edit');
+			redirect('users.php?id='.$insert_id.'&action=edit');
 		} else {
 			// Update the user in the database
 			$rs_query->update('users', array('username'=>$data['username'], 'email'=>$data['email'], 'role'=>$data['role']), array('id'=>$id));
@@ -420,7 +419,7 @@ class User {
 		// Check whether or not the user id is valid
 		if(empty($id) || $id <= 0) {
 			// Redirect to the 'List Users' page
-			header('Location: users.php');
+			redirect('users.php');
 		} else {
 			// Validate the form data and return any messages
 			$message = isset($_POST['submit']) ? $this->validatePasswordData($_POST, $id) : '';

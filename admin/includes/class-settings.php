@@ -212,7 +212,7 @@ class Settings {
 				// Loop through the user roles
 				foreach($roles as $role) {
 					echo tableRow(
-						tableCell('<strong>'.$role['name'].'</strong><div class="actions"><a href="?page=user_roles&id='.$role['id'].'&action=edit">Edit</a> &bull; <a id="delete" href="?page=user_roles&id='.$role['id'].'&action=delete">Delete</a></div>', 'name'),
+						tableCell('<strong>'.$role['name'].'</strong><div class="actions">'.($role['_default'] === 'yes' ? '<em>default roles cannot be modified</em>' : '<a href="?page=user_roles&id='.$role['id'].'&action=edit">Edit</a> &bull; <a id="delete" href="?page=user_roles&id='.$role['id'].'&action=delete">Delete</a>').'</div>', 'name'),
 						tableCell($this->getPrivileges($role['id']), 'privileges')
 					);
 				}
@@ -273,11 +273,11 @@ class Settings {
 			// Redirect to the 'List User Roles' page
 			redirect('settings.php?page=user_roles');
 		} else {
-			// Fetch the number of times the user role appears in the database
-			$count = $rs_query->selectRow('user_roles', 'COUNT(*)', array('id'=>$id));
+			// Fetch the role's 'default' value from the database
+			$role = $rs_query->selectRow('user_roles', '_default', array('id'=>$id));
 			
-			// Check whether or not the count is zero
-			if($count === 0) {
+			// Check whether or not the role is valid and is a default user role
+			if(empty($role) || $role['_default'] === 'yes') {
 				// Redirect to the 'List User Roles' page
 				redirect('settings.php?page=user_roles');
 			} else {
@@ -323,14 +323,23 @@ class Settings {
 			// Redirect to the 'List User Roles' page
 			redirect('settings.php?page=user_roles');
 		} else {
-			// Delete the user role from the database
-			$rs_query->delete('user_roles', array('id'=>$id));
+			// Fetch the role's 'default' value from the database
+			$role = $rs_query->selectRow('user_roles', '_default', array('id'=>$id));
 			
-			// Delete the user relationship(s) from the database
-			$rs_query->delete('user_relationships', array('role'=>$id));
-			
-			// Redirect to the 'List User Roles' page (with a success message)
-			redirect('settings.php?page=user_roles&exit_status=success');
+			// Check whether or not the role is valid and is a default user role
+			if(empty($role) || $role['_default'] === 'yes') {
+				// Redirect to the 'List User Roles' page
+				redirect('settings.php?page=user_roles');
+			} else {
+				// Delete the user role from the database
+				$rs_query->delete('user_roles', array('id'=>$id));
+				
+				// Delete the user relationship(s) from the database
+				$rs_query->delete('user_relationships', array('role'=>$id));
+				
+				// Redirect to the 'List User Roles' page (with a success message)
+				redirect('settings.php?page=user_roles&exit_status=success');
+			}
 		}
 	}
 	
@@ -350,6 +359,10 @@ class Settings {
 		// Make sure no required fields are empty
 		if(empty($data['name']))
 			return statusMessage('R');
+		
+		// Make sure the name is not already being used
+		if($this->roleNameExists($data['name'], $id))
+			return statusMessage('That name is already in use. Please choose another one.');
 		
 		if($id === 0) {
 			// Insert the new user role into the database
@@ -403,6 +416,31 @@ class Settings {
 			// Return a status message
 			return statusMessage('User role updated! <a href="settings.php?page=user_roles">Return to list</a>?', true);
 		}
+	}
+	
+	/**
+	 * Check whether a user role name exists in the database.
+	 * @since 1.7.3[a]
+	 *
+	 * @access private
+	 * @param string $name
+	 * @param int $id
+	 * @return bool
+	 */
+	private function roleNameExists($name, $id) {
+		// Extend the Query class
+		global $rs_query;
+		
+		if($id === 0) {
+			// Fetch the number of times the name appears in the database
+			$count = $rs_query->selectRow('user_roles', 'COUNT(name)', array('name'=>$name));
+		} else {
+			// Fetch the number of times the name appears in the database (minus the current role)
+			$count = $rs_query->selectRow('user_roles', 'COUNT(name)', array('name'=>$name, 'id'=>array('<>', $id)));
+		}
+		
+		// Return true if the count is greater than zero
+		return $count > 0;
 	}
 	
 	/**
