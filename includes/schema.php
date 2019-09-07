@@ -97,7 +97,7 @@ function dbSchema() {
 	$tables['user_roles'] = "CREATE TABLE user_roles (
 		id bigint(20) unsigned PRIMARY KEY auto_increment,
 		name varchar(255) NOT NULL,
-		_default varchar(5) NOT NULL,
+		_default varchar(5) NOT NULL default 'no',
 		KEY name (name)
 	);";
 	

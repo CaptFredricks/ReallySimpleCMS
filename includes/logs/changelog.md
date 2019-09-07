@@ -4,6 +4,34 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.7.4[a] (2019-09-03)
+
+* Tweaked documentation in the Post class
+* Adjusted the margins on list entries pages when a status message is displayed
+* Added a default value for the '_default' column in the user_roles table
+* Added a full file path to the autoload class function
+* Fixed an issue with the getCurrentPage function that prevented the 'Create Widget' page from displaying as the current page
+* Added more documentation to the admin functions
+* Tweaked documentation in the User class
+* When creating a new user, the role dropdown now displays the default user role
+* Changed an HTML id to a class
+* Added the delete link for users on the 'List Users' page
+* Tweaked the default site description in the populateTables function
+* Tweaked the styling of form tables
+* The widgets pages now check whether a logged in user has sufficient privileges to view the pages
+* The users pages now check whether a logged in user has sufficient privileges to view the pages
+
+**Modified files:**
+* admin/users.php
+* admin/widgets.php
+* admin/includes/class-post.php (M)
+* admin/includes/class-settings.php (M)
+* admin/includes/class-user.php
+* admin/includes/functions.php
+* admin/includes/css/style.css
+* includes/schema.php (M)
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.7.3[a] (2019-09-02)
 
 * Tweaked the deleted entry status message for all classes

@@ -226,13 +226,13 @@ a:hover {
 	margin: 0 10px 0 -10px;
 }
 
-.heading-wrap .button {
-	vertical-align: top;
-}
-
 .heading-wrap hr {
 	margin: 0;
 	visibility: hidden;
+}
+
+.heading-wrap .button {
+	vertical-align: top;
 }
 
 .heading-wrap .post-status-nav {
@@ -259,6 +259,11 @@ a:hover {
 
 .heading-wrap .entry-count.post {
 	margin: 0.375rem 0;
+}
+
+.heading-wrap .status-message ~ .post-status-nav,
+.heading-wrap .status-message ~ .entry-count {
+	margin-top: -0.75em;
 }
 
 .status-message {
@@ -696,6 +701,7 @@ a:hover {
 }
 
 .form-table th {
+	text-align: left;
 	width: 175px;
 }
 

@@ -27,7 +27,7 @@ class Post {
 		// Set up pagination
 		$page = paginate((int)($_GET['paged'] ?? 1));
 		
-		// Fetch the post count (by type)
+		// Fetch the post entry count from the database (by type)
 		$count = array('all'=>$this->getPostCount($type), 'published'=>$this->getPostCount($type, 'published'), 'draft'=>$this->getPostCount($type, 'draft'), 'trash'=>$this->getPostCount($type, 'trash'));
 		?>
 		<div class="heading-wrap">
@@ -59,7 +59,7 @@ class Post {
 			?>
 			<div class="entry-count post">
 				<?php
-				// Display entry count
+				// Display the entry count
 				echo $count[$status].' '.($count[$status] === 1 ? 'entry' : 'entries');
 				?>
 			</div>

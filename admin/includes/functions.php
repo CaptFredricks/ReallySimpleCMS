@@ -12,7 +12,7 @@ if(!defined('ADMIN_SCRIPTS')) define('ADMIN_SCRIPTS', ADMIN.INC.'/js');
 
 // Autoload classes
 spl_autoload_register(function($class_name) {
-	require_once 'class-'.strtolower($class_name).'.php';
+	require_once trailingSlash(PATH.ADMIN.INC).'class-'.strtolower($class_name).'.php';
 });
 
 /**
@@ -25,7 +25,7 @@ function getCurrentPage() {
 	// Extend the Query class
 	global $rs_query;
 	
-	// Fetch the current page from the PHP filename
+	// Extract the current page from the PHP filename
 	$current = basename($_SERVER['PHP_SELF'], '.php');
 	
 	// Check whether the server request contains a query string
@@ -49,9 +49,15 @@ function getCurrentPage() {
 				switch($action) {
 					case 'create':
 					case 'upload':
-						// Add the action's name to the current page
-						$current .= '-'.$action;
-						break;
+						// Check whether the current page is the 'Create Widget' page
+						if($current === 'widgets') {
+							// Break out of the switch statement
+							break;
+						} else {
+							// Add the action's name to the current page
+							$current .= '-'.$action;
+							break;
+						}
 				}
 			}
 			
@@ -130,21 +136,28 @@ function getAdminScript($script, $version = VERSION, $echo = true) {
  * @return string
  */
 function statusMessage($text, $success = false) {
+	// Determine whether the status is success or failure
 	if($success === true) {
+		// Set the status message's class to success
 		$class = 'success';
 	} else {
+		// Set the status message's class to failure
 		$class = 'failure';
 		
+		// Check whether the provided text value matches one of the predefined cases
 		switch($text) {
 			case 'E': case 'e':
+				// Status message for unexpected errors out of the user's control
 				$text = 'An unexpected error occurred. Please contact the system administrator.';
 				break;
 			case 'R': case 'r':
+				// Status message for required form fields that are left empty
 				$text = 'Required fields cannot be left blank!';
 				break;
 		}
 	}
 	
+	// Return the status message
 	return '<div class="status-message '.$class.'">'.$text.'</div>';
 }
 
@@ -154,7 +167,7 @@ function statusMessage($text, $success = false) {
  *
  * @param array $user_data
  * @param array $settings_data
- * @return
+ * @return null
  */
 function populateTables($user_data, $settings_data) {
 	// Extend the Query class
@@ -263,7 +276,7 @@ function populateTables($user_data, $settings_data) {
 	$post['home_page'] = $rs_query->insert('posts', array('title'=>'Sample Page', 'author'=>$user, 'date'=>'NOW()', 'content'=>'This is just a sample page to get you started.', 'status'=>'published', 'slug'=>'sample-page', 'type'=>'page'));
 	
 	// Create a sample blog post
-	$post['blog_post'] = $rs_query->insert('posts', array('title'=>'Sample Blog Post', 'author'=>$user, 'date'=>'NOW()', 'content'=>'This is your first blog post. Feel free to remove this text and replace it with your own.', 'status'=>'published', 'slug'=>'sample-post', 'type'=>'post'));
+	$post['blog_post'] = $rs_query->insert('posts', array('title'=>'Sample Blog Post', 'author'=>$user, 'date'=>'NOW()', 'content'=>'This is your first blog post. Feel free to remove this text and replace it with your own.', 'status'=>'published', 'slug'=>'sample-post'));
 	
 	// Post metadata
 	$postmeta = array(
@@ -282,7 +295,7 @@ function populateTables($user_data, $settings_data) {
 	}
 	
 	// Settings
-	$settings = array('site_title'=>$settings_data['site_title'], 'description'=>'A New ReallySimpleCMS Website!', 'site_url'=>$settings_data['site_url'], 'admin_email'=>$settings_data['admin_email'], 'default_user_role'=>$default_user_role, 'home_page'=>$post['home_page'], 'do_robots'=>$settings_data['do_robots']);
+	$settings = array('site_title'=>$settings_data['site_title'], 'description'=>'A new ReallySimpleCMS website!', 'site_url'=>$settings_data['site_url'], 'admin_email'=>$settings_data['admin_email'], 'default_user_role'=>$default_user_role, 'home_page'=>$post['home_page'], 'do_robots'=>$settings_data['do_robots']);
 	
 	// Insert the settings into the database
 	foreach($settings as $name=>$value)
@@ -396,6 +409,7 @@ function getStatistics($table, $field = '', $value = '') {
 	// Extend the Query class
 	global $rs_query;
 	
+	// Fetch the entry counts for the specified tables
 	if(empty($field) || empty($value))
 		return $rs_query->select($table, 'COUNT(*)');
 	else
@@ -413,11 +427,15 @@ function statsBarGraph($bars) {
 	// Return if $bars is not countable
 	if(!is_countable($bars)) return;
 	
+	// Create empty arrays for the stats and links
 	$stats = $links = array();
 	
+	// Loop through the bars
 	foreach($bars as $bar) {
+		// Return if the bar is not an array
 		if(!is_array($bar)) return;
 		
+		// Check whether multiple arguments have been supplied for the bar
 		if(count($bar) === 3) {
 			$stats[] = getStatistics($bar[0], $bar[1], $bar[2]);
 			$links[] = $bar[0].'.php?'.$bar[1].'='.$bar[2];
@@ -614,11 +632,11 @@ function formTag($tag, $args = null) {
  * @return string
  */
 function formRow($label = '', ...$args) {
-	// Check whether or not the label parameter is empty
+	// Check whether or not the label is empty
 	if(!empty($label)) {
-		// Check whether the label parameter is an array
+		// Check whether the label is an array
 		if(is_array($label)) {
-			// Pop second value from the array
+			// Pop the second value from the array
 			$required = array_pop($label);
 			
 			// Convert the label array to a string
@@ -743,5 +761,6 @@ function generatePassword($length = 15, $special_chars = true, $extra_special_ch
 	for($i = 0; $i < $length; $i++)
 		$password .= substr($chars, rand(0, strlen($chars) - 1), 1);
 	
+	// Return the password
 	return $password;
 }

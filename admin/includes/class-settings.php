@@ -212,7 +212,7 @@ class Settings {
 				// Loop through the user roles
 				foreach($roles as $role) {
 					echo tableRow(
-						tableCell('<strong>'.$role['name'].'</strong><div class="actions">'.($role['_default'] === 'yes' ? '<em>default roles cannot be modified</em>' : '<a href="?page=user_roles&id='.$role['id'].'&action=edit">Edit</a> &bull; <a id="delete" href="?page=user_roles&id='.$role['id'].'&action=delete">Delete</a>').'</div>', 'name'),
+						tableCell('<strong>'.$role['name'].'</strong><div class="actions">'.($role['_default'] === 'yes' ? '<em>default roles cannot be modified</em>' : '<a href="?page=user_roles&id='.$role['id'].'&action=edit">Edit</a> &bull; <a class="delete" href="?page=user_roles&id='.$role['id'].'&action=delete">Delete</a>').'</div>', 'name'),
 						tableCell($this->getPrivileges($role['id']), 'privileges')
 					);
 				}
