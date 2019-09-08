@@ -171,7 +171,7 @@ class Settings {
 		global $rs_query;
 		
 		// Set up pagination
-		$page = paginate((int)($_GET['paged'] ?? 1));
+		$page = paginate((int)($_GET['paged'] ?? 1), 1);
 		?>
 		<div class="heading-wrap">
 			<h1>User Roles</h1>
@@ -207,12 +207,12 @@ class Settings {
 			<tbody>
 				<?php
 				// Fetch all user roles from the database
-				$roles = $rs_query->select('user_roles', '*', '', 'id', 'ASC', array($page['start'], $page['per_page']));
+				$roles = $rs_query->select('user_roles', '*', array('_default'=>'no'), 'id', 'ASC', array($page['start'], $page['per_page']));
 				
 				// Loop through the user roles
 				foreach($roles as $role) {
 					echo tableRow(
-						tableCell('<strong>'.$role['name'].'</strong><div class="actions">'.($role['_default'] === 'yes' ? '<em>default roles cannot be modified</em>' : '<a href="?page=user_roles&id='.$role['id'].'&action=edit">Edit</a> &bull; <a class="delete" href="?page=user_roles&id='.$role['id'].'&action=delete">Delete</a>').'</div>', 'name'),
+						tableCell('<strong>'.$role['name'].'</strong><div class="actions"><a href="?page=user_roles&id='.$role['id'].'&action=edit">Edit</a> &bull; <a class="delete" href="?page=user_roles&id='.$role['id'].'&action=delete">Delete</a></div>', 'name'),
 						tableCell($this->getPrivileges($role['id']), 'privileges')
 					);
 				}
@@ -226,6 +226,35 @@ class Settings {
 		<?php
 		// Set up page navigation
 		echo pagerNav($page['current'], $page['count']);
+		?>
+		<h2 class="subheading">Default User Roles</h2>
+		<table class="data-table">
+			<thead>
+				<?php
+				// Construct the table header
+				echo tableHeaderRow($table_header_cols);
+				?>
+			</thead>
+			<tbody>
+				<?php
+				// Fetch all user roles from the database
+				$roles = $rs_query->select('user_roles', '*', array('_default'=>'yes'), 'id', 'ASC', array($page['start'], $page['per_page']));
+				
+				// Loop through the user roles
+				foreach($roles as $role) {
+					echo tableRow(
+						tableCell('<strong>'.$role['name'].'</strong><div class="actions"><em>default roles cannot be modified</em></div>', 'name'),
+						tableCell($this->getPrivileges($role['id']), 'privileges')
+					);
+				}
+				
+				// Display a notice if no user roles are found
+				if(count($roles) === 0)
+					echo tableRow(tableCell('There are no user roles to display.', '', count($table_header_cols)));
+				?>
+			</tbody>
+		</table>
+		<?php
 	}
 	
 	/**

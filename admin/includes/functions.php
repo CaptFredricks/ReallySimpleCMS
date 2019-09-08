@@ -513,12 +513,35 @@ function paginate($current = 1, $per_page = 20) {
  * Construct pager navigation.
  * @since 1.2.1[a]
  *
- * @param int $current
+ * @param int $page
  * @param int $page_count
- * @return string
+ * @return null
  */
-function pagerNav($current, $page_count) {
-	return '<div class="pager">'.($current > 1 ? '<a class="pager-nav button" href="?paged=1" title="First Page">&laquo;</a><a class="pager-nav button" href="?paged='.($current - 1).'" title="Previous Page">&lsaquo;</a>' : '').($page_count > 0 ? ' Page '.$current.' of '.$page_count.' ' : '').($current < $page_count ? '<a class="pager-nav button" href="?paged='.($current + 1).'" title="Next Page">&rsaquo;</a><a class="pager-nav button" href="?paged='.$page_count.'" title="Last Page">&raquo;</a>' : '').'</div>';
+function pagerNav($page, $page_count) {
+	// Fetch the query string from the url
+	$query_string = $_SERVER['QUERY_STRING'];
+	?>
+	<div class="pager">
+		<?php
+		// Display the 'first page'/'previous page' buttons if it's not the first page
+		if($page > 1) {
+			?>
+			<a class="pager-nav button" href="<?php echo '?'.(!empty($query_string) ? $query_string.'&' : '').'paged=1'; ?>" title="First Page">&laquo;</a><a class="pager-nav button" href="<?php echo '?'.(!empty($query_string) ? $query_string.'&' : '').'paged='.($page - 1); ?>" title="Previous Page">&lsaquo;</a>
+			<?php
+		}
+		
+		// Display the current page
+		if($page_count > 0) echo ' Page '.$page.' of '.$page_count.' ';
+		
+		// Display the 'next page'/'last page' buttons if it's not the last page
+		if($page < $page_count) {
+			?>
+			<a class="pager-nav button" href="<?php echo '?'.(!empty($query_string) ? $query_string.'&' : '').'paged='.($page + 1); ?>" title="Next Page">&rsaquo;</a><a class="pager-nav button" href="<?php echo '?'.(!empty($query_string) ? $query_string.'&' : '').'paged='.$page_count; ?>" title="Last Page">&raquo;</a>
+			<?php
+		}
+		?>
+	</div>
+	<?php
 }
 
 /**

@@ -31,6 +31,14 @@ a:hover {
 	text-decoration: underline;
 }
 
+h1 {
+	font-size: 1.5em;
+}
+
+h2 {
+	font-size: 1.3125em;
+}
+
 /*------------------------------------*\
     STRUCTURE
 \*------------------------------------*/
@@ -214,7 +222,7 @@ a:hover {
 	padding: 20px 30px;
 }
 
-/* Heading */
+/* Headings */
 
 .heading-wrap {
 	margin-bottom: 10px;
@@ -222,7 +230,6 @@ a:hover {
 
 .heading-wrap h1 {
 	display: inline-block;
-	font-size: 1.5em;
 	margin: 0 10px 0 -10px;
 }
 
@@ -285,6 +292,13 @@ a:hover {
 
 .status-message a {
 	color: #46708a;
+}
+
+/* Subheadings */
+
+.subheading {
+	margin-top: 2rem;
+	margin-bottom: 0.75rem;
 }
 
 /* Statistics graph */

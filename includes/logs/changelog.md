@@ -4,6 +4,27 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.7.5[a] (2019-09-07)
+
+* Tweaked documentation in the users admin file
+* The categories pages now check whether a logged in user has sufficient privileges to view the pages
+* The posts pages now check whether a logged in user has sufficient privileges to view the pages
+* The Category::getParent function now returns an em dash if a category has no parent
+* The default user roles now display in a separate list below user-created roles
+* Added styling for subheadings
+* Renamed the 'current' parameter in the pagerNav function to 'page'
+* Improved the functionality of the pagerNav function
+
+**Modified files:**
+* admin/categories.php
+* admin/posts.php
+* admin/users.php (M)
+* admin/includes/class-category.php
+* admin/includes/class-settings.php
+* admin/includes/functions.php
+* admin/includes/css/style.css
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.7.4[a] (2019-09-03)
 
 * Tweaked documentation in the Post class

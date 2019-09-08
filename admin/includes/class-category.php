@@ -290,8 +290,8 @@ class Category {
 		// Fetch the parent category from the database
 		$parent = $rs_query->selectRow('terms', 'name', array('id'=>$id));
 		
-		// Return the parent's name (if the category has a parent)
-		return !empty($parent) ? $parent['name'] : '';
+		// Return the parent's name
+		return empty($parent) ? '&mdash;' : $parent['name'];
 	}
 	
 	/**

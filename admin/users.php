@@ -7,10 +7,10 @@ $rs_user = new User;
 ?>
 <div class="wrapper clear">
 	<?php
-	// Get the current action
+	// Fetch the current action
 	$action = $_GET['action'] ?? '';
 	
-	// Get the user id
+	// Fetch the user id
 	$id = (int)($_GET['id'] ?? 0);
 	
 	switch($action) {

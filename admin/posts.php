@@ -7,40 +7,48 @@ $rs_post = new Post;
 ?>
 <div class="wrapper clear">
 	<?php
-	// Redirect to the widgets page if the post type is 'widget'
-	if(isset($_GET['type']) && $_GET['type'] === 'widget')
-		header('Location: widgets.php');
+	// Fetch the current post type
+	$type = $_GET['type'] ?? 'post';
 	
-	// Get the current action
+	// Redirect to the widgets page if the post type is 'widget'
+	if($type === 'widget') redirect('widgets.php');
+	
+	// Fetch the current action
 	$action = $_GET['action'] ?? '';
 	
-	// Get the post id
+	// Fetch the post id
 	$id = (int)($_GET['id'] ?? 0);
+	
+	// Fetch the post type from the database
+	$post = $rs_query->selectRow('posts', 'type', array('id'=>$id));
+	
+	// Set the post type if the post exists
+	if($post) $type = $post['type'];
 	
 	switch($action) {
 		case 'create':
 			// Create a new post
-			$rs_post->createEntry();
+			userHasPrivilege($_SESSION['role'], 'can_create_'.$type.'s') ? $rs_post->createEntry() : redirect('posts.php'.($type !== 'post' ? '?type='.$type : ''));
 			break;
 		case 'edit':
 			// Edit an existing post
-			$rs_post->editEntry($id);
+			userHasPrivilege($_SESSION['role'], 'can_edit_'.$type.'s') ? $rs_post->editEntry($id) : redirect('posts.php'.($type !== 'post' ? '?type='.$type : ''));
 			break;
 		case 'trash':
 			// Send an existing post to the trash
-			$rs_post->trashEntry($id);
+			userHasPrivilege($_SESSION['role'], 'can_edit_'.$type.'s') ? $rs_post->trashEntry($id) : redirect('posts.php'.($type !== 'post' ? '?type='.$type : ''));
 			break;
 		case 'restore':
 			// Restore a trashed post
-			$rs_post->restoreEntry($id);
+			userHasPrivilege($_SESSION['role'], 'can_edit_'.$type.'s') ? $rs_post->restoreEntry($id) : redirect('posts.php'.($type !== 'post' ? '?type='.$type : ''));
 			break;
 		case 'delete':
 			// Delete an existing post
-			$rs_post->deleteEntry($id);
+			userHasPrivilege($_SESSION['role'], 'can_delete_'.$type.'s') ? $rs_post->deleteEntry($id) : redirect('posts.php'.($type !== 'post' ? '?type='.$type : '?type='.$type));
 			break;
 		default:
 			// List all posts
-			$rs_post->listEntries();
+			userHasPrivilege($_SESSION['role'], 'can_view_'.$type.'s') ? $rs_post->listEntries() : redirect('index.php');
 	}
 	?>
 </div>
