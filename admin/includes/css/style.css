@@ -556,6 +556,23 @@ h2 {
 	vertical-align: top;
 }
 
+.data-form .checkbox-list {
+	background-color: #fdfdfd;
+	border: 1px solid #adadad;
+	list-style: none;
+	margin: 0;
+	max-height: 200px;
+	overflow-y: scroll;
+	padding: 0.125em;
+}
+
+.data-form .checkbox-list label span {
+	color: #101010;
+	display: inline-block;
+	-webkit-transform: translateY(-0.125em);
+	transform: translateY(-0.125em);
+}
+
 .data-form .block {
 	background-color: #ededed;
 	color: #101010;
@@ -640,7 +657,7 @@ h2 {
 }
 
 .data-form .sidebar #categories-list label,
-.data-form #privileges-list label {
+.data-form .checkbox-list label {
 	cursor: pointer;
 	margin-right: 0;
 	-webkit-user-select: none;
@@ -654,7 +671,7 @@ h2 {
 }
 
 .data-form .sidebar #categories-list .checkbox-input,
-.data-form #privileges-list .checkbox-input {
+.data-form .checkbox-list .checkbox-input {
 	height: 1.125em;
 	margin-right: 0.5em;
 	width: 1.125em;
@@ -689,23 +706,6 @@ h2 {
 .data-form .metadata .text-input:hover,
 .data-form .metadata .textarea-input:hover {
 	border-color: #7d7d7d;
-}
-
-.data-form #privileges-list {
-	background-color: #fdfdfd;
-	border: 1px solid #adadad;
-	list-style: none;
-	margin: 0;
-	max-height: 200px;
-	overflow-y: scroll;
-	padding: 0.125em;
-}
-
-.data-form #privileges-list label span {
-	color: #101010;
-	display: inline-block;
-	-webkit-transform: translateY(-0.125em);
-	transform: translateY(-0.125em);
 }
 
 /** Form tables **/

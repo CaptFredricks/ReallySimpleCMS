@@ -171,7 +171,7 @@ class Settings {
 		global $rs_query;
 		
 		// Set up pagination
-		$page = paginate((int)($_GET['paged'] ?? 1), 1);
+		$page = paginate((int)($_GET['paged'] ?? 1));
 		?>
 		<div class="heading-wrap">
 			<h1>User Roles</h1>
@@ -182,7 +182,7 @@ class Settings {
 				echo statusMessage('The user role was successfully deleted.', true);
 			
 			// Fetch the user role entry count from the database
-			$count = $rs_query->select('user_roles', 'COUNT(*)');
+			$count = $rs_query->select('user_roles', 'COUNT(*)', array('_default'=>'no'));
 			
 			// Set the page count
 			$page['count'] = ceil($count / $page['per_page']);
@@ -238,7 +238,7 @@ class Settings {
 			<tbody>
 				<?php
 				// Fetch all user roles from the database
-				$roles = $rs_query->select('user_roles', '*', array('_default'=>'yes'), 'id', 'ASC', array($page['start'], $page['per_page']));
+				$roles = $rs_query->select('user_roles', '*', array('_default'=>'yes'), 'id');
 				
 				// Loop through the user roles
 				foreach($roles as $role) {
@@ -516,7 +516,7 @@ class Settings {
 		global $rs_query;
 		
 		// Create a list with an opening unordered list tag
-		$list = '<ul id="privileges-list">';
+		$list = '<ul class="checkbox-list">';
 		
 		// Fetch all privileges from the database
 		$privileges = $rs_query->select('user_privileges', '*', '', 'id');

@@ -4,6 +4,31 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.8.0[a] (2019-09-08)
+
+* Fixed a bug with the pagerNav function that added too many 'paged' params
+* Fixed the pagination on the 'List User Roles' page
+* Created the Menu class
+* Created admin 'List Menus' page and added a link to the nav menu
+* Fixed an issue with the getCurrentPage function that prevented the 'Create Menu' page from displaying as the current page
+* The 'nav_menu' taxonomy is now created during installation
+* Created a function that constructs the 'Create Menu' form
+* Created a function that constructs a list of nav menu items
+* Renamed the 'privileges-list' id to the 'checkbox-list' class
+* Created a function that checks whether the nav_menu slug already exists
+* Created a function that constructs the 'Edit Menu' form
+* Created a function to fetch the nav menu items
+* Menus can now be created
+
+**Modified files:**
+* admin/header.php (M)
+* admin/menus.php (N)
+* admin/includes/class-menu.php (N)
+* admin/includes/class-settings.php
+* admin/includes/functions.php
+* admin/includes/css/style.css
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.7.5[a] (2019-09-07)
 
 * Tweaked documentation in the users admin file
@@ -266,8 +291,8 @@
 * The getCurrentPage function now adds any action in the url to the end of the current page
 * Added more documentation to the User class and fixed the styling on the reset password form
 * Renamed the data form's hr class from 'divider' to 'separator' and added styling for it
-* Created admin 'List Widgets' page and added a link to the nav menu
 * Created the Widget class
+* Created admin 'List Widgets' page and added a link to the nav menu
 * Fixed some documentation in the Category class
 * Created a function that constructs the 'Create Widget' form
 * Tweaked the documentation in the installation stylesheet

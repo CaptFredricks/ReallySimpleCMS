@@ -49,8 +49,8 @@ function getCurrentPage() {
 				switch($action) {
 					case 'create':
 					case 'upload':
-						// Check whether the current page is the 'Create Widget' page
-						if($current === 'widgets') {
+						// Check whether the current page is the 'Create Menu' page or the 'Create Widget' page
+						if($current === 'menus' || $current === 'widgets') {
 							// Break out of the switch statement
 							break;
 						} else {
@@ -302,7 +302,7 @@ function populateTables($user_data, $settings_data) {
 		$rs_query->insert('settings', array('name'=>$name, 'value'=>$value));
 	
 	// Create an array of taxonomies
-	$taxonomies = array('category');
+	$taxonomies = array('category', 'nav_menu');
 	
 	// Insert the taxonomies into the database
 	foreach($taxonomies as $taxonomy)
@@ -520,6 +520,19 @@ function paginate($current = 1, $per_page = 20) {
 function pagerNav($page, $page_count) {
 	// Fetch the query string from the url
 	$query_string = $_SERVER['QUERY_STRING'];
+	
+	// Split the query string into an array
+	$query_params = explode('&', $query_string);
+	
+	// Loop through the query parameters
+	for($i = 0; $i < count($query_params); $i++) {
+		// Remove the parameter if it contains 'paged'
+		if(strpos($query_params[$i], 'paged') !== false)
+			unset($query_params[$i]);
+	}
+	
+	// Remove any extra 'paged' parameters and update the query string
+	$query_string = implode('&', $query_params);
 	?>
 	<div class="pager">
 		<?php
