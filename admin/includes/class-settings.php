@@ -32,24 +32,26 @@ class Settings {
 			<h1>General Settings</h1>
 			<?php echo $message; ?>
 		</div>
-		<form class="data-form" action="" method="post" autocomplete="off">
-			<table class="form-table">
-				<?php
-				// Check whether 'do_robots' has been set
-				$do_robots = !$setting['do_robots'] ? 'checked' : '';
-				
-				echo formRow(array('Site Title', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'site_title', 'value'=>$setting['site_title']));
-				echo formRow('Description', array('tag'=>'input', 'class'=>'text-input', 'name'=>'description', 'maxlength'=>155, 'value'=>$setting['description']));
-				echo formRow(array('Site URL', true), array('tag'=>'input', 'type'=>'url', 'class'=>'text-input required invalid init', 'name'=>'site_url', 'value'=>$setting['site_url']));
-				echo formRow(array('Admin Email', true), array('tag'=>'input', 'type'=>'email', 'class'=>'text-input required invalid init', 'name'=>'admin_email', 'value'=>$setting['admin_email']));
-				echo formRow('Default User Role', array('tag'=>'select', 'class'=>'select-input', 'name'=>'default_user_role', 'content'=>$this->getUserRoles((int)$setting['default_user_role'])));
-				echo formRow('Home Page', array('tag'=>'select', 'class'=>'select-input', 'name'=>'home_page', 'content'=>$this->getPageList((int)$setting['home_page'])));
-				echo formRow('Search Engine Visibility', array('tag'=>'input', 'type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'do_robots', 'value'=>(int)$setting['do_robots'], '*'=>$do_robots, 'label'=>array('class'=>'checkbox-label', 'content'=>' <span>Discourage search engines from indexing this site</span>')));
-				echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-				echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Settings'));
-				?>
-			</table>
-		</form>
+		<div class="data-form-wrap clear">
+			<form class="data-form" action="" method="post" autocomplete="off">
+				<table class="form-table">
+					<?php
+					// Check whether 'do_robots' has been set
+					$do_robots = !$setting['do_robots'] ? 'checked' : '';
+					
+					echo formRow(array('Site Title', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'site_title', 'value'=>$setting['site_title']));
+					echo formRow('Description', array('tag'=>'input', 'class'=>'text-input', 'name'=>'description', 'maxlength'=>155, 'value'=>$setting['description']));
+					echo formRow(array('Site URL', true), array('tag'=>'input', 'type'=>'url', 'class'=>'text-input required invalid init', 'name'=>'site_url', 'value'=>$setting['site_url']));
+					echo formRow(array('Admin Email', true), array('tag'=>'input', 'type'=>'email', 'class'=>'text-input required invalid init', 'name'=>'admin_email', 'value'=>$setting['admin_email']));
+					echo formRow('Default User Role', array('tag'=>'select', 'class'=>'select-input', 'name'=>'default_user_role', 'content'=>$this->getUserRoles((int)$setting['default_user_role'])));
+					echo formRow('Home Page', array('tag'=>'select', 'class'=>'select-input', 'name'=>'home_page', 'content'=>$this->getPageList((int)$setting['home_page'])));
+					echo formRow('Search Engine Visibility', array('tag'=>'input', 'type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'do_robots', 'value'=>(int)$setting['do_robots'], '*'=>$do_robots, 'label'=>array('class'=>'checkbox-label', 'content'=>' <span>Discourage search engines from indexing this site</span>')));
+					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
+					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Settings'));
+					?>
+				</table>
+			</form>
+		</div>
 		<?php
 	}
 	
@@ -218,7 +220,7 @@ class Settings {
 				}
 				
 				// Display a notice if no user roles are found
-				if(count($roles) === 0)
+				if(empty($roles))
 					echo tableRow(tableCell('There are no user roles to display.', '', count($table_header_cols)));
 				?>
 			</tbody>
@@ -249,7 +251,7 @@ class Settings {
 				}
 				
 				// Display a notice if no user roles are found
-				if(count($roles) === 0)
+				if(empty($roles))
 					echo tableRow(tableCell('There are no user roles to display.', '', count($table_header_cols)));
 				?>
 			</tbody>
@@ -272,16 +274,18 @@ class Settings {
 			<h1>Create User Role</h1>
 			<?php echo $message; ?>
 		</div>
-		<form class="data-form" action="" method="post" autocomplete="off">
-			<table class="form-table">
-				<?php
-				echo formRow(array('Name', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'name', 'value'=>($_POST['name'] ?? '')));
-				echo formRow('Privileges', $this->getPrivilegesList());
-				echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-				echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Create User Role'));
-				?>
-			</table>
-		</form>
+		<div class="data-form-wrap clear">
+			<form class="data-form" action="" method="post" autocomplete="off">
+				<table class="form-table">
+					<?php
+					echo formRow(array('Name', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'name', 'value'=>($_POST['name'] ?? '')));
+					echo formRow('Privileges', $this->getPrivilegesList());
+					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
+					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Create User Role'));
+					?>
+				</table>
+			</form>
+		</div>
 		<?php
 	}
 	
@@ -320,16 +324,18 @@ class Settings {
 					<h1>Edit User Role</h1>
 					<?php echo $message; ?>
 				</div>
-				<form class="data-form" action="" method="post" autocomplete="off">
-					<table class="form-table">
-						<?php
-						echo formRow(array('Name', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'name', 'value'=>$role['name']));
-						echo formRow('Privileges', $this->getPrivilegesList($role['id']));
-						echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-						echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update User Role'));
-						?>
-					</table>
-				</form>
+				<div class="data-form-wrap clear">
+					<form class="data-form" action="" method="post" autocomplete="off">
+						<table class="form-table">
+							<?php
+							echo formRow(array('Name', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'name', 'value'=>$role['name']));
+							echo formRow('Privileges', $this->getPrivilegesList($role['id']));
+							echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
+							echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update User Role'));
+							?>
+						</table>
+					</form>
+				</div>
 				<?php
 			}
 		}

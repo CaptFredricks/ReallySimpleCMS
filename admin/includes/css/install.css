@@ -56,6 +56,10 @@ code {
 
 /* Data form */
 
+.data-form * {
+	font-family: 'Segoe UI', Helvetica, sans-serif;
+}
+
 .data-form input:not(.button) {
 	font-size: 0.95rem;
 	padding: 2px;

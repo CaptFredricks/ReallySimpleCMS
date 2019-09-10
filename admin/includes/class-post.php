@@ -105,7 +105,7 @@ class Post {
 				}
 				
 				// Display a notice if no posts are found
-				if(count($posts) === 0)
+				if(empty($posts))
 					echo tableRow(tableCell('There are no '.$type.'s to display.', '', count($table_header_cols)));
 				?>
 			</tbody>
@@ -133,106 +133,119 @@ class Post {
 			<h1>Create <?php echo ucwords($type); ?></h1>
 			<?php echo $message; ?>
 		</div>
-		<form class="data-form clear" action="" method="post" autocomplete="off">
-			<div class="content">
-				<?php
-				// Construct hidden 'type' form tag
-				echo formTag('input', array('type'=>'hidden', 'name'=>'type', 'value'=>$type));
-				
-				// Construct 'title' form tag
-				echo formTag('input', array('type'=>'text', 'id'=>'title-field', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>$_POST['title'] ?? '', 'placeholder'=>ucfirst($type).' title'));
-				?>
-				<div class="permalink">
+		<div class="data-form-wrap clear">
+			<form class="data-form" action="" method="post" autocomplete="off">
+				<div class="content">
 					<?php
-					// Construct 'permalink' form tag
-					echo formTag('label', array('for'=>'slug', 'content'=>'<strong>Permalink:</strong> '.getSetting('site_url', false).'/'));
-					echo formTag('input', array('type'=>'text', 'id'=>'slug-field', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>$_POST['slug'] ?? ''));
-					echo '/';
+					// Construct a hidden 'type' form tag
+					echo formTag('input', array('type'=>'hidden', 'name'=>'type', 'value'=>$type));
+					
+					// Construct a 'title' form tag
+					echo formTag('input', array('id'=>'title-field', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>$_POST['title'] ?? '', 'placeholder'=>ucfirst($type).' title'));
+					?>
+					<div class="permalink">
+						<?php
+						// Construct a 'permalink' form tag
+						echo formTag('label', array('for'=>'slug', 'content'=>'<strong>Permalink:</strong> '.getSetting('site_url', false).'/'));
+						echo formTag('input', array('id'=>'slug-field', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>$_POST['slug'] ?? ''));
+						echo '/';
+						?>
+					</div>
+					<?php
+					// Construct an 'insert image' button form tag
+					echo formTag('input', array('type'=>'button', 'class'=>'button-input button', 'value'=>'Insert Image'));
+					
+					// Construct a 'content' form tag
+					echo formTag('textarea', array('class'=>'textarea-input', 'name'=>'content', 'cols'=>30, 'rows'=>20, 'content'=>isset($_POST['content']) ? htmlspecialchars($_POST['content']) : ''));
 					?>
 				</div>
-				<?php
-				// Construct 'insert image' button form tag
-				echo formTag('input', array('type'=>'button', 'class'=>'button-input button', 'value'=>'Insert Image'));
-				
-				// Construct 'content' form tag
-				echo formTag('textarea', array('class'=>'textarea-input', 'name'=>'content', 'cols'=>30, 'rows'=>20, 'content'=>isset($_POST['content']) ? htmlspecialchars($_POST['content']) : ''));
-				?>
-			</div>
-			<div class="sidebar">
-				<div class="block">
-					<h2>Publish</h2>
-					<div class="row">
-						<?php
-						// Construct 'status' form tag
-						echo formTag('label', array('for'=>'status', 'content'=>'Status'));
-						echo formTag('select', array('class'=>'select-input', 'name'=>'status', 'content'=>'<option value="draft">Draft</option><option value="published">Published</option>'));
-						?>
+				<div class="sidebar">
+					<div class="block">
+						<h2>Publish</h2>
+						<div class="row">
+							<?php
+							// Construct a 'status' form tag
+							echo formTag('label', array('for'=>'status', 'content'=>'Status'));
+							echo formTag('select', array('class'=>'select-input', 'name'=>'status', 'content'=>'<option value="draft">Draft</option><option value="published">Published</option>'));
+							?>
+						</div>
+						<div class="row">
+							<?php
+							// Construct an 'author' form tag
+							echo formTag('label', array('for'=>'author', 'content'=>'Author'));
+							echo formTag('select', array('class'=>'select-input', 'name'=>'author', 'content'=>$this->getAuthorList()));
+							?>
+						</div>
+						<div id="submit" class="row">
+							<?php
+							// Construct a 'submit' button form tag
+							echo formTag('input', array('type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Publish'));
+							?>
+						</div>
 					</div>
-					<div class="row">
-						<?php
-						// Construct 'author' form tag
-						echo formTag('label', array('for'=>'author', 'content'=>'Author'));
-						echo formTag('select', array('class'=>'select-input', 'name'=>'author', 'content'=>$this->getAuthorList()));
-						?>
-					</div>
-					<div id="submit" class="row">
-						<?php
-						// Construct 'submit' button form tag
-						echo formTag('input', array('type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Publish'));
-						?>
-					</div>
-				</div>
-				<div class="block">
-					<h2>Attributes</h2>
-					<div class="row">
+					<div class="block">
 						<?php
 						if($type === 'post') {
-							// Construct 'categories' form checklist
-							echo $this->getCategoriesList();
+							?>
+							<h2>Categories</h2>
+							<div class="row">
+								<?php
+								// Construct a 'categories' form checklist
+								echo $this->getCategoriesList();
+								?>
+							</div>
+							<?php
 						} else {
-							// Construct 'parent' form tag
-							echo formTag('label', array('for'=>'parent', 'content'=>'Parent'));
-							echo formTag('select', array('class'=>'select-input', 'name'=>'parent', 'content'=>'<option value="0">(none)</option>'.$this->getParentList($type)));
+							?>
+							<h2>Attributes</h2>
+							<div class="row">
+								<?php
+								// Construct a 'parent' form tag
+								echo formTag('label', array('for'=>'parent', 'content'=>'Parent'));
+								echo formTag('select', array('class'=>'select-input', 'name'=>'parent', 'content'=>'<option value="0">(none)</option>'.$this->getParentList($type)));
+								?>
+							</div>
+							<?php
 						}
 						?>
 					</div>
-				</div>
-				<div class="block">
-					<h2>Featured Image</h2>
-					<div class="row">
-						<?php
-						// Display the featured image if it's been selected
-						isset($_POST['feat_image']) && strlen($_POST['feat_image']) > 0 ? '<img src=""><span></span>' : '';
-						
-						// Construct hidden 'featured' form tag
-						echo formTag('input', array('type'=>'hidden', 'name'=>'feat_image'));
-						?>
-						<a href="#">Choose Image</a>
+					<div class="block">
+						<h2>Featured Image</h2>
+						<div class="row">
+							<?php
+							// Display the featured image if it's been selected
+							isset($_POST['feat_image']) && strlen($_POST['feat_image']) > 0 ? '<img src=""><span></span>' : '';
+							
+							// Construct a hidden 'featured' form tag
+							echo formTag('input', array('type'=>'hidden', 'name'=>'feat_image'));
+							?>
+							<a href="#">Choose Image</a>
+						</div>
 					</div>
 				</div>
-			</div>
-			<div class="metadata">
-				<div class="block">
-					<h2>Metadata</h2>
-					<div class="row">
-						<?php
-						// Construct 'meta title' form tag
-						echo formTag('label', array('for'=>'meta_title', 'content'=>'Title'));
-						echo formTag('br');
-						echo formTag('input', array('type'=>'text', 'class'=>'text-input', 'name'=>'meta_title', 'value'=>$_POST['meta_title'] ?? ''));
-						?>
-					</div>
-					<div class="row">
-						<?php
-						// Construct 'meta description' form tag
-						echo formTag('label', array('for'=>'meta_description', 'content'=>'Description'));
-						echo formTag('br');
-						echo formTag('textarea', array('class'=>'textarea-input', 'name'=>'meta_description', 'cols'=>30, 'rows'=>4, 'content'=>$_POST['meta_description'] ?? ''));
-						?>
+				<div class="metadata">
+					<div class="block">
+						<h2>Metadata</h2>
+						<div class="row">
+							<?php
+							// Construct a 'meta title' form tag
+							echo formTag('label', array('for'=>'meta_title', 'content'=>'Title'));
+							echo formTag('br');
+							echo formTag('input', array('class'=>'text-input', 'name'=>'meta_title', 'value'=>$_POST['meta_title'] ?? ''));
+							?>
+						</div>
+						<div class="row">
+							<?php
+							// Construct a 'meta description' form tag
+							echo formTag('label', array('for'=>'meta_description', 'content'=>'Description'));
+							echo formTag('br');
+							echo formTag('textarea', array('class'=>'textarea-input', 'name'=>'meta_description', 'cols'=>30, 'rows'=>4, 'content'=>$_POST['meta_description'] ?? ''));
+							?>
+						</div>
 					</div>
 				</div>
-			</div>
-		</form>
+			</form>
+		</div>
 		<?php
 	}
 	
@@ -275,120 +288,133 @@ class Post {
 					// Fetch the post from the database
 					$post = $rs_query->selectRow('posts', '*', array('id'=>$id));
 					
-					// Fetch the post metadata from the database
+					// Fetch the post's metadata from the database
 					$meta = $this->getPostMeta($id);
 					?>
 					<div class="heading-wrap">
 						<h1>Edit <?php echo ucwords($post['type']); ?></h1>
 						<?php echo $message; ?>
 					</div>
-					<form class="data-form clear" action="" method="post" autocomplete="off">
-						<div class="content">
-							<?php
-							// Construct 'title' form tag
-							echo formTag('input', array('type'=>'text', 'id'=>'title-field', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>$post['title'], 'placeholder'=>ucfirst($post['type']).' title'));
-							?>
-							<div class="permalink">
+					<div class="data-form-wrap clear">
+						<form class="data-form" action="" method="post" autocomplete="off">
+							<div class="content">
 								<?php
-								// Construct 'permalink' form tag
-								echo formTag('label', array('for'=>'slug', 'content'=>'<strong>Permalink:</strong> '.getSetting('site_url', false).($post['parent'] !== 0 ? $this->getPermalink($post['parent']) : '/')));
-								echo formTag('input', array('type'=>'text', 'id'=>'slug-field', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>$post['slug']));
-								echo '/';
+								// Construct a 'title' form tag
+								echo formTag('input', array('id'=>'title-field', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>$post['title'], 'placeholder'=>ucfirst($post['type']).' title'));
+								?>
+								<div class="permalink">
+									<?php
+									// Construct a 'permalink' form tag
+									echo formTag('label', array('for'=>'slug', 'content'=>'<strong>Permalink:</strong> '.getSetting('site_url', false).($post['parent'] !== 0 ? $this->getPermalink($post['parent']) : '/')));
+									echo formTag('input', array('id'=>'slug-field', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>$post['slug']));
+									echo '/';
+									?>
+								</div>
+								<?php
+								// Construct an 'insert image' button form tag
+								echo formTag('input', array('type'=>'button', 'class'=>'button-input button', 'value'=>'Insert Image'));
+								
+								// Construct a 'content' form tag
+								echo formTag('textarea', array('class'=>'textarea-input', 'name'=>'content', 'cols'=>30, 'rows'=>20, 'content'=>htmlspecialchars($post['content'])));
 								?>
 							</div>
-							<?php
-							// Construct 'insert image' button form tag
-							echo formTag('input', array('type'=>'button', 'class'=>'button-input button', 'value'=>'Insert Image'));
-							
-							// Construct 'content' form tag
-							echo formTag('textarea', array('class'=>'textarea-input', 'name'=>'content', 'cols'=>30, 'rows'=>20, 'content'=>htmlspecialchars($post['content'])));
-							?>
-						</div>
-						<div class="sidebar">
-							<div class="block">
-								<h2>Publish</h2>
-								<div class="row">
-									<?php
-									// Construct 'status' form tag
-									echo formTag('label', array('for'=>'status', 'content'=>'Status'));
-									echo formTag('select', array('class'=>'select-input', 'name'=>'status', 'content'=>'<option value="'.$post['status'].'">'.ucfirst($post['status']).'</option>'.($post['status'] === 'draft' ? '<option value="published">Published</option>' : '<option value="draft">Draft</option>')));
-									?>
+							<div class="sidebar">
+								<div class="block">
+									<h2>Publish</h2>
+									<div class="row">
+										<?php
+										// Construct a 'status' form tag
+										echo formTag('label', array('for'=>'status', 'content'=>'Status'));
+										echo formTag('select', array('class'=>'select-input', 'name'=>'status', 'content'=>'<option value="'.$post['status'].'">'.ucfirst($post['status']).'</option>'.($post['status'] === 'draft' ? '<option value="published">Published</option>' : '<option value="draft">Draft</option>')));
+										?>
+									</div>
+									<div class="row">
+										<?php
+										// Construct an 'author' form tag
+										echo formTag('label', array('for'=>'author', 'content'=>'Author'));
+										echo formTag('select', array('class'=>'select-input', 'name'=>'author', 'content'=>$this->getAuthorList($post['author'])));
+										?>
+									</div>
+									<div class="row">
+										<?php
+										// Construct a 'publish date' form tag label
+										echo formTag('label', array('for'=>'date', 'content'=>'Published on'));
+										echo '<span id="date">'.formatDate($post['date'], 'M d Y @ h:i A').'</span>';
+										?>
+									</div>
+									<div id="submit" class="row">
+										<?php
+										// Construct a view/preview link
+										echo $post['status'] === 'published' ? '<a href="'.($this->isHomePage($post['id']) ? '/' : $this->getPermalink($post['parent'], $post['slug'])).'">View</a>' : '<a href="/?id='.$post['id'].'&preview=true">Preview</a>';
+										
+										// Construct a 'submit' button form tag
+										echo formTag('input', array('type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update'));
+										?>
+									</div>
 								</div>
-								<div class="row">
-									<?php
-									// Construct 'author' form tag
-									echo formTag('label', array('for'=>'author', 'content'=>'Author'));
-									echo formTag('select', array('class'=>'select-input', 'name'=>'author', 'content'=>$this->getAuthorList($post['author'])));
-									?>
-								</div>
-								<div class="row">
-									<?php
-									// Construct 'publish date' form tag label
-									echo formTag('label', array('for'=>'date', 'content'=>'Published on'));
-									echo '<span id="date">'.formatDate($post['date'], 'M d Y @ h:i A').'</span>';
-									?>
-								</div>
-								<div id="submit" class="row">
-									<?php
-									// Construct view/preview link
-									echo $post['status'] === 'published' ? '<a href="'.($this->isHomePage($post['id']) ? '/' : $this->getPermalink($post['parent'], $post['slug'])).'">View</a>' : '<a href="/?id='.$post['id'].'&preview=true">Preview</a>';
-									
-									// Construct 'submit' button form tag
-									echo formTag('input', array('type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update'));
-									?>
-								</div>
-							</div>
-							<div class="block">
-								<h2>Attributes</h2>
-								<div class="row">
+								<div class="block">
 									<?php
 									if($post['type'] === 'post') {
-										// Construct 'categories' form checklist
-										echo $this->getCategoriesList($id);
+										?>
+										<h2>Categories</h2>
+										<div class="row">
+											<?php
+											// Construct a 'categories' form checklist
+											echo $this->getCategoriesList($id);
+											?>
+										</div>
+										<?php
 									} else {
-										// Construct 'parent' form tag
-										echo formTag('label', array('for'=>'parent', 'content'=>'Parent'));
-										echo formTag('select', array('class'=>'select-input', 'name'=>'parent', 'content'=>'<option value="0">(none)</option>'.$this->getParentList($post['type'], $post['parent'], $post['id'])));
+										?>
+										<h2>Attributes</h2>
+										<div class="row">
+											<?php
+											// Construct a 'parent' form tag
+											echo formTag('label', array('for'=>'parent', 'content'=>'Parent'));
+											echo formTag('select', array('class'=>'select-input', 'name'=>'parent', 'content'=>'<option value="0">(none)</option>'.$this->getParentList($post['type'], $post['parent'], $post['id'])));
+											?>
+										</div>
+										<?php
 									}
 									?>
 								</div>
-							</div>
-							<div class="block">
-								<h2>Featured Image</h2>
-								<div class="row">
-									<?php
-									// Display the featured image if it's been selected
-									isset($_POST['feat_image']) && strlen($_POST['feat_image']) > 0 ? '<img src=""><span></span>' : '';
-									
-									// Construct hidden 'featured' form tag
-									echo formTag('input', array('type'=>'hidden', 'name'=>'feat_image'));
-									?>
-									<a href="#">Choose Image</a>
+								<div class="block">
+									<h2>Featured Image</h2>
+									<div class="row">
+										<?php
+										// Display the featured image if it's been selected
+										isset($_POST['feat_image']) && strlen($_POST['feat_image']) > 0 ? '<img src=""><span></span>' : '';
+										
+										// Construct a hidden 'featured' form tag
+										echo formTag('input', array('type'=>'hidden', 'name'=>'feat_image'));
+										?>
+										<a href="#">Choose Image</a>
+									</div>
 								</div>
 							</div>
-						</div>
-						<div class="metadata">
-							<div class="block">
-								<h2>Metadata</h2>
-								<div class="row">
-									<?php
-									// Construct 'meta title' form tag
-									echo formTag('label', array('for'=>'meta_title', 'content'=>'Title'));
-									echo formTag('br');
-									echo formTag('input', array('type'=>'text', 'class'=>'text-input', 'name'=>'meta_title', 'value'=>$meta['title'] ?? ''));
-									?>
-								</div>
-								<div class="row">
-									<?php
-									// Construct 'meta description' form tag
-									echo formTag('label', array('for'=>'meta_description', 'content'=>'Description'));
-									echo formTag('br');
-									echo formTag('textarea', array('class'=>'textarea-input', 'name'=>'meta_description', 'cols'=>30, 'rows'=>4, 'content'=>$meta['description'] ?? ''));
-									?>
+							<div class="metadata">
+								<div class="block">
+									<h2>Metadata</h2>
+									<div class="row">
+										<?php
+										// Construct a 'meta title' form tag
+										echo formTag('label', array('for'=>'meta_title', 'content'=>'Title'));
+										echo formTag('br');
+										echo formTag('input', array('class'=>'text-input', 'name'=>'meta_title', 'value'=>$meta['title'] ?? ''));
+										?>
+									</div>
+									<div class="row">
+										<?php
+										// Construct a 'meta description' form tag
+										echo formTag('label', array('for'=>'meta_description', 'content'=>'Description'));
+										echo formTag('br');
+										echo formTag('textarea', array('class'=>'textarea-input', 'name'=>'meta_description', 'cols'=>30, 'rows'=>4, 'content'=>$meta['description'] ?? ''));
+										?>
+									</div>
 								</div>
 							</div>
-						</div>
-					</form>
+						</form>
+					</div>
 					<?php
 				}
 			}
@@ -468,13 +494,13 @@ class Post {
 			// Redirect to the 'List Posts' page
 			redirect('posts.php');
 		} else {
-			// Fetch the post from the database
+			// Fetch the post type from the database
 			$post = $rs_query->selectRow('posts', 'type', array('id'=>$id));
 			
 			// Delete the post from the database
 			$rs_query->delete('posts', array('id'=>$id));
 			
-			// Delete the post metadata from the database
+			// Delete the post's metadata from the database
 			$rs_query->delete('postmeta', array('post'=>$id));
 			
 			// Fetch all term relationships associated with the post from the database
@@ -482,17 +508,17 @@ class Post {
 			
 			// Loop through the relationships
 			foreach($relationships as $relationship) {
-				// Delete the unused relationship from the database
+				// Delete each unused relationship from the database
 				$rs_query->delete('term_relationships', array('id'=>$relationship['id']));
 				
-				// Fetch the number of times a category shares a relationship with the post in the database
+				// Fetch the number of shared relationships between the category and a post in the database
 				$count = $rs_query->selectRow('term_relationships', 'COUNT(*)', array('term'=>$relationship['term']));
 				
-				// Update the category's post count
+				// Update the category's count (posts)
 				$rs_query->update('terms', array('count'=>$count), array('id'=>$relationship['term']));
 			}
 			
-			// Redirect to the 'List Posts' page (with a success message)
+			// Redirect to the 'List Posts' page (with a success status)
 			redirect('posts.php'.($post['type'] !== 'post' ? '?type='.$post['type'].'&' : '?').'status=trash&exit_status=success');
 		}
 	}
@@ -522,7 +548,7 @@ class Post {
 		if($data['status'] !== 'draft' && $data['status'] !== 'published')
 			$data['status'] = 'draft';
 		
-		// Create an array to hold the post metadata
+		// Create an array to hold the post's metadata
 		$postmeta = array('feat_image'=>$data['feat_image'], 'title'=>$data['meta_title'], 'description'=>$data['meta_description']);
 		
 		if($id === 0) {
@@ -532,7 +558,7 @@ class Post {
 			// Insert the new post into the database
 			$insert_id = $rs_query->insert('posts', array('title'=>$data['title'], 'author'=>$data['author'], 'date'=>'NOW()', 'content'=>$data['content'], 'status'=>$data['status'], 'slug'=>$data['slug'], 'parent'=>$data['parent'], 'type'=>$data['type']));
 			
-			// Insert the post metadata into the database
+			// Insert the post's metadata into the database
 			foreach($postmeta as $key=>$value)
 				$rs_query->insert('postmeta', array('post'=>$insert_id, '_key'=>$key, 'value'=>$value));
 			
@@ -543,10 +569,10 @@ class Post {
 					// Insert a new term relationship into the database
 					$rs_query->insert('term_relationships', array('term'=>$category, 'post'=>$insert_id));
 					
-					// Fetch the number of times the category shares a relationship with a post in the database
+					// Fetch the number of shared relationships between the category and a post in the database
 					$count = $rs_query->selectRow('term_relationships', 'COUNT(*)', array('term'=>$category));
 					
-					// Update the category's post count
+					// Update the category's count (posts)
 					$rs_query->update('terms', array('count'=>$count), array('id'=>$category));
 				}
 			}
@@ -574,13 +600,13 @@ class Post {
 			foreach($relationships as $relationship) {
 				// Check whether the relationship still exists
 				if(empty($data['categories']) || !in_array($relationship['term'], $data['categories'])) {
-					// Delete the unused relationship from the database
+					// Delete each unused relationship from the database
 					$rs_query->delete('term_relationships', array('id'=>$relationship['id']));
 					
-					// Fetch the number of times the category shares a relationship with a post in the database
+					// Fetch the number of shared relationships between the category and a post in the database
 					$count = $rs_query->selectRow('term_relationships', 'COUNT(*)', array('term'=>$relationship['term']));
 					
-					// Update the category's post count
+					// Update the category's count (posts)
 					$rs_query->update('terms', array('count'=>$count), array('id'=>$relationship['term']));
 				}
 			}
@@ -600,10 +626,10 @@ class Post {
 						// Insert a new term relationship into the database
 						$rs_query->insert('term_relationships', array('term'=>$category, 'post'=>$id));
 						
-						// Fetch the number of times the category shares a relationship with a post in the database
-						$count = $rs_query->selectRow('term_relationships', 'COUNT(*)', array('term'=>$category));
+						// Fetch the number of shared relationships between the category and a post in the database
+						$count = $rs_query->select('term_relationships', 'COUNT(*)', array('term'=>$category));
 						
-						// Update the category's post count
+						// Update the category's count (posts)
 						$rs_query->update('terms', array('count'=>$count), array('id'=>$category));
 					}
 				}
@@ -871,7 +897,7 @@ class Post {
 	}
 	
 	/**
-	 * Fetch the post metadata.
+	 * Fetch a post's metadata.
 	 * @since 1.4.10[a]
 	 *
 	 * @access private
@@ -882,7 +908,7 @@ class Post {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Fetch the post metadata from the database
+		// Fetch the post's metadata from the database
 		$postmeta = $rs_query->select('postmeta', array('_key', 'value'), array('post'=>$id));
 		
 		// Create an empty array to hold the metadata

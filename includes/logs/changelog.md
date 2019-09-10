@@ -4,6 +4,42 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.8.1[a] (2019-09-09)
+
+* Tweaked some documentation in the Post class
+* The count value now increments when a new menu is created with menu items
+* Switched a margin from the data form content block to the metadata block
+* Fixed an issue where the 'Categories' block in the post editor still was captioned 'Attributes' (type: 'post' only)
+* Added styling for new a 'item-list' class
+* Updated the menu forms to more closely resemble the post forms (their functionality still remains different)
+* Rebuilt the Menu::getMenuItems function for use on the menu forms pages
+* Added extra validation to the Category::deleteEntry function
+* Menus can now be edited and deleted
+* Added a wrapper element for data forms (allows for floating blocks outside of the main form)
+* Replaced occurrences of count() === 0 with empty() when checking if no entries exist on the list entries pages
+* Set all form elements to use the Segoe UI font (including the installation forms)
+* Styled the reset password button on the 'Edit User' form
+* Added the admin footer to the menus page
+* Renamed all public menu functions (e.g., Menu::createEntry -> Menu::createMenu)
+* Renamed the Menu::validateData function to Menu::validateMenuData
+* Created a function that constructs the 'Edit Menu Item' form
+* Created a function that constructs a list of posts (Menu class)
+* Created a function to fetch a menu item's metadata
+* Menu items can now be edited and deleted
+* A cancel button will now appear when a menu item is being edited
+
+**Modified files:**
+* admin/menus.php
+* admin/includes/class-category.php
+* admin/includes/class-menu.php
+* admin/includes/class-post.php
+* admin/includes/class-settings.php
+* admin/includes/class-user.php
+* admin/includes/class-widget.php
+* admin/includes/css/install.css (M)
+* admin/includes/css/style.css
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.8.0[a] (2019-09-08)
 
 * Fixed a bug with the pagerNav function that added too many 'paged' params

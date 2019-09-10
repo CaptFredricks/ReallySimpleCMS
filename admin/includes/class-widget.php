@@ -67,7 +67,7 @@ class Widget extends Post {
 				}
 				
 				// Display a notice if no widgets are found
-				if(count($widgets) === 0)
+				if(empty($widgets))
 					echo tableRow(tableCell('There are no widgets to display.', '', count($table_header_cols)));
 				?>
 			</tbody>
@@ -92,18 +92,20 @@ class Widget extends Post {
 			<h1>Create Widget</h1>
 			<?php echo $message; ?>
 		</div>
-		<form class="data-form" action="" method="post" autocomplete="off">
-			<table class="form-table">
-				<?php
-				echo formRow(array('Title', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>($_POST['title'] ?? '')));
-				echo formRow(array('Slug', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>($_POST['slug'] ?? '')));
-				echo formRow('Content', array('tag'=>'textarea', 'class'=>'textarea-input', 'name'=>'content', 'cols'=>30, 'rows'=>10, 'content'=>(isset($_POST['content']) ? htmlspecialchars($_POST['content']) : '')));
-				echo formRow('Status', array('tag'=>'select', 'class'=>'select-input', 'name'=>'status', 'content'=>'<option value="active">Active</option><option value="inactive">Inactive</option>'));
-				echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-				echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Create Widget'));
-				?>
-			</table>
-		</form>
+		<div class="data-form-wrap clear">
+			<form class="data-form" action="" method="post" autocomplete="off">
+				<table class="form-table">
+					<?php
+					echo formRow(array('Title', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>($_POST['title'] ?? '')));
+					echo formRow(array('Slug', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>($_POST['slug'] ?? '')));
+					echo formRow('Content', array('tag'=>'textarea', 'class'=>'textarea-input', 'name'=>'content', 'cols'=>30, 'rows'=>10, 'content'=>(isset($_POST['content']) ? htmlspecialchars($_POST['content']) : '')));
+					echo formRow('Status', array('tag'=>'select', 'class'=>'select-input', 'name'=>'status', 'content'=>'<option value="active">Active</option><option value="inactive">Inactive</option>'));
+					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
+					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Create Widget'));
+					?>
+				</table>
+			</form>
+		</div>
 		<?php
 	}
 	
@@ -142,18 +144,20 @@ class Widget extends Post {
 					<h1>Edit Widget</h1>
 					<?php echo $message; ?>
 				</div>
-				<form class="data-form" action="" method="post" autocomplete="off">
-					<table class="form-table">
-						<?php
-						echo formRow(array('Title', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>$widget['title']));
-						echo formRow(array('Slug', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>$widget['slug']));
-						echo formRow('Content', array('tag'=>'textarea', 'class'=>'textarea-input', 'name'=>'content', 'cols'=>30, 'rows'=>10, 'content'=>htmlspecialchars($widget['content'])));
-						echo formRow('Status', array('tag'=>'select', 'class'=>'select-input', 'name'=>'status', 'content'=>'<option value="'.$widget['status'].'">'.ucfirst($widget['status']).'</option>'.($widget['status'] === 'active' ? '<option value="inactive">Inactive</option>' : '<option value="active">Active</option>')));
-						echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-						echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Widget'));
-						?>
-					</table>
-				</form>
+				<div class="data-form-wrap clear">
+					<form class="data-form" action="" method="post" autocomplete="off">
+						<table class="form-table">
+							<?php
+							echo formRow(array('Title', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>$widget['title']));
+							echo formRow(array('Slug', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>$widget['slug']));
+							echo formRow('Content', array('tag'=>'textarea', 'class'=>'textarea-input', 'name'=>'content', 'cols'=>30, 'rows'=>10, 'content'=>htmlspecialchars($widget['content'])));
+							echo formRow('Status', array('tag'=>'select', 'class'=>'select-input', 'name'=>'status', 'content'=>'<option value="'.$widget['status'].'">'.ucfirst($widget['status']).'</option>'.($widget['status'] === 'active' ? '<option value="inactive">Inactive</option>' : '<option value="active">Active</option>')));
+							echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
+							echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Widget'));
+							?>
+						</table>
+					</form>
+				</div>
 				<?php
 			}
 		}

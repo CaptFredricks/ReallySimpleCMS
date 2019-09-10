@@ -68,7 +68,7 @@ class Category {
 				}
 				
 				// Display a notice if no categories are found
-				if(count($categories) === 0)
+				if(empty($categories))
 					echo tableRow(tableCell('There are no categories to display.', '', count($table_header_cols)));
 				?>
 			</tbody>
@@ -93,17 +93,19 @@ class Category {
 			<h1>Create Category</h1>
 			<?php echo $message; ?>
 		</div>
-		<form class="data-form" action="" method="post" autocomplete="off">
-			<table class="form-table">
-				<?php
-				echo formRow(array('Name', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'name', 'value'=>($_POST['name'] ?? '')));
-				echo formRow(array('Slug', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>($_POST['slug'] ?? '')));
-				echo formRow('Parent', array('tag'=>'select', 'class'=>'select-input', 'name'=>'parent', 'content'=>'<option value="0">(none)</option>'.$this->getParentList()));
-				echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-				echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Create Category'));
-				?>
-			</table>
-		</form>
+		<div class="data-form-wrap clear">
+			<form class="data-form" action="" method="post" autocomplete="off">
+				<table class="form-table">
+					<?php
+					echo formRow(array('Name', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'name', 'value'=>($_POST['name'] ?? '')));
+					echo formRow(array('Slug', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>($_POST['slug'] ?? '')));
+					echo formRow('Parent', array('tag'=>'select', 'class'=>'select-input', 'name'=>'parent', 'content'=>'<option value="0">(none)</option>'.$this->getParentList()));
+					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
+					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Create Category'));
+					?>
+				</table>
+			</form>
+		</div>
 		<?php
 	}
 	
@@ -142,17 +144,19 @@ class Category {
 					<h1>Edit Category</h1>
 					<?php echo $message; ?>
 				</div>
-				<form class="data-form" action="" method="post" autocomplete="off">
-					<table class="form-table">
-						<?php
-						echo formRow(array('Name', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'name', 'value'=>$category['name']));
-						echo formRow(array('Slug', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>$category['slug']));
-						echo formRow('Parent', array('tag'=>'select', 'class'=>'select-input', 'name'=>'parent', 'content'=>'<option value="0">(none)</option>'.$this->getParentList($category['parent'], $category['id'])));
-						echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-						echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Category'));
-						?>
-					</table>
-				</form>
+				<div class="data-form-wrap clear">
+					<form class="data-form" action="" method="post" autocomplete="off">
+						<table class="form-table">
+							<?php
+							echo formRow(array('Name', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'name', 'value'=>$category['name']));
+							echo formRow(array('Slug', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>$category['slug']));
+							echo formRow('Parent', array('tag'=>'select', 'class'=>'select-input', 'name'=>'parent', 'content'=>'<option value="0">(none)</option>'.$this->getParentList($category['parent'], $category['id'])));
+							echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
+							echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Category'));
+							?>
+						</table>
+					</form>
+				</div>
 				<?php
 			}
 		}
@@ -176,7 +180,7 @@ class Category {
 			redirect('categories.php');
 		} else {
 			// Delete the category from the database
-			$rs_query->delete('terms', array('id'=>$id));
+			$rs_query->delete('terms', array('id'=>$id, 'taxonomy'=>getTaxonomyId('category')));
 			
 			// Delete the term relationship(s) from the database
 			$rs_query->delete('term_relationships', array('term'=>$id));
