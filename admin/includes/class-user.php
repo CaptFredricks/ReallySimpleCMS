@@ -28,7 +28,7 @@ class User {
 	 * @access public
 	 * @return null
 	 */
-	public function listEntries() {
+	public function listUsers() {
 		// Extend the Query class
 		global $rs_query;
 		
@@ -73,7 +73,7 @@ class User {
 		
 				// Loop through the users
 				foreach($users as $user) {
-					// Fetch the user metadata from the database
+					// Fetch the user's metadata from the database
 					$meta = $this->getUserMeta($user['id']);
 					
 					echo tableRow(
@@ -105,7 +105,7 @@ class User {
 	 * @access public
 	 * @return null
 	 */
-	public function createEntry() {
+	public function createUser() {
 		// Validate the form data and return any messages
 		$message = isset($_POST['submit']) ? $this->validateData($_POST) : '';
 		?>
@@ -141,11 +141,11 @@ class User {
 	 * @param int $id
 	 * @return null
 	 */
-	public function editEntry($id) {
+	public function editUser($id) {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Check whether or not the user id is valid
+		// Check whether or not the user's id is valid
 		if(empty($id) || $id <= 0) {
 			// Redirect to the 'List Users' page
 			redirect('users.php');
@@ -164,7 +164,7 @@ class User {
 				// Fetch the user from the database
 				$user = $rs_query->selectRow('users', '*', array('id'=>$id));
 				
-				// Fetch the user metadata from the database
+				// Fetch the user's metadata from the database
 				$meta = $this->getUserMeta($id);
 				?>
 				<div class="heading-wrap">
@@ -201,11 +201,11 @@ class User {
 	 * @param int $id
 	 * @return null
 	 */
-	public function deleteEntry($id) {
+	public function deleteUser($id) {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Check whether or not the user id is valid
+		// Check whether or not the user's id is valid
 		if(empty($id) || $id <= 0) {
 			// Redirect to the 'List Users' page
 			redirect('users.php');
@@ -213,7 +213,7 @@ class User {
 			// Delete the user from the database
 			$rs_query->delete('users', array('id'=>$id));
 			
-			// Delete the user metadata from the database
+			// Delete the user's metadata from the database
 			$rs_query->delete('usermeta', array('user'=>$id));
 			
 			// Redirect to the 'List Users' page (with a success message)
@@ -246,7 +246,7 @@ class User {
 		if($this->usernameExists($data['username'], $id))
 			return statusMessage('That username has already been taken. Please choose another one.');
 		
-		// Create an array to hold the user metadata
+		// Create an array to hold the user's metadata
 		$usermeta = array('first_name'=>$data['first_name'], 'last_name'=>$data['last_name'], 'avatar'=>$data['avatar']);
 		
 		if($id === 0) {
@@ -268,7 +268,7 @@ class User {
 			// Insert the new user into the database
 			$insert_id = $rs_query->insert('users', array('username'=>$data['username'], 'password'=>$hashed_password, 'email'=>$data['email'], 'registered'=>'NOW()', 'role'=>$data['role']));
 			
-			// Insert the user metadata into the database
+			// Insert the user's metadata into the database
 			foreach($usermeta as $key=>$value)
 				$rs_query->insert('usermeta', array('user'=>$insert_id, '_key'=>$key, 'value'=>$value));
 			
@@ -278,7 +278,7 @@ class User {
 			// Update the user in the database
 			$rs_query->update('users', array('username'=>$data['username'], 'email'=>$data['email'], 'role'=>$data['role']), array('id'=>$id));
 			
-			// Update the user metadata in the database
+			// Update the user's metadata in the database
 			foreach($usermeta as $key=>$value)
 				$rs_query->update('usermeta', array('value'=>$value), array('user'=>$id, '_key'=>$key));
 			
@@ -288,7 +288,7 @@ class User {
 	}
 	
 	/**
-	 * Check if the username already exists in the database.
+	 * Check if a username already exists in the database.
 	 * @since 1.2.0[a]
 	 *
 	 * @access private
@@ -313,7 +313,7 @@ class User {
 	}
 	
 	/**
-	 * Fetch the user metadata.
+	 * Fetch a user's metadata.
 	 * @since 1.2.2[a]
 	 *
 	 * @access private
@@ -324,7 +324,7 @@ class User {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Fetch the user metadata from the database
+		// Fetch the user's metadata from the database
 		$usermeta = $rs_query->select('usermeta', array('_key', 'value'), array('user'=>$id));
 		
 		// Create an empty array to hold the metadata
@@ -420,7 +420,7 @@ class User {
 	 * @return null
 	 */
 	public function resetPassword($id) {
-		// Check whether or not the user id is valid
+		// Check whether or not the user's id is valid
 		if(empty($id) || $id <= 0) {
 			// Redirect to the 'List Users' page
 			redirect('users.php');

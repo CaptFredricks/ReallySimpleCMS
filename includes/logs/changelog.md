@@ -4,6 +4,34 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.8.2[a] (2019-09-13)
+
+* Fixed a typo and escaped some special characters in the changelog
+* Tweaked the documentation in all the admin files
+* Renamed all public functions with 'entry' or 'entries' in their name to the name of their class (e.g., User::listEntries -> User::listUsers)
+* Added a redirect from the 'List Posts' page to the 'List Menus' page if the requested post's type is 'nav_menu_item'
+* Renamed the Menu::getMenuItemsList function to Menu::getMenuItemsLists and removed its optional parameter
+* Cleaned up the Menu::getMenuItemsLists function and split pages and posts into separate fieldset lists
+* Added styling to the menu items fieldsets
+* Added a checkbox list for categories and fields for adding custom menu items
+* Categories can now be added to menus
+
+**Modified files:**
+* admin/categories.php
+* admin/index.php (M)
+* admin/menus.php (M)
+* admin/posts.php
+* admin/settings.php (M)
+* admin/users.php
+* admin/widgets.php
+* admin/includes/class-category.php
+* admin/includes/class-menu.php (M)
+* admin/includes/class-post.php
+* admin/includes/class-user.php
+* admin/includes/class-widget.php
+* admin/includes/css/style.css
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.8.1[a] (2019-09-09)
 
 * Tweaked some documentation in the Post class
@@ -90,7 +118,7 @@
 
 * Tweaked documentation in the Post class
 * Adjusted the margins on list entries pages when a status message is displayed
-* Added a default value for the '_default' column in the user_roles table
+* Added a default value for the '\_default' column in the user_roles table
 * Added a full file path to the autoload class function
 * Fixed an issue with the getCurrentPage function that prevented the 'Create Widget' page from displaying as the current page
 * Added more documentation to the admin functions
@@ -122,7 +150,7 @@
 * The 'Full Name' column on the 'List Users' page now displays an em dash if the user has no first name or last name
 * The Post::getParent function now returns an em dash if a post has no parent
 * Fixed some issues with the getCurrentPage function that caused some pages not to show as the current nav menu item
-* Added a '_default' column to the user_roles table (this will be used to protect default roles from tampering)
+* Added a '\_default' column to the user_roles table (this will be used to protect default roles from tampering)
 * Removed edit and delete actions from default user roles on the 'List User Roles' page
 * Attempting to edit a default user role will now redirect the user to the 'List User Roles' page
 
@@ -143,7 +171,7 @@
 * The 'can_view_user_roles' privilege is now created on installation
 * Created a global function that checks whether a user has a specified privilege (to protect certain pages from users with limited privileges)
 * Created a global function for easy url redirection
-* Added a temporary $_SESSION variable to the admin header (to test user roles/privileges)
+* Added a temporary $\_SESSION variable to the admin header (to test user roles/privileges)
 * The settings pages now check whether a logged in user has sufficient privileges to view the pages
 * Created a function to fetch the user privileges
 * Tweaked some documentation in the Post class
@@ -205,7 +233,7 @@
 
 * Changed possible statuses for widgets from 'draft' and 'published' to 'active' and 'inactive'
 * Added a warning to all admin pages if the user has JavaScript disabled in their browser
-* Added a redirect from the 'List Posts' page to the 'List Widgets' page if the requested post type is 'widget'
+* Added a redirect from the 'List Posts' page to the 'List Widgets' page if the requested post's type is 'widget'
 * Added a redirect from the 'Edit Post' page to the 'Edit Widget' page if the requested id corresponds to a widget
 * Renamed the 'roles' table to 'user_roles', the 'privileges' table to 'user_privileges', and the 'rp_relationships' table to 'user_relationships'
 * The user_roles table is now populated during installation
@@ -685,7 +713,7 @@
 * Created a function that constructs a table row
 * Updated and added more documentation
 * Created a function that constructs a list of all posts in the database by post type
-* Change.log has been renamed to changelog.md (it will henceforth be ommitted from list of modified files)
+* Change.log has been renamed to changelog.md (it will henceforth be omitted from list of modified files)
 * Converted the change log to markdown format
 * Created a function to retrieve a post's author
 * Cleaned up User::listEntries function
@@ -706,7 +734,7 @@
 ## Version 1.3.8[a] (2019-03-29)
 
 * Robots.txt is now created on install (added it to .gitignore)
-* Replaced "\n" with chr(10) in the logError function
+* Replaced '\n' with chr(10) in the logError function
 * Added error_log to .gitignore (home and admin directories)
 * Robots.txt is updated if the 'do_robots' setting is changed
 * The intval function will now be removed in favor of int type casting
@@ -729,7 +757,7 @@
 * Created Settings admin class
 * Version numbers will now be denoted as "Version <version><[a/b]>" or "@since <version><[a/b]>"
 * Added 'maxlength' attribute to input tag in formTag function
-* Added '*' attribute to input tag in formTag function (this is for miscellaneous attributes like 'readonly' or 'checked')
+* Added '\*' attribute to input tag in formTag function (this is for miscellaneous attributes like 'readonly' or 'checked')
 * Allowed 0 to be passed as a legitimate value to an input
 * Fixed a bug in the formRow function that prevented adding a label to a single input argument
 * Initialization now terminates if database is not installed (prevents an error from generating in error_log)

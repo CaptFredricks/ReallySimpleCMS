@@ -680,6 +680,16 @@ h2 {
 	font-size: 0.875em;
 }
 
+.data-form .sidebar .block fieldset {
+	border-color: #fdfdfd;
+	margin: 0;
+}
+
+.data-form .sidebar .block fieldset legend {
+	font-size: 0.875em;
+	font-weight: 500;
+}
+
 .data-form .sidebar #date {
 	font-size: 0.875em;
 	font-weight: 600;

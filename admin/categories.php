@@ -1,5 +1,5 @@
 <?php
-// Include header
+// Include the header
 require_once __DIR__.'/header.php';
 
 // Create a Category object
@@ -10,28 +10,28 @@ $rs_category = new Category;
 	// Fetch the current action
 	$action = $_GET['action'] ?? '';
 	
-	// Fetch the category id
+	// Fetch the category's id
 	$id = (int)($_GET['id'] ?? 0);
 	
 	switch($action) {
 		case 'create':
 			// Create a new category
-			userHasPrivilege($_SESSION['role'], 'can_create_categories') ? $rs_category->createEntry() : redirect('categories.php');
+			userHasPrivilege($_SESSION['role'], 'can_create_categories') ? $rs_category->createCategory() : redirect('categories.php');
 			break;
 		case 'edit':
 			// Edit an existing category
-			userHasPrivilege($_SESSION['role'], 'can_edit_categories') ? $rs_category->editEntry($id) : redirect('categories.php');
+			userHasPrivilege($_SESSION['role'], 'can_edit_categories') ? $rs_category->editCategory($id) : redirect('categories.php');
 			break;
 		case 'delete':
 			// Delete an existing category
-			userHasPrivilege($_SESSION['role'], 'can_delete_categories') ? $rs_category->deleteEntry($id) : redirect('categories.php');
+			userHasPrivilege($_SESSION['role'], 'can_delete_categories') ? $rs_category->deleteCategory($id) : redirect('categories.php');
 			break;
 		default:
 			// List all categories
-			userHasPrivilege($_SESSION['role'], 'can_view_categories') ? $rs_category->listEntries() : redirect('index.php');
+			userHasPrivilege($_SESSION['role'], 'can_view_categories') ? $rs_category->listCategories() : redirect('index.php');
 	}
 	?>
 </div>
 <?php
-// Include footer
+// Include the footer
 require_once __DIR__.'/footer.php';

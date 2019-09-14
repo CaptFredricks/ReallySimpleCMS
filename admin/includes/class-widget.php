@@ -14,7 +14,7 @@ class Widget extends Post {
 	 * @access public
 	 * @return null
 	 */
-	public function listEntries() {
+	public function listWidgets() {
 		// Extend the Query class
 		global $rs_query;
 		
@@ -84,7 +84,7 @@ class Widget extends Post {
 	 * @access public
 	 * @return null
 	 */
-	public function createEntry() {
+	public function createWidget() {
 		// Validate the form data and return any messages
 		$message = isset($_POST['submit']) ? $this->validateData($_POST) : '';
 		?>
@@ -117,11 +117,11 @@ class Widget extends Post {
 	 * @param int $id
 	 * @return null
 	 */
-	public function editEntry($id) {
+	public function editWidget($id) {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Check whether or not the widget id is valid
+		// Check whether or not the widget's id is valid
 		if(empty($id) || $id <= 0) {
 			// Redirect to the 'List Widgets' page
 			redirect('widgets.php');
@@ -171,11 +171,11 @@ class Widget extends Post {
 	 * @param int $id
 	 * @return null
 	 */
-	public function deleteEntry($id) {
+	public function deleteWidget($id) {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Check whether or not the widget id is valid
+		// Check whether or not the widget's id is valid
 		if(empty($id) || $id <= 0) {
 			// Redirect to the 'List Widgets' page
 			redirect('widgets.php');

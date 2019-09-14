@@ -14,14 +14,14 @@ class Post {
 	 * @access public
 	 * @return null
 	 */
-	public function listEntries() {
+	public function listPosts() {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Get the post type
+		// Fetch the post's type
 		$type = $_GET['type'] ?? 'post';
 		
-		// Get the post status
+		// Fetch the post's status
 		$status = $_GET['status'] ?? 'all';
 		
 		// Set up pagination
@@ -87,7 +87,7 @@ class Post {
 				
 				// Loop through the posts
 				foreach($posts as $post) {
-					// Fetch the post metadata from the database
+					// Fetch the post's metadata from the database
 					$meta = $this->getPostMeta($post['id']);
 					
 					echo tableRow(
@@ -122,8 +122,8 @@ class Post {
 	 * @access public
 	 * @return null
 	 */
-	public function createEntry() {
-		// Get the post type
+	public function createPost() {
+		// Fetch the post type
 		$type = $_GET['type'] ?? 'post';
 		
 		// Validate the form data and return any messages
@@ -257,11 +257,11 @@ class Post {
 	 * @param int $id
 	 * @return null
 	 */
-	public function editEntry($id) {
+	public function editPost($id) {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Check whether or not the post id is valid
+		// Check whether or not the post's id is valid
 		if(empty($id) || $id <= 0) {
 			// Redirect to the 'List Posts' page
 			redirect('posts.php');
@@ -429,16 +429,16 @@ class Post {
 	 * @param int $id
 	 * @return null
 	 */
-	public function trashEntry($id) {
+	public function trashPost($id) {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Check whether or not the post id is valid
+		// Check whether or not the post's id is valid
 		if(empty($id) || $id <= 0) {
 			// Redirect to the 'List Posts' page
 			redirect('posts.php');
 		} else {
-			// Fetch the post from the database
+			// Fetch the post's type from the database
 			$post = $rs_query->selectRow('posts', 'type', array('id'=>$id));
 			
 			// Set the post's status to 'trash'
@@ -457,11 +457,11 @@ class Post {
 	 * @param int $id
 	 * @return null
 	 */
-	public function restoreEntry($id) {
+	public function restorePost($id) {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Check whether or not the post id is valid
+		// Check whether or not the post's id is valid
 		if(empty($id) || $id <= 0) {
 			// Redirect to the 'List Posts' page
 			redirect('posts.php');
@@ -485,11 +485,11 @@ class Post {
 	 * @param int $id
 	 * @return null
 	 */
-	public function deleteEntry($id) {
+	public function deletePost($id) {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Check whether or not the post id is valid
+		// Check whether or not the post's id is valid
 		if(empty($id) || $id <= 0) {
 			// Redirect to the 'List Posts' page
 			redirect('posts.php');
@@ -580,7 +580,7 @@ class Post {
 			// Redirect to the 'Edit Post' page
 			redirect('posts.php?id='.$insert_id.'&action=edit');
 		} else {
-			// Fetch the post type from the database
+			// Fetch the post's type from the database
 			$post = $rs_query->selectRow('posts', 'type', array('id'=>$id));
 			
 			// Set the parent to zero if the post type is 'post' (non-hierarchical)
@@ -589,7 +589,7 @@ class Post {
 			// Update the post in the database
 			$rs_query->update('posts', array('title'=>$data['title'], 'author'=>$data['author'], 'modified'=>'NOW()', 'content'=>$data['content'], 'status'=>$data['status'], 'slug'=>$data['slug'], 'parent'=>$data['parent']), array('id'=>$id));
 			
-			// Update the post metadata in the database
+			// Update the post's metadata in the database
 			foreach($postmeta as $key=>$value)
 				$rs_query->update('postmeta', array('value'=>$value), array('post'=>$id, '_key'=>$key));
 			
@@ -931,7 +931,7 @@ class Post {
 	}
 	
 	/**
-	 * Construct the post permalink.
+	 * Construct a post's permalink.
 	 * @since 1.4.9[a]
 	 *
 	 * @access private

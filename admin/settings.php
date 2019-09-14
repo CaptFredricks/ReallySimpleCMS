@@ -1,5 +1,5 @@
 <?php
-// Include header
+// Include the header
 require_once __DIR__.'/header.php';
 
 // Create a Settings object
@@ -43,5 +43,5 @@ $rs_settings = new Settings;
 	?>
 </div>
 <?php
-// Include footer
+// Include the footer
 require_once __DIR__.'/footer.php';

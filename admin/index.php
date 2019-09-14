@@ -1,5 +1,5 @@
 <?php
-// Include header
+// Include the header
 require_once __DIR__.'/header.php';
 ?>
 <div class="wrapper clear">
@@ -14,10 +14,10 @@ require_once __DIR__.'/header.php';
 		array('users')
 	);
 	
-	// Create bar graph
+	// Construct the bar graph
 	statsBarGraph($bars);
 	?>
 </div>
 <?php
-// Include footer
+// Include the footer
 require_once __DIR__.'/footer.php';

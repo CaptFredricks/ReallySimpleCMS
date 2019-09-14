@@ -113,10 +113,8 @@ class Menu {
 						<h2>Add Menu Items</h2>
 						<div class="row">
 							<?php
-							// Construct the 'menu items' form tag
-							//echo formTag('label', array('for'=>'menu_items[]', 'content'=>'Menu Items'));
-							echo $this->getMenuItemsList();
-							// echo formRow('Custom Menu Items', array('tag'=>'textarea', 'class'=>'textarea-input'));
+							// Construct the 'menu items' lists
+							$this->getMenuItemsLists();
 							?>
 						</div>
 						<div id="submit" class="row">
@@ -144,7 +142,7 @@ class Menu {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Check whether or not the menu id is valid
+		// Check whether or not the menu's id is valid
 		if(empty($id) || $id <= 0) {
 			// Redirect to the 'List Menus' page
 			redirect('menus.php');
@@ -204,10 +202,8 @@ class Menu {
 								<h2>Add Menu Items</h2>
 								<div class="row">
 									<?php
-									// Construct the 'menu items' form tag
-									//echo formTag('label', array('for'=>'menu_items[]', 'content'=>'Menu Items'));
-									echo $this->getMenuItemsList($menu['id']);
-									// echo formRow('Custom Menu Items', array('tag'=>'textarea', 'class'=>'textarea-input'));
+									// Construct the 'menu items' lists
+									$this->getMenuItemsLists();
 									?>
 								</div>
 								<div id="submit" class="row">
@@ -243,7 +239,7 @@ class Menu {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Check whether or not the menu id is valid
+		// Check whether or not the menu's id is valid
 		if(empty($id) || $id <= 0) {
 			// Redirect to the 'List Menus' page
 			redirect('menus.php');
@@ -303,17 +299,35 @@ class Menu {
 				
 				// Loop through the menu items
 				for($i = 0; $i < count($menu_items); $i++) {
-					// Fetch the corresponding post from the database
-					$post = $rs_query->selectRow('posts', array('id', 'title'), array('id'=>$menu_items[$i]));
+					// Split the menu item into an array
+					$menu_item = explode('-', $menu_items[$i]);
 					
-					// Insert the new menu item into the database
-					$menu_item_id = $rs_query->insert('posts', array('title'=>$post['title'], 'date'=>'NOW()', 'type'=>'nav_menu_item'));
-					
-					// Update the menu item's slug in the database
-					$rs_query->update('posts', array('slug'=>'menu-item-'.$menu_item_id), array('id'=>$menu_item_id));
-					
-					// Create an array to hold the menu item's metadata
-					$itemmeta = array('post_link'=>$post['id'], 'menu_index'=>$i);
+					// Check whether the menu item's type is 'post' or 'cat'
+					if($menu_item[0] === 'post') {
+						// Fetch the corresponding post from the database
+						$post = $rs_query->selectRow('posts', array('id', 'title'), array('id'=>$menu_item[1]));
+						
+						// Insert the new menu item into the database
+						$menu_item_id = $rs_query->insert('posts', array('title'=>$post['title'], 'date'=>'NOW()', 'type'=>'nav_menu_item'));
+						
+						// Update the menu item's slug in the database
+						$rs_query->update('posts', array('slug'=>'menu-item-'.$menu_item_id), array('id'=>$menu_item_id));
+						
+						// Create an array to hold the menu item's metadata
+						$itemmeta = array('post_link'=>$post['id'], 'menu_index'=>$i);
+					} elseif($menu_item[0] === 'cat') {
+						// Fetch the corresponding category from the database
+						$category = $rs_query->selectRow('terms', array('id', 'name'), array('id'=>$menu_item[1], 'taxonomy'=>getTaxonomyId('category')));
+						
+						// Insert the new menu item into the database
+						$menu_item_id = $rs_query->insert('posts', array('title'=>$category['name'], 'date'=>'NOW()', 'type'=>'nav_menu_item'));
+						
+						// Update the menu item's slug in the database
+						$rs_query->update('posts', array('slug'=>'menu-item-'.$menu_item_id), array('id'=>$menu_item_id));
+						
+						// Create an array to hold the menu item's metadata
+						$itemmeta = array('term_link'=>$category['id'], 'menu_index'=>$i);
+					}
 					
 					// Insert the menu item's metadata into the database
 					foreach($itemmeta as $key=>$value)
@@ -340,20 +354,38 @@ class Menu {
 				
 				// Loop through the menu items
 				for($i = 0; $i < count($menu_items); $i++) {
-					// Fetch the corresponding post from the database
-					$post = $rs_query->selectRow('posts', array('id', 'title'), array('id'=>$menu_items[$i]));
-					
-					// Insert the new menu item into the database
-					$menu_item_id = $rs_query->insert('posts', array('title'=>$post['title'], 'date'=>'NOW()', 'type'=>'nav_menu_item'));
-					
-					// Update the menu item's slug in the database
-					$rs_query->update('posts', array('slug'=>'menu-item-'.$menu_item_id), array('id'=>$menu_item_id));
+					// Split the menu item into an array
+					$menu_item = explode('-', $menu_items[$i]);
 					
 					// Fetch the number of menu items associated with the menu
 					$count = $rs_query->select('term_relationships', 'COUNT(*)', array('term'=>$id));
 					
-					// Create an array to hold the menu item's metadata
-					$itemmeta = array('post_link'=>$post['id'], 'menu_index'=>$count);
+					// Check whether the menu item's type is 'post' or 'cat'
+					if($menu_item[0] === 'post') {
+						// Fetch the corresponding post from the database
+						$post = $rs_query->selectRow('posts', array('id', 'title'), array('id'=>$menu_item[1]));
+					
+						// Insert the new menu item into the database
+						$menu_item_id = $rs_query->insert('posts', array('title'=>$post['title'], 'date'=>'NOW()', 'type'=>'nav_menu_item'));
+						
+						// Update the menu item's slug in the database
+						$rs_query->update('posts', array('slug'=>'menu-item-'.$menu_item_id), array('id'=>$menu_item_id));
+						
+						// Create an array to hold the menu item's metadata
+						$itemmeta = array('post_link'=>$post['id'], 'menu_index'=>$count);
+					} elseif($menu_item[0] === 'cat') {
+						// Fetch the corresponding category from the database
+						$category = $rs_query->selectRow('terms', array('id', 'name'), array('id'=>$menu_item[1], 'taxonomy'=>getTaxonomyId('category')));
+						
+						// Insert the new menu item into the database
+						$menu_item_id = $rs_query->insert('posts', array('title'=>$category['name'], 'date'=>'NOW()', 'type'=>'nav_menu_item'));
+						
+						// Update the menu item's slug in the database
+						$rs_query->update('posts', array('slug'=>'menu-item-'.$menu_item_id), array('id'=>$menu_item_id));
+						
+						// Create an array to hold the menu item's metadata
+						$itemmeta = array('term_link'=>$category['id'], 'menu_index'=>$count);
+					}
 					
 					// Insert the menu item's metadata into the database
 					foreach($itemmeta as $key=>$value)
@@ -419,7 +451,7 @@ class Menu {
 			
 			// Loop through the term relationships
 			foreach($relationships as $relationship) {
-				// Fetch the menu item's title from the database
+				// Fetch the menu item from the database
 				$menu_item = $rs_query->selectRow('posts', array('id', 'title'), array('id'=>$relationship['post']));
 				?>
 				<li>
@@ -469,33 +501,78 @@ class Menu {
 	 * @since 1.8.0[a]
 	 *
 	 * @access private
-	 * @param int $id (optional; default: 0)
-	 * @return string
+	 * @return null
 	 */
-	private function getMenuItemsList($id = 0) {
+	private function getMenuItemsLists() {
 		// Extend the Query class
 		global $rs_query;
-		
-		// Create a list with an opening unordered list tag
-		$list = '<ul class="checkbox-list">';
-		
-		// Fetch all posts from the database (excluding widgets and menu items)
-		$posts = $rs_query->select('posts', '*', array('type'=>array('<>', 'widget'), 'type'=>array('<>', 'nav_menu_item')));
-		
-		// Loop through the posts
-		foreach($posts as $post) {
-			// Fetch any existing term relationship from the database
-			$relationship = $rs_query->selectRow('term_relationships', 'COUNT(*)', array('term'=>$id, 'post'=>$post['id']));
+		?>
+		<fieldset>
+			<legend>Pages</legend>
+			<ul class="checkbox-list">
+				<?php
+				// Fetch all published pages from the database
+				$pages = $rs_query->select('posts', array('id', 'title'), array('status'=>'published', 'type'=>'page'));
+				
+				// Loop through the pages
+				foreach($pages as $page) {
+					?>
+					<li><?php echo formTag('input', array('type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'menu_items[]', 'value'=>'post-'.$page['id'], 'label'=>array('content'=>'<span>'.$page['title'].'</span>'))); ?></li>
+					<?php
+				}
+				?>
+			</ul>
+		</fieldset>
+		<fieldset>
+			<legend>Posts</legend>
+			<ul class="checkbox-list">
+				<?php
+				// Fetch all published posts from the database
+				$posts = $rs_query->select('posts', array('id', 'title'), array('status'=>'published', 'type'=>'post'));
 			
-			// Construct the list
-			$list .= '<li>'.formTag('input', array('type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'menu_items[]', 'value'=>$post['id'], '*'=>($relationship ? 'checked' : ''), 'label'=>array('content'=>'<span>'.$post['title'].'</span>'))).'</li>';
-		}
-		
-		// Close the unordered list
-		$list .= '</ul>';
-		
-		// Return the list
-		return $list;
+				// Loop through the posts
+				foreach($posts as $post) {
+					?>
+					<li><?php echo formTag('input', array('type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'menu_items[]', 'value'=>'post-'.$post['id'], 'label'=>array('content'=>'<span>'.$post['title'].'</span>'))); ?></li>
+					<?php
+				}
+				?>
+			</ul>
+		</fieldset>
+		<fieldset>
+			<legend>Categories</legend>
+			<ul class="checkbox-list">
+				<?php
+				// Fetch all categories from the database
+				$categories = $rs_query->select('terms', array('id', 'name'), array('taxonomy'=>getTaxonomyId('category')));
+				
+				// Loop through the categories
+				foreach($categories as $category) {
+					?>
+					<li><?php echo formTag('input', array('type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'menu_items[]', 'value'=>'cat-'.$category['id'], 'label'=>array('content'=>'<span>'.$category['name'].'</span>'))); ?></li>
+					<?php
+				}
+				?>
+			</ul>
+		</fieldset>
+		<fieldset>
+			<legend>Custom</legend>
+			<div class="row">
+				<?php
+				// Construct a 'custom menu item title' form tag
+				echo formTag('label', array('for'=>'custom_title', 'content'=>'Title'));
+				echo formTag('input', array('class'=>'text-input', 'name'=>'custom_title'));
+				?>
+			</div>
+			<div class="row">
+				<?php
+				// Construct a 'custom menu item link' form tag
+				echo formTag('label', array('for'=>'custom_link', 'content'=>'Link'));
+				echo formTag('input', array('class'=>'text-input', 'name'=>'custom_link'));
+				?>
+			</div>
+		</fieldset>
+		<?php
 	}
 	
 	/**
@@ -555,7 +632,7 @@ class Menu {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Fetch the menu id that the menu item is attached to
+		// Fetch the menu that the menu item is attached to
 		$relationship = $rs_query->selectRow('term_relationships', 'term', array('post'=>$id));
 		
 		// Delete the menu item from the database

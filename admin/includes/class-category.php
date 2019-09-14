@@ -14,7 +14,7 @@ class Category {
 	 * @access public
 	 * @return null
 	 */
-	public function listEntries() {
+	public function listCategories() {
 		// Extend the Query class
 		global $rs_query;
 		
@@ -85,7 +85,7 @@ class Category {
 	 * @access public
 	 * @return null
 	 */
-	public function createEntry() {
+	public function createCategory() {
 		// Validate the form data and return any messages
 		$message = isset($_POST['submit']) ? $this->validateData($_POST) : '';
 		?>
@@ -117,11 +117,11 @@ class Category {
 	 * @param int $id
 	 * @return null
 	 */
-	public function editEntry($id) {
+	public function editCategory($id) {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Check whether or not the category id is valid
+		// Check whether or not the category's id is valid
 		if(empty($id) || $id <= 0) {
 			// Redirect to the 'List Categories' page
 			redirect('categories.php');
@@ -170,11 +170,11 @@ class Category {
 	 * @param int $id
 	 * @return null
 	 */
-	public function deleteEntry($id) {
+	public function deleteCategory($id) {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Check whether or not the category id is valid
+		// Check whether or not the category's id is valid
 		if(empty($id) || $id <= 0) {
 			// Redirect to the 'List Categories' page
 			redirect('categories.php');
