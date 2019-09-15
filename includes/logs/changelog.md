@@ -4,6 +4,28 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.8.3[a] (2019-09-14)
+
+* Added a disabled input field that displays the menu item's type (post/page, category, or custom)
+* Added styling for disabled input fields
+* Renamed the Menu::getPostsList function to Menu::getMenuItemsList
+* Category menu items can now be edited
+* Custom links can now be added to menus
+* Custom menu items can now be edited
+* Menu items can now be sorted up (to a lower index) and down (to a higher index)
+* Removed an old, unused test function from the includes functions file
+* Added an exit function after a redirect in the initialization file
+* Updated some documentation in the login file
+* Tweaked some previous entries in the changelog
+
+**Modified files:**
+* admin/includes/class-menu.php
+* admin/includes/css/style.css
+* includes/functions.php
+* init.php (M)
+* login.php (M)
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.8.2[a] (2019-09-13)
 
 * Fixed a typo and escaped some special characters in the changelog
@@ -1022,7 +1044,7 @@
 ----------------------------------------------------------------------------------------------------
 ## Version 1.1.1[a] (2019-02-11)
 
-* Minor updates to SELECT function
+* Minor updates to the SELECT function
 * Added function to select single rows from the database
 
 **Modified files:**
@@ -1059,11 +1081,11 @@
 ----------------------------------------------------------------------------------------------------
 ## Version 1.0.2[a] (2019-01-17)
 
-* Created and tested basic functionality for UPDATE statement
-* Created class for retrieving post data
+* Created and tested basic functionality for the UPDATE statement
+* Created a class for retrieving post data
 * Added class autoloading
 * Added basic HTML to header and footer files
-* Created admin directory and basic files
+* Created the admin directory and basic files
 
 **Modified files:**
 * footer.php

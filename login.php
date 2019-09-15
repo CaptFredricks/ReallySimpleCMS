@@ -1,7 +1,7 @@
 <?php
 /**
- * Log into the admin dashboard.
- * @since Alpha 1.3.3
+ * Log in to the admin dashboard.
+ * @since 1.3.3[a]
  */
 
 // Include the initialization file

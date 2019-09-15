@@ -5,7 +5,7 @@
  */
 
 // Current CMS version
-const VERSION = '1.8.2';
+const VERSION = '1.8.3';
 
 /**
  * Display copyright on the admin dashboard.

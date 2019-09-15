@@ -56,4 +56,5 @@ if(file_exists(PATH.INC.'/config.php')) {
 } else {
 	// Redirect to the setup page
 	header('Location: '.ADMIN.'/setup.php');
+	exit;
 }

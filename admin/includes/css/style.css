@@ -569,6 +569,14 @@ h2 {
 	padding: 0.25em;
 }
 
+.data-form .text-input[disabled] {
+	background-color: #ededed;
+}
+
+.data-form .text-input[disabled]:hover {
+	cursor: not-allowed;
+}
+
 .data-form .select-input {
 	background-color: #fdfdfd;
 	border: 1px solid #adadad;

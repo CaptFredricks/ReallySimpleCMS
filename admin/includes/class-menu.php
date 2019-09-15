@@ -155,12 +155,12 @@ class Menu {
 				// Redirect to the 'List Menus' page
 				redirect('menus.php');
 			} else {
-				// Check whether the menu item id is set
+				// Check whether the menu item's id is set
 				if(isset($_GET['item_id'])) {
-					// Fetch the menu item id
+					// Fetch the menu item's id
 					$item_id = (int)$_GET['item_id'];
 					
-					// Check whether or not the menu item id is valid
+					// Check whether or not the menu item's id is valid
 					if(empty($item_id) || $item_id <= 0) {
 						// Redirect to the 'Edit Menu' page
 						redirect('menus.php?id='.$id.'&action=edit');
@@ -341,6 +341,31 @@ class Menu {
 				$rs_query->update('terms', array('count'=>count($menu_items)), array('id'=>$menu_id));
 			}
 			
+			// Check whether a custom menu item has been added
+			if(!empty($data['custom_title']) && !empty($data['custom_link'])) {
+				// Insert the new menu item into the database
+				$menu_item_id = $rs_query->insert('posts', array('title'=>$data['custom_title'], 'date'=>'NOW()', 'type'=>'nav_menu_item'));
+				
+				// Update the menu item's slug in the database
+				$rs_query->update('posts', array('slug'=>'menu-item-'.$menu_item_id), array('id'=>$menu_item_id));
+				
+				// Fetch the number of menu items associated with the menu
+				$count = $rs_query->select('term_relationships', 'COUNT(*)', array('term'=>$menu_id));
+				
+				// Create an array to hold the menu item's metadata
+				$itemmeta = array('custom_link'=>$data['custom_link'], 'menu_index'=>$count);
+				
+				// Insert the menu item's metadata into the database
+				foreach($itemmeta as $key=>$value)
+					$rs_query->insert('postmeta', array('post'=>$menu_item_id, '_key'=>$key, 'value'=>$value));
+				
+				// Insert a new term relationship into the database
+				$rs_query->insert('term_relationships', array('term'=>$menu_id, 'post'=>$menu_item_id));
+				
+				// Update the menu's count (nav items)
+				$rs_query->update('terms', array('count'=>($count + 1)), array('id'=>$menu_id));
+			}
+			
 			// Redirect to the 'Edit Menu' page
 			redirect('menus.php?id='.$menu_id.'&action=edit');
 		} else {
@@ -402,6 +427,31 @@ class Menu {
 				$rs_query->update('terms', array('count'=>$count), array('id'=>$id));
 			}
 			
+			// Check whether a custom menu item has been added
+			if(!empty($data['custom_title']) && !empty($data['custom_link'])) {
+				// Insert the new menu item into the database
+				$menu_item_id = $rs_query->insert('posts', array('title'=>$data['custom_title'], 'date'=>'NOW()', 'type'=>'nav_menu_item'));
+				
+				// Update the menu item's slug in the database
+				$rs_query->update('posts', array('slug'=>'menu-item-'.$menu_item_id), array('id'=>$menu_item_id));
+				
+				// Fetch the number of menu items associated with the menu
+				$count = $rs_query->select('term_relationships', 'COUNT(*)', array('term'=>$id));
+				
+				// Create an array to hold the menu item's metadata
+				$itemmeta = array('custom_link'=>$data['custom_link'], 'menu_index'=>$count);
+				
+				// Insert the menu item's metadata into the database
+				foreach($itemmeta as $key=>$value)
+					$rs_query->insert('postmeta', array('post'=>$menu_item_id, '_key'=>$key, 'value'=>$value));
+				
+				// Insert a new term relationship into the database
+				$rs_query->insert('term_relationships', array('term'=>$id, 'post'=>$menu_item_id));
+				
+				// Update the menu's count (nav items)
+				$rs_query->update('terms', array('count'=>($count + 1)), array('id'=>$id));
+			}
+			
 			// Return a status message
 			return statusMessage('Menu updated! <a href="menus.php">Return to list</a>?', true);
 		}
@@ -449,35 +499,66 @@ class Menu {
 			// Fetch the term relationships from the database
 			$relationships = $rs_query->select('term_relationships', 'post', array('term'=>$id));
 			
+			// Create an empty array to hold the menu items' metadata
+			$itemmeta = array();
+			
 			// Loop through the term relationships
 			foreach($relationships as $relationship) {
+				// Fetch the metadata associated with each menu item from the database
+				$itemmeta[] = $rs_query->selectRow('postmeta', array('value', 'post'), array('post'=>$relationship['post'], '_key'=>'menu_index'));
+			}
+			
+			// Sort the array in ascending index order
+			asort($itemmeta);
+			
+			// Loop through the menu items' metadata
+			foreach($itemmeta as $meta) {
 				// Fetch the menu item from the database
-				$menu_item = $rs_query->selectRow('posts', array('id', 'title'), array('id'=>$relationship['post']));
+				$menu_item = $rs_query->selectRow('posts', array('id', 'title'), array('id'=>$meta['post']));
 				?>
 				<li>
 					<strong><?php echo $menu_item['title']; ?></strong>
 					<?php
-					// Check whether the menu item id is set
+					// Check whether the menu item's id is set
 					if(isset($_GET['item_id']) && (int)$_GET['item_id'] === $menu_item['id']) {
 						// Check whether the item action is set
 						if(isset($_GET['item_action'])) {
-							if($_GET['item_action'] === 'edit') {
-								?>
-								<div class="actions"><a href="?id=<?php echo $id; ?>&action=edit">Cancel</a></div>
-								<?php
-								// Display the edit menu item form if the 'edit' action link has been clicked
-								$this->editMenuItem($menu_item['id']);
-							} elseif($_GET['item_action'] === 'delete') {
-								// Call the deleteMenuItem function if the 'delete' action link has been clicked
-								$this->deleteMenuItem($menu_item['id']);
-								?>
-								<meta http-equiv="refresh" content="0; url='?id=<?php echo $id; ?>&action=edit'">
-								<?php
+							switch($_GET['item_action']) {
+								case 'move_up':
+									// Move the menu item up one position
+									$this->moveUpMenuItem($menu_item['id'], $id);
+									?>
+									<meta http-equiv="refresh" content="0; url='?id=<?php echo $id; ?>&action=edit'">
+									<?php
+									break;
+								case 'move_down':
+									// Move the menu item down one position
+									$this->moveDownMenuItem($menu_item['id'], $id);
+									?>
+									<meta http-equiv="refresh" content="0; url='?id=<?php echo $id; ?>&action=edit'">
+									<?php
+									break;
+								case 'edit':
+									?>
+									<div class="actions"><a href="?id=<?php echo $id; ?>&action=edit">Cancel</a></div>
+									<?php
+									// Display the edit menu item form if the 'edit' action link has been clicked
+									$this->editMenuItem($menu_item['id']);
+									break;
+								case 'delete':
+									// Call the deleteMenuItem function if the 'delete' action link has been clicked
+									$this->deleteMenuItem($menu_item['id']);
+									?>
+									<meta http-equiv="refresh" content="0; url='?id=<?php echo $id; ?>&action=edit'">
+									<?php
+									break;
 							}
 						}
 					} else {
 						?>
-						<div class="actions"><a href="?id=<?php echo $id; ?>&action=edit&item_id=<?php echo $menu_item['id']; ?>&item_action=edit">Edit</a> &bull; <a href="?id=<?php echo $id; ?>&action=edit&item_id=<?php echo $menu_item['id']; ?>&item_action=delete">Delete</a></div>
+						<div class="actions">
+							<a href="?id=<?php echo $id; ?>&action=edit&item_id=<?php echo $menu_item['id']; ?>&item_action=move_up">&uarr;</a> &bull; <a href="?id=<?php echo $id; ?>&action=edit&item_id=<?php echo $menu_item['id']; ?>&item_action=move_down">&darr;</a> &bull; <a href="?id=<?php echo $id; ?>&action=edit&item_id=<?php echo $menu_item['id']; ?>&item_action=edit">Edit</a> &bull; <a href="?id=<?php echo $id; ?>&action=edit&item_id=<?php echo $menu_item['id']; ?>&item_action=delete">Delete</a>
+						</div>
 						<?php
 					}
 					?>
@@ -576,6 +657,87 @@ class Menu {
 	}
 	
 	/**
+	 * Move a menu item one position up.
+	 * @since 1.8.3[a]
+	 *
+	 * @access private
+	 * @param int $id
+	 * @param int $menu
+	 * @return null
+	 */
+	private function moveUpMenuItem($id, $menu) {
+		// Extend the Query class
+		global $rs_query;
+		
+		// Fetch the index of the menu item from the database
+		$index = $rs_query->selectRow('postmeta', 'value', array('post'=>$id, '_key'=>'menu_index'));
+		
+		// Check whether the index is greater than zero (the first index)
+		if((int)$index['value'] > 0) {
+			// Fetch the shared relationships with the other menu items from the database
+			$relationships = $rs_query->select('term_relationships', 'post', array('term'=>$menu));
+			
+			// Loop through the relationships
+			foreach($relationships as $relationship) {
+				// Fetch the metadata associated with the menu item from the database
+				$itemmeta = $rs_query->selectRow('postmeta', array('id', 'value'), array('post'=>$relationship['post'], '_key'=>'menu_index'));
+				
+				// Check whether the previous menu item has been found
+				if((int)$itemmeta['value'] === (int)$index['value'] - 1) {
+					// Set the new index to one greater than the original index
+					$rs_query->update('postmeta', array('value'=>((int)$itemmeta['value'] + 1)), array('post'=>$relationship['post'], '_key'=>'menu_index'));
+					break;
+				}
+			}
+			
+			// Set the new index to one less than the original index
+			$rs_query->update('postmeta', array('value'=>((int)$index['value'] - 1)), array('post'=>$id, '_key'=>'menu_index'));
+		}
+	}
+	
+	/**
+	 * Move a menu item one position down.
+	 * @since 1.8.3[a]
+	 *
+	 * @access private
+	 * @param int $id
+	 * @param int $menu
+	 * @return null
+	 */
+	private function moveDownMenuItem($id, $menu) {
+		// Extend the Query class
+		global $rs_query;
+		
+		// Fetch the number of menu items attached to the current menu from the database
+		$count = $rs_query->select('term_relationships', 'COUNT(*)', array('term'=>$menu));
+		
+		// Fetch the index of the menu item from the database
+		$index = $rs_query->selectRow('postmeta', 'value', array('post'=>$id, '_key'=>'menu_index'));
+		
+		// Check whether the index is greater than zero (the first index)
+		if((int)$index['value'] < $count - 1) {
+			// Fetch the shared relationships with the other menu items from the database
+			$relationships = $rs_query->select('term_relationships', 'post', array('term'=>$menu));
+			
+			// Loop through the relationships
+			foreach($relationships as $relationship) {
+				// Fetch the metadata associated with the menu item from the database
+				$itemmeta = $rs_query->selectRow('postmeta', array('id', 'value'), array('post'=>$relationship['post'], '_key'=>'menu_index'));
+				
+				// Check whether the next menu item has been found
+				if((int)$itemmeta['value'] === (int)$index['value'] + 1) {
+					// Set the new index to one less than the original index
+					$rs_query->update('postmeta', array('value'=>((int)$itemmeta['value'] - 1)), array('post'=>$relationship['post'], '_key'=>'menu_index'));
+					break;
+				}
+			}
+			
+			// Set the new index to one greater than the original index
+			$rs_query->update('postmeta', array('value'=>((int)$index['value'] + 1)), array('post'=>$id, '_key'=>'menu_index'));
+		}
+	}
+	
+	/**
 	 * Construct the 'Edit Menu Item' form.
 	 * @since 1.8.1[a]
 	 *
@@ -595,6 +757,9 @@ class Menu {
 		
 		// Fetch the menu item's metadata from the database
 		$meta = $this->getMenuItemMeta($id);
+		
+		// Determine the menu item's type based on its metadata
+		$type = isset($meta['post_link']) ? array('post', 'Page or Post') : (isset($meta['term_link']) ? array('term', 'Category') : (isset($meta['custom_link']) ? array('custom', 'Custom') : ''));
 		?>
 		<hr class="separator">
 		<?php
@@ -610,8 +775,16 @@ class Menu {
 		<form class="data-form" action="" method="post" autocomplete="off">
 			<table class="form-table">
 				<?php
+				echo formRow('Type', array('tag'=>'input', 'class'=>'text-input', 'name'=>'type', 'value'=>$type[1], '*'=>'disabled'));
 				echo formRow(array('Title', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>$menu_item['title']));
-				echo formRow('Link', array('tag'=>'select', 'class'=>'select-input', 'name'=>'link', 'content'=>$this->getPostsList((int)$meta['post_link'])));
+				
+				if($type[0] === 'post')
+					echo formRow('Link', array('tag'=>'select', 'class'=>'select-input', 'name'=>'post_link', 'content'=>$this->getMenuItemsList((int)$meta['post_link'], $type[0])));
+				elseif($type[0] === 'term')
+					echo formRow('Link', array('tag'=>'select', 'class'=>'select-input', 'name'=>'term_link', 'content'=>$this->getMenuItemsList((int)$meta['term_link'], $type[0])));
+				elseif($type[0] === 'custom')
+					echo formRow('Link', array('tag'=>'input', 'class'=>'text-input', 'name'=>'custom_link', 'value'=>$meta['custom_link']));
+				
 				echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
 				echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'item_submit', 'value'=>'Update'));
 				?>
@@ -671,34 +844,49 @@ class Menu {
 		// Update the menu item in the database
 		$rs_query->update('posts', array('title'=>$data['title'], 'modified'=>'NOW()'), array('id'=>$id));
 		
-		// Update the menu item's metadata in the database
-		$rs_query->update('postmeta', array('value'=>$data['link']), array('post'=>$id, '_key'=>'post_link'));
+		// Update the menu item's metadata in the database based on the menu type
+		if(!empty($data['post_link']))
+			$rs_query->update('postmeta', array('value'=>$data['post_link']), array('post'=>$id, '_key'=>'post_link'));
+		elseif(!empty($data['term_link']))
+			$rs_query->update('postmeta', array('value'=>$data['term_link']), array('post'=>$id, '_key'=>'term_link'));
+		elseif(!empty($data['custom_link']))
+			$rs_query->update('postmeta', array('value'=>$data['custom_link']), array('post'=>$id, '_key'=>'custom_link'));
 		
 		// Return a status message
 		return statusMessage('Menu item updated! This page will automatically refresh for all changes to take effect.', true);
 	}
 	
 	/**
-	 * Construct a list of posts.
+	 * Construct a list of menu items.
 	 * @since 1.8.1[a]
 	 *
 	 * @access private
-	 * @param int $id (optional; default: 0)
+	 * @param int $id
+	 * @param string $type
 	 * @return string
 	 */
-	private function getPostsList($id = 0) {
+	private function getMenuItemsList($id, $type) {
 		// Extend the Query class
 		global $rs_query;
 		
 		// Create an empty list
 		$list = '';
 		
-		// Fetch all posts from the database (excluding widgets and menu items)
-		$posts = $rs_query->select('posts', array('id', 'title'), array('type'=>array('<>', 'widget'), 'type'=>array('<>', 'nav_menu_item')));
-		
-		// Add each post to the list
-		foreach($posts as $post)
-			$list .= '<option value="'.$post['id'].'"'.($post['id'] === $id ? ' selected' : '').'>'.$post['title'].'</option>';
+		if($type === 'post') {
+			// Fetch all posts from the database (excluding widgets and menu items)
+			$posts = $rs_query->select('posts', array('id', 'title'), array('type'=>array('<>', 'widget'), 'type'=>array('<>', 'nav_menu_item')));
+			
+			// Add each post to the list
+			foreach($posts as $post)
+				$list .= '<option value="'.$post['id'].'"'.($post['id'] === $id ? ' selected' : '').'>'.$post['title'].'</option>';
+		} elseif($type === 'term') {
+			// Fetch all categories from the database
+			$categories = $rs_query->select('terms', array('id', 'name'), array('taxonomy'=>getTaxonomyId('category')));
+			
+			// Add each category to the list
+			foreach($categories as $category)
+				$list .= '<option value="'.$category['id'].'"'.($category['id'] === $id ? ' selected' : '').'>'.$category['name'].'</option>';
+		}
 		
 		// Return the list
 		return $list;
