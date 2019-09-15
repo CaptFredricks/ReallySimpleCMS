@@ -45,11 +45,29 @@ require_once PATH.ADMIN.INC.'/functions.php';
 
 // Make sure ReallySimpleCMS isn't already installed
 if($rs_query->conn_status) {
+	// Include the database schema
+	require_once PATH.INC.'/schema.php';
+	
+	// Fetch the database schema tables
+	$tables = dbSchema();
+	
 	// Get a list of tables in the database
 	$data = $rs_query->showTables();
 	
-	// Warn the user if the database is already installed
-	if(!empty($data)) exit('ReallySimpleCMS is already installed!');
+	// Check whether or not there are tables in the database
+	if(!empty($data) && count($data) >= count($tables)) {
+		// Warn the user that the database is already installed
+		exit('ReallySimpleCMS is already installed!');
+	} else {
+		// Loop through the schema tables
+		for($i = 0; $i < count($tables); $i++) {
+			// Drop each existing table from the database
+			$rs_query->doQuery("DROP TABLE `".key($tables)."`");
+			
+			// Move the array pointer to the next element
+			next($tables);
+		}
+	}
 }
 
 // Set the current step of the installation process
@@ -66,10 +84,7 @@ function runInstall($data) {
 	// Extend the Query class
 	global $rs_query;
 	
-	// Include the database schema
-	require_once PATH.INC.'/schema.php';
-	
-	// Fetch the database tables
+	// Fetch the database schema tables
 	$tables = dbSchema();
 	
 	// Create the tables
@@ -185,7 +200,7 @@ function runInstall($data) {
 			switch($step) {
 				case 1:
 					?>
-					<p>Congrats! You're almost ready to begin using the ReallySimpleCMS. Fill in the form below to proceed with the installation.</p>
+					<p>You're almost ready to begin using the ReallySimpleCMS. Fill in the form below to proceed with the installation.</p>
 					<p>All of the settings below can be changed at a later date. They're required in order to set up the CMS, though.</p>
 					<?php
 					// Show the installation form

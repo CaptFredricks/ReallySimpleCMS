@@ -32,11 +32,18 @@ if(file_exists(PATH.INC.'/config.php')) {
 	
 	// Check that the database has been installed and there are no problems
 	if($rs_query->conn_status) {
+		// Include the database schema
+		require_once PATH.INC.'/schema.php';
+		
+		// Fetch the database schema tables
+		$tables = dbSchema();
+		
 		// Get a list of tables in the database
 		$data = $rs_query->showTables();
 		
-		// Redirect to the install page if there are no tables
-		if(empty($data)) {
+		// Check whether there are the proper number of tables in the database
+		if(empty($data) || count($data) < count($tables)) {
+			// Redirect to the installation page
 			header('Location: '.ADMIN.'/install.php');
 			exit;
 		}

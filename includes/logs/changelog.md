@@ -4,6 +4,27 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.8.4[a] (2019-09-15)
+
+* Added more documentation to the root index file and removed a closing PHP tag
+* Minor tweak to the content index file
+* Added an extra parameter to the Menu::deleteMenuItem function
+* When a menu item is deleted, the indexes of any other menu items are now reordered properly
+* Added some documentation to the Query class
+* The CMS now checks whether all database tables are accounted for on initialization
+* Existing tables are now dropped during installation if there are tables missing (they will not be deleted in a proper installation)
+* Tweaked the text on the installation form
+* Tweaked some previous entries in the changelog
+
+**Modified files:**
+* index.php
+* init.php
+* admin/install.php
+* admin/includes/class-menu.php
+* content/index.php (M)
+* includes/class-query.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.8.3[a] (2019-09-14)
 
 * Added a disabled input field that displays the menu item's type (post/page, category, or custom)
@@ -1016,10 +1037,10 @@
 ----------------------------------------------------------------------------------------------------
 ## Version 1.2.0[a] (2019-02-19)
 
-* Added ReallySimpleCMS copyright and version to admin footer
+* Added ReallySimpleCMS copyright and version to the admin footer
 * Created a file to hold global functions
 * Created a function for assembling form tags (works with the formRow function)
-* Finished create user form and added validation
+* Finished the 'Create User' form and added validation
 * Created functions for loading admin scripts and stylesheets
 * Added documentation for numerous functions
 
@@ -1033,8 +1054,8 @@
 ----------------------------------------------------------------------------------------------------
 ## Version 1.1.2[a] (2019-02-18)
 
-* Created function for assembling form rows
-* Added create user form
+* Created a function for assembling form rows
+* Created a function that constructs the 'Create User' form
 
 **Modified files:**
 * admin/users.php
@@ -1045,7 +1066,7 @@
 ## Version 1.1.1[a] (2019-02-11)
 
 * Minor updates to the SELECT function
-* Added function to select single rows from the database
+* Created a function to select single rows from the database
 
 **Modified files:**
 * includes/class-query.php
@@ -1053,9 +1074,9 @@
 ----------------------------------------------------------------------------------------------------
 ## Version 1.1.0[a] (2019-02-07)
 
-* Rebuilt functions for SELECT, INSERT, and UPDATE statements
-* Created file to store deprecated functions (for potential future use)
-* Extended Query class' range to work on back end
+* Rebuilt the functions for the SELECT, INSERT, and UPDATE statements
+* Created a file to store deprecated functions (for potential future use)
+* Extended the Query class' scope so it works on the back end
 * Created admin 'List Users' page
 
 **Modified files:**
@@ -1070,9 +1091,9 @@
 ----------------------------------------------------------------------------------------------------
 ## Version 1.0.3[a] (2019-02-04)
 
-* Renamed some functions in Query class
+* Renamed some functions in the Query class
 * Created a function to check for query errors
-* Rebuilt function for DELETE statement
+* Rebuilt the function for the DELETE statement
 
 **Modified files:**
 * includes/class-query.php
@@ -1084,7 +1105,7 @@
 * Created and tested basic functionality for the UPDATE statement
 * Created a class for retrieving post data
 * Added class autoloading
-* Added basic HTML to header and footer files
+* Added basic HTML to the header and footer files
 * Created the admin directory and basic files
 
 **Modified files:**
@@ -1103,8 +1124,8 @@
 ----------------------------------------------------------------------------------------------------
 ## Version 1.0.1[a] (2019-01-15)
 
-* Created changelog for tracking project milestones (change.log will henceforth be ommitted from list of modified files)
-* Created file with basic debugging functions
+* Created a changelog for tracking project milestones (change.log will henceforth be omitted from list of modified files)
+* Created a file with basic debugging functions
 * Created and tested basic functionality for query SELECT, INSERT, and DELETE statements
 
 **Modified files:**
@@ -1117,11 +1138,11 @@
 ----------------------------------------------------------------------------------------------------
 ## Version 1.0.0[a] (2019-01-14)
 
-* Set up database and tables
+* Set up the database and tables
 * Created most of the necessary core files
-* Created includes directory
-* Created core database connection class
-* Built basic query functionality
+* Created the includes directory
+* Created the core database connection class
+* Built the basic query functionality
 
 **Modified files:**
 * .htaccess (N)

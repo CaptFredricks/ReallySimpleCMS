@@ -547,7 +547,7 @@ class Menu {
 									break;
 								case 'delete':
 									// Call the deleteMenuItem function if the 'delete' action link has been clicked
-									$this->deleteMenuItem($menu_item['id']);
+									$this->deleteMenuItem($menu_item['id'], $id);
 									?>
 									<meta http-equiv="refresh" content="0; url='?id=<?php echo $id; ?>&action=edit'">
 									<?php
@@ -714,7 +714,7 @@ class Menu {
 		// Fetch the index of the menu item from the database
 		$index = $rs_query->selectRow('postmeta', 'value', array('post'=>$id, '_key'=>'menu_index'));
 		
-		// Check whether the index is greater than zero (the first index)
+		// Check whether the index is less than the count minus one (the last index)
 		if((int)$index['value'] < $count - 1) {
 			// Fetch the shared relationships with the other menu items from the database
 			$relationships = $rs_query->select('term_relationships', 'post', array('term'=>$menu));
@@ -799,14 +799,18 @@ class Menu {
 	 *
 	 * @access public
 	 * @param int $id
+	 * @param int $menu
 	 * @return null
 	 */
-	public function deleteMenuItem($id) {
+	public function deleteMenuItem($id, $menu) {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Fetch the menu that the menu item is attached to
-		$relationship = $rs_query->selectRow('term_relationships', 'term', array('post'=>$id));
+		// Fetch the number of menu items attached to the current menu from the database
+		$count = $rs_query->select('term_relationships', 'COUNT(*)', array('term'=>$menu));
+		
+		// Fetch the index of the menu item from the database
+		$index = $rs_query->selectRow('postmeta', 'value', array('post'=>$id, '_key'=>'menu_index'));
 		
 		// Delete the menu item from the database
 		$rs_query->delete('posts', array('id'=>$id, 'type'=>'nav_menu_item'));
@@ -817,11 +821,32 @@ class Menu {
 		// Delete all term relationships associated with the menu item from the database
 		$rs_query->delete('term_relationships', array('post'=>$id));
 		
-		// Fetch the number of menu items associated with the menu
-		$count = $rs_query->select('term_relationships', 'COUNT(*)', array('term'=>$relationship['term']));
+		// Check whether the index is less than the count minus one (the last index)
+		if((int)$index['value'] < $count - 1) {
+			// Fetch the shared relationships with the other menu items from the database
+			$relationships = $rs_query->select('term_relationships', 'post', array('term'=>$menu));
+			
+			// Loop through the relationships
+			foreach($relationships as $relationship) {
+				// Fetch the metadata associated with the menu item from the database
+				$itemmeta = $rs_query->selectRow('postmeta', array('id', 'value'), array('post'=>$relationship['post'], '_key'=>'menu_index'));
+				
+				// Check whether the menu item's index is less than the deleted menu item
+				if((int)$itemmeta['value'] < (int)$index['value']) {
+					// Skip to the next menu item
+					continue;
+				} else {
+					// Set the new index to one less than the original index
+					$rs_query->update('postmeta', array('value'=>((int)$itemmeta['value'] - 1)), array('post'=>$relationship['post'], '_key'=>'menu_index'));
+				}
+			}
+		}
+		
+		// Fetch the number of menu items attached to the current menu from the database
+		$count = $rs_query->select('term_relationships', 'COUNT(*)', array('term'=>$menu));
 		
 		// Update the menu's count (nav items)
-		$rs_query->update('terms', array('count'=>$count), array('id'=>$relationship['term']));
+		$rs_query->update('terms', array('count'=>$count), array('id'=>$menu));
 	}
 	
 	/**

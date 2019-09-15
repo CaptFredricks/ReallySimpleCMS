@@ -317,9 +317,11 @@ class Query {
 	 */
 	public function doQuery($sql) {
 		try {
+			// Prepare and execute the query
 			$query = $this->conn->prepare($sql);
 			$query->execute();
 		} catch(PDOException $e) {
+			// Log any errors
 			logError($e);
 		}
 	}
@@ -329,20 +331,24 @@ class Query {
 	 * @since 1.3.3[a]
 	 *
 	 * @access public
-	 * @return string
+	 * @return array
 	 */
 	public function showTables() {
+		// Create an empty array to hold the table data
 		$data = array();
 		
 		try {
+			// Prepare and execute the query
 			$query = $this->conn->prepare("SHOW TABLES");
 			$query->execute();
 			
-			while($row = $query->fetch())
-				$data[] = $row;
+			// Loop through the query data and assign it to the array
+			while($row = $query->fetch()) $data[] = $row;
 			
+			// Return the data
 			return $data;
 		} catch(PDOException $e) {
+			// Log any errors
 			logError($e);
 		}
 	}
@@ -375,6 +381,7 @@ class Query {
 				$error .= $type;
 		}
 		
+		// Display the appropriate error message
 		echo $error;
 	}
 }
