@@ -125,5 +125,6 @@ function dbSchema() {
 		KEY role (role)
 	);";
 	
+	// Return the table schemas
 	return $tables;
 }

@@ -321,9 +321,10 @@ function populateTables($user_data, $settings_data) {
  *
  * @param array $item (optional; default: array())
  * @param array $submenu (optional; default: array())
+ * @param string $icon (optional; default: null)
  * @return null
  */
-function adminNavMenuItem($item = array(), $submenu = array()) {
+function adminNavMenuItem($item = array(), $submenu = array(), $icon = null) {
 	// Fetch the current page
 	$current = getCurrentPage();
 	
@@ -359,7 +360,37 @@ function adminNavMenuItem($item = array(), $submenu = array()) {
 	}
 	?>
 	<li<?php echo !empty($item_class) ? ' class="'.$item_class.'"' : ''; ?>>
-		<a href="<?php echo $item_link; ?>"><?php echo $item_caption; ?></a>
+		<a href="<?php echo $item_link; ?>">
+			<?php
+			// Check whether an icon has been provided
+			if(!empty($icon)) {
+				// Check whether the icon parameter is an array
+				if(is_array($icon)) {
+					switch($icon[1]) {
+						case 'regular':
+							?>
+							<i class="far fa-<?php echo $icon[0]; ?>"></i>
+							<?php
+							break;
+						case 'solid':
+						default:
+							?>
+							<i class="fas fa-<?php echo $icon[0]; ?>"></i>
+							<?php
+					}
+				} else {
+					?>
+					<i class="fas fa-<?php echo $icon; ?>"></i>
+					<?php
+				}
+			} else {
+				?>
+				<i class="fas fa-code-branch"></i>
+				<?php
+			}
+			?>
+			<span><?php echo $item_caption; ?></span>
+		</a>
 		<?php
 		// Check whether or not the submenu parameters have been specified
 		if(!empty($submenu)) {

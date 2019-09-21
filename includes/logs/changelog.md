@@ -4,6 +4,36 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.8.5[a] (2019-09-20)
+
+* Tweaked a previous entry in the changelog
+* Added a line of documentation to the schema file
+* Tweaked documentation and updated a constant in the initialization file
+* A notice will now display if the content directory's index file is accessed directly
+* Added more documentation to the content index file
+* Added FontAwesome icons
+* Tweaked documentation in the includes CSS stylesheet
+* Included the FontAwesome stylesheet in the admin header file
+* Added a parameter to the adminNavMenuItem function to include an icon
+* Added styling for the icons
+* Adjusted the width, font size, and margins of the admin nav menu and menu items
+* Made the admin nav menu mobile responsive
+* Made several other elements mobile responsive
+
+**Modified files:**
+* init.php
+* admin/header.php
+* admin/includes/functions.php
+* admin/includes/css/style.css
+* content/index.php
+* includes/schema.php (M)
+* includes/css/fa-icons.css (N)
+* includes/css/style.css (M)
+* includes/fonts/fa-solid.ttf (N)
+* includes/fonts/fa-brands.ttf (N)
+* includes/fonts/fa-regular.ttf (N)
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.8.4[a] (2019-09-15)
 
 * Added more documentation to the root index file and removed a closing PHP tag
@@ -805,7 +835,7 @@
 * Fixed a bug in the formRow function that prevented adding a label to a single input argument
 * Initialization now terminates if database is not installed (prevents an error from generating in error_log)
 * A sample page will now be created on installation (it is set as the default home page)
-* Cleaned up the change log a bit (mostly rewording and adding a few things that had been ommitted)
+* Cleaned up the change log a bit (mostly rewording and adding a few things that had been omitted)
 
 **Modified files:**
 * index.php

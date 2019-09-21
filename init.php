@@ -16,15 +16,15 @@ if(!defined('ADMIN')) define('ADMIN', '/admin');
 // Path to the content directory
 if(!defined('CONT')) define('CONT', '/content');
 
-// Try to initialize the CMS or run setup if config file doesn't exist
+// Try to initialize the CMS or run setup if the config file doesn't exist
 if(file_exists(PATH.INC.'/config.php')) {
-	// Include debugging
+	// Include debugging functions
 	require_once PATH.INC.'/debug.php';
 	
-	// Include database configuration
+	// Include the database configuration
 	require_once PATH.INC.'/config.php';
 	
-	// Include Query class
+	// Include the Query class
 	require_once PATH.INC.'/class-query.php';
 	
 	// Create a Query object
@@ -52,14 +52,14 @@ if(file_exists(PATH.INC.'/config.php')) {
 	// Include global functions
 	require_once PATH.INC.'/globals.php';
 	
-	// Path to stylesheets directory
+	// Path to the stylesheets directory
 	if(!defined('STYLES')) define('STYLES', INC.'/css');
 	
-	// Path to scripts directory
+	// Path to the scripts directory
 	if(!defined('SCRIPTS')) define('SCRIPTS', INC.'/js');
 	
 	// Path to the uploads directory
-	if(!defined('UPLOADS')) define('UPLOADS', '/content/uploads');
+	if(!defined('UPLOADS')) define('UPLOADS', CONT.'/uploads');
 } else {
 	// Redirect to the setup page
 	header('Location: '.ADMIN.'/setup.php');
