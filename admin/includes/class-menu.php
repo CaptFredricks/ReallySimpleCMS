@@ -514,9 +514,9 @@ class Menu {
 			// Loop through the menu items' metadata
 			foreach($itemmeta as $meta) {
 				// Fetch the menu item from the database
-				$menu_item = $rs_query->selectRow('posts', array('id', 'title'), array('id'=>$meta['post']));
+				$menu_item = $rs_query->selectRow('posts', array('id', 'title', 'parent'), array('id'=>$meta['post']));
 				?>
-				<li>
+				<li class="menu-item depth-<?php echo $this->getMenuItemDepth($menu_item['id']); ?>">
 					<strong><?php echo $menu_item['title']; ?></strong>
 					<?php
 					// Check whether the menu item's id is set
@@ -785,6 +785,7 @@ class Menu {
 				elseif($type[0] === 'custom')
 					echo formRow('Link', array('tag'=>'input', 'class'=>'text-input', 'name'=>'custom_link', 'value'=>$meta['custom_link']));
 				
+				echo formRow('Parent', array('tag'=>'select', 'class'=>'select-input', 'name'=>'parent', 'content'=>'<option value="0">(none)</option>'.$this->getParentList($menu_item['parent'], $menu_item['id'])));
 				echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
 				echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'item_submit', 'value'=>'Update'));
 				?>
@@ -867,7 +868,7 @@ class Menu {
 			return statusMessage('R');
 		
 		// Update the menu item in the database
-		$rs_query->update('posts', array('title'=>$data['title'], 'modified'=>'NOW()'), array('id'=>$id));
+		$rs_query->update('posts', array('title'=>$data['title'], 'modified'=>'NOW()', 'parent'=>$data['parent']), array('id'=>$id));
 		
 		// Update the menu item's metadata in the database based on the menu type
 		if(!empty($data['post_link']))
@@ -877,8 +878,87 @@ class Menu {
 		elseif(!empty($data['custom_link']))
 			$rs_query->update('postmeta', array('value'=>$data['custom_link']), array('post'=>$id, '_key'=>'custom_link'));
 		
+		// Check whether a parent has been set
+		if((int)$data['parent'] !== 0) {
+			// Fetch the current menu item's index
+			$index_current = implode('', $rs_query->selectRow('postmeta', array('value'), array('post'=>$id, '_key'=>'menu_index')));
+			
+			// Fetch the parent menu item's index
+			$index_parent = implode('', $rs_query->selectRow('postmeta', array('value'), array('post'=>$data['parent'], '_key'=>'menu_index')));
+			
+			// Fetch the menu associated with the current menu item
+			$menu = $rs_query->selectRow('term_relationships', 'term', array('post'=>$id));
+			
+			// Fetch all relationships associated with the menu
+			$relationships = $rs_query->select('term_relationships', 'post', array('term'=>$menu['term']));
+			
+			// Create an empty array to hold the indexes
+			$indexes = array();
+			
+			// Loop through the relationships
+			foreach($relationships as $relationship) {
+				// Fetch the index of the menu item associated with the relationship from the database
+				$indexes[] = $rs_query->selectRow('postmeta', array('post', 'value'), array('post'=>$relationship['post'], '_key'=>'menu_index'));
+			}
+			
+			// Check whether the current menu item's index is higher or lower than the parent's index
+			if($index_current > $index_parent) {
+				// Loop through the indexes
+				foreach($indexes as $index) {
+					// Skip over any indexes that come after the current index
+					if($index['value'] >= $index_current || $index['value'] <= $index_parent) continue;
+					
+					// Update each menu item's index
+					$rs_query->update('postmeta', array('value'=>($index['value'] + 1)), array('post'=>$index['post'], '_key'=>'menu_index'));
+				}
+				
+				// Update the current menu item's index in the database
+				$rs_query->update('postmeta', array('value'=>($index_parent + 1)), array('post'=>$id, '_key'=>'menu_index'));
+			} elseif($index_current < $index_parent) {
+				// Loop through the indexes
+				foreach($indexes as $index) {
+					// Skip over any indexes that come before the current index
+					if($index['value'] <= $index_current || $index['value'] > $index_parent) continue;
+					
+					// Update each menu item's index
+					$rs_query->update('postmeta', array('value'=>($index['value'] - 1)), array('post'=>$index['post'], '_key'=>'menu_index'));
+				}
+				
+				// Update the current menu item's index in the database
+				$rs_query->update('postmeta', array('value'=>$index_parent), array('post'=>$id, '_key'=>'menu_index'));
+			}
+		}
+		
 		// Return a status message
 		return statusMessage('Menu item updated! This page will automatically refresh for all changes to take effect.', true);
+	}
+	
+	/**
+	 * Check whether a menu item is a descendant of another menu item.
+	 * @since 1.8.6[a]
+	 *
+	 * @access private
+	 * @param int $id
+	 * @param int $ancestor
+	 * @return bool
+	 */
+	private function isDescendant($id, $ancestor) {
+		// Extend the Query class
+		global $rs_query;
+		
+		do {
+			// Fetch the parent menu item from the database
+			$menu_item = $rs_query->selectRow('posts', 'parent', array('id'=>$id));
+			
+			// Set the new id
+			$id = (int)$menu_item['parent'];
+			
+			// Return true if the menu item's ancestor is found
+			if($id === $ancestor) return true;
+		} while($id !== 0);
+		
+		// Return false if no ancestor is found
+		return false;
 	}
 	
 	/**
@@ -918,6 +998,36 @@ class Menu {
 	}
 	
 	/**
+	 * Determine a menu item's nested depth.
+	 * @since 1.8.6[a]
+	 *
+	 * @access private
+	 * @param int $id
+	 * @return 
+	 */
+	private function getMenuItemDepth($id) {
+		// Extend the Query class
+		global $rs_query;
+		
+		// Create an empty variable to hold the nested depth
+		$depth = -1;
+		
+		do {
+			// Fetch the parent menu item from the database
+			$menu_item = $rs_query->selectRow('posts', 'parent', array('id'=>$id));
+			
+			// Set the new id
+			$id = (int)$menu_item['parent'];
+			
+			// Increment the count variable
+			$depth++;
+		} while($id !== 0);
+		
+		// Return the menu item's nested depth
+		return $depth;
+	}
+	
+	/**
 	 * Fetch a menu item's metadata.
 	 * @since 1.8.1[a]
 	 *
@@ -949,5 +1059,40 @@ class Menu {
 		
 		// Return the metadata
 		return $meta;
+	}
+	
+	/**
+	 * Construct a list of parents.
+	 * @since 1.8.6[a]
+	 *
+	 * @access private
+	 * @param int $parent
+	 * @param int $id
+	 * @return string
+	 */
+	private function getParentList($parent, $id) {
+		// Extend the Query class
+		global $rs_query;
+		
+		// Create an empty list
+		$list = '';
+		
+		// Fetch all menu items from the database
+		$menu_items = $rs_query->select('posts', array('id', 'title'), array('type'=>'nav_menu_item'));
+		
+		// Loop through the menu items
+		foreach($menu_items as $menu_item) {
+			// Skip the current menu item
+			if($menu_item['id'] === $id) continue;
+			
+			// Skip all descendant menu items
+			if($this->isDescendant($menu_item['id'], $id)) continue;
+			
+			// Construct the list
+			$list .= '<option value="'.$menu_item['id'].'"'.($menu_item['id'] === $parent ? ' selected' : '').'>'.$menu_item['title'].'</option>';
+		}
+		
+		// Return the list
+		return $list;
 	}
 }

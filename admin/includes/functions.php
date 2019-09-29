@@ -321,7 +321,7 @@ function populateTables($user_data, $settings_data) {
  *
  * @param array $item (optional; default: array())
  * @param array $submenu (optional; default: array())
- * @param string $icon (optional; default: null)
+ * @param string|array $icon (optional; default: null)
  * @return null
  */
 function adminNavMenuItem($item = array(), $submenu = array(), $icon = null) {

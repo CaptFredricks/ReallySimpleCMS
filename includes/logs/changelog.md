@@ -4,6 +4,19 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.8.6[a] (2019-09-28)
+
+* Tweaked a line of documentation in the adminNavMenuItem function
+* Created a function that constructs a list of parent menu items
+* Created a function that checks whether the current menu item is a descendant of other menu items
+* Menu items can now be nested
+* Created a function that determines the nested depth of a menu item
+
+**Modified files:**
+* admin/includes/class-menu.php
+* admin/includes/functions.php (M)
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.8.5[a] (2019-09-20)
 
 * Tweaked a previous entry in the changelog
