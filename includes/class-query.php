@@ -75,9 +75,9 @@ class Query {
 	public function select($table, $data = '*', $where = '', $order_by = '', $order = 'ASC', $limit = '') {
 		// Stop execution and throw an error if no table is specified
 		if(empty($table)) exit($this->errorMsg('table'));
-		if(is_array($data)) $data = implode(', ', $data);
 		
-		$db_data = array();
+		// Merge the data into a string if it's an array
+		if(is_array($data)) $data = implode(', ', $data);
 		
 		// Construct the basic SQL statement
 		$sql = 'SELECT '.$data.' FROM `'.$table.'`';
@@ -138,25 +138,35 @@ class Query {
 			$sql .= ' WHERE '.$conditions;
 		}
 		
+		// Add the order by clause if it's been provided
 		if(!empty($order_by)) $sql .= ' ORDER BY '.$order_by.' '.strtoupper($order);
 		
+		// Check whether or not there is a limit clause
 		if(!empty($limit)) {
+			// Merge the limit clause into a string if it's an array
 			if(is_array($limit)) $limit = implode(', ', $limit);
 			
+			// Add the limit clause to the SQL statement
 			$sql .= ' LIMIT '.$limit;
 		}
+		
+		// Create an empty array to hold data from the database
+		$db_data = array();
 		
 		try {
 			// Prepare and execute the query
 			$select_query = $this->conn->prepare($sql);
 			isset($values) ? $select_query->execute($values) : $select_query->execute();
 			
+			// Check whether the query is a row count
 			if(strpos(strtoupper($data), 'COUNT') !== false) {
+				// Return the query data
                 return $select_query->fetchColumn();
             } else {
      			while($row = $select_query->fetch(PDO::FETCH_ASSOC))
      				$db_data[] = $row;
 				
+				// Return the query data
                 return $db_data;
             }
 		} catch(PDOException $e) {

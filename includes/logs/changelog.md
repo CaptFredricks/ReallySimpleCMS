@@ -4,6 +4,21 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.8.8[a] (2019-10-02)
+
+* Added the "menu-item" class to the list item that displays if the menu is empty
+* Menu items are now properly reordered when a menu item's parent is set or unset (in most cases)
+* Added more documentation to the Query class
+* Widened text inputs
+* Changed padding for buttons from pixels to ems
+
+**Modified files:**
+* admin/includes/class-menu.php
+* admin/includes/css/style.css (M)
+* includes/class-query.php
+* includes/css/buttons.css (M)
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.8.7[a] (2019-09-29)
 
 * Child menu items are now indented on the 'Edit Menu' page (up to 3 levels deep)

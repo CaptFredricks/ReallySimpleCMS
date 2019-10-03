@@ -588,6 +588,7 @@ h2 {
 .data-form .text-input {
 	border: 2px solid #cdcdcd;
 	padding: 0.25em;
+	width: 15em;
 }
 
 .data-form .text-input[disabled] {

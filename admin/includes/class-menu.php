@@ -578,7 +578,7 @@ class Menu {
 			// Display a notice if no relationships are found
 			if(empty($relationships)) {
 				?>
-				<li>This menu is empty!</li>
+				<li class="menu-item">This menu is empty!</li>
 				<?php
 			}
 			?>
@@ -777,7 +777,7 @@ class Menu {
 		// Set the page to refresh if the menu item data has been submitted
 		if(isset($_POST['item_submit'])) {
 			?>
-			<meta http-equiv="refresh" content="3">
+			<meta http-equiv="refresh" content="2">
 			<?php
 		}
 		?>
@@ -876,6 +876,9 @@ class Menu {
 		if(empty($data['title']))
 			return statusMessage('R');
 		
+		// Fetch the menu item's current parent from the database
+		$menu_item = $rs_query->selectRow('posts', 'parent', array('id'=>$id));
+		
 		// Update the menu item in the database
 		$rs_query->update('posts', array('title'=>$data['title'], 'modified'=>'NOW()', 'parent'=>$data['parent']), array('id'=>$id));
 		
@@ -887,64 +890,105 @@ class Menu {
 		elseif(!empty($data['custom_link']))
 			$rs_query->update('postmeta', array('value'=>$data['custom_link']), array('post'=>$id, '_key'=>'custom_link'));
 		
+		// Fetch the menu associated with the current menu item
+		$menu = $rs_query->selectRow('term_relationships', 'term', array('post'=>$id));
+		
+		// Fetch all relationships associated with the menu
+		$relationships = $rs_query->select('term_relationships', 'post', array('term'=>$menu['term']));
+		
+		// Create an empty array to hold the indexes
+		$indexes = array();
+		
+		// Loop through the relationships
+		foreach($relationships as $relationship) {
+			// Fetch the index of the menu item associated with the relationship from the database
+			$indexes[] = $rs_query->selectRow('postmeta', array('post', 'value'), array('post'=>$relationship['post'], '_key'=>'menu_index'));
+		}
+		
+		// Fetch the current menu item's index
+		$index_current = (int)implode('', $rs_query->selectRow('postmeta', array('value'), array('post'=>$id, '_key'=>'menu_index')));
+		
 		// Check whether a parent has been set
-		if((int)$data['parent'] !== 0) {
-			// Fetch the menu associated with the current menu item
-			$menu = $rs_query->selectRow('term_relationships', 'term', array('post'=>$id));
+		if((int)$data['parent'] === 0 && (int)$menu_item['parent'] !== 0) {
+			// Fetch the number of menu items associated with the menu
+			$count = $rs_query->select('term_relationships', 'COUNT(*)', array('term'=>$menu['term']));
 			
-			// Fetch all relationships associated with the menu
-			$relationships = $rs_query->select('term_relationships', 'post', array('term'=>$menu['term']));
+			// Update the current menu item's index in the database
+			$rs_query->update('postmeta', array('value'=>($count - $this->getFamilyTree($id))), array('post'=>$id, '_key'=>'menu_index'));
 			
-			// Create an empty array to hold the indexes
-			$indexes = array();
+			// Set a counter
+			$i = 1;
 			
-			// Loop through the relationships
-			foreach($relationships as $relationship) {
-				// Fetch the index of the menu item associated with the relationship from the database
-				$indexes[] = $rs_query->selectRow('postmeta', array('post', 'value'), array('post'=>$relationship['post'], '_key'=>'menu_index'));
+			// Loop through the indexes
+			foreach($indexes as $index) {
+				// Skip over any indexes that come before the current index
+				if((int)$index['value'] <= $index_current) continue;
+				
+				// Check whether any menu items are children of the current menu item
+				if($this->isDescendant($index['post'], $id)) {
+					// Update each menu item's index
+					$rs_query->update('postmeta', array('value'=>($count - $this->getFamilyTree($id) + $i)), array('post'=>$index['post'], '_key'=>'menu_index'));
+					$i++;
+				} else {
+					// Update each menu item's index
+					$rs_query->update('postmeta', array('value'=>((int)$index['value'] - $this->getFamilyTree($id))), array('post'=>$index['post'], '_key'=>'menu_index'));
+				}
 			}
-			
-			// Fetch the current menu item's index
-			$index_current = implode('', $rs_query->selectRow('postmeta', array('value'), array('post'=>$id, '_key'=>'menu_index')));
-			
+		} elseif((int)$data['parent'] !== 0) {
 			// Fetch the parent menu item's index
-			$index_parent = implode('', $rs_query->selectRow('postmeta', array('value'), array('post'=>$data['parent'], '_key'=>'menu_index')));
+			$index_parent = (int)implode('', $rs_query->selectRow('postmeta', array('value'), array('post'=>$data['parent'], '_key'=>'menu_index')));
 			
 			// Check whether the current menu item's index is higher or lower than the parent's index
 			if($index_current > $index_parent) {
+				// Set a counter
+				$i = 1;
+				
 				// Loop through the indexes
 				foreach($indexes as $index) {
-					// Skip over any indexes that come after the current index or before the parent index
-					if($index['value'] >= $index_current || $index['value'] <= $index_parent || $this->isDescendant($index['post'], $index_current)) continue;
+					// Skip over any indexes that come after the current index (and its children) or before the parent index
+					if((int)$index['value'] === $index_current || (int)$index['value'] >= ($index_current + $this->getFamilyTree($id)) || (int)$index['value'] <= $index_parent) continue;
 					
-					// Update each menu item's index
-					$rs_query->update('postmeta', array('value'=>($index['value'] + 1)), array('post'=>$index['post'], '_key'=>'menu_index'));
+					// Check whether any menu items are children of the current menu item
+					if($this->isDescendant($index['post'], $id)) {
+						// Update each menu item's index
+						$rs_query->update('postmeta', array('value'=>($index_parent + 1 + $i)), array('post'=>$index['post'], '_key'=>'menu_index'));
+						$i++;
+					} else {
+						// Update each menu item's index
+						$rs_query->update('postmeta', array('value'=>((int)$index['value'] + $this->getFamilyTree($id))), array('post'=>$index['post'], '_key'=>'menu_index'));
+					}
 				}
 				
 				// Update the current menu item's index in the database
 				$rs_query->update('postmeta', array('value'=>($index_parent + 1)), array('post'=>$id, '_key'=>'menu_index'));
 			} elseif($index_current < $index_parent) {
+				// Update the current menu item's index in the database
+				//$rs_query->update('postmeta', array('value'=>$index_new + ($this->getFamilyTree((int)$data['parent']) - $this->getFamilyTree($id))), array('post'=>$id, '_key'=>'menu_index'));
+				
 				// Set a counter
 				$i = 1;
 				
 				// Loop through the indexes
 				foreach($indexes as $index) {
 					// Skip over any indexes that come before the current index or after the parent index
-					if($index['value'] <= $index_current || $index['value'] > $index_parent) continue;
+					if((int)$index['value'] <= $index_current || (int)$index['value'] > $this->getFamilyTree((int)$data['parent'])) continue;
 					
 					// Check whether any menu items are children of the current menu item
 					if($this->isDescendant($index['post'], $id)) {
 						// Update each menu item's index
-						$rs_query->update('postmeta', array('value'=>($index_parent + $i)), array('post'=>$index['post'], '_key'=>'menu_index'));
+						$rs_query->update('postmeta', array('value'=>($index_parent + 1 + $i)), array('post'=>$index['post'], '_key'=>'menu_index'));
 						$i++;
 					} else {
 						// Update each menu item's index
-						$rs_query->update('postmeta', array('value'=>($index['value'] - $this->getFamilyTree($id))), array('post'=>$index['post'], '_key'=>'menu_index'));
+						$rs_query->update('postmeta', array('value'=>((int)$index['value'] - $this->getFamilyTree($id))), array('post'=>$index['post'], '_key'=>'menu_index'));
 					}
 				}
 				
+				// Fetch the parent menu item's new index from the database
+				$index_new = implode('', $rs_query->selectRow('postmeta', array('value'), array('post'=>$data['parent'], '_key'=>'menu_index')));
+				
 				// Update the current menu item's index in the database
-				$rs_query->update('postmeta', array('value'=>$index_parent), array('post'=>$id, '_key'=>'menu_index'));
+				$rs_query->update('postmeta', array('value'=>$index_new + ($this->getFamilyTree((int)$data['parent']) - $this->getFamilyTree($id))), array('post'=>$id, '_key'=>'menu_index'));
 			}
 		}
 		
