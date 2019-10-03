@@ -71,7 +71,7 @@ if($rs_query->conn_status) {
 }
 
 // Set the current step of the installation process
-$step = intval($_GET['step'] ?? 1);
+$step = (int)($_GET['step'] ?? 1);
 
 /**
  * Run the installation.
@@ -88,8 +88,7 @@ function runInstall($data) {
 	$tables = dbSchema();
 	
 	// Create the tables
-	foreach($tables as $table)
-		$rs_query->doQuery($table);
+	foreach($tables as $table) $rs_query->doQuery($table);
 	
 	// Fetch the user data
 	$user_data = array('username'=>$data['username'], 'password'=>$data['password'], 'email'=>$data['admin_email']);

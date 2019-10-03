@@ -8,6 +8,15 @@
  */
 class Menu {
 	/**
+	 * The number of members in a menu item's family tree.
+	 * @since 1.8.7[a]
+	 *
+	 * @access private
+	 * @var int
+	 */
+	private $members = 0;
+	
+	/**
 	 * Construct a list of all menus in the database.
 	 * @since 1.8.0[a]
 	 *
@@ -880,12 +889,6 @@ class Menu {
 		
 		// Check whether a parent has been set
 		if((int)$data['parent'] !== 0) {
-			// Fetch the current menu item's index
-			$index_current = implode('', $rs_query->selectRow('postmeta', array('value'), array('post'=>$id, '_key'=>'menu_index')));
-			
-			// Fetch the parent menu item's index
-			$index_parent = implode('', $rs_query->selectRow('postmeta', array('value'), array('post'=>$data['parent'], '_key'=>'menu_index')));
-			
 			// Fetch the menu associated with the current menu item
 			$menu = $rs_query->selectRow('term_relationships', 'term', array('post'=>$id));
 			
@@ -901,12 +904,18 @@ class Menu {
 				$indexes[] = $rs_query->selectRow('postmeta', array('post', 'value'), array('post'=>$relationship['post'], '_key'=>'menu_index'));
 			}
 			
+			// Fetch the current menu item's index
+			$index_current = implode('', $rs_query->selectRow('postmeta', array('value'), array('post'=>$id, '_key'=>'menu_index')));
+			
+			// Fetch the parent menu item's index
+			$index_parent = implode('', $rs_query->selectRow('postmeta', array('value'), array('post'=>$data['parent'], '_key'=>'menu_index')));
+			
 			// Check whether the current menu item's index is higher or lower than the parent's index
 			if($index_current > $index_parent) {
 				// Loop through the indexes
 				foreach($indexes as $index) {
-					// Skip over any indexes that come after the current index
-					if($index['value'] >= $index_current || $index['value'] <= $index_parent) continue;
+					// Skip over any indexes that come after the current index or before the parent index
+					if($index['value'] >= $index_current || $index['value'] <= $index_parent || $this->isDescendant($index['post'], $index_current)) continue;
 					
 					// Update each menu item's index
 					$rs_query->update('postmeta', array('value'=>($index['value'] + 1)), array('post'=>$index['post'], '_key'=>'menu_index'));
@@ -915,13 +924,23 @@ class Menu {
 				// Update the current menu item's index in the database
 				$rs_query->update('postmeta', array('value'=>($index_parent + 1)), array('post'=>$id, '_key'=>'menu_index'));
 			} elseif($index_current < $index_parent) {
+				// Set a counter
+				$i = 1;
+				
 				// Loop through the indexes
 				foreach($indexes as $index) {
-					// Skip over any indexes that come before the current index
+					// Skip over any indexes that come before the current index or after the parent index
 					if($index['value'] <= $index_current || $index['value'] > $index_parent) continue;
 					
-					// Update each menu item's index
-					$rs_query->update('postmeta', array('value'=>($index['value'] - 1)), array('post'=>$index['post'], '_key'=>'menu_index'));
+					// Check whether any menu items are children of the current menu item
+					if($this->isDescendant($index['post'], $id)) {
+						// Update each menu item's index
+						$rs_query->update('postmeta', array('value'=>($index_parent + $i)), array('post'=>$index['post'], '_key'=>'menu_index'));
+						$i++;
+					} else {
+						// Update each menu item's index
+						$rs_query->update('postmeta', array('value'=>($index['value'] - $this->getFamilyTree($id))), array('post'=>$index['post'], '_key'=>'menu_index'));
+					}
 				}
 				
 				// Update the current menu item's index in the database
@@ -1094,5 +1113,64 @@ class Menu {
 		
 		// Return the list
 		return $list;
+	}
+	
+	/**
+	 * Fetch the "family tree" of a menu item. Returns the number of members.
+	 * @since 1.8.7[a]
+	 *
+	 * @access private
+	 * @param int $id
+	 * @return int
+	 */
+	private function getFamilyTree($id) {
+		// Extend the Query class
+		global $rs_query;
+		
+		// Fetch the menu item from the database
+		$menu_item = $rs_query->selectRow('posts', 'id', array('id'=>$id));
+		
+		// Check whether the menu item is valid
+		if($menu_item) {
+			// Fetch the descendants of the menu item
+			$this->getDescendants($menu_item['id']);
+			
+			// Increment the member count
+			$this->members++;
+		}
+		
+		// Assign the global value to a local variable
+		$members = $this->members;
+		
+		// Reset the global variable
+		$this->members = 0;
+		
+		// Return the family member count
+		return $members;
+	}
+	
+	/**
+	 * Fetch all descendants of a menu item.
+	 * @since 1.8.7[a]
+	 *
+	 * @access private
+	 * @param int $id
+	 * @return null
+	 */
+	private function getDescendants($id) {
+		// Extend the Query class
+		global $rs_query;
+		
+		// Select any existing children from the database
+		$children = $rs_query->select('posts', 'id', array('parent'=>$id));
+		
+		// Loop through the children
+		foreach($children as $child) {
+			// Fetch the descendants of the menu item
+			$this->getDescendants($child['id']);
+			
+			// Increment the member count
+			$this->members++;
+		}
 	}
 }

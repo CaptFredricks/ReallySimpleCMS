@@ -9,6 +9,7 @@ class Query {
 	/**
 	 * The database connection.
 	 * @since 1.0.0[a]
+	 *
 	 * @access private
 	 * @var object
 	 */
@@ -17,6 +18,7 @@ class Query {
 	/**
 	 * The status of the database connection.
 	 * @since 1.3.0[a]
+	 *
 	 * @access public
 	 * @var bool
 	 */
@@ -25,20 +27,34 @@ class Query {
 	/**
 	 * Class constructor. Initializes the database connection.
 	 * @since 1.0.0[a]
+	 *
 	 * @access public
+	 * @return null
 	 */
 	public function __construct() {
 		try {
+			// Create a PDO object and plug in the database constant values
 			$this->conn = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME.';charset='.DB_CHAR, DB_USER, DB_PASS);
+			
+			// Turn off emulation of prepared statements
 			$this->conn->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+			
+			// Turn on error reporting
 			$this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 			
-			if(empty(DB_HOST) || empty(DB_NAME) || empty(DB_CHAR) || empty(DB_USER))
+			// Check whether any of the database constants are empty
+			if(empty(DB_HOST) || empty(DB_NAME) || empty(DB_CHAR) || empty(DB_USER)) {
+				// Set the connection status to false
 				$this->conn_status = false;
-			else
+			} else {
+				// Set the connection status to true
 				$this->conn_status = true;
+			}
 		} catch(PDOException $e) {
+			// Log any errors
 			logError($e);
+			
+			// Set the connection status to false
 			$this->conn_status = false;
 		}
 	}
@@ -57,20 +73,31 @@ class Query {
 	 * @return array
 	 */
 	public function select($table, $data = '*', $where = '', $order_by = '', $order = 'ASC', $limit = '') {
+		// Stop execution and throw an error if no table is specified
 		if(empty($table)) exit($this->errorMsg('table'));
 		if(is_array($data)) $data = implode(', ', $data);
 		
 		$db_data = array();
+		
+		// Construct the basic SQL statement
 		$sql = 'SELECT '.$data.' FROM `'.$table.'`';
 		
+		// Check whether or not there is a where clause
 		if(!empty($where)) {
+			// Stop execution and throw an error if the where clause is not an array
 			if(!is_array($where)) exit($this->errorMsg('where'));
 			
+			// Create empty arrays to hold portions of the where clause
 			$conditions = $values = $vals = $placeholders = array();
+			
+			// Set the initial operator value
 			$operator = '<>';
 			
+			// Loop through the where clause array
 			foreach($where as $field=>$value) {
+				// Check whether the value is an array
 				if(is_array($value)) {
+					// Loop through the values
 					foreach($value as $val) {
 						if(is_string($val)) {
 							if($val === '<>' || $val === '!')
@@ -85,19 +112,29 @@ class Query {
 						$placeholders[] = '?';
 					}
 					
-					if($operator === '<>')
+					if($operator === '<>') {
+						// Add a condition to the conditions array
 						$conditions[] = $field.' <> ?';
-					elseif($operator === 'IN' || $operator === 'NOT IN')
+					} elseif($operator === 'IN' || $operator === 'NOT IN') {
+						// Add a condition to the conditions array
 						$conditions[] = $field.' '.$operator.' ('.implode(', ', $placeholders).')';
+					}
 					
+					// Merge the two values arrays into one
 					$values = array_merge($values, $vals);
 				} else {
+					// Add a condition to the conditions array
 					$conditions[] = $field.' = ?';
+					
+					// Add the value to the values array
 					$values[] = $value;
 				}
 			}
 			
+			// Merge the conditions array into a string
 			$conditions = implode(' AND ', $conditions);
+			
+			// Add the where clause to the SQL statement
 			$sql .= ' WHERE '.$conditions;
 		}
 		
@@ -110,6 +147,7 @@ class Query {
 		}
 		
 		try {
+			// Prepare and execute the query
 			$select_query = $this->conn->prepare($sql);
 			isset($values) ? $select_query->execute($values) : $select_query->execute();
 			
@@ -122,6 +160,7 @@ class Query {
                 return $db_data;
             }
 		} catch(PDOException $e) {
+			// Log any errors
 			logError($e);
 		}
 	}
@@ -158,6 +197,7 @@ class Query {
 	 * @return int
 	 */
 	public function insert($table, $data) {
+		// Stop execution and throw an error if no table is specified
 		if(empty($table)) exit($this->errorMsg('table'));
 		if(empty($data)) exit($this->errorMsg('data'));
 		if(!is_array($data)) exit($this->errorMsg('data_arr'));
@@ -178,14 +218,18 @@ class Query {
 		$fields = implode(', ', $fields);
 		$placeholders = implode(', ', $placeholders);
 		
+		// Construct the SQL statement
 		$sql = 'INSERT INTO `'.$table.'` ('.$fields.') VALUES ('.$placeholders.')';
 		
 		try {
+			// Prepare and execute the query
 			$insert_query = $this->conn->prepare($sql);
 			$insert_query->execute($values);
 			
+			// Return the insert id for the last entry
 			return $this->conn->lastInsertId();
 		} catch(PDOException $e) {
+			// Log any errors
 			logError($e);
 		}
 	}
@@ -201,6 +245,7 @@ class Query {
 	 * @return null
 	 */
 	public function update($table, $data, $where = '') {
+		// Stop execution and throw an error if no table is specified
 		if(empty($table)) exit($this->errorMsg('table'));
 		if(empty($data)) exit($this->errorMsg('data'));
 		if(!is_array($data)) exit($this->errorMsg('data_arr'));
@@ -217,16 +262,26 @@ class Query {
 		}
 		
 		$fields = implode(', ', $fields);
+		
+		// Construct the basic SQL statement
 		$sql = 'UPDATE `'.$table.'` SET '.$fields;
 		
+		// Check whether or not there is a where clause
 		if(!empty($where)) {
+			// Stop execution and throw an error if the where clause is not an array
 			if(!is_array($where)) exit($this->errorMsg('where'));
 			
+			// Create empty arrays to hold portions of the where clause
 			$conditions = $vals = $placeholders = array();
+			
+			// Set the initial operator value
 			$operator = 'IN';
 			
+			// Loop through the where clause array
 			foreach($where as $field=>$value) {
+				// Check whether the value is an array
 				if(is_array($value)) {
+					// Loop through the values
 					foreach($value as $val) {
 						if($val === 'IN' || $val === 'NOT IN') {
 							$operator = $val;
@@ -236,22 +291,33 @@ class Query {
 						}
 					}
 					
+					// Add a condition to the conditions array
 					$conditions[] = $field.' '.$operator.' ('.implode(', ', $placeholders).')';
+					
+					// Merge the two values arrays into one
 					$values = array_merge($values, $vals);
 				} else {
+					// Add a condition to the conditions array
 					$conditions[] = $field.' = ?';
+					
+					// Add the value to the values array
 					$values[] = $value;
 				}
 			}
 			
+			// Merge the conditions array into a string
 			$conditions = implode(' AND ', $conditions);
+			
+			// Add the where clause to the SQL statement
 			$sql .= ' WHERE '.$conditions;
 		}
 		
 		try {
+			// Prepare and execute the query
 			$update_query = $this->conn->prepare($sql);
 			$update_query->execute($values);
 		} catch(PDOException $e) {
+			// Log any errors
 			logError($e);
 		}
 	}
@@ -266,43 +332,69 @@ class Query {
 	 * @return null
 	 */
 	public function delete($table, $where = '') {
+		// Stop execution and throw an error if no table is specified
 		if(empty($table)) exit($this->errorMsg('table'));
 		
+		// Construct the basic SQL statement
 		$sql = 'DELETE FROM `'.$table.'`';
 		
+		// Check whether or not there is a where clause
 		if(!empty($where)) {
+			// Stop execution and throw an error if the where clause is not an array
 			if(!is_array($where)) exit($this->errorMsg('where'));
 			
+			// Create empty arrays to hold portions of the where clause
 			$conditions = $values = $vals = $placeholders = array();
+			
+			// Set the initial operator value
 			$operator = 'IN';
 			
+			// Loop through the where clause array
 			foreach($where as $field=>$value) {
+				// Check whether the value is an array
 				if(is_array($value)) {
+					// Loop through the values
 					foreach($value as $val) {
+						// Check whether the value is 'IN' or 'NOT IN'
 						if($val === 'IN' || $val === 'NOT IN') {
+							// Set the operator's new value
 							$operator = $val;
 						} else {
+							// Add the value to the vals array
 							$vals[] = $val;
+							
+							// Add a placeholder to the placeholders array
 							$placeholders[] = '?';
 						}
 					}
 					
+					// Add a condition to the conditions array
 					$conditions[] = $field.' '.$operator.' ('.implode(', ', $placeholders).')';
+					
+					// Merge the two values arrays into one
 					$values = array_merge($values, $vals);
 				} else {
+					// Add a condition to the conditions array
 					$conditions[] = $field.' = ?';
+					
+					// Add the value to the values array
 					$values[] = $value;
 				}
 			}
 			
+			// Merge the conditions array into a string
 			$conditions = implode(' AND ', $conditions);
+			
+			// Add the where clause to the SQL statement
 			$sql .= ' WHERE '.$conditions;
 		}
 		
 		try {
+			// Prepare and execute the query
 			$delete_query = $this->conn->prepare($sql);
 			isset($values) ? $delete_query->execute($values) : $delete_query->execute();
 		} catch(PDOException $e) {
+			// Log any errors
 			logError($e);
 		}
 	}

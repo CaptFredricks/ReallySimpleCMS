@@ -4,6 +4,22 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.8.7[a] (2019-09-29)
+
+* Child menu items are now indented on the 'Edit Menu' page (up to 3 levels deep)
+* Created a function that fetches the whole "family tree" of a menu item and returns the number of members
+* Added a global variable to the Menu class to hold the member count of a menu item's "family tree"
+* Created a function that fetches all descendants of a menu item
+* Replaced an occurence of intval() with a casted integer in the installation file
+* Added more documentation to the Query class
+
+**Modified files:**
+* admin/install.php (M)
+* admin/includes/class-menu.php
+* admin/includes/css/style.css
+* includes/class-query.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.8.6[a] (2019-09-28)
 
 * Tweaked a line of documentation in the adminNavMenuItem function
