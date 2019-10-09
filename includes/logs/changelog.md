@@ -4,6 +4,19 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.8.9[a] (2019-10-07)
+
+* Fixed a styling issue with the custom menu link inputs
+* Menu items are now properly reordered when a menu item's parent is set (now works in all cases)
+* Fixed the menu item parents dropdown to only display menu items from the current menu
+* Created a function that checks whether a menu item is a sibling of another menu item
+* Menu items now cannot be reordered beyond the range of their siblings (i.e., a child cannot be given a lower index than its parent)
+
+**Modified files:**
+* admin/includes/class-menu.php
+* admin/includes/css/style.css
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.8.8[a] (2019-10-02)
 
 * Added the "menu-item" class to the list item that displays if the menu is empty

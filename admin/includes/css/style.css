@@ -563,8 +563,8 @@ h2 {
 
 .data-form-wrap .reset-password {
 	position: absolute;
-	right: 1.1875rem;
-	bottom: 1.1875rem;
+	  right: 1.1875rem;
+	  bottom: 1.1875rem;
 }
 
 .data-form {
@@ -715,9 +715,17 @@ h2 {
 	margin: 0;
 }
 
+.data-form .sidebar .block fieldset:last-of-type {
+	padding-top: 0;
+}
+
 .data-form .sidebar .block fieldset legend {
 	font-size: 0.875em;
 	font-weight: 500;
+}
+
+.data-form .sidebar .block fieldset .text-input {
+	width: 100%;
 }
 
 .data-form .sidebar #date {
