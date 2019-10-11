@@ -6,7 +6,7 @@
 
 // Autoload classes
 spl_autoload_register(function($class_name) {
-	require_once 'class-'.strtolower($class_name).'.php';
+	require_once PATH.INC.'/class-'.strtolower($class_name).'.php';
 });
 
 //$rs_post = new Post;

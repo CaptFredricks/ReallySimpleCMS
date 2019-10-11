@@ -266,21 +266,21 @@ class Post {
 			// Redirect to the 'List Posts' page
 			redirect('posts.php');
 		} else {
-			// Fetch the post type from the database
-			$post = $rs_query->selectRow('posts', 'type', array('id'=>$id));
+			// Fetch the post's type from the database
+			$type = $rs_query->selectField('posts', 'type', array('id'=>$id));
 			
-			// Check whether or not the post is valid and of the proper type
-			if(empty($post)) {
+			// Check whether or not the post's type is valid
+			if(empty($type)) {
 				// Redirect to the 'List Posts' page
 				redirect('posts.php');
-			} elseif($post['type'] === 'widget') {
+			} elseif($type === 'widget') {
 				// Redirect to the appropriate 'Edit Widget' form
 				redirect('widgets.php?id='.$id.'&action=edit');
 			} else {
 				// Check whether or not the post is in the trash
 				if($this->isTrash($id)) {
 					// Redirect to the 'List Posts' trash page
-					redirect('posts.php'.($post['type'] !== 'post' ? '?type='.$post['type'].'&' : '?').'status=trash');
+					redirect('posts.php'.($type !== 'post' ? '?type='.$type.'&' : '?').'status=trash');
 				} else {
 					// Validate the form data and return any messages
 					$message = isset($_POST['submit']) ? $this->validateData($_POST, $id) : '';
@@ -439,13 +439,13 @@ class Post {
 			redirect('posts.php');
 		} else {
 			// Fetch the post's type from the database
-			$post = $rs_query->selectRow('posts', 'type', array('id'=>$id));
+			$type = $rs_query->selectField('posts', 'type', array('id'=>$id));
 			
 			// Set the post's status to 'trash'
 			$rs_query->update('posts', array('status'=>'trash'), array('id'=>$id));
 			
 			// Redirect to the 'List Posts' page
-			redirect('posts.php'.($post['type'] !== 'post' ? '?type='.$post['type'] : ''));
+			redirect('posts.php'.($type !== 'post' ? '?type='.$type : ''));
 		}
 	}
 	
@@ -466,14 +466,14 @@ class Post {
 			// Redirect to the 'List Posts' page
 			redirect('posts.php');
 		} else {
-			// Fetch the post from the database
-			$post = $rs_query->selectRow('posts', 'type', array('id'=>$id));
+			// Fetch the post's type from the database
+			$type = $rs_query->selectField('posts', 'type', array('id'=>$id));
 			
 			// Set the post's status to 'draft'
 			$rs_query->update('posts', array('status'=>'draft'), array('id'=>$id));
 			
 			// Redirect to the 'List Posts' trash page
-			redirect('posts.php'.($post['type'] !== 'post' ? '?type='.$post['type'].'&' : '?').'status=trash');
+			redirect('posts.php'.($type !== 'post' ? '?type='.$type.'&' : '?').'status=trash');
 		}
 	}
 	
@@ -494,8 +494,8 @@ class Post {
 			// Redirect to the 'List Posts' page
 			redirect('posts.php');
 		} else {
-			// Fetch the post type from the database
-			$post = $rs_query->selectRow('posts', 'type', array('id'=>$id));
+			// Fetch the post's type from the database
+			$type = $rs_query->selectField('posts', 'type', array('id'=>$id));
 			
 			// Delete the post from the database
 			$rs_query->delete('posts', array('id'=>$id));
@@ -519,7 +519,7 @@ class Post {
 			}
 			
 			// Redirect to the 'List Posts' page (with a success status)
-			redirect('posts.php'.($post['type'] !== 'post' ? '?type='.$post['type'].'&' : '?').'status=trash&exit_status=success');
+			redirect('posts.php'.($type !== 'post' ? '?type='.$type.'&' : '?').'status=trash&exit_status=success');
 		}
 	}
 	
@@ -552,7 +552,7 @@ class Post {
 		$postmeta = array('feat_image'=>$data['feat_image'], 'title'=>$data['meta_title'], 'description'=>$data['meta_description']);
 		
 		if($id === 0) {
-			// Set the parent to zero if the post type is 'post' (non-hierarchical)
+			// Set the parent to zero if the post's type is 'post' (non-hierarchical)
 			if($data['type'] === 'post') $data['parent'] = 0;
 			
 			// Insert the new post into the database
@@ -581,10 +581,10 @@ class Post {
 			redirect('posts.php?id='.$insert_id.'&action=edit');
 		} else {
 			// Fetch the post's type from the database
-			$post = $rs_query->selectRow('posts', 'type', array('id'=>$id));
+			$type = $rs_query->selectField('posts', 'type', array('id'=>$id));
 			
-			// Set the parent to zero if the post type is 'post' (non-hierarchical)
-			if($post['type'] === 'post') $data['parent'] = 0;
+			// Set the parent to zero if the post's type is 'post' (non-hierarchical)
+			if($type === 'post') $data['parent'] = 0;
 			
 			// Update the post in the database
 			$rs_query->update('posts', array('title'=>$data['title'], 'author'=>$data['author'], 'modified'=>'NOW()', 'content'=>$data['content'], 'status'=>$data['status'], 'slug'=>$data['slug'], 'parent'=>$data['parent']), array('id'=>$id));
@@ -636,7 +636,7 @@ class Post {
 			}
 			
 			// Return a status message
-			return statusMessage(ucfirst($post['type']).' updated! <a href="posts.php'.($post['type'] === 'post' ? '' : '?type='.$post['type']).'">Return to list</a>?', true);
+			return statusMessage(ucfirst($type).' updated! <a href="posts.php'.($type === 'post' ? '' : '?type='.$type).'">Return to list</a>?', true);
 		}
 	}
 	
@@ -693,11 +693,11 @@ class Post {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Fetch the post from the database
-		$post = $rs_query->selectRow('posts', 'status', array('id'=>$id));
+		// Fetch the post's status from the database
+		$status = $rs_query->selectField('posts', 'status', array('id'=>$id));
 		
 		// Return true if the post is in the trash
-		return $post['status'] === 'trash';
+		return $status === 'trash';
 	}
 	
 	/**
@@ -715,10 +715,10 @@ class Post {
 		
 		do {
 			// Fetch the parent post from the database
-			$post = $rs_query->selectRow('posts', 'parent', array('id'=>$id));
+			$parent = $rs_query->selectField('posts', 'parent', array('id'=>$id));
 			
 			// Set the new id
-			$id = (int)$post['parent'];
+			$id = (int)$parent;
 			
 			// Return true if the post's ancestor is found
 			if($id === $ancestor) return true;
@@ -732,30 +732,27 @@ class Post {
 	 * Fetch a post's author.
 	 * @since 1.4.0[a]
 	 *
-	 * @access protected
+	 * @access private
 	 * @param int $id
 	 * @return string
 	 */
-	protected function getAuthor($id) {
+	private function getAuthor($id) {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Fetch the author from the database
-		$author = $rs_query->selectRow('users', 'username', array('id'=>$id));
-		
-		// Return the author's username
-		return $author['username'];
+		// Fetch the author's username from the database and return it
+		return $rs_query->selectField('users', 'username', array('id'=>$id));
 	}
 	
 	/**
 	 * Construct a list of authors.
 	 * @since 1.4.4[a]
 	 *
-	 * @access protected
+	 * @access private
 	 * @param int $id (optional; default: 0)
 	 * @return string
 	 */
-	protected function getAuthorList($id = 0) {
+	private function getAuthorList($id = 0) {
 		// Extend the Query class
 		global $rs_query;
 		
@@ -793,11 +790,8 @@ class Post {
 		
 		// Loop through the term relationships
 		foreach($relationships as $relationship) {
-			// Fetch the term's name from the database
-			$term = $rs_query->selectRow('terms', 'name', array('id'=>$relationship['term'], 'taxonomy'=>getTaxonomyId('category')));
-			
-			// Assign the term to the array
-			$categories[] = $term['name'];
+			// Fetch each term from the database and assign them to the categories array
+			$categories[] = $rs_query->selectField('terms', 'name', array('id'=>$relationship['term'], 'taxonomy'=>getTaxonomyId('category')));
 		}
 		
 		// Return the categories
@@ -851,10 +845,10 @@ class Post {
 		global $rs_query;
 		
 		// Fetch the parent post from the database
-		$parent = $rs_query->selectRow('posts', 'title', array('id'=>$id));
+		$parent = $rs_query->selectField('posts', 'title', array('id'=>$id));
 		
 		// Return the parent's title
-		return empty($parent) ? '&mdash;' : $parent['title'];
+		return empty($parent) ? '&mdash;' : $parent;
 	}
 	
 	/**

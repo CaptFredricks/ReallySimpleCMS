@@ -811,6 +811,12 @@ class Menu {
 		// Extend the Query class
 		global $rs_query;
 		
+		// Fetch the parent of the current menu item from the database
+		$parent = (int)$rs_query->selectField('posts', 'parent', array('id'=>$id));
+		
+		// Update the parent of each of the menu item's children in the database
+		$rs_query->update('posts', array('parent'=>$parent), array('parent'=>$id));
+		
 		// Fetch the number of menu items attached to the current menu from the database
 		$count = $rs_query->select('term_relationships', 'COUNT(*)', array('term'=>$menu));
 		

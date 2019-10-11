@@ -82,11 +82,11 @@ function getCurrentPage() {
 				// Redirect to the 'List Posts' page
 				redirect('posts.php');
 			} else {
-				// Fetch the post from the database
-				$post = $rs_query->selectRow('posts', 'type', array('id'=>$_GET['id']));
+				// Fetch the post's type from the database
+				$type = $rs_query->selectField('posts', 'type', array('id'=>$_GET['id']));
 				
-				// Check whether the current post is of type 'post', and set the current page accordingly
-				if($post['type'] !== 'post') $current = $post['type'].'s';
+				// Check whether the current post is of type 'post' and set the current page accordingly
+				if($type !== 'post') $current = $type.'s';
 			}
 		}
 	}
@@ -455,7 +455,7 @@ function getStatistics($table, $field = '', $value = '') {
  * @return null
  */
 function statsBarGraph($bars) {
-	// Return if $bars is not countable
+	// Return if the bars array is not countable
 	if(!is_countable($bars)) return;
 	
 	// Create empty arrays for the stats and links
@@ -476,40 +476,75 @@ function statsBarGraph($bars) {
 		}
 	}
 	
+	// Find the max count
 	$max_count = max($stats);
+	
+	// Divide the max count by 25 and round it up to the nearest whole number
 	$num = ceil($max_count / 25);
+	
+	// Multiply the number times 5
 	$num *= 5;
-	
-	$content = '<input type="hidden" id="max-ct" value="'.($num * 5).'">';
-	$content .= '<div id="stats-graph"><ul class="graph-y">';
-	
-	for($i = 5; $i >= 0; $i--)
-		$content .= '<li><span class="value">'.($i * $num).'</span></li>';
-	
-	$content .= '</ul><ul class="graph-content">';
-	$j = 0;
-	
-	foreach($bars as $bar) {
-		$content .= '<li style="width:'.(1 / count($bars) * 100).'%;"><a class="bar" href="'.$links[$j].'" title="'.ucfirst(isset($bar[2]) ? $bar[2].'s' : $bar[0]).': '.$stats[$j].($stats[$j] === 1 ? ' entry' : ' entries').'">'.$stats[$j].'</a></li>';
-		$j++;
-	}
-	
-	$content .= '<ul class="graph-overlay">';
-	
-	for($k = 5; $k >= 0; $k--)
-		$content .= '<li></li>';
-	
-	$content .= '</ul></ul><ul class="graph-x">';
-	$l = 0;
-	
-	foreach($bars as $bar) {
-		$content .= '<li style="width:'.(1 / count($bars) * 100).'%;"><a class="value" href="'.$links[$l].'" title="'.ucfirst(isset($bar[2]) ? $bar[2].'s' : $bar[0]).': '.$stats[$l].($stats[$l] === 1 ? ' entry' : ' entries').'">'.ucfirst(isset($bar[2]) ? $bar[2].'s' : $bar[0]).'</a></li>';
-		$l++;
-	}
-	
-	$content .= '</ul><span class="graph-y-label">Count</span><span class="graph-x-label">Category</span></div>';
-	
-	echo $content;
+	?>
+	<input type="hidden" id="max-ct" value="<?php echo $num * 5; ?>">
+	<div id="stats-graph">
+		<ul class="graph-y">
+			<?php
+			// Loop through the Y axis values
+			for($i = 5; $i >= 0; $i--) {
+				?>
+				<li><span class="value"><?php echo $i * $num; ?></span></li>
+				<?php
+			}
+			?>
+		</ul>
+		<ul class="graph-content">
+			<?php
+			// Set a counter
+			$j = 0;
+			
+			// Loop through the bars
+			foreach($bars as $bar) {
+				?>
+				<li style="width: <?php echo 1 / count($bars) * 100; ?>%;">
+					<a class="bar" href="<?php echo $links[$j]; ?>" title="<?php echo ucfirst(isset($bar[2]) ? $bar[2].'s' : $bar[0]); ?>: <?php echo $stats[$j].($stats[$j] === 1 ? ' entry' : ' entries'); ?>"><?php echo $stats[$j]; ?></a>
+				</li>
+				<?php
+				// Increment the counter
+				$j++;
+			}
+			?>
+			<ul class="graph-overlay">
+				<?php
+				// Loop through the overlay items
+				for($k = 5; $k >= 0; $k--) {
+					?>
+					<li></li>
+					<?php
+				}
+				?>
+			</ul>
+		</ul>
+		<ul class="graph-x">
+			<?php
+			// Set a counter
+			$l = 0;
+			
+			// Loop through the bars
+			foreach($bars as $bar) {
+				?>
+				<li style="width: <?php echo 1 / count($bars) * 100; ?>%;">
+					<a class="value" href="<?php echo $links[$l]; ?>" title="<?php echo ucfirst(isset($bar[2]) ? $bar[2].'s' : $bar[0]); ?>: <?php echo $stats[$l].($stats[$l] === 1 ? ' entry' : ' entries'); ?>"><?php echo ucfirst(isset($bar[2]) ? $bar[2].'s' : $bar[0]); ?></a>
+				</li>
+				<?php
+				// Increment the counter
+				$l++;
+			}
+			?>
+		</ul>
+		<span class="graph-y-label">Count</span>
+		<span class="graph-x-label">Category</span>
+	</div>
+	<?php
 }
 
 /**
@@ -549,7 +584,7 @@ function paginate($current = 1, $per_page = 20) {
  * @return null
  */
 function pagerNav($page, $page_count) {
-	// Fetch the query string from the url
+	// Fetch the query string from the URL
 	$query_string = $_SERVER['QUERY_STRING'];
 	
 	// Split the query string into an array
@@ -562,12 +597,12 @@ function pagerNav($page, $page_count) {
 			unset($query_params[$i]);
 	}
 	
-	// Remove any extra 'paged' parameters and update the query string
+	// Put the query string back together
 	$query_string = implode('&', $query_params);
 	?>
 	<div class="pager">
 		<?php
-		// Display the 'first page'/'previous page' buttons if it's not the first page
+		// Display the 'first page'/'previous page' buttons if the first page of results is not showing
 		if($page > 1) {
 			?>
 			<a class="pager-nav button" href="<?php echo '?'.(!empty($query_string) ? $query_string.'&' : '').'paged=1'; ?>" title="First Page">&laquo;</a><a class="pager-nav button" href="<?php echo '?'.(!empty($query_string) ? $query_string.'&' : '').'paged='.($page - 1); ?>" title="Previous Page">&lsaquo;</a>
@@ -577,7 +612,7 @@ function pagerNav($page, $page_count) {
 		// Display the current page
 		if($page_count > 0) echo ' Page '.$page.' of '.$page_count.' ';
 		
-		// Display the 'next page'/'last page' buttons if it's not the last page
+		// Display the 'next page'/'last page' buttons if the last page of results is not showing
 		if($page < $page_count) {
 			?>
 			<a class="pager-nav button" href="<?php echo '?'.(!empty($query_string) ? $query_string.'&' : '').'paged='.($page + 1); ?>" title="Next Page">&rsaquo;</a><a class="pager-nav button" href="<?php echo '?'.(!empty($query_string) ? $query_string.'&' : '').'paged='.$page_count; ?>" title="Last Page">&raquo;</a>
@@ -600,8 +635,7 @@ function tableHeaderRow($items) {
 	$row = '';
 	
 	// Loop through the column headings
-	foreach($items as $item)
-		$row .= '<th>'.$item.'</th>';
+	foreach($items as $item) $row .= '<th>'.$item.'</th>';
 	
 	// Return the row
 	return '<tr>'.$row.'</tr>';
@@ -722,7 +756,7 @@ function formRow($label = '', ...$args) {
 		// Open the table cell tag
 		$row .= '<td>';
 		
-		// Check wether any args have been provided
+		// Check whether any args have been provided
 		if(count($args) > 0) {
 			// Check whether or not the args are a multidimensional array
 			if(count($args) !== count($args, COUNT_RECURSIVE)) {
@@ -746,7 +780,7 @@ function formRow($label = '', ...$args) {
 		// Open the table cell tag
 		$row = '<td colspan="2">';
 		
-		// Check wether any args have been provided
+		// Check whether any args have been provided
 		if(count($args) > 0) {
 			// Check whether or not the args are a multidimensional array
 			if(count($args) !== count($args, COUNT_RECURSIVE)) {
@@ -795,11 +829,11 @@ function getTaxonomyId($name) {
 	// Extend the Query class
 	global $rs_query;
 	
-	// Fetch the taxonomy id from the database
-	$taxonomy = $rs_query->selectRow('taxonomies', 'id', array('name'=>$name));
+	// Fetch the taxonomy's id from the database
+	$id = (int)$rs_query->selectField('taxonomies', 'id', array('name'=>$name));
 	
-	// Return the taxonomy id
-	return $taxonomy['id'] ?? 0;
+	// Return the taxonomy's id
+	return $id ?? 0;
 }
 
 /**

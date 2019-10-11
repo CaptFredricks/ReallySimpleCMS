@@ -4,6 +4,25 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.8.11[a] (2019-10-10)
+
+* Updated various functions in the Post and User classes to make use of the new Query::selectField function
+* Changed the access for the Post::getAuthor and Post::getAuthorList functions from protected to private
+* Updated a function in the admin functions file to make use of the new Query::selectField function
+* Added more documentation to the admin functions file
+* Added full file path for autoloaded classes in the includes functions file
+* Updated some functions in the global functions file to make use of the new Query::selectField function
+* A menu item's children will now have their parent updated when that menu item is deleted
+
+**Modified files:**
+* admin/includes/class-menu.php
+* admin/includes/class-post.php
+* admin/includes/class-user.php
+* admin/includes/functions.php
+* includes/functions.php (M)
+* includes/globals.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.8.10[a] (2019-10-08)
 
 * Created a function that selects only a single field from the database and returns it

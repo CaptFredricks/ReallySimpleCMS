@@ -378,11 +378,8 @@ class User {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Fetch the role from the database
-		$role = $rs_query->selectRow('user_roles', 'name', array('id'=>$id));
-		
-		// Return the role's name
-		return $role['name'];
+		// Fetch the user's role from the database and return it
+		return $rs_query->selectField('user_roles', 'name', array('id'=>$id));
 	}
 	
 	/**
@@ -498,15 +495,15 @@ class User {
 			$rs_query->update('users', array('password'=>$hashed_password), array('id'=>$id));
 			
 			// Fetch the user's session from the database
-			$user = $rs_query->selectRow('users', 'session', array('id'=>$id));
+			$session = $rs_query->selectField('users', 'session', array('id'=>$id));
 			
 			// Check whether the user's session is null
-			if(!is_null($user['session'])) {
+			if(!is_null($session)) {
 				// Set the user's session to null in the database
-				$rs_query->update('users', array('session'=>null), array('id'=>$id, 'session'=>$user['session']));
+				$rs_query->update('users', array('session'=>null), array('id'=>$id, 'session'=>$session));
 				
 				// Fetch the session id
-				session_id($user['session']);
+				session_id($session);
 				
 				// Unset all of the session variables
 				unset($_SESSION['id'], $_SESSION['username'], $_SESSION['avatar'], $_SESSION['role'], $_SESSION['session']);
@@ -533,10 +530,10 @@ class User {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Fetch the password from the database
-		$user = $rs_query->selectRow('users', 'password', array('id'=>$session_data['id'], 'session'=>$session_data['session']));
+		// Fetch the user's password from the database
+		$db_password = $rs_query->selectField('users', 'password', array('id'=>$session_data['id'], 'session'=>$session_data['session']));
 		
 		// Return true if the password is valid
-		return !empty($user['password']) && password_verify($password, $user['password']);
+		return !empty($db_password) && password_verify($password, $db_password);
 	}
 }

@@ -5,7 +5,7 @@
  */
 
 // Current CMS version
-const VERSION = '1.8.10';
+const VERSION = '1.8.11';
 
 /**
  * Display copyright on the admin dashboard.
@@ -97,13 +97,13 @@ function getSetting($name, $echo = true) {
 	global $rs_query;
 	
 	// Fetch the setting from the database
-	$setting = $rs_query->selectRow('settings', 'value', array('name'=>$name));
+	$setting = $rs_query->selectField('settings', 'value', array('name'=>$name));
 	
 	// Display or return the setting based upon the value of $echo
 	if($echo)
-		echo $setting['value'];
+		echo $setting;
 	else
-		return $setting['value'];
+		return $setting;
 }
 
 /**
@@ -119,10 +119,10 @@ function userHasPrivilege($role, $privilege) {
 	global $rs_query;
 	
 	// Fetch the privilege's id from the database
-	$db_privilege = $rs_query->selectRow('user_privileges', 'id', array('name'=>$privilege));
+	$id = $rs_query->selectField('user_privileges', 'id', array('name'=>$privilege));
 	
 	// Fetch any relationships between the user's role and the specified privilege
-	$relationship = $rs_query->selectRow('user_relationships', 'COUNT(*)', array('role'=>$role, 'privilege'=>$db_privilege['id']));
+	$relationship = $rs_query->selectRow('user_relationships', 'COUNT(*)', array('role'=>$role, 'privilege'=>$id));
 	
 	// Return true if the relationship count is greater than zero
 	return $relationship > 0;
