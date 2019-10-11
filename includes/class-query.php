@@ -66,13 +66,13 @@ class Query {
 	 * @access public
 	 * @param string $table
 	 * @param string|array $data (optional; default: '*')
-	 * @param string|array $where (optional; default: '')
+	 * @param array $where (optional; default: array())
 	 * @param string $order_by (optional; default: '')
 	 * @param string $order (optional; default: 'ASC')
 	 * @param string|array $limit (optional; default: '')
 	 * @return array
 	 */
-	public function select($table, $data = '*', $where = '', $order_by = '', $order = 'ASC', $limit = '') {
+	public function select($table, $data = '*', $where = array(), $order_by = '', $order = 'ASC', $limit = '') {
 		// Stop execution and throw an error if no table is specified
 		if(empty($table)) exit($this->errorMsg('table'));
 		
@@ -182,19 +182,48 @@ class Query {
 	 * @access public
 	 * @param string $table
 	 * @param string|array $data (optional; default: '*')
-	 * @param string|array $where (optional; default: '')
+	 * @param array $where (optional; default: array())
 	 * @param string $order_by (optional; default: '')
 	 * @param string $order (optional; default: 'ASC')
 	 * @param string|array $limit (optional; default: '')
 	 * @return array
 	 */
-	public function selectRow($table, $data = '*', $where = '', $order_by = '', $order = 'ASC', $limit = '') {
+	public function selectRow($table, $data = '*', $where = array(), $order_by = '', $order = 'ASC', $limit = '') {
+		// Fetch the data from the database
 		$db_data = $this->select($table, $data, $where, $order_by, $order, $limit);
 		
-		if(is_array($db_data) && !empty($db_data))
+		// Check whether the data is an array and is not empty
+		if(is_array($db_data) && !empty($db_data)) {
+			// Merge and return the data
 			return array_merge(...$db_data);
-		else
+		} else {
+			// Return the data
 			return $db_data;
+		}
+	}
+	
+	/**
+	 * Select only a single field from the database and return it.
+	 * @since 1.8.10[a]
+	 *
+	 * @access public
+	 * @param string $table
+	 * @param string $field
+	 * @param array $where (optional; default: array())
+	 * @param string $order_by (optional; default: '')
+	 * @param string $order (optional; default: 'ASC')
+	 * @param string|array $limit (optional; default: '')
+	 * @return string
+	 */
+	public function selectField($table, $field, $where = array(), $order_by = '', $order = 'ASC', $limit = '') {
+		// Stop execution and throw an error if no field is specified
+		if(empty($field)) exit($this->errorMsg('field'));
+		
+		// Fetch the field data from the database
+		$data = $this->selectRow($table, $field, $where, $order_by, $order, $limit);
+		
+		// Return the field data
+		return implode('', $data);
 	}
 	
 	/**
@@ -209,7 +238,10 @@ class Query {
 	public function insert($table, $data) {
 		// Stop execution and throw an error if no table is specified
 		if(empty($table)) exit($this->errorMsg('table'));
+		
+		// Stop execution and throw an error if no data is specified
 		if(empty($data)) exit($this->errorMsg('data'));
+		
 		if(!is_array($data)) exit($this->errorMsg('data_arr'));
 		
 		$fields = $values = $placeholders = array();
@@ -251,13 +283,16 @@ class Query {
 	 * @access public
 	 * @param string $table
 	 * @param array $data
-	 * @param string|array $where (optional; default: '')
+	 * @param array $where (optional; default: array())
 	 * @return null
 	 */
-	public function update($table, $data, $where = '') {
+	public function update($table, $data, $where = array()) {
 		// Stop execution and throw an error if no table is specified
 		if(empty($table)) exit($this->errorMsg('table'));
+		
+		// Stop execution and throw an error if no data is specified
 		if(empty($data)) exit($this->errorMsg('data'));
+		
 		if(!is_array($data)) exit($this->errorMsg('data_arr'));
 		
 		$fields = $values = array();
@@ -338,10 +373,10 @@ class Query {
 	 *
 	 * @access public
 	 * @param string $table
-	 * @param string|array $where (optional; default: '')
+	 * @param array $where (optional; default: array())
 	 * @return null
 	 */
-	public function delete($table, $where = '') {
+	public function delete($table, $where = array()) {
 		// Stop execution and throw an error if no table is specified
 		if(empty($table)) exit($this->errorMsg('table'));
 		
@@ -469,6 +504,9 @@ class Query {
 		switch($type) {
 			case 'table':
 				$error .= 'a table must be specified!';
+				break;
+			case 'field':
+				$error .= 'a field must be specified!';
 				break;
 			case 'where':
 				$error .= 'where clause parameters must be in an array.';

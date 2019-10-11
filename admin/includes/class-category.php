@@ -266,10 +266,10 @@ class Category {
 		
 		do {
 			// Fetch the parent category from the database
-			$category = $rs_query->selectRow('terms', 'parent', array('id'=>$id));
+			$parent = $rs_query->selectField('terms', 'parent', array('id'=>$id));
 			
 			// Set the new id
-			$id = (int)$category['parent'];
+			$id = (int)$parent;
 			
 			// Return true if the category's ancestor is found
 			if($id === $ancestor) return true;
@@ -292,10 +292,10 @@ class Category {
 		global $rs_query;
 		
 		// Fetch the parent category from the database
-		$parent = $rs_query->selectRow('terms', 'name', array('id'=>$id));
+		$parent = $rs_query->selectField('terms', 'name', array('id'=>$id));
 		
 		// Return the parent's name
-		return empty($parent) ? '&mdash;' : $parent['name'];
+		return empty($parent) ? '&mdash;' : $parent;
 	}
 	
 	/**

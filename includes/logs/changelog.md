@@ -4,6 +4,21 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.8.10[a] (2019-10-08)
+
+* Created a function that selects only a single field from the database and returns it
+* Added more documentation to the Query class
+* Changed the default value for the where parameter from '' to array() in all Query functions that use it
+* Updated various functions in the Category, Menu, and Settings classes to make use of the new Query::selectField function
+* Cleaned up some code in the Menu class
+
+**Modified files:**
+* admin/includes/class-category.php
+* admin/includes/class-menu.php
+* admin/includes/class-settings.php
+* includes/class-query.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.8.9[a] (2019-10-07)
 
 * Fixed a styling issue with the custom menu link inputs

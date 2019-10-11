@@ -78,7 +78,7 @@ class Settings {
 		$data['do_robots'] = isset($data['do_robots']) ? 0 : 1;
 		
 		// Fetch current value of 'do_robots' in the database
-		$db_data = $rs_query->selectRow('settings', 'value', array('name'=>'do_robots'));
+		$do_robots = $rs_query->selectField('settings', 'value', array('name'=>'do_robots'));
 		
 		// Update the settings in the database
 		foreach($data as $name=>$value)
@@ -91,7 +91,7 @@ class Settings {
 		$file = file($file_path, FILE_IGNORE_NEW_LINES);
 		
 		// Check whether 'do_robots' has changed
-		if($data['do_robots'] !== (int)$db_data['value']) {
+		if($data['do_robots'] !== (int)$do_robots) {
 			// Check whether 'do_robots' is set or not
 			if($data['do_robots'] === 0) {
 				// Block robots from crawling the site
@@ -307,10 +307,10 @@ class Settings {
 			redirect('settings.php?page=user_roles');
 		} else {
 			// Fetch the role's 'default' value from the database
-			$role = $rs_query->selectRow('user_roles', '_default', array('id'=>$id));
+			$default = $rs_query->selectField('user_roles', '_default', array('id'=>$id));
 			
-			// Check whether or not the role is valid and is a default user role
-			if(empty($role) || $role['_default'] === 'yes') {
+			// Check whether or not the role is valid or is a default user role
+			if(empty($default) || $default === 'yes') {
 				// Redirect to the 'List User Roles' page
 				redirect('settings.php?page=user_roles');
 			} else {
@@ -359,10 +359,10 @@ class Settings {
 			redirect('settings.php?page=user_roles');
 		} else {
 			// Fetch the role's 'default' value from the database
-			$role = $rs_query->selectRow('user_roles', '_default', array('id'=>$id));
+			$default = $rs_query->selectField('user_roles', '_default', array('id'=>$id));
 			
 			// Check whether or not the role is valid and is a default user role
-			if(empty($role) || $role['_default'] === 'yes') {
+			if(empty($default) || $default === 'yes') {
 				// Redirect to the 'List User Roles' page
 				redirect('settings.php?page=user_roles');
 			} else {
@@ -499,10 +499,10 @@ class Settings {
 		// Loop through the user relationships
 		foreach($relationships as $relationship) {
 			// Fetch the privilege's name from the database
-			$privilege = $rs_query->selectRow('user_privileges', 'name', array('id'=>$relationship['privilege']));
+			$privilege = $rs_query->selectField('user_privileges', 'name', array('id'=>$relationship['privilege']));
 			
 			// Assign the privilege to the array
-			$privileges[] = $privilege['name'];
+			$privileges[] = $privilege;
 		}
 		
 		// Return the privileges

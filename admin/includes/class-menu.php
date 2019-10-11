@@ -674,23 +674,20 @@ class Menu {
 		global $rs_query;
 		
 		// Fetch the index of the current menu item from the database
-		$current_index = (int)implode('', $rs_query->selectRow('postmeta', 'value', array('post'=>$id, '_key'=>'menu_index')));
+		$current_index = (int)$rs_query->selectField('postmeta', 'value', array('post'=>$id, '_key'=>'menu_index'));
 		
 		// Check whether the index is greater than zero (the first index)
 		if($current_index > 0) {
-			// Fetch the current menu item's parent from the database
-			//$parent = (int)implode('', $rs_query->selectRow('posts', 'parent', array('id'=>$id)));
-			
 			// Fetch the shared relationships with the other menu items from the database
 			$relationships = $rs_query->select('term_relationships', 'post', array('term'=>$menu));
 			
 			// Loop through the relationships
 			foreach($relationships as $relationship) {
 				// Fetch the index of the menu item from the database
-				$index = (int)implode('', $rs_query->selectRow('postmeta', 'value', array('post'=>$relationship['post'], '_key'=>'menu_index')));
+				$index = (int)$rs_query->selectField('postmeta', 'value', array('post'=>$relationship['post'], '_key'=>'menu_index'));
 				
 				// Check whether the previous menu item has been found
-				if($index === $current_index - 1 && $this->isSibling($id, $relationship['post'])) { //(int)$relationship['post'] !== $parent
+				if($index === $current_index - 1 && $this->isSibling($id, $relationship['post'])) {
 					// Set the new index to one greater than the original index
 					$rs_query->update('postmeta', array('value'=>($index + 1)), array('post'=>$relationship['post'], '_key'=>'menu_index'));
 					
@@ -719,26 +716,20 @@ class Menu {
 		$count = $rs_query->select('term_relationships', 'COUNT(*)', array('term'=>$menu));
 		
 		// Fetch the index of the current menu item from the database
-		$current_index = (int)implode('', $rs_query->selectRow('postmeta', 'value', array('post'=>$id, '_key'=>'menu_index')));
+		$current_index = (int)$rs_query->selectField('postmeta', 'value', array('post'=>$id, '_key'=>'menu_index'));
 		
 		// Check whether the index is less than the count minus one (the last index)
 		if($current_index < $count - 1) {
-			// Fetch the current menu item's parent from the database
-			//$current_parent = (int)implode('', $rs_query->selectRow('posts', 'parent', array('id'=>$id)));
-			
 			// Fetch the shared relationships with the other menu items from the database
 			$relationships = $rs_query->select('term_relationships', 'post', array('term'=>$menu));
 			
 			// Loop through the relationships
 			foreach($relationships as $relationship) {
-				// Fetch the menu item's parent from the database
-				//$parent = (int)implode('', $rs_query->selectRow('posts', 'parent', array('id'=>$relationship['post'])));
-				
 				// Fetch the index of the menu item from the database
-				$index = (int)implode('', $rs_query->selectRow('postmeta', 'value', array('post'=>$relationship['post'], '_key'=>'menu_index')));
+				$index = (int)$rs_query->selectField('postmeta', 'value', array('post'=>$relationship['post'], '_key'=>'menu_index'));
 				
 				// Check whether the next menu item has been found
-				if($index === $current_index + 1 && $this->isSibling($id, $relationship['post'])) { // (($current_parent !== 0 && $parent !== 0) && $parent !== $current_parent)
+				if($index === $current_index + 1 && $this->isSibling($id, $relationship['post'])) {
 					// Set the new index to one less than the original index
 					$rs_query->update('postmeta', array('value'=>($index - 1)), array('post'=>$relationship['post'], '_key'=>'menu_index'));
 					
@@ -823,8 +814,8 @@ class Menu {
 		// Fetch the number of menu items attached to the current menu from the database
 		$count = $rs_query->select('term_relationships', 'COUNT(*)', array('term'=>$menu));
 		
-		// Fetch the index of the menu item from the database
-		$index = $rs_query->selectRow('postmeta', 'value', array('post'=>$id, '_key'=>'menu_index'));
+		// Fetch the index of the current menu item from the database
+		$current_index = (int)$rs_query->selectField('postmeta', 'value', array('post'=>$id, '_key'=>'menu_index'));
 		
 		// Delete the menu item from the database
 		$rs_query->delete('posts', array('id'=>$id, 'type'=>'nav_menu_item'));
@@ -836,22 +827,22 @@ class Menu {
 		$rs_query->delete('term_relationships', array('post'=>$id));
 		
 		// Check whether the index is less than the count minus one (the last index)
-		if((int)$index['value'] < $count - 1) {
+		if($current_index < $count - 1) {
 			// Fetch the shared relationships with the other menu items from the database
 			$relationships = $rs_query->select('term_relationships', 'post', array('term'=>$menu));
 			
 			// Loop through the relationships
 			foreach($relationships as $relationship) {
-				// Fetch the metadata associated with the menu item from the database
-				$itemmeta = $rs_query->selectRow('postmeta', array('id', 'value'), array('post'=>$relationship['post'], '_key'=>'menu_index'));
+				// Fetch the index of the menu item from the database
+				$index = (int)$rs_query->selectField('postmeta', 'value', array('post'=>$relationship['post'], '_key'=>'menu_index'));
 				
 				// Check whether the menu item's index is less than the deleted menu item
-				if((int)$itemmeta['value'] < (int)$index['value']) {
+				if($index < $current_index) {
 					// Skip to the next menu item
 					continue;
 				} else {
 					// Set the new index to one less than the original index
-					$rs_query->update('postmeta', array('value'=>((int)$itemmeta['value'] - 1)), array('post'=>$relationship['post'], '_key'=>'menu_index'));
+					$rs_query->update('postmeta', array('value'=>($index - 1)), array('post'=>$relationship['post'], '_key'=>'menu_index'));
 				}
 			}
 		}
@@ -881,7 +872,7 @@ class Menu {
 			return statusMessage('R');
 		
 		// Fetch the menu item's current parent from the database
-		$menu_item = $rs_query->selectRow('posts', 'parent', array('id'=>$id));
+		$parent = (int)$rs_query->selectField('posts', 'parent', array('id'=>$id));
 		
 		// Update the menu item in the database
 		$rs_query->update('posts', array('title'=>$data['title'], 'modified'=>'NOW()', 'parent'=>$data['parent']), array('id'=>$id));
@@ -895,10 +886,10 @@ class Menu {
 			$rs_query->update('postmeta', array('value'=>$data['custom_link']), array('post'=>$id, '_key'=>'custom_link'));
 		
 		// Fetch the menu associated with the current menu item
-		$menu = $rs_query->selectRow('term_relationships', 'term', array('post'=>$id));
+		$menu = $rs_query->selectField('term_relationships', 'term', array('post'=>$id));
 		
 		// Fetch all relationships associated with the menu
-		$relationships = $rs_query->select('term_relationships', 'post', array('term'=>$menu['term']));
+		$relationships = $rs_query->select('term_relationships', 'post', array('term'=>$menu));
 		
 		// Create an empty array to hold the indexes
 		$indexes = array();
@@ -910,12 +901,12 @@ class Menu {
 		}
 		
 		// Fetch the current menu item's index
-		$index_current = (int)implode('', $rs_query->selectRow('postmeta', array('value'), array('post'=>$id, '_key'=>'menu_index')));
+		$current_index = (int)$rs_query->selectField('postmeta', 'value', array('post'=>$id, '_key'=>'menu_index'));
 		
 		// Check whether a parent has been set
-		if((int)$data['parent'] === 0 && (int)$menu_item['parent'] !== 0) {
+		if((int)$data['parent'] === 0 && $parent !== 0) {
 			// Fetch the number of menu items associated with the menu
-			$count = $rs_query->select('term_relationships', 'COUNT(*)', array('term'=>$menu['term']));
+			$count = $rs_query->select('term_relationships', 'COUNT(*)', array('term'=>$menu));
 			
 			// Update the current menu item's index in the database
 			$rs_query->update('postmeta', array('value'=>($count - $this->getFamilyTree($id))), array('post'=>$id, '_key'=>'menu_index'));
@@ -926,7 +917,7 @@ class Menu {
 			// Loop through the indexes
 			foreach($indexes as $index) {
 				// Skip over any indexes that come before the current index
-				if((int)$index['value'] <= $index_current) continue;
+				if((int)$index['value'] <= $current_index) continue;
 				
 				// Check whether any menu items are children of the current menu item
 				if($this->isDescendant($index['post'], $id)) {
@@ -940,12 +931,12 @@ class Menu {
 			}
 		} elseif((int)$data['parent'] !== 0) {
 			// Fetch the parent menu item's index
-			$index_parent = (int)implode('', $rs_query->selectRow('postmeta', array('value'), array('post'=>$data['parent'], '_key'=>'menu_index')));
+			$parent_index = (int)$rs_query->selectField('postmeta', 'value', array('post'=>$data['parent'], '_key'=>'menu_index'));
 			
 			// Check whether the current menu item's index is higher or lower than the parent's index
-			if($index_current > $index_parent) {
+			if($current_index > $parent_index) {
 				// Update the current menu item's index in the database
-				$rs_query->update('postmeta', array('value'=>($index_parent + 1)), array('post'=>$id, '_key'=>'menu_index'));
+				$rs_query->update('postmeta', array('value'=>($parent_index + 1)), array('post'=>$id, '_key'=>'menu_index'));
 				
 				// Set a counter
 				$i = 1;
@@ -953,27 +944,24 @@ class Menu {
 				// Loop through the indexes
 				foreach($indexes as $index) {
 					// Skip over any indexes that come after the current index (and its children) or before the parent index
-					if((int)$index['value'] === $index_current || (int)$index['value'] >= ($index_current + $this->getFamilyTree($id)) || (int)$index['value'] <= $index_parent) continue;
+					if((int)$index['value'] === $current_index || (int)$index['value'] >= ($current_index + $this->getFamilyTree($id)) || (int)$index['value'] <= $parent_index) continue;
 					
 					// Check whether any menu items are children of the current menu item
 					if($this->isDescendant($index['post'], $id)) {
 						// Update each menu item's index
-						$rs_query->update('postmeta', array('value'=>($index_parent + 1 + $i)), array('post'=>$index['post'], '_key'=>'menu_index'));
+						$rs_query->update('postmeta', array('value'=>($parent_index + 1 + $i)), array('post'=>$index['post'], '_key'=>'menu_index'));
 						$i++;
 					} else {
 						// Update each menu item's index
 						$rs_query->update('postmeta', array('value'=>((int)$index['value'] + $this->getFamilyTree($id))), array('post'=>$index['post'], '_key'=>'menu_index'));
 					}
 				}
-				
-				// Update the current menu item's index in the database
-				//$rs_query->update('postmeta', array('value'=>($index_parent + 1)), array('post'=>$id, '_key'=>'menu_index'));
-			} elseif($index_current < $index_parent) {
+			} elseif($current_index < $parent_index) {
 				// Determine the new index of the current menu item
-				$index_new = $index_parent - $this->getFamilyTree($id) + $this->getFamilyTree((int)$data['parent']) - $this->getFamilyTree($id);
+				$new_index = $parent_index - $this->getFamilyTree($id) + $this->getFamilyTree((int)$data['parent']) - $this->getFamilyTree($id);
 				
 				// Update the current menu item's index in the database
-				$rs_query->update('postmeta', array('value'=>$index_new), array('post'=>$id, '_key'=>'menu_index'));
+				$rs_query->update('postmeta', array('value'=>$new_index), array('post'=>$id, '_key'=>'menu_index'));
 				
 				// Set a counter
 				$i = 1;
@@ -981,12 +969,12 @@ class Menu {
 				// Loop through the indexes
 				foreach($indexes as $index) {
 					// Skip over any indexes that come before the current index or after the parent index
-					if((int)$index['value'] <= $index_current || (int)$index['value'] >= $index_parent + $this->getFamilyTree((int)$data['parent']) - $this->getFamilyTree($id)) continue;
+					if((int)$index['value'] <= $current_index || (int)$index['value'] >= $parent_index + $this->getFamilyTree((int)$data['parent']) - $this->getFamilyTree($id)) continue;
 					
 					// Check whether any menu items are children of the current menu item
 					if($this->isDescendant($index['post'], $id)) {
 						// Update each menu item's index
-						$rs_query->update('postmeta', array('value'=>($index_new + $i)), array('post'=>$index['post'], '_key'=>'menu_index'));
+						$rs_query->update('postmeta', array('value'=>($new_index + $i)), array('post'=>$index['post'], '_key'=>'menu_index'));
 						$i++;
 					} else {
 						// Update each menu item's index
@@ -1014,10 +1002,10 @@ class Menu {
 		global $rs_query;
 		
 		// Fetch the parent of the menu item from the database
-		$parent = (int)implode('', $rs_query->selectRow('posts', 'parent', array('id'=>$id)));
+		$parent = (int)$rs_query->selectField('posts', 'parent', array('id'=>$id));
 		
 		// Fetch the parent of the potential sibling from the database
-		$sibling_parent = (int)implode('', $rs_query->selectRow('posts', 'parent', array('id'=>$sibling)));
+		$sibling_parent = (int)$rs_query->selectField('posts', 'parent', array('id'=>$sibling));
 		
 		// Return true if both menu items share the same parent
 		return $parent === $sibling_parent;
@@ -1038,10 +1026,10 @@ class Menu {
 		
 		do {
 			// Fetch the parent menu item from the database
-			$menu_item = $rs_query->selectRow('posts', 'parent', array('id'=>$id));
+			$parent = $rs_query->selectField('posts', 'parent', array('id'=>$id));
 			
 			// Set the new id
-			$id = (int)$menu_item['parent'];
+			$id = (int)$parent;
 			
 			// Return true if the menu item's ancestor is found
 			if($id === $ancestor) return true;
@@ -1104,10 +1092,10 @@ class Menu {
 		
 		do {
 			// Fetch the parent menu item from the database
-			$menu_item = $rs_query->selectRow('posts', 'parent', array('id'=>$id));
+			$parent = $rs_query->selectField('posts', 'parent', array('id'=>$id));
 			
 			// Set the new id
-			$id = (int)$menu_item['parent'];
+			$id = (int)$parent;
 			
 			// Increment the count variable
 			$depth++;
@@ -1171,10 +1159,10 @@ class Menu {
 		$menu_items = array();
 		
 		// Fetch the menu that the menu item id is associated with from the database
-		$menu = $rs_query->selectRow('term_relationships', 'term', array('post'=>$id));
+		$menu = $rs_query->selectField('term_relationships', 'term', array('post'=>$id));
 		
 		// Fetch all term relationships associated with the menu from the database
-		$relationships = $rs_query->select('term_relationships', 'post', array('term'=>$menu['term']));
+		$relationships = $rs_query->select('term_relationships', 'post', array('term'=>$menu));
 		
 		// Loop through the relationships
 		foreach($relationships as $relationship) {
@@ -1210,13 +1198,13 @@ class Menu {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Fetch the menu item from the database
-		$menu_item = $rs_query->selectRow('posts', 'id', array('id'=>$id));
+		// Fetch the menu item's id from the database
+		$menu_item_id = $rs_query->selectField('posts', 'id', array('id'=>$id));
 		
-		// Check whether the menu item is valid
-		if($menu_item) {
+		// Check whether the menu item's id is valid
+		if($menu_item_id) {
 			// Fetch the descendants of the menu item
-			$this->getDescendants($menu_item['id']);
+			$this->getDescendants($menu_item_id);
 			
 			// Increment the member count
 			$this->members++;
