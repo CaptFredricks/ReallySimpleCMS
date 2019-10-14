@@ -4,6 +4,29 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.8.12[a] (2019-10-13)
+
+* Changed the default values of some columns in the database schema to avoid issues when using phpMyAdmin's strict mode
+* Created a function that fetches a menu item's parent
+* Created a function that checks whether a menu item has siblings
+* Created a function that checks whether a menu item is the first of its siblings
+* Created a function that checks whether a menu item is the last of its siblings
+* Created a function that checks whether a menu item is the previous sibling of another menu item
+* Created a function that checks whether a menu item is the next sibling of another menu item
+* Created a function that fetches the previous sibling of a menu item
+* Menu items are properly reordered when a menu item is moved up
+* The Menu::isSibling function is now deprecated
+* Created a function that fetches the next sibling of a menu item
+* Menu items are properly reordered when a menu item is moved down
+* Tweaked styling for form textarea fields
+
+**Modified files:**
+* admin/includes/class-menu.php
+* admin/includes/css/style.css
+* includes/deprecated.php
+* includes/schema.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.8.11[a] (2019-10-10)
 
 * Updated various functions in the Post and User classes to make use of the new Query::selectField function

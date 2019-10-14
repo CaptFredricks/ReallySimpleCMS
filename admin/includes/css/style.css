@@ -612,7 +612,8 @@ h2 {
 .data-form .textarea-input {
 	background-color: #fdfdfd;
 	border: 2px solid #cdcdcd;
-	padding: 0.5em;
+	font-family: Consolas, monospace;
+	padding: 0.375rem 0.5rem;
 	resize: none;
 	width: 100%;
 }
@@ -796,8 +797,9 @@ h2 {
 .data-form .metadata .textarea-input {
 	border: 1px solid #adadad;
 	font-family: 'Segoe UI', Helvetica, sans-serif;
+	font-size: 0.9em;
 	max-width: 40em;
-	padding: 0.25em;
+	padding: 0.125rem 0.375rem;
 	width: 100%;
 }
 

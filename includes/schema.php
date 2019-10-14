@@ -11,7 +11,7 @@ function dbSchema() {
 		id bigint(20) unsigned PRIMARY KEY auto_increment,
 		post bigint(20) unsigned NOT NULL default '0',
 		_key varchar(255) NOT NULL,
-		value longtext NOT NULL,
+		value longtext NOT NULL default '',
 		KEY post (post),
 		KEY _key (_key)
 	);";
@@ -23,8 +23,8 @@ function dbSchema() {
 		author bigint(20) unsigned NOT NULL default '0',
 		date datetime default NULL,
 		modified datetime default NULL,
-		content longtext NOT NULL,
-		status varchar(20) NOT NULL,
+		content longtext NOT NULL default '',
+		status varchar(20) NOT NULL default 'inherit',
 		slug varchar(255) NOT NULL,
 		parent bigint(20) unsigned NOT NULL default '0',
 		type varchar(50) NOT NULL default 'post',
@@ -45,7 +45,7 @@ function dbSchema() {
 	$tables['settings'] = "CREATE TABLE settings (
 		id bigint(20) unsigned PRIMARY KEY auto_increment,
 		name varchar(255) NOT NULL,
-		value longtext NOT NULL,
+		value longtext NOT NULL default '',
 		KEY name (name)
 	);";
 	
@@ -106,7 +106,7 @@ function dbSchema() {
 		id bigint(20) unsigned PRIMARY KEY auto_increment,
 		user bigint(20) unsigned NOT NULL default '0',
 		_key varchar(255) NOT NULL,
-		value longtext NOT NULL,
+		value longtext NOT NULL default '',
 		KEY user (user),
 		KEY _key (_key)
 	);";

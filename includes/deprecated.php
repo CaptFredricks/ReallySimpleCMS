@@ -1,6 +1,30 @@
 <?php // A list of deprecated functions that may be used again later on (ordered by descending deprecated version).
 
 /**
+ * Check whether a menu item is a sibling of another menu item.
+ * @since 1.8.9[a]
+ * @deprecated since 1.8.12[a]
+ *
+ * @access private
+ * @param int $id
+ * @param int $sibling
+ * @return bool
+ */
+private function isSibling($id, $sibling) {
+	// Extend the Query class
+	global $rs_query;
+	
+	// Fetch the parent of the menu item from the database
+	$parent = (int)$rs_query->selectField('posts', 'parent', array('id'=>$id));
+	
+	// Fetch the parent of the potential sibling from the database
+	$sibling_parent = (int)$rs_query->selectField('posts', 'parent', array('id'=>$sibling));
+	
+	// Return true if both menu items share the same parent
+	return $parent === $sibling_parent;
+}
+
+/**
  * Populate the users table.
  * @since 1.3.1[a]
  * @deprecated since 1.6.4[a]
