@@ -4,13 +4,16 @@
  * @since 1.3.5[a]
  */
 
+// Start the session
+session_start();
+
 // Generate md5 hash
 $hash = md5(rand(0, 999));
 
-// Create security code
+// Create a security code
 $secure_login = substr($hash, 15, 5);
 
-// Set session value
+// Set the session value
 $_SESSION['secure_login'] = $secure_login;
 
 // Set the image dimensions

@@ -840,12 +840,12 @@ function getTaxonomyId($name) {
  * Generate a random password.
  * @since 1.3.0[a]
  *
- * @param int $length (optional; default: 15)
+ * @param int $length (optional; default: 16)
  * @param bool $special_chars (optional; default: true)
  * @param bool $extra_special_chars (optional; default: false)
  * @return string
  */
-function generatePassword($length = 15, $special_chars = true, $extra_special_chars = false) {
+function generatePassword($length = 16, $special_chars = true, $extra_special_chars = false) {
 	// Regular characters
 	$chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 	
@@ -853,7 +853,7 @@ function generatePassword($length = 15, $special_chars = true, $extra_special_ch
 	if($special_chars) $chars .= '!@#$%^&*()';
 	
 	// If desired, add the extra special characters
-	if($extra_special_chars) $chars .= '-_ []{}<>~`+=,.;:/?|';
+	if($extra_special_chars) $chars .= '-_[]{}<>~`+=,.;:/?|';
 	
 	// Empty password
 	$password = '';

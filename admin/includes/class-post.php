@@ -714,7 +714,7 @@ class Post {
 		global $rs_query;
 		
 		do {
-			// Fetch the parent post from the database
+			// Fetch the post's parent from the database
 			$parent = $rs_query->selectField('posts', 'parent', array('id'=>$id));
 			
 			// Set the new id
@@ -844,7 +844,7 @@ class Post {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Fetch the parent post from the database
+		// Fetch the post's parent from the database
 		$parent = $rs_query->selectField('posts', 'title', array('id'=>$id));
 		
 		// Return the parent's title

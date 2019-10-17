@@ -5,10 +5,11 @@ require_once dirname(__DIR__).'/init.php';
 // Include functions
 require_once PATH.ADMIN.INC.'/functions.php';
 
+// Start the session
+session_start();
+
 // Fetch the current page
 $current_page = getCurrentPage();
-
-$_SESSION['role'] = 4; // temporary
 ?>
 <!DOCTYPE html>
 <html>
@@ -20,11 +21,18 @@ $_SESSION['role'] = 4; // temporary
 		<meta name="theme-color" content="#e0e0e0">
 		<?php getStylesheet('buttons.css'); ?>
 		<?php getAdminStylesheet('style.css'); ?>
-		<?php getStylesheet('fa-icons.css', '5.11.1'); ?>
+		<?php getStylesheet('fa-icons.css', '5.11.2'); ?>
 	</head>
 	<body class="<?php echo $current_page; ?>">
 		<header id="admin-header">
 			<a id="site-title" href="/"><?php getSetting('site_title'); ?></a>
+			<div class="user-dropdown">
+				<span>Welcome, <?php echo $_SESSION['username']; ?></span>
+				<ul class="user-dropdown-menu">
+					<li><a href="profile.php">My Profile</a></li>
+					<li><a href="../login.php?action=logout">Log Out</a></li>
+				</ul>
+			</div>
 		</header>
 		<div id="admin-nav-wrap"></div>
 		<nav id="admin-nav-menu">
@@ -35,7 +43,7 @@ $_SESSION['role'] = 4; // temporary
 				adminNavMenuItem(array('id'=>'posts'), array(array('link'=>'posts.php', 'caption'=>'List Posts'), array('id'=>'posts-create', 'link'=>'posts.php?action=create', 'caption'=>'Create Post'), array('id'=>'categories', 'link'=>'categories.php', 'caption'=>'List Categories')), 'newspaper');
 				adminNavMenuItem(array('id'=>'media'), array(array('caption'=>'List Media'), array('id'=>'media-upload', 'caption'=>'Upload Media')), 'images');
 				adminNavMenuItem(array('id'=>'customization'), array(array('id'=>'menus', 'link'=>'menus.php', 'caption'=>'List Menus'), array('id'=>'widgets', 'link'=>'widgets.php', 'caption'=>'List Widgets')), 'palette');
-				adminNavMenuItem(array('id'=>'users'), array(array('link'=>'users.php', 'caption'=>'List Users'), array('id'=>'users-create', 'link'=>'users.php?action=create', 'caption'=>'Create User'), array('id'=>'profile', 'caption'=>'Your Profile')), 'users');
+				adminNavMenuItem(array('id'=>'users'), array(array('link'=>'users.php', 'caption'=>'List Users'), array('id'=>'users-create', 'link'=>'users.php?action=create', 'caption'=>'Create User'), array('id'=>'profile', 'link'=>'profile.php', 'caption'=>'Your Profile')), 'users');
 				adminNavMenuItem(array('id'=>'settings'), array(array('link'=>'settings.php', 'caption'=>'General'), array('id'=>'user-roles', 'link'=>'settings.php?page=user_roles', 'caption'=>'User Roles')), 'cogs');
 				?>
 			</ul>

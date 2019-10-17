@@ -288,7 +288,7 @@ class User {
 	}
 	
 	/**
-	 * Check if a username already exists in the database.
+	 * Check whether a username already exists in the database.
 	 * @since 1.2.0[a]
 	 *
 	 * @access private
@@ -316,11 +316,11 @@ class User {
 	 * Fetch a user's metadata.
 	 * @since 1.2.2[a]
 	 *
-	 * @access private
+	 * @access protected
 	 * @param int $id
 	 * @return array
 	 */
-	private function getUserMeta($id) {
+	protected function getUserMeta($id) {
 		// Extend the Query class
 		global $rs_query;
 		

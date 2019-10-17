@@ -4,6 +4,47 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 2.0.0[a] (2019-10-16)
+
+* When menu items are created, their slugs are now initially set to an empty string instead of null
+* Pages and posts that are in the trash can no longer be used as menu item links
+* Tweaked documentation in the Post class
+* Updated the FontAwesome CSS to version 5.11.2
+* Built and styled the user dropdown menu
+* Created the user profile page and the Profile class
+* Tweaked documentation in the Widget class
+* Created a function that constructs the 'Edit Profile' form
+* Changed the access for the User::getUserMeta function from private to protected
+* Tweaked documentation in the root index file
+* Tweaked the styling of the login form
+* Created the Login class
+* Created a function that constructs error messages for the login form
+* Increased the default value for the generatePassword function's 'lenth' parameter from 15 to 16
+* Removed the space character from the list of special characters in the generatePassword function
+* Created a function that checks whether a captcha value is valid
+* Created a function that checks whether a password is valid
+* Tweaked documentation in the User class
+* Added the start_session function to the captcha file and the admin header file
+* Created a function that validates the login data and logs the user in
+
+**Modified files:**
+* index.php (M)
+* login.php
+* admin/header.php
+* admin/profile.php (N)
+* admin/includes/class-menu.php
+* admin/includes/class-post.php (M)
+* admin/includes/class-profile.php (N)
+* admin/includes/class-user.php (M)
+* admin/includes/class-widget.php (M)
+* admin/includes/functions.php (M)
+* admin/includes/css/style.css
+* includes/captcha.php (M)
+* includes/class-login.php (N)
+* includes/css/fa-icons.css
+* includes/css/style.css
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.8.12[a] (2019-10-13)
 
 * Changed the default values of some columns in the database schema to avoid issues when using phpMyAdmin's strict mode

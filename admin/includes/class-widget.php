@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin class used to implement the Widget object. Child class of the Post class.
+ * Admin class used to implement the Widget object. Inherits from the Post class.
  * @since 1.6.0[a]
  *
  * Widgets are used to add small blocks of content to the front end of the website outside of the content area.

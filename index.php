@@ -4,7 +4,7 @@
  * @since 1.0.0[a]
  */
 
-// Load initialization files
+// Include the initialization file
 require_once __DIR__.'/init.php';
 
 // Include functions

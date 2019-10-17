@@ -317,7 +317,7 @@ class Menu {
 						$post = $rs_query->selectRow('posts', array('id', 'title'), array('id'=>$menu_item[1]));
 						
 						// Insert the new menu item into the database
-						$menu_item_id = $rs_query->insert('posts', array('title'=>$post['title'], 'date'=>'NOW()', 'type'=>'nav_menu_item'));
+						$menu_item_id = $rs_query->insert('posts', array('title'=>$post['title'], 'date'=>'NOW()', 'slug'=>'', 'type'=>'nav_menu_item'));
 						
 						// Update the menu item's slug in the database
 						$rs_query->update('posts', array('slug'=>'menu-item-'.$menu_item_id), array('id'=>$menu_item_id));
@@ -329,7 +329,7 @@ class Menu {
 						$category = $rs_query->selectRow('terms', array('id', 'name'), array('id'=>$menu_item[1], 'taxonomy'=>getTaxonomyId('category')));
 						
 						// Insert the new menu item into the database
-						$menu_item_id = $rs_query->insert('posts', array('title'=>$category['name'], 'date'=>'NOW()', 'type'=>'nav_menu_item'));
+						$menu_item_id = $rs_query->insert('posts', array('title'=>$category['name'], 'date'=>'NOW()', 'slug'=>'', 'type'=>'nav_menu_item'));
 						
 						// Update the menu item's slug in the database
 						$rs_query->update('posts', array('slug'=>'menu-item-'.$menu_item_id), array('id'=>$menu_item_id));
@@ -353,7 +353,7 @@ class Menu {
 			// Check whether a custom menu item has been added
 			if(!empty($data['custom_title']) && !empty($data['custom_link'])) {
 				// Insert the new menu item into the database
-				$menu_item_id = $rs_query->insert('posts', array('title'=>$data['custom_title'], 'date'=>'NOW()', 'type'=>'nav_menu_item'));
+				$menu_item_id = $rs_query->insert('posts', array('title'=>$data['custom_title'], 'date'=>'NOW()', 'slug'=>'', 'type'=>'nav_menu_item'));
 				
 				// Update the menu item's slug in the database
 				$rs_query->update('posts', array('slug'=>'menu-item-'.$menu_item_id), array('id'=>$menu_item_id));
@@ -400,7 +400,7 @@ class Menu {
 						$post = $rs_query->selectRow('posts', array('id', 'title'), array('id'=>$menu_item[1]));
 					
 						// Insert the new menu item into the database
-						$menu_item_id = $rs_query->insert('posts', array('title'=>$post['title'], 'date'=>'NOW()', 'type'=>'nav_menu_item'));
+						$menu_item_id = $rs_query->insert('posts', array('title'=>$post['title'], 'date'=>'NOW()', 'slug'=>'', 'type'=>'nav_menu_item'));
 						
 						// Update the menu item's slug in the database
 						$rs_query->update('posts', array('slug'=>'menu-item-'.$menu_item_id), array('id'=>$menu_item_id));
@@ -412,7 +412,7 @@ class Menu {
 						$category = $rs_query->selectRow('terms', array('id', 'name'), array('id'=>$menu_item[1], 'taxonomy'=>getTaxonomyId('category')));
 						
 						// Insert the new menu item into the database
-						$menu_item_id = $rs_query->insert('posts', array('title'=>$category['name'], 'date'=>'NOW()', 'type'=>'nav_menu_item'));
+						$menu_item_id = $rs_query->insert('posts', array('title'=>$category['name'], 'date'=>'NOW()', 'slug'=>'', 'type'=>'nav_menu_item'));
 						
 						// Update the menu item's slug in the database
 						$rs_query->update('posts', array('slug'=>'menu-item-'.$menu_item_id), array('id'=>$menu_item_id));
@@ -439,7 +439,7 @@ class Menu {
 			// Check whether a custom menu item has been added
 			if(!empty($data['custom_title']) && !empty($data['custom_link'])) {
 				// Insert the new menu item into the database
-				$menu_item_id = $rs_query->insert('posts', array('title'=>$data['custom_title'], 'date'=>'NOW()', 'type'=>'nav_menu_item'));
+				$menu_item_id = $rs_query->insert('posts', array('title'=>$data['custom_title'], 'date'=>'NOW()', 'slug'=>'', 'type'=>'nav_menu_item'));
 				
 				// Update the menu item's slug in the database
 				$rs_query->update('posts', array('slug'=>'menu-item-'.$menu_item_id), array('id'=>$menu_item_id));
@@ -1238,7 +1238,7 @@ class Menu {
 		
 		if($type === 'post') {
 			// Fetch all posts from the database (excluding widgets and menu items)
-			$posts = $rs_query->select('posts', array('id', 'title'), array('type'=>array('<>', 'widget'), 'type'=>array('<>', 'nav_menu_item')));
+			$posts = $rs_query->select('posts', array('id', 'title'), array('status'=>array('<>', 'trash'), 'type'=>array('NOT IN', 'widget', 'nav_menu_item')));
 			
 			// Add each post to the list
 			foreach($posts as $post)
