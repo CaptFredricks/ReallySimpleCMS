@@ -5,8 +5,14 @@ require_once dirname(__DIR__).'/init.php';
 // Include functions
 require_once PATH.ADMIN.INC.'/functions.php';
 
-// Start the session
-session_start();
+// Check whether the session cookie is set and the user's session is valid
+if(isset($_COOKIE['session']) && isValidSession($_COOKIE['session'])) {
+	// Fetch the user's data
+	$session = getOnlineUser($_COOKIE['session']);
+} else {
+	// Redirect to the login page
+	redirect('../login.php');
+}
 
 // Fetch the current page
 $current_page = getCurrentPage();
@@ -27,7 +33,7 @@ $current_page = getCurrentPage();
 		<header id="admin-header">
 			<a id="site-title" href="/"><?php getSetting('site_title'); ?></a>
 			<div class="user-dropdown">
-				<span>Welcome, <?php echo $_SESSION['username']; ?></span>
+				<span>Welcome, <?php echo $session['username']; ?></span>
 				<ul class="user-dropdown-menu">
 					<li><a href="profile.php">My Profile</a></li>
 					<li><a href="../login.php?action=logout">Log Out</a></li>

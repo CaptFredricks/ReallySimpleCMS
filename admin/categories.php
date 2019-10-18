@@ -16,19 +16,19 @@ $rs_category = new Category;
 	switch($action) {
 		case 'create':
 			// Create a new category
-			userHasPrivilege($_SESSION['role'], 'can_create_categories') ? $rs_category->createCategory() : redirect('categories.php');
+			userHasPrivilege($session['role'], 'can_create_categories') ? $rs_category->createCategory() : redirect('categories.php');
 			break;
 		case 'edit':
 			// Edit an existing category
-			userHasPrivilege($_SESSION['role'], 'can_edit_categories') ? $rs_category->editCategory($id) : redirect('categories.php');
+			userHasPrivilege($session['role'], 'can_edit_categories') ? $rs_category->editCategory($id) : redirect('categories.php');
 			break;
 		case 'delete':
 			// Delete an existing category
-			userHasPrivilege($_SESSION['role'], 'can_delete_categories') ? $rs_category->deleteCategory($id) : redirect('categories.php');
+			userHasPrivilege($session['role'], 'can_delete_categories') ? $rs_category->deleteCategory($id) : redirect('categories.php');
 			break;
 		default:
 			// List all categories
-			userHasPrivilege($_SESSION['role'], 'can_view_categories') ? $rs_category->listCategories() : redirect('index.php');
+			userHasPrivilege($session['role'], 'can_view_categories') ? $rs_category->listCategories() : redirect('index.php');
 	}
 	?>
 </div>

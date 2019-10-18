@@ -5,7 +5,7 @@
  */
 
 // Current CMS version
-const VERSION = '2.0.0';
+const VERSION = '2.0.1';
 
 /**
  * Display copyright on the admin dashboard.
@@ -104,6 +104,42 @@ function getSetting($name, $echo = true) {
 		echo $setting;
 	else
 		return $setting;
+}
+
+/**
+ * Check whether a user's session is valid.
+ * @since 2.0.1[a]
+ *
+ * @param string $session
+ * @return bool
+ */
+function isValidSession($session) {
+	// Extend the Query class
+	global $rs_query;
+	
+	// Fetch the number of times the user appears in the database
+	$count = $rs_query->selectRow('users', 'COUNT(*)', array('session'=>$session));
+	
+	// Return true if the count is greater than zero
+	return $count > 0;
+}
+
+/**
+ * Fetch an online user's data.
+ * @since 2.0.1[a]
+ *
+ * @param string $session
+ * @return array
+ */
+function getOnlineUser($session) {
+	// Extend the Query class
+	global $rs_query;
+	
+	// Fetch the user from the database
+	$user = $rs_query->selectRow('users', array('id', 'username', 'role'), array('session'=>$session));
+	
+	// Return the user data
+	return $user;
 }
 
 /**

@@ -35,25 +35,25 @@ class Login {
 		if(empty($data['username_email']) || empty($data['password']) || empty($data['captcha']))
 			return $this->errorMessage('F');
 		
+		// Sanitize the input data
+		//strpos($data['username_email'], '@') ? $email = $this->sanitizeData($data['username_email']) : 
+		$username = $this->sanitizeData($data['username_email']);
+		$password = trim($data['password']);
+		$captcha = $this->sanitizeData($data['captcha']);
+		
 		// Make sure the username and password are valid
-		if(!$this->usernameExists($data['username_email']) || !$this->isValidPassword($data['username_email'], $data['password']))
+		if(!$this->usernameExists($username) || !$this->isValidPassword($username, $password))
 			return $this->errorMessage('The username and/or password do not match.');
 		
 		// Make sure the captcha value is valid
-		if(!$this->isValidCaptcha($data['captcha']))
+		if(!$this->isValidCaptcha($captcha))
 			return $this->errorMessage('The captcha is not valid.');
 		
 		// Update the user in the database
-		$rs_query->update('users', array('last_login'=>'NOW()', 'session'=>$session), array('username'=>$data['username_email']));
+		$rs_query->update('users', array('last_login'=>'NOW()', 'session'=>$session), array('username'=>$username));
 		
-		// Fetch the user from the database
-		$user = $rs_query->selectRow('users', array('id', 'username', 'session', 'role'), array('username'=>$data['username_email']));
-		
-		// Set the session values
-		$_SESSION['id'] = $user['id'];
-		$_SESSION['username'] = $user['username'];
-		$_SESSION['session'] = $user['session'];
-		$_SESSION['role'] = $user['role'];
+		// Create a cookie with the session
+		setcookie('session', $session, time() + 60 * 60 * 24 * 30, '/');
 		
 		// Unset the secure login code
 		unset($_SESSION['secure_login']);
@@ -117,6 +117,18 @@ class Login {
 	}
 	
 	/**
+	 * Sanitize user input data.
+	 * @since 2.0.1[a]
+	 *
+	 * @access private
+	 * @param string $data
+	 * @return string
+	 */
+	private function sanitizeData($data) {
+		return trim(preg_replace('/[^a-zA-Z0-9@\.]/i', '', $data));
+	}
+	
+	/**
 	 * Construct an error message.
 	 * @since 2.0.0[a]
 	 *
@@ -132,5 +144,27 @@ class Login {
 		
 		// Return the error message
 		return '<div class="error-message">'.$text.'</div>';
+	}
+	
+	/**
+	 * Log the user out.
+	 * @since 2.0.1[a]
+	 *
+	 * @access public
+	 * @param string $session
+	 * @return null
+	 */
+	public function userLogout($session) {
+		// Extend the Query class
+		global $rs_query;
+		
+		// Update the user's session in the database
+		$rs_query->update('users', array('session'=>null), array('session'=>$session));
+		
+		// Delete the cookie
+		setcookie('session', '', 1, '/');
+		
+		// Redirect to the login page
+		redirect('../login.php');
 	}
 }

@@ -7,7 +7,7 @@
 // Start the session
 session_start();
 
-// Generate md5 hash
+// Generate an md5 hash
 $hash = md5(rand(0, 999));
 
 // Create a security code

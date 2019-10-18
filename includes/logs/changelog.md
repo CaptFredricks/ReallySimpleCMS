@@ -4,6 +4,33 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 2.0.1[a] (2019-10-17)
+
+* Tweaked documentation in the captcha file
+* Created a function that sanitizes user input data from the login form
+* A session cookie is now created when the user logs in instead of a session array
+* Created a function that checks whether a user is properly logged in
+* Created a function that fetches an online user's data
+* The session data is now set based on the session cookie
+* Replaced all occurences of the $_SESSION superglobal with the session array
+* Created a function that logs the user out
+* The user is now redirected to the login page from the admin dashboard if they're logged out
+
+**Modified files:**
+* login.php
+* admin/categories.php
+* admin/header.php
+* admin/menus.php
+* admin/posts.php
+* admin/profile.php
+* admin/settings.php
+* admin/users.php
+* admin/widgets.php
+* includes/captcha.php (M)
+* includes/class-login.php
+* includes/globals.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 2.0.0[a] (2019-10-16)
 
 * When menu items are created, their slugs are now initially set to an empty string instead of null

@@ -11,9 +11,13 @@ $rs_profile = new Profile;
 	$action = $_GET['action'] ?? '';
 	
 	// Fetch the user's session id
-	$id = $_SESSION['id'];
+	$id = $session['id'];
 	
 	switch($action) {
+		case 'reset_password':
+			// Reset password
+			$rs_profile->resetPassword($id);
+			break;
 		default:
 			// Edit profile
 			$rs_profile->editProfile($id);

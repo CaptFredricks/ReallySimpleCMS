@@ -15,6 +15,10 @@ session_start();
 
 // Create a Login object
 $rs_login = new Login;
+
+// Check whether the user is logging out and log them out if the session cookie is set
+if(isset($_GET['action']) && $_GET['action'] === 'logout')
+	isset($_COOKIE['session']) ? $rs_login->userLogout($_COOKIE['session']) : redirect('login.php');
 ?>
 <!DOCTYPE html>
 <html>
