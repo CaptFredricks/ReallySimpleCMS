@@ -10,7 +10,7 @@ $rs_widget = new Widget;
 	// Fetch the current action
 	$action = $_GET['action'] ?? '';
 	
-	// Fetch the widget id
+	// Fetch the widget's id
 	$id = (int)($_GET['id'] ?? 0);
 	
 	switch($action) {

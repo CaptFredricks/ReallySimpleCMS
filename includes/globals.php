@@ -5,7 +5,7 @@
  */
 
 // Current CMS version
-const VERSION = '2.0.1';
+const VERSION = '2.0.2';
 
 /**
  * Display copyright on the admin dashboard.
@@ -143,7 +143,7 @@ function getOnlineUser($session) {
 }
 
 /**
- * Determine whether a user has the specified privilege.
+ * Check whether a user has a specified privilege.
  * @since 1.7.2[a]
  *
  * @param int $role

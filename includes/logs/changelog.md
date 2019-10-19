@@ -4,6 +4,34 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 2.0.2[a] (2019-10-18)
+
+* Added output buffering to the login page (prevents errors that may occur with cookie creation)
+* Tweaked documentation in the login file
+* Turned off autocompletion on the captcha field of the login form
+* Tweaked documentation in the global functions file
+* Created a function that checks whether a specific session already exists in the database
+* Added an optional parameter to the Login::sanitizeData function that accepts regex patterns
+* Renamed the 'username_email' input on the login form to 'login'
+* Created a function that checks whether a specific email address already exists in the database
+* Renamed the 'username' parameter in the Login::isValidPassword function to 'login'
+* A user can now log in with their email in addition to their username
+* The 'keep me logged in' checkbox now works (cookie is saved for 30 days)
+* Tweaked documentation in the admin header file
+* Tweaked documentation in the admin menus file
+* Tweaked documentation in the admin users file
+* Tweaked documentation in the admin widgets file
+
+**Modified files:**
+* login.php
+* admin/header.php (M)
+* admin/menus.php (M)
+* admin/users.php (M)
+* admin/widgets.php (M)
+* includes/class-login.php
+* includes/globals.php (M)
+
+----------------------------------------------------------------------------------------------------
 ## Version 2.0.1[a] (2019-10-17)
 
 * Tweaked documentation in the captcha file

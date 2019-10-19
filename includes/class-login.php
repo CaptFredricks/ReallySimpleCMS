@@ -24,36 +24,63 @@ class Login {
 		// Create an empty variable to hold the session value
 		$session = '';
 		
-		// Grab a set of random characters and put them in a new string
-		for($i = 0; $i < 12; $i++)
-			$session .= substr($chars, rand(0, strlen($chars) - 1), 1);
-		
-		// Hash the session variable
-		$session = md5(md5($session));
+		do {
+			// Grab a set of random characters and put them in a new string
+			for($i = 0; $i < 12; $i++)
+				$session .= substr($chars, rand(0, strlen($chars) - 1), 1);
+			
+			// Hash the session variable
+			$session = md5(md5($session));
+		} while($this->sessionExists($session));
 		
 		// Make sure no required fields are empty
-		if(empty($data['username_email']) || empty($data['password']) || empty($data['captcha']))
+		if(empty($data['login']) || empty($data['password']) || empty($data['captcha']))
 			return $this->errorMessage('F');
 		
-		// Sanitize the input data
-		//strpos($data['username_email'], '@') ? $email = $this->sanitizeData($data['username_email']) : 
-		$username = $this->sanitizeData($data['username_email']);
-		$password = trim($data['password']);
-		$captcha = $this->sanitizeData($data['captcha']);
+		// Check whether the login used was an email
+		if(strpos($data['login'], '@') !== false && strpos($data['login'], '.') !== false) {
+			// Sanitize the email
+			$email = $this->sanitizeData($data['login'], '/[^a-zA-Z0-9@\.]/i');
+		} else {
+			// Sanitize the username
+			$username = $this->sanitizeData($data['login'], '/[^a-zA-Z0-9]/i');
+		}
 		
-		// Make sure the username and password are valid
-		if(!$this->usernameExists($username) || !$this->isValidPassword($username, $password))
-			return $this->errorMessage('The username and/or password do not match.');
+		// Sanitize the password
+		$password = $this->sanitizeData($data['password']);
+		
+		// Sanitize the captcha
+		$captcha = $this->sanitizeData($data['captcha'], '/[^a-zA-Z0-9]/i');
 		
 		// Make sure the captcha value is valid
 		if(!$this->isValidCaptcha($captcha))
 			return $this->errorMessage('The captcha is not valid.');
 		
-		// Update the user in the database
-		$rs_query->update('users', array('last_login'=>'NOW()', 'session'=>$session), array('username'=>$username));
+		// Check whether the email or username variable is set
+		if(isset($email)) {
+			// Make sure the email and password are valid
+			if(!$this->emailExists($email) || !$this->isValidPassword($email, $password))
+				return $this->errorMessage('The email and/or password is not valid.');
+			
+			// Update the user in the database
+			$rs_query->update('users', array('last_login'=>'NOW()', 'session'=>$session), array('email'=>$email));
+		} elseif(isset($username)) {
+			// Make sure the username and password are valid
+			if(!$this->usernameExists($username) || !$this->isValidPassword($username, $password))
+				return $this->errorMessage('The username and/or password is not valid.');
+			
+			// Update the user in the database
+			$rs_query->update('users', array('last_login'=>'NOW()', 'session'=>$session), array('username'=>$username));
+		}
 		
-		// Create a cookie with the session
-		setcookie('session', $session, time() + 60 * 60 * 24 * 30, '/');
+		// Check whether the 'keep me logged in' checkbox has been checked
+		if(isset($data['remember_login']) && $data['remember_login'] === 'checked') {
+			// Create a cookie with the session value that expires in 30 days
+			setcookie('session', $session, time() + 60 * 60 * 24 * 30, '/');
+		} else {
+			// Create a cookie with the session value that expires in 30 minutes
+			setcookie('session', $session, time() + 60 * 30, '/');
+		}
 		
 		// Unset the secure login code
 		unset($_SESSION['secure_login']);
@@ -70,16 +97,22 @@ class Login {
 	 * @since 2.0.0[a]
 	 *
 	 * @access private
-	 * @param string $username
+	 * @param string $login
 	 * @param string $password
 	 * @return bool
 	 */
-	private function isValidPassword($username, $password) {
+	private function isValidPassword($login, $password) {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Fetch the user's password from the database
-		$db_password = $rs_query->selectField('users', 'password', array('username'=>$username));
+		// Check whether the login used was an email
+		if(strpos($login, '@') !== false && strpos($login, '.') !== false) {
+			// Fetch the user's email from the database
+			$db_password = $rs_query->selectField('users', 'password', array('email'=>$login));
+		} else {
+			// Fetch the user's password from the database
+			$db_password = $rs_query->selectField('users', 'password', array('username'=>$login));
+		}
 		
 		// Return true if the password is valid
 		return !empty($db_password) && password_verify($password, $db_password);
@@ -95,6 +128,44 @@ class Login {
 	 */
 	private function isValidCaptcha($captcha) {
 		return !empty($_SESSION['secure_login']) && $captcha === $_SESSION['secure_login'];
+	}
+	
+	/**
+	 * Check whether a session already exists in the database.
+	 * @since 2.0.2[a]
+	 *
+	 * @access private
+	 * @param string $session
+	 * @return bool
+	 */
+	private function sessionExists($session) {
+		// Extend the Query class
+		global $rs_query;
+		
+		// Fetch the number of times the session appears in the database
+		$count = $rs_query->selectRow('users', 'COUNT(session)', array('session'=>$session));
+		
+		// Return true if the count is greater than zero
+		return $count > 0;
+	}
+	
+	/**
+	 * Check whether an email already exists in the database.
+	 * @since 2.0.2[a]
+	 *
+	 * @access private
+	 * @param string $email
+	 * @return bool
+	 */
+	private function emailExists($email) {
+		// Extend the Query class
+		global $rs_query;
+		
+		// Fetch the number of times the email appears in the database
+		$count = $rs_query->selectRow('users', 'COUNT(email)', array('email'=>$email));
+		
+		// Return true if the count is greater than zero
+		return $count > 0;
 	}
 	
 	/**
@@ -122,10 +193,18 @@ class Login {
 	 *
 	 * @access private
 	 * @param string $data
+	 * @param string $pattern (optional; default: null)
 	 * @return string
 	 */
-	private function sanitizeData($data) {
-		return trim(preg_replace('/[^a-zA-Z0-9@\.]/i', '', $data));
+	private function sanitizeData($data, $pattern = null) {
+		// Check whether a pattern has been provided
+		if($pattern === null) {
+			// Trim off whitespace characters and return the data
+			return trim($data);
+		} else {
+			// Replace any characters not specified in the patter, trim off whitespace characters, and return the data
+			return trim(preg_replace($pattern, '', $data));
+		}
 	}
 	
 	/**

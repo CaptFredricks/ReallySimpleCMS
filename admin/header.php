@@ -1,5 +1,5 @@
 <?php
-// Load initialization files
+// Include the initialization file
 require_once dirname(__DIR__).'/init.php';
 
 // Include functions

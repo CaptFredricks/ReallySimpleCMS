@@ -10,7 +10,7 @@ $rs_menu = new Menu;
 	// Fetch the current action
 	$action = $_GET['action'] ?? '';
 	
-	// Fetch the menu id
+	// Fetch the menu's id
 	$id = (int)($_GET['id'] ?? 0);
 	
 	switch($action) {
