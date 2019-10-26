@@ -19,16 +19,13 @@ session_start();
 // Create a Login object
 $rs_login = new Login;
 
-// Check whether the user is logging out
-if(isset($_GET['action']) && $_GET['action'] === 'logout') {
-	// Log the user out if the session cookie is set, otherwise redirect them to the login page
-	isset($_COOKIE['session']) ? $rs_login->userLogout($_COOKIE['session']) : redirect('login.php');
-}
+// Fetch the current action
+$action = $_GET['action'] ?? '';
 ?>
 <!DOCTYPE html>
 <html>
 	<head>
-		<title><?php getSetting('site_title'); ?> &rtrif; Log In</title>
+		<title><?php getSetting('site_title'); ?> &rtrif; <?php echo empty($action) ? 'Log In' : ucwords(str_replace('_', ' ', $action)); ?></title>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="robots" content="noindex, nofollow">
@@ -38,14 +35,21 @@ if(isset($_GET['action']) && $_GET['action'] === 'logout') {
 	<body class="login">
 		<div class="wrapper">
 			<h1><a href="/"><?php getSetting('site_title'); ?></a></h1>
-			<?php echo isset($_POST['submit']) ? $rs_login->userLogin($_POST) : ''; ?>
-			<form class="data-form" action="" method="post">
-				<p><label for="login">Username or Email<br><input type="text" name="login" autofocus></label></p>
-				<p><label for="password">Password<br><input type="password" name="password"></label></p>
-				<p><label for="captcha">Captcha<br><input type="text" name="captcha" autocomplete="off"><img id="captcha" src="<?php echo INC.'/captcha.php'; ?>"></label></p>
-				<p><label class="checkbox-label"><input type="checkbox" name="remember_login" value="checked"> <span>Keep me logged in</span></label></p>
-				<input type="submit" class="button" name="submit" value="Log In">
-			</form>
+			<?php
+			switch($action) {
+				case 'logout':
+					// Log the user out if the session cookie is set, otherwise redirect them to the login form
+					isset($_COOKIE['session']) ? $rs_login->userLogout($_COOKIE['session']) : redirect('login.php');
+					break;
+				case 'forgot_password':
+					// Display the 'Forgot Password' form
+					$rs_login->forgotPasswordForm();
+					break;
+				default:
+					// Display the login form
+					$rs_login->loginForm();
+			}
+			?>
 		</div>
 	</body>
 </html>

@@ -4,6 +4,25 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 2.0.3[a] (2019-10-24)
+
+* Added a switch statement to the login file for actions
+* The page title will now change based on the current action
+* Created a function that constructs the 'Log In' form
+* Renamed the Login::userLogin function to Login::validateLoginData
+* Rearranged some code in the Login::validateLoginData function
+* The Login::validateLoginData and Login::isValidPassword functions now only check for the '@' character to determine if the login is an email
+* The Login::sanitizeData function now strips off HTML and PHP tags from strings and it accepts integer values for filter_var
+* The email is now sanitized with the FILTER_SANITIZE_EMAIL filter
+* Added a 'Forgot your password?' link below the 'Log In' form
+* Created a function that constructs the 'Forgot Password' form
+
+**Modified files:**
+* login.php
+* includes/class-login.php
+* includes/css/style.css
+
+----------------------------------------------------------------------------------------------------
 ## Version 2.0.2[a] (2019-10-18)
 
 * Added output buffering to the login page (prevents errors that may occur with cookie creation)

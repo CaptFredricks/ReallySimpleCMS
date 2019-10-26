@@ -7,16 +7,61 @@
  */
 class Login {
 	/**
-	 * Validate the form data and log the user in.
-	 * @since 2.0.0[a]
+	 * Construct the 'Log In' form.
+	 * @since 2.0.3[a]
 	 *
 	 * @access public
-	 * @param array $data
-	 * @return 
+	 * @return null
 	 */
-	public function userLogin($data) {
+	public function loginForm() {
+		// Validate the form data and display any error messages
+		echo isset($_POST['submit']) ? $this->validateLoginData($_POST) : '';
+		?>
+		<form class="data-form" action="" method="post">
+			<p><label for="login">Username or Email<br><input type="text" name="login" autofocus></label></p>
+			<p><label for="password">Password<br><input type="password" name="password"></label></p>
+			<p><label for="captcha">Captcha<br><input type="text" name="captcha" autocomplete="off"><img id="captcha" src="<?php echo INC.'/captcha.php'; ?>"></label></p>
+			<p><label class="checkbox-label"><input type="checkbox" name="remember_login" value="checked"> <span>Keep me logged in</span></label></p>
+			<input type="submit" class="button" name="submit" value="Log In">
+		</form>
+		<a href="?action=forgot_password">Forgot your password?</a>
+		<?php
+	}
+	
+	/**
+	 * Validate the 'Log In' form data and log the user in.
+	 * @since 2.0.0[a]
+	 *
+	 * @access private
+	 * @param array $data
+	 * @return null|string (null on no errors; string on error)
+	 */
+	private function validateLoginData($data) {
 		// Extend the Query class
 		global $rs_query;
+		
+		// Make sure no required fields are empty
+		if(empty($data['login']) || empty($data['password']) || empty($data['captcha']))
+			return $this->errorMessage('F');
+		
+		// Check whether the login used was an email
+		if(strpos($data['login'], '@') !== false) {
+			// Sanitize the email
+			$email = $this->sanitizeData($data['login'], FILTER_SANITIZE_EMAIL);
+		} else {
+			// Sanitize the username
+			$username = $this->sanitizeData($data['login'], '/[^a-zA-Z0-9_\.]/i');
+		}
+		
+		// Sanitize the password
+		$password = $this->sanitizeData($data['password']);
+		
+		// Sanitize the captcha
+		$captcha = $this->sanitizeData($data['captcha'], '/[^a-zA-Z0-9]/i');
+		
+		// Make sure the captcha value is valid
+		if(!$this->isValidCaptcha($captcha))
+			return $this->errorMessage('The captcha is not valid.');
 		
 		// Create a list of characters to randomly choose from
 		$chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_[]{}<>~`+=,.;:/?|';
@@ -32,29 +77,6 @@ class Login {
 			// Hash the session variable
 			$session = md5(md5($session));
 		} while($this->sessionExists($session));
-		
-		// Make sure no required fields are empty
-		if(empty($data['login']) || empty($data['password']) || empty($data['captcha']))
-			return $this->errorMessage('F');
-		
-		// Check whether the login used was an email
-		if(strpos($data['login'], '@') !== false && strpos($data['login'], '.') !== false) {
-			// Sanitize the email
-			$email = $this->sanitizeData($data['login'], '/[^a-zA-Z0-9@\.]/i');
-		} else {
-			// Sanitize the username
-			$username = $this->sanitizeData($data['login'], '/[^a-zA-Z0-9]/i');
-		}
-		
-		// Sanitize the password
-		$password = $this->sanitizeData($data['password']);
-		
-		// Sanitize the captcha
-		$captcha = $this->sanitizeData($data['captcha'], '/[^a-zA-Z0-9]/i');
-		
-		// Make sure the captcha value is valid
-		if(!$this->isValidCaptcha($captcha))
-			return $this->errorMessage('The captcha is not valid.');
 		
 		// Check whether the email or username variable is set
 		if(isset($email)) {
@@ -106,7 +128,7 @@ class Login {
 		global $rs_query;
 		
 		// Check whether the login used was an email
-		if(strpos($login, '@') !== false && strpos($login, '.') !== false) {
+		if(strpos($login, '@') !== false) {
 			// Fetch the user's email from the database
 			$db_password = $rs_query->selectField('users', 'password', array('email'=>$login));
 		} else {
@@ -193,17 +215,20 @@ class Login {
 	 *
 	 * @access private
 	 * @param string $data
-	 * @param string $pattern (optional; default: null)
+	 * @param string $filter (optional; default: null)
 	 * @return string
 	 */
-	private function sanitizeData($data, $pattern = null) {
-		// Check whether a pattern has been provided
-		if($pattern === null) {
-			// Trim off whitespace characters and return the data
-			return trim($data);
+	private function sanitizeData($data, $filter = null) {
+		// Check whether a filter has been provided
+		if(is_null($filter)) {
+			// Trim off whitespace characters, strip off HTML and/or PHP tags and return the data
+			return strip_tags(trim($data));
+		} elseif(is_int($filter)) {
+			// Strip off HTML and/or PHP tags, run the data through a filter, and return the data
+			return filter_var(strip_tags($data), $filter);
 		} else {
-			// Replace any characters not specified in the patter, trim off whitespace characters, and return the data
-			return trim(preg_replace($pattern, '', $data));
+			// Strip off HTML and/or PHP tags, replace any characters not specified in the filter, and return the data
+			return preg_replace($filter, '', strip_tags($data));
 		}
 	}
 	
@@ -245,5 +270,25 @@ class Login {
 		
 		// Redirect to the login page
 		redirect('../login.php');
+	}
+	
+	/**
+	 * Construct the 'Forgot Password' form.
+	 * @since 2.0.3[a]
+	 *
+	 * @access public
+	 * @return null
+	 */
+	public function forgotPasswordForm() {
+		// Validate the form data and display any error messages
+		echo isset($_POST['submit']) ? $this->validateForgotPasswordData($_POST) : '';
+		?>
+		<form class="data-form" action="" method="post">
+			<p>Enter your username or email below and you will receive a link to reset your password in an email.</p>
+			<p>Remembered your password? <a href="login.php">Log in</a> instead.</p>
+			<p><label for="login">Username or Email<br><input type="text" name="login" autofocus></label></p>
+			<input type="submit" class="button" name="submit" value="Get New Password">
+		</form>
+		<?php
 	}
 }
