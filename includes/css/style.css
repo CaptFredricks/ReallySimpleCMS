@@ -19,7 +19,11 @@ small {
 	font-size: 0.8rem;
 }
 
-/* Login form */
+/*------------------------------------*\
+    CONTENT
+\*------------------------------------*/
+
+/* Log In and Forgot/Reset Password forms */
 
 .login {
 	background-color: #2f2f2f;
@@ -49,16 +53,27 @@ small {
 	text-decoration: none;
 }
 
-.login .error-message {
+.login .status-message {
 	background-color: #0f0f0f;
-	color: #fe3022;
 	font-weight: 600;
 	margin-bottom: 1em;
 	padding: 0.5em;
 	text-align: center;
 }
 
+.login .status-message.success {
+	color: #2bda06;
+}
+
+.login .status-message.failure {
+	color: #fe3022;
+}
+
 /** Data form **/
+
+.login .data-form * {
+    font-family: 'Segoe UI', Helvetica, sans-serif;
+}
 
 .login .data-form {
 	background-color: #ededed;

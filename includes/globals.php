@@ -5,10 +5,10 @@
  */
 
 // Current CMS version
-const VERSION = '2.0.3';
+const VERSION = '2.0.4';
 
 /**
- * Display copyright on the admin dashboard.
+ * Display the copyright information on the admin dashboard.
  * @since 1.2.0[a]
  *
  * @param bool $echo (optional; default: true)
@@ -24,7 +24,7 @@ function RSCopyright($echo = true) {
 }
 
 /**
- * Display CMS version on the admin dashboard.
+ * Display the CMS version on the admin dashboard.
  * @since 1.2.0[a]
  *
  * @param bool $echo (optional; default: true)
@@ -42,11 +42,12 @@ function RSVersion($echo = true) {
  * @since 1.7.2[a]
  *
  * @param string $url
+ * @param int $status (optional; default: 302)
  * @return null
  */
-function redirect($url) {
+function redirect($url, $status = 302) {
 	// Set the header location to the specified url
-	header('Location: '.$url);
+	header('Location: '.$url, true, $status);
 	
 	// Stop any further script execution
 	exit;
@@ -69,7 +70,7 @@ function getStylesheet($stylesheet, $version = VERSION, $echo = true) {
 }
 
 /**
- * Fetch a script.
+ * Fetch a script file.
  * @since 1.3.3[a]
  *
  * @param string $script

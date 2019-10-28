@@ -42,7 +42,7 @@ class Login {
 		
 		// Make sure no required fields are empty
 		if(empty($data['login']) || empty($data['password']) || empty($data['captcha']))
-			return $this->errorMessage('F');
+			return $this->statusMessage('F');
 		
 		// Check whether the login used was an email
 		if(strpos($data['login'], '@') !== false) {
@@ -61,7 +61,7 @@ class Login {
 		
 		// Make sure the captcha value is valid
 		if(!$this->isValidCaptcha($captcha))
-			return $this->errorMessage('The captcha is not valid.');
+			return $this->statusMessage('The captcha is not valid.');
 		
 		// Create a list of characters to randomly choose from
 		$chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_[]{}<>~`+=,.;:/?|';
@@ -82,14 +82,14 @@ class Login {
 		if(isset($email)) {
 			// Make sure the email and password are valid
 			if(!$this->emailExists($email) || !$this->isValidPassword($email, $password))
-				return $this->errorMessage('The email and/or password is not valid.');
+				return $this->statusMessage('The email and/or password is not valid.');
 			
 			// Update the user in the database
 			$rs_query->update('users', array('last_login'=>'NOW()', 'session'=>$session), array('email'=>$email));
 		} elseif(isset($username)) {
 			// Make sure the username and password are valid
 			if(!$this->usernameExists($username) || !$this->isValidPassword($username, $password))
-				return $this->errorMessage('The username and/or password is not valid.');
+				return $this->statusMessage('The username and/or password is not valid.');
 			
 			// Update the user in the database
 			$rs_query->update('users', array('last_login'=>'NOW()', 'session'=>$session), array('username'=>$username));
@@ -233,21 +233,34 @@ class Login {
 	}
 	
 	/**
-	 * Construct an error message.
+	 * Construct a status message.
 	 * @since 2.0.0[a]
 	 *
 	 * @access private
 	 * @param string $text
+	 * @param bool $success (optional; default: false)
 	 * @return string
 	 */
-	private function errorMessage($text) {
-		switch($text) {
-			case 'F': case 'f':
-				$text = 'All fields must be filled in!';
+	private function statusMessage($text, $success = false) {
+		// Determine whether the status is success or failure
+		if($success === true) {
+			// Set the status message's class to 'success'
+			$class = 'success';
+		} else {
+			// Set the status message's class to 'failure'
+			$class = 'failure';
+			
+			// Check whether the provided text value matches one of the predefined cases
+			switch($text) {
+				case 'F': case 'f':
+					// Status message for form fields that are left empty
+					$text = 'All fields must be filled in!';
+					break;
+			}
 		}
 		
-		// Return the error message
-		return '<div class="error-message">'.$text.'</div>';
+		// Return the status message
+		return '<div class="status-message '.$class.'">'.$text.'</div>';
 	}
 	
 	/**

@@ -4,6 +4,21 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 2.0.4[a] (2019-10-27)
+
+* Tweaked documentation in the global functions file
+* Added an optional parameter to the global redirect function to specify the HTTP status for a redirect
+* Renamed the Login::errorMessage function to Login::statusMessage and added an optional parameter to specify whether the message should show success or failure
+* Added styling for success status messages
+* Tweaked documentation in the front end stylesheet
+* Tweaked some styling on the Log In form
+
+**Modified files:**
+* includes/class-login.php
+* includes/globals.php
+* includes/css/style.css
+
+----------------------------------------------------------------------------------------------------
 ## Version 2.0.3[a] (2019-10-24)
 
 * Added a switch statement to the login file for actions
