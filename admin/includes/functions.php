@@ -835,33 +835,3 @@ function getTaxonomyId($name) {
 	// Return the taxonomy's id
 	return $id ?? 0;
 }
-
-/**
- * Generate a random password.
- * @since 1.3.0[a]
- *
- * @param int $length (optional; default: 16)
- * @param bool $special_chars (optional; default: true)
- * @param bool $extra_special_chars (optional; default: false)
- * @return string
- */
-function generatePassword($length = 16, $special_chars = true, $extra_special_chars = false) {
-	// Regular characters
-	$chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-	
-	// If desired, add the special characters
-	if($special_chars) $chars .= '!@#$%^&*()';
-	
-	// If desired, add the extra special characters
-	if($extra_special_chars) $chars .= '-_[]{}<>~`+=,.;:/?|';
-	
-	// Empty password
-	$password = '';
-	
-	// Generate a random password
-	for($i = 0; $i < $length; $i++)
-		$password .= substr($chars, rand(0, strlen($chars) - 1), 1);
-	
-	// Return the password
-	return $password;
-}

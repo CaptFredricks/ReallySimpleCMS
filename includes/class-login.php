@@ -14,18 +14,29 @@ class Login {
 	 * @return null
 	 */
 	public function loginForm() {
+		// Display a confirmation if the 'Forgot Password' form has just been submitted
+		echo isset($_GET['pw_forgot']) && $_GET['pw_forgot'] === 'confirm' ? $this->statusMessage('Check your email for a confirmation to reset your password.', true) : '';
+		
+		// Display a confirmation if the 'Reset Password' form has just been submitted
+		echo isset($_GET['pw_reset']) && $_GET['pw_reset'] === 'confirm' ? $this->statusMessage('Your password has been successfully reset.', true) : '';
+		
 		// Validate the form data and display any error messages
 		echo isset($_POST['submit']) ? $this->validateLoginData($_POST) : '';
 		?>
-		<form class="data-form" action="" method="post">
+		<form class="data-form" action="login.php" method="post">
 			<p><label for="login">Username or Email<br><input type="text" name="login" autofocus></label></p>
 			<p><label for="password">Password<br><input type="password" name="password"></label></p>
 			<p><label for="captcha">Captcha<br><input type="text" name="captcha" autocomplete="off"><img id="captcha" src="<?php echo INC.'/captcha.php'; ?>"></label></p>
 			<p><label class="checkbox-label"><input type="checkbox" name="remember_login" value="checked"> <span>Keep me logged in</span></label></p>
 			<input type="submit" class="button" name="submit" value="Log In">
 		</form>
-		<a href="?action=forgot_password">Forgot your password?</a>
 		<?php
+		// Check whether the user has just submitted the 'Forgot Password' form and hide the 'forgot your password' link if so
+		if(!isset($_GET['pw_forgot'])) {
+			?>
+			<a href="?action=forgot_password">Forgot your password?</a>
+			<?php
+		}
 	}
 	
 	/**
@@ -303,5 +314,185 @@ class Login {
 			<input type="submit" class="button" name="submit" value="Get New Password">
 		</form>
 		<?php
+	}
+	
+	/**
+	 * Validate the forgotten password data.
+	 * @since 2.0.5[a]
+	 *
+	 * @access private
+	 * @param array $data
+	 * @return null|string (null on no errors; string on error)
+	 */
+	private function validateForgotPasswordData($data) {
+		// Extend the Query class
+		global $rs_query;
+		
+		// Make sure no required fields are empty
+		if(empty($data['login']))
+			return $this->statusMessage('F');
+		
+		// Generate a hashed key
+		$key = generateHash(20, false, time());
+		
+		// Check whether the login used was an email
+		if(strpos($data['login'], '@') !== false) {
+			// Sanitize the email
+			$email = $this->sanitizeData($data['login'], FILTER_SANITIZE_EMAIL);
+			
+			// Make sure the email exists in the database
+			if(!$this->emailExists($email))
+				return $this->statusMessage('The email you provided is not registered on this website.');
+			
+			// Fetch the user's username from the database
+			$username = $rs_query->selectField('users', 'username', array('email'=>$email));
+			
+			// Construct the subject line
+			$subject = getSetting('site_title', false).' – Password Reset';
+			
+			// Fetch the site's url
+			$site_url = (!empty($_SERVER['HTTPS']) ? 'https://' : 'http://').$_SERVER['HTTP_HOST'];
+			
+			// Construct the 'Reset Password' link
+			$pw_reset_link = $site_url.'/login.php?login='.$username.'&key='.$key.'&action=reset_password';
+			
+			// Construct the message text
+			$message = 'A request has been made to reset the password for the user <strong>'.$username.'</strong> on "'.getSetting('site_title', false).'".<br><br>If this was you, please click the link below to reset your password. If not, you may disregard this email.<br><br><a href="'.$pw_reset_link.'">Reset your password</a>';
+			
+			// Format the message content
+			$content = formatEmail('Reset Password', array('message'=>$message));
+			
+			// Set the content headers (to allow for HTML-formatted emails)
+			$headers[] = "MIME-Version: 1.0";
+			$headers[] = "Content-type: text/html; charset=iso-8859-1";
+			$headers[] = "From: ".getSetting('site_title', false)." <".getSetting('admin_email', false).">";
+			
+			// Make sure the email can be sent
+			if(mail($email, $subject, $content, implode("\r\n", $headers))) {
+				// Create a cookie with the session value that expires when the browser is closed
+				setcookie('pw-reset-'.generateHash(30, false, time()), $username.':'.$key, 0, '/login.php');
+				
+				// Redirect to the 'Log In' form
+				redirect('login.php?pw_forgot=confirm');
+			} else {
+				// Return a failure status message
+				return $this->statusMessage('ReallySimpleCMS encountered an error and could not send an email. Please contact this website\'s administrator or web host.');
+			}
+		} else {
+			// Sanitize the username
+			$username = $this->sanitizeData($data['login'], '/[^a-zA-Z0-9_\.]/i');
+			
+			// Make sure the username exists in the database
+			if(!$this->usernameExists($username))
+				return $this->statusMessage('The username you provided is not registered on this website.');
+			
+			// Fetch the user's email from the database
+			$email = $rs_query->selectField('users', 'email', array('username'=>$username));
+			
+			// Construct the subject line
+			$subject = getSetting('site_title', false).' – Password Reset';
+			
+			// Fetch the site's url
+			$site_url = (!empty($_SERVER['HTTPS']) ? 'https://' : 'http://').$_SERVER['HTTP_HOST'];
+			
+			// Construct the 'Reset Password' link
+			$pw_reset_link = $site_url.'/login.php?login='.$username.'&key='.$key.'&action=reset_password';
+			
+			// Construct the message text
+			$message = 'A request has been made to reset the password for the user <strong>'.$username.'</strong> on "'.getSetting('site_title', false).'".<br><br>If this was you, please click the link below to reset your password. If not, you may disregard this email.<br><br><a href="'.$pw_reset_link.'">Reset your password</a>';
+			
+			// Format the message content
+			$content = formatEmail('Reset Password', array('message'=>$message));
+			
+			// Set the content headers (to allow for HTML-formatted emails)
+			$headers[] = "MIME-Version: 1.0";
+			$headers[] = "Content-type: text/html; charset=iso-8859-1";
+			$headers[] = "From: ".getSetting('site_title', false)." <".getSetting('admin_email', false).">";
+			
+			// Make sure the email can be sent
+			if(mail($email, $subject, $content, implode("\r\n", $headers))) {
+				// Create a cookie with the session value that expires when the browser is closed
+				setcookie('pw-reset-'.generateHash(30, false, time()), $username.':'.$key, 0, '/login.php');
+				
+				// Redirect to the 'Log In' form
+				redirect('login.php?pw_forgot=confirm');
+			} else {
+				// Return a failure status message
+				return $this->statusMessage('ReallySimpleCMS encountered an error and could not send an email. Please contact this website\'s administrator or web host.');
+			}
+		}
+	}
+	
+	/**
+	 * Construct the 'Reset Password' form.
+	 * @since 2.0.5[a]
+	 *
+	 * @access public
+	 * @param array $cookie_data
+	 * @return null
+	 */
+	public function resetPasswordForm($cookie_data) {
+		// Check whether the data in the query string matches the data in the cookie
+		if((isset($_GET['login']) && $_GET['login'] === $cookie_data[0]) && (isset($_GET['key']) && $_GET['key'] === $cookie_data[1]))
+			// Redirect to remove the 'login' and 'key' values from the query string
+			redirect('login.php?action=reset_password');
+		
+		// Validate the form data and display any error messages
+		echo isset($_POST['submit']) ? $this->validateResetPasswordData($_POST) : '';
+		?>
+		<form class="data-form" action="" method="post">
+			<p><label for="password">New Password<br><input type="text" name="password" value="<?php echo generatePassword(); ?>" autofocus></label></p>
+			<input type="hidden" name="login" value="<?php echo $cookie_data[0]; ?>">
+			<input type="hidden" name="key" value="<?php echo $cookie_data[1]; ?>">
+			<input type="submit" class="button" name="submit" value="Reset Password">
+		</form>
+		<?php
+	}
+	
+	/**
+	 * Validate the reset password data.
+	 * @since 2.0.5[a]
+	 *
+	 * @access private
+	 * @param array $data
+	 * @return null|string (null on no errors; string on error)
+	 */
+	private function validateResetPasswordData($data) {
+		// Extend the Query class
+		global $rs_query;
+		
+		// Fetch all cookie keynames
+		$cookies = array_keys($_COOKIE);
+		
+		// Loop through the cookies
+		foreach($cookies as $cookie) {
+			// Check whether the reset password cookie is set
+			if(strpos($cookie, 'pw-reset') !== false) {
+				// Fetch the cookie's name
+				$cookie_name = $cookie;
+				break;
+			}
+		}
+		
+		// Fetch the cookie's data
+		$cookie_data = explode(':', $_COOKIE[$cookie_name]);
+		
+		// Grab just the key value
+		$key = array_pop($cookie_data);
+		
+		// Check whether the submitted key is still valid
+		if($data['key'] === $key) {
+			// Hash the password (encrypts the password for security purposes)
+			$hashed_password = password_hash($data['password'], PASSWORD_BCRYPT, array('cost'=>10));
+			
+			// Update the user's password in the database
+			$rs_query->update('users', array('password'=>$hashed_password), array('username'=>$data['login']));
+			
+			// Delete the cookie
+			setcookie($cookie_name, '', 1, '/login.php');
+			
+			// Redirect to the 'Log In' form
+			redirect('login.php?pw_reset=confirm');
+		}
 	}
 }

@@ -4,6 +4,29 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 2.0.5[a] (2019-10-28)
+
+* Created a function that validates the 'Forgot Password' form data and sends a reset password email
+* Created a function that formats an email with HTML and CSS
+* Created a function that generates a random hash
+* The user will now be redirected back to the 'Log In' form after they successfully submit the 'Forgot Password' form
+* A confirmation is now displayed over the 'Log In' form after the 'Forgot Password' form is submitted
+* Tweaked documentation in the login file
+* Renamed the Login::loginForm function to Login::logInForm
+* Moved the generatePassword function from the admin functions file to the global functions file
+* Tweaked the generatePassword function's internal code
+* Created a function that constructs the 'Reset Password' form
+* Created a function that validates the 'Reset Password' form data
+* A confirmation is now displayed over the 'Log In' form after the 'Reset Password' form is submitted
+
+**Modified files:**
+* login.php
+* includes/class-login.php
+* includes/functions.php
+* includes/globals.php
+* admin/includes/functions.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 2.0.4[a] (2019-10-27)
 
 * Tweaked documentation in the global functions file
