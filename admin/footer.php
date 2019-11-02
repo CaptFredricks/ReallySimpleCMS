@@ -3,6 +3,9 @@
 			<div class="version"><?php RSVersion(); ?></div>
 		</footer>
 		<?php getScript('jquery.min.js', '3.4.1'); ?>
-		<?php getAdminScript('script.js', VERSION); ?>
+		<?php getAdminScript('script.js'); ?>
 	</body>
 </html>
+<?php
+// End output buffering
+ob_end_flush();

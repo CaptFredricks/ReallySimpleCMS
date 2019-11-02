@@ -5,6 +5,9 @@ require_once dirname(__DIR__).'/init.php';
 // Include functions
 require_once PATH.ADMIN.INC.'/functions.php';
 
+// Start output buffering
+ob_start();
+
 // Check whether the session cookie is set and the user's session is valid
 if(isset($_COOKIE['session']) && isValidSession($_COOKIE['session'])) {
 	// Fetch the user's data

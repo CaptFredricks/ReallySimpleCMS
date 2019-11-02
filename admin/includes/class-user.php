@@ -10,16 +10,20 @@ class User {
 	/**
 	 * Set the minimum username length.
 	 * @since 1.1.0[a]
+	 *
+	 * @access protected
 	 * @var int
 	 */
-	const UN_LENGTH = 4;
+	protected const UN_LENGTH = 4;
 	
 	/**
 	 * Set the minimum password length.
 	 * @since 1.1.0[a]
+	 *
+	 * @access private
 	 * @var int
 	 */
-	const PW_LENGTH = 8;
+	private const PW_LENGTH = 8;
 	
 	/**
 	 * Construct a list of all users in the database.
@@ -29,8 +33,8 @@ class User {
 	 * @return null
 	 */
 	public function listUsers() {
-		// Extend the Query class
-		global $rs_query;
+		// Extend the Query class and the user session data
+		global $rs_query, $session;
 		
 		// Set up pagination
 		$page = paginate((int)($_GET['paged'] ?? 1));
@@ -77,7 +81,7 @@ class User {
 					$meta = $this->getUserMeta($user['id']);
 					
 					echo tableRow(
-						tableCell('<img class="avatar" src="'.(!empty($meta['avatar']) ? '' : '').'" width="32" height="32"><strong>'.$user['username'].'</strong><div class="actions"><a href="?id='.$user['id'].'&action=edit">Edit</a> &bull; <a class="delete" href="?id='.$user['id'].'&action=delete">Delete</a></div>', 'username'),
+						tableCell('<img class="avatar" src="'.(!empty($meta['avatar']) ? '' : '').'" width="32" height="32"><strong>'.$user['username'].'</strong><div class="actions"><a href="?id='.$user['id'].'&action=edit">Edit</a>'.($user['id'] !== $session['id'] ? ' &bull; <a class="delete" href="?id='.$user['id'].'&action=delete">Delete</a>' : '').'</div>', 'username'),
 						tableCell(empty($meta['first_name']) && empty($meta['last_name']) ? '&mdash;' : $meta['first_name'].' '.$meta['last_name'], 'full-name'),
 						tableCell($user['email'], 'email'),
 						tableCell(formatDate($user['registered'], 'd M Y @ g:i A'), 'registered'),
@@ -142,8 +146,8 @@ class User {
 	 * @return null
 	 */
 	public function editUser($id) {
-		// Extend the Query class
-		global $rs_query;
+		// Extend the Query class and the user session data
+		global $rs_query, $session;
 		
 		// Check whether or not the user's id is valid
 		if(empty($id) || $id <= 0) {
@@ -158,37 +162,43 @@ class User {
 				// Redirect to the 'List Users' page
 				redirect('users.php');
 			} else {
-				// Validate the form data and return any messages
-				$message = isset($_POST['submit']) ? $this->validateData($_POST, $id) : '';
-				
-				// Fetch the user from the database
-				$user = $rs_query->selectRow('users', '*', array('id'=>$id));
-				
-				// Fetch the user's metadata from the database
-				$meta = $this->getUserMeta($id);
-				?>
-				<div class="heading-wrap">
-					<h1>Edit User</h1>
-					<?php echo $message; ?>
-				</div>
-				<div class="data-form-wrap clear">
-					<form class="data-form" action="" method="post" autocomplete="off">
-						<table class="form-table">
-							<?php
-							echo formRow(array('Username', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'username', 'value'=>$user['username']));
-							echo formRow(array('Email', true), array('tag'=>'input', 'type'=>'email', 'class'=>'text-input required invalid init', 'name'=>'email', 'value'=>$user['email']));
-							echo formRow('First Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'first_name', 'value'=>$meta['first_name']));
-							echo formRow('Last Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'last_name', 'value'=>$meta['last_name']));
-							echo formRow('Avatar', array('tag'=>'img', 'src'=>$this->getAvatar($meta['avatar']), 'width'=>150), array('tag'=>'br'), array('tag'=>'input', 'type'=>'hidden', 'id'=>'img-input', 'name'=>'avatar', 'value'=>$meta['avatar']), array('tag'=>'input', 'type'=>'button', 'id'=>'img-choose', 'class'=>'button-input button', 'value'=>'Choose Image'));
-							echo formRow('Role', array('tag'=>'select', 'class'=>'select-input', 'name'=>'role', 'content'=>$this->getRoleList($user['role'])));
-							echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-							echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update User'));
-							?>
-						</table>
-					</form>
-					<a class="reset-password button" href="?id=<?php echo $id; ?>&action=reset_password">Reset Password</a>
-				</div>
-				<?php
+				// Check whether the user is viewing their own page
+				if($id === $session['id']) {
+					// Redirect to the user's profile page
+					redirect('profile.php');
+				} else {
+					// Validate the form data and return any messages
+					$message = isset($_POST['submit']) ? $this->validateData($_POST, $id) : '';
+					
+					// Fetch the user from the database
+					$user = $rs_query->selectRow('users', '*', array('id'=>$id));
+					
+					// Fetch the user's metadata from the database
+					$meta = $this->getUserMeta($id);
+					?>
+					<div class="heading-wrap">
+						<h1>Edit User</h1>
+						<?php echo $message; ?>
+					</div>
+					<div class="data-form-wrap clear">
+						<form class="data-form" action="" method="post" autocomplete="off">
+							<table class="form-table">
+								<?php
+								echo formRow(array('Username', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'username', 'value'=>$user['username']));
+								echo formRow(array('Email', true), array('tag'=>'input', 'type'=>'email', 'class'=>'text-input required invalid init', 'name'=>'email', 'value'=>$user['email']));
+								echo formRow('First Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'first_name', 'value'=>$meta['first_name']));
+								echo formRow('Last Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'last_name', 'value'=>$meta['last_name']));
+								echo formRow('Avatar', array('tag'=>'img', 'src'=>$this->getAvatar($meta['avatar']), 'width'=>150), array('tag'=>'br'), array('tag'=>'input', 'type'=>'hidden', 'id'=>'img-input', 'name'=>'avatar', 'value'=>$meta['avatar']), array('tag'=>'input', 'type'=>'button', 'id'=>'img-choose', 'class'=>'button-input button', 'value'=>'Choose Image'));
+								echo formRow('Role', array('tag'=>'select', 'class'=>'select-input', 'name'=>'role', 'content'=>$this->getRoleList($user['role'])));
+								echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
+								echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update User'));
+								?>
+							</table>
+						</form>
+						<a class="reset-password button" href="?id=<?php echo $id; ?>&action=reset_password">Reset Password</a>
+					</div>
+					<?php
+				}
 			}
 		}
 	}
@@ -202,11 +212,11 @@ class User {
 	 * @return null
 	 */
 	public function deleteUser($id) {
-		// Extend the Query class
-		global $rs_query;
+		// Extend the Query class and the user session data
+		global $rs_query, $session;
 		
 		// Check whether or not the user's id is valid
-		if(empty($id) || $id <= 0) {
+		if(empty($id) || $id <= 0 || $id === $session['id']) {
 			// Redirect to the 'List Users' page
 			redirect('users.php');
 		} else {
@@ -245,6 +255,10 @@ class User {
 		// Make sure the username is not already being used
 		if($this->usernameExists($data['username'], $id))
 			return statusMessage('That username has already been taken. Please choose another one.');
+		
+		// Make sure the email is not already being used
+		if($this->emailExists($data['email'], $id))
+			return statusMessage('That email is already taken by another user. Please choose another one.');
 		
 		// Create an array to hold the user's metadata
 		$usermeta = array('first_name'=>$data['first_name'], 'last_name'=>$data['last_name'], 'avatar'=>$data['avatar']);
@@ -291,25 +305,44 @@ class User {
 	 * Check whether a username already exists in the database.
 	 * @since 1.2.0[a]
 	 *
-	 * @access private
+	 * @access protected
 	 * @param string $username
 	 * @param int $id
 	 * @return bool
 	 */
-	private function usernameExists($username, $id) {
+	protected function usernameExists($username, $id) {
 		// Extend the Query class
 		global $rs_query;
 		
 		if($id === 0) {
-			// Fetch the number of times the username appears in the database
-			$count = $rs_query->selectRow('users', 'COUNT(username)', array('username'=>$username));
+			// Return true if the username appears in the database
+			return $rs_query->selectRow('users', 'COUNT(username)', array('username'=>$username)) > 0;
 		} else {
-			// Fetch the number of times the username appears in the database (minus the current user)
-			$count = $rs_query->selectRow('users', 'COUNT(username)', array('username'=>$username, 'id'=>array('<>', $id)));
+			// Return true if the username appears in the database (not counting the current user)
+			return $rs_query->selectRow('users', 'COUNT(username)', array('username'=>$username, 'id'=>array('<>', $id))) > 0;
 		}
+	}
+	
+	/**
+	 * Check whether an email already exists in the database.
+	 * @since 2.0.6[a]
+	 *
+	 * @access protected
+	 * @param string $email
+	 * @param int $id
+	 * @return bool
+	 */
+	protected function emailExists($email, $id) {
+		// Extend the Query class
+		global $rs_query;
 		
-		// Return true if the count is greater than zero
-		return $count > 0;
+		if($id === 0) {
+			// Return true if the email appears in the database
+			return $rs_query->selectRow('users', 'COUNT(email)', array('email'=>$email)) > 0;
+		} else {
+			// Return true if the email appears in the database (not counting the current user)
+			return $rs_query->selectRow('users', 'COUNT(email)', array('email'=>$email, 'id'=>array('<>', $id))) > 0;
+		}
 	}
 	
 	/**
@@ -456,8 +489,8 @@ class User {
 	 * @return null|string (null on $id == 0; string on $id != 0)
 	 */
 	private function validatePasswordData($data, $id = 0) {
-		// Extend the Query class
-		global $rs_query;
+		// Extend the Query class and the user session data
+		global $rs_query, $session;
 		
 		// Make sure no required fields are empty
 		if(empty($data['new_pass']) || empty($data['confirm_pass']))
@@ -479,13 +512,29 @@ class User {
 			// Make sure the current password field is not empty
 			if(empty($data['current_pass']))
 				return statusMessage('R');
+			
+			// Make sure the current password is correctly entered
+			if(!$this->verifyPassword($session, $data['current_pass']))
+				return statusMessage('Current password is incorrect.');
+			
+			// Hash the password (encrypts the password for security purposes)
+			$hashed_password = password_hash($data['new_pass'], PASSWORD_BCRYPT, array('cost'=>10));
+			
+			// Update the current user's password and session in the database
+			$rs_query->update('users', array('password'=>$hashed_password, 'session'=>null), array('id'=>$session['id']));
+			
+			// Delete the session cookie
+			setcookie('session', '', 1, '/');
+			
+			// Return a status message
+			return statusMessage('Password updated! You will be required to log back in.', true);
 		} else {
 			// Make sure the admin password field is not empty
 			if(empty($data['admin_pass']))
 				return statusMessage('R');
 			
 			// Make sure the admin password is correctly entered
-			if(!$this->verifyPassword($session_data, $data['admin_pass']))
+			if(!$this->verifyPassword($session, $data['admin_pass']))
 				return statusMessage('Admin password is incorrect.');
 			
 			// Hash the password (encrypts the password for security purposes)

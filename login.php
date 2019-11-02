@@ -46,24 +46,8 @@ $action = $_GET['action'] ?? '';
 					$rs_login->forgotPasswordForm();
 					break;
 				case 'reset_password':
-					// Fetch all cookie keynames
-					$cookies = array_keys($_COOKIE);
-					
-					// Loop through the cookies
-					foreach($cookies as $cookie) {
-						// Check whether the reset password cookie is set
-						if(strpos($cookie, 'pw-reset') !== false) {
-							// Fetch the cookie's name
-							$cookie_name = $cookie;
-							break;
-						}
-					}
-					
-					// Fetch the cookie's data
-					$cookie_data = explode(':', $_COOKIE[$cookie_name]);
-					
 					// Display the 'Reset Password' form
-					$rs_login->resetPasswordForm($cookie_data);
+					$rs_login->resetPasswordForm();
 					break;
 				default:
 					// Display the 'Log In' form

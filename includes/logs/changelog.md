@@ -4,6 +4,48 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 2.0.6[a] (2019-10-30)
+
+* Removed the 'fetching cookie' code from the login.php file
+* Tweaked several previous entries in the changelog
+* Removed the 'cookie_data' parameter from the Login::resetPasswordForm function
+* Added a 'security_key' column to the 'users' table in the database schema
+* Added a new constant that stores a cookie hash based on the site's URL
+* Tweaked the styling for the formatted emails
+* Cleaned up code in the Login::validateLoginData function
+* The session value hash is now generated with the generateHash function
+* Added an error to the Login::forgotPasswordForm function that displays if a password reset security key is invalid
+* Cleaned up code in the Login::validateForgotPasswordData function
+* The reset password email's From address is now 'rscms@hostname' to prevent the possibility of an email being sent both from and to the same address
+* The reset password cookie is no longer created in the Login::validateForgotPasswordData function
+* Cleaned up code in the Login::resetPasswordForm function
+* The reset password cookie is now created in the Login::resetPasswordForm function
+* Cleaned up code in the Login::validateResetPasswordData function
+* Created a function that checks whether a reset password cookie is valid
+* Added an error to the Login::forgotPasswordForm function that displays if a password reset security key has expired
+* Tweaked documentation in the front end style.css file
+* Changed the access for the User::UN_LENGTH and User::PW_LENGTH constants from public to protected
+* Created a function that checks whether an email exists in the database (User class)
+* Cleaned up code in the User::usernameExists function
+* The delete action no longer displays on the 'List Users' page for the current user
+* Added output buffering to the admin header.php and footer.php files (this prevents errors with certain redirects)
+* Users can no longer delete themselves
+* The user's profile will now refresh after it's updated
+* Changed the access for the User::usernameExists function from private to protected
+* Created a function that validates the user profile form
+
+**Modified files:**
+* login.php
+* admin/footer.php (M)
+* admin/header.php (M)
+* admin/includes/class-profile.php
+* admin/includes/class-user.php
+* includes/class-login.php
+* includes/functions.php
+* includes/schema.php (M)
+* includes/css/style.css (M)
+
+----------------------------------------------------------------------------------------------------
 ## Version 2.0.5[a] (2019-10-28)
 
 * Created a function that validates the 'Forgot Password' form data and sends a reset password email
@@ -11,9 +53,9 @@
 * Created a function that generates a random hash
 * The user will now be redirected back to the 'Log In' form after they successfully submit the 'Forgot Password' form
 * A confirmation is now displayed over the 'Log In' form after the 'Forgot Password' form is submitted
-* Tweaked documentation in the login file
+* Tweaked documentation in the login.php file
 * Renamed the Login::loginForm function to Login::logInForm
-* Moved the generatePassword function from the admin functions file to the global functions file
+* Moved the generatePassword function from the admin functions.php file to the globals.php file
 * Tweaked the generatePassword function's internal code
 * Created a function that constructs the 'Reset Password' form
 * Created a function that validates the 'Reset Password' form data
@@ -29,7 +71,7 @@
 ----------------------------------------------------------------------------------------------------
 ## Version 2.0.4[a] (2019-10-27)
 
-* Tweaked documentation in the global functions file
+* Tweaked documentation in the globals.php file
 * Added an optional parameter to the global redirect function to specify the HTTP status for a redirect
 * Renamed the Login::errorMessage function to Login::statusMessage and added an optional parameter to specify whether the message should show success or failure
 * Added styling for success status messages
@@ -44,7 +86,7 @@
 ----------------------------------------------------------------------------------------------------
 ## Version 2.0.3[a] (2019-10-24)
 
-* Added a switch statement to the login file for actions
+* Added a switch statement to the login.php file for actions
 * The page title will now change based on the current action
 * Created a function that constructs the 'Log In' form
 * Renamed the Login::userLogin function to Login::validateLoginData
@@ -64,9 +106,9 @@
 ## Version 2.0.2[a] (2019-10-18)
 
 * Added output buffering to the login page (prevents errors that may occur with cookie creation)
-* Tweaked documentation in the login file
+* Tweaked documentation in the login.php file
 * Turned off autocompletion on the captcha field of the login form
-* Tweaked documentation in the global functions file
+* Tweaked documentation in the globals.php file
 * Created a function that checks whether a specific session already exists in the database
 * Added an optional parameter to the Login::sanitizeData function that accepts regex patterns
 * Renamed the 'username_email' input on the login form to 'login'
@@ -74,10 +116,10 @@
 * Renamed the 'username' parameter in the Login::isValidPassword function to 'login'
 * A user can now log in with their email in addition to their username
 * The 'keep me logged in' checkbox now works (cookie is saved for 30 days)
-* Tweaked documentation in the admin header file
-* Tweaked documentation in the admin menus file
-* Tweaked documentation in the admin users file
-* Tweaked documentation in the admin widgets file
+* Tweaked documentation in the admin header.php file
+* Tweaked documentation in the admin menus.php file
+* Tweaked documentation in the admin users.php file
+* Tweaked documentation in the admin widgets.php file
 
 **Modified files:**
 * login.php
@@ -91,7 +133,7 @@
 ----------------------------------------------------------------------------------------------------
 ## Version 2.0.1[a] (2019-10-17)
 
-* Tweaked documentation in the captcha file
+* Tweaked documentation in the captcha.php file
 * Created a function that sanitizes user input data from the login form
 * A session cookie is now created when the user logs in instead of a session array
 * Created a function that checks whether a user is properly logged in
@@ -127,7 +169,7 @@
 * Tweaked documentation in the Widget class
 * Created a function that constructs the 'Edit Profile' form
 * Changed the access for the User::getUserMeta function from private to protected
-* Tweaked documentation in the root index file
+* Tweaked documentation in the root index.php file
 * Tweaked the styling of the login form
 * Created the Login class
 * Created a function that constructs error messages for the login form
@@ -136,7 +178,7 @@
 * Created a function that checks whether a captcha value is valid
 * Created a function that checks whether a password is valid
 * Tweaked documentation in the User class
-* Added the start_session function to the captcha file and the admin header file
+* Added the start_session function to the captcha.php file and the admin header.php file
 * Created a function that validates the login data and logs the user in
 
 **Modified files:**
@@ -184,10 +226,10 @@
 
 * Updated various functions in the Post and User classes to make use of the new Query::selectField function
 * Changed the access for the Post::getAuthor and Post::getAuthorList functions from protected to private
-* Updated a function in the admin functions file to make use of the new Query::selectField function
-* Added more documentation to the admin functions file
-* Added full file path for autoloaded classes in the includes functions file
-* Updated some functions in the global functions file to make use of the new Query::selectField function
+* Updated a function in the admin functions.php file to make use of the new Query::selectField function
+* Added more documentation to the admin functions.php file
+* Added full file path for autoloaded classes in the includes functions.php file
+* Updated some functions in the globals.php file to make use of the new Query::selectField function
 * A menu item's children will now have their parent updated when that menu item is deleted
 
 **Modified files:**
@@ -248,7 +290,7 @@
 * Created a function that fetches the whole "family tree" of a menu item and returns the number of members
 * Added a global variable to the Menu class to hold the member count of a menu item's "family tree"
 * Created a function that fetches all descendants of a menu item
-* Replaced an occurence of intval() with a casted integer in the installation file
+* Replaced an occurence of intval() with a casted integer in the install.php file
 * Added more documentation to the Query class
 
 **Modified files:**
@@ -274,13 +316,13 @@
 ## Version 1.8.5[a] (2019-09-20)
 
 * Tweaked a previous entry in the changelog
-* Added a line of documentation to the schema file
-* Tweaked documentation and updated a constant in the initialization file
-* A notice will now display if the content directory's index file is accessed directly
-* Added more documentation to the content index file
+* Added a line of documentation to the schema.php file
+* Tweaked documentation and updated a constant in the init.php file
+* A notice will now display if the content directory's index.php file is accessed directly
+* Added more documentation to the content index.php file
 * Added FontAwesome icons
 * Tweaked documentation in the includes CSS stylesheet
-* Included the FontAwesome stylesheet in the admin header file
+* Included the FontAwesome stylesheet in the admin header.php file
 * Added a parameter to the adminNavMenuItem function to include an icon
 * Added styling for the icons
 * Adjusted the width, font size, and margins of the admin nav menu and menu items
@@ -303,8 +345,8 @@
 ----------------------------------------------------------------------------------------------------
 ## Version 1.8.4[a] (2019-09-15)
 
-* Added more documentation to the root index file and removed a closing PHP tag
-* Minor tweak to the content index file
+* Added more documentation to the root index.php file and removed a closing PHP tag
+* Minor tweak to the content index.php file
 * Added an extra parameter to the Menu::deleteMenuItem function
 * When a menu item is deleted, the indexes of any other menu items are now reordered properly
 * Added some documentation to the Query class
@@ -331,9 +373,9 @@
 * Custom links can now be added to menus
 * Custom menu items can now be edited
 * Menu items can now be sorted up (to a lower index) and down (to a higher index)
-* Removed an old, unused test function from the includes functions file
-* Added an exit function after a redirect in the initialization file
-* Updated some documentation in the login file
+* Removed an old, unused test function from the includes functions.php file
+* Added an exit function after a redirect in the init.php file
+* Updated some documentation in the login.php file
 * Tweaked some previous entries in the changelog
 
 **Modified files:**
@@ -435,7 +477,7 @@
 ----------------------------------------------------------------------------------------------------
 ## Version 1.7.5[a] (2019-09-07)
 
-* Tweaked documentation in the users admin file
+* Tweaked documentation in the admin users.php file
 * The categories pages now check whether a logged in user has sufficient privileges to view the pages
 * The posts pages now check whether a logged in user has sufficient privileges to view the pages
 * The Category::getParent function now returns an em dash if a category has no parent
@@ -550,7 +592,7 @@
 * The user_privileges table is now populated during installation
 * The user_relationships table is now populated during installation
 * Added the 'clear' class to all admin page wrapper elements (prevents page content from overflowing into the footer)
-* Removed a line of documentation from the categories file
+* Removed a line of documentation from the categories.php file
 * Renamed the Settings::listSettings function to Settings::generalSettings
 * Created the 'User Roles' settings page
 * Added a nav menu item for the user roles settings page
@@ -577,7 +619,7 @@
 * Added a redirect from the 'Edit Post' page to the 'Edit Widget' page if the requested id corresponds to a widget
 * Renamed the 'roles' table to 'user_roles', the 'privileges' table to 'user_privileges', and the 'rp_relationships' table to 'user_relationships'
 * The user_roles table is now populated during installation
-* Consolidated all database table populate functions into one and moved the old functions to the deprecated functions file
+* Consolidated all database table populate functions into one and moved the old functions to the deprecated.php file
 * The user created on installation is now given the administrator user role
 * Replaced the UPL_DIR constant with UPLOADS in the User::getAvatar function (the former is no longer used)
 * Created a function that constructs a list of user roles (Settings class)
@@ -641,7 +683,7 @@
 * Removed the jQuery library and script from the installation page (no longer needed since clicking the checkbox now works)
 * Renamed a CSS class on the installation page
 * Changed the default value for the getStylesheet and getScript functions' version parameter to the VERSION constant
-* Added more documentation to the global functions
+* Added more documentation to the globals.php file
 * Cleaned up the trimWords function
 * Changed the default value for the getAdminStylesheet and getAdminScript functions' version parameter to the VERSION constant
 * Added more documentation to the admin functions
@@ -651,7 +693,7 @@
 * Tweaked documentation in the Post class
 * Added form validation for widgets
 * Modified date is now set when a post is edited
-* Removed a line of documentation from the widgets file
+* Removed a line of documentation from the widgets.php file
 * Tweaked the pagination code for the Post class
 * Removed a few lines of documentation from the Category class
 * Tweaked the styling of some elements on the 'General Settings' page
@@ -718,13 +760,13 @@
 * Improved styling of the statistics graph
 * Reordered the bars in the statistics graph
 * Rebuilt the admin submenu item functionality
-* Removed a closing PHP tag in the admin settings file
-* Tweaked some code in the setup file
-* Tweaked some code and fixed some documentation in the installation file
+* Removed a closing PHP tag in the admin settings.php file
+* Tweaked some code in the setup.php file
+* Tweaked some code and fixed some documentation in the install.php file
 * The CMS version constant now only displays the version number (e.g., 1.5.7); the RSVersion function now includes the long form
 * Added the CMS version to the admin stylesheets and scripts
-* Fixed some documentation in the global functions file
-* Removed a closing PHP tag in the admin index file
+* Fixed some documentation in the globals.php file
+* Removed a closing PHP tag in the admin index.php file
 * Tweaked some code in the Settings and User classes
 
 **Modified files:**
@@ -746,12 +788,12 @@
 * A notice will now be displayed on the List Categories page if there are no categories in the database
 * Minor code tweak in the Post class
 * Adjusted the margins for status messages
-* Removed some deprecated code from the admin functions file
+* Removed some deprecated code from the admin functions.php file
 * Changed some class and id names for the statistics graph
 * Added styling to the statistics graph
 * Created a file for admin scripts
 * Created a file for the jquery library
-* Added admin scripts and jquery to the admin footer file
+* Added admin scripts and jquery to the admin footer.php file
 * Added optional version parameter to stylesheet and script fetching functions
 * Created a script that generates the bars for the statistics graph
 
@@ -771,9 +813,9 @@
 * Created an index page for the content directory
 * Created functions to include theme header and footer files
 * Moved the front end header and footer files to the content directory
-* The root index file now includes the content index file
+* The root index.php file now includes the content index.php file
 * Created a new defined constant for the content directory
-* Updated documentation in the deprecated functions file
+* Updated documentation in the deprecated.php file
 
 **Modified files:**
 * footer.php (R)
@@ -864,7 +906,7 @@
 * Created the Category class
 * The 'Create <classname>' buttons have been relabeled as 'Create New'
 * Modified the logic of the status message display on the list entries pages
-* Fixed some erroneous documentation in the functions file
+* Fixed some erroneous documentation in the functions.php file
 * Created a function to populate the taxonomies table
 * Created a function to fetch a taxonomy's id based on its name
 * Created a function to populate the terms table
@@ -892,7 +934,7 @@
 
 * Added terms, taxonomies, and term_relationships tables to the schema
 * Renamed 'rp_link' table to 'rp_relationships'
-* Added a line of documentation to the CMS installation file
+* Added a line of documentation to the CMS install.php file
 * Added form validation to Post::editEntry function
 * Changed the link color on status messages
 * Added table column for categories on 'post' post type page
@@ -1174,11 +1216,11 @@
 * Buttons now have the cursor hand if hovered over
 * Created functions to fetch stylesheets and scripts for the front end
 * Moved getSetting, trimWords, and trailingSlash functions to globals.php
-* Created front end styles file
-* Front end init file now loads all required files
+* Created front end style.css file
+* Front end init.php file now loads all required files
 * Fixed a bug in the installation that allowed users to navigate to the login screen before they're supposed to
 * Initialization and functions files are included in the header files of both the front end and admin dashboard
-* Removed PATH constant from config setup (PATH is defined in the initialization file)
+* Removed PATH constant from config setup (PATH is defined in the init.php file)
 
 **Modified files:**
 * header.php
@@ -1207,7 +1249,7 @@
 ## Version 1.3.1[a] (2019-03-19)
 
 * Fixed a bug in the setup process that allowed the config.php file to be created without data
-* Fixed a file path issue in functions file
+* Fixed a file path issue in the functions.php file
 * Created a function that adds a trailing slash to text
 * Cleaned up the admin header
 * Code cleanup
@@ -1226,13 +1268,13 @@
 ----------------------------------------------------------------------------------------------------
 ## Version 1.3.0[a] (2019-03-18)
 
-* Created file to initialize the CMS
+* Created a file to initialize the CMS
 * Added __DIR__ to require statements
-* Created file to set up the database connection
-* Created file for config setup
+* Created a file to set up the database connection
+* Created a file for config setup
 * Added stylesheet for the setup and install pages
 * Added stylesheet for buttons
-* Created file for installing the CMS
+* Created a file for installing the CMS
 * Added a variable to test the db connection
 * Added exception handling to Query class constructor
 * Created and tested installation functionality

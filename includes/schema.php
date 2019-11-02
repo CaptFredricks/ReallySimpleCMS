@@ -121,6 +121,7 @@ function dbSchema() {
 		last_login datetime default NULL,
 		session varchar(255) default NULL,
 		role bigint(20) unsigned NOT NULL default '0',
+		security_key varchar(255) default NULL,
 		KEY username (username),
 		KEY role (role)
 	);";
