@@ -5,7 +5,7 @@
  */
 
 // Current CMS version
-const VERSION = '2.0.6';
+const VERSION = '2.0.7';
 
 /**
  * Display the copyright information on the admin dashboard.
@@ -54,22 +54,6 @@ function redirect($url, $status = 302) {
 }
 
 /**
- * Fetch a stylesheet.
- * @since 1.3.3[a]
- *
- * @param string $stylesheet
- * @param string $version (optional; default: VERSION)
- * @param bool $echo (optional; default: true)
- * @return null|string (null on $echo == true; string on $echo == false)
- */
-function getStylesheet($stylesheet, $version = VERSION, $echo = true) {
-	if($echo)
-		echo '<link rel="stylesheet" href="'.trailingSlash(STYLES).$stylesheet.(!empty($version) ? '?version='.$version : '').'">';
-	else
-		return '<link rel="stylesheet" href="'.trailingSlash(STYLES).$stylesheet.(!empty($version) ? '?version='.$version : '').'">';
-}
-
-/**
  * Fetch a script file.
  * @since 1.3.3[a]
  *
@@ -80,9 +64,57 @@ function getStylesheet($stylesheet, $version = VERSION, $echo = true) {
  */
 function getScript($script, $version = VERSION, $echo = true) {
 	if($echo)
-		echo '<script src="'.trailingSlash(SCRIPTS).$script.(!empty($version) ? '?version='.$version : '').'"></script>';
+		echo '<script src="'.trailingSlash(SCRIPTS).$script.(!empty($version) ? '?v='.$version : '').'"></script>';
 	else
-		return '<script src="'.trailingSlash(SCRIPTS).$script.(!empty($version) ? '?version='.$version : '').'"></script>';
+		return '<script src="'.trailingSlash(SCRIPTS).$script.(!empty($version) ? '?v='.$version : '').'"></script>';
+}
+
+/**
+ * Fetch a stylesheet.
+ * @since 1.3.3[a]
+ *
+ * @param string $stylesheet
+ * @param string $version (optional; default: VERSION)
+ * @param bool $echo (optional; default: true)
+ * @return null|string (null on $echo == true; string on $echo == false)
+ */
+function getStylesheet($stylesheet, $version = VERSION, $echo = true) {
+	if($echo)
+		echo '<link href="'.trailingSlash(STYLES).$stylesheet.(!empty($version) ? '?v='.$version : '').'" rel="stylesheet">';
+	else
+		return '<link href="'.trailingSlash(STYLES).$stylesheet.(!empty($version) ? '?v='.$version : '').'" rel="stylesheet">';
+}
+
+/**
+ * Fetch a theme-specific script file.
+ * @since 2.0.7[a]
+ *
+ * @param string $script
+ * @param string $version (optional; default: VERSION)
+ * @param bool $echo (optional; default: true)
+ * @return null|string (null on $echo == true; string on $echo == false)
+ */
+function getThemeScript($script, $version = VERSION, $echo = true) {
+	if($echo)
+		echo '<script src="'.trailingSlash(CONT).$script.(!empty($version) ? '?v='.$version : '').'"></script>';
+	else
+		return '<script src="'.trailingSlash(CONT).$script.(!empty($version) ? '?v='.$version : '').'"></script>';
+}
+
+/**
+ * Fetch a theme-specific stylesheet.
+ * @since 2.0.7[a]
+ *
+ * @param string $stylesheet
+ * @param string $version (optional; default: VERSION)
+ * @param bool $echo (optional; default: true)
+ * @return null|string (null on $echo == true; string on $echo == false)
+ */
+function getThemeStylesheet($stylesheet, $version = VERSION, $echo = true) {
+	if($echo)
+		echo '<link href="'.trailingSlash(CONT).$stylesheet.(!empty($version) ? '?v='.$version : '').'" rel="stylesheet">';
+	else
+		return '<link href="'.trailingSlash(CONT).$stylesheet.(!empty($version) ? '?v='.$version : '').'" rel="stylesheet">';
 }
 
 /**
@@ -138,6 +170,8 @@ function getOnlineUser($session) {
 	
 	// Fetch the user from the database
 	$user = $rs_query->selectRow('users', array('id', 'username', 'role'), array('session'=>$session));
+	
+	$user['theme'] = $rs_query->selectField('usermeta', array('value'), array('user'=>$user['id'], '_key'=>'theme'));
 	
 	// Return the user data
 	return $user;

@@ -28,6 +28,14 @@ class Login {
 			<p><label for="password">Password<br><input type="password" name="password"></label></p>
 			<p><label for="captcha">Captcha<br><input type="text" name="captcha" autocomplete="off"><img id="captcha" src="<?php echo INC.'/captcha.php'; ?>"></label></p>
 			<p><label class="checkbox-label"><input type="checkbox" name="remember_login" value="checked"> <span>Keep me logged in</span></label></p>
+			<?php
+			// Check whether a redirect URL has been specified
+			if(isset($_GET['redirect'])) {
+				?>
+				<input type="hidden" name="redirect" value="<?php echo $_GET['redirect']; ?>">
+				<?php
+			}
+			?>
 			<input type="submit" class="button" name="submit" value="Log In">
 		</form>
 		<?php
@@ -109,8 +117,8 @@ class Login {
 		unset($_SESSION['secure_login']);
 		
 		// Check whether the page needs to redirect to a specific URL after login
-		if(isset($_GET['redirect']))
-			redirect($_GET['redirect']);
+		if(isset($data['redirect']))
+			redirect($data['redirect']);
 		else
 			redirect(trailingSlash(ADMIN));
 	}
@@ -467,6 +475,15 @@ class Login {
 	}
 	
 	/**
+	 * Set the minimum password length.
+	 * @since 2.0.7[a]
+	 *
+	 * @access private
+	 * @var int
+	 */
+	private const PW_LENGTH = 8;
+	
+	/**
 	 * Validate the reset password data.
 	 * @since 2.0.5[a]
 	 *
@@ -481,6 +498,10 @@ class Login {
 		// Make sure no required fields are empty
 		if(empty($data['password']))
 			return $this->statusMessage('F');
+		
+		// Make sure the password is long enough
+		if(strlen($data['password']) < self::PW_LENGTH)
+			return statusMessage('Password must be at least '.self::PW_LENGTH.' characters long.');
 		
 		// Check whether the reset password cookie is valid
 		if($this->isValidCookie($data['login'], $data['key'])) {

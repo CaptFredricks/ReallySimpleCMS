@@ -21,7 +21,6 @@ define('COOKIE_HASH', md5(getSetting('site_url', false)));
  * @return null
  */
 function getHeader() {
-	// Include header with full path
 	include_once PATH.CONT.'/header.php';
 }
 
@@ -32,7 +31,6 @@ function getHeader() {
  * @return null
  */
 function getFooter() {
-	// Include footer with full path
 	include_once PATH.CONT.'/footer.php';
 }
 

@@ -1,0 +1,134 @@
+/**
+ * Admin dashboard Sunset theme.
+ * @since 2.0.7[a]
+ */
+
+html {
+	background-color: #2f0f06;
+}
+
+a {
+	color: #fa8026;
+}
+
+/*------------------------------------*\
+    STRUCTURE
+\*------------------------------------*/
+
+/* Header */
+
+#admin-header {
+	background-color: #8f4f0f;
+}
+
+/** Site title **/
+
+#site-title:hover {
+	background-color: #2f0f06;
+	color: #fa8026;
+}
+
+/** User dropdown menu **/
+
+.user-dropdown:hover {
+	background-color: #2f0f06;
+	color: #fa8026;
+}
+
+.user-dropdown-menu {
+	background-color: #2f0f06;
+}
+
+.user-dropdown-menu li a:hover {
+	color: #fa8026;
+}
+
+/* Navigation */
+
+#admin-nav-wrap {
+	background-color: #8f4f0f;
+}
+
+#admin-nav-menu {
+	background-color: #8f4f0f;
+	border-top-color: #dfbf2f;
+}
+
+#admin-nav-menu .menu > li {
+	border-bottom-color: #dfbf2f;
+}
+
+#admin-nav-menu .menu > li:hover,
+#admin-nav-menu .submenu > li:hover {
+	background-color: #2f0f06;
+}
+
+#admin-nav-menu .menu > li.current-menu-item,
+#admin-nav-menu .menu > li.child-is-current {
+	background-color: #2f0f06;
+}
+
+#admin-nav-menu .menu > li.current-menu-item > a,
+#admin-nav-menu .menu > li.child-is-current > a {
+	color: #fa8026;
+}
+
+#admin-nav-menu .submenu {
+	background-color: #8f4f0f;
+}
+
+#admin-nav-menu .submenu > li:not(:last-child) {
+	border-bottom-color: #dfbf2f;
+}
+
+#admin-nav-menu .submenu > li.current-submenu-item {
+	background-color: #2f0f06;
+}
+
+#admin-nav-menu .submenu > li.current-submenu-item > a {
+	color: #fa8026
+}
+
+/* Footer */
+
+#admin-footer .copyright {
+	border-top-color: #8f4f0f;
+}
+
+#admin-footer .version {
+	border-top-color: #8f4f0f;
+	border-bottom-color: #8f4f0f;
+}
+
+/*------------------------------------*\
+    CONTENT
+\*------------------------------------*/
+
+.notice-nojs {
+	background-color: #00000f;
+}
+
+/* Data forms */
+
+.data-form-wrap {
+	background-color: #1f0903;
+	border-color: #dfbf2f;
+}
+
+/** Form tables **/
+
+.form-table .separator {
+	border-color: #7f3f0f;
+}
+
+/*------------------------------------*\
+    RESPONSIVE
+\*------------------------------------*/
+
+@media screen and (min-width: 1050px) {
+	#admin-nav-menu .menu > li.current-menu-item .submenu,
+	#admin-nav-menu .menu > li.child-is-current .submenu {
+		background-color: #7f3f0f;
+		border-top-color: #dfbf2f;
+	}
+}

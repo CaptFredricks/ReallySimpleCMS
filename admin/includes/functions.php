@@ -96,6 +96,22 @@ function getCurrentPage() {
 }
 
 /**
+ * Fetch an admin script file.
+ * @since 1.2.0[a]
+ *
+ * @param string $script
+ * @param string $version (optional; default: VERSION)
+ * @param bool $echo (optional; default: true)
+ * @return null|string (null on $echo == true; string on $echo == false)
+ */
+function getAdminScript($script, $version = VERSION, $echo = true) {
+	if($echo)
+		echo '<script src="'.trailingSlash(ADMIN_SCRIPTS).$script.(!empty($version) ? '?v='.$version : '').'"></script>';
+	else
+		return '<script src="'.trailingSlash(ADMIN_SCRIPTS).$script.(!empty($version) ? '?v='.$version : '').'"></script>';
+}
+
+/**
  * Fetch an admin stylesheet.
  * @since 1.2.0[a]
  *
@@ -106,25 +122,55 @@ function getCurrentPage() {
  */
 function getAdminStylesheet($stylesheet, $version = VERSION, $echo = true) {
 	if($echo)
-		echo '<link rel="stylesheet" href="'.trailingSlash(ADMIN_STYLES).$stylesheet.(!empty($version) ? '?version='.$version : '').'">';
+		echo '<link href="'.trailingSlash(ADMIN_STYLES).$stylesheet.(!empty($version) ? '?v='.$version : '').'" rel="stylesheet">';
 	else
-		return '<link rel="stylesheet" href="'.trailingSlash(ADMIN_STYLES).$stylesheet.(!empty($version) ? '?version='.$version : '').'">';
+		return '<link href="'.trailingSlash(ADMIN_STYLES).$stylesheet.(!empty($version) ? '?v='.$version : '').'" rel="stylesheet">';
 }
 
 /**
- * Fetch an admin script.
- * @since 1.2.0[a]
+ * Load all admin header scripts and stylesheets.
+ * @since 2.0.7[a]
  *
- * @param string $script
- * @param string $version (optional; default: VERSION)
- * @param bool $echo (optional; default: true)
- * @return null|string (null on $echo == true; string on $echo == false)
+ * @return null
  */
-function getAdminScript($script, $version = VERSION, $echo = true) {
-	if($echo)
-		echo '<script src="'.trailingSlash(ADMIN_SCRIPTS).$script.(!empty($version) ? '?version='.$version : '').'"></script>';
-	else
-		return '<script src="'.trailingSlash(ADMIN_SCRIPTS).$script.(!empty($version) ? '?version='.$version : '').'"></script>';
+function adminHeaderScripts() {
+	// Extend the user's session data
+	global $session;
+	
+	// Buttons stylesheet
+	getStylesheet('buttons.css');
+	
+	// Admin stylesheet
+	getAdminStylesheet('style.css');
+	
+	// Check whether the user has a custom admin theme selected
+	if($session['theme'] !== 'default') {
+		// File path for the admin theme stylesheet
+		$file_path = 'admin-themes/'.$session['theme'].'.css';
+		
+		// Check whether the stylesheet exists
+		if(file_exists(trailingSlash(PATH.CONT).$file_path)) {
+			// Admin theme stylesheet
+			getThemeStylesheet($file_path);
+		}
+	}
+	
+	// FontAwesome icons stylesheet
+	getStylesheet('fa-icons.css', '5.11.2');
+}
+
+/**
+ * Load all admin footer scripts and stylesheets.
+ * @since 2.0.7[a]
+ *
+ * @return null
+ */
+function adminFooterScripts() {
+	// JQuery library
+	getScript('jquery.min.js', '3.4.1');
+	
+	// Admin script file
+	getAdminScript('script.js');
 }
 
 /**

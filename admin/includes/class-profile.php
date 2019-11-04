@@ -46,6 +46,7 @@ class Profile extends User {
 					echo formRow('First Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'first_name', 'value'=>$meta['first_name']));
 					echo formRow('Last Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'last_name', 'value'=>$meta['last_name']));
 					echo formRow('Avatar', array('tag'=>'input', 'name'=>'avatar', 'value'=>$meta['avatar']));
+					echo formRow('Theme', array('tag'=>'select', 'class'=>'select-input', 'name'=>'theme', 'content'=>$this->getThemesList($meta['theme'])));
 					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
 					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Profile'));
 					?>
@@ -68,7 +69,7 @@ class Profile extends User {
 		// Extend the Query class and the user session data
 		global $rs_query, $session;
 		
-		// Make sure no require fields are empty
+		// Make sure no required fields are empty
 		if(empty($data['username']) || empty($data['email']))
 			return statusMessage('R');
 		
@@ -85,7 +86,7 @@ class Profile extends User {
 			return statusMessage('That email is already taken by another user. Please choose another one.');
 		
 		// Create an array to hold the user's metadata
-		$usermeta = array('first_name'=>$data['first_name'], 'last_name'=>$data['last_name'], 'avatar'=>$data['avatar']);
+		$usermeta = array('first_name'=>$data['first_name'], 'last_name'=>$data['last_name'], 'avatar'=>$data['avatar'], 'theme'=>$data['theme']);
 		
 		// Update the user in the database
 		$rs_query->update('users', array('username'=>$data['username'], 'email'=>$data['email']), array('id'=>$session['id']));
@@ -96,5 +97,131 @@ class Profile extends User {
 		
 		// Return a status message
 		return statusMessage('Profile updated! This page will automatically refresh for all changes to take effect.', true);
+	}
+	
+	/**
+	 * Construct a list of admin themes.
+	 * @since 2.0.7[a]
+	 *
+	 * @access private
+	 * @param string $current
+	 * @return string
+	 */
+	private function getThemesList($current) {
+		// Extend the Query class
+		global $rs_query;
+		
+		// Create a list with just the default theme
+		$list = '<option value="default">Default</option>';
+		
+		// Set the file path to the admin themes directory
+		$dir = PATH.CONT.'/admin-themes';
+		
+		// Check whether the directory exists and extract any existing theme filenames if it does
+		if(file_exists($dir))
+			$themes = array_diff(scandir($dir), array('.', '..'));
+		
+		// Loop through the themes
+		foreach($themes as $theme) {
+			// Extract just the theme's name from its filename
+			$theme = pathinfo($theme, PATHINFO_FILENAME);
+			
+			// Add each theme to the list
+			$list .= '<option value="'.$theme.'"'.($theme === $current ? ' selected' : '').'>'.ucwords(str_replace('-', ' ', $theme)).'</option>';
+		}
+		
+		// Return the list
+		return $list;
+	}
+	
+	/**
+	 * Construct the 'Reset Password' form.
+	 * @since 2.0.7[a]
+	 *
+	 * @access public
+	 * @param int $id
+	 * @return null
+	 */
+	public function resetPassword($id) {
+		// Check whether the form has been submitted
+		if(isset($_POST['submit'])) {
+			// Validate the form data and return any messages
+			$message = $this->validatePasswordData($_POST, $id);
+			
+			// Check whether the message contains 'success'
+			if(strpos($message, 'success') !== false) {
+				?>
+				<meta http-equiv="refresh" content="4; url='/login.php?redirect=<?php echo urlencode($_SERVER['PHP_SELF']); ?>'">
+				<?php
+			}
+		} else {
+			// Set the message as an empty string
+			$message = '';
+		}
+		?>
+		<div class="heading-wrap">
+			<h1>Reset Password</h1>
+			<?php echo $message; ?>
+		</div>
+		<div class="data-form-wrap clear">
+			<form class="data-form" action="" method="post" autocomplete="off">
+				<table class="form-table">
+					<?php
+					echo formRow('Current Password', array('tag'=>'input', 'type'=>'password', 'class'=>'text-input required invalid init', 'name'=>'current_pass'));
+					echo formRow('New Password', array('tag'=>'input', 'id'=>'pw-input', 'class'=>'text-input required invalid init', 'name'=>'new_pass'), array('tag'=>'input', 'type'=>'button', 'id'=>'pw-btn', 'class'=>'button-input button', 'value'=>'Generate Password'), array('tag'=>'br'), array('tag'=>'input', 'type'=>'checkbox', 'id'=>'pw-chk', 'class'=>'checkbox-input', 'name'=>'pass_saved', 'value'=>'checked', 'label'=>array('id'=>'chk-label', 'class'=>'checkbox-label required invalid init', 'content'=>'<span>I have copied the password to a safe place.</span>')));
+					echo formRow('New Password (confirm)', array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'confirm_pass'));
+					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
+					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Password'));
+					?>
+				</table>
+			</form>
+		</div>
+		<?php
+	}
+	
+	/**
+	 * Validate the password form data.
+	 * @since 2.0.7[a]
+	 *
+	 * @access private
+	 * @param array $data
+	 * @param int $id
+	 * @return string
+	 */
+	private function validatePasswordData($data, $id) {
+		// Extend the Query class
+		global $rs_query;
+		
+		// Make sure no required fields are empty
+		if(empty($data['current_pass']) || empty($data['new_pass']) || empty($data['confirm_pass']))
+			return statusMessage('R');
+		
+		// Make sure the current password is correctly entered
+		if(!$this->verifyPassword($data['current_pass'], $id))
+			return statusMessage('Current password is incorrect.');
+		
+		// Make sure the new and confirm password fields match
+		if($data['new_pass'] !== $data['confirm_pass'])
+			return statusMessage('New and confirm passwords do not match.');
+		
+		// Make sure the new and confirm passwords are long enough
+		if(strlen($data['new_pass']) < self::PW_LENGTH || strlen($data['confirm_pass']) < self::PW_LENGTH)
+			return statusMessage('New password must be at least '.self::PW_LENGTH.' characters long.');
+		
+		// Make sure the password saved checkbox has been checked
+		if(!isset($data['pass_saved']) || $data['pass_saved'] !== 'checked')
+			return statusMessage('Please confirm that you\'ve saved your password to a safe location.');
+		
+		// Hash the password (encrypts the password for security purposes)
+		$hashed_password = password_hash($data['new_pass'], PASSWORD_BCRYPT, array('cost'=>10));
+		
+		// Update the current user's password and session in the database
+		$rs_query->update('users', array('password'=>$hashed_password, 'session'=>null), array('id'=>$id));
+		
+		// Delete the session cookie
+		setcookie('session', '', 1, '/');
+		
+		// Return a status message
+		return statusMessage('Password updated! You will be required to log back in.', true);
 	}
 }

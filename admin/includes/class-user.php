@@ -20,10 +20,10 @@ class User {
 	 * Set the minimum password length.
 	 * @since 1.1.0[a]
 	 *
-	 * @access private
+	 * @access protected
 	 * @var int
 	 */
-	private const PW_LENGTH = 8;
+	protected const PW_LENGTH = 8;
 	
 	/**
 	 * Construct a list of all users in the database.
@@ -485,16 +485,20 @@ class User {
 	 *
 	 * @access private
 	 * @param array $data
-	 * @param int $id (optional; default: 0)
-	 * @return null|string (null on $id == 0; string on $id != 0)
+	 * @param int $id
+	 * @return string
 	 */
-	private function validatePasswordData($data, $id = 0) {
+	private function validatePasswordData($data, $id) {
 		// Extend the Query class and the user session data
 		global $rs_query, $session;
 		
 		// Make sure no required fields are empty
-		if(empty($data['new_pass']) || empty($data['confirm_pass']))
+		if(empty($data['admin_pass']) || empty($data['new_pass']) || empty($data['confirm_pass']))
 			return statusMessage('R');
+		
+		// Make sure the admin password is correctly entered
+		if(!$this->verifyPassword($data['admin_pass'], $session['id']))
+			return statusMessage('Admin password is incorrect.');
 		
 		// Make sure the new and confirm password fields match
 		if($data['new_pass'] !== $data['confirm_pass'])
@@ -508,79 +512,44 @@ class User {
 		if(!isset($data['pass_saved']) || $data['pass_saved'] !== 'checked')
 			return statusMessage('Please confirm that you\'ve saved your password to a safe location.');
 		
-		if($id === 0) {
-			// Make sure the current password field is not empty
-			if(empty($data['current_pass']))
-				return statusMessage('R');
+		// Hash the password (encrypts the password for security purposes)
+		$hashed_password = password_hash($data['new_pass'], PASSWORD_BCRYPT, array('cost'=>10));
+		
+		// Update the user's password in the database
+		$rs_query->update('users', array('password'=>$hashed_password), array('id'=>$id));
+		
+		// Fetch the user's session from the database
+		$session = $rs_query->selectField('users', 'session', array('id'=>$id));
+		
+		// Check whether the user's session is null
+		if(!is_null($session)) {
+			// Set the user's session to null in the database
+			$rs_query->update('users', array('session'=>null), array('id'=>$id, 'session'=>$session));
 			
-			// Make sure the current password is correctly entered
-			if(!$this->verifyPassword($session, $data['current_pass']))
-				return statusMessage('Current password is incorrect.');
-			
-			// Hash the password (encrypts the password for security purposes)
-			$hashed_password = password_hash($data['new_pass'], PASSWORD_BCRYPT, array('cost'=>10));
-			
-			// Update the current user's password and session in the database
-			$rs_query->update('users', array('password'=>$hashed_password, 'session'=>null), array('id'=>$session['id']));
-			
-			// Delete the session cookie
-			setcookie('session', '', 1, '/');
-			
-			// Return a status message
-			return statusMessage('Password updated! You will be required to log back in.', true);
-		} else {
-			// Make sure the admin password field is not empty
-			if(empty($data['admin_pass']))
-				return statusMessage('R');
-			
-			// Make sure the admin password is correctly entered
-			if(!$this->verifyPassword($session, $data['admin_pass']))
-				return statusMessage('Admin password is incorrect.');
-			
-			// Hash the password (encrypts the password for security purposes)
-			$hashed_password = password_hash($data['new_pass'], PASSWORD_BCRYPT, array('cost'=>10));
-			
-			// Update the user's password in the database
-			$rs_query->update('users', array('password'=>$hashed_password), array('id'=>$id));
-			
-			// Fetch the user's session from the database
-			$session = $rs_query->selectField('users', 'session', array('id'=>$id));
-			
-			// Check whether the user's session is null
-			if(!is_null($session)) {
-				// Set the user's session to null in the database
-				$rs_query->update('users', array('session'=>null), array('id'=>$id, 'session'=>$session));
-				
-				// Fetch the session id
-				session_id($session);
-				
-				// Unset all of the session variables
-				unset($_SESSION['id'], $_SESSION['username'], $_SESSION['avatar'], $_SESSION['role'], $_SESSION['session']);
-				
-				// Destroy the session
-				session_destroy();
-			}
-			
-			// Return a status message
-			return statusMessage('Password updated! Return to <a href="users.php">Return to list</a>?', true);
+			// Check whether the cookie's value matches the session value and delete it if so
+			if($_COOKIE['session'] === $session)
+				setcookie('session', '', 1, '/');
 		}
+		
+		// Return a status message
+		return statusMessage('Password updated! Return to <a href="users.php">Return to list</a>?', true);
 	}
 	
 	/**
 	 * Verify that the current user's password matches what's in the database.
 	 * @since 1.2.4[a]
 	 *
-	 * @access private
-	 * @param array $session_data
+	 * @access protected
 	 * @param string $password
+	 * @param int $id
 	 * @return bool
 	 */
-	private function verifyPassword($session_data, $password) {
+	protected function verifyPassword($password, $id) {
 		// Extend the Query class
 		global $rs_query;
 		
 		// Fetch the user's password from the database
-		$db_password = $rs_query->selectField('users', 'password', array('id'=>$session_data['id'], 'session'=>$session_data['session']));
+		$db_password = $rs_query->selectField('users', 'password', array('id'=>$id));
 		
 		// Return true if the password is valid
 		return !empty($db_password) && password_verify($password, $db_password);
