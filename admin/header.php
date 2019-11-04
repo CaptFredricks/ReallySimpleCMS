@@ -28,9 +28,7 @@ $current_page = getCurrentPage();
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="robots" content="noindex, nofollow">
 		<meta name="theme-color" content="#e0e0e0">
-		<?php getStylesheet('buttons.css'); ?>
-		<?php getAdminStylesheet('style.css'); ?>
-		<?php getStylesheet('fa-icons.css', '5.11.2'); ?>
+		<?php adminHeaderScripts(); ?>
 	</head>
 	<body class="<?php echo $current_page; ?>">
 		<header id="admin-header">

@@ -4,6 +4,46 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 2.0.7[a] (2019-11-03)
+
+* Shortened the version query string on static resources from 'version' to 'v' (this applies to both stylesheets and scripts)
+* Tweaked documentation in the functions.php file
+* Tweaked documentation in the Profile class
+* Created a function that constructs the 'Reset Password' form (Profile class)
+* Created a function that validates the 'Reset Password' form data (Profile class)
+* Cleaned up code in the User::validatePasswordData function
+* Changed the access for the User::verifyPassword function from private to protected
+* Replaced the 'session_data' parameter with 'id' in the User::verifyPassword function
+* Cleaned up code in the User::verifyPassword function
+* The User::PW_LENGTH constant's access is now protected (it was inadvertently set to private)
+* The User::validatePasswordData function's second parameter is no longer optional
+* If a redirect URL is provided on the Log In page, the user will be redirected upon logging in
+* Created a function that loads all admin header scripts
+* Created a function that constructs a list of all admin themes
+* Added a field to the user profile form to allow users to select their own admin theme
+* Created a function that fetches a theme-specific stylesheet (located in the content directory)
+* Created a function that fetches a theme-specific script file (located in the content directory)
+* Users can now load custom admin themes by placing stylesheets in the '/content/admin-themes' directory
+* Created a function that loads all admin footer scripts
+* Created three alternate admin themes, named Ocean, Forest, and Sunset
+* Tweaked styling of the user dropdown menu
+* Created a constant to hold the minimum password lenth (Login class)
+
+**Modified files:**
+* admin/footer.php
+* admin/header.php
+* admin/includes/class-profile.php
+* admin/includes/class-user.php
+* admin/includes/functions.php
+* admin/include/css/style.css (M)
+* content/admin-themes/forest.css (N)
+* content/admin-themes/ocean.css (N)
+* content/admin-themes/sunset.css (N)
+* includes/class-login.php
+* includes/functions.php (M)
+* includes/globals.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 2.0.6[a] (2019-10-30)
 
 * Removed the 'fetching cookie' code from the login.php file
