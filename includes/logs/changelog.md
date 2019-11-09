@@ -4,6 +4,30 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 2.0.8[a] (2019-11-08)
+
+* Tweaked documentation in the globals.php file
+* Tweaked documentation in the admin Profile class
+* Tweaked documentation in the admin User class
+* During installation, a usermeta entry is now created for the user's admin theme
+* When a new user is created, a usermeta entry is now created for the user's admin theme
+* The Profile::getThemesList function now checks whether a file has the css extension and only includes it in the list if so
+* The profile page now refreshes after 3 seconds instead of 4
+* Tweaked the color of the user dropdown menu text
+* Improved the design of the Ocean admin theme
+* Changed 'From' header field in the 'Forgot Password' email from the site's name to 'ReallySimpleCMS'
+* If the user does not check the 'Keep me logged in' checkbox when they log in, the session cookie is now set to expire at the end of the browsing session (previously was 30 minutes)
+
+**Modified files:**
+* admin/includes/class-profile.php
+* admin/includes/class-user.php
+* admin/includes/functions.php (M)
+* admin/includes/css/style.css (M)
+* content/admin-themes/ocean.css
+* includes/class-login.php
+* includes/globals.php (M)
+
+----------------------------------------------------------------------------------------------------
 ## Version 2.0.7[a] (2019-11-03)
 
 * Shortened the version query string on static resources from 'version' to 'v' (this applies to both stylesheets and scripts)

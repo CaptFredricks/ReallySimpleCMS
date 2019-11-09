@@ -8,7 +8,7 @@ html {
 }
 
 a {
-	color: #86e0fa;
+	color: #fa96c0;
 }
 
 /*------------------------------------*\
@@ -25,14 +25,14 @@ a {
 
 #site-title:hover {
 	background-color: #090f2f;
-	color: #86e0fa;
+	color: #fa96c0;
 }
 
 /** User dropdown menu **/
 
 .user-dropdown:hover {
 	background-color: #090f2f;
-	color: #86e0fa;
+	color: #fa96c0;
 }
 
 .user-dropdown-menu {
@@ -40,7 +40,7 @@ a {
 }
 
 .user-dropdown-menu li a:hover {
-	color: #86e0fa;
+	color: #fa96c0;
 }
 
 /* Navigation */
@@ -70,7 +70,7 @@ a {
 
 #admin-nav-menu .menu > li.current-menu-item > a,
 #admin-nav-menu .menu > li.child-is-current > a {
-	color: #86e0fa;
+	color: #76fab0;
 }
 
 #admin-nav-menu .submenu {
@@ -86,7 +86,7 @@ a {
 }
 
 #admin-nav-menu .submenu > li.current-submenu-item > a {
-	color: #86e0fa;
+	color: #76fab0;
 }
 
 /* Footer */
@@ -108,11 +108,77 @@ a {
 	background-color: #00000f;
 }
 
+/* Statistics graph */
+
+#stats-graph {
+	background-color: #fdbd4d;
+}
+
+.graph-content {
+	background-color: #1f4f8f;
+}
+
+.graph-content > li .bar {
+	background-color: #fa96c0;
+}
+
+.graph-content > li .bar:hover {
+	background-color: #ffa6d0;
+}
+
+.graph-overlay {
+	background-color: #1f4f8f;
+}
+
+.graph-overlay li {
+	border-bottom-color: #3fcfef;
+}
+
+.graph-x {
+	border-top-color: #edad3d;
+}
+
+.graph-x .value {
+	color: #9a06b0;
+}
+
+.graph-y {
+	border-right-color: #edad3d;
+}
+
+/* Data tables */
+
+.data-table {
+	background-color: #9dedcd;
+}
+
+.data-table thead tr,
+.data-table tbody tr:not(:last-child) {
+	border-bottom-color: #2fbfdf;
+}
+
+.data-table tbody tr:nth-child(odd) {
+	background-color: #8dddbd;
+}
+
+.data-table tbody tr:hover {
+	background-color: #affddd;
+}
+
+.data-table th:not(:last-child),
+.data-table td:not(:last-child) {
+	border-right-color: #2fbfdf;
+}
+
+.data-table a {
+	color: #9a06b0;
+}
+
 /* Data forms */
 
 .data-form-wrap {
 	background-color: #090c1f;
-	border-color: #2fbfdf;
+	border-color: #fdbd4d;
 }
 
 /** Form tables **/

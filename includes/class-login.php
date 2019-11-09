@@ -109,8 +109,8 @@ class Login {
 			// Create a cookie with the session value that expires in 30 days
 			setcookie('session', $session, time() + 60 * 60 * 24 * 30, '/');
 		} else {
-			// Create a cookie with the session value that expires in 30 minutes
-			setcookie('session', $session, time() + 60 * 30, '/');
+			// Create a cookie with the session value that expires when the browser is closed
+			setcookie('session', $session, 0, '/');
 		}
 		
 		// Unset the secure login code
@@ -369,7 +369,7 @@ class Login {
 			// Set the content headers (to allow for HTML-formatted emails)
 			$headers[] = "MIME-Version: 1.0";
 			$headers[] = "Content-type: text/html; charset=iso-8859-1";
-			$headers[] = "From: ".getSetting('site_title', false)." <rscms@".$_SERVER['HTTP_HOST'].">";
+			$headers[] = "From: ReallySimpleCMS <rscms@".$_SERVER['HTTP_HOST'].">";
 			
 			// Make sure the email can be sent
 			if(mail($email, $subject, $content, implode("\r\n", $headers))) {
@@ -408,7 +408,7 @@ class Login {
 			// Set the content headers (to allow for HTML-formatted emails)
 			$headers[] = "MIME-Version: 1.0";
 			$headers[] = "Content-type: text/html; charset=iso-8859-1";
-			$headers[] = "From: ".getSetting('site_title', false)." <rscms@".$_SERVER['HTTP_HOST'].">";
+			$headers[] = "From: ReallySimpleCMS <rscms@".$_SERVER['HTTP_HOST'].">";
 			
 			// Make sure the email can be sent
 			if(mail($email, $subject, $content, implode("\r\n", $headers))) {

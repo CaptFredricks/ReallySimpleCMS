@@ -1,5 +1,5 @@
 <?php
-/** Testing
+/**
  * The starting point of the ReallySimpleCMS initialization.
  * @since 1.0.0[a]
  */

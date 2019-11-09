@@ -33,8 +33,8 @@ class Profile extends User {
 			// Display any returned messages
 			echo $message;
 
-			// Refresh the page after 4 seconds
-			echo isset($_POST['submit']) ? '<meta http-equiv="refresh" content="4">' : '';
+			// Refresh the page after 3 seconds
+			echo isset($_POST['submit']) ? '<meta http-equiv="refresh" content="3">' : '';
 			?>
 		</div>
 		<div class="data-form-wrap clear">
@@ -66,7 +66,7 @@ class Profile extends User {
 	 * @return 
 	 */
 	private function validateData($data) {
-		// Extend the Query class and the user session data
+		// Extend the Query class and the user's session data
 		global $rs_query, $session;
 		
 		// Make sure no required fields are empty
@@ -114,20 +114,23 @@ class Profile extends User {
 		// Create a list with just the default theme
 		$list = '<option value="default">Default</option>';
 		
-		// Set the file path to the admin themes directory
+		// File path for the admin themes directory
 		$dir = PATH.CONT.'/admin-themes';
 		
-		// Check whether the directory exists and extract any existing theme filenames if it does
+		// Check whether the directory exists and extract any existing theme filenames if so
 		if(file_exists($dir))
 			$themes = array_diff(scandir($dir), array('.', '..'));
 		
 		// Loop through the themes
 		foreach($themes as $theme) {
-			// Extract just the theme's name from its filename
-			$theme = pathinfo($theme, PATHINFO_FILENAME);
+			// Create an array to hold the parts of the theme's filename
+			$theme = pathinfo($theme);
 			
-			// Add each theme to the list
-			$list .= '<option value="'.$theme.'"'.($theme === $current ? ' selected' : '').'>'.ucwords(str_replace('-', ' ', $theme)).'</option>';
+			// Check whether the file's extension is 'css'
+			if($theme['extension'] === 'css') {
+				// Add each theme to the list
+				$list .= '<option value="'.$theme['filename'].'"'.($theme['filename'] === $current ? ' selected' : '').'>'.ucwords(str_replace('-', ' ', $theme['filename'])).'</option>';
+			}
 		}
 		
 		// Return the list
@@ -151,7 +154,7 @@ class Profile extends User {
 			// Check whether the message contains 'success'
 			if(strpos($message, 'success') !== false) {
 				?>
-				<meta http-equiv="refresh" content="4; url='/login.php?redirect=<?php echo urlencode($_SERVER['PHP_SELF']); ?>'">
+				<meta http-equiv="refresh" content="3; url='/login.php?redirect=<?php echo urlencode($_SERVER['PHP_SELF']); ?>'">
 				<?php
 			}
 		} else {

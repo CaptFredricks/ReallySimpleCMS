@@ -33,7 +33,7 @@ class User {
 	 * @return null
 	 */
 	public function listUsers() {
-		// Extend the Query class and the user session data
+		// Extend the Query class and the user's session data
 		global $rs_query, $session;
 		
 		// Set up pagination
@@ -146,7 +146,7 @@ class User {
 	 * @return null
 	 */
 	public function editUser($id) {
-		// Extend the Query class and the user session data
+		// Extend the Query class and the user's session data
 		global $rs_query, $session;
 		
 		// Check whether or not the user's id is valid
@@ -212,7 +212,7 @@ class User {
 	 * @return null
 	 */
 	public function deleteUser($id) {
-		// Extend the Query class and the user session data
+		// Extend the Query class and the user's session data
 		global $rs_query, $session;
 		
 		// Check whether or not the user's id is valid
@@ -281,6 +281,9 @@ class User {
 			
 			// Insert the new user into the database
 			$insert_id = $rs_query->insert('users', array('username'=>$data['username'], 'password'=>$hashed_password, 'email'=>$data['email'], 'registered'=>'NOW()', 'role'=>$data['role']));
+			
+			// Add a metadata entry for the user's admin theme to the usermeta array
+			$usermeta['theme'] = 'default';
 			
 			// Insert the user's metadata into the database
 			foreach($usermeta as $key=>$value)
@@ -489,7 +492,7 @@ class User {
 	 * @return string
 	 */
 	private function validatePasswordData($data, $id) {
-		// Extend the Query class and the user session data
+		// Extend the Query class and the user's session data
 		global $rs_query, $session;
 		
 		// Make sure no required fields are empty

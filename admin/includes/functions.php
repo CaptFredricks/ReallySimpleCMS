@@ -312,7 +312,7 @@ function populateTables($user_data, $settings_data) {
 	$user = $rs_query->insert('users', array('username'=>$user_data['username'], 'password'=>$hashed_password, 'email'=>$user_data['email'], 'registered'=>'NOW()', 'role'=>$admin_user_role));
 	
 	// User metadata
-	$usermeta = array('first_name'=>'', 'last_name'=>'', 'avatar'=>0);
+	$usermeta = array('first_name'=>'', 'last_name'=>'', 'avatar'=>0, 'theme'=>'default');
 	
 	// Insert the user metadata into the database
 	foreach($usermeta as $key=>$value)

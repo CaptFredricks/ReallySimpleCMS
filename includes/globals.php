@@ -5,7 +5,7 @@
  */
 
 // Current CMS version
-const VERSION = '2.0.7';
+const VERSION = '2.0.8';
 
 /**
  * Display the copyright information on the admin dashboard.
@@ -38,7 +38,7 @@ function RSVersion($echo = true) {
 }
 
 /**
- * Redirect to a specified url.
+ * Redirect to a specified URL.
  * @since 1.7.2[a]
  *
  * @param string $url
@@ -46,7 +46,7 @@ function RSVersion($echo = true) {
  * @return null
  */
 function redirect($url, $status = 302) {
-	// Set the header location to the specified url
+	// Set the header location to the specified URL
 	header('Location: '.$url, true, $status);
 	
 	// Stop any further script execution
@@ -171,6 +171,7 @@ function getOnlineUser($session) {
 	// Fetch the user from the database
 	$user = $rs_query->selectRow('users', array('id', 'username', 'role'), array('session'=>$session));
 	
+	// Fetch the user's admin theme from the database
 	$user['theme'] = $rs_query->selectField('usermeta', array('value'), array('user'=>$user['id'], '_key'=>'theme'));
 	
 	// Return the user data
