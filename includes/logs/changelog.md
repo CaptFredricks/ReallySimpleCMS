@@ -4,6 +4,43 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 2.1.0[a] (2019-11-10)
+
+* Added a link to the 'List Media' page to the admin menu
+* Created the 'List Media' page and Media class
+* Created a function that constructs a list of all media
+* Created a function that constructs the 'Upload Media' form
+* Tweaked styling for file inputs
+* Increased the width of text inputs
+* Created a function that validates the media form data
+* Created a function that checks whether a filename exists in the database
+* Added 'LIKE' to the list of accepted operators for where clauses
+* Converted the operator if/elseif statment in the Query::select function to a switch statement
+* Created a function that makes a filename unique if a matching filename is found in the database
+* Replaced a ternary operator with a null coalescing operator in the Widget::createWidget function
+* Shortened a regular expression in the Login::validateLoginData function by using the '\w' metacharacter
+* Renamed a variable in the Profile::getThemesList function
+* Changed the access for the Post::getPostMeta function from private to protected
+* Created a function that converts a file size from bytes to a more manageable size (e.g., KB, MB, GB)
+* Created a function that constructs the 'Edit Media' form
+* Tweaked documentation in the Widget class
+* When a widget is created, its author is now set as the logged in user who created it
+* When a menu item is created, its author is now set as the logged in user who created it
+* Tweaked documentation in the Menu class
+
+**Modified files:**
+* admin/header.php (M)
+* admin/media.php (N)
+* admin/includes/class-media.php (N)
+* admin/includes/class-menu.php
+* admin/includes/class-post.php (M)
+* admin/includes/class-profile.php (M)
+* admin/includes/class-widget.php
+* admin/includes/css/style.css
+* includes/class-login.php (M)
+* includes/class-query.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 2.0.8[a] (2019-11-08)
 
 * Tweaked documentation in the globals.php file

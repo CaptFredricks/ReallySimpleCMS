@@ -98,7 +98,7 @@ class Widget extends Post {
 					<?php
 					echo formRow(array('Title', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>($_POST['title'] ?? '')));
 					echo formRow(array('Slug', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>($_POST['slug'] ?? '')));
-					echo formRow('Content', array('tag'=>'textarea', 'class'=>'textarea-input', 'name'=>'content', 'cols'=>30, 'rows'=>10, 'content'=>(isset($_POST['content']) ? htmlspecialchars($_POST['content']) : '')));
+					echo formRow('Content', array('tag'=>'textarea', 'class'=>'textarea-input', 'name'=>'content', 'cols'=>30, 'rows'=>10, 'content'=>(htmlspecialchars(($_POST['content'] ?? '')))));
 					echo formRow('Status', array('tag'=>'select', 'class'=>'select-input', 'name'=>'status', 'content'=>'<option value="active">Active</option><option value="inactive">Inactive</option>'));
 					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
 					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Create Widget'));
@@ -121,7 +121,7 @@ class Widget extends Post {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Check whether or not the widget's id is valid
+		// Check whether the widget's id is valid
 		if(empty($id) || $id <= 0) {
 			// Redirect to the 'List Widgets' page
 			redirect('widgets.php');
@@ -129,7 +129,7 @@ class Widget extends Post {
 			// Fetch the number of times the widget appears in the database
 			$count = $rs_query->selectRow('posts', 'COUNT(*)', array('id'=>$id, 'type'=>'widget'));
 			
-			// Check whether or not the count is zero
+			// Check whether the count is zero
 			if($count === 0) {
 				// Redirect to the 'List Widgets' page
 				redirect('widgets.php');
@@ -175,7 +175,7 @@ class Widget extends Post {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Check whether or not the widget's id is valid
+		// Check whether the widget's id is valid
 		if(empty($id) || $id <= 0) {
 			// Redirect to the 'List Widgets' page
 			redirect('widgets.php');
@@ -198,8 +198,8 @@ class Widget extends Post {
 	 * @return null|string (null on $id == 0; string on $id != 0)
 	 */
 	private function validateData($data, $id = 0) {
-		// Extend the Query class
-		global $rs_query;
+		// Extend the Query class and the user's session data
+		global $rs_query, $session;
 		
 		// Make sure no required fields are empty
 		if(empty($data['title']) || empty($data['slug']))
@@ -215,7 +215,7 @@ class Widget extends Post {
 		
 		if($id === 0) {
 			// Insert the new widget into the database
-			$insert_id = $rs_query->insert('posts', array('title'=>$data['title'], 'date'=>'NOW()', 'content'=>$data['content'], 'status'=>$data['status'], 'slug'=>$data['slug'], 'type'=>'widget'));
+			$insert_id = $rs_query->insert('posts', array('title'=>$data['title'], 'author'=>$session['id'], 'date'=>'NOW()', 'content'=>$data['content'], 'status'=>$data['status'], 'slug'=>$data['slug'], 'type'=>'widget'));
 			
 			// Redirect to the 'Edit Widget' page
 			redirect('widgets.php?id='.$insert_id.'&action=edit');

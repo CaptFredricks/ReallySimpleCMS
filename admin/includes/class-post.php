@@ -894,11 +894,11 @@ class Post {
 	 * Fetch a post's metadata.
 	 * @since 1.4.10[a]
 	 *
-	 * @access private
+	 * @access protected
 	 * @param int $id
 	 * @return array
 	 */
-	private function getPostMeta($id) {
+	protected function getPostMeta($id) {
 		// Extend the Query class
 		global $rs_query;
 		

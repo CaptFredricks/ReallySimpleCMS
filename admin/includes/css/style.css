@@ -642,7 +642,7 @@ h2 {
 .data-form .text-input {
 	border: 2px solid #cdcdcd;
 	padding: 0.25em;
-	width: 15em;
+	width: 18em;
 }
 
 .data-form .text-input[disabled] {
@@ -651,6 +651,11 @@ h2 {
 
 .data-form .text-input[disabled]:hover {
 	cursor: not-allowed;
+}
+
+.data-form .file-input {
+	padding: 0.3em;
+	width: 18em;
 }
 
 .data-form .select-input {
@@ -901,6 +906,11 @@ h2 {
 
 label.required.init {
 	border: none;
+}
+
+.file-input.required.init {
+	border: none;
+	padding-left: 0;
 }
 
 /*------------------------------------*\

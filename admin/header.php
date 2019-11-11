@@ -48,7 +48,7 @@ $current_page = getCurrentPage();
 				adminNavMenuItem(array('id'=>'dashboard', 'link'=>'index.php'), array(), 'tachometer-alt');
 				adminNavMenuItem(array('id'=>'pages'), array(array('link'=>'posts.php?type=page', 'caption'=>'List Pages'), array('id'=>'pages-create', 'link'=>'posts.php?type=page&action=create', 'caption'=>'Create Page')), array('copy', 'regular'));
 				adminNavMenuItem(array('id'=>'posts'), array(array('link'=>'posts.php', 'caption'=>'List Posts'), array('id'=>'posts-create', 'link'=>'posts.php?action=create', 'caption'=>'Create Post'), array('id'=>'categories', 'link'=>'categories.php', 'caption'=>'List Categories')), 'newspaper');
-				adminNavMenuItem(array('id'=>'media'), array(array('caption'=>'List Media'), array('id'=>'media-upload', 'caption'=>'Upload Media')), 'images');
+				adminNavMenuItem(array('id'=>'media'), array(array('link'=>'media.php', 'caption'=>'List Media'), array('id'=>'media-upload', 'link'=>'media.php?action=upload', 'caption'=>'Upload Media')), 'images');
 				adminNavMenuItem(array('id'=>'customization'), array(array('id'=>'menus', 'link'=>'menus.php', 'caption'=>'List Menus'), array('id'=>'widgets', 'link'=>'widgets.php', 'caption'=>'List Widgets')), 'palette');
 				adminNavMenuItem(array('id'=>'users'), array(array('link'=>'users.php', 'caption'=>'List Users'), array('id'=>'users-create', 'link'=>'users.php?action=create', 'caption'=>'Create User'), array('id'=>'profile', 'link'=>'profile.php', 'caption'=>'Your Profile')), 'users');
 				adminNavMenuItem(array('id'=>'settings'), array(array('link'=>'settings.php', 'caption'=>'General'), array('id'=>'user-roles', 'link'=>'settings.php?page=user_roles', 'caption'=>'User Roles')), 'cogs');

@@ -102,7 +102,7 @@ class Query {
 						if(is_string($val)) {
 							if($val === '<>' || $val === '!')
 								$operator = '<>';
-							elseif(strtoupper($val) === 'IN' || strtoupper($val) === 'NOT IN')
+							elseif(strtoupper($val) === 'IN' || strtoupper($val) === 'NOT IN' || strtoupper($val) === 'LIKE')
 								$operator = strtoupper($val);
 						}
 						
@@ -112,12 +112,15 @@ class Query {
 						$placeholders[] = '?';
 					}
 					
-					if($operator === '<>') {
-						// Add a condition to the conditions array
-						$conditions[] = $field.' <> ?';
-					} elseif($operator === 'IN' || $operator === 'NOT IN') {
-						// Add a condition to the conditions array
-						$conditions[] = $field.' '.$operator.' ('.implode(', ', $placeholders).')';
+					switch($operator) {
+						case '<>': case 'LIKE':
+							// Add a condition to the conditions array
+							$conditions[] = $field.' '.$operator.' ?';
+							break;
+						case 'IN': case 'NOT IN':
+							// Add a condition to the conditions array
+							$conditions[] = $field.' '.$operator.' ('.implode(', ', $placeholders).')';
+							break;
 					}
 					
 					// Merge the two values arrays into one

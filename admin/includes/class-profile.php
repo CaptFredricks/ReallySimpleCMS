@@ -115,11 +115,11 @@ class Profile extends User {
 		$list = '<option value="default">Default</option>';
 		
 		// File path for the admin themes directory
-		$dir = PATH.CONT.'/admin-themes';
+		$file_path = PATH.CONT.'/admin-themes';
 		
 		// Check whether the directory exists and extract any existing theme filenames if so
-		if(file_exists($dir))
-			$themes = array_diff(scandir($dir), array('.', '..'));
+		if(file_exists($file_path))
+			$themes = array_diff(scandir($file_path), array('.', '..'));
 		
 		// Loop through the themes
 		foreach($themes as $theme) {

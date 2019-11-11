@@ -69,7 +69,7 @@ class Login {
 			$email = $this->sanitizeData($data['login'], FILTER_SANITIZE_EMAIL);
 		} else {
 			// Sanitize the username
-			$username = $this->sanitizeData($data['login'], '/[^a-zA-Z0-9_\.]/i');
+			$username = $this->sanitizeData($data['login'], '/[^\w.]/i');
 		}
 		
 		// Sanitize the password

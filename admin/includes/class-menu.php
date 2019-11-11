@@ -151,7 +151,7 @@ class Menu {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Check whether or not the menu's id is valid
+		// Check whether the menu's id is valid
 		if(empty($id) || $id <= 0) {
 			// Redirect to the 'List Menus' page
 			redirect('menus.php');
@@ -159,7 +159,7 @@ class Menu {
 			// Fetch the number of times the menu appears in the database
 			$count = $rs_query->selectRow('terms', 'COUNT(*)', array('id'=>$id, 'taxonomy'=>getTaxonomyId('nav_menu')));
 			
-			// Check whether or not the count is zero
+			// Check whether the count is zero
 			if($count === 0) {
 				// Redirect to the 'List Menus' page
 				redirect('menus.php');
@@ -169,7 +169,7 @@ class Menu {
 					// Fetch the menu item's id
 					$item_id = (int)$_GET['item_id'];
 					
-					// Check whether or not the menu item's id is valid
+					// Check whether the menu item's id is valid
 					if(empty($item_id) || $item_id <= 0) {
 						// Redirect to the 'Edit Menu' page
 						redirect('menus.php?id='.$id.'&action=edit');
@@ -177,7 +177,7 @@ class Menu {
 						// Fetch the number of times the menu item appears in the database
 						$count = $rs_query->selectRow('posts', 'COUNT(*)', array('id'=>$item_id, 'type'=>'nav_menu_item'));
 						
-						// Check whether or not the count is zero
+						// Check whether the count is zero
 						if($count === 0) {
 							// Redirect to the 'Edit Menu' page
 							redirect('menus.php?id='.$id.'&action=edit');
@@ -248,7 +248,7 @@ class Menu {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Check whether or not the menu's id is valid
+		// Check whether the menu's id is valid
 		if(empty($id) || $id <= 0) {
 			// Redirect to the 'List Menus' page
 			redirect('menus.php');
@@ -317,7 +317,7 @@ class Menu {
 						$post = $rs_query->selectRow('posts', array('id', 'title'), array('id'=>$menu_item[1]));
 						
 						// Insert the new menu item into the database
-						$menu_item_id = $rs_query->insert('posts', array('title'=>$post['title'], 'date'=>'NOW()', 'slug'=>'', 'type'=>'nav_menu_item'));
+						$menu_item_id = $rs_query->insert('posts', array('title'=>$post['title'], 'author'=>$session['id'], 'date'=>'NOW()', 'slug'=>'', 'type'=>'nav_menu_item'));
 						
 						// Update the menu item's slug in the database
 						$rs_query->update('posts', array('slug'=>'menu-item-'.$menu_item_id), array('id'=>$menu_item_id));
@@ -329,7 +329,7 @@ class Menu {
 						$category = $rs_query->selectRow('terms', array('id', 'name'), array('id'=>$menu_item[1], 'taxonomy'=>getTaxonomyId('category')));
 						
 						// Insert the new menu item into the database
-						$menu_item_id = $rs_query->insert('posts', array('title'=>$category['name'], 'date'=>'NOW()', 'slug'=>'', 'type'=>'nav_menu_item'));
+						$menu_item_id = $rs_query->insert('posts', array('title'=>$category['name'], 'author'=>$session['id'], 'date'=>'NOW()', 'slug'=>'', 'type'=>'nav_menu_item'));
 						
 						// Update the menu item's slug in the database
 						$rs_query->update('posts', array('slug'=>'menu-item-'.$menu_item_id), array('id'=>$menu_item_id));
@@ -353,7 +353,7 @@ class Menu {
 			// Check whether a custom menu item has been added
 			if(!empty($data['custom_title']) && !empty($data['custom_link'])) {
 				// Insert the new menu item into the database
-				$menu_item_id = $rs_query->insert('posts', array('title'=>$data['custom_title'], 'date'=>'NOW()', 'slug'=>'', 'type'=>'nav_menu_item'));
+				$menu_item_id = $rs_query->insert('posts', array('title'=>$data['custom_title'], 'author'=>$session['id'], 'date'=>'NOW()', 'slug'=>'', 'type'=>'nav_menu_item'));
 				
 				// Update the menu item's slug in the database
 				$rs_query->update('posts', array('slug'=>'menu-item-'.$menu_item_id), array('id'=>$menu_item_id));
@@ -400,7 +400,7 @@ class Menu {
 						$post = $rs_query->selectRow('posts', array('id', 'title'), array('id'=>$menu_item[1]));
 					
 						// Insert the new menu item into the database
-						$menu_item_id = $rs_query->insert('posts', array('title'=>$post['title'], 'date'=>'NOW()', 'slug'=>'', 'type'=>'nav_menu_item'));
+						$menu_item_id = $rs_query->insert('posts', array('title'=>$post['title'], 'author'=>$session['id'], 'date'=>'NOW()', 'slug'=>'', 'type'=>'nav_menu_item'));
 						
 						// Update the menu item's slug in the database
 						$rs_query->update('posts', array('slug'=>'menu-item-'.$menu_item_id), array('id'=>$menu_item_id));
@@ -412,7 +412,7 @@ class Menu {
 						$category = $rs_query->selectRow('terms', array('id', 'name'), array('id'=>$menu_item[1], 'taxonomy'=>getTaxonomyId('category')));
 						
 						// Insert the new menu item into the database
-						$menu_item_id = $rs_query->insert('posts', array('title'=>$category['name'], 'date'=>'NOW()', 'slug'=>'', 'type'=>'nav_menu_item'));
+						$menu_item_id = $rs_query->insert('posts', array('title'=>$category['name'], 'author'=>$session['id'], 'date'=>'NOW()', 'slug'=>'', 'type'=>'nav_menu_item'));
 						
 						// Update the menu item's slug in the database
 						$rs_query->update('posts', array('slug'=>'menu-item-'.$menu_item_id), array('id'=>$menu_item_id));
@@ -439,7 +439,7 @@ class Menu {
 			// Check whether a custom menu item has been added
 			if(!empty($data['custom_title']) && !empty($data['custom_link'])) {
 				// Insert the new menu item into the database
-				$menu_item_id = $rs_query->insert('posts', array('title'=>$data['custom_title'], 'date'=>'NOW()', 'slug'=>'', 'type'=>'nav_menu_item'));
+				$menu_item_id = $rs_query->insert('posts', array('title'=>$data['custom_title'], 'author'=>$session['id'], 'date'=>'NOW()', 'slug'=>'', 'type'=>'nav_menu_item'));
 				
 				// Update the menu item's slug in the database
 				$rs_query->update('posts', array('slug'=>'menu-item-'.$menu_item_id), array('id'=>$menu_item_id));
