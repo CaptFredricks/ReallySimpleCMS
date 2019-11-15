@@ -157,6 +157,9 @@ function adminHeaderScripts() {
 	
 	// FontAwesome icons stylesheet
 	getStylesheet('fa-icons.css', '5.11.2');
+	
+	// JQuery library
+	getScript('jquery.min.js', '3.4.1');
 }
 
 /**
@@ -166,9 +169,6 @@ function adminHeaderScripts() {
  * @return null
  */
 function adminFooterScripts() {
-	// JQuery library
-	getScript('jquery.min.js', '3.4.1');
-	
 	// Admin script file
 	getAdminScript('script.js');
 }
@@ -735,7 +735,7 @@ function formTag($tag, $args = null) {
 			break;
 		case 'img':
 			// Construct an img tag
-			$tag = '<img'.(!empty($args['src']) ? ' src="'.$args['src'].'"' : '').(!empty($args['width']) ? ' width="'.$args['width'].'"' : '').'>';
+			$tag = '<img'.(!empty($args['id']) ? ' id="'.$args['id'].'"' : '').(!empty($args['src']) ? ' src="'.$args['src'].'"' : '').(!empty($args['width']) ? ' width="'.$args['width'].'"' : '').'>';
 			break;
 		case 'hr':
 			// Construct an hr tag

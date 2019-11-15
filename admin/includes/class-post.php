@@ -156,7 +156,7 @@ class Post {
 					echo formTag('input', array('type'=>'button', 'class'=>'button-input button', 'value'=>'Insert Image'));
 					
 					// Construct a 'content' form tag
-					echo formTag('textarea', array('class'=>'textarea-input', 'name'=>'content', 'cols'=>30, 'rows'=>20, 'content'=>isset($_POST['content']) ? htmlspecialchars($_POST['content']) : ''));
+					echo formTag('textarea', array('class'=>'textarea-input', 'name'=>'content', 'cols'=>30, 'rows'=>20, 'content'=>htmlspecialchars(($_POST['content'] ?? ''))));
 					?>
 				</div>
 				<div class="sidebar">
@@ -261,7 +261,7 @@ class Post {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Check whether or not the post's id is valid
+		// Check whether the post's id is valid
 		if(empty($id) || $id <= 0) {
 			// Redirect to the 'List Posts' page
 			redirect('posts.php');
@@ -269,7 +269,7 @@ class Post {
 			// Fetch the post's type from the database
 			$type = $rs_query->selectField('posts', 'type', array('id'=>$id));
 			
-			// Check whether or not the post's type is valid
+			// Check whether the post's type is valid
 			if(empty($type)) {
 				// Redirect to the 'List Posts' page
 				redirect('posts.php');
@@ -277,7 +277,7 @@ class Post {
 				// Redirect to the appropriate 'Edit Widget' form
 				redirect('widgets.php?id='.$id.'&action=edit');
 			} else {
-				// Check whether or not the post is in the trash
+				// Check whether the post is in the trash
 				if($this->isTrash($id)) {
 					// Redirect to the 'List Posts' trash page
 					redirect('posts.php'.($type !== 'post' ? '?type='.$type.'&' : '?').'status=trash');
@@ -433,7 +433,7 @@ class Post {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Check whether or not the post's id is valid
+		// Check whether the post's id is valid
 		if(empty($id) || $id <= 0) {
 			// Redirect to the 'List Posts' page
 			redirect('posts.php');
@@ -461,7 +461,7 @@ class Post {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Check whether or not the post's id is valid
+		// Check whether the post's id is valid
 		if(empty($id) || $id <= 0) {
 			// Redirect to the 'List Posts' page
 			redirect('posts.php');
@@ -489,7 +489,7 @@ class Post {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Check whether or not the post's id is valid
+		// Check whether the post's id is valid
 		if(empty($id) || $id <= 0) {
 			// Redirect to the 'List Posts' page
 			redirect('posts.php');

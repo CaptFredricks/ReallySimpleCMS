@@ -45,7 +45,7 @@ class Profile extends User {
 					echo formRow(array('Email', true), array('tag'=>'input', 'type'=>'email', 'class'=>'text-input required invalid init', 'name'=>'email', 'value'=>$user['email']));
 					echo formRow('First Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'first_name', 'value'=>$meta['first_name']));
 					echo formRow('Last Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'last_name', 'value'=>$meta['last_name']));
-					echo formRow('Avatar', array('tag'=>'input', 'name'=>'avatar', 'value'=>$meta['avatar']));
+					echo formRow('Avatar', array('tag'=>'input', 'type'=>'hidden', 'name'=>'avatar', 'value'=>$meta['avatar']), array('tag'=>'input', 'type'=>'button', 'id'=>'modal-launch', 'class'=>'button-input button', 'value'=>'Choose Image'));
 					echo formRow('Theme', array('tag'=>'select', 'class'=>'select-input', 'name'=>'theme', 'content'=>$this->getThemesList($meta['theme'])));
 					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
 					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Profile'));
@@ -55,6 +55,8 @@ class Profile extends User {
 			<a class="reset-password button" href="?action=reset_password">Reset Password</a>
 		</div>
 		<?php
+		// Include the upload modal
+		include_once PATH.ADMIN.INC.'/modal-upload.php';
 	}
 	
 	/**
@@ -120,6 +122,8 @@ class Profile extends User {
 		// Check whether the directory exists and extract any existing theme filenames if so
 		if(file_exists($file_path))
 			$themes = array_diff(scandir($file_path), array('.', '..'));
+		else
+			$themes = array();
 		
 		// Loop through the themes
 		foreach($themes as $theme) {

@@ -3,6 +3,9 @@
  * @since 1.5.6[a]
  */
 jQuery(document).ready(function($) {
+	// Turn on strict mode
+	'use strict';
+	
 	/**
 	 * Display the bars for the statistics graph.
 	 * @since 1.5.6[a]

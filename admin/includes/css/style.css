@@ -913,6 +913,99 @@ label.required.init {
 	padding-left: 0;
 }
 
+/* Modal */
+
+.modal {
+	display: none;
+	overflow-x: hidden;
+	overflow-y: auto;
+	position: fixed;
+	  top: 0;
+	  right: 0;
+	  bottom: 0;
+	  left: 0;
+	  z-index: 999;
+}
+
+.modal * {
+	font-family: 'Segoe UI', Helvetica, sans-serif;
+	outline: none;
+}
+
+.modal-wrap {
+	background-color: #4f4f4f;
+	border-radius: 0.375em;
+	box-shadow: 0 2px 4px #000;
+	margin: 5% auto 0;
+	max-width: 700px;
+}
+
+.modal-header {
+	border-bottom: 1px solid #7d7d7d;
+	padding: 0.75em 0.75em 0;
+}
+
+.modal-header .tabber {
+	display: inline-block;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+.modal-header .tabber li {
+	border: 1px solid #7d7d7d;
+	border-bottom: none;
+	border-radius: 0.25rem 0.25rem 0 0;
+	display: inline-block;
+}
+
+.modal-header .tabber li:hover {
+	background-color: #3f3f3f;
+	border-color: #adadad;
+}
+
+.modal-header .tabber li.active {
+	background-color: #2f2f2f;
+	border-color: #ddd;
+}
+
+.modal-header .tabber li a {
+	color: #fefefe;
+	display: block;
+	padding: 0.375em 0.75em;
+}
+
+.modal-header .tabber li a:hover {
+	text-decoration: none;
+}
+
+.modal-header .tabber li.active a {
+	font-weight: 600;
+}
+
+.modal-header #modal-close {
+	background-color: #f00;
+	border: 1px solid #b00;
+	border-radius: 0.1875rem;
+	color: #fefefe;
+	cursor: pointer;
+	float: right;
+	line-height: 1;
+	padding: 0.375em 0.5625em;
+}
+
+.modal-body {
+	
+}
+
+.modal-footer {
+	border-top: 1px solid #7d7d7d;
+	padding: 0.75em;
+	text-align: right;
+}
+
 /*------------------------------------*\
     RESPONSIVE
 \*------------------------------------*/

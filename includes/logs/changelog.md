@@ -4,6 +4,33 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 2.1.1[a] (2019-11-13)
+
+* An empty array is now created in the Profile::getThemesList if the admin-themes directory doesn't exist
+* Tweaked documentation in the Post class
+* Replaced a ternary operator with a null coalescing operator in the Post::createPost function
+* Removed an unnecessary set of parentheses in the Widget::createWidget function
+* Added the 'id' parameter to the 'img' tag in the formTag function
+* Created a file to hold the upload modal's content
+* The upload modal is now included on the user profile page
+* Constructed and styled the upload modal
+* Tweaked styling for buttons
+* Added a 'strict mode' declaration in the admin script.js file
+* Created a file to hold scripts for the admin modal windows
+* The jQuery library is now loaded in the admin head section instead of in the footer (prevents errors in script files included before the footer)
+
+**Modified files:**
+* admin/includes/class-post.php
+* admin/includes/class-profile.php
+* admin/includes/class-widget.php (M)
+* admin/includes/functions.php
+* admin/includes/modal-upload.php (N)
+* admin/includes/css/style.css
+* admin/includes/js/modal.js (N)
+* admin/includes/js/script.js (M)
+* includes/css/buttons.css (M)
+
+----------------------------------------------------------------------------------------------------
 ## Version 2.1.0[a] (2019-11-10)
 
 * Added a link to the 'List Media' page to the admin menu
