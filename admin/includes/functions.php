@@ -853,6 +853,60 @@ function formRow($label = '', ...$args) {
 }
 
 /**
+ * Load the media library.
+ * @since 2.1.2[a]
+ *
+ * @param bool $image_only (optional; default: false)
+ * @return
+ */
+function loadMedia($image_only = false) {
+	// Extend the Query class
+	global $rs_query;
+	
+	// Fetch all media from the database
+	$mediaa = $rs_query->select('posts', '*', array('type'=>'media'));
+	
+	// Loop through the media
+	foreach($mediaa as $media) {
+		// Fetch the media's metadata from the database
+		$mediameta = $rs_query->select('postmeta', array('_key', 'value'), array('post'=>$media['id']));
+		
+		// Create an empty array to hold the metadata
+		$meta = array();
+		
+		// Loop through the metadata
+		foreach($mediameta as $metadata) {
+			// Get the meta values
+			$values = array_values($metadata);
+			
+			// Loop through the individual metadata entries
+			for($i = 0; $i < count($metadata); $i += 2) {
+				// Assign the metadata to the meta array
+				$meta[$values[$i]] = $values[$i + 1];
+			}
+		}
+		
+		// Check whether only images should be loaded
+		if($image_only) {
+			// Create an array of image MIME types
+			$image_mime = array('image/jpeg', 'image/png', 'image/gif');
+			
+			// Check whether the current media item is an image and skip to the next item if not
+			if(!in_array($meta['mime_type'], $image_mime, true)) continue;
+		}
+		?>
+		<div class="media-item">
+			<div class="thumb-wrap">
+				<img class="thumb" src="<?php echo trailingSlash(UPLOADS).$meta['filename']; ?>">
+			</div>
+			<div class="hidden" data-field="id"><?php echo $media['id']; ?></div>
+			<div class="hidden" data-field="title"><?php echo $media['title']; ?></div>
+		</div>
+		<?php
+	}
+}
+
+/**
  * Format a date string.
  * @since 1.2.1[a]
  *

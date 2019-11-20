@@ -4,6 +4,24 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 2.1.2[a] (2019-11-18)
+
+* Renamed some element classes on the upload modal
+* Added a partially opaque backdrop to the modal when it's open
+* Increased the top margin above the modal
+* Improved transitioning effects for the modal
+* Created a function that loads the media library
+* Styled the media library tab of the modal
+
+**Modified files:**
+* admin/load-media.php (N)
+* admin/includes/class-profile.php
+* admin/includes/functions.php
+* admin/includes/modal-upload.php
+* admin/includes/css/style.css
+* admin/includes/js/modal.js
+
+----------------------------------------------------------------------------------------------------
 ## Version 2.1.1[a] (2019-11-13)
 
 * An empty array is now created in the Profile::getThemesList if the admin-themes directory doesn't exist
