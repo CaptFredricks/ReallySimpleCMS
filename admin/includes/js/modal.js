@@ -22,18 +22,12 @@ jQuery(document).ready(function($) {
 	});
 	
 	/**
-	 * Close the upload/media library modal.
+	 * Event handler for closing the modal window.
 	 * @since 2.1.1[a]
 	 */
 	$('#modal-close').on('click', function() {
-		// Remove 'modal-open' class from the body tag
-		$('body').removeClass('modal-open');
-		
-		// Hide the modal
-		$('#modal-upload').fadeOut(500);
-		
-		// Remove 'in' class from the modal
-		$('#modal-upload').removeClass('in');
+		// Close the modal
+		modalClose();
 	});
 	
 	/**
@@ -74,10 +68,68 @@ jQuery(document).ready(function($) {
 			// Add the 'selected' class
 			$(this).addClass('selected');
 			
+			// Fetch the media item's hidden fields
+			let fields = $(this).find('.hidden');
 			
+			// A variable to hold each field's name
+			let field = '';
+			
+			// Loop through the fields
+			$(fields).each(function() {
+				// Fetch the field's name
+				field = $(this).data('field');
+				
+				// Populate each field in the details section
+				$('.media-details .' + field).html($(this).html());
+			});
 		} else {
 			// Remove the 'selected' class
 			$(this).removeClass('selected');
+			
+			// Clear the media details
+			$('.media-details .field').empty();
 		}
 	});
+	
+	/**
+	 * Select and insert media (via upload or media library).
+	 * @since 2.1.3[a]
+	 */
+	$('#media-select').on('click', function() {
+		if($('#upload').hasClass('active')) {
+			// do something
+		} else if($('#media').hasClass('active')) {
+			// Fetch the hidden 'id' field and insert it on the form
+			$('#media-id').val($('.media-item.selected .hidden[data-field="id"]').text());
+			
+			// Fetch the hidden 'filename' field and insert it on the form
+			$('#media-thumbnail').attr('src', $('.media-item.selected .hidden[data-field="filename"] a').attr('href'));
+		}
+		
+		// Close the modal
+		modalClose();
+	});
+	
+	/**
+	 * Close the modal and perform cleanup.
+	 * @since 2.1.3[a]
+	 *
+	 * @return null
+	 */
+	function modalClose() {
+		// Remove 'modal-open' class from the body tag
+		$('body').removeClass('modal-open');
+		
+		// Hide the modal
+		$('#modal-upload').fadeOut(500);
+		
+		// Remove 'in' class from the modal
+		$('#modal-upload').removeClass('in');
+		
+		// Remove the 'selected' class from any selected media items
+		$('.media-item').removeClass('selected');
+		
+		// Clear the media details
+		$('.media-details .field').empty();
+	}
 });

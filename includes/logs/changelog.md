@@ -4,6 +4,28 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 2.1.3[a] (2019-11-20)
+
+* A media item's details are now displayed when it is selected
+* Tweaked styling on the modal
+* Selected media items are now cleared when the modal is closed
+* Moved the Media::getFileSize function to the admin functions.php file
+* Created a function that converts a string or file's size to bytes
+* Media items can now be selected and inserted on the user profile form
+* Changed the access for the User::getAvatar function from private to protected
+* Cleaned up code in the User::getAvatar function
+* A user can now set their avatar from their own profile (through the media library only)
+
+**Modified files:**
+* admin/includes/class-media.php
+* admin/includes/class-profile.php
+* admin/includes/class-user.php
+* admin/includes/functions.php
+* admin/includes/modal-upload.php
+* admin/includes/css/style.css
+* admin/includes/js/modal.js
+
+----------------------------------------------------------------------------------------------------
 ## Version 2.1.2[a] (2019-11-18)
 
 * Renamed some element classes on the upload modal

@@ -15,22 +15,30 @@
 		</div>
 		<div class="modal-body">
 			<div class="tab active" data-tab="upload">
-				<form action="<?php echo ADMIN.'/upload.php'; ?>" method="post" enctype="multipart/form-data">
-					<input type="file" class="" name="media_upload">
-					<input type="hidden" id="">
-					<input type="submit" class="submit-input button" name="upload_submit" value="Upload">
-				</form>
+				<div class="upload-wrap">
+					<h2>Select files to upload</h2>
+					<form action="<?php echo ADMIN.'/upload.php'; ?>" method="post" enctype="multipart/form-data">
+						<input type="file" class="" name="media_upload">
+						<input type="hidden" id="">
+						<input type="submit" class="submit-input button" name="upload_submit" value="Upload">
+					</form>
+					<p>Maximum upload size: <?php echo getFileSize(getSizeInBytes(ini_get('upload_max_filesize')), 0); ?></p>
+				</div>
 			</div>
-			<div class="tab clear" data-tab="media">
-				<div class="media-wrap clear"></div>
+			<div class="tab" data-tab="media">
+				<div class="media-wrap"></div>
 				<div class="media-details">
-					<h2 class="title"></h2>
-					
+					<h2>Details</h2>
+					<div class="info">
+						<div class="field title"></div>
+						<div class="field filename"></div>
+						<div class="field date"></div>
+					</div>
 				</div>
 			</div>
 		</div>
 		<div class="modal-footer">
-			<button type="button" id="media-select" class="button">Select</button>
+			<button type="button" id="media-select" class="button">Select Media</button>
 		</div>
 	</div>
 </div>

@@ -75,7 +75,7 @@ class Media extends Post {
 						tableCell('<img src="'.trailingSlash(UPLOADS).$meta['filename'].'" width="100">', 'thumbnail'),
 						tableCell('<strong>'.$media['title'].'</strong><br><em>'.$meta['filename'].'</em><div class="actions"><a href="?id='.$media['id'].'&action=edit">Edit</a> &bull; <a href="?id='.$media['id'].'&action=delete">Delete</a> &bull; <a href="'.trailingSlash(UPLOADS).$meta['filename'].'" target="_blank">View</a></div>', 'file'),
 						tableCell($meta['alt_text'], 'alt-text'),
-						tableCell($this->getFileSize(filesize(trailingSlash(PATH.UPLOADS).$meta['filename'])), 'size'),
+						tableCell(getFileSize(filesize(trailingSlash(PATH.UPLOADS).$meta['filename'])), 'size'),
 						tableCell($dimensions ?? '', 'dimensions'),
 						tableCell($meta['mime_type'], 'mime-type'),
 						tableCell(formatDate($media['date'], 'd M Y @ g:i A'), 'upload-date')
@@ -308,25 +308,5 @@ class Media extends Post {
 		
 		// Return the unique filename
 		return $unique_filename;
-	}
-	
-	/**
-	 * Convert a file size in bytes to its equivalent in kilobytes, metabytes, etc.
-	 * @since 2.1.0[a]
-	 *
-	 * @access private
-	 * @param int $bytes
-	 * @param int $decimals (optional; default: 1)
-	 * @return string
-	 */
-	private function getFileSize($bytes, $decimals = 1) {
-		// Multiples for the units of bytes
-		$multiples = 'BKMGTP';
-		
-		// Calculate the factor for each unit
-		$factor = floor((strlen($bytes) - 1) / 3);
-		
-		// Return the converted file size
-		return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)).' '.$multiples[(int)$factor].($factor > 0 ? 'B' : '');
 	}
 }

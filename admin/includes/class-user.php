@@ -386,20 +386,25 @@ class User {
 	 * Fetch the URL of a user's avatar.
 	 * @since 1.2.4[a]
 	 *
-	 * @access private
+	 * @access protected
 	 * @param int $id
 	 * @return string
 	 */
-	private function getAvatar($id) {
+	protected function getAvatar($id) {
 		// Extend the Query class
 		global $rs_query;
 		
-		$meta = $rs_query->selectRow('usermeta', 'value', array('id'=>$id));
+		// Fetch the image from the database
+		$image = $rs_query->selectField('postmeta', 'value', array('post'=>$id, '_key'=>'filename'));
 		
-		if(!empty($meta['value']))
-			return trailingSlash(UPLOADS).$meta['value'];
-		else
+		// Check whether the image exists
+		if(!empty($image)) {
+			// Return the path to the image
+			return trailingSlash(UPLOADS).$image;
+		} else {
+			// Return an empty path
 			return '//:0';
+		}
 	}
 	
 	/**

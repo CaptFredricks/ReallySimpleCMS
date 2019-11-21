@@ -895,15 +895,69 @@ function loadMedia($image_only = false) {
 			if(!in_array($meta['mime_type'], $image_mime, true)) continue;
 		}
 		?>
-		<div class="media-item">
-			<div class="thumb-wrap">
-				<img class="thumb" src="<?php echo trailingSlash(UPLOADS).$meta['filename']; ?>">
+		<div class="media-item-wrap">
+			<div class="media-item">
+				<div class="thumb-wrap">
+					<img class="thumb" src="<?php echo trailingSlash(UPLOADS).$meta['filename']; ?>">
+				</div>
+				<div>
+					<div class="hidden" data-field="id"><?php echo $media['id']; ?></div>
+					<div class="hidden" data-field="title"><?php echo $media['title']; ?></div>
+					<div class="hidden" data-field="date"><?php echo formatDate($media['date'], 'd M Y @ g:i A'); ?></div>
+					<div class="hidden" data-field="filename"><a href="<?php echo trailingSlash(UPLOADS).$meta['filename']; ?>" target="_blank"><?php echo $meta['filename']; ?></a></div>
+				</div>
 			</div>
-			<div class="hidden" data-field="id"><?php echo $media['id']; ?></div>
-			<div class="hidden" data-field="title"><?php echo $media['title']; ?></div>
 		</div>
 		<?php
 	}
+}
+
+/**
+ * Convert a string value or file size to bytes.
+ * @since 2.1.3[a]
+ *
+ * @param string $val
+ * @return string
+ */
+function getSizeInBytes($val) {
+	// Get the multiple value
+	$multiple = substr($val, -1, 1);
+	
+	// Trim the last character off of the value
+	$val = substr($val, 0, strlen($val) - 1);
+	
+	switch($multiple) {
+		case 'T': case 't':
+			$val *= 1024;
+		case 'G': case 'g':
+			$val *= 1024;
+		case 'M': case 'm':
+			$val *= 1024;
+		case 'K': case 'k':
+			$val *= 1024;
+	}
+	
+	// Return the value in bytes
+	return $val;
+}
+
+/**
+ * Convert a file size in bytes to its equivalent in kilobytes, metabytes, etc.
+ * @since 2.1.0[a]
+ *
+ * @param int $bytes
+ * @param int $decimals (optional; default: 1)
+ * @return string
+ */
+function getFileSize($bytes, $decimals = 1) {
+	// Multiples for the units of bytes
+	$multiples = 'BKMGTP';
+	
+	// Calculate the factor for each unit
+	$factor = floor((strlen($bytes) - 1) / 3);
+	
+	// Return the converted file size
+	return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)).' '.$multiples[(int)$factor].($factor > 0 ? 'B' : '');
 }
 
 /**
