@@ -26,4 +26,19 @@ jQuery(document).ready(function($) {
 			});
 		}
 	})($('body').hasClass('dashboard'));
+	
+	/**
+	 * Display a post's featured image.
+	 * @since 2.1.4[a]
+	 */
+	$('#media-select').on('click', function() {
+		// Check whether the thumbnail's source points to an image
+		if($('#media-thumb').attr('src') !== '//:0' && $('#media-thumb').attr('src') !== '') {
+			// Display the featured image
+			$('.feat-image-wrap').show();
+		} else {
+			// Hide the featured image
+			$('.feat-image-wrap').hide();
+		}
+	});
 });

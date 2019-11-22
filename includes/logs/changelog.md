@@ -4,6 +4,45 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 2.1.4[a] (2019-11-21)
+
+* Added a redirect for the media post type in the posts.php file (posts.php?type=media -> media.php)
+* Tweaked documentation in the load-media.php file
+* Removed an unnecessary set of parentheses in the Media::uploadMedia function
+* Tweaked some text on the upload modal
+* Tweaked documentation and changed an id name in the modal.js file
+* Tweaked documentation in the admin functions.php file
+* Media items are now loaded by date in descending order in the loadMedia function
+* Tweaked styling and improved mobile responsiveness of the upload modal's elements
+* Changed an id name in the Profile::editProfile function
+* A thumbnail for a selected image is now displayed in the details pane of the upload modal
+* Button text can no longer be selected
+* The getOnlineUser function now fetches the user's avatar
+* The user's avatar now displays on the admin menu bar and on the user dropdown menu
+* Users' avatars are now displayed on the 'List Users' page
+* Added the upload modal to the User::createUser and User::editUser functions
+* Tweaked documentation in the User class
+* The media form fields are now cleared if a user clicks the 'select' button without selecting an image on the modal
+* Added the upload modal to the Post::createPost function
+* Created and styled a 'remove image' button (not yet functional)
+
+**Modified files:**
+* admin/header.php
+* admin/load-media.php (M)
+* admin/posts.php
+* admin/includes/class-media.php (M)
+* admin/includes/class-post.php
+* admin/includes/class-profile.php (M)
+* admin/includes/class-user.php
+* admin/includes/functions.php
+* admin/includes/modal-upload.php (M)
+* admin/includes/css/style.css
+* admin/includes/js/modal.js
+* admin/includes/js/script.js
+* includes/globals.php
+* includes/css/buttons.css (M)
+
+----------------------------------------------------------------------------------------------------
 ## Version 2.1.3[a] (2019-11-20)
 
 * A media item's details are now displayed when it is selected

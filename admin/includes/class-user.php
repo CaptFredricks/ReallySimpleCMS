@@ -81,7 +81,7 @@ class User {
 					$meta = $this->getUserMeta($user['id']);
 					
 					echo tableRow(
-						tableCell('<img class="avatar" src="'.(!empty($meta['avatar']) ? '' : '').'" width="32" height="32"><strong>'.$user['username'].'</strong><div class="actions"><a href="?id='.$user['id'].'&action=edit">Edit</a>'.($user['id'] !== $session['id'] ? ' &bull; <a class="delete" href="?id='.$user['id'].'&action=delete">Delete</a>' : '').'</div>', 'username'),
+						tableCell('<img class="avatar" src="'.(!empty($meta['avatar']) ? $this->getAvatar((int)$meta['avatar']) : '').'" width="32" height="32"><strong>'.$user['username'].'</strong><div class="actions"><a href="?id='.$user['id'].'&action=edit">Edit</a>'.($user['id'] !== $session['id'] ? ' &bull; <a class="delete" href="?id='.$user['id'].'&action=delete">Delete</a>' : '').'</div>', 'username'),
 						tableCell(empty($meta['first_name']) && empty($meta['last_name']) ? '&mdash;' : $meta['first_name'].' '.$meta['last_name'], 'full-name'),
 						tableCell($user['email'], 'email'),
 						tableCell(formatDate($user['registered'], 'd M Y @ g:i A'), 'registered'),
@@ -125,8 +125,8 @@ class User {
 					echo formRow(array('Email', true), array('tag'=>'input', 'type'=>'email', 'class'=>'text-input required invalid init', 'name'=>'email', 'value'=>($_POST['email'] ?? '')));
 					echo formRow('First Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'first_name', 'value'=>($_POST['first_name'] ?? '')));
 					echo formRow('Last Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'last_name', 'value'=>($_POST['last_name'] ?? '')));
-					echo formRow(array('Password', true), array('tag'=>'input', 'id'=>'pw-input', 'class'=>'text-input required invalid init', 'name'=>'password'), array('tag'=>'input', 'type'=>'button', 'id'=>'pw-btn', 'class'=>'button-input button', 'value'=>'Generate Password'), array('tag'=>'br'), array('tag'=>'input', 'type'=>'checkbox', 'id'=>'pw-chk', 'class'=>'checkbox-input', 'name'=>'pass_saved', 'value'=>'checked', 'label'=>array('id'=>'chk-label', 'class'=>'checkbox-label required invalid init', 'content'=>' <span>I have copied the password to a safe place.</span>')));
-					echo formRow('Avatar', array('tag'=>'input', 'type'=>'hidden', 'id'=>'img-input', 'name'=>'avatar', 'value'=>($_POST['avatar'] ?? 0)), array('tag'=>'input', 'type'=>'button', 'id'=>'img-choose', 'class'=>'button-input button', 'value'=>'Choose Image'));
+					echo formRow(array('Password', true), array('tag'=>'input', 'id'=>'pw-input', 'class'=>'text-input required invalid init', 'name'=>'password'), array('tag'=>'input', 'type'=>'button', 'id'=>'pw-btn', 'class'=>'button-input button', 'value'=>'Generate Password'), array('tag'=>'br'), array('tag'=>'input', 'type'=>'checkbox', 'id'=>'pw-chk', 'class'=>'checkbox-input', 'name'=>'pass_saved', 'value'=>'checked', 'label'=>array('id'=>'chk-label', 'class'=>'checkbox-label required invalid init', 'content'=>'<span>I have copied the password to a safe place.</span>')));
+					echo formRow('Avatar', array('tag'=>'img', 'id'=>'media-thumb', 'src'=>'//:0', 'width'=>150), array('tag'=>'br'), array('tag'=>'input', 'type'=>'hidden', 'id'=>'media-type', 'value'=>'image'), array('tag'=>'input', 'type'=>'hidden', 'id'=>'media-id', 'name'=>'avatar', 'value'=>($_POST['avatar'] ?? 0)), array('tag'=>'input', 'type'=>'button', 'id'=>'modal-launch', 'class'=>'button-input button', 'value'=>'Choose Image'));
 					echo formRow('Role', array('tag'=>'select', 'class'=>'select-input', 'name'=>'role', 'content'=>$this->getRoleList((int)getSetting('default_user_role', false))));
 					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
 					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Create User'));
@@ -135,6 +135,8 @@ class User {
 			</form>
 		</div>
 		<?php
+		// Include the upload modal
+		include_once PATH.ADMIN.INC.'/modal-upload.php';
 	}
 	
 	/**
@@ -149,7 +151,7 @@ class User {
 		// Extend the Query class and the user's session data
 		global $rs_query, $session;
 		
-		// Check whether or not the user's id is valid
+		// Check whether the user's id is valid
 		if(empty($id) || $id <= 0) {
 			// Redirect to the 'List Users' page
 			redirect('users.php');
@@ -157,7 +159,7 @@ class User {
 			// Fetch the number of times the user appears in the database
 			$count = $rs_query->selectRow('users', 'COUNT(*)', array('id'=>$id));
 			
-			// Check whether or not the count is zero
+			// Check whether the count is zero
 			if($count === 0) {
 				// Redirect to the 'List Users' page
 				redirect('users.php');
@@ -188,7 +190,7 @@ class User {
 								echo formRow(array('Email', true), array('tag'=>'input', 'type'=>'email', 'class'=>'text-input required invalid init', 'name'=>'email', 'value'=>$user['email']));
 								echo formRow('First Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'first_name', 'value'=>$meta['first_name']));
 								echo formRow('Last Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'last_name', 'value'=>$meta['last_name']));
-								echo formRow('Avatar', array('tag'=>'img', 'src'=>$this->getAvatar($meta['avatar']), 'width'=>150), array('tag'=>'br'), array('tag'=>'input', 'type'=>'hidden', 'id'=>'img-input', 'name'=>'avatar', 'value'=>$meta['avatar']), array('tag'=>'input', 'type'=>'button', 'id'=>'img-choose', 'class'=>'button-input button', 'value'=>'Choose Image'));
+								echo formRow('Avatar', array('tag'=>'img', 'id'=>'media-thumb', 'src'=>$this->getAvatar($meta['avatar']), 'width'=>150), array('tag'=>'br'), array('tag'=>'input', 'type'=>'hidden', 'id'=>'media-type', 'value'=>'image'), array('tag'=>'input', 'type'=>'hidden', 'id'=>'media-id', 'name'=>'avatar', 'value'=>$meta['avatar']), array('tag'=>'input', 'type'=>'button', 'id'=>'modal-launch', 'class'=>'button-input button', 'value'=>'Choose Image'));
 								echo formRow('Role', array('tag'=>'select', 'class'=>'select-input', 'name'=>'role', 'content'=>$this->getRoleList($user['role'])));
 								echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
 								echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update User'));
@@ -198,6 +200,8 @@ class User {
 						<a class="reset-password button" href="?id=<?php echo $id; ?>&action=reset_password">Reset Password</a>
 					</div>
 					<?php
+					// Include the upload modal
+			        include_once PATH.ADMIN.INC.'/modal-upload.php';
 				}
 			}
 		}
@@ -215,7 +219,7 @@ class User {
 		// Extend the Query class and the user's session data
 		global $rs_query, $session;
 		
-		// Check whether or not the user's id is valid
+		// Check whether the user's id is valid
 		if(empty($id) || $id <= 0 || $id === $session['id']) {
 			// Redirect to the 'List Users' page
 			redirect('users.php');
@@ -458,7 +462,7 @@ class User {
 	 * @return null
 	 */
 	public function resetPassword($id) {
-		// Check whether or not the user's id is valid
+		// Check whether the user's id is valid
 		if(empty($id) || $id <= 0) {
 			// Redirect to the 'List Users' page
 			redirect('users.php');

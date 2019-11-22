@@ -71,7 +71,7 @@ jQuery(document).ready(function($) {
 			// Fetch the media item's hidden fields
 			let fields = $(this).find('.hidden');
 			
-			// A variable to hold each field's name
+			// Create a variable to hold each field's name
 			let field = '';
 			
 			// Loop through the fields
@@ -96,14 +96,24 @@ jQuery(document).ready(function($) {
 	 * @since 2.1.3[a]
 	 */
 	$('#media-select').on('click', function() {
+		// Check which tab is active
 		if($('#upload').hasClass('active')) {
 			// do something
 		} else if($('#media').hasClass('active')) {
-			// Fetch the hidden 'id' field and insert it on the form
-			$('#media-id').val($('.media-item.selected .hidden[data-field="id"]').text());
-			
-			// Fetch the hidden 'filename' field and insert it on the form
-			$('#media-thumbnail').attr('src', $('.media-item.selected .hidden[data-field="filename"] a').attr('href'));
+			// Check whether a media item has been selected
+			if($('.media-item').hasClass('selected')) {
+				// Fetch the hidden 'id' field and insert it on the form
+				$('#media-id').val($('.media-item.selected .hidden[data-field="id"]').text());
+				
+				// Fetch the hidden 'filename' field and insert it on the form
+				$('#media-thumb').attr('src', $('.media-item.selected .hidden[data-field="filename"] a').attr('href'));
+			} else {
+				// Set the media's 'id' field to zero
+				$('#media-id').val(0);
+				
+				// Set the media's thumbnail to an empty value
+				$('#media-thumb').attr('src', '//:0');
+			}
 		}
 		
 		// Close the modal

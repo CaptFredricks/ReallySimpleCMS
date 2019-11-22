@@ -121,7 +121,7 @@ class Media extends Post {
 					echo formRow(array('Title', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>($_POST['title'] ?? '')));
 					echo formRow(array('File', true), array('tag'=>'input', 'type'=>'file', 'id'=>'file-upl', 'class'=>'file-input required invalid init', 'name'=>'file'));
 					echo formRow('Alt Text', array('tag'=>'input', 'class'=>'text-input', 'name'=>'alt_text', 'value'=>($_POST['alt_text'] ?? '')));
-					echo formRow('Description', array('tag'=>'textarea', 'class'=>'textarea-input', 'name'=>'description', 'cols'=>30, 'rows'=>10, 'content'=>(htmlspecialchars(($_POST['description'] ?? '')))));
+					echo formRow('Description', array('tag'=>'textarea', 'class'=>'textarea-input', 'name'=>'description', 'cols'=>30, 'rows'=>10, 'content'=>htmlspecialchars(($_POST['description'] ?? ''))));
 					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
 					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Upload Media'));
 					?>

@@ -16,7 +16,7 @@
 		<div class="modal-body">
 			<div class="tab active" data-tab="upload">
 				<div class="upload-wrap">
-					<h2>Select files to upload</h2>
+					<h2>Select file to upload</h2>
 					<form action="<?php echo ADMIN.'/upload.php'; ?>" method="post" enctype="multipart/form-data">
 						<input type="file" class="" name="media_upload">
 						<input type="hidden" id="">
@@ -30,6 +30,7 @@
 				<div class="media-details">
 					<h2>Details</h2>
 					<div class="info">
+						<div class="field thumb"></div>
 						<div class="field title"></div>
 						<div class="field filename"></div>
 						<div class="field date"></div>

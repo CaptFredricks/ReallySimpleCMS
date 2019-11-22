@@ -10,11 +10,14 @@ $rs_post = new Post;
 	// Fetch the post's type
 	$type = $_GET['type'] ?? 'post';
 	
-	// Redirect to the 'List Widgets' page if the post's type is 'widget'
-	if($type === 'widget') redirect('widgets.php');
+	// Redirect to the 'List Media' page if the post's type is 'media'
+	if($type === 'media') redirect('media.php');
 	
 	// Redirect to the 'List Menus' page if the post's type is 'nav_menu_item'
 	if($type === 'nav_menu_item') redirect('menus.php');
+	
+	// Redirect to the 'List Widgets' page if the post's type is 'widget'
+	if($type === 'widget') redirect('widgets.php');
 	
 	// Fetch the current action
 	$action = $_GET['action'] ?? '';

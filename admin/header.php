@@ -35,7 +35,9 @@ $current_page = getCurrentPage();
 			<a id="site-title" href="/"><?php getSetting('site_title'); ?></a>
 			<div class="user-dropdown">
 				<span>Welcome, <?php echo $session['username']; ?></span>
+				<img class="avatar" src="<?php echo !empty($session['avatar']) ? trailingSlash(UPLOADS).$session['avatar'] : '//:0'; ?>" width="20" height="20">
 				<ul class="user-dropdown-menu">
+					<img class="avatar-large" src="<?php echo !empty($session['avatar']) ? trailingSlash(UPLOADS).$session['avatar'] : '//:0'; ?>" width="100" height="100">
 					<li><a href="profile.php">My Profile</a></li>
 					<li><a href="../login.php?action=logout">Log Out</a></li>
 				</ul>

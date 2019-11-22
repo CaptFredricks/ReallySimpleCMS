@@ -5,7 +5,7 @@
  */
 
 // Current CMS version
-const VERSION = '2.1.3';
+const VERSION = '2.1.4';
 
 /**
  * Display the copyright information on the admin dashboard.
@@ -171,8 +171,12 @@ function getOnlineUser($session) {
 	// Fetch the user from the database
 	$user = $rs_query->selectRow('users', array('id', 'username', 'role'), array('session'=>$session));
 	
+	// Fetch the user's avatar from the database
+	$avatar = $rs_query->selectField('usermeta', 'value', array('user'=>$user['id'], '_key'=>'avatar'));
+	$user['avatar'] = $rs_query->selectField('postmeta', 'value', array('post'=>$avatar, '_key'=>'filename'));
+	
 	// Fetch the user's admin theme from the database
-	$user['theme'] = $rs_query->selectField('usermeta', array('value'), array('user'=>$user['id'], '_key'=>'theme'));
+	$user['theme'] = $rs_query->selectField('usermeta', 'value', array('user'=>$user['id'], '_key'=>'theme'));
 	
 	// Return the user data
 	return $user;

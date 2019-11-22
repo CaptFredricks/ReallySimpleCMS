@@ -8,7 +8,7 @@ require_once PATH.ADMIN.INC.'/functions.php';
 // Fetch the media's type
 $media_type = $_GET['media_type'] ?? 'all';
 
-// Check whether the media type is 'image'
+// Check whether the media's type is 'image'
 if($media_type === 'image') {
 	// Load only images from the media library
 	loadMedia(true);

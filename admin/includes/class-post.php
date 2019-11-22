@@ -212,14 +212,23 @@ class Post {
 					<div class="block">
 						<h2>Featured Image</h2>
 						<div class="row">
+							<div class="feat-image-wrap">
+								<?php
+								// Construct an image tag to display the featured image thumbnail
+								echo formTag('img', array('id'=>'media-thumb', 'src'=>'//:0', 'width'=>'100%'));
+								?>
+								<span id="image-remove" title="Remove">
+									<i class="fas fa-times"></i>
+								</span>
+							</div>
 							<?php
-							// Display the featured image if it's been selected
-							isset($_POST['feat_image']) && strlen($_POST['feat_image']) > 0 ? '<img src=""><span></span>' : '';
+							// Construct a hidden 'media type' form tag
+							echo formTag('input', array('type'=>'hidden', 'id'=>'media-type', 'value'=>'image'));
 							
-							// Construct a hidden 'featured' form tag
-							echo formTag('input', array('type'=>'hidden', 'name'=>'feat_image'));
+							// Construct a hidden 'featured image' form tag
+							echo formTag('input', array('type'=>'hidden', 'id'=>'media-id', 'name'=>'feat_image', 'value'=>($_POST['feat_image'] ?? 0)));
 							?>
-							<a href="#">Choose Image</a>
+							<a id="modal-launch" href="javascript:void(0)">Choose Image</a>
 						</div>
 					</div>
 				</div>
@@ -247,6 +256,8 @@ class Post {
 			</form>
 		</div>
 		<?php
+		// Include the upload modal
+		include_once PATH.ADMIN.INC.'/modal-upload.php';
 	}
 	
 	/**

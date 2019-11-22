@@ -857,14 +857,14 @@ function formRow($label = '', ...$args) {
  * @since 2.1.2[a]
  *
  * @param bool $image_only (optional; default: false)
- * @return
+ * @return null
  */
 function loadMedia($image_only = false) {
 	// Extend the Query class
 	global $rs_query;
 	
 	// Fetch all media from the database
-	$mediaa = $rs_query->select('posts', '*', array('type'=>'media'));
+	$mediaa = $rs_query->select('posts', '*', array('type'=>'media'), 'date', 'DESC');
 	
 	// Loop through the media
 	foreach($mediaa as $media) {
@@ -902,6 +902,7 @@ function loadMedia($image_only = false) {
 				</div>
 				<div>
 					<div class="hidden" data-field="id"><?php echo $media['id']; ?></div>
+					<div class="hidden" data-field="thumb"><img src="<?php echo trailingSlash(UPLOADS).$meta['filename']; ?>" width="150"></div>
 					<div class="hidden" data-field="title"><?php echo $media['title']; ?></div>
 					<div class="hidden" data-field="date"><?php echo formatDate($media['date'], 'd M Y @ g:i A'); ?></div>
 					<div class="hidden" data-field="filename"><a href="<?php echo trailingSlash(UPLOADS).$meta['filename']; ?>" target="_blank"><?php echo $meta['filename']; ?></a></div>
@@ -920,7 +921,7 @@ function loadMedia($image_only = false) {
  * @return string
  */
 function getSizeInBytes($val) {
-	// Get the multiple value
+	// Get the unit's multiple value
 	$multiple = substr($val, -1, 1);
 	
 	// Trim the last character off of the value
