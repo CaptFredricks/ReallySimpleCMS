@@ -35,10 +35,25 @@ jQuery(document).ready(function($) {
 		// Check whether the thumbnail's source points to an image
 		if($('#media-thumb').attr('src') !== '//:0' && $('#media-thumb').attr('src') !== '') {
 			// Display the featured image
-			$('.feat-image-wrap').show();
+			$('.feat-image-wrap').addClass('visible');
+			
+			// Remove the greyed out effect from the media thumbnail
+			$('#media-thumb').removeClass('greyout');
 		} else {
 			// Hide the featured image
-			$('.feat-image-wrap').hide();
+			$('.feat-image-wrap').removeClass('visible');
 		}
+	});
+	
+	/**
+	 * Remove an image.
+	 * @since 2.1.5[a]
+	 */
+	$('#image-remove').on('click', function() {
+		// Set the media's id field to zero
+		$('#media-id').val(0);
+		
+		// Grey out the media thumbnail
+		$('#media-thumb').addClass('greyout');
 	});
 });

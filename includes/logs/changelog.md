@@ -4,6 +4,38 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 2.1.5[a] (2019-11-23)
+
+* Added a metadata entry for the sample page and post's featured image in the populateTables function
+* The 'tag' argument is now removed from the args array after being assigned to its own variable in the formRow function
+* Completely rebuilt the formTag function to make the code cleaner and more efficient
+* Added the 'remove image' button to the user profile page
+* Tweaked styling for featured images and avatars
+* Tweaked mobile responsive styling of media item details on the modal
+* Avatars and featured images can now be removed
+* Added a missing space in the buttons.css file
+* If a new image is selected after the 'remove image' button has been clicked, the greyed out effect is removed from the thumbnail
+* Added the 'remove image' button to the 'Create User' and 'Edit User' pages
+* Moved the User::getAvatar to the admin functions.php file and renamed it to getMedia
+* Tweaked documentation in the Post class
+* The 'remove image' button in the Post::createPost function is now constructed with the formTag function
+* Featured images can now be selected on the 'Edit Post' form
+* Tweaked documentation in the Category and Settings classes
+* Tweaked documentation in the admin functions.php file
+* Tweaked some entries in the changelog
+
+**Modified files:**
+* admin/includes/class-category.php (M)
+* admin/includes/class-post.php
+* admin/includes/class-profile.php
+* admin/includes/class-settings.php (M)
+* admin/includes/class-user.php
+* admin/includes/functions.php
+* admin/includes/css/style.css
+* admin/includes/js/script.js
+* includes/css/buttons.css (M)
+
+----------------------------------------------------------------------------------------------------
 ## Version 2.1.4[a] (2019-11-21)
 
 * Added a redirect for the media post type in the posts.php file (posts.php?type=media -> media.php)
@@ -370,7 +402,7 @@
 * When menu items are created, their slugs are now initially set to an empty string instead of null
 * Pages and posts that are in the trash can no longer be used as menu item links
 * Tweaked documentation in the Post class
-* Updated the FontAwesome CSS to version 5.11.2
+* Updated the Font Awesome CSS to version 5.11.2
 * Built and styled the user dropdown menu
 * Created the user profile page and the Profile class
 * Tweaked documentation in the Widget class
@@ -527,9 +559,9 @@
 * Tweaked documentation and updated a constant in the init.php file
 * A notice will now display if the content directory's index.php file is accessed directly
 * Added more documentation to the content index.php file
-* Added FontAwesome icons
+* Added Font Awesome icons
 * Tweaked documentation in the includes CSS stylesheet
-* Included the FontAwesome stylesheet in the admin header.php file
+* Included the Font Awesome stylesheet in the admin header.php file
 * Added a parameter to the adminNavMenuItem function to include an icon
 * Added styling for the icons
 * Adjusted the width, font size, and margins of the admin nav menu and menu items

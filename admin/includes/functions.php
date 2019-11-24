@@ -77,7 +77,7 @@ function getCurrentPage() {
 			// Fetch the number of times the post appears in the database
 			$count = $rs_query->selectRow('posts', 'COUNT(*)', array('id'=>$_GET['id']));
 			
-			// Check whether or not the count is zero
+			// Check whether the count is zero
 			if($count === 0) {
 				// Redirect to the 'List Posts' page
 				redirect('posts.php');
@@ -155,7 +155,7 @@ function adminHeaderScripts() {
 		}
 	}
 	
-	// FontAwesome icons stylesheet
+	// Font Awesome icons stylesheet
 	getStylesheet('fa-icons.css', '5.11.2');
 	
 	// JQuery library
@@ -326,8 +326,8 @@ function populateTables($user_data, $settings_data) {
 	
 	// Post metadata
 	$postmeta = array(
-		'home_page'=>array('title'=>'Sample Page', 'description'=>'Just a simple meta description for your sample page.'),
-		'blog_post'=>array('title'=>'Sample Blog Post', 'description'=>'Just a simple meta description for your first blog post.')
+		'home_page'=>array('title'=>'Sample Page', 'description'=>'Just a simple meta description for your sample page.', 'feat_image'=>0),
+		'blog_post'=>array('title'=>'Sample Blog Post', 'description'=>'Just a simple meta description for your first blog post.', 'feat_image'=>0)
 	);
 	
 	// Loop through the post metadata
@@ -390,7 +390,7 @@ function adminNavMenuItem($item = array(), $submenu = array(), $icon = null) {
 	if($item_id === $current) {
 		// Give the menu item a CSS class
 		$item_class = 'current-menu-item';
-	} // Otherwise, check whether or not the submenu is empty
+	} // Otherwise, check whether the submenu is empty
 	elseif(!empty($submenu)) {
 		// Loop through the submenu items
 		foreach($submenu as $sub_item) {
@@ -438,7 +438,7 @@ function adminNavMenuItem($item = array(), $submenu = array(), $icon = null) {
 			<span><?php echo $item_caption; ?></span>
 		</a>
 		<?php
-		// Check whether or not the submenu parameters have been specified
+		// Check whether the submenu parameters have been specified
 		if(!empty($submenu)) {
 			// Return if the submenu is not an array
 			if(!is_array($submenu)) return;
@@ -715,43 +715,73 @@ function tableCell($data, $class = '', $colspan = 1) {
  * Construct a form HTML tag.
  * @since 1.2.0[a]
  *
- * @param string $tag
+ * @param string $tag_name
  * @param array $args (optional; default: null)
  * @return string
  */
-function formTag($tag, $args = null) {
-	switch($tag) {
-		case 'input':
-			// Construct an input tag
-			$tag = '<input type="'.($args['type'] ?? 'text').'"'.(!empty($args['id']) ? ' id="'.$args['id'].'"' : '').(!empty($args['class']) ? ' class="'.$args['class'].'"' : '').(!empty($args['name']) ? ' name="'.$args['name'].'"' : '').(!empty($args['maxlength']) ? ' maxlength="'.$args['maxlength'].'"' : '').(!empty($args['value']) || (isset($args['value']) && $args['value'] == 0) ? ' value="'.$args['value'].'"' : '').(!empty($args['placeholder']) ? ' placeholder="'.$args['placeholder'].'"' : '').(!empty($args['*']) ? $args['*'] : '').'>';
-			break;
-		case 'select':
-			// Construct a select tag
-			$tag = '<select'.(!empty($args['class']) ? ' class="'.$args['class'].'"' : '').(!empty($args['name']) ? ' name="'.$args['name'].'"' : '').'>'.($args['content'] ?? '').'</select>';
-			break;
-		case 'textarea':
-			// Construct a textarea tag
-			$tag = '<textarea'.(!empty($args['class']) ? ' class="'.$args['class'].'"' : '').(!empty($args['name']) ? ' name="'.$args['name'].'"' : '').(!empty($args['cols']) ? ' cols="'.$args['cols'].'"' : '').(!empty($args['rows']) ? ' rows="'.$args['rows'].'"' : '').'>'.($args['content'] ?? '').'</textarea>';
-			break;
-		case 'img':
-			// Construct an img tag
-			$tag = '<img'.(!empty($args['id']) ? ' id="'.$args['id'].'"' : '').(!empty($args['src']) ? ' src="'.$args['src'].'"' : '').(!empty($args['width']) ? ' width="'.$args['width'].'"' : '').'>';
-			break;
-		case 'hr':
-			// Construct an hr tag
-			$tag = '<hr'.(!empty($args['class']) ? ' class="'.$args['class'].'"' : '').'>';
-			break;
-		case 'br':
-			// Construct a br tag
-			$tag = '<br'.(!empty($args['class']) ? ' class="'.$args['class'].'"' : '').'>';
-			break;
-		case 'label':
-			// Construct a label tag
-			$tag = '<label'.(!empty($args['id']) ? ' id="'.$args['id'].'"' : '').(!empty($args['class']) ? ' class="'.$args['class'].'"' : '').(!empty($args['for']) ? ' for="'.$args['for'].'"' : '').'>'.$args['content'].'</label>';
-			break;
-		default:
-			// Don't construct a tag
-			$tag = '';
+function formTag($tag_name, $args = null) {
+	// Create an array of whitelisted tags with their properties
+	$whitelisted_props = array(
+		'br'=>array('class'),
+		'div'=>array('id', 'class', 'content'),
+		'hr'=>array('class'),
+		'i'=>array('class'),
+		'input'=>array('type', 'id', 'class', 'name', 'maxlength', 'value', 'placeholder', '*'),
+		'img'=>array('id', 'src', 'width'),
+		'label'=>array('id', 'class', 'for', 'content'),
+		'select'=>array('class', 'name', 'content'),
+		'span'=>array('id', 'class', 'title', 'content'),
+		'textarea'=>array('class', 'name', 'cols', 'rows', 'content')
+	);
+	// input value
+	// (!empty($args['value']) || (isset($args['value']) && $args['value'] == 0) ? ' value="'.$args['value'].'"' : '')
+	
+	// Create an array of whitelisted tags
+	$whitelisted_tags = array_keys($whitelisted_props);
+	
+	// Create an array of property names from the args array
+	$props = !is_null($args) ? array_keys($args) : array();
+	
+	// Check whether the tag has been whitelisted
+	if(in_array($tag_name, $whitelisted_tags, true)) {
+		// Start the opening tag
+		$tag = '<'.$tag_name;
+		
+		// Check whether the tag is an input
+		if($tag_name === 'input') {
+			// Check whether the 'type' property has been provided and set it to 'text' if not
+			if(!in_array('type', $props, true)) $tag .= ' type="text"';
+		}
+		
+		// Check whether any args have been provided
+		if(!is_null($args)) {
+			// Loop through the args
+			foreach($args as $key=>$value) {
+				// Check whether the property has been whitelisted and it does not equal 'content'
+				if(in_array($key, $whitelisted_props[$tag_name], true) && $key !== 'content') {
+					// Check whether the tag is an input and the property is valueless
+					if($tag_name === 'input' && $key === '*') {
+						// Add the property to the tag
+						$tag .= ' '.$value;
+					} else {
+						// Add the property and its value to the tag
+						$tag .= ' '.$key.'="'.$value.'"';
+					}
+				}
+			}
+		}
+		
+		// Finish the opening tag
+		$tag .= '>';
+		
+		// Check whether the element should have a closing tag
+		if($tag_name !== 'br' && $tag_name !== 'hr' && $tag_name !== 'input' && $tag_name !== 'img') {
+			// Add any provided content
+			$tag .= $args['content'] ?? '';
+			
+			// Start the closing tag
+			$tag .= '</'.$tag_name.'>';
+		}
 	}
 	
 	// Check whether a label argument has been provided
@@ -779,7 +809,7 @@ function formTag($tag, $args = null) {
  * @return string
  */
 function formRow($label = '', ...$args) {
-	// Check whether or not the label is empty
+	// Check whether the label is empty
 	if(!empty($label)) {
 		// Check whether the label is an array
 		if(is_array($label)) {
@@ -804,12 +834,12 @@ function formRow($label = '', ...$args) {
 		
 		// Check whether any args have been provided
 		if(count($args) > 0) {
-			// Check whether or not the args are a multidimensional array
+			// Check whether the args are a multidimensional array
 			if(count($args) !== count($args, COUNT_RECURSIVE)) {
 				// Loop through the args
 				foreach($args as $arg) {
-					// Fetch the arg's HTML tag
-					$tag = $arg['tag'];
+					// Fetch the arg's HTML tag and remove it from the args array
+					$tag = array_shift($arg);
 					
 					// Construct the form tag and add it to the row
 					$row .= formTag($tag, $arg);
@@ -828,12 +858,12 @@ function formRow($label = '', ...$args) {
 		
 		// Check whether any args have been provided
 		if(count($args) > 0) {
-			// Check whether or not the args are a multidimensional array
+			// Check whether the args are a multidimensional array
 			if(count($args) !== count($args, COUNT_RECURSIVE)) {
 				// Loop through the args
 				foreach($args as $arg) {
-					// Fetch the arg's HTML tag
-					$tag = $arg['tag'];
+					// Fetch the arg's HTML tag and remove it from the args array
+					$tag = array_shift($arg);
 					
 					// Construct the form tag and add it to the row
 					$row .= formTag($tag, $arg);
@@ -989,4 +1019,28 @@ function getTaxonomyId($name) {
 	
 	// Return the taxonomy's id
 	return $id ?? 0;
+}
+
+/**
+ * Fetch the URL of a specified media item.
+ * @since 2.1.5[a]
+ *
+ * @param int $id
+ * @return string
+ */
+function getMedia($id) {
+	// Extend the Query class
+	global $rs_query;
+	
+	// Fetch the media from the database
+	$media = $rs_query->selectField('postmeta', 'value', array('post'=>$id, '_key'=>'filename'));
+	
+	// Check whether the media exists
+	if(!empty($media)) {
+		// Return the path to the media
+		return trailingSlash(UPLOADS).$media;
+	} else {
+		// Return an empty path
+		return '//:0';
+	}
 }

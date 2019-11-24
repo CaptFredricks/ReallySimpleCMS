@@ -121,7 +121,7 @@ class Category {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Check whether or not the category's id is valid
+		// Check whether the category's id is valid
 		if(empty($id) || $id <= 0) {
 			// Redirect to the 'List Categories' page
 			redirect('categories.php');
@@ -129,7 +129,7 @@ class Category {
 			// Fetch the number of times the category appears in the database
 			$count = $rs_query->selectRow('terms', 'COUNT(*)', array('id'=>$id, 'taxonomy'=>getTaxonomyId('category')));
 			
-			// Check whether or not the count is zero
+			// Check whether the count is zero
 			if($count === 0) {
 				// Redirect to the 'List Categories' page
 				redirect('categories.php');
@@ -174,7 +174,7 @@ class Category {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Check whether or not the category's id is valid
+		// Check whether the category's id is valid
 		if(empty($id) || $id <= 0) {
 			// Redirect to the 'List Categories' page
 			redirect('categories.php');

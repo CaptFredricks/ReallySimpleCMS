@@ -92,7 +92,7 @@ class Settings {
 		
 		// Check whether 'do_robots' has changed
 		if($data['do_robots'] !== (int)$do_robots) {
-			// Check whether 'do_robots' is set or not
+			// Check whether 'do_robots' is set
 			if($data['do_robots'] === 0) {
 				// Block robots from crawling the site
 				$file[1] = 'Disallow: /';
@@ -301,7 +301,7 @@ class Settings {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Check whether or not the user role id is valid
+		// Check whether the user role's id is valid
 		if(empty($id) || $id <= 0) {
 			// Redirect to the 'List User Roles' page
 			redirect('settings.php?page=user_roles');
@@ -309,7 +309,7 @@ class Settings {
 			// Fetch the role's 'default' value from the database
 			$default = $rs_query->selectField('user_roles', '_default', array('id'=>$id));
 			
-			// Check whether or not the role is valid or is a default user role
+			// Check whether the role is valid or is a default user role
 			if(empty($default) || $default === 'yes') {
 				// Redirect to the 'List User Roles' page
 				redirect('settings.php?page=user_roles');
@@ -353,7 +353,7 @@ class Settings {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Check whether or not the user role id is valid
+		// Check whether the user role's id is valid
 		if(empty($id) || $id <= 0) {
 			// Redirect to the 'List User Roles' page
 			redirect('settings.php?page=user_roles');
@@ -361,7 +361,7 @@ class Settings {
 			// Fetch the role's 'default' value from the database
 			$default = $rs_query->selectField('user_roles', '_default', array('id'=>$id));
 			
-			// Check whether or not the role is valid and is a default user role
+			// Check whether the role is valid and is a default user role
 			if(empty($default) || $default === 'yes') {
 				// Redirect to the 'List User Roles' page
 				redirect('settings.php?page=user_roles');
