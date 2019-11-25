@@ -4,6 +4,26 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 2.1.6[a] (2019-11-24)
+
+* Created a function to delete media from the database and the uploads folder
+* Tweaked an entry in the changelog
+* Tweaked styling of the upload tab of the upload modal
+* Moved the Media::filenameExists and Media::getUniqueFilename functions to the admin functions.php file
+* Tweaked the layout of the upload modal's upload form
+* Media can now be uploaded via the upload modal
+* Uploaded images can now be inserted as featured images and as avatars
+
+**Modified files:**
+* admin/media.php
+* admin/upload.php (N)
+* admin/includes/class-media.php
+* admin/includes/functions.php
+* admin/includes/modal-upload.php
+* admin/includes/css/style.css
+* admin/includes/js/modal.js
+
+----------------------------------------------------------------------------------------------------
 ## Version 2.1.5[a] (2019-11-23)
 
 * Added a metadata entry for the sample page and post's featured image in the populateTables function
@@ -16,7 +36,7 @@
 * Added a missing space in the buttons.css file
 * If a new image is selected after the 'remove image' button has been clicked, the greyed out effect is removed from the thumbnail
 * Added the 'remove image' button to the 'Create User' and 'Edit User' pages
-* Moved the User::getAvatar to the admin functions.php file and renamed it to getMedia
+* Moved the User::getAvatar function to the admin functions.php file and renamed it to getMedia
 * Tweaked documentation in the Post class
 * The 'remove image' button in the Post::createPost function is now constructed with the formTag function
 * Featured images can now be selected on the 'Edit Post' form
@@ -104,7 +124,7 @@
 * Increased the top margin above the modal
 * Improved transitioning effects for the modal
 * Created a function that loads the media library
-* Styled the media library tab of the modal
+* Styled the media library tab of the upload modal
 
 **Modified files:**
 * admin/load-media.php (N)

@@ -883,6 +883,64 @@ function formRow($label = '', ...$args) {
 }
 
 /**
+ * Upload media to the media library.
+ * @since 2.1.6[a]
+ *
+ * @param array $data
+ * @return string
+ */
+function uploadMediaFile($data) {
+	// Extend the Query class
+	global $rs_query;
+	
+	// Make sure a file has been selected
+	if(empty($data['name']))
+		return statusMessage('A file must be selected for upload!');
+	
+	// Create an array of accepted MIME types
+	$accepted_mime = array('image/jpeg', 'image/png', 'image/gif', 'image/x-icon', 'audio/mp3', 'audio/ogg', 'video/mp4', 'text/plain');
+	
+	// Check whether the uploaded file is among the accepted MIME types
+	if(!in_array($data['type'], $accepted_mime, true))
+		return statusMessage('The file could not be uploaded.');
+	
+	// File path for the uploads directory
+	$file_path = PATH.UPLOADS;
+	
+	// Check whether the uploads directory exists, and create it if not
+	if(!file_exists($file_path)) mkdir($file_path);
+	
+	// Convert the filename to all lowercase, replace spaces with hyphens, and remove all special characters
+	$filename = preg_replace('/[^\w.\-]/i', '', str_replace(' ', '-', strtolower($data['name'])));
+	
+	// Check whether the filename is already in the database and make it unique if so
+	if(filenameExists($filename))
+		$filename = getUniqueFilename($filename);
+	
+	// Strip off the filename's extension for the post's slug
+	$slug = pathinfo($filename, PATHINFO_FILENAME);
+	
+	// Move the uploaded file to the uploads directory
+	move_uploaded_file($data['tmp_name'], trailingSlash(PATH.UPLOADS).$filename);
+	
+	// Create an array to hold the media's metadata
+	$mediameta = array('filename'=>$filename, 'mime_type'=>$data['type'], 'alt_text'=>'');
+	
+	// Fetch the user's data
+	$session = getOnlineUser($_COOKIE['session']);
+	
+	// Insert the new media into the database
+	$insert_id = $rs_query->insert('posts', array('title'=>'New media', 'author'=>$session['id'], 'date'=>'NOW()', 'content'=>'', 'slug'=>$slug, 'type'=>'media'));
+	
+	// Insert the media's metadata into the database
+	foreach($mediameta as $key=>$value)
+		$rs_query->insert('postmeta', array('post'=>$insert_id, '_key'=>$key, 'value'=>$value));
+	
+	// Return a success message and a hidden field with the media's id
+	return statusMessage('Upload successful!', true).(in_array($data['type'], array('image/jpeg', 'image/png', 'image/gif'), true) ? '<div class="hidden" data-field="id">'.$insert_id.'</div><div class="hidden" data-field="filename">'.trailingSlash(UPLOADS).$filename.'</div>' : '');
+}
+
+/**
  * Load the media library.
  * @since 2.1.2[a]
  *
@@ -941,6 +999,50 @@ function loadMedia($image_only = false) {
 		</div>
 		<?php
 	}
+}
+
+/**
+ * Check whether a filename already exists in the database.
+ * @since 2.1.0[a]
+ *
+ * @param string $filename
+ * @return bool
+ */
+function filenameExists($filename) {
+	// Extend the Query class
+	global $rs_query;
+	
+	// Return true if the filename appears in the database
+	return $rs_query->select('postmeta', 'COUNT(*)', array('_key'=>'filename', 'value'=>array('LIKE', $filename.'%'))) > 0;
+}
+
+/**
+ * Make a filename unique by adding a number to the end of it.
+ * @since 2.1.0[a]
+ *
+ * @param string $filename
+ * @return string
+ */
+function getUniqueFilename($filename) {
+	// Extend the Query class
+	global $rs_query;
+	
+	// Fetch the number of conflicting filenames in the database
+	$count = $rs_query->select('postmeta', 'COUNT(*)', array('_key'=>'filename', 'value'=>array('LIKE', $filename.'%')));
+	
+	// Split the filename into separate parts
+	$file_parts = pathinfo($filename);
+	
+	do {
+		// Construct a unique filename
+		$unique_filename = $file_parts['filename'].'-'.($count + 1).'.'.$file_parts['extension'];
+		
+		// Increment the count
+		$count++;
+	} while($rs_query->selectRow('postmeta', 'COUNT(*)', array('_key'=>'filename', 'value'=>$unique_filename)) > 0);
+	
+	// Return the unique filename
+	return $unique_filename;
 }
 
 /**

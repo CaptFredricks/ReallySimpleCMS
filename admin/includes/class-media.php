@@ -189,6 +189,43 @@ class Media extends Post {
 	}
 	
 	/**
+	 * Delete media from the database.
+	 * @since 2.1.6[a]
+	 *
+	 * @access public
+	 * @param int $id
+	 * @return null
+	 */
+	public function deleteMedia($id) {
+		// Extend the Query class
+		global $rs_query;
+		
+		// Fetch the filename from the database
+		$filename = $rs_query->selectField('postmeta', 'value', array('post'=>$id, '_key'=>'filename'));
+		
+		// Check whether the filename exists in the database
+		if($filename) {
+			// File path for the file to be deleted
+			$file_path = trailingSlash(PATH.UPLOADS).$filename;
+			
+			// Check whether the file exists
+			if(file_exists($file_path)) {
+				// Delete the file
+				unlink($file_path);
+				
+				// Delete the media from the database
+				$rs_query->delete('posts', array('id'=>$id));
+				
+				// Delete the media's metadata from the database
+				$rs_query->delete('postmeta', array('post'=>$id));
+				
+				// Redirect to the 'List Media' page (with a success message)
+				redirect('media.php?exit_status=success');
+			}
+		}
+	}
+	
+	/**
 	 * Validate the form data.
 	 * @since 2.1.0[a]
 	 *
@@ -227,8 +264,8 @@ class Media extends Post {
 			$filename = preg_replace('/[^\w.\-]/i', '', str_replace(' ', '-', strtolower($data['file']['name'])));
 			
 			// Check whether the filename is already in the database and make it unique if so
-			if($this->filenameExists($filename))
-				$filename = $this->getUniqueFilename($filename);
+			if(filenameExists($filename))
+				$filename = getUniqueFilename($filename);
 			
 			// Strip off the filename's extension for the post's slug
 			$slug = pathinfo($filename, PATHINFO_FILENAME);
@@ -262,51 +299,5 @@ class Media extends Post {
 			// Return a status message
 			return statusMessage('Media updated! <a href="media.php">Return to list</a>?', true);
 		}
-	}
-	
-	/**
-	 * Check whether a filename already exists in the database.
-	 * @since 2.1.0[a]
-	 *
-	 * @access private
-	 * @param string $filename
-	 * @return bool
-	 */
-	private function filenameExists($filename) {
-		// Extend the Query class
-		global $rs_query;
-		
-		// Return true if the filename appears in the database
-		return $rs_query->select('postmeta', 'COUNT(*)', array('_key'=>'filename', 'value'=>array('LIKE', $filename.'%'))) > 0;
-	}
-	
-	/**
-	 * Make a filename unique by adding a number to the end of it.
-	 * @since 2.1.0[a]
-	 *
-	 * @access private
-	 * @param string $filename
-	 * @return string
-	 */
-	private function getUniqueFilename($filename) {
-		// Extend the Query class
-		global $rs_query;
-		
-		// Fetch the number of conflicting filenames in the database
-		$count = $rs_query->select('postmeta', 'COUNT(*)', array('_key'=>'filename', 'value'=>array('LIKE', $filename.'%')));
-		
-		// Split the filename into separate parts
-		$file_parts = pathinfo($filename);
-		
-		do {
-			// Construct a unique filename
-			$unique_filename = $file_parts['filename'].'-'.($count + 1).'.'.$file_parts['extension'];
-			
-			// Increment the count
-			$count++;
-		} while($rs_query->selectRow('postmeta', 'COUNT(*)', array('_key'=>'filename', 'value'=>$unique_filename)) > 0);
-		
-		// Return the unique filename
-		return $unique_filename;
 	}
 }

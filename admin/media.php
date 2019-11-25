@@ -22,6 +22,10 @@ $rs_media = new Media;
 			// Edit existing media
 			userHasPrivilege($session['role'], 'can_edit_media') ? $rs_media->editMedia($id) : redirect('media.php');
 			break;
+		case 'delete':
+			// Delete existing media
+			userHasPrivilege($session['role'], 'can_delete_media') ? $rs_media->deleteMedia($id) : redirect('media.php');
+			break;
 		default:
 			// List all media
 			userHasPrivilege($session['role'], 'can_view_media') ? $rs_media->listMedia() : redirect('index.php');

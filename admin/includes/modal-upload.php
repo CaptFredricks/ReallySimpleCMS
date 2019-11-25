@@ -16,10 +16,10 @@
 		<div class="modal-body">
 			<div class="tab active" data-tab="upload">
 				<div class="upload-wrap">
-					<h2>Select file to upload</h2>
-					<form action="<?php echo ADMIN.'/upload.php'; ?>" method="post" enctype="multipart/form-data">
-						<input type="file" class="" name="media_upload">
-						<input type="hidden" id="">
+					<h2>Select a file to upload</h2>
+					<div class="upload-result"></div>
+					<form id="media-upload" action="<?php echo ADMIN.'/upload.php'; ?>" method="post" enctype="multipart/form-data">
+						<input type="file" name="media_upload">
 						<input type="submit" class="submit-input button" name="upload_submit" value="Upload">
 					</form>
 					<p>Maximum upload size: <?php echo getFileSize(getSizeInBytes(ini_get('upload_max_filesize')), 0); ?></p>

@@ -56,6 +56,38 @@ jQuery(document).ready(function($) {
 	});
 	
 	/**
+	 * Submit the upload form.
+	 * @since 2.1.6[a]
+	 */
+	$('#media-upload').on('submit', function(e) {
+		// Prevent the default (submit) action
+		e.preventDefault();
+		
+		// Submit the form data using Ajax
+		$.ajax({
+			contentType: false,
+			data: new FormData(this),
+			method: 'POST',
+			processData: false,
+			success: function(result) {
+				// Display the result
+				$('.upload-result').html(result);
+			},
+			url: $(this).attr('action')
+		});
+		
+		/*
+		// Create an object to hold the form data
+		let form_data = new FormData(this);
+		
+		console.log(form_data);
+		
+		// Submit the form data using Ajax
+		$('.upload-result').load($(this).attr('action'), form_data);
+		*/
+	});
+	
+	/**
 	 * Select a media item.
 	 * @since 2.1.2[a]
 	 */
@@ -98,7 +130,14 @@ jQuery(document).ready(function($) {
 	$('#media-select').on('click', function() {
 		// Check which tab is active
 		if($('#upload').hasClass('active')) {
-			// do something
+			// Check whether the hidden fields are in the result
+			if($('.upload-result .hidden[data-field="id"]').length && $('.upload-result .hidden[data-field="filename"]').length) {
+				// Fetch the hidden 'id' field and insert it on the form
+				$('#media-id').val($('.upload-result .hidden[data-field="id"]').text());
+				
+				// Fetch the hidden 'filename' field and insert it on the form
+				$('#media-thumb').attr('src', $('.upload-result .hidden[data-field="filename"]').text());
+			}
 		} else if($('#media').hasClass('active')) {
 			// Check whether a media item has been selected
 			if($('.media-item').hasClass('selected')) {
@@ -135,6 +174,12 @@ jQuery(document).ready(function($) {
 		
 		// Remove 'in' class from the modal
 		$('#modal-upload').removeClass('in');
+		
+		// Clear the upload result
+		$('.upload-result').empty();
+		
+		// Reset the upload form
+		$('#media-upload').trigger('reset');
 		
 		// Remove the 'selected' class from any selected media items
 		$('.media-item').removeClass('selected');

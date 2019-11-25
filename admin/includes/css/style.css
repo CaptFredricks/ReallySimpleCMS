@@ -1098,6 +1098,8 @@ label.required.init {
 }
 
 .modal-body .upload-wrap {
+	margin: 0 auto;
+	max-width: 500px;
 	-webkit-transform: translateY(-20vh);
 	transform: translateY(-20vh);
 }
