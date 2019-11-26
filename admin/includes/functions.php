@@ -720,31 +720,29 @@ function tableCell($data, $class = '', $colspan = 1) {
  * @return string
  */
 function formTag($tag_name, $args = null) {
+	// Create an array of property names from the args array
+	$props = !is_null($args) ? array_keys($args) : array();
+	
 	// Create an array of whitelisted tags with their properties
 	$whitelisted_props = array(
 		'br'=>array('class'),
 		'div'=>array('id', 'class', 'content'),
 		'hr'=>array('class'),
 		'i'=>array('class'),
-		'input'=>array('type', 'id', 'class', 'name', 'maxlength', 'value', 'placeholder', '*'),
 		'img'=>array('id', 'src', 'width'),
+		'input'=>array('type', 'id', 'class', 'name', 'maxlength', 'value', 'placeholder', '*'),
 		'label'=>array('id', 'class', 'for', 'content'),
 		'select'=>array('class', 'name', 'content'),
 		'span'=>array('id', 'class', 'title', 'content'),
 		'textarea'=>array('class', 'name', 'cols', 'rows', 'content')
 	);
-	// input value
-	// (!empty($args['value']) || (isset($args['value']) && $args['value'] == 0) ? ' value="'.$args['value'].'"' : '')
 	
 	// Create an array of whitelisted tags
 	$whitelisted_tags = array_keys($whitelisted_props);
 	
-	// Create an array of property names from the args array
-	$props = !is_null($args) ? array_keys($args) : array();
-	
-	// Check whether the tag has been whitelisted
+	// Check whether the specified tag has been whitelisted
 	if(in_array($tag_name, $whitelisted_tags, true)) {
-		// Start the opening tag
+		// Start the opening portion of the tag
 		$tag = '<'.$tag_name;
 		
 		// Check whether the tag is an input
@@ -752,6 +750,8 @@ function formTag($tag_name, $args = null) {
 			// Check whether the 'type' property has been provided and set it to 'text' if not
 			if(!in_array('type', $props, true)) $tag .= ' type="text"';
 		}
+		
+		// (!empty($args['value']) || (isset($args['value']) && $args['value'] == 0) ? ' value="'.$args['value'].'"' : '')
 		
 		// Check whether any args have been provided
 		if(!is_null($args)) {
@@ -771,15 +771,18 @@ function formTag($tag_name, $args = null) {
 			}
 		}
 		
-		// Finish the opening tag
+		// Finish the opening portion of the tag
 		$tag .= '>';
 		
-		// Check whether the element should have a closing tag
-		if($tag_name !== 'br' && $tag_name !== 'hr' && $tag_name !== 'input' && $tag_name !== 'img') {
+		// Create an array of self-closing tags
+		$self_closing = array('br', 'hr', 'img', 'input');
+		
+		// Check whether the tag should have a closing portion
+		if(!in_array($tag_name, $self_closing, true)) {
 			// Add any provided content
 			$tag .= $args['content'] ?? '';
 			
-			// Start the closing tag
+			// Create the closing portion of the tag
 			$tag .= '</'.$tag_name.'>';
 		}
 	}

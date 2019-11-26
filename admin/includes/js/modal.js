@@ -45,13 +45,28 @@ jQuery(document).ready(function($) {
 			$('.modal-body .tab').toggleClass('active');
 		}
 		
-		// Check whether the new active tab is the media tab
-		if($('#media').hasClass('active')) {
+		// Check which tab is now active
+		if($('#upload').hasClass('active')) {
+			// Clear the upload result
+			$('.upload-result').empty();
+			
+			// Reset the upload form
+			$('#media-upload').trigger('reset');
+			
+			// Disable the 'Select Media' button
+			$('#media-select').prop('disabled', true);
+		} else if($('#media').hasClass('active')) {
 			// Empty the media tab
 			$('.media-wrap').empty();
 			
 			// Load the media library
 			$('.media-wrap').load($(self).children().data('href') + '?media_type=' + $('#media-type').val());
+			
+			// Clear the media details
+			$('.media-details .field').empty();
+			
+			// Disable the 'Select Media' button
+			$('#media-select').prop('disabled', true);
 		}
 	});
 	
@@ -85,6 +100,9 @@ jQuery(document).ready(function($) {
 		// Submit the form data using Ajax
 		$('.upload-result').load($(this).attr('action'), form_data);
 		*/
+		
+		// Enable the 'Select Media' button
+		$('#media-select').prop('disabled', false);
 	});
 	
 	/**
@@ -114,12 +132,18 @@ jQuery(document).ready(function($) {
 				// Populate each field in the details section
 				$('.media-details .' + field).html($(this).html());
 			});
+			
+			// Enable the 'Select Media' button
+			$('#media-select').prop('disabled', false);
 		} else {
 			// Remove the 'selected' class
 			$(this).removeClass('selected');
 			
 			// Clear the media details
 			$('.media-details .field').empty();
+			
+			// Disable the 'Select Media' button
+			$('#media-select').prop('disabled', true);
 		}
 	});
 	
@@ -186,5 +210,8 @@ jQuery(document).ready(function($) {
 		
 		// Clear the media details
 		$('.media-details .field').empty();
+		
+		// Disable the 'Select Media' button
+		$('#media-select').prop('disabled', true);
 	}
 });

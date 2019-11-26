@@ -1076,6 +1076,7 @@ label.required.init {
 }
 
 .modal-body {
+	background-color: #3f3f3f;
 	overflow: auto;
 	position: absolute;
 	  top: 47px;

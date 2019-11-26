@@ -187,6 +187,43 @@ a {
 	border-color: #0f3f7f;
 }
 
+/* Modal */
+
+.modal-wrap {
+	background-color: #0f2f6f;
+}
+
+.modal-header {
+	border-bottom-color: #fdbd4d;
+}
+
+.modal-header .tabber .tab {
+	border-color: #bd7d0d;
+}
+
+.modal-header .tabber .tab:hover {
+	background-color: #0c1f5f;
+	border-color: #dd9d2d;
+}
+
+.modal-header .tabber .tab.active {
+	background-color: #090f2f;
+	border-color: #fdbd4d;
+}
+
+.modal-body {
+	background-color: #0c1f5f;
+}
+
+.modal-body .media-details {
+	background-color: #0f3f7f;
+	border-left-color: #fdbd4d;
+}
+
+.modal-footer {
+	border-top-color: #fdbd4d;
+}
+
 /*------------------------------------*\
     RESPONSIVE
 \*------------------------------------*/

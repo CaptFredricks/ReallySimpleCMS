@@ -25,9 +25,34 @@ class Media extends Post {
 			<h1>Media</h1>
 			<a class="button" href="?action=upload">Upload New</a>
 			<?php
-			// Display any status messages
-			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
-				echo statusMessage('The media was successfully deleted.', true);
+			// Check whether any status messages have been returned
+			if(isset($_GET['exit_status'])) {
+				// Choose an appropriate status message based upon the exit status
+				if($_GET['exit_status'] === 'success') {
+					// Display a success status message
+					echo statusMessage('The media was successfully deleted.', true);
+				} elseif($_GET['exit_status'] === 'failure') {
+					// Check whether there are conflicts
+					if(isset($_GET['conflicts'])) {
+						// Create an array from the conflicts
+						$conflicts = explode(':', $_GET['conflicts']);
+						
+						// Create an empty array to hold the status message(s)
+						$messages = array();
+						
+						// Check whether the conflict is with the users table
+						if(in_array('users', $conflicts, true))
+							$message[] = 'That media is currently a <strong>user\'s avatar</strong>. If you wish to delete it, unlink it from the user first.';
+						
+						// Check whether the conflict is with the posts table
+						if(in_array('posts', $conflicts, true))
+							$message[] = 'That media is currently a <strong>posts\'s featured image</strong>. If you wish to delete it, unlink it from the post first.';
+						
+						// Display the status message
+						echo statusMessage(implode('<br>', $message));
+					}
+				}
+			}
 			
 			// Fetch the media entry count from the database
 			$count = $rs_query->select('posts', 'COUNT(*)', array('type'=>'media'));
@@ -199,6 +224,25 @@ class Media extends Post {
 	public function deleteMedia($id) {
 		// Extend the Query class
 		global $rs_query;
+		
+		// Create an empty array to hold conflicts
+		$conflicts = array();
+		
+		// Fetch the number of times the media is used as an avatar from the database
+		$count = $rs_query->select('usermeta', 'COUNT(*)', array('_key'=>'avatar', 'value'=>$id));
+		
+		// Check whether the count is greater than zero
+		if($count > 0) $conflicts[] = 'users';
+		
+		// Fetch the number of times the media is used as a featured image from the database
+		$count = $rs_query->select('postmeta', 'COUNT(*)', array('_key'=>'feat_image', 'value'=>$id));
+		
+		// Check whether the count is greater than zero
+		if($count > 0) $conflicts[] = 'posts';
+		
+		// Check whether there are any conflicts
+		if(!empty($conflicts))
+			redirect('media.php?exit_status=failure&conflicts='.implode(':', $conflicts));
 		
 		// Fetch the filename from the database
 		$filename = $rs_query->selectField('postmeta', 'value', array('post'=>$id, '_key'=>'filename'));

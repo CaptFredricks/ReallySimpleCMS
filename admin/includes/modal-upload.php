@@ -39,7 +39,7 @@
 			</div>
 		</div>
 		<div class="modal-footer">
-			<button type="button" id="media-select" class="button">Select Media</button>
+			<button type="button" id="media-select" class="button" disabled>Select Media</button>
 		</div>
 	</div>
 </div>

@@ -4,6 +4,26 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 2.1.7[a] (2019-11-25)
+
+* Rearranged code and tweaked documentation in the admin formTag function
+* Added styling for the upload modal to the admin Ocean theme
+* Tweaked styling of the upload modal in the default theme
+* Added styling for disabled buttons
+* The 'Select Media' button on the upload modal is now disabled by default (it is reenabled if a file is uploaded or if a file is selected from the media library
+* Active data is now cleared when switching between the modal tabs
+* Added failure conditions for deleting media: if the media is currently a user's avatar or a post's featured image
+
+**Modified files:**
+* admin/includes/class-media.php
+* admin/includes/functions.php
+* admin/includes/modal-upload.php (M)
+* admin/includes/css/style.css (M)
+* admin/includes/js/modal.js
+* content/admin-themes/ocean.css
+* includes/css/buttons.css
+
+----------------------------------------------------------------------------------------------------
 ## Version 2.1.6[a] (2019-11-24)
 
 * Created a function to delete media from the database and the uploads folder
