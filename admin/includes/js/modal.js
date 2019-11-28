@@ -7,27 +7,42 @@ jQuery(document).ready(function($) {
 	'use strict';
 	
 	/**
-	 * Launch the upload/media library modal.
+	 * Launch a modal window.
 	 * @since 2.1.1[a]
 	 */
-	$('#modal-launch').on('click', function() {
+	$('.modal-launch').on('click', function() {
 		// Add 'modal-open' class to the body tag
 		$('body').addClass('modal-open');
 		
 		// Show the modal
-		$('#modal-upload').fadeIn(100);
+		$('.modal').fadeIn(100);
 		
 		// Add 'in' class to the modal
-		$('#modal-upload').addClass('in');
+		$('.modal').addClass('in');
 	});
 	
 	/**
-	 * Event handler for closing the modal window.
+	 * Event handler for closing an open modal window.
 	 * @since 2.1.1[a]
 	 */
 	$('#modal-close').on('click', function() {
 		// Close the modal
 		modalClose();
+	});
+	
+	/**
+	 * Delete a specified item from the database.
+	 * @since 2.1.8[a]
+	 */
+	$('.delete-item').on('click', function(e) {
+		// Prevent the default (navigation) action
+		e.preventDefault();
+		
+		// Replace the default warning text with the appropriate item type
+		$('.delete-wrap h2 span').text($(this).data('item'));
+		
+		// Fetch the delete link from the data table and link the 'Confirm Delete' button to it
+		$('#confirm-delete').attr('href', $(this).attr('href'));
 	});
 	
 	/**
@@ -43,30 +58,30 @@ jQuery(document).ready(function($) {
 			// Toggle the 'active' class
 			$('.modal-header .tabber .tab').toggleClass('active');
 			$('.modal-body .tab').toggleClass('active');
-		}
-		
-		// Check which tab is now active
-		if($('#upload').hasClass('active')) {
-			// Clear the upload result
-			$('.upload-result').empty();
 			
-			// Reset the upload form
-			$('#media-upload').trigger('reset');
-			
-			// Disable the 'Select Media' button
-			$('#media-select').prop('disabled', true);
-		} else if($('#media').hasClass('active')) {
-			// Empty the media tab
-			$('.media-wrap').empty();
-			
-			// Load the media library
-			$('.media-wrap').load($(self).children().data('href') + '?media_type=' + $('#media-type').val());
-			
-			// Clear the media details
-			$('.media-details .field').empty();
-			
-			// Disable the 'Select Media' button
-			$('#media-select').prop('disabled', true);
+			// Check which tab is now active
+			if($('#upload').hasClass('active')) {
+				// Clear the upload result
+				$('.upload-result').empty();
+				
+				// Reset the upload form
+				$('#media-upload').trigger('reset');
+				
+				// Disable the 'Select Media' button
+				$('#media-select').prop('disabled', true);
+			} else if($('#media').hasClass('active')) {
+				// Empty the media tab
+				$('.media-wrap').empty();
+				
+				// Load the media library
+				$('.media-wrap').load($(self).children().data('href') + '?media_type=' + $('#media-type').val());
+				
+				// Clear the media details
+				$('.media-details .field').empty();
+				
+				// Disable the 'Select Media' button
+				$('#media-select').prop('disabled', true);
+			}
 		}
 	});
 	
@@ -90,16 +105,6 @@ jQuery(document).ready(function($) {
 			},
 			url: $(this).attr('action')
 		});
-		
-		/*
-		// Create an object to hold the form data
-		let form_data = new FormData(this);
-		
-		console.log(form_data);
-		
-		// Submit the form data using Ajax
-		$('.upload-result').load($(this).attr('action'), form_data);
-		*/
 		
 		// Enable the 'Select Media' button
 		$('#media-select').prop('disabled', false);
@@ -184,7 +189,7 @@ jQuery(document).ready(function($) {
 	});
 	
 	/**
-	 * Close the modal and perform cleanup.
+	 * Close an open modal and perform cleanup.
 	 * @since 2.1.3[a]
 	 *
 	 * @return null
@@ -194,24 +199,27 @@ jQuery(document).ready(function($) {
 		$('body').removeClass('modal-open');
 		
 		// Hide the modal
-		$('#modal-upload').fadeOut(500);
+		$('.modal').fadeOut(500);
 		
 		// Remove 'in' class from the modal
-		$('#modal-upload').removeClass('in');
+		$('.modal').removeClass('in');
 		
-		// Clear the upload result
-		$('.upload-result').empty();
-		
-		// Reset the upload form
-		$('#media-upload').trigger('reset');
-		
-		// Remove the 'selected' class from any selected media items
-		$('.media-item').removeClass('selected');
-		
-		// Clear the media details
-		$('.media-details .field').empty();
-		
-		// Disable the 'Select Media' button
-		$('#media-select').prop('disabled', true);
+		// Check whether the open modal is the upload modal
+		if($('.modal').attr('id') === 'modal-upload') {
+			// Clear the upload result
+			$('.upload-result').empty();
+			
+			// Reset the upload form
+			$('#media-upload').trigger('reset');
+			
+			// Remove the 'selected' class from any selected media items
+			$('.media-item').removeClass('selected');
+			
+			// Clear the media details
+			$('.media-details .field').empty();
+			
+			// Disable the 'Select Media' button
+			$('#media-select').prop('disabled', true);
+		}
 	}
 });

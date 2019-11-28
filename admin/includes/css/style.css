@@ -33,12 +33,13 @@ a:hover {
 	text-decoration: underline;
 }
 
-h1 {
+h1,
+h2 {
 	font-size: 1.3125em;
 }
 
-h2 {
-	font-size: 1.3125em;
+h3 {
+	font-size: 1.125em;
 }
 
 /*------------------------------------*\
@@ -61,7 +62,7 @@ h2 {
 /** Site title **/
 
 #site-title {
-	color: #fff;
+	color: #fefefe;
 	display: flex;
 	  align-items: center;
 	float: left;
@@ -625,7 +626,7 @@ h2 {
 	font-size: 0.85em;
 }
 
-.data-form-wrap .menu-item .actions a {
+.data-form-wrap .menu-item .actions a:not(.button) {
 	color: #46708a;
 }
 
@@ -1021,6 +1022,13 @@ label.required.init {
 
 .modal-header {
 	border-bottom: 1px solid #7d7d7d;
+}
+
+#modal-delete .modal-header {
+	padding: 0.75em 0.75em 0.5em;
+}
+
+#modal-upload .modal-header {
 	padding: 0.75em 0.75em 0;
 }
 
@@ -1085,24 +1093,39 @@ label.required.init {
 	  left: 0;
 }
 
+.modal-body .delete-wrap {
+	display: flex;
+	  align-items: center;
+	  flex-direction: column;
+	  justify-content: center;
+	height: 100%;
+	width: 100%;
+}
+
+.modal-body .delete-wrap h2,
+.modal-body .delete-wrap h3 {
+	margin: 0.5rem 0;
+}
+
 .modal-body .tab {
 	display: none;
 }
 
 .modal-body .tab.active {
-	display: block;
+	display: flex;
 }
 
 .modal-body .tab[data-tab="upload"] {
-	padding-top: 40vh;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
 	text-align: center;
+	width: 100%;
 }
 
 .modal-body .upload-wrap {
 	margin: 0 auto;
 	max-width: 500px;
-	-webkit-transform: translateY(-20vh);
-	transform: translateY(-20vh);
 }
 
 .modal-body .upload-wrap h2,
@@ -1307,16 +1330,5 @@ label.required.init {
 @media screen and (min-width: 1650px) {
 	.modal-body .media-item-wrap {
 		width: 12.5%;
-	}
-}
-
-@media screen and (min-height: 450px) {
-	.modal-body .tab[data-tab="upload"] {
-		padding-top: 50vh;
-	}
-
-	.modal-body .upload-wrap {
-		-webkit-transform: translateY(-25vh);
-		transform: translateY(-25vh);
 	}
 }

@@ -60,7 +60,7 @@ class Widget extends Post {
 				// Loop through the widgets
 				foreach($widgets as $widget) {
 					echo tableRow(
-						tableCell('<strong>'.$widget['title'].'</strong><div class="actions"><a href="?id='.$widget['id'].'&action=edit">Edit</a> &bull; <a href="?id='.$widget['id'].'&action=delete">Delete</a></div>', 'title'),
+						tableCell('<strong>'.$widget['title'].'</strong><div class="actions"><a href="?id='.$widget['id'].'&action=edit">Edit</a> &bull; <a class="modal-launch delete-item" href="?id='.$widget['id'].'&action=delete" data-item="widget">Delete</a></div>', 'title'),
 						tableCell($widget['slug'], 'slug'),
 						tableCell(ucfirst($widget['status']), 'status')
 					);
@@ -75,6 +75,9 @@ class Widget extends Post {
 		<?php
 		// Set up page navigation
 		echo pagerNav($page['current'], $page['count']);
+		
+		// Include the delete modal
+        include_once PATH.ADMIN.INC.'/modal-delete.php';
 	}
 	
 	/**

@@ -91,7 +91,7 @@ class Post {
 					$meta = $this->getPostMeta($post['id']);
 					
 					echo tableRow(
-						tableCell('<strong>'.$post['title'].'</strong>'.($post['status'] !== 'published' && $status === 'all' ? ' &ndash; <em>'.$post['status'].'</em>' : '').'<div class="actions">'.($status !== 'trash' ? '<a href="?id='.$post['id'].'&action=edit">Edit</a> &bull; <a href="?id='.$post['id'].'&action=trash">Trash</a> &bull; <a href="'.($post['status'] === 'published' ? ($this->isHomePage($post['id']) ? '/' : $this->getPermalink($post['parent'], $post['slug'])).'">View' : ('/?id='.$post['id'].'&preview=true').'">Preview').'</a>' : '<a href="?id='.$post['id'].'&action=restore">Restore</a> &bull; <a href="?id='.$post['id'].'&action=delete" rel="">Delete</a>').'</div>', 'title'),
+						tableCell('<strong>'.$post['title'].'</strong>'.($post['status'] !== 'published' && $status === 'all' ? ' &ndash; <em>'.$post['status'].'</em>' : '').'<div class="actions">'.($status !== 'trash' ? '<a href="?id='.$post['id'].'&action=edit">Edit</a> &bull; <a href="?id='.$post['id'].'&action=trash">Trash</a> &bull; <a href="'.($post['status'] === 'published' ? ($this->isHomePage($post['id']) ? '/' : $this->getPermalink($post['parent'], $post['slug'])).'">View' : ('/?id='.$post['id'].'&preview=true').'">Preview').'</a>' : '<a href="?id='.$post['id'].'&action=restore">Restore</a> &bull; <a class="modal-launch delete-item" href="?id='.$post['id'].'&action=delete" data-item="'.$post['type'].'">Delete</a>').'</div>', 'title'),
 						tableCell($this->getAuthor($post['author']), 'author'),
 						$type === 'post' ? tableCell($this->getCategories($post['id']), 'categories') : '',
 						tableCell(formatDate($post['date'], 'd M Y @ g:i A'), 'publish-date'),
@@ -99,9 +99,6 @@ class Post {
 						tableCell(!empty($meta['title']) ? 'Yes' : 'No', 'meta_title'),
 						tableCell(!empty($meta['description']) ? 'Yes' : 'No', 'meta_description')
 					);
-
-// ($status !== 'trash' ? : <a class="delete-item" href="javascript:void(0)" rel="'.($type === 'post' ? $post['id'] : $type.'-'.$post['id']).'">Delete</a>');
-
 				}
 				
 				// Display a notice if no posts are found
@@ -113,6 +110,9 @@ class Post {
 		<?php
 		// Set up page navigation
 		echo pagerNav($page['current'], $page['count']);
+		
+		// Include the delete modal
+        include_once PATH.ADMIN.INC.'/modal-delete.php';
 	}
 	
 	/**
@@ -228,7 +228,7 @@ class Post {
 							// Construct a hidden 'featured image' form tag
 							echo formTag('input', array('type'=>'hidden', 'id'=>'media-id', 'name'=>'feat_image', 'value'=>($_POST['feat_image'] ?? 0)));
 							?>
-							<a id="modal-launch" href="javascript:void(0)">Choose Image</a>
+							<a class="modal-launch" href="javascript:void(0)">Choose Image</a>
 						</div>
 					</div>
 				</div>
@@ -408,7 +408,7 @@ class Post {
 										// Construct a hidden 'featured image' form tag
 										echo formTag('input', array('type'=>'hidden', 'id'=>'media-id', 'name'=>'feat_image', 'value'=>$meta['feat_image']));
 										?>
-										<a id="modal-launch" href="javascript:void(0)">Choose Image</a>
+										<a class="modal-launch" href="javascript:void(0)">Choose Image</a>
 									</div>
 								</div>
 							</div>

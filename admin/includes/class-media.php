@@ -34,21 +34,18 @@ class Media extends Post {
 				} elseif($_GET['exit_status'] === 'failure') {
 					// Check whether there are conflicts
 					if(isset($_GET['conflicts'])) {
-						// Create an array from the conflicts
+						// Create an array with the conflicts
 						$conflicts = explode(':', $_GET['conflicts']);
-						
-						// Create an empty array to hold the status message(s)
-						$messages = array();
 						
 						// Check whether the conflict is with the users table
 						if(in_array('users', $conflicts, true))
-							$message[] = 'That media is currently a <strong>user\'s avatar</strong>. If you wish to delete it, unlink it from the user first.';
+							$message[] = 'That media is currently a <strong><em>user\'s avatar</em></strong>. If you wish to delete it, unlink it from the user first.';
 						
 						// Check whether the conflict is with the posts table
 						if(in_array('posts', $conflicts, true))
-							$message[] = 'That media is currently a <strong>posts\'s featured image</strong>. If you wish to delete it, unlink it from the post first.';
+							$message[] = 'That media is currently a <strong><em>post\'s featured image</em></strong>. If you wish to delete it, unlink it from the post first.';
 						
-						// Display the status message
+						// Display the failure status message
 						echo statusMessage(implode('<br>', $message));
 					}
 				}
@@ -98,7 +95,7 @@ class Media extends Post {
 					
 					echo tableRow(
 						tableCell('<img src="'.trailingSlash(UPLOADS).$meta['filename'].'" width="100">', 'thumbnail'),
-						tableCell('<strong>'.$media['title'].'</strong><br><em>'.$meta['filename'].'</em><div class="actions"><a href="?id='.$media['id'].'&action=edit">Edit</a> &bull; <a href="?id='.$media['id'].'&action=delete">Delete</a> &bull; <a href="'.trailingSlash(UPLOADS).$meta['filename'].'" target="_blank">View</a></div>', 'file'),
+						tableCell('<strong>'.$media['title'].'</strong><br><em>'.$meta['filename'].'</em><div class="actions"><a href="?id='.$media['id'].'&action=edit">Edit</a> &bull; <a class="modal-launch delete-item" href="?id='.$media['id'].'&action=delete" data-item="media">Delete</a> &bull; <a href="'.trailingSlash(UPLOADS).$meta['filename'].'" target="_blank">View</a></div>', 'file'),
 						tableCell($meta['alt_text'], 'alt-text'),
 						tableCell(getFileSize(filesize(trailingSlash(PATH.UPLOADS).$meta['filename'])), 'size'),
 						tableCell($dimensions ?? '', 'dimensions'),
@@ -116,6 +113,9 @@ class Media extends Post {
 		<?php
 		// Set up page navigation
 		echo pagerNav($page['current'], $page['count']);
+		
+		// Include the delete modal
+        include_once PATH.ADMIN.INC.'/modal-delete.php';
 	}
 	
 	/**

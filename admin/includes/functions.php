@@ -725,6 +725,7 @@ function formTag($tag_name, $args = null) {
 	
 	// Create an array of whitelisted tags with their properties
 	$whitelisted_props = array(
+		'a'=>array('class', 'href', 'content'),
 		'br'=>array('class'),
 		'div'=>array('id', 'class', 'content'),
 		'hr'=>array('class'),
@@ -785,6 +786,9 @@ function formTag($tag_name, $args = null) {
 			// Create the closing portion of the tag
 			$tag .= '</'.$tag_name.'>';
 		}
+	} else {
+		// Create an empty tag
+		$tag = '';
 	}
 	
 	// Check whether a label argument has been provided

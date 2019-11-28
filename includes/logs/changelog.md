@@ -4,6 +4,46 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 2.1.8[a] (2019-11-27)
+
+* Tweaked documentation in the modal.js file
+* Changed the 'modal-launch' id to a class to work with all modal windows
+* Constructed and styled the delete modal
+* Added the delete modal to the 'List Users' page
+* The upload modal's tabs are now only cleared if the non-active tab is clicked
+* Added extra checks in the modal.js file to determine which modal is being used (delete or upload)
+* Added the delete modal to the 'List Widgets' page
+* Tweaked documentaion in the Profile class
+* Added the delete modal to the 'List Posts' page
+* Tweaked the styling of the upload modal's upload tab
+* Added the delete modal to the 'List Categories' page
+* Tweaked documentaion in the Media class
+* Tweaked the status messages for the 'List Media' page
+* Added the delete modal to the 'List Media' page
+* Added the delete modal to the 'List Menus' page
+* Menu item types are now displayed next to their titles
+* A new menu item's author is now set to the currently logged in user when it is created
+* An empty string will now be returned by the formTag function if the tag name is not whitelisted
+* Added the 'a' tag to the list of whitelisted tags in the formTag function
+* Tweaked styling of the 'Edit Menu Item' form
+* Moved the menu item delete button to within the edit form
+* Removed a status message that displayed when a menu item was successfully edited (the page refreshes immediately so the message is not needed)
+* The menu item parents dropdown is now sorted by item index
+
+**Modified files:**
+* admin/includes/class-category.php
+* admin/includes/class-media.php
+* admin/includes/class-menu.php
+* admin/includes/class-post.php
+* admin/includes/class-profile.php
+* admin/includes/class-user.php
+* admin/includes/class-widget.php
+* admin/includes/functions.php
+* admin/includes/modal-delete.php (N)
+* admin/includes/css/style.css
+* admin/includes/js/modal.js
+
+----------------------------------------------------------------------------------------------------
 ## Version 2.1.7[a] (2019-11-25)
 
 * Rearranged code and tweaked documentation in the admin formTag function
@@ -274,7 +314,7 @@
 * admin/includes/class-profile.php
 * admin/includes/class-user.php
 * admin/includes/functions.php
-* admin/include/css/style.css (M)
+* admin/includes/css/style.css (M)
 * content/admin-themes/forest.css (N)
 * content/admin-themes/ocean.css (N)
 * content/admin-themes/sunset.css (N)

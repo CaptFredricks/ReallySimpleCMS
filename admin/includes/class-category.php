@@ -60,7 +60,7 @@ class Category {
 				// Loop through the categories
 				foreach($categories as $category) {
 					echo tableRow(
-						tableCell('<strong>'.$category['name'].'</strong><div class="actions"><a href="?id='.$category['id'].'&action=edit">Edit</a> &bull; <a href="?id='.$category['id'].'&action=delete">Delete</a></div>', 'name'),
+						tableCell('<strong>'.$category['name'].'</strong><div class="actions"><a href="?id='.$category['id'].'&action=edit">Edit</a> &bull; <a class="modal-launch delete-item" href="?id='.$category['id'].'&action=delete" data-item="category">Delete</a></div>', 'name'),
 						tableCell($category['slug'], 'slug'),
 						tableCell($this->getParent($category['parent']), 'parent'),
 						tableCell($category['count'], 'count')
@@ -76,6 +76,9 @@ class Category {
 		<?php
 		// Set up page navigation
 		echo pagerNav($page['current'], $page['count']);
+		
+		// Include the delete modal
+        include_once PATH.ADMIN.INC.'/modal-delete.php';
 	}
 	
 	/**
