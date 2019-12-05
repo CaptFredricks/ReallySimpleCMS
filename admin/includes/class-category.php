@@ -100,11 +100,11 @@ class Category {
 			<form class="data-form" action="" method="post" autocomplete="off">
 				<table class="form-table">
 					<?php
-					echo formRow(array('Name', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'name', 'value'=>($_POST['name'] ?? '')));
-					echo formRow(array('Slug', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>($_POST['slug'] ?? '')));
+					echo formRow(array('Name', true), array('tag'=>'input', 'id'=>'name-field', 'class'=>'text-input required invalid init', 'name'=>'name', 'value'=>($_POST['name'] ?? '')));
+					echo formRow(array('Slug', true), array('tag'=>'input', 'id'=>'slug-field', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>($_POST['slug'] ?? '')));
 					echo formRow('Parent', array('tag'=>'select', 'class'=>'select-input', 'name'=>'parent', 'content'=>'<option value="0">(none)</option>'.$this->getParentList()));
 					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Create Category'));
+					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Create Category'));
 					?>
 				</table>
 			</form>
@@ -151,11 +151,11 @@ class Category {
 					<form class="data-form" action="" method="post" autocomplete="off">
 						<table class="form-table">
 							<?php
-							echo formRow(array('Name', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'name', 'value'=>$category['name']));
-							echo formRow(array('Slug', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>$category['slug']));
+							echo formRow(array('Name', true), array('tag'=>'input', 'id'=>'name-field', 'class'=>'text-input required invalid init', 'name'=>'name', 'value'=>$category['name']));
+							echo formRow(array('Slug', true), array('tag'=>'input', 'id'=>'slug-field', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>$category['slug']));
 							echo formRow('Parent', array('tag'=>'select', 'class'=>'select-input', 'name'=>'parent', 'content'=>'<option value="0">(none)</option>'.$this->getParentList($category['parent'], $category['id'])));
 							echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-							echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Category'));
+							echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Category'));
 							?>
 						</table>
 					</form>

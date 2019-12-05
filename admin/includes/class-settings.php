@@ -47,7 +47,7 @@ class Settings {
 					echo formRow('Home Page', array('tag'=>'select', 'class'=>'select-input', 'name'=>'home_page', 'content'=>$this->getPageList((int)$setting['home_page'])));
 					echo formRow('Search Engine Visibility', array('tag'=>'input', 'type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'do_robots', 'value'=>(int)$setting['do_robots'], '*'=>$do_robots, 'label'=>array('class'=>'checkbox-label', 'content'=>' <span>Discourage search engines from indexing this site</span>')));
 					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Settings'));
+					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Settings'));
 					?>
 				</table>
 			</form>
@@ -281,7 +281,7 @@ class Settings {
 					echo formRow(array('Name', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'name', 'value'=>($_POST['name'] ?? '')));
 					echo formRow('Privileges', $this->getPrivilegesList());
 					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Create User Role'));
+					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Create User Role'));
 					?>
 				</table>
 			</form>
@@ -331,7 +331,7 @@ class Settings {
 							echo formRow(array('Name', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'name', 'value'=>$role['name']));
 							echo formRow('Privileges', $this->getPrivilegesList($role['id']));
 							echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-							echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update User Role'));
+							echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update User Role'));
 							?>
 						</table>
 					</form>

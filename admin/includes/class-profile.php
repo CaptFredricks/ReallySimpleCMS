@@ -48,7 +48,7 @@ class Profile extends User {
 					echo formRow('Avatar', array('tag'=>'div', 'class'=>'feat-image-wrap'.(!empty($meta['avatar']) ? ' visible' : ''), 'content'=>implode('', array(formTag('img', array('id'=>'media-thumb', 'src'=>getMedia($meta['avatar']), 'width'=>150)), formTag('span', array('id'=>'image-remove', 'title'=>'Remove', 'content'=>formTag('i', array('class'=>'fas fa-times'))))))), array('tag'=>'input', 'type'=>'hidden', 'id'=>'media-type', 'value'=>'image'), array('tag'=>'input', 'type'=>'hidden', 'id'=>'media-id', 'name'=>'avatar', 'value'=>$meta['avatar']), array('tag'=>'input', 'type'=>'button', 'class'=>'button-input button modal-launch', 'value'=>'Choose Image'));
 					echo formRow('Theme', array('tag'=>'select', 'class'=>'select-input', 'name'=>'theme', 'content'=>$this->getThemesList($meta['theme'])));
 					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Profile'));
+					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Profile'));
 					?>
 				</table>
 			</form>
@@ -175,10 +175,10 @@ class Profile extends User {
 				<table class="form-table">
 					<?php
 					echo formRow('Current Password', array('tag'=>'input', 'type'=>'password', 'class'=>'text-input required invalid init', 'name'=>'current_pass'));
-					echo formRow('New Password', array('tag'=>'input', 'id'=>'pw-input', 'class'=>'text-input required invalid init', 'name'=>'new_pass'), array('tag'=>'input', 'type'=>'button', 'id'=>'pw-btn', 'class'=>'button-input button', 'value'=>'Generate Password'), array('tag'=>'br'), array('tag'=>'input', 'type'=>'checkbox', 'id'=>'pw-chk', 'class'=>'checkbox-input', 'name'=>'pass_saved', 'value'=>'checked', 'label'=>array('id'=>'chk-label', 'class'=>'checkbox-label required invalid init', 'content'=>'<span>I have copied the password to a safe place.</span>')));
+					echo formRow('New Password', array('tag'=>'input', 'id'=>'password-field', 'class'=>'text-input required invalid init', 'name'=>'new_pass'), array('tag'=>'input', 'type'=>'button', 'id'=>'password-gen', 'class'=>'button-input button', 'value'=>'Generate Password'), array('tag'=>'br'), array('tag'=>'input', 'type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'pass_saved', 'value'=>'checked', 'label'=>array('class'=>'checkbox-label hidden required invalid init', 'content'=>'<span>I have copied the password to a safe place.</span>')));
 					echo formRow('New Password (confirm)', array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'confirm_pass'));
 					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Password'));
+					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Password'));
 					?>
 				</table>
 			</form>

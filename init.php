@@ -4,6 +4,13 @@
  * @since 1.3.0[a]
  */
 
+// Minimum supported PHP version
+if(!defined('PHP')) define('PHP', '7.3');
+
+// Check whether the server is running the required PHP version
+if(phpversion() < PHP)
+	exit('<p>The minimum version of PHP that is supported by ReallySimpleCMS is '.PHP.'; your server is running on '.phpversion().'. Please upgrade to the minimum required version or higher to use this CMS.</p>');
+
 // Absolute path to the root directory
 if(!defined('PATH')) define('PATH', __DIR__);
 

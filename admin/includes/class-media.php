@@ -68,7 +68,7 @@ class Media extends Post {
 			<thead>
 				<?php
 				// Fill an array with the table header columns
-				$table_header_cols = array('Thumbnail', 'File', 'Alt Text', 'Size', 'Dimensions', 'MIME Type', 'Upload Date');
+				$table_header_cols = array('Thumbnail', 'File', 'Author', 'Upload Date', 'Size', 'Dimensions', 'MIME Type');
 				
 				// Construct the table header
 				echo tableHeaderRow($table_header_cols);
@@ -96,11 +96,11 @@ class Media extends Post {
 					echo tableRow(
 						tableCell('<img src="'.trailingSlash(UPLOADS).$meta['filename'].'" width="100">', 'thumbnail'),
 						tableCell('<strong>'.$media['title'].'</strong><br><em>'.$meta['filename'].'</em><div class="actions"><a href="?id='.$media['id'].'&action=edit">Edit</a> &bull; <a class="modal-launch delete-item" href="?id='.$media['id'].'&action=delete" data-item="media">Delete</a> &bull; <a href="'.trailingSlash(UPLOADS).$meta['filename'].'" target="_blank">View</a></div>', 'file'),
-						tableCell($meta['alt_text'], 'alt-text'),
+						tableCell($this->getAuthor($media['author']), 'author'),
+						tableCell(formatDate($media['date'], 'd M Y @ g:i A'), 'upload-date'),
 						tableCell(getFileSize(filesize(trailingSlash(PATH.UPLOADS).$meta['filename'])), 'size'),
 						tableCell($dimensions ?? '', 'dimensions'),
-						tableCell($meta['mime_type'], 'mime-type'),
-						tableCell(formatDate($media['date'], 'd M Y @ g:i A'), 'upload-date')
+						tableCell($meta['mime_type'], 'mime-type')
 					);
 				}
 				
@@ -148,7 +148,7 @@ class Media extends Post {
 					echo formRow('Alt Text', array('tag'=>'input', 'class'=>'text-input', 'name'=>'alt_text', 'value'=>($_POST['alt_text'] ?? '')));
 					echo formRow('Description', array('tag'=>'textarea', 'class'=>'textarea-input', 'name'=>'description', 'cols'=>30, 'rows'=>10, 'content'=>htmlspecialchars(($_POST['description'] ?? ''))));
 					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Upload Media'));
+					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Upload Media'));
 					?>
 				</table>
 			</form>
@@ -203,7 +203,7 @@ class Media extends Post {
 							echo formRow('Alt Text', array('tag'=>'input', 'class'=>'text-input', 'name'=>'alt_text', 'value'=>$meta['alt_text']));
 							echo formRow('Description', array('tag'=>'textarea', 'class'=>'textarea-input', 'name'=>'description', 'cols'=>30, 'rows'=>10, 'content'=>htmlspecialchars($media['content'])));
 							echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-							echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Media'));
+							echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Media'));
 							?>
 						</table>
 					</form>

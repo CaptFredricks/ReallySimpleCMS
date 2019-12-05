@@ -4,6 +4,39 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 2.1.9[a] (2019-12-04)
+
+* Wrapped some null coalescing operations in parentheses in the Post class
+* Created a new admin theme named Harvest (it uses the old color scheme of the Sunset theme)
+* Updated color scheme for the Sunset theme
+* Updated some CSS classes and ids in all of the admin classes
+* Reordered a function in the Post class
+* Added JavaScript form validation
+* Tweaked the styling of checkboxes on forms
+* Changed the access for the Post::getAuthor function from private to protected
+* Replaced the 'Alt Text' column on the 'List Media' table with an 'Author' column and reordered the 'Upload Date' column
+* Added more documentation to the Query class
+* Tweaked a previous entry in the changelog
+* Created a global constant that holds the minimum required PHP version
+* Added a check to make sure the minimum PHP version or higher is being run on the web server RSCMS is installed on
+
+**Modified files:**
+* init.php
+* admin/includes/class-category.php
+* admin/includes/class-media.php
+* admin/includes/class-menu.php
+* admin/includes/class-post.php
+* admin/includes/class-profile.php
+* admin/includes/class-settings.php
+* admin/includes/class-user.php
+* admin/includes/class-widget.php
+* admin/includes/css/style.css
+* admin/includes/js/script.js
+* content/admin-themes/harvest.css (N)
+* content/admin-themes/sunset.css
+* includes/class-query.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 2.1.8[a] (2019-11-27)
 
 * Tweaked documentation in the modal.js file
@@ -13,11 +46,11 @@
 * The upload modal's tabs are now only cleared if the non-active tab is clicked
 * Added extra checks in the modal.js file to determine which modal is being used (delete or upload)
 * Added the delete modal to the 'List Widgets' page
-* Tweaked documentaion in the Profile class
+* Tweaked documentation in the Profile class
 * Added the delete modal to the 'List Posts' page
 * Tweaked the styling of the upload modal's upload tab
 * Added the delete modal to the 'List Categories' page
-* Tweaked documentaion in the Media class
+* Tweaked documentation in the Media class
 * Tweaked the status messages for the 'List Media' page
 * Added the delete modal to the 'List Media' page
 * Added the delete modal to the 'List Menus' page

@@ -141,13 +141,13 @@ class Post {
 					echo formTag('input', array('type'=>'hidden', 'name'=>'type', 'value'=>$type));
 					
 					// Construct a 'title' form tag
-					echo formTag('input', array('id'=>'title-field', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>$_POST['title'] ?? '', 'placeholder'=>ucfirst($type).' title'));
+					echo formTag('input', array('id'=>'title-field', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>($_POST['title'] ?? ''), 'placeholder'=>ucfirst($type).' title'));
 					?>
 					<div class="permalink">
 						<?php
 						// Construct a 'permalink' form tag
 						echo formTag('label', array('for'=>'slug', 'content'=>'<strong>Permalink:</strong> '.getSetting('site_url', false).'/'));
-						echo formTag('input', array('id'=>'slug-field', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>$_POST['slug'] ?? ''));
+						echo formTag('input', array('id'=>'slug-field', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>($_POST['slug'] ?? '')));
 						echo '/';
 						?>
 					</div>
@@ -179,7 +179,7 @@ class Post {
 						<div id="submit" class="row">
 							<?php
 							// Construct a 'submit' button form tag
-							echo formTag('input', array('type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Publish'));
+							echo formTag('input', array('type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Publish'));
 							?>
 						</div>
 					</div>
@@ -240,7 +240,7 @@ class Post {
 							// Construct a 'meta title' form tag
 							echo formTag('label', array('for'=>'meta_title', 'content'=>'Title'));
 							echo formTag('br');
-							echo formTag('input', array('class'=>'text-input', 'name'=>'meta_title', 'value'=>$_POST['meta_title'] ?? ''));
+							echo formTag('input', array('class'=>'text-input', 'name'=>'meta_title', 'value'=>($_POST['meta_title'] ?? '')));
 							?>
 						</div>
 						<div class="row">
@@ -248,7 +248,7 @@ class Post {
 							// Construct a 'meta description' form tag
 							echo formTag('label', array('for'=>'meta_description', 'content'=>'Description'));
 							echo formTag('br');
-							echo formTag('textarea', array('class'=>'textarea-input', 'name'=>'meta_description', 'cols'=>30, 'rows'=>4, 'content'=>$_POST['meta_description'] ?? ''));
+							echo formTag('textarea', array('class'=>'textarea-input', 'name'=>'meta_description', 'cols'=>30, 'rows'=>4, 'content'=>($_POST['meta_description'] ?? '')));
 							?>
 						</div>
 					</div>
@@ -359,7 +359,7 @@ class Post {
 										echo $post['status'] === 'published' ? '<a href="'.($this->isHomePage($post['id']) ? '/' : $this->getPermalink($post['parent'], $post['slug'])).'">View</a>' : '<a href="/?id='.$post['id'].'&preview=true">Preview</a>';
 										
 										// Construct a 'submit' button form tag
-										echo formTag('input', array('type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update'));
+										echo formTag('input', array('type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update'));
 										?>
 									</div>
 								</div>
@@ -420,7 +420,7 @@ class Post {
 										// Construct a 'meta title' form tag
 										echo formTag('label', array('for'=>'meta_title', 'content'=>'Title'));
 										echo formTag('br');
-										echo formTag('input', array('class'=>'text-input', 'name'=>'meta_title', 'value'=>$meta['title'] ?? ''));
+										echo formTag('input', array('class'=>'text-input', 'name'=>'meta_title', 'value'=>($meta['title'] ?? '')));
 										?>
 									</div>
 									<div class="row">
@@ -428,7 +428,7 @@ class Post {
 										// Construct a 'meta description' form tag
 										echo formTag('label', array('for'=>'meta_description', 'content'=>'Description'));
 										echo formTag('br');
-										echo formTag('textarea', array('class'=>'textarea-input', 'name'=>'meta_description', 'cols'=>30, 'rows'=>4, 'content'=>$meta['description'] ?? ''));
+										echo formTag('textarea', array('class'=>'textarea-input', 'name'=>'meta_description', 'cols'=>30, 'rows'=>4, 'content'=>($meta['description'] ?? '')));
 										?>
 									</div>
 								</div>
@@ -751,14 +751,48 @@ class Post {
 	}
 	
 	/**
+	 * Fetch a post's metadata.
+	 * @since 1.4.10[a]
+	 *
+	 * @access protected
+	 * @param int $id
+	 * @return array
+	 */
+	protected function getPostMeta($id) {
+		// Extend the Query class
+		global $rs_query;
+		
+		// Fetch the post's metadata from the database
+		$postmeta = $rs_query->select('postmeta', array('_key', 'value'), array('post'=>$id));
+		
+		// Create an empty array to hold the metadata
+		$meta = array();
+		
+		// Loop through the metadata
+		foreach($postmeta as $metadata) {
+			// Get the meta values
+			$values = array_values($metadata);
+			
+			// Loop through the individual metadata entries
+			for($i = 0; $i < count($metadata); $i += 2) {
+				// Assign the metadata to the meta array
+				$meta[$values[$i]] = $values[$i + 1];
+			}
+		}
+		
+		// Return the metadata
+		return $meta;
+	}
+	
+	/**
 	 * Fetch a post's author.
 	 * @since 1.4.0[a]
 	 *
-	 * @access private
+	 * @access protected
 	 * @param int $id
 	 * @return string
 	 */
-	private function getAuthor($id) {
+	protected function getAuthor($id) {
 		// Extend the Query class
 		global $rs_query;
 		
@@ -910,40 +944,6 @@ class Post {
 		
 		// Return the list
 		return $list;
-	}
-	
-	/**
-	 * Fetch a post's metadata.
-	 * @since 1.4.10[a]
-	 *
-	 * @access protected
-	 * @param int $id
-	 * @return array
-	 */
-	protected function getPostMeta($id) {
-		// Extend the Query class
-		global $rs_query;
-		
-		// Fetch the post's metadata from the database
-		$postmeta = $rs_query->select('postmeta', array('_key', 'value'), array('post'=>$id));
-		
-		// Create an empty array to hold the metadata
-		$meta = array();
-		
-		// Loop through the metadata
-		foreach($postmeta as $metadata) {
-			// Get the meta values
-			$values = array_values($metadata);
-			
-			// Loop through the individual metadata entries
-			for($i = 0; $i < count($metadata); $i += 2) {
-				// Assign the metadata to the meta array
-				$meta[$values[$i]] = $values[$i + 1];
-			}
-		}
-		
-		// Return the metadata
-		return $meta;
 	}
 	
 	/**

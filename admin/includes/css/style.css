@@ -727,6 +727,10 @@ h3 {
 	transform: translateY(-0.125em);
 }
 
+.data-form #password-gen {
+	margin-left: 0.375em;
+}
+
 .data-form .feat-image-wrap {
 	display: none;
 	max-width: 150px;
@@ -953,11 +957,11 @@ h3 {
 
 /** Required fields **/
 
-.required.invalid {
+.required.invalid:not(label) {
 	border: 2px solid #f00;
 }
 
-.required.valid {
+.required.valid:not(label) {
 	border: 2px solid #0d0;
 }
 
@@ -965,13 +969,21 @@ h3 {
 	border: 2px solid #cdcdcd;
 }
 
-label.required.init {
-	border: none;
-}
-
 .file-input.required.init {
 	border: none;
 	padding-left: 0;
+}
+
+.checkbox-label.invalid {
+	color: #f00;
+}
+
+.checkbox-label.valid {
+	color: #0d0;
+}
+
+.checkbox-label.init {
+	color: #fefefe;
 }
 
 /* Modal */

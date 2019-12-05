@@ -132,7 +132,7 @@ class Menu {
 						<div id="submit" class="row">
 							<?php
 							// Construct the 'submit' button form tag
-							echo formTag('input', array('type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Create'));
+							echo formTag('input', array('type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Create'));
 							?>
 						</div>
 					</div>
@@ -221,7 +221,7 @@ class Menu {
 								<div id="submit" class="row">
 									<?php
 									// Construct the 'submit' button form tag
-									echo formTag('input', array('type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update'));
+									echo formTag('input', array('type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update'));
 									?>
 								</div>
 							</div>
@@ -850,7 +850,7 @@ class Menu {
 				
 				echo formRow('Parent', array('tag'=>'select', 'class'=>'select-input', 'name'=>'parent', 'content'=>'<option value="0">(none)</option>'.$this->getParentList($menu_item['parent'], $menu_item['id'])));
 				echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-				echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'item_submit', 'value'=>'Update'), array('tag'=>'div', 'class'=>'actions', 'content'=>formTag('a', array('class'=>'button', 'href'=>'?id='.$_GET['id'].'&action=edit&item_id='.$menu_item['id'].'&item_action=delete', 'content'=>'Delete'))));
+				echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'item_submit', 'value'=>'Update'), array('tag'=>'div', 'class'=>'actions', 'content'=>formTag('a', array('class'=>'button', 'href'=>'?id='.$_GET['id'].'&action=edit&item_id='.$menu_item['id'].'&item_action=delete', 'content'=>'Delete'))));
 				?>
 			</table>
 		</form>

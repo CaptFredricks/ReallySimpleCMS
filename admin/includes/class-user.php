@@ -128,11 +128,11 @@ class User {
 					echo formRow(array('Email', true), array('tag'=>'input', 'type'=>'email', 'class'=>'text-input required invalid init', 'name'=>'email', 'value'=>($_POST['email'] ?? '')));
 					echo formRow('First Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'first_name', 'value'=>($_POST['first_name'] ?? '')));
 					echo formRow('Last Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'last_name', 'value'=>($_POST['last_name'] ?? '')));
-					echo formRow(array('Password', true), array('tag'=>'input', 'id'=>'pw-input', 'class'=>'text-input required invalid init', 'name'=>'password'), array('tag'=>'input', 'type'=>'button', 'id'=>'pw-btn', 'class'=>'button-input button', 'value'=>'Generate Password'), array('tag'=>'br'), array('tag'=>'input', 'type'=>'checkbox', 'id'=>'pw-chk', 'class'=>'checkbox-input', 'name'=>'pass_saved', 'value'=>'checked', 'label'=>array('id'=>'chk-label', 'class'=>'checkbox-label required invalid init', 'content'=>'<span>I have copied the password to a safe place.</span>')));
+					echo formRow(array('Password', true), array('tag'=>'input', 'id'=>'password-field', 'class'=>'text-input required invalid init', 'name'=>'password'), array('tag'=>'input', 'type'=>'button', 'id'=>'password-gen', 'class'=>'button-input button', 'value'=>'Generate Password'), array('tag'=>'br'), array('tag'=>'input', 'type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'pass_saved', 'value'=>'checked', 'label'=>array('class'=>'checkbox-label hidden required invalid init', 'content'=>'<span>I have copied the password to a safe place.</span>')));
 					echo formRow('Avatar', array('tag'=>'div', 'class'=>'feat-image-wrap', 'content'=>implode('', array(formTag('img', array('id'=>'media-thumb', 'src'=>'//:0', 'width'=>150)), formTag('span', array('id'=>'image-remove', 'title'=>'Remove', 'content'=>formTag('i', array('class'=>'fas fa-times'))))))), array('tag'=>'input', 'type'=>'hidden', 'id'=>'media-type', 'value'=>'image'), array('tag'=>'input', 'type'=>'hidden', 'id'=>'media-id', 'name'=>'avatar', 'value'=>($_POST['avatar'] ?? 0)), array('tag'=>'input', 'type'=>'button', 'class'=>'button-input button modal-launch', 'value'=>'Choose Image'));
 					echo formRow('Role', array('tag'=>'select', 'class'=>'select-input', 'name'=>'role', 'content'=>$this->getRoleList((int)getSetting('default_user_role', false))));
 					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Create User'));
+					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Create User'));
 					?>
 				</table>
 			</form>
@@ -196,7 +196,7 @@ class User {
 								echo formRow('Avatar', array('tag'=>'div', 'class'=>'feat-image-wrap'.(!empty($meta['avatar']) ? ' visible' : ''), 'content'=>implode('', array(formTag('img', array('id'=>'media-thumb', 'src'=>getMedia($meta['avatar']), 'width'=>150)), formTag('span', array('id'=>'image-remove', 'title'=>'Remove', 'content'=>formTag('i', array('class'=>'fas fa-times'))))))), array('tag'=>'input', 'type'=>'hidden', 'id'=>'media-type', 'value'=>'image'), array('tag'=>'input', 'type'=>'hidden', 'id'=>'media-id', 'name'=>'avatar', 'value'=>$meta['avatar']), array('tag'=>'input', 'type'=>'button', 'class'=>'button-input button modal-launch', 'value'=>'Choose Image'));
 								echo formRow('Role', array('tag'=>'select', 'class'=>'select-input', 'name'=>'role', 'content'=>$this->getRoleList($user['role'])));
 								echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-								echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update User'));
+								echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update User'));
 								?>
 							</table>
 						</form>
@@ -457,10 +457,10 @@ class User {
 					<table class="form-table">
 						<?php
 						echo formRow('Admin Password', array('tag'=>'input', 'type'=>'password', 'class'=>'text-input required invalid init', 'name'=>'admin_pass'));
-						echo formRow('New User Password', array('tag'=>'input', 'id'=>'pw-input', 'class'=>'text-input required invalid init', 'name'=>'new_pass'), array('tag'=>'input', 'type'=>'button', 'id'=>'pw-btn', 'class'=>'button-input button', 'value'=>'Generate Password'), array('tag'=>'br'), array('tag'=>'input', 'type'=>'checkbox', 'id'=>'pw-chk', 'class'=>'checkbox-input', 'name'=>'pass_saved', 'value'=>'checked', 'label'=>array('id'=>'chk-label', 'class'=>'checkbox-label required invalid init', 'content'=>' <span>I have copied the password to a safe place.</span>')));
+						echo formRow('New User Password', array('tag'=>'input', 'id'=>'password-field', 'class'=>'text-input required invalid init', 'name'=>'new_pass'), array('tag'=>'input', 'type'=>'button', 'id'=>'password-gen', 'class'=>'button-input button', 'value'=>'Generate Password'), array('tag'=>'br'), array('tag'=>'input', 'type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'pass_saved', 'value'=>'checked', 'label'=>array('class'=>'checkbox-label hidden required invalid init', 'content'=>'<span>I have copied the password to a safe place.</span>')));
 						echo formRow('New User Password (confirm)', array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'confirm_pass'));
 						echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-						echo formRow('', array('tag'=>'input', 'type'=>'submit', 'id'=>'frm-submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Password'));
+						echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Password'));
 						?>
 					</table>
 				</form>

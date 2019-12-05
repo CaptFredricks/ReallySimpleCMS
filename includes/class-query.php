@@ -2,8 +2,8 @@
 /**
  * Core class used to implement the Query object.
  * @since 1.0.0[a]
- * @author Jace Fincham <finchamjace@gmail.com>
- * @copyright (c) 2019, Jace Fincham. All rights reserved.
+ *
+ * This class is the heart of the CMS, providing the primary interface with the database.
  */
 class Query {
 	/**
@@ -99,16 +99,22 @@ class Query {
 				if(is_array($value)) {
 					// Loop through the values
 					foreach($value as $val) {
+						// Check whether the value is a string
 						if(is_string($val)) {
+							// Check whether the value is an inequality operator or another operator
 							if($val === '<>' || $val === '!')
 								$operator = '<>';
-							elseif(strtoupper($val) === 'IN' || strtoupper($val) === 'NOT IN' || strtoupper($val) === 'LIKE')
+							elseif(strtoupper($val) === 'LIKE' || strtoupper($val) === 'IN' || strtoupper($val) === 'NOT IN')
 								$operator = strtoupper($val);
 						}
 						
+						// Skip over the operator value
 						if(strtoupper($val) === $operator) continue;
 						
+						// Add the value to the vals array
 						$vals[] = $val;
+						
+						// Add a placeholder to the placeholders array
 						$placeholders[] = '?';
 					}
 					
@@ -166,6 +172,7 @@ class Query {
 				// Return the query data
                 return $select_query->fetchColumn();
             } else {
+				// Loop through the query data and assign it to the data array
      			while($row = $select_query->fetch(PDO::FETCH_ASSOC))
      				$db_data[] = $row;
 				
@@ -245,22 +252,37 @@ class Query {
 		// Stop execution and throw an error if no data is specified
 		if(empty($data)) exit($this->errorMsg('data'));
 		
+		// Stop execution and throw an error if the data is not provided as an array
 		if(!is_array($data)) exit($this->errorMsg('data_arr'));
 		
+		// Create empty arrays to hold fields, values, and placeholders
 		$fields = $values = $placeholders = array();
 		
+		// Loop through the data
 		foreach($data as $field=>$value) {
+			// Check whether the value is the NOW() function
 			if(strtoupper($value) === 'NOW()') {
+				// Add a field to the fields array
 				$fields[] = $field;
+				
+				// Add a placeholder to the placeholders array
 				$placeholders[] = $value;
 			} else {
+				// Add a field to the fields array
 				$fields[] = $field;
+				
+				// Add a value to the values array
 				$values[] = $value;
+				
+				// Add a placeholder to the placeholders array
 				$placeholders[] = '?';
 			}
 		}
 		
+		// Convert the fields array into a string
 		$fields = implode(', ', $fields);
+		
+		// Convert the placeholders array into a string
 		$placeholders = implode(', ', $placeholders);
 		
 		// Construct the SQL statement
@@ -296,19 +318,28 @@ class Query {
 		// Stop execution and throw an error if no data is specified
 		if(empty($data)) exit($this->errorMsg('data'));
 		
+		// Stop execution and throw an error if the data is not provided as an array
 		if(!is_array($data)) exit($this->errorMsg('data_arr'));
 		
+		// Create empty arrays to hold fields and values
 		$fields = $values = array();
 		
+		// Loop through the data
 		foreach($data as $field=>$value) {
+			// Check whether the value is the NOW() function
 			if(strtoupper($value) === 'NOW()') {
+				// Add a field and value to the fields array
 				$fields[] = $field.' = '.$value;
 			} else {
+				// Add a field and placeholder to the fields array
 				$fields[] = $field.' = ?';
+				
+				// Add a value to the values array
 				$values[] = $value;
 			}
 		}
 		
+		// Convert the fields array into a string
 		$fields = implode(', ', $fields);
 		
 		// Construct the basic SQL statement
@@ -331,10 +362,15 @@ class Query {
 				if(is_array($value)) {
 					// Loop through the values
 					foreach($value as $val) {
+						// Check whether the value is an operator
 						if($val === 'IN' || $val === 'NOT IN') {
+							// Set the operator
 							$operator = $val;
 						} else {
+							// Add the value to the vals array
 							$vals[] = $val;
+							
+							// Add a placeholder to the placeholders array
 							$placeholders[] = '?';
 						}
 					}
