@@ -26,6 +26,7 @@
 				</div>
 			</div>
 			<div class="tab" data-tab="media">
+				<div id="media-type" class="hidden"></div>
 				<div class="media-wrap"></div>
 				<div class="media-details">
 					<h2>Details</h2>

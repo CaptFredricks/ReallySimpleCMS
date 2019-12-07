@@ -4,6 +4,42 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 2.1.10[a] (2019-12-06)
+
+* The globals.php file is now included in the install.php file
+* Reordered properties on the header CSS file imports in the setup.php and install.php files (this is a cosmetic change only)
+* Tweaked documentation in the Query class
+* Tweaked styling of form elements
+* Rearranged some elements on the Profile::resetPassword form and added a new spacer class to the line break tag
+* Rearranged some elements on the User::createUser, User::editUser, and User::resetPassword forms and added a new spacer class to the line break tag
+* Whitelisted more properties in the formTag function
+* Data atrributes can now be used in the formTag function on input tags
+* Tweaked and rearranged some elements on the Post::createPost and Post::editPost forms
+* The content fields of the Post::createPost and Post::editPost forms are now slightly taller
+* Added a hidden 'media type' field to the media tab of the upload modal
+* Tweaked the way the upload modal handles set up (launch) and clean up (closing)
+* Added 'mime type' and 'alt text' data fields to the media items' info
+* Tweaked code in the uploadMediaFile function
+* When a media item is uploaded via the upload modal, its title will now be derived from the slug
+* Media can now be inserted into a post's content
+* Tweaked styling of the admin nav menu
+* Improved styling of the Ocean and Sunset admin themes
+
+**Modified files:**
+* admin/install.php
+* admin/setup.php (M)
+* admin/includes/class-post.php
+* admin/includes/class-profile.php
+* admin/includes/class-user.php
+* admin/includes/functions.php
+* admin/includes/modal-upload.php (M)
+* admin/includes/css/style.css
+* admin/includes/js/modal.js
+* content/admin-themes/ocean.css
+* content/admin-themes/sunset.css
+* includes/class-query.php (M)
+
+----------------------------------------------------------------------------------------------------
 ## Version 2.1.9[a] (2019-12-04)
 
 * Wrapped some null coalescing operations in parentheses in the Post class

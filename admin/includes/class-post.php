@@ -152,11 +152,11 @@ class Post {
 						?>
 					</div>
 					<?php
-					// Construct an 'insert image' button form tag
-					echo formTag('input', array('type'=>'button', 'class'=>'button-input button', 'value'=>'Insert Image'));
+					// Construct an 'insert media' button form tag
+					echo formTag('input', array('type'=>'button', 'class'=>'button-input button modal-launch', 'value'=>'Insert Media', 'data-type'=>'all', 'data-insert'=>'true'));
 					
 					// Construct a 'content' form tag
-					echo formTag('textarea', array('class'=>'textarea-input', 'name'=>'content', 'cols'=>30, 'rows'=>20, 'content'=>htmlspecialchars(($_POST['content'] ?? ''))));
+					echo formTag('textarea', array('class'=>'textarea-input', 'name'=>'content', 'rows'=>25, 'content'=>htmlspecialchars(($_POST['content'] ?? ''))));
 					?>
 				</div>
 				<div class="sidebar">
@@ -222,13 +222,10 @@ class Post {
 								?>
 							</div>
 							<?php
-							// Construct a hidden 'media type' form tag
-							echo formTag('input', array('type'=>'hidden', 'id'=>'media-type', 'value'=>'image'));
-							
 							// Construct a hidden 'featured image' form tag
 							echo formTag('input', array('type'=>'hidden', 'id'=>'media-id', 'name'=>'feat_image', 'value'=>($_POST['feat_image'] ?? 0)));
 							?>
-							<a class="modal-launch" href="javascript:void(0)">Choose Image</a>
+							<a class="modal-launch" href="javascript:void(0)" data-type="image">Choose Image</a>
 						</div>
 					</div>
 				</div>
@@ -322,11 +319,11 @@ class Post {
 									?>
 								</div>
 								<?php
-								// Construct an 'insert image' button form tag
-								echo formTag('input', array('type'=>'button', 'class'=>'button-input button', 'value'=>'Insert Image'));
+								// Construct an 'insert media' button form tag
+								echo formTag('input', array('type'=>'button', 'class'=>'button-input button modal-launch', 'value'=>'Insert Media', 'data-type'=>'all', 'data-insert'=>'true'));
 								
 								// Construct a 'content' form tag
-								echo formTag('textarea', array('class'=>'textarea-input', 'name'=>'content', 'cols'=>30, 'rows'=>20, 'content'=>htmlspecialchars($post['content'])));
+								echo formTag('textarea', array('class'=>'textarea-input', 'name'=>'content', 'rows'=>25, 'content'=>htmlspecialchars($post['content'])));
 								?>
 							</div>
 							<div class="sidebar">
@@ -402,13 +399,10 @@ class Post {
 											?>
 										</div>
 										<?php
-										// Construct a hidden 'media type' form tag
-										echo formTag('input', array('type'=>'hidden', 'id'=>'media-type', 'value'=>'image'));
-										
 										// Construct a hidden 'featured image' form tag
 										echo formTag('input', array('type'=>'hidden', 'id'=>'media-id', 'name'=>'feat_image', 'value'=>$meta['feat_image']));
 										?>
-										<a class="modal-launch" href="javascript:void(0)">Choose Image</a>
+										<a class="modal-launch" href="javascript:void(0)" data-type="image">Choose Image</a>
 									</div>
 								</div>
 							</div>

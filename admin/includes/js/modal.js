@@ -19,6 +19,18 @@ jQuery(document).ready(function($) {
 		
 		// Add 'in' class to the modal
 		$('.modal').addClass('in');
+		
+		// Fetch the type of media that should display in the media library tab
+		$('#media-type').text($(this).data('type'));
+		
+		// Load the media library
+		$('.media-wrap').load($('.tabber #media.tab').children().data('href') + '?media_type=' + $('#media-type').text());
+		
+		// Check whether the clicked button is meant to insert media into the post content
+		if($(this).data('insert') === true) {
+			// Set the 'Select Media' button to insert a selected media item
+			$('#media-select').data('insert', true);
+		}
 	});
 	
 	/**
@@ -74,7 +86,7 @@ jQuery(document).ready(function($) {
 				$('.media-wrap').empty();
 				
 				// Load the media library
-				$('.media-wrap').load($(self).children().data('href') + '?media_type=' + $('#media-type').val());
+				$('.media-wrap').load($(self).children().data('href') + '?media_type=' + $('#media-type').text());
 				
 				// Clear the media details
 				$('.media-details .field').empty();
@@ -170,11 +182,26 @@ jQuery(document).ready(function($) {
 		} else if($('#media').hasClass('active')) {
 			// Check whether a media item has been selected
 			if($('.media-item').hasClass('selected')) {
-				// Fetch the hidden 'id' field and insert it on the form
-				$('#media-id').val($('.media-item.selected .hidden[data-field="id"]').text());
+				// Create an object to hold the media item's data
+				let data = {
+					id: $('.media-item.selected .hidden[data-field="id"]').text(),
+					title: $('.media-item.selected .hidden[data-field="title"]').text(),
+					filename: $('.media-item.selected .hidden[data-field="filename"] a').attr('href'),
+					mime_type: $('.media-item.selected .hidden[data-field="mime_type"]').text(),
+					alt_text: $('.media-item.selected .hidden[data-field="alt_text"]').text()
+				};
 				
-				// Fetch the hidden 'filename' field and insert it on the form
-				$('#media-thumb').attr('src', $('.media-item.selected .hidden[data-field="filename"] a').attr('href'));
+				// Check whether the selected media should be inserted into the post content
+				if($(this).data('insert') === true) {
+					// Insert the media
+					insertMedia($('.content .textarea-input'), data);
+				} else {
+					// Insert the media's id on the form
+					$('#media-id').val(data.id);
+					
+					// Insert the media's filename on the form
+					$('#media-thumb').attr('src', data.filename);
+				}
 			} else {
 				// Set the media's 'id' field to zero
 				$('#media-id').val(0);
@@ -187,6 +214,54 @@ jQuery(document).ready(function($) {
 		// Close the modal
 		modalClose();
 	});
+	
+	/**
+	 * Insert a media item into post content.
+	 * @since 2.1.10[a]
+	 *
+	 * @param object container
+	 * @param object data
+	 * @return null
+	 */
+	function insertMedia(container, data) {
+		// Fetch the text of the container element
+		let text = $(container).val();
+		
+		// Create an object to hold the container's content data
+		let content = {
+			selection_start: $(container).prop('selectionStart'),
+			selection_end: $(container).prop('selectionEnd'),
+			text_before: '',
+			text_after: ''
+		};
+		
+		// Fetch the text before the selection
+		content.text_before = text.substring(0, content.selection_start);
+		
+		// Fetch the text after the selection
+		content.text_after = text.substring(content.selection_end, text.length)
+		
+		// Create an empty variable to hold the media element
+		let media = '';
+		
+		// Determine what kind of HTML tag to construct based on the media's MIME type
+		if(data.mime_type.indexOf('image') !== -1) {
+			// Construct an image tag
+			media = '<img src="' + data.filename + '" alt="' + data.alt_text + '">';
+		} else if(data.mime_type.indexOf('audio') !== -1) {
+			// Construct an audio tag
+			media = '<audio src="' + data.filename + '"></audio>';
+		} else if(data.mime_type.indexOf('video') !== -1) {
+			// Construct a video tag
+			media = '<video src="' + data.filename + '"></video>';
+		} else {
+			// Construct an anchor tag
+			media = '<a href="' + data.filename + '">' + data.title + '</a>';
+		}
+		
+		// Update the container's content
+		$(container).val(content.text_before + media + content.text_after);
+	}
 	
 	/**
 	 * Close an open modal and perform cleanup.
@@ -212,8 +287,8 @@ jQuery(document).ready(function($) {
 			// Reset the upload form
 			$('#media-upload').trigger('reset');
 			
-			// Remove the 'selected' class from any selected media items
-			$('.media-item').removeClass('selected');
+			// Empty the media tab
+			$('.media-wrap').empty();
 			
 			// Clear the media details
 			$('.media-details .field').empty();

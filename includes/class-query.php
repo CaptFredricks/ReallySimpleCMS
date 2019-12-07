@@ -102,10 +102,13 @@ class Query {
 						// Check whether the value is a string
 						if(is_string($val)) {
 							// Check whether the value is an inequality operator or another operator
-							if($val === '<>' || $val === '!')
+							if($val === '<>' || $val === '!') {
+								// Set the operator
 								$operator = '<>';
-							elseif(strtoupper($val) === 'LIKE' || strtoupper($val) === 'IN' || strtoupper($val) === 'NOT IN')
+							} elseif(strtoupper($val) === 'LIKE' || strtoupper($val) === 'IN' || strtoupper($val) === 'NOT IN') {
+								// Set the operator
 								$operator = strtoupper($val);
+							}
 						}
 						
 						// Skip over the operator value
@@ -265,7 +268,7 @@ class Query {
 				// Add a field to the fields array
 				$fields[] = $field;
 				
-				// Add a placeholder to the placeholders array
+				// Add a value to the placeholders array
 				$placeholders[] = $value;
 			} else {
 				// Add a field to the fields array

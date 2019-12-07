@@ -35,8 +35,8 @@ $step = (int)($_GET['step'] ?? 0);
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="robots" content="noindex, nofollow">
-		<link rel="stylesheet" href="<?php echo ADMIN_STYLES.'/install.css'; ?>">
-		<link rel="stylesheet" href="<?php echo STYLES.'/buttons.css'; ?>">
+		<link href="<?php echo ADMIN_STYLES.'/install.css'; ?>" rel="stylesheet">
+		<link href="<?php echo STYLES.'/buttons.css'; ?>" rel="stylesheet">
 	</head>
 	<body>
 		<h1>ReallySimpleCMS</h1>

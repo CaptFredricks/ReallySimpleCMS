@@ -725,17 +725,17 @@ function formTag($tag_name, $args = null) {
 	
 	// Create an array of whitelisted tags with their properties
 	$whitelisted_props = array(
-		'a'=>array('class', 'href', 'content'),
-		'br'=>array('class'),
+		'a'=>array('id', 'class', 'href', 'content'),
+		'br'=>array('id', 'class'),
 		'div'=>array('id', 'class', 'content'),
-		'hr'=>array('class'),
-		'i'=>array('class'),
+		'hr'=>array('id', 'class'),
+		'i'=>array('id', 'class'),
 		'img'=>array('id', 'src', 'width'),
 		'input'=>array('type', 'id', 'class', 'name', 'maxlength', 'value', 'placeholder', '*'),
 		'label'=>array('id', 'class', 'for', 'content'),
-		'select'=>array('class', 'name', 'content'),
+		'select'=>array('id', 'class', 'name', 'content'),
 		'span'=>array('id', 'class', 'title', 'content'),
-		'textarea'=>array('class', 'name', 'cols', 'rows', 'content')
+		'textarea'=>array('id', 'class', 'name', 'cols', 'rows', 'content')
 	);
 	
 	// Create an array of whitelisted tags
@@ -759,7 +759,7 @@ function formTag($tag_name, $args = null) {
 			// Loop through the args
 			foreach($args as $key=>$value) {
 				// Check whether the property has been whitelisted and it does not equal 'content'
-				if(in_array($key, $whitelisted_props[$tag_name], true) && $key !== 'content') {
+				if(in_array($key, $whitelisted_props[$tag_name], true) && $key !== 'content' || strpos($key, 'data-') !== false) {
 					// Check whether the tag is an input and the property is valueless
 					if($tag_name === 'input' && $key === '*') {
 						// Add the property to the tag
@@ -914,7 +914,7 @@ function uploadMediaFile($data) {
 	// File path for the uploads directory
 	$file_path = PATH.UPLOADS;
 	
-	// Check whether the uploads directory exists, and create it if not
+	// Check whether the uploads directory exists and create it if not
 	if(!file_exists($file_path)) mkdir($file_path);
 	
 	// Convert the filename to all lowercase, replace spaces with hyphens, and remove all special characters
@@ -937,7 +937,7 @@ function uploadMediaFile($data) {
 	$session = getOnlineUser($_COOKIE['session']);
 	
 	// Insert the new media into the database
-	$insert_id = $rs_query->insert('posts', array('title'=>'New media', 'author'=>$session['id'], 'date'=>'NOW()', 'content'=>'', 'slug'=>$slug, 'type'=>'media'));
+	$insert_id = $rs_query->insert('posts', array('title'=>ucwords(str_replace('-', ' ', $slug)), 'author'=>$session['id'], 'date'=>'NOW()', 'slug'=>$slug, 'type'=>'media'));
 	
 	// Insert the media's metadata into the database
 	foreach($mediameta as $key=>$value)
@@ -1001,6 +1001,8 @@ function loadMedia($image_only = false) {
 					<div class="hidden" data-field="title"><?php echo $media['title']; ?></div>
 					<div class="hidden" data-field="date"><?php echo formatDate($media['date'], 'd M Y @ g:i A'); ?></div>
 					<div class="hidden" data-field="filename"><a href="<?php echo trailingSlash(UPLOADS).$meta['filename']; ?>" target="_blank"><?php echo $meta['filename']; ?></a></div>
+					<div class="hidden" data-field="mime_type"><?php echo $meta['mime_type']; ?></div>
+					<div class="hidden" data-field="alt_text"><?php echo $meta['alt_text']; ?></div>
 				</div>
 			</div>
 		</div>

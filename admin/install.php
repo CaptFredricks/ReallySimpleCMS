@@ -40,6 +40,9 @@ require_once PATH.INC.'/class-query.php';
 // Create a Query object
 $rs_query = new Query;
 
+// Include global functions
+require_once PATH.INC.'/globals.php';
+
 // Include database configuration and functions
 require_once PATH.ADMIN.INC.'/functions.php';
 
@@ -137,8 +140,8 @@ function runInstall($data) {
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="robots" content="noindex, nofollow">
-		<link rel="stylesheet" href="<?php echo ADMIN_STYLES; ?>/install.css">
-		<link rel="stylesheet" href="<?php echo STYLES; ?>/buttons.css">
+		<link href="<?php echo ADMIN_STYLES; ?>/install.css" rel="stylesheet">
+		<link href="<?php echo STYLES; ?>/buttons.css" rel="stylesheet">
 	</head>
 	<body>
 		<h1>ReallySimpleCMS</h1>

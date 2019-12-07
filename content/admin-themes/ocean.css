@@ -7,6 +7,10 @@ html {
 	background-color: #090f2f;
 }
 
+body {
+	color: #fff;
+}
+
 a {
 	color: #fa96c0;
 }
@@ -22,6 +26,10 @@ a {
 }
 
 /** Site title **/
+
+#site-title {
+	color: #fff;
+}
 
 #site-title:hover {
 	background-color: #090f2f;
@@ -39,6 +47,10 @@ a {
 	background-color: #090f2f;
 }
 
+.user-dropdown-menu li a {
+	color: #fff;
+}
+
 .user-dropdown-menu li a:hover {
 	color: #fa96c0;
 }
@@ -54,12 +66,7 @@ a {
 	border-top-color: #2fbfdf;
 }
 
-#admin-nav-menu .menu > li {
-	border-bottom-color: #2fbfdf;
-}
-
-#admin-nav-menu .menu > li:hover,
-#admin-nav-menu .submenu > li:hover {
+#admin-nav-menu .menu > li:hover {
 	background-color: #090f2f;
 }
 
@@ -70,15 +77,15 @@ a {
 
 #admin-nav-menu .menu > li.current-menu-item > a,
 #admin-nav-menu .menu > li.child-is-current > a {
-	color: #76fab0;
+	color: #fa96c0;
 }
 
 #admin-nav-menu .submenu {
 	background-color: #0f2f6f;
 }
 
-#admin-nav-menu .submenu > li:not(:last-child) {
-	border-bottom-color: #2fbfdf;
+#admin-nav-menu .submenu::before {
+	border-right-color: #0f2f6f;
 }
 
 #admin-nav-menu .submenu > li.current-submenu-item {
@@ -86,7 +93,15 @@ a {
 }
 
 #admin-nav-menu .submenu > li.current-submenu-item > a {
-	color: #76fab0;
+	color: #fa96c0;
+}
+
+#admin-nav-menu .submenu > li > a {
+	color: #eee;
+}
+
+#admin-nav-menu .submenu > li:not(.current-submenu-item):hover > a {
+	color: #26fa70;
 }
 
 /* Footer */
@@ -111,11 +126,11 @@ a {
 /* Statistics graph */
 
 #stats-graph {
-	background-color: #fdbd4d;
+	background-color: #9dedcd;
 }
 
 .graph-content {
-	background-color: #1f4f8f;
+	background-color: #1d5d9d;
 }
 
 .graph-content > li .bar {
@@ -127,15 +142,15 @@ a {
 }
 
 .graph-overlay {
-	background-color: #1f4f8f;
+	background-color: #1d5d9d;
 }
 
 .graph-overlay li {
-	border-bottom-color: #3fcfef;
+	border-bottom-color: #5dbddd;
 }
 
 .graph-x {
-	border-top-color: #edad3d;
+	border-top-color: #7dcdad;
 }
 
 .graph-x .value {
@@ -143,7 +158,7 @@ a {
 }
 
 .graph-y {
-	border-right-color: #edad3d;
+	border-right-color: #7dcdad;
 }
 
 /* Data tables */
@@ -154,7 +169,7 @@ a {
 
 .data-table thead tr,
 .data-table tbody tr:not(:last-child) {
-	border-bottom-color: #2fbfdf;
+	border-bottom-color: #6dbd9d;
 }
 
 .data-table tbody tr:nth-child(odd) {
@@ -162,12 +177,12 @@ a {
 }
 
 .data-table tbody tr:hover {
-	background-color: #affddd;
+	background-color: #adfddd;
 }
 
 .data-table th:not(:last-child),
 .data-table td:not(:last-child) {
-	border-right-color: #2fbfdf;
+	border-right-color: #6dbd9d;
 }
 
 .data-table a {
@@ -187,6 +202,12 @@ a {
 	border-color: #0f3f7f;
 }
 
+/** Required fields **/
+
+.checkbox-label.init {
+	color: #fff;
+}
+
 /* Modal */
 
 .modal-wrap {
@@ -198,17 +219,25 @@ a {
 }
 
 .modal-header .tabber .tab {
-	border-color: #bd7d0d;
+	border-color: #fdbd4d;
 }
 
 .modal-header .tabber .tab:hover {
 	background-color: #0c1f5f;
-	border-color: #dd9d2d;
+	border-color: #fdbd4d;
 }
 
 .modal-header .tabber .tab.active {
 	background-color: #090f2f;
 	border-color: #fdbd4d;
+}
+
+.modal-header .tabber .tab a {
+	color: #fff;
+}
+
+.modal-header #modal-close {
+	color: #fff;
 }
 
 .modal-body {
@@ -232,6 +261,5 @@ a {
 	#admin-nav-menu .menu > li.current-menu-item .submenu,
 	#admin-nav-menu .menu > li.child-is-current .submenu {
 		background-color: #0f3f7f;
-		border-top-color: #2fbfdf;
 	}
 }
