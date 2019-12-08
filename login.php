@@ -25,16 +25,32 @@ $action = $_GET['action'] ?? '';
 <!DOCTYPE html>
 <html>
 	<head>
-		<title><?php getSetting('site_title'); ?> &rtrif; <?php echo empty($action) ? 'Log In' : ucwords(str_replace('_', ' ', $action)); ?></title>
+		<title><?php echo empty($action) ? 'Log In' : ucwords(str_replace('_', ' ', $action)); ?> &rtrif; <?php getSetting('site_title'); ?></title>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="robots" content="noindex, nofollow">
+		<link type="image/x-icon" href="<?php echo getMedia(getSetting('site_icon', false)); ?>" rel="icon">
 		<?php getStylesheet('style.css'); ?>
-		<?php getStylesheet('buttons.css'); ?>
+		<?php getStylesheet('button.min.css'); ?>
 	</head>
 	<body class="login">
 		<div class="wrapper">
-			<h1><a href="/"><?php getSetting('site_title'); ?></a></h1>
+			<h1>
+				<a href="/">
+					<?php
+					// Check whether a site logo has been set
+					if(!empty(getSetting('site_logo', false))) {
+						// Display the site logo
+						?>
+						<img src="<?php echo getMedia(getSetting('site_logo', false)); ?>" title="<?php getSetting('site_title'); ?>">
+						<?php
+					} else {
+						// Display the site title
+						getSetting('site_title');
+					}
+					?>
+				</a>
+			</h1>
 			<?php
 			switch($action) {
 				case 'logout':

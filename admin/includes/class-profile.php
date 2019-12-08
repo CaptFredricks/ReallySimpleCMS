@@ -33,8 +33,8 @@ class Profile extends User {
 			// Display any returned messages
 			echo $message;
 
-			// Refresh the page after 3 seconds
-			echo isset($_POST['submit']) ? '<meta http-equiv="refresh" content="3">' : '';
+			// Refresh the page after 2 seconds
+			echo isset($_POST['submit']) ? '<meta http-equiv="refresh" content="2">' : '';
 			?>
 		</div>
 		<div class="data-form-wrap clear">
@@ -45,7 +45,7 @@ class Profile extends User {
 					echo formRow(array('Email', true), array('tag'=>'input', 'type'=>'email', 'class'=>'text-input required invalid init', 'name'=>'email', 'value'=>$user['email']));
 					echo formRow('First Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'first_name', 'value'=>$meta['first_name']));
 					echo formRow('Last Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'last_name', 'value'=>$meta['last_name']));
-					echo formRow('Avatar', array('tag'=>'div', 'class'=>'feat-image-wrap'.(!empty($meta['avatar']) ? ' visible' : ''), 'content'=>implode('', array(formTag('img', array('id'=>'media-thumb', 'src'=>getMedia($meta['avatar']), 'width'=>150)), formTag('span', array('id'=>'image-remove', 'title'=>'Remove', 'content'=>formTag('i', array('class'=>'fas fa-times'))))))), array('tag'=>'input', 'type'=>'hidden', 'id'=>'media-type', 'value'=>'image'), array('tag'=>'input', 'type'=>'hidden', 'id'=>'media-id', 'name'=>'avatar', 'value'=>$meta['avatar']), array('tag'=>'input', 'type'=>'button', 'class'=>'button-input button modal-launch', 'value'=>'Choose Image', 'data-type'=>'image'));
+					echo formRow('Avatar', array('tag'=>'div', 'class'=>'image-wrap'.(!empty($meta['avatar']) ? ' visible' : ''), 'content'=>formTag('img', array('src'=>getMedia($meta['avatar']), 'width'=>150, 'data-field'=>'thumb')).formTag('span', array('class'=>'image-remove', 'title'=>'Remove', 'content'=>formTag('i', array('class'=>'fas fa-times'))))), array('tag'=>'input', 'type'=>'hidden', 'name'=>'avatar', 'value'=>$meta['avatar'], 'data-field'=>'id'), array('tag'=>'input', 'type'=>'button', 'class'=>'button-input button modal-launch', 'value'=>'Choose Image', 'data-type'=>'image'));
 					echo formRow('Theme', array('tag'=>'select', 'class'=>'select-input', 'name'=>'theme', 'content'=>$this->getThemesList($meta['theme'])));
 					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
 					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Profile'));

@@ -5,7 +5,7 @@
  */
 
 // Current CMS version
-const VERSION = '2.1.10';
+const VERSION = '2.1.11';
 
 /**
  * Display the copyright information on the admin dashboard.
@@ -202,6 +202,30 @@ function userHasPrivilege($role, $privilege) {
 	
 	// Return true if the relationship count is greater than zero
 	return $relationship > 0;
+}
+
+/**
+ * Fetch the URL of a specified media item.
+ * @since 2.1.5[a]
+ *
+ * @param int $id
+ * @return string
+ */
+function getMedia($id) {
+	// Extend the Query class
+	global $rs_query;
+	
+	// Fetch the media from the database
+	$media = $rs_query->selectField('postmeta', 'value', array('post'=>$id, '_key'=>'filename'));
+	
+	// Check whether the media exists
+	if(!empty($media)) {
+		// Return the path to the media
+		return trailingSlash(UPLOADS).$media;
+	} else {
+		// Return an empty path
+		return '//:0';
+	}
 }
 
 /**

@@ -107,33 +107,15 @@ jQuery(document).ready(function($) {
 	\*------------------------------*/
 	
 	/**
-	 * Display a post's featured image.
-	 * @since 2.1.4[a]
-	 */
-	$('#media-select').on('click', function() {
-		// Check whether the thumbnail's source points to an image
-		if($('#media-thumb').attr('src') !== '//:0' && $('#media-thumb').attr('src') !== '') {
-			// Display the featured image
-			$('.feat-image-wrap').addClass('visible');
-			
-			// Remove the greyed out effect from the media thumbnail
-			$('#media-thumb').removeClass('greyout');
-		} else {
-			// Hide the featured image
-			$('.feat-image-wrap').removeClass('visible');
-		}
-	});
-	
-	/**
 	 * Remove an image.
 	 * @since 2.1.5[a]
 	 */
-	$('#image-remove').on('click', function() {
+	$('.image-remove').on('click', function() {
 		// Set the media's id field to zero
-		$('#media-id').val(0);
+		$(this).parent().siblings('input[data-field="id"]').val(0);
 		
 		// Grey out the media thumbnail
-		$('#media-thumb').addClass('greyout');
+		$(this).siblings('img[data-field="thumb"]').addClass('greyout');
 	});
 	
 	/*------------------------------*\

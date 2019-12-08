@@ -212,18 +212,18 @@ class Post {
 					<div class="block">
 						<h2>Featured Image</h2>
 						<div class="row">
-							<div class="feat-image-wrap">
+							<div class="image-wrap">
 								<?php
 								// Construct an image tag to display the featured image thumbnail
-								echo formTag('img', array('id'=>'media-thumb', 'src'=>'//:0', 'width'=>'100%'));
+								echo formTag('img', array('src'=>'//:0', 'width'=>'100%', 'data-field'=>'thumb'));
 								
 								// Construct a span tag to display the 'remove image' button
-								echo formTag('span', array('id'=>'image-remove', 'title'=>'Remove', 'content'=>formTag('i', array('class'=>'fas fa-times'))));
+								echo formTag('span', array('class'=>'image-remove', 'title'=>'Remove', 'content'=>formTag('i', array('class'=>'fas fa-times'))));
 								?>
 							</div>
 							<?php
 							// Construct a hidden 'featured image' form tag
-							echo formTag('input', array('type'=>'hidden', 'id'=>'media-id', 'name'=>'feat_image', 'value'=>($_POST['feat_image'] ?? 0)));
+							echo formTag('input', array('type'=>'hidden', 'name'=>'feat_image', 'value'=>($_POST['feat_image'] ?? 0), 'data-field'=>'id'));
 							?>
 							<a class="modal-launch" href="javascript:void(0)" data-type="image">Choose Image</a>
 						</div>
@@ -389,18 +389,18 @@ class Post {
 								<div class="block">
 									<h2>Featured Image</h2>
 									<div class="row">
-										<div class="feat-image-wrap<?php echo !empty($meta['feat_image']) ? ' visible' : ''; ?>">
+										<div class="image-wrap<?php echo !empty($meta['feat_image']) ? ' visible' : ''; ?>">
 											<?php
 											// Construct an image tag to display the featured image thumbnail
-											echo formTag('img', array('id'=>'media-thumb', 'src'=>getMedia($meta['feat_image']), 'width'=>'100%'));
+											echo formTag('img', array('src'=>getMedia($meta['feat_image']), 'width'=>'100%', 'data-field'=>'thumb'));
 											
 											// Construct a span tag to display the 'remove image' button
-											echo formTag('span', array('id'=>'image-remove', 'title'=>'Remove', 'content'=>formTag('i', array('class'=>'fas fa-times'))));
+											echo formTag('span', array('class'=>'image-remove', 'title'=>'Remove', 'content'=>formTag('i', array('class'=>'fas fa-times'))));
 											?>
 										</div>
 										<?php
 										// Construct a hidden 'featured image' form tag
-										echo formTag('input', array('type'=>'hidden', 'id'=>'media-id', 'name'=>'feat_image', 'value'=>$meta['feat_image']));
+										echo formTag('input', array('type'=>'hidden', 'name'=>'feat_image', 'value'=>$meta['feat_image'], 'data-field'=>'id'));
 										?>
 										<a class="modal-launch" href="javascript:void(0)" data-type="image">Choose Image</a>
 									</div>

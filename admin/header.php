@@ -23,16 +23,31 @@ $current_page = getCurrentPage();
 <!DOCTYPE html>
 <html>
 	<head>
-		<title><?php getSetting('site_title'); ?> &rtrif; Admin Dashboard</title>
+		<title><?php echo getPageTitle(); ?> &rtrif; <?php getSetting('site_title'); ?> &mdash; ReallySimpleCMS</title>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="robots" content="noindex, nofollow">
 		<meta name="theme-color" content="#e0e0e0">
+		<link type="image/x-icon" href="<?php echo getMedia(getSetting('site_icon', false)); ?>" rel="icon">
 		<?php adminHeaderScripts(); ?>
 	</head>
 	<body class="<?php echo $current_page; ?>">
 		<header id="admin-header">
-			<a id="site-title" href="/"><?php getSetting('site_title'); ?></a>
+			<a id="site-title" href="/">
+				<?php
+				// Check whether a site logo has been set
+				if(!empty(getSetting('site_logo', false))) {
+					// Display the site logo
+					?>
+					<img src="<?php echo getMedia(getSetting('site_logo', false)); ?>" height="20">
+					<span><?php getSetting('site_title'); ?></span>
+					<?php
+				} else {
+					// Display the site title
+					getSetting('site_title');
+				}
+				?>
+			</a>
 			<div class="user-dropdown">
 				<span>Welcome, <?php echo $session['username']; ?></span>
 				<img class="avatar" src="<?php echo !empty($session['avatar']) ? trailingSlash(UPLOADS).$session['avatar'] : '//:0'; ?>" width="20" height="20">
@@ -53,7 +68,7 @@ $current_page = getCurrentPage();
 				adminNavMenuItem(array('id'=>'media'), array(array('link'=>'media.php', 'caption'=>'List Media'), array('id'=>'media-upload', 'link'=>'media.php?action=upload', 'caption'=>'Upload Media')), 'images');
 				adminNavMenuItem(array('id'=>'customization'), array(array('id'=>'menus', 'link'=>'menus.php', 'caption'=>'List Menus'), array('id'=>'widgets', 'link'=>'widgets.php', 'caption'=>'List Widgets')), 'palette');
 				adminNavMenuItem(array('id'=>'users'), array(array('link'=>'users.php', 'caption'=>'List Users'), array('id'=>'users-create', 'link'=>'users.php?action=create', 'caption'=>'Create User'), array('id'=>'profile', 'link'=>'profile.php', 'caption'=>'Your Profile')), 'users');
-				adminNavMenuItem(array('id'=>'settings'), array(array('link'=>'settings.php', 'caption'=>'General'), array('id'=>'user-roles', 'link'=>'settings.php?page=user_roles', 'caption'=>'User Roles')), 'cogs');
+				adminNavMenuItem(array('id'=>'settings'), array(array('link'=>'settings.php', 'caption'=>'General'), array('id'=>'design', 'link'=>'settings.php?page=design', 'caption'=>'Design'), array('id'=>'user-roles', 'link'=>'settings.php?page=user_roles', 'caption'=>'User Roles')), 'cogs');
 				?>
 			</ul>
 		</nav>

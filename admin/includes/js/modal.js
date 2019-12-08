@@ -6,11 +6,17 @@ jQuery(document).ready(function($) {
 	// Turn on strict mode
 	'use strict';
 	
+	// Create a varible to hold the clicked modal launch button
+	let clicked_button = null;
+	
 	/**
 	 * Launch a modal window.
 	 * @since 2.1.1[a]
 	 */
 	$('.modal-launch').on('click', function() {
+		// Set the clicked button to the button that was clicked
+		clicked_button = $(this);
+		
 		// Add 'modal-open' class to the body tag
 		$('body').addClass('modal-open');
 		
@@ -173,11 +179,29 @@ jQuery(document).ready(function($) {
 		if($('#upload').hasClass('active')) {
 			// Check whether the hidden fields are in the result
 			if($('.upload-result .hidden[data-field="id"]').length && $('.upload-result .hidden[data-field="filename"]').length) {
-				// Fetch the hidden 'id' field and insert it on the form
-				$('#media-id').val($('.upload-result .hidden[data-field="id"]').text());
+				// Create an object to hold the media item's data
+				let data = {
+					id: $('.upload-result .hidden[data-field="id"]').text(),
+					title: $('.upload-result .hidden[data-field="title"]').text(),
+					filename: $('.upload-result .hidden[data-field="filename"]').text(),
+					mime_type: $('.upload-result .hidden[data-field="mime_type"]').text()
+				};
 				
-				// Fetch the hidden 'filename' field and insert it on the form
-				$('#media-thumb').attr('src', $('.upload-result .hidden[data-field="filename"]').text());
+				// Check whether the uploaded media should be inserted into post content
+				if($(this).data('insert') === true) {
+					// Insert the media
+					insertMedia($('.content .textarea-input'), data);
+				} else {
+					// Insert the media's id on the form
+					$(clicked_button).siblings('input[data-field="id"]').val(data.id);
+					
+					// Insert the media's filename on the form
+					$(clicked_button).siblings('.image-wrap').children('img[data-field="thumb"]').attr('src', data.filename);
+					
+					// Check whether the image wrap is visible and make it visible if it isn't
+					if(!$(clicked_button).siblings('.image-wrap').hasClass('visible'))
+						$(clicked_button).siblings('.image-wrap').addClass('visible');
+				}
 			}
 		} else if($('#media').hasClass('active')) {
 			// Check whether a media item has been selected
@@ -191,16 +215,23 @@ jQuery(document).ready(function($) {
 					alt_text: $('.media-item.selected .hidden[data-field="alt_text"]').text()
 				};
 				
-				// Check whether the selected media should be inserted into the post content
+				// Check whether the selected media should be inserted into post content
 				if($(this).data('insert') === true) {
 					// Insert the media
 					insertMedia($('.content .textarea-input'), data);
+					
+					console.log('i am here');
 				} else {
+					console.log('i am here too');
 					// Insert the media's id on the form
-					$('#media-id').val(data.id);
+					$(clicked_button).siblings('input[data-field="id"]').val(data.id);
 					
 					// Insert the media's filename on the form
-					$('#media-thumb').attr('src', data.filename);
+					$(clicked_button).siblings('.image-wrap').children('img[data-field="thumb"]').attr('src', data.filename);
+					
+					// Check whether the image wrap is visible and make it visible if it isn't
+					if(!$(clicked_button).siblings('.image-wrap').hasClass('visible'))
+						$(clicked_button).siblings('.image-wrap').addClass('visible');
 				}
 			} else {
 				// Set the media's 'id' field to zero
@@ -209,6 +240,18 @@ jQuery(document).ready(function($) {
 				// Set the media's thumbnail to an empty value
 				$('#media-thumb').attr('src', '//:0');
 			}
+		}
+		
+		// Check whether the thumbnail's source points to an image
+		if($(clicked_button).siblings('.image-wrap').children('img[data-field="thumb"]').attr('src') !== '//:0' && $(clicked_button).siblings('.image-wrap').children('img[data-field="thumb"]').attr('src') !== '') {
+			// Display the featured image
+			$(clicked_button).siblings('.image-wrap').addClass('visible');
+			
+			// Remove the greyed out effect from the media thumbnail
+			$(clicked_button).siblings('.image-wrap').children('img[data-field="thumb"]').removeClass('greyout');
+		} else {
+			// Hide the featured image
+			$(clicked_button).siblings('.image-wrap').removeClass('visible');
 		}
 		
 		// Close the modal
@@ -247,7 +290,7 @@ jQuery(document).ready(function($) {
 		// Determine what kind of HTML tag to construct based on the media's MIME type
 		if(data.mime_type.indexOf('image') !== -1) {
 			// Construct an image tag
-			media = '<img src="' + data.filename + '" alt="' + data.alt_text + '">';
+			media = '<img src="' + data.filename + '" alt="' + (data.hasOwnProperty('alt_text') ? data.alt_text : '') + '">';
 		} else if(data.mime_type.indexOf('audio') !== -1) {
 			// Construct an audio tag
 			media = '<audio src="' + data.filename + '"></audio>';
@@ -296,5 +339,8 @@ jQuery(document).ready(function($) {
 			// Disable the 'Select Media' button
 			$('#media-select').prop('disabled', true);
 		}
+		
+		// Unset the media insert data
+		$('#media-select').data('insert', false);
 	}
 });

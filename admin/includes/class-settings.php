@@ -56,6 +56,58 @@ class Settings {
 	}
 	
 	/**
+	 * Construct a list of design settings.
+	 * @since 2.1.11[a]
+	 *
+	 * @access public
+	 * @return null
+	 */
+	public function designSettings() {
+		// Extend the Query class
+		global $rs_query;
+		
+		// Validate the form data and return any messages
+		$message = isset($_POST['submit']) ? $this->validateSettingsData($_POST) : '';
+		
+		// Fetch all settings from the database
+		$db_settings = $rs_query->select('settings', '*');
+		
+		// Loop through the settings
+		foreach($db_settings as $db_setting)
+			$setting[$db_setting['name']] = $db_setting['value'];
+		?>
+		<div class="heading-wrap">
+			<h1>Design Settings</h1>
+			<?php
+			// Display any returned messages
+			echo $message;
+			
+			// Refresh the page after 2 seconds
+			echo isset($_POST['submit']) ? '<meta http-equiv="refresh" content="2">' : '';
+			?>
+		</div>
+		<div class="data-form-wrap clear">
+			<form class="data-form" action="" method="post" autocomplete="off">
+				<?php
+				// Construct a hidden 'page' form tag
+				echo formTag('input', array('type'=>'hidden', 'name'=>'page', 'value'=>'design'));
+				?>
+				<table class="form-table">
+					<?php
+					echo formRow('Site Logo', array('tag'=>'div', 'class'=>'image-wrap'.(!empty($setting['site_logo']) ? ' visible' : ''), 'content'=>formTag('img', array('src'=>getMedia($setting['site_logo']), 'width'=>150, 'data-field'=>'thumb')).formTag('span', array('class'=>'image-remove', 'title'=>'Remove', 'content'=>formTag('i', array('class'=>'fas fa-times'))))), array('tag'=>'input', 'type'=>'hidden', 'name'=>'site_logo', 'value'=>$setting['site_logo'], 'data-field'=>'id'), array('tag'=>'input', 'type'=>'button', 'class'=>'button-input button modal-launch', 'value'=>'Choose Image', 'data-type'=>'image'));
+					echo formRow('Site Icon', array('tag'=>'div', 'class'=>'image-wrap'.(!empty($setting['site_icon']) ? ' visible' : ''), 'content'=>formTag('img', array('src'=>getMedia($setting['site_icon']), 'width'=>150, 'data-field'=>'thumb')).formTag('span', array('class'=>'image-remove', 'title'=>'Remove', 'content'=>formTag('i', array('class'=>'fas fa-times'))))), array('tag'=>'input', 'type'=>'hidden', 'name'=>'site_icon', 'value'=>$setting['site_icon'], 'data-field'=>'id'), array('tag'=>'input', 'type'=>'button', 'class'=>'button-input button modal-launch', 'value'=>'Choose Image', 'data-type'=>'image'));
+					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
+					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Settings'));
+					?>
+				</table>
+			</form>
+		</div>
+		<?php
+		// Include the upload modal
+		include_once PATH.ADMIN.INC.'/modal-upload.php';
+	}
+	
+	/**
 	 * Validate the settings form data.
 	 * @since 1.3.7[a]
 	 *
@@ -70,39 +122,46 @@ class Settings {
 		// Remove 'submit' from data
 		array_pop($data);
 		
-		// Make sure no required fields are empty
-		if(empty($data['site_title']) || empty($data['site_url']) || empty($data['admin_email']))
-			return statusMessage('R');
-		
-		// Set the value of 'do_robots'
-		$data['do_robots'] = isset($data['do_robots']) ? 0 : 1;
-		
-		// Fetch current value of 'do_robots' in the database
-		$do_robots = $rs_query->selectField('settings', 'value', array('name'=>'do_robots'));
-		
-		// Update the settings in the database
-		foreach($data as $name=>$value)
-			$rs_query->update('settings', array('value'=>$value), array('name'=>$name));
-		
-		// File path for robots.txt
-		$file_path = PATH.'/robots.txt';
-		
-		// Fetch the robots.txt file
-		$file = file($file_path, FILE_IGNORE_NEW_LINES);
-		
-		// Check whether 'do_robots' has changed
-		if($data['do_robots'] !== (int)$do_robots) {
-			// Check whether 'do_robots' is set
-			if($data['do_robots'] === 0) {
-				// Block robots from crawling the site
-				$file[1] = 'Disallow: /';
-			} else {
-				// Allow crawling to all directories except for /admin/
-				$file[1] = 'Disallow: /admin/';
-			}
+		// Check whether a settings page has been specified
+		if(isset($data['page'])) {
+			// Update the settings in the database
+			foreach($data as $name=>$value)
+				$rs_query->update('settings', array('value'=>$value), array('name'=>$name));
+		} else {
+			// Make sure no required fields are empty
+			if(empty($data['site_title']) || empty($data['site_url']) || empty($data['admin_email']))
+				return statusMessage('R');
 			
-			// Output changes to the file
-			file_put_contents($file_path, implode(chr(10), $file));
+			// Set the value of 'do_robots'
+			$data['do_robots'] = isset($data['do_robots']) ? 0 : 1;
+			
+			// Fetch current value of 'do_robots' in the database
+			$do_robots = $rs_query->selectField('settings', 'value', array('name'=>'do_robots'));
+			
+			// Update the settings in the database
+			foreach($data as $name=>$value)
+				$rs_query->update('settings', array('value'=>$value), array('name'=>$name));
+			
+			// File path for robots.txt
+			$file_path = PATH.'/robots.txt';
+			
+			// Fetch the robots.txt file
+			$file = file($file_path, FILE_IGNORE_NEW_LINES);
+			
+			// Check whether 'do_robots' has changed
+			if($data['do_robots'] !== (int)$do_robots) {
+				// Check whether 'do_robots' is set
+				if($data['do_robots'] === 0) {
+					// Block robots from crawling the site
+					$file[1] = 'Disallow: /';
+				} else {
+					// Allow crawling to all directories except for /admin/
+					$file[1] = 'Disallow: /admin/';
+				}
+				
+				// Output changes to the file
+				file_put_contents($file_path, implode(chr(10), $file));
+			}
 		}
 		
 		// Return a success message

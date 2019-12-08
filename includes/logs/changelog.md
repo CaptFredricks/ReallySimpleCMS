@@ -1,7 +1,57 @@
 ----------------------------------------------------------------------------------------------------
-*Legend: N - new file, D - deprecated file, R - removed file, M - minor change*<br>
+*Legend: N - new file, D - deprecated file, R - renamed file, X - removed file, M - minor change*<br>
 *Versions: X.x.x (major releases), x.X.x (standard releases), x.x.X (minor releases/bug fixes)*<br>
 *Other: [a] - alpha, [b] - beta*
+
+----------------------------------------------------------------------------------------------------
+## Version 2.1.11[a] (2019-12-07)
+
+* Improved styling of the setup and installation forms
+* Created minified versions of several CSS files
+* Renamed buttons.css to button.css
+* The setup and installation pages now load minified resources
+* Renamed fa-icons.css to font-awesome.min.css
+* All admin pages now load some minified resources (the rest will be changed later)
+* The log in and reset password pages now load some minified resources (the rest will be changed later)
+* The log in and reset password page titles now display the page name before the site name
+* Created a function that fetches the title of an admin page
+* Tweaked documentation in the getCurrentPage function
+* Added a 'Design Settings' page link to the admin menu
+* Created the 'Design Settings' pageu
+* Renamed the 'feat-image-wrap' CSS class to 'image-wrap'
+* Cleaned up some code in the Profile::editProfile function
+* Settings entries for 'site_logo' and 'site_icon' are now created during installation
+* Cleaned up some code in the User::createUser and User::editUser functions
+* A notice is now displayed on the media library tab of the upload modal if the media library is empty
+* Files uploaded through the upload modal can now be inserted into a post's content
+* Updated the upload functionality to accomodate multiple image fields on the same page
+* The site logo is now displayed on the admin header bar
+* The site icon is now displayed on the page tab
+* Moved the getMedia function from the admin functions.php file to the globals.php file
+* The site icon and site logo are now both displayed on the log in and reset password pages
+* When a user's profile form is submitted, it now refreshes after only 2 seconds (reduced from 3)
+
+**Modified files:**
+* login.php
+* admin/header.php
+* admin/install.php (M)
+* admin/settings.php
+* admin/setup.php (M)
+* admin/includes/class-post.php
+* admin/includes/class-profile.php
+* admin/includes/class-settings.php
+* admin/includes/class-user.php
+* admin/includes/functions.php
+* admin/includes/css/install.css
+* admin/includes/css/install.min.css (N)
+* admin/includes/css/style.css
+* admin/includes/js/modal.js
+* admin/includes/js/script.js
+* includes/globals.php
+* includes/css/button.css (R)
+* includes/css/button.min.css (N)
+* includes/css/font-awesome.min.css (R)
+* includes/css/style.css
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.1.10[a] (2019-12-06)
@@ -21,7 +71,7 @@
 * Added 'mime type' and 'alt text' data fields to the media items' info
 * Tweaked code in the uploadMediaFile function
 * When a media item is uploaded via the upload modal, its title will now be derived from the slug
-* Media can now be inserted into a post's content
+* Media in the media library can now be inserted into a post's content
 * Tweaked styling of the admin nav menu
 * Improved styling of the Ocean and Sunset admin themes
 
@@ -1206,8 +1256,8 @@
 * Updated documentation in the deprecated.php file
 
 **Modified files:**
-* footer.php (R)
-* header.php (R)
+* footer.php (X)
+* header.php (X)
 * index.php
 * init.php (M)
 * content/footer.php (N)
@@ -1498,7 +1548,7 @@
 * admin/includes/functions.php
 * includes/functions.php
 * includes/globals.php
-* includes/logs/changelog.md
+* includes/logs/changelog.md (R)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.3.8[a] (2019-03-29)

@@ -17,6 +17,10 @@ $rs_settings = new Settings;
 	$id = (int)($_GET['id'] ?? 0);
 	
 	switch($page) {
+		case 'design':
+			// Design settings
+			userHasPrivilege($session['role'], 'can_edit_settings') ? $rs_settings->designSettings() : redirect('index.php');
+			break;
 		case 'user_roles':
 			switch($action) {
 				case 'create':

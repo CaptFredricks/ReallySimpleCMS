@@ -25,7 +25,7 @@ function getCurrentPage() {
 	// Extend the Query class
 	global $rs_query;
 	
-	// Extract the current page from the PHP filename
+	// Extract the current page from the filename
 	$current = basename($_SERVER['PHP_SELF'], '.php');
 	
 	// Check whether the server request contains a query string
@@ -96,6 +96,40 @@ function getCurrentPage() {
 }
 
 /**
+ * Fetch an admin page's title.
+ * @since 2.1.11[a]
+ *
+ * @return string
+ */
+function getPageTitle() {
+	// Extend the Query class
+	global $rs_query;
+	
+	// Perform some checks based on what the current page is
+	if(basename($_SERVER['PHP_SELF']) === 'index.php')
+		$title = 'Dashboard';
+	elseif(isset($_GET['type'])) {
+		// Replace any underscores with spaces and capitalize each word
+		$title = ucwords(str_replace('_', ' ', $_GET['type'].'s'));
+	} elseif(basename($_SERVER['PHP_SELF']) === 'posts.php' && isset($_GET['action']) && $_GET['action'] === 'edit') {
+		// Fetch the post's type from the database
+		$type = $rs_query->selectField('posts', 'type', array('id'=>$_GET['id']));
+		
+		// Replace any underscores with spaces and capitalize each word
+		$title = ucwords(str_replace('_', ' ', $type.'s'));
+	} elseif(isset($_GET['page']) && $_GET['page'] === 'user_roles') {
+		// Replace any underscores with spaces and capitalize each word
+		$title = ucwords(str_replace('_', ' ', $_GET['page']));
+	} else {
+		// Extract the page title from the filename and capitalize it
+		$title = ucfirst(basename($_SERVER['PHP_SELF'], '.php'));
+	}
+	
+	// Return the title
+	return $title;
+}
+
+/**
  * Fetch an admin script file.
  * @since 1.2.0[a]
  *
@@ -138,7 +172,7 @@ function adminHeaderScripts() {
 	global $session;
 	
 	// Buttons stylesheet
-	getStylesheet('buttons.css');
+	getStylesheet('button.min.css');
 	
 	// Admin stylesheet
 	getAdminStylesheet('style.css');
@@ -156,7 +190,7 @@ function adminHeaderScripts() {
 	}
 	
 	// Font Awesome icons stylesheet
-	getStylesheet('fa-icons.css', '5.11.2');
+	getStylesheet('font-awesome.min.css', '5.11.2');
 	
 	// JQuery library
 	getScript('jquery.min.js', '3.4.1');
@@ -341,7 +375,7 @@ function populateTables($user_data, $settings_data) {
 	}
 	
 	// Settings
-	$settings = array('site_title'=>$settings_data['site_title'], 'description'=>'A new ReallySimpleCMS website!', 'site_url'=>$settings_data['site_url'], 'admin_email'=>$settings_data['admin_email'], 'default_user_role'=>$default_user_role, 'home_page'=>$post['home_page'], 'do_robots'=>$settings_data['do_robots']);
+	$settings = array('site_title'=>$settings_data['site_title'], 'description'=>'A new ReallySimpleCMS website!', 'site_url'=>$settings_data['site_url'], 'admin_email'=>$settings_data['admin_email'], 'default_user_role'=>$default_user_role, 'home_page'=>$post['home_page'], 'do_robots'=>$settings_data['do_robots'], 'site_logo'=>0, 'site_icon'=>0);
 	
 	// Insert the settings into the database
 	foreach($settings as $name=>$value)
@@ -933,18 +967,21 @@ function uploadMediaFile($data) {
 	// Create an array to hold the media's metadata
 	$mediameta = array('filename'=>$filename, 'mime_type'=>$data['type'], 'alt_text'=>'');
 	
+	// Set the media's title
+	$title = ucwords(str_replace('-', ' ', $slug));
+	
 	// Fetch the user's data
 	$session = getOnlineUser($_COOKIE['session']);
 	
 	// Insert the new media into the database
-	$insert_id = $rs_query->insert('posts', array('title'=>ucwords(str_replace('-', ' ', $slug)), 'author'=>$session['id'], 'date'=>'NOW()', 'slug'=>$slug, 'type'=>'media'));
+	$insert_id = $rs_query->insert('posts', array('title'=>$title, 'author'=>$session['id'], 'date'=>'NOW()', 'slug'=>$slug, 'type'=>'media'));
 	
 	// Insert the media's metadata into the database
 	foreach($mediameta as $key=>$value)
 		$rs_query->insert('postmeta', array('post'=>$insert_id, '_key'=>$key, 'value'=>$value));
 	
 	// Return a success message and a hidden field with the media's id
-	return statusMessage('Upload successful!', true).(in_array($data['type'], array('image/jpeg', 'image/png', 'image/gif'), true) ? '<div class="hidden" data-field="id">'.$insert_id.'</div><div class="hidden" data-field="filename">'.trailingSlash(UPLOADS).$filename.'</div>' : '');
+	return statusMessage('Upload successful!', true).(in_array($data['type'], array('image/jpeg', 'image/png', 'image/gif'), true) ? '<div class="hidden" data-field="id">'.$insert_id.'</div><div class="hidden" data-field="title">'.$title.'</div><div class="hidden" data-field="filename">'.trailingSlash(UPLOADS).$filename.'</div><div class="hidden" data-field="mime_type">'.$data['type'].'</div>' : '');
 }
 
 /**
@@ -1006,6 +1043,13 @@ function loadMedia($image_only = false) {
 				</div>
 			</div>
 		</div>
+		<?php
+	}
+	
+	// Display a notice if no media are found
+	if(empty($mediaa)) {
+		?>
+		<p style="margin: 1em;">The media library is empty!</p>
 		<?php
 	}
 }
@@ -1130,28 +1174,4 @@ function getTaxonomyId($name) {
 	
 	// Return the taxonomy's id
 	return $id ?? 0;
-}
-
-/**
- * Fetch the URL of a specified media item.
- * @since 2.1.5[a]
- *
- * @param int $id
- * @return string
- */
-function getMedia($id) {
-	// Extend the Query class
-	global $rs_query;
-	
-	// Fetch the media from the database
-	$media = $rs_query->selectField('postmeta', 'value', array('post'=>$id, '_key'=>'filename'));
-	
-	// Check whether the media exists
-	if(!empty($media)) {
-		// Return the path to the media
-		return trailingSlash(UPLOADS).$media;
-	} else {
-		// Return an empty path
-		return '//:0';
-	}
 }
