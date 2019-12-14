@@ -4,6 +4,56 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 2.2.0[a] (2019-12-14)
+
+* Tweaked documentation in the Profile class
+* Reduced the refresh delay on the Profile::resetPassword form from 3 seconds to 2 seconds
+* The site logo and site icon image ids are now casted to integers in the Settings::designSettings function
+* The 'page' value is now removed from the submitted settings data after it is used in a conditional statement (it is not needed after this point)
+* Added the delete modal to the 'List User Roles' page
+* A home icon is now displayed next to the site title on the admin dashboard instead of the site logo
+* The global getOnlineUser function now makes use of the getMedia function to fetch the user's avatar
+* Tweaked styling of the admin dashboard header
+* Removed an unused styling rule from the setup/installation stylesheet
+* Tweaked documentation in the admin script.js and modal.js files
+* Replaced a standard anonymous function with an arrow function in the modal.js file
+* Cleaned up some unnecessary code in the modal.js file
+* Created a front-end function to fetch a post's id
+* Added a 'lang' attribute to the front end header.php file
+* The favicon now displays on the front end
+* Created a function that fetches post data via the Post class
+* Moved the formatDate function to the globals.php file
+* Created front-end functions to fetch data from each column of the posts table
+* Added more content to the front end header, index, and footer files
+* Renamed the getMedia function to getMediaSrc and created a new getMedia function that constructs an HTML tag for the media based on its type
+* Tweaked styling of the thumbnail column of the 'List Media' table
+* Replaced all old occurences of getMedia with getMediaSrc
+* Created the 404 (Not Found) error page
+* A settings entry for 'theme_color' is now created during installation
+* Added a 'theme color' setting to the 'Design Settings' page
+* Styled form color inputs
+
+**Modified files:**
+* 404.php
+* login.php (M)
+* admin/header.php
+* admin/includes/class-post.php (M)
+* admin/includes/class-profile.php (M)
+* admin/includes/class-settings.php
+* admin/includes/class-user.php (M)
+* admin/includes/functions.php (M)
+* admin/includes/css/install[.min].css (M)
+* admin/includes/css/style.css
+* admin/includes/js/modal.js
+* admin/includes/js/script.js (M)
+* content/footer.php
+* content/header.php
+* content/index.php
+* includes/class-post.php
+* includes/functions.php
+* includes/globals.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 2.1.11[a] (2019-12-07)
 
 * Improved styling of the setup and installation forms
@@ -17,7 +67,7 @@
 * Created a function that fetches the title of an admin page
 * Tweaked documentation in the getCurrentPage function
 * Added a 'Design Settings' page link to the admin menu
-* Created the 'Design Settings' pageu
+* Created the 'Design Settings' page
 * Renamed the 'feat-image-wrap' CSS class to 'image-wrap'
 * Cleaned up some code in the Profile::editProfile function
 * Settings entries for 'site_logo' and 'site_icon' are now created during installation

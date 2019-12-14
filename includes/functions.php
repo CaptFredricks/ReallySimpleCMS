@@ -9,8 +9,6 @@ spl_autoload_register(function($class_name) {
 	require_once PATH.INC.'/class-'.strtolower($class_name).'.php';
 });
 
-//$rs_post = new Post;
-
 // Generate a cookie hash based on the site's URL
 define('COOKIE_HASH', md5(getSetting('site_url', false)));
 
@@ -32,6 +30,26 @@ function getHeader() {
  */
 function getFooter() {
 	include_once PATH.CONT.'/footer.php';
+}
+
+/**
+ * Fetch a post's data.
+ * @since 2.2.0[a]
+ *
+ * @param int|string $post
+ * @param string $callback
+ * @param string|array $data (optional; default: '')
+ * @return object
+ */
+function getPost($callback, $data = array()) {
+	// Create a Post object
+	$rs_post = new Post;
+	
+	// Check whether the data is an array and turn it into one if not
+	if(!is_array($data)) $data = array($data);
+	
+	// Return the post's data
+	return call_user_func_array(array($rs_post, 'getPost'.$callback), $data);
 }
 
 /**

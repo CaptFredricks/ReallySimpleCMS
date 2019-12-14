@@ -5,7 +5,7 @@
  */
 
 // Current CMS version
-const VERSION = '2.1.11';
+const VERSION = '2.2.0';
 
 /**
  * Display the copyright information on the admin dashboard.
@@ -172,8 +172,10 @@ function getOnlineUser($session) {
 	$user = $rs_query->selectRow('users', array('id', 'username', 'role'), array('session'=>$session));
 	
 	// Fetch the user's avatar from the database
-	$avatar = $rs_query->selectField('usermeta', 'value', array('user'=>$user['id'], '_key'=>'avatar'));
-	$user['avatar'] = $rs_query->selectField('postmeta', 'value', array('post'=>$avatar, '_key'=>'filename'));
+	$avatar = (int)$rs_query->selectField('usermeta', 'value', array('user'=>$user['id'], '_key'=>'avatar'));
+	
+	// Construct the full file path of the avatar
+	$user['avatar'] = getMediaSrc($avatar);
 	
 	// Fetch the user's admin theme from the database
 	$user['theme'] = $rs_query->selectField('usermeta', 'value', array('user'=>$user['id'], '_key'=>'theme'));
@@ -205,13 +207,13 @@ function userHasPrivilege($role, $privilege) {
 }
 
 /**
- * Fetch the URL of a specified media item.
+ * Fetch the source of a specified media item.
  * @since 2.1.5[a]
  *
  * @param int $id
  * @return string
  */
-function getMedia($id) {
+function getMediaSrc($id) {
 	// Extend the Query class
 	global $rs_query;
 	
@@ -225,6 +227,45 @@ function getMedia($id) {
 	} else {
 		// Return an empty path
 		return '//:0';
+	}
+}
+
+/**
+ * Fetch a specified media item.
+ * @since 2.1.5[a]
+ *
+ * @param int $id
+ * @return string
+ */
+function getMedia($id) {
+	// Extend the Query class
+	global $rs_query;
+	
+	// Fetch the media's source
+	$src = getMediaSrc($id);
+	
+	// Fetch the media's MIME type
+	$mime_type = $rs_query->selectField('postmeta', 'value', array('post'=>$id, '_key'=>'mime_type'));
+	
+	// Determine what kind of HTML tag to construct based on the media's MIME type
+	if(strpos($mime_type, 'image') !== false) {
+		// Fetch the image's alt text
+		$alt_text = $rs_query->selectField('postmeta', 'value', array('post'=>$id, '_key'=>'mime_type'));
+		
+		// Construct an image tag
+		return '<img src="'.$src.'" alt="'.$alt_text.'">';
+	} elseif(strpos($mime_type, 'audio') !== false) {
+		// Construct an audio tag
+		return '<audio src="'.$src.'"></audio>';
+	} elseif(strpos($mime_type, 'video') !== false) {
+		// Construct a video tag
+		return '<video src="'.$src.'"></video>';
+	} else {
+		// Fetch the media's title
+		$title = $rs_query->selectField('posts', 'title', array('id'=>$id));
+		
+		// Construct an anchor tag
+		return '<a href="'.$src.'">'.$title.'</a>';
 	}
 }
 
@@ -262,6 +303,18 @@ function trimWords($text, $num_words = 50, $more = '&hellip;') {
  */
 function trailingSlash($text) {
 	return $text.'/';
+}
+
+/**
+ * Format a date string.
+ * @since 1.2.1[a]
+ *
+ * @param string $date
+ * @param string $format (optional; default: 'Y-m-d H:i:s')
+ * @return string
+ */
+function formatDate($date, $format = 'Y-m-d H:i:s') {
+	return date_format(date_create($date), $format);
 }
 
 /**

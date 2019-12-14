@@ -103,7 +103,7 @@ jQuery(document).ready(function($) {
 	});
 	
 	/*------------------------------*\
-		FEATURED IMAGES
+		IMAGES
 	\*------------------------------*/
 	
 	/**

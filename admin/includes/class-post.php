@@ -392,7 +392,7 @@ class Post {
 										<div class="image-wrap<?php echo !empty($meta['feat_image']) ? ' visible' : ''; ?>">
 											<?php
 											// Construct an image tag to display the featured image thumbnail
-											echo formTag('img', array('src'=>getMedia($meta['feat_image']), 'width'=>'100%', 'data-field'=>'thumb'));
+											echo formTag('img', array('src'=>getMediaSrc($meta['feat_image']), 'width'=>'100%', 'data-field'=>'thumb'));
 											
 											// Construct a span tag to display the 'remove image' button
 											echo formTag('span', array('class'=>'image-remove', 'title'=>'Remove', 'content'=>formTag('i', array('class'=>'fas fa-times'))));

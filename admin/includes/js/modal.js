@@ -6,7 +6,7 @@ jQuery(document).ready(function($) {
 	// Turn on strict mode
 	'use strict';
 	
-	// Create a varible to hold the clicked modal launch button
+	// Create a variable to hold the clicked modal launch button
 	let clicked_button = null;
 	
 	/**
@@ -15,7 +15,7 @@ jQuery(document).ready(function($) {
 	 */
 	$('.modal-launch').on('click', function() {
 		// Set the clicked button to the button that was clicked
-		clicked_button = $(this);
+		clicked_button = this;
 		
 		// Add 'modal-open' class to the body tag
 		$('body').addClass('modal-open');
@@ -68,11 +68,8 @@ jQuery(document).ready(function($) {
 	 * @since 2.1.1[a]
 	 */
 	$('.modal-header .tabber .tab').on('click', function() {
-		// Create a variable to hold the clicked element
-		let self = this;
-		
 		// Check whether the clicked tab is active
-		if(!$(self).hasClass('active')) {
+		if(!$(this).hasClass('active')) {
 			// Toggle the 'active' class
 			$('.modal-header .tabber .tab').toggleClass('active');
 			$('.modal-body .tab').toggleClass('active');
@@ -92,7 +89,7 @@ jQuery(document).ready(function($) {
 				$('.media-wrap').empty();
 				
 				// Load the media library
-				$('.media-wrap').load($(self).children().data('href') + '?media_type=' + $('#media-type').text());
+				$('.media-wrap').load($(this).children().data('href') + '?media_type=' + $('#media-type').text());
 				
 				// Clear the media details
 				$('.media-details .field').empty();
@@ -117,7 +114,7 @@ jQuery(document).ready(function($) {
 			data: new FormData(this),
 			method: 'POST',
 			processData: false,
-			success: function(result) {
+			success: (result) => {
 				// Display the result
 				$('.upload-result').html(result);
 			},
@@ -192,15 +189,11 @@ jQuery(document).ready(function($) {
 					// Insert the media
 					insertMedia($('.content .textarea-input'), data);
 				} else {
-					// Insert the media's id on the form
+					// Insert the media's id onto the form
 					$(clicked_button).siblings('input[data-field="id"]').val(data.id);
 					
-					// Insert the media's filename on the form
+					// Insert the media's filename onto the form
 					$(clicked_button).siblings('.image-wrap').children('img[data-field="thumb"]').attr('src', data.filename);
-					
-					// Check whether the image wrap is visible and make it visible if it isn't
-					if(!$(clicked_button).siblings('.image-wrap').hasClass('visible'))
-						$(clicked_button).siblings('.image-wrap').addClass('visible');
 				}
 			}
 		} else if($('#media').hasClass('active')) {
@@ -219,38 +212,31 @@ jQuery(document).ready(function($) {
 				if($(this).data('insert') === true) {
 					// Insert the media
 					insertMedia($('.content .textarea-input'), data);
-					
-					console.log('i am here');
 				} else {
-					console.log('i am here too');
 					// Insert the media's id on the form
 					$(clicked_button).siblings('input[data-field="id"]').val(data.id);
 					
 					// Insert the media's filename on the form
 					$(clicked_button).siblings('.image-wrap').children('img[data-field="thumb"]').attr('src', data.filename);
-					
-					// Check whether the image wrap is visible and make it visible if it isn't
-					if(!$(clicked_button).siblings('.image-wrap').hasClass('visible'))
-						$(clicked_button).siblings('.image-wrap').addClass('visible');
 				}
 			} else {
 				// Set the media's 'id' field to zero
-				$('#media-id').val(0);
+				$(clicked_button).siblings('input[data-field="id"]').val(0);
 				
 				// Set the media's thumbnail to an empty value
-				$('#media-thumb').attr('src', '//:0');
+				$(clicked_button).siblings('.image-wrap').children('img[data-field="thumb"]').attr('src', '//:0');
 			}
 		}
 		
 		// Check whether the thumbnail's source points to an image
 		if($(clicked_button).siblings('.image-wrap').children('img[data-field="thumb"]').attr('src') !== '//:0' && $(clicked_button).siblings('.image-wrap').children('img[data-field="thumb"]').attr('src') !== '') {
-			// Display the featured image
+			// Display the image
 			$(clicked_button).siblings('.image-wrap').addClass('visible');
 			
 			// Remove the greyed out effect from the media thumbnail
 			$(clicked_button).siblings('.image-wrap').children('img[data-field="thumb"]').removeClass('greyout');
 		} else {
-			// Hide the featured image
+			// Hide the image
 			$(clicked_button).siblings('.image-wrap').removeClass('visible');
 		}
 		

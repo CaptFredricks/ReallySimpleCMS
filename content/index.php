@@ -5,9 +5,11 @@ if(!defined('PATH')) exit('You do not have permission to access this directory.'
 // Include the header
 getHeader();
 ?>
-<div class="wrapper">
-	Hello World!
-</div>
+<article>
+	<?php getPost('FeatImage', 'sample-page'); ?>
+	<h1><?php getPost('Title', 'sample-page'); ?></h1>
+	<?php getPost('Content', 'sample-page'); ?>
+</article>
 <?php
 // Include the footer
 getFooter();

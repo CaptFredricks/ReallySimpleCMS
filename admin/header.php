@@ -28,31 +28,20 @@ $current_page = getCurrentPage();
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="robots" content="noindex, nofollow">
 		<meta name="theme-color" content="#e0e0e0">
-		<link type="image/x-icon" href="<?php echo getMedia(getSetting('site_icon', false)); ?>" rel="icon">
+		<link type="image/x-icon" href="<?php echo getMediaSrc(getSetting('site_icon', false)); ?>" rel="icon">
 		<?php adminHeaderScripts(); ?>
 	</head>
 	<body class="<?php echo $current_page; ?>">
 		<header id="admin-header">
 			<a id="site-title" href="/">
-				<?php
-				// Check whether a site logo has been set
-				if(!empty(getSetting('site_logo', false))) {
-					// Display the site logo
-					?>
-					<img src="<?php echo getMedia(getSetting('site_logo', false)); ?>" height="20">
-					<span><?php getSetting('site_title'); ?></span>
-					<?php
-				} else {
-					// Display the site title
-					getSetting('site_title');
-				}
-				?>
+				<i class="fas fa-home"></i>
+				<span><?php getSetting('site_title'); ?></span>
 			</a>
 			<div class="user-dropdown">
 				<span>Welcome, <?php echo $session['username']; ?></span>
-				<img class="avatar" src="<?php echo !empty($session['avatar']) ? trailingSlash(UPLOADS).$session['avatar'] : '//:0'; ?>" width="20" height="20">
+				<img class="avatar" src="<?php echo $session['avatar']; ?>" width="20" height="20">
 				<ul class="user-dropdown-menu">
-					<img class="avatar-large" src="<?php echo !empty($session['avatar']) ? trailingSlash(UPLOADS).$session['avatar'] : '//:0'; ?>" width="100" height="100">
+					<img class="avatar-large" src="<?php echo $session['avatar']; ?>" width="100" height="100">
 					<li><a href="profile.php">My Profile</a></li>
 					<li><a href="../login.php?action=logout">Log Out</a></li>
 				</ul>

@@ -45,7 +45,7 @@ class Settings {
 					echo formRow(array('Admin Email', true), array('tag'=>'input', 'type'=>'email', 'class'=>'text-input required invalid init', 'name'=>'admin_email', 'value'=>$setting['admin_email']));
 					echo formRow('Default User Role', array('tag'=>'select', 'class'=>'select-input', 'name'=>'default_user_role', 'content'=>$this->getUserRoles((int)$setting['default_user_role'])));
 					echo formRow('Home Page', array('tag'=>'select', 'class'=>'select-input', 'name'=>'home_page', 'content'=>$this->getPageList((int)$setting['home_page'])));
-					echo formRow('Search Engine Visibility', array('tag'=>'input', 'type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'do_robots', 'value'=>(int)$setting['do_robots'], '*'=>$do_robots, 'label'=>array('class'=>'checkbox-label', 'content'=>' <span>Discourage search engines from indexing this site</span>')));
+					echo formRow('Search Engine Visibility', array('tag'=>'input', 'type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'do_robots', 'value'=>(int)$setting['do_robots'], '*'=>$do_robots, 'label'=>array('class'=>'checkbox-label', 'content'=>'<span>Discourage search engines from indexing this site</span>')));
 					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
 					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Settings'));
 					?>
@@ -94,8 +94,9 @@ class Settings {
 				?>
 				<table class="form-table">
 					<?php
-					echo formRow('Site Logo', array('tag'=>'div', 'class'=>'image-wrap'.(!empty($setting['site_logo']) ? ' visible' : ''), 'content'=>formTag('img', array('src'=>getMedia($setting['site_logo']), 'width'=>150, 'data-field'=>'thumb')).formTag('span', array('class'=>'image-remove', 'title'=>'Remove', 'content'=>formTag('i', array('class'=>'fas fa-times'))))), array('tag'=>'input', 'type'=>'hidden', 'name'=>'site_logo', 'value'=>$setting['site_logo'], 'data-field'=>'id'), array('tag'=>'input', 'type'=>'button', 'class'=>'button-input button modal-launch', 'value'=>'Choose Image', 'data-type'=>'image'));
-					echo formRow('Site Icon', array('tag'=>'div', 'class'=>'image-wrap'.(!empty($setting['site_icon']) ? ' visible' : ''), 'content'=>formTag('img', array('src'=>getMedia($setting['site_icon']), 'width'=>150, 'data-field'=>'thumb')).formTag('span', array('class'=>'image-remove', 'title'=>'Remove', 'content'=>formTag('i', array('class'=>'fas fa-times'))))), array('tag'=>'input', 'type'=>'hidden', 'name'=>'site_icon', 'value'=>$setting['site_icon'], 'data-field'=>'id'), array('tag'=>'input', 'type'=>'button', 'class'=>'button-input button modal-launch', 'value'=>'Choose Image', 'data-type'=>'image'));
+					echo formRow('Site Logo', array('tag'=>'div', 'class'=>'image-wrap'.(!empty($setting['site_logo']) ? ' visible' : ''), 'content'=>formTag('img', array('src'=>getMediaSrc((int)$setting['site_logo']), 'width'=>150, 'data-field'=>'thumb')).formTag('span', array('class'=>'image-remove', 'title'=>'Remove', 'content'=>formTag('i', array('class'=>'fas fa-times'))))), array('tag'=>'input', 'type'=>'hidden', 'name'=>'site_logo', 'value'=>(int)$setting['site_logo'], 'data-field'=>'id'), array('tag'=>'input', 'type'=>'button', 'class'=>'button-input button modal-launch', 'value'=>'Choose Image', 'data-type'=>'image'));
+					echo formRow('Site Icon', array('tag'=>'div', 'class'=>'image-wrap'.(!empty($setting['site_icon']) ? ' visible' : ''), 'content'=>formTag('img', array('src'=>getMediaSrc((int)$setting['site_icon']), 'width'=>150, 'data-field'=>'thumb')).formTag('span', array('class'=>'image-remove', 'title'=>'Remove', 'content'=>formTag('i', array('class'=>'fas fa-times'))))), array('tag'=>'input', 'type'=>'hidden', 'name'=>'site_icon', 'value'=>(int)$setting['site_icon'], 'data-field'=>'id'), array('tag'=>'input', 'type'=>'button', 'class'=>'button-input button modal-launch', 'value'=>'Choose Image', 'data-type'=>'image'));
+					echo formRow('Theme Color', array('tag'=>'input', 'type'=>'color', 'class'=>'color-input', 'name'=>'theme_color', 'value'=>$setting['theme_color']));
 					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
 					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Settings'));
 					?>
@@ -119,11 +120,14 @@ class Settings {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Remove 'submit' from data
+		// Remove the 'submit' value from the data array
 		array_pop($data);
 		
 		// Check whether a settings page has been specified
 		if(isset($data['page'])) {
+			// Remove the 'page' value from the data array
+			array_shift($data);
+			
 			// Update the settings in the database
 			foreach($data as $name=>$value)
 				$rs_query->update('settings', array('value'=>$value), array('name'=>$name));
@@ -273,7 +277,7 @@ class Settings {
 				// Loop through the user roles
 				foreach($roles as $role) {
 					echo tableRow(
-						tableCell('<strong>'.$role['name'].'</strong><div class="actions"><a href="?page=user_roles&id='.$role['id'].'&action=edit">Edit</a> &bull; <a class="delete" href="?page=user_roles&id='.$role['id'].'&action=delete">Delete</a></div>', 'name'),
+						tableCell('<strong>'.$role['name'].'</strong><div class="actions"><a href="?page=user_roles&id='.$role['id'].'&action=edit">Edit</a> &bull; <a class="modal-launch delete-item" href="?page=user_roles&id='.$role['id'].'&action=delete" data-item="user role">Delete</a></div>', 'name'),
 						tableCell($this->getPrivileges($role['id']), 'privileges')
 					);
 				}
@@ -316,6 +320,8 @@ class Settings {
 			</tbody>
 		</table>
 		<?php
+		// Include the delete modal					 
+		include_once PATH.ADMIN.INC.'/modal-delete.php';												
 	}
 	
 	/**

@@ -29,7 +29,7 @@ $action = $_GET['action'] ?? '';
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="robots" content="noindex, nofollow">
-		<link type="image/x-icon" href="<?php echo getMedia(getSetting('site_icon', false)); ?>" rel="icon">
+		<link type="image/x-icon" href="<?php echo getMediaSrc(getSetting('site_icon', false)); ?>" rel="icon">
 		<?php getStylesheet('style.css'); ?>
 		<?php getStylesheet('button.min.css'); ?>
 	</head>
@@ -42,7 +42,7 @@ $action = $_GET['action'] ?? '';
 					if(!empty(getSetting('site_logo', false))) {
 						// Display the site logo
 						?>
-						<img src="<?php echo getMedia(getSetting('site_logo', false)); ?>" title="<?php getSetting('site_title'); ?>">
+						<img src="<?php echo getMediaSrc(getSetting('site_logo', false)); ?>" title="<?php getSetting('site_title'); ?>">
 						<?php
 					} else {
 						// Display the site title
