@@ -53,6 +53,56 @@ function getPost($callback, $data = array()) {
 }
 
 /**
+ * Fetch a widget.
+ * @since 2.2.1[a]
+ *
+ * @param string $slug
+ * @param bool $display_title (optional; default: false)
+ * @return null
+ */
+function getWidget($slug, $display_title = false) {
+	// Extend the Query class
+	global $rs_query;
+	
+	// Fetch the widget from the database
+	$widget = $rs_query->selectRow('posts', array('title', 'content', 'status'), array('type'=>'widget', 'slug'=>$slug));
+	
+	// Check whether the widget exists and is active
+	if(empty($widget)) {
+		?>
+		<div class="widget">
+			<h3>The specified widget does not exist.</h3>
+		</div>
+		<?php
+	} elseif($widget['status'] === 'inactive') {
+		?>
+		<div class="widget">
+			<h3>The specified widget could not be loaded.</h3>
+		</div>
+		<?php
+	} else {
+		?>
+		<div class="widget <?php echo $slug; ?>">
+			<?php
+			// Check whether the title should be displayed
+			if($display_title) {
+				?>
+				<h3 class="widget-title"><?php echo $widget['title']; ?></h3>
+				<?php
+			}
+			?>
+			<div>
+				<?php
+				// Display the widget's content
+				echo $widget['content'];
+				?>
+			</div>
+		</div>
+		<?php
+	}
+}
+
+/**
  * Generate a random hash.
  * @since 2.0.5[a]
  *

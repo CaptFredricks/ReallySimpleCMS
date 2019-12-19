@@ -5,7 +5,7 @@
  */
 
 // Current CMS version
-const VERSION = '2.2.0';
+const VERSION = '2.2.1';
 
 /**
  * Display the copyright information on the admin dashboard.
@@ -235,9 +235,11 @@ function getMediaSrc($id) {
  * @since 2.1.5[a]
  *
  * @param int $id
+ * @param string $classes (optional; default: '')
+ * @param string $link_text (optional; default: '')
  * @return string
  */
-function getMedia($id) {
+function getMedia($id, $classes = '', $link_text = '') {
 	// Extend the Query class
 	global $rs_query;
 	
@@ -250,22 +252,25 @@ function getMedia($id) {
 	// Determine what kind of HTML tag to construct based on the media's MIME type
 	if(strpos($mime_type, 'image') !== false) {
 		// Fetch the image's alt text
-		$alt_text = $rs_query->selectField('postmeta', 'value', array('post'=>$id, '_key'=>'mime_type'));
+		$alt_text = $rs_query->selectField('postmeta', 'value', array('post'=>$id, '_key'=>'alt_text'));
 		
 		// Construct an image tag
-		return '<img src="'.$src.'" alt="'.$alt_text.'">';
+		return '<img class="'.$classes.'" src="'.$src.'" alt="'.$alt_text.'">';
 	} elseif(strpos($mime_type, 'audio') !== false) {
 		// Construct an audio tag
-		return '<audio src="'.$src.'"></audio>';
+		return '<audio class="'.$classes.'" src="'.$src.'"></audio>';
 	} elseif(strpos($mime_type, 'video') !== false) {
 		// Construct a video tag
-		return '<video src="'.$src.'"></video>';
+		return '<video class="'.$classes.'" src="'.$src.'"></video>';
 	} else {
-		// Fetch the media's title
-		$title = $rs_query->selectField('posts', 'title', array('id'=>$id));
+		// Check whether any link text has been provided
+		if(empty($link_text)) {
+			// Fetch the media's title
+			$link_text = $rs_query->selectField('posts', 'title', array('id'=>$id));
+		}
 		
 		// Construct an anchor tag
-		return '<a href="'.$src.'">'.$title.'</a>';
+		return '<a class="'.$classes.'" href="'.$src.'">'.$link_text.'</a>';
 	}
 }
 

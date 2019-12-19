@@ -4,7 +4,33 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
-## Version 2.2.0[a] (2019-12-14)
+## Version 2.2.1[a] (2019-12-17)
+
+* Tweaked a previous entry in the changelog
+* Corrected a typo on the 404 (Not Found) error page
+* Styled the 404 (Not Found) error page
+* Added optional 'classes' and 'link_text' parameters to the getMedia function
+* The getMedia function now properly outputs an image's alt text
+* Added a CSS class to the post's featured image
+* Constructed and styled the header for the front end
+* Created a function that fetches a widget from the database
+* Created a front end script.js file
+* Included jQuery in the theme header and the front end scripts in the theme footer
+* Tweaked documentation in the front end style.css file
+* The front end header and menu are functional and mobile responsive
+
+**Modified files:**
+* 404.php (M)
+* content/footer.php (M)
+* content/header.php
+* includes/class-post.php (M)
+* includes/functions.php
+* includes/globals.php
+* includes/css/style.css
+* includes/js/script.js (N)
+
+----------------------------------------------------------------------------------------------------
+## Version 2.2.0[a] (2019-12-13)
 
 * Tweaked documentation in the Profile class
 * Reduced the refresh delay on the Profile::resetPassword form from 3 seconds to 2 seconds

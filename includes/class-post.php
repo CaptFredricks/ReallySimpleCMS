@@ -249,8 +249,8 @@ class Post {
 		$feat_image = (int)$rs_query->selectField('postmeta', 'value', array('post'=>$this->getPostId($slug, false), '_key'=>'feat_image'));
 		
         if($echo)
-            echo getMedia($feat_image);
+            echo getMedia($feat_image, 'featured-image');
         else
-            return getMedia($feat_image);
+            return getMedia($feat_image, 'featured-image');
     }
 }

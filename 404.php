@@ -21,9 +21,9 @@ require_once PATH.INC.'/functions.php';
 		<link type="image/x-icon" href="<?php echo getMediaSrc(getSetting('site_icon', false)); ?>" rel="icon">
 		<?php getStylesheet('style.css'); ?>
 	</head>
-	<body>
+	<body class="not-found">
 		<div class="wrapper">
-			<h1>Oops! The requested page count not be found.</h1>
+			<h1>Oops! The requested page could not be found.</h1>
 			<h3>It may have been moved or deleted. <a href="/">Return home</a>?</h3>
 		</div>
 	</body>
