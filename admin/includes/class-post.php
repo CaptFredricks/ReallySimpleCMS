@@ -91,7 +91,7 @@ class Post {
 					$meta = $this->getPostMeta($post['id']);
 					
 					echo tableRow(
-						tableCell('<strong>'.$post['title'].'</strong>'.($post['status'] !== 'published' && $status === 'all' ? ' &ndash; <em>'.$post['status'].'</em>' : '').'<div class="actions">'.($status !== 'trash' ? '<a href="?id='.$post['id'].'&action=edit">Edit</a> &bull; <a href="?id='.$post['id'].'&action=trash">Trash</a> &bull; <a href="'.($post['status'] === 'published' ? ($this->isHomePage($post['id']) ? '/' : $this->getPermalink($post['parent'], $post['slug'])).'">View' : ('/?id='.$post['id'].'&preview=true').'">Preview').'</a>' : '<a href="?id='.$post['id'].'&action=restore">Restore</a> &bull; <a class="modal-launch delete-item" href="?id='.$post['id'].'&action=delete" data-item="'.$post['type'].'">Delete</a>').'</div>', 'title'),
+						tableCell((isHomePage($post['id']) ? '<i class="fas fa-home" style="cursor: help;" title="Home Page"></i> ' : '').'<strong>'.$post['title'].'</strong>'.($post['status'] !== 'published' && $status === 'all' ? ' &ndash; <em>'.$post['status'].'</em>' : '').'<div class="actions">'.($status !== 'trash' ? '<a href="?id='.$post['id'].'&action=edit">Edit</a> &bull; <a href="?id='.$post['id'].'&action=trash">Trash</a> &bull; <a href="'.($post['status'] === 'published' ? (isHomePage($post['id']) ? '/' : $this->getPermalink($post['parent'], $post['slug'])).'">View' : ('/?id='.$post['id'].'&preview=true').'">Preview').'</a>' : '<a href="?id='.$post['id'].'&action=restore">Restore</a> &bull; <a class="modal-launch delete-item" href="?id='.$post['id'].'&action=delete" data-item="'.$post['type'].'">Delete</a>').'</div>', 'title'),
 						tableCell($this->getAuthor($post['author']), 'author'),
 						$type === 'post' ? tableCell($this->getCategories($post['id']), 'categories') : '',
 						tableCell(formatDate($post['date'], 'd M Y @ g:i A'), 'publish-date'),
@@ -353,7 +353,7 @@ class Post {
 									<div id="submit" class="row">
 										<?php
 										// Construct a view/preview link
-										echo $post['status'] === 'published' ? '<a href="'.($this->isHomePage($post['id']) ? '/' : $this->getPermalink($post['parent'], $post['slug'])).'">View</a>' : '<a href="/?id='.$post['id'].'&preview=true">Preview</a>';
+										echo $post['status'] === 'published' ? '<a href="'.(isHomePage($post['id']) ? '/' : $this->getPermalink($post['parent'], $post['slug'])).'">View</a>' : '<a href="/?id='.$post['id'].'&preview=true">Preview</a>';
 										
 										// Construct a 'submit' button form tag
 										echo formTag('input', array('type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update'));
@@ -682,22 +682,6 @@ class Post {
 	}
 	
 	/**
-	 * Check whether a post is the current home page.
-	 * @since 1.4.0[a]
-	 *
-	 * @access private
-	 * @param int $id
-	 * @return bool
-	 */
-	private function isHomePage($id) {
-		// Extend the Query class
-		global $rs_query;
-		
-		// Return true if the post is the home page
-		return $rs_query->selectRow('settings', 'COUNT(*)', array('name'=>'home_page', 'value'=>$id));
-	}
-	
-	/**
 	 * Check whether a post is in the trash.
 	 * @since 1.4.9[a]
 	 *
@@ -950,31 +934,7 @@ class Post {
 	 * @return string
 	 */
 	private function getPermalink($parent, $slug = '') {
-		// Extend the Query class
-		global $rs_query;
-		
-		// Create an empty permalink array
-		$permalink = array();
-		
-		while($parent !== 0) {
-			// Fetch the parent post from the database
-			$post = $rs_query->selectRow('posts', array('slug', 'parent'), array('id'=>$parent));
-			
-			// Set the new parent id
-			$parent = (int)$post['parent'];
-			
-			// Add to the permalink array
-			$permalink[] = $post['slug'];
-		};
-		
-		// Reverse and merge the permalink array
-		$permalink = implode('/', array_reverse($permalink));
-		
-		// Construct the full permalink
-		$permalink = (!empty($permalink) ? '/'.$permalink : '').(!empty($slug) ? '/'.$slug : '').'/';
-		
-		// Return the permalink
-		return $permalink;
+		return getPermalink('post', $parent, $slug);
 	}
 	
 	/**

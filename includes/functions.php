@@ -53,6 +53,206 @@ function getPost($callback, $data = array()) {
 }
 
 /**
+ * Fetch a nav menu.
+ * @since 2.2.2[a]
+ *
+ * @param string $slug
+ * @return null
+ */
+function getMenu($slug) {
+	// Extend the Query string
+	global $rs_query;
+	
+	// Fetch the menu's id from the database
+	$id = $rs_query->selectField('terms', 'id', array('slug'=>$slug));
+	?>
+	<nav class="nav-menu menu-id-<?php echo $id; ?>">
+		<ul>
+			<?php
+			// Fetch the term relationships from the database
+			$relationships = $rs_query->select('term_relationships', 'post', array('term'=>$id));
+			
+			// Create an empty array to hold the menu items' metadata
+			$itemmeta = array();
+			
+			// Create an index counter for the metadata array
+			$i = 0;
+			
+			// Loop through the term relationships
+			foreach($relationships as $relationship) {
+				// Fetch the metadata associated with each menu item from the database
+				$itemmeta[] = getMenuItemMeta($relationship['post']);
+				
+				// Reverse the array (to place the index first)
+				$itemmeta[$i] = array_reverse($itemmeta[$i]);
+				
+				// Push the menu item's id onto the array
+				$itemmeta[$i]['post'] = $relationship['post'];
+				
+				// Increment the index counter
+				$i++;
+			}
+			
+			// Sort the array in ascending index order
+			asort($itemmeta);
+			
+			// Loop through the menu items' metadata
+			foreach($itemmeta as $meta) {
+				// Fetch the menu item from the database
+				$menu_item = $rs_query->selectRow('posts', array('id', 'title', 'parent'), array('id'=>$meta['post']));
+				
+				// Check what type of link is being used
+				if(isset($meta['post_link']))
+					$link = isHomePage((int)$meta['post_link']) ? '/' : getPermalink('post', getMenuItemParent($meta['post_link']));
+				elseif(isset($meta['term_link']))
+					$link = getPermalink('category', getMenuItemParent($meta['term_link']));
+				elseif(isset($meta['custom_link']))
+					$link = $meta['custom_link'];
+				
+				// Check whether the menu item has a parent or is on the top level
+				if(!menuItemHasParent($menu_item['id'])) {
+					?>
+					<li<?php echo menuItemHasChildren($menu_item['id']) ? ' class="menu-item-has-children"' : ''; ?>>
+						<a href="<?php echo $link; ?>"><?php echo $menu_item['title']; ?></a>
+						<?php
+						if(menuItemHasChildren($menu_item['id']))
+							getMenuItemDescendants($menu_item['id']);
+						?>
+					</li>
+					<?php
+				}
+			}
+			?>
+		</ul>
+	</nav>
+	<?php
+}
+
+/**
+ * Check whether a menu item has a parent.
+ * @since 2.2.2[a]
+ *
+ * @param int $id
+ * @return bool
+ */
+function menuItemHasParent($id) {
+	// Extend the Query class
+	global $rs_query;
+	
+	// Fetch the menu item's parent id from the database and return true if it's not equal to zero
+	return (int)$rs_query->selectField('posts', 'parent', array('id'=>$id)) !== 0;
+}
+
+/**
+ * Check whether a menu item has children.
+ * @since 2.2.2[a]
+ *
+ * @param int $id
+ * @return bool
+ */
+function menuItemHasChildren($id) {
+	// Extend the Query class
+	global $rs_query;
+	
+	// Fetch the number of children the menu item has from the database and return true if it's greater than zero
+	return $rs_query->select('posts', 'COUNT(*)', array('parent'=>$id)) > 0;
+}
+
+/**
+ * Fetch a menu item's metadata.
+ * @since 2.2.2[a]
+ *
+ * @param int $id
+ * @return array
+ */
+function getMenuItemMeta($id) {
+	// Extend the Query class
+	global $rs_query;
+	
+	// Fetch the menu item's metadata from the database
+	$itemmeta = $rs_query->select('postmeta', array('_key', 'value'), array('post'=>$id));
+	
+	// Create an empty array to hold the metadata
+	$meta = array();
+	
+	// Loop through the metadata
+	foreach($itemmeta as $metadata) {
+		// Get the meta values
+		$values = array_values($metadata);
+		
+		// Loop through the individual metadata entries
+		for($i = 0; $i < count($metadata); $i += 2) {
+			// Assign the metadata to the meta array
+			$meta[$values[$i]] = $values[$i + 1];
+		}
+	}
+	
+	// Return the metadata
+	return $meta;
+}
+
+/**
+ * Fetch a menu item's parent.
+ * @since 2.2.2[a]
+ *
+ * @param int $id
+ * @return int
+ */
+function getMenuItemParent($id) {
+	// Extend the Query class
+	global $rs_query;
+	
+	// Fetch the menu item's parent id from the database and return it
+	return $rs_query->selectField('posts', 'id', array('id'=>$id));
+}
+
+/**
+ * Fetch all descendants of a menu item.
+ * @since 2.2.2[a]
+ *
+ * @param int $id
+ * @return null
+ */
+function getMenuItemDescendants($id) {
+	// Extend the Query class
+	global $rs_query;
+	?>
+	<ul class="sub-menu">
+		<?php
+		// Select any existing children from the database
+		$children = $rs_query->select('posts', array('id', 'title'), array('parent'=>$id));
+		
+		// Loop through the children
+		foreach($children as $child) {
+			// Fetch the menu item's metadata
+			$meta = getMenuItemMeta($child['id']);
+			
+			// Check what type of link is being used
+			if(isset($meta['post_link']))
+				$link = isHomePage((int)$meta['post_link']) ? '/' : getPermalink('post', getMenuItemParent($meta['post_link']));
+			elseif(isset($meta['term_link']))
+				$link = getPermalink('category', getMenuItemParent($meta['term_link']));
+			elseif(isset($meta['custom_link']))
+				$link = $meta['custom_link'];
+			?>
+			<li<?php echo menuItemHasChildren($child['id']) ? ' class="menu-item-has-children"' : ''; ?>>
+				<a href="<?php echo $link; ?>"><?php echo $child['title']; ?></a>
+				<?php
+				// Check whether the menu item has descendants
+				if(menuItemHasChildren($child['id'])) {
+					// Fetch the descendants of the menu item
+					getMenuItemDescendants($child['id']);
+				}
+				?>
+			</li>
+			<?php
+		}
+		?>
+	</ul>
+	<?php
+}
+
+/**
  * Fetch a widget.
  * @since 2.2.1[a]
  *

@@ -1,0 +1,349 @@
+/**
+ * Stylesheet for the default front end theme.
+ * @since 2.2.2[a]
+ */
+
+
+/*------------------------------------*\
+    STRUCTURE
+\*------------------------------------*/
+
+/* Header */
+
+.header {
+	background-color: rgba(254,254,254,0.9375);
+	position: fixed;
+	  top: 0;
+	  z-index: 9998;
+	-webkit-user-select: none;
+	user-select: none;
+	width: 100%;
+}
+
+.header.sticky {
+	box-shadow: 0 2px 3px rgba(0,0,0,0.5);
+}
+
+.header .top-bar {
+	background-color: #fefefe;
+	height: 3.75em;
+	padding: 0.5em 1em;
+	position: relative;
+	  z-index: 9999;
+}
+
+/** Logo **/
+
+.header .site-logo {
+	display: flex;
+	  align-items: center;
+	float: left;
+	height: 100%;
+}
+
+.header .site-logo a,
+.header .site-logo a img {
+	height: 100%;
+}
+
+/** Social media & menu **/
+
+.header .social-menu-wrap {
+	display: flex;
+	  align-items: flex-end;
+	  flex-direction: column;
+	  justify-content: center;
+	float: right;
+	height: 100%;
+}
+
+.header .widget.social-media {
+	opacity: 0;
+	position: absolute;
+	  top: 175%;
+	  left: -100%;
+	transition: opacity 0.5s, top 0.5s;
+}
+
+.header .widget.social-media.visible {
+	opacity: 1;
+	top: 125%;
+	right: calc(80% + 0.75em);
+	left: auto;
+}
+
+.header .widget.social-media a {
+	background-color: #fefefe;
+	border-radius: 50%;
+	color: #bdbdbd;
+	display: flex;
+	  align-items: center;
+	  justify-content: center;
+	height: 2.5em;
+	margin-bottom: 0.75em;
+	text-decoration: none;
+	width: 2.5em;
+}
+
+.header .widget.social-media a:hover {
+	color: #8d8d8d;
+}
+
+/*** Menu ***/
+
+.header .nav-menu-toggle {
+	cursor: pointer;
+	display: flex;
+	  align-items: center;
+	  justify-content: center;
+	height: 100%;
+	margin-right: -1em;
+	width: 2.75em;
+}
+
+.header .nav-menu-toggle i {
+	color: #101010;
+	font-size: 1.125em;
+	-webkit-transform: translateY(-1px);
+	transform: translateY(-1px);
+}
+
+.header .nav-menu-wrap {
+	background-color: #3f3f3f;
+	height: 100%;
+	max-width: 320px;
+	position: fixed;
+	  top: 3.75rem;
+	  right: -100%;
+	  z-index: 999;
+	transition: all 0.3s ease, background-color 0s;
+	width: 80%;
+}
+
+.header .nav-menu-wrap.open {
+	right: 0;
+}
+
+.header .nav-menu ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.header .nav-menu ul li {
+	position: relative;
+}
+
+.header .nav-menu ul li a {
+	color: #fefefe;
+	display: block;
+	font-size: 0.9375em;
+	font-weight: 600;
+	padding: 0.75em 0.75em 0.625em;
+	text-decoration: none;
+	text-transform: uppercase;
+}
+
+.header .nav-menu > ul > li {
+    border-top: 1px solid rgba(254,254,254,0.05);
+    border-bottom: 1px solid rgba(254,254,254,0.05);
+}
+
+.header .nav-menu ul > li:hover > a {
+    background-color: #5f5f5f;
+}
+
+.header .nav-menu .menu-item-has-children .submenu-toggle {
+    color: #fefefe;
+	cursor: pointer;
+    position: absolute;
+      top: 0.75em;
+      right: 0;
+    width: 1.75em;
+}
+
+.header .nav-menu .sub-menu {
+    display: none;
+    padding-left: 1em;
+}
+
+.header .nav-menu-overlay {
+	background-color: rgba(0,0,0,0.9375);
+	opacity: 0;
+	position: static;
+	  top: 0;
+	  right: 0;
+	  bottom: 0;
+	  left: 0;
+	  z-index: -1;
+	transition: all 0.3s ease;
+}
+
+.header .nav-menu-overlay.open {
+	opacity: 1;
+	position: fixed;
+	  z-index: 998;
+}
+
+/* Wrapper */
+
+.wrapper {
+	margin-top: 60px;
+}
+
+/*------------------------------------*\
+    CONTENT
+\*------------------------------------*/
+
+/* Content pages */
+
+.featured-image {
+	max-width: 100%;
+}
+
+/*------------------------------------*\
+    RESPONSIVE
+\*------------------------------------*/
+
+@media screen and (min-width: 400px) {
+	.header .widget.social-media.visible {
+		right: calc(320px + 0.75em);
+	}
+}
+
+@media screen and (min-width: 1050px) {
+	.header {
+		transition: top 0.3s;
+	}
+	
+	.header.sticky {
+		top: -56px;
+	}
+	
+	.header .top-bar {
+		height: 7em;
+		padding: 1em;
+	}
+	
+	.header.sticky .site-logo {
+		align-items: flex-end;
+	}
+	
+	.header .site-logo a {
+		height: 85%;
+	}
+	
+	.header.sticky .site-logo a {
+		height: 2.25em;
+		margin-bottom: -0.375rem;
+	}
+	
+	.header .widget.social-media {
+        opacity: 1;
+        position: static;
+    }
+
+    .header .widget.social-media a {
+		background-color: #f6f6f6;
+		color: #adadad;
+    	display: inline-flex;
+		height: 2.25em;
+        margin-bottom: 0;
+		width: 2.25em;
+    }
+	
+	.header .widget.social-media a:hover {
+		color: #7d7d7d;
+	}
+	
+	.header .nav-menu-toggle {
+        display: none;
+    }
+	
+    .header .nav-menu-wrap {
+        background-color: transparent;
+		height: auto;
+        max-width: none;
+        position: static;
+        width: 100%;
+    }
+	
+    .header .nav-menu ul li {
+        line-height: 1;
+    }
+	
+    .header .nav-menu ul li a {
+        color: #101010;
+        font-size: 1em;
+        letter-spacing: 1px;
+		padding: 0;
+    }
+	
+	.header .nav-menu ul > li:hover > a {
+    	background-color: transparent;
+    }
+	
+    .header .nav-menu > ul li:hover > .sub-menu {
+        display: block;
+    }
+	
+    .header .nav-menu > ul > li {
+        border-top: none;
+        border-bottom: none;
+        display: inline-block;
+    }
+	
+    .header .nav-menu > ul > li:not(:last-child)::after {
+    	color: #cdcdcd;
+    	content: ' |';
+    	font-weight: 400;
+    	vertical-align: text-top;
+    }
+	
+	.header .nav-menu > ul > li > a {
+		display: inline-block;
+		margin: 1.375em 1em 0;
+	}
+	
+	.header .nav-menu > ul > li > a::after {
+		border-bottom: 2px solid #101010;
+		content: '';
+		display: block;
+		padding-top: 0.25em;
+		transition: width 0.3s;
+		width: 0;
+	}
+	
+	.header .nav-menu > ul > li > a:hover::after {
+		width: 100%;
+	}
+	
+	.header .nav-menu > ul > li:last-child > a {
+		margin-right: 0;
+	}
+	
+    .header .nav-menu .sub-menu {
+        background-color: #fefefe;
+        box-shadow: 0 5px 3px -3px rgba(0,0,0,0.5);
+        display: none;
+        min-width: 100%;
+        padding-left: 0;
+        position: absolute;
+          z-index: 9999;
+        text-align: left;
+        white-space: nowrap;
+    }
+	
+    .header .nav-menu .sub-menu li a {
+		padding: 1em;
+        width: 100%;
+    }
+	
+	.header .nav-menu .sub-menu li a:hover {
+		background-color: #eee;
+	}
+	
+	.wrapper {
+		margin-top: 112px;
+	}
+}

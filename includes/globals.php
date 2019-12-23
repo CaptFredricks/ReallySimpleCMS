@@ -5,7 +5,7 @@
  */
 
 // Current CMS version
-const VERSION = '2.2.1';
+const VERSION = '2.2.2';
 
 /**
  * Display the copyright information on the admin dashboard.
@@ -51,6 +51,21 @@ function redirect($url, $status = 302) {
 	
 	// Stop any further script execution
 	exit;
+}
+
+/**
+ * Check whether a post or page is the website's home page.
+ * @since 1.4.0[a]
+ *
+ * @param int $id
+ * @return bool
+ */
+function isHomePage($id) {
+	// Extend the Query class
+	global $rs_query;
+	
+	// Return true if the post is the home page
+	return (int)$rs_query->selectField('settings', 'value', array('name'=>'home_page')) === $id;
 }
 
 /**
@@ -137,6 +152,57 @@ function getSetting($name, $echo = true) {
 		echo $setting;
 	else
 		return $setting;
+}
+
+/**
+ * Construct a permalink.
+ * @since 2.2.2[a]
+ *
+ * @param string $type
+ * @param int $parent
+ * @param string $slug (optional; default: '')
+ * @return string|bool (string on recognized type, bool on unrecognized type)
+ */
+function getPermalink($type, $parent, $slug = '') {
+	// Extend the Query class
+	global $rs_query;
+	
+	switch($type) {
+		case 'post': case 'page':
+			// The posts table should be searched
+			$table = 'posts';
+			break;
+		case 'category':
+			// The terms table should be searched
+			$table = 'terms';
+			break;
+		default:
+			// Return false because the type is not recognized
+			return false;
+	}
+	
+	// Create an empty permalink array
+	$permalink = array();
+	
+	while($parent !== 0) {
+		// Fetch the parent post from the database
+		$post = $rs_query->selectRow($table, array('slug', 'parent'), array('id'=>$parent));
+		
+		// Set the new parent id
+		$parent = (int)$post['parent'];
+		
+		// Add to the permalink array
+		$permalink[] = $post['slug'];
+	};
+	
+	// Reverse and merge the permalink array
+	$permalink = implode('/', array_reverse($permalink));
+	
+	// Construct the full permalink
+	$permalink = (!empty($permalink) ? '/'.$permalink : '').(!empty($slug) ? '/'.$slug : '').'/';
+	
+	// Return the permalink
+	return $permalink;
 }
 
 /**

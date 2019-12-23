@@ -8,6 +8,7 @@
 		<link type="image/x-icon" href="<?php echo getMediaSrc(getSetting('site_icon', false)); ?>" rel="icon">
 		<?php getStylesheet('style.css'); ?>
 		<?php getStylesheet('font-awesome.min.css', '5.11.2'); ?>
+		<?php getThemeStylesheet('style.css'); ?>
 		<?php getScript('jquery.min.js', '3.4.1'); ?>
 	</head>
 	<body>
@@ -24,23 +25,10 @@
 						<i class="fas fa-bars"></i>
 					</div>
 					<div class="nav-menu-wrap">
-						<nav class="nav-menu">
-							<ul>
-								<li>
-									<a href="/">Home</a>
-								</li>
-								<li>
-									<a href="/">About</a>
-								</li>
-								<li>
-									<a href="/">Contact</a>
-								</li>
-							</ul>
-						</nav>
+						<?php getMenu('main-menu'); ?>
 					</div>
 				</div>
 			</div>
 			<div class="nav-menu-overlay"></div>
 		</header>
 		<div class="wrapper">
-		<?php //echo $_SERVER['REQUEST_URI']; ?>

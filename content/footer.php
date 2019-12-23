@@ -2,6 +2,6 @@
 		<footer>
 		
 		</footer>
-		<?php getScript('script.js'); ?>
+		<?php getThemeScript('script.js'); ?>
 	</body>
 </html>

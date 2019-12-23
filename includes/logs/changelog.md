@@ -4,6 +4,38 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 2.2.2[a] (2019-12-22)
+
+* The front end header now remains sticky when the page is scrolled
+* Fixed some visual issues with the header and tweaked its styling
+* Created a function that constructs a nav menu
+* Created a function that fetches a menu item's metadata
+* Created a function that checks whether a menu item has a parent
+* Created a function that checks whether a menu item has children
+* Created a function that fetches a menu item's descendants
+* Created a function that fetches a menu item's parent
+* Created a global function that constructs a permalink
+* Moved the Post::isHomePage function to the globals.php file and tweaked its code
+* A house icon now denotes the home page on the 'List Pages' admin page
+* Menus are now fully dynamic on the front end
+* Moved all theme-related styles to the theme stylesheet (content/style.css)
+* Moved all theme-related scripts to the theme script file (content/script.js)
+* Fixed some minor issues with the mobile header scripts
+* The Post::getPermalink function now makes use of the global getPermalink function
+* Tweaked documentation in multiple files
+
+**Modified files:**
+* admin/includes/class-post.php
+* content/footer.php (M)
+* content/header.php
+* content/script.js
+* content/style.css
+* includes/functions.php
+* includes/globals.php
+* includes/css/style.css
+* includes/js/script.js
+
+----------------------------------------------------------------------------------------------------
 ## Version 2.2.1[a] (2019-12-17)
 
 * Tweaked a previous entry in the changelog
