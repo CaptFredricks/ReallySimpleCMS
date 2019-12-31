@@ -190,7 +190,7 @@ function adminHeaderScripts() {
 	}
 	
 	// Font Awesome icons stylesheet
-	getStylesheet('font-awesome.min.css', '5.11.2');
+	getStylesheet('font-awesome.min.css', '5.12.0');
 	
 	// JQuery library
 	getScript('jquery.min.js', '3.4.1');

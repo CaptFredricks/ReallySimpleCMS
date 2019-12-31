@@ -1,7 +1,3 @@
-<?php
-// Fetch the post object
-$rs_post = getPost('new-york-city');
-?>
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -18,7 +14,7 @@ $rs_post = getPost('new-york-city');
 		
 		<link type="image/x-icon" href="<?php echo getMediaSrc(getSetting('site_icon', false)); ?>" rel="icon">
 		<?php getStylesheet('style.css'); ?>
-		<?php getStylesheet('font-awesome.min.css', '5.11.2'); ?>
+		<?php getStylesheet('font-awesome.min.css', '5.12.0'); ?>
 		<?php getThemeStylesheet('style.css'); ?>
 		<?php getScript('jquery.min.js', '3.4.1'); ?>
 	</head>

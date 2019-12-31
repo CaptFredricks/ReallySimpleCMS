@@ -4,6 +4,41 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 2.2.4[a] (2019-12-30)
+
+* Tweaked styling of the front end theme
+* List pages for all post types other than 'page' now sort in descending order by date (pages sort in ascending order by title)
+* If a post's date has not been set, it will no longer display the current date on the 'List Post' page
+* Tweaked styling for certain inputs on admin forms
+* Added a publish date field to the 'Create Post' and 'Edit Post' forms
+* Menu items are now given an 'invalid' status if the post they are linked to is deleted
+* Invalid menu items are now denoted in light red on the 'Edit Menu' form
+* Invalid menu items no longer are displayed on the front end
+* If a new post is published without a date being set, its publish date will be set using the special 'NOW()' function
+* If an existing post is updated without a date being set, its publish date will be set to null
+* The front end Post object is now created in the root index.php file
+* Created a function that checks whether a post has a featured image
+* Updated Font Awesome to 5.12.0
+* Added a scroll to top button to the front end
+
+**Modified files:**
+* index.php
+* admin/includes/class-menu.php
+* admin/includes/class-post.php
+* admin/includes/functions.php (M)
+* admin/includes/css/style.css
+* content/footer.php
+* content/header.php
+* content/index.php
+* content/style.css (M)
+* includes/class-menu.php
+* includes/class-post.php
+* includes/functions.php
+* includes/css/font-awesome.min.css
+* includes/css/style.css
+* includes/js/script.js
+
+----------------------------------------------------------------------------------------------------
 ## Version 2.2.3[a] (2019-12-24)
 
 * Tweaked documentation in the globals.php file

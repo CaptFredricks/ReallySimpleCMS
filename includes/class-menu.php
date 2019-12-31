@@ -54,7 +54,10 @@ class Menu {
 				// Loop through the menu items' metadata
 				foreach($itemmeta as $meta) {
 					// Fetch the menu item from the database
-					$menu_item = $rs_query->selectRow('posts', array('id', 'title'), array('id'=>$meta['post']));
+					$menu_item = $rs_query->selectRow('posts', array('id', 'title', 'status'), array('id'=>$meta['post']));
+					
+					// Check whether the menu item is invalid
+					if($menu_item['status'] === 'invalid') continue;
 					
 					// Check whether the menu item has a parent or is on the top level
 					if(!$this->menuItemHasParent($menu_item['id'])) {

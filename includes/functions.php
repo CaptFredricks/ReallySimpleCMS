@@ -13,23 +13,27 @@ spl_autoload_register(function($class_name) {
 define('COOKIE_HASH', md5(getSetting('site_url', false)));
 
 /**
- * Include the theme's header file.
+ * Include the theme's header template.
  * @since 1.5.5[a]
  *
  * @return null
  */
 function getHeader() {
-	include_once PATH.CONT.'/header.php';
+	// Extend the Post object
+	global $rs_post;
+	
+	// Include the header template
+	require_once PATH.CONT.'/header.php';
 }
 
 /**
- * Include the theme's footer file.
+ * Include the theme's footer template.
  * @since 1.5.5[a]
  *
  * @return null
  */
 function getFooter() {
-	include_once PATH.CONT.'/footer.php';
+	require_once PATH.CONT.'/footer.php';
 }
 
 /**
@@ -62,7 +66,7 @@ function getPageSlug() {
 }
 
 /**
- * Fetch a post's data.
+ * Set up a Post object.
  * @since 2.2.3[a]
  *
  * @param string $slug (optional; default: '')

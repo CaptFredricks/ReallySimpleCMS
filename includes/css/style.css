@@ -143,3 +143,30 @@ small {
 	padding: 1em;
 	text-align: center;
 }
+
+/* Scroll to top button */
+
+#scroll-top {
+	background-color: #6f6f6f;
+	border-radius: 0.25em;
+	box-shadow: 0 2px 3px rgba(0,0,0,0.5);
+	color: #fefefe;
+    cursor: pointer;
+    line-height: 1.125em;
+	opacity: 0;
+	padding: 1em 1.125em;
+	position: fixed;
+	  right: 1em;
+      bottom: 1em;
+      z-index: -1;
+	transition: background-color 0.25s, opacity 0.25s ease-in;
+}
+
+#scroll-top:hover {
+	background-color: #afafaf;
+}
+
+#scroll-top.visible {
+	opacity: 1;
+    z-index: 999;
+}

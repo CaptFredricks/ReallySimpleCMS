@@ -79,11 +79,17 @@ class Post {
 			</thead>
 			<tbody>
 				<?php
+				// Set the default 'order by' argument
+				$order_by = $type === 'page' ? 'title' : 'date';
+				
+				// Set the default 'order' argument
+				$order = $type === 'page' ? 'ASC' : 'DESC';
+				
 				// Fetch all posts from the database
 				if($status === 'all')
-					$posts = $rs_query->select('posts', '*', array('status'=>array('<>', 'trash'), 'type'=>$type), 'title', 'ASC', array($page['start'], $page['per_page']));
+					$posts = $rs_query->select('posts', '*', array('status'=>array('<>', 'trash'), 'type'=>$type), $order_by, $order, array($page['start'], $page['per_page']));
 				else
-					$posts = $rs_query->select('posts', '*', array('status'=>$status, 'type'=>$type), 'title', 'ASC', array($page['start'], $page['per_page']));
+					$posts = $rs_query->select('posts', '*', array('status'=>$status, 'type'=>$type), $order_by, $order, array($page['start'], $page['per_page']));
 				
 				// Loop through the posts
 				foreach($posts as $post) {
@@ -94,7 +100,7 @@ class Post {
 						tableCell((isHomePage($post['id']) ? '<i class="fas fa-home" style="cursor: help;" title="Home Page"></i> ' : '').'<strong>'.$post['title'].'</strong>'.($post['status'] !== 'published' && $status === 'all' ? ' &ndash; <em>'.$post['status'].'</em>' : '').'<div class="actions">'.($status !== 'trash' ? '<a href="?id='.$post['id'].'&action=edit">Edit</a> &bull; <a href="?id='.$post['id'].'&action=trash">Trash</a> &bull; <a href="'.($post['status'] === 'published' ? (isHomePage($post['id']) ? '/' : $this->getPermalink($post['parent'], $post['slug'])).'">View' : ('/?id='.$post['id'].'&preview=true').'">Preview').'</a>' : '<a href="?id='.$post['id'].'&action=restore">Restore</a> &bull; <a class="modal-launch delete-item" href="?id='.$post['id'].'&action=delete" data-item="'.$post['type'].'">Delete</a>').'</div>', 'title'),
 						tableCell($this->getAuthor($post['author']), 'author'),
 						$type === 'post' ? tableCell($this->getCategories($post['id']), 'categories') : '',
-						tableCell(formatDate($post['date'], 'd M Y @ g:i A'), 'publish-date'),
+						tableCell(is_null($post['date']) ? '&mdash;' : formatDate($post['date'], 'd M Y @ g:i A'), 'publish-date'),
 						$type !== 'post' ? tableCell($this->getParent($post['parent']), 'parent') : '',
 						tableCell(!empty($meta['title']) ? 'Yes' : 'No', 'meta_title'),
 						tableCell(!empty($meta['description']) ? 'Yes' : 'No', 'meta_description')
@@ -130,7 +136,7 @@ class Post {
 		$message = isset($_POST['submit']) ? $this->validateData($_POST) : '';
 		?>
 		<div class="heading-wrap">
-			<h1>Create <?php echo ucwords($type); ?></h1>
+			<h1>Create <?php echo ucwords(str_replace('_', ' ', $type)); ?></h1>
 			<?php echo $message; ?>
 		</div>
 		<div class="data-form-wrap clear">
@@ -174,6 +180,14 @@ class Post {
 							// Construct an 'author' form tag
 							echo formTag('label', array('for'=>'author', 'content'=>'Author'));
 							echo formTag('select', array('class'=>'select-input', 'name'=>'author', 'content'=>$this->getAuthorList()));
+							?>
+						</div>
+						<div class="row">
+							<?php
+							// Construct a 'publish date' form tag
+							echo formTag('label', array('for'=>'date', 'content'=>'Publish on')).formTag('br');
+							echo formTag('input', array('type'=>'date', 'class'=>'date-input', 'name'=>'date[]'));
+							echo formTag('input', array('type'=>'time', 'class'=>'date-input', 'name'=>'date[]'));
 							?>
 						</div>
 						<div id="submit" class="row">
@@ -300,7 +314,7 @@ class Post {
 					$meta = $this->getPostMeta($id);
 					?>
 					<div class="heading-wrap">
-						<h1>Edit <?php echo ucwords($post['type']); ?></h1>
+						<h1>Edit <?php echo ucwords(str_replace('_', ' ', $post['type'])); ?></h1>
 						<?php echo $message; ?>
 					</div>
 					<div class="data-form-wrap clear">
@@ -345,9 +359,10 @@ class Post {
 									</div>
 									<div class="row">
 										<?php
-										// Construct a 'publish date' form tag label
-										echo formTag('label', array('for'=>'date', 'content'=>'Published on'));
-										echo '<span id="date">'.formatDate($post['date'], 'M d Y @ h:i A').'</span>';
+										// Construct a 'publish date' form tag
+										echo formTag('label', array('for'=>'date', 'content'=>'Published on')).formTag('br');
+										echo formTag('input', array('type'=>'date', 'class'=>'date-input', 'name'=>'date[]', 'value'=>(!is_null($post['date']) ? formatDate($post['date'], 'Y-m-d') : '')));
+										echo formTag('input', array('type'=>'time', 'class'=>'date-input', 'name'=>'date[]', 'value'=>(!is_null($post['date']) ? formatDate($post['date'], 'H:i') : '')));
 										?>
 									</div>
 									<div id="submit" class="row">
@@ -534,6 +549,15 @@ class Post {
 				$rs_query->update('terms', array('count'=>$count), array('id'=>$relationship['term']));
 			}
 			
+			// Fetch any menu items associated with the post from the database
+			$menu_items = $rs_query->select('postmeta', 'post', array('_key'=>'post_link', 'value'=>$id));
+			
+			// Loop through the menu items
+			foreach($menu_items as $menu_item) {
+				// Set the status of any menu items associated with the post to 'invalid' in the database
+				$rs_query->update('posts', array('status'=>'invalid'), array('id'=>$menu_item['post']));
+			}
+			
 			// Redirect to the 'List Posts' page (with a success status)
 			redirect('posts.php'.($type !== 'post' ? '?type='.$type.'&' : '?').'status=trash&exit_status=success');
 		}
@@ -568,11 +592,20 @@ class Post {
 		$postmeta = array('title'=>$data['meta_title'], 'description'=>$data['meta_description'], 'feat_image'=>$data['feat_image']);
 		
 		if($id === 0) {
+			// Check whether a date has been provided and is valid
+			if(!empty($data['date'][0]) && !empty($data['date'][1]) && $data['date'][0] >= '1000-01-01') {
+				// Merge the date and time into a string
+				$data['date'] = implode(' ', $data['date']);
+			} else {
+				// Fetch the current date and time
+				$data['date'] = 'NOW()';
+			}
+			
 			// Set the parent to zero if the post's type is 'post' (non-hierarchical)
 			if($data['type'] === 'post') $data['parent'] = 0;
 			
 			// Insert the new post into the database
-			$insert_id = $rs_query->insert('posts', array('title'=>$data['title'], 'author'=>$data['author'], 'date'=>'NOW()', 'content'=>$data['content'], 'status'=>$data['status'], 'slug'=>$data['slug'], 'parent'=>$data['parent'], 'type'=>$data['type']));
+			$insert_id = $rs_query->insert('posts', array('title'=>$data['title'], 'author'=>$data['author'], 'date'=>$data['date'], 'content'=>$data['content'], 'status'=>$data['status'], 'slug'=>$data['slug'], 'parent'=>$data['parent'], 'type'=>$data['type']));
 			
 			// Insert the post's metadata into the database
 			foreach($postmeta as $key=>$value)
@@ -596,6 +629,15 @@ class Post {
 			// Redirect to the 'Edit Post' page
 			redirect('posts.php?id='.$insert_id.'&action=edit');
 		} else {
+			// Check whether a date has been provided and is valid
+			if(!empty($data['date'][0]) && !empty($data['date'][1]) && $data['date'][0] >= '1000-01-01') {
+				// Merge the date and time into a string
+				$data['date'] = implode(' ', $data['date']);
+			} else {
+				// Set the date and time to null
+				$data['date'] = null;
+			}
+			
 			// Fetch the post's type from the database
 			$type = $rs_query->selectField('posts', 'type', array('id'=>$id));
 			
@@ -603,7 +645,7 @@ class Post {
 			if($type === 'post') $data['parent'] = 0;
 			
 			// Update the post in the database
-			$rs_query->update('posts', array('title'=>$data['title'], 'author'=>$data['author'], 'modified'=>'NOW()', 'content'=>$data['content'], 'status'=>$data['status'], 'slug'=>$data['slug'], 'parent'=>$data['parent']), array('id'=>$id));
+			$rs_query->update('posts', array('title'=>$data['title'], 'author'=>$data['author'], 'date'=>$data['date'], 'modified'=>'NOW()', 'content'=>$data['content'], 'status'=>$data['status'], 'slug'=>$data['slug'], 'parent'=>$data['parent']), array('id'=>$id));
 			
 			// Update the post's metadata in the database
 			foreach($postmeta as $key=>$value)

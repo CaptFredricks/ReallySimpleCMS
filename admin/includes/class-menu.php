@@ -538,7 +538,7 @@ class Menu {
 			// Loop through the menu items' metadata
 			foreach($itemmeta as $meta) {
 				// Fetch the menu item from the database
-				$menu_item = $rs_query->selectRow('posts', array('id', 'title', 'parent'), array('id'=>$meta['post']));
+				$menu_item = $rs_query->selectRow('posts', array('id', 'title', 'status', 'parent'), array('id'=>$meta['post']));
 				
 				// Check what type of link is being used
 				if(isset($meta['post_link']))
@@ -548,8 +548,8 @@ class Menu {
 				elseif(isset($meta['custom_link']))
 					$type = 'custom';
 				?>
-				<li class="menu-item depth-<?php echo $this->getMenuItemDepth($menu_item['id']); ?>">
-					<strong><?php echo $menu_item['title']; ?></strong> &mdash; <small><em><?php echo $type; ?></em></small>
+				<li class="menu-item depth-<?php echo $this->getMenuItemDepth($menu_item['id']).($menu_item['status'] === 'invalid' ? ' invalid' : ''); ?>">
+					<strong><?php echo $menu_item['title']; ?></strong> &mdash; <small><em><?php echo empty($type) ? $menu_item['status'] : $type; ?></em></small>
 					<?php
 					// Check whether the menu item's id is set
 					if(isset($_GET['item_id']) && (int)$_GET['item_id'] === $menu_item['id']) {

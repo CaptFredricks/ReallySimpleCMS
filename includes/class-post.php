@@ -301,4 +301,19 @@ class Post {
         else
             return getSetting('site_url', false).getPermalink($this->getPostParent(false), $this->slug);
     }
+	
+	/**
+	 * Check whether a post has a featured image.
+	 * @since 2.2.4[a]
+	 *
+	 * @access public
+	 * @return bool
+	 */
+	public function postHasFeatImage() {
+		// Extend the Query class
+		global $rs_query;
+		
+		// Return true if the post has a featured image
+		return (int)$rs_query->selectField('postmeta', 'value', array('post'=>$this->getPostId(false), '_key'=>'feat_image')) !== 0;
+	}
 }
