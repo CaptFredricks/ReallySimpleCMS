@@ -33,223 +33,62 @@ function getFooter() {
 }
 
 /**
- * Fetch a post's data.
- * @since 2.2.0[a]
+ * Fetch the slug from the URL.
+ * @since 2.2.3[a]
  *
- * @param int|string $post
- * @param string $callback
- * @param string|array $data (optional; default: '')
+ * @return string
+ */
+function getPageSlug() {
+	// Check whether the current page is the home page
+	if($_SERVER['REQUEST_URI'] === '/') {
+		// Extend the Query class
+		global $rs_query;
+		
+		// Fetch the home page's id from the database
+		$home_page = $rs_query->selectField('settings', 'value', array('name'=>'home_page'));
+		
+		// Create a Post object
+		$rs_post = new Post;
+		
+		// Return the slug
+		return $rs_post->getPostSlug($home_page, false);
+	} else {
+		// Create an array from the page's URI
+		$uri = explode('/', $_SERVER['REQUEST_URI']);
+		
+		// Return the slug
+		return array_pop($uri);
+	}
+}
+
+/**
+ * Fetch a post's data.
+ * @since 2.2.3[a]
+ *
+ * @param string $slug (optional; default: '')
  * @return object
  */
-function getPost($callback, $data = array()) {
-	// Create a Post object
-	$rs_post = new Post;
+function getPost($slug = '') {
+	// Check whether a slug has been provided and fetch the page's slug from the URL if so
+	if(empty($slug)) $slug = getPageSlug();
 	
-	// Check whether the data is an array and turn it into one if not
-	if(!is_array($data)) $data = array($data);
-	
-	// Return the post's data
-	return call_user_func_array(array($rs_post, 'getPost'.$callback), $data);
+	// Create and return a Post object
+	return new Post($slug);
 }
 
 /**
  * Fetch a nav menu.
- * @since 2.2.2[a]
+ * @since 2.2.3[a]
  *
  * @param string $slug
  * @return null
  */
 function getMenu($slug) {
-	// Extend the Query string
-	global $rs_query;
+	// Create a Menu object
+	$rs_menu = new Menu;
 	
-	// Fetch the menu's id from the database
-	$id = $rs_query->selectField('terms', 'id', array('slug'=>$slug));
-	?>
-	<nav class="nav-menu menu-id-<?php echo $id; ?>">
-		<ul>
-			<?php
-			// Fetch the term relationships from the database
-			$relationships = $rs_query->select('term_relationships', 'post', array('term'=>$id));
-			
-			// Create an empty array to hold the menu items' metadata
-			$itemmeta = array();
-			
-			// Create an index counter for the metadata array
-			$i = 0;
-			
-			// Loop through the term relationships
-			foreach($relationships as $relationship) {
-				// Fetch the metadata associated with each menu item from the database
-				$itemmeta[] = getMenuItemMeta($relationship['post']);
-				
-				// Reverse the array (to place the index first)
-				$itemmeta[$i] = array_reverse($itemmeta[$i]);
-				
-				// Push the menu item's id onto the array
-				$itemmeta[$i]['post'] = $relationship['post'];
-				
-				// Increment the index counter
-				$i++;
-			}
-			
-			// Sort the array in ascending index order
-			asort($itemmeta);
-			
-			// Loop through the menu items' metadata
-			foreach($itemmeta as $meta) {
-				// Fetch the menu item from the database
-				$menu_item = $rs_query->selectRow('posts', array('id', 'title', 'parent'), array('id'=>$meta['post']));
-				
-				// Check what type of link is being used
-				if(isset($meta['post_link']))
-					$link = isHomePage((int)$meta['post_link']) ? '/' : getPermalink('post', getMenuItemParent($meta['post_link']));
-				elseif(isset($meta['term_link']))
-					$link = getPermalink('category', getMenuItemParent($meta['term_link']));
-				elseif(isset($meta['custom_link']))
-					$link = $meta['custom_link'];
-				
-				// Check whether the menu item has a parent or is on the top level
-				if(!menuItemHasParent($menu_item['id'])) {
-					?>
-					<li<?php echo menuItemHasChildren($menu_item['id']) ? ' class="menu-item-has-children"' : ''; ?>>
-						<a href="<?php echo $link; ?>"><?php echo $menu_item['title']; ?></a>
-						<?php
-						if(menuItemHasChildren($menu_item['id']))
-							getMenuItemDescendants($menu_item['id']);
-						?>
-					</li>
-					<?php
-				}
-			}
-			?>
-		</ul>
-	</nav>
-	<?php
-}
-
-/**
- * Check whether a menu item has a parent.
- * @since 2.2.2[a]
- *
- * @param int $id
- * @return bool
- */
-function menuItemHasParent($id) {
-	// Extend the Query class
-	global $rs_query;
-	
-	// Fetch the menu item's parent id from the database and return true if it's not equal to zero
-	return (int)$rs_query->selectField('posts', 'parent', array('id'=>$id)) !== 0;
-}
-
-/**
- * Check whether a menu item has children.
- * @since 2.2.2[a]
- *
- * @param int $id
- * @return bool
- */
-function menuItemHasChildren($id) {
-	// Extend the Query class
-	global $rs_query;
-	
-	// Fetch the number of children the menu item has from the database and return true if it's greater than zero
-	return $rs_query->select('posts', 'COUNT(*)', array('parent'=>$id)) > 0;
-}
-
-/**
- * Fetch a menu item's metadata.
- * @since 2.2.2[a]
- *
- * @param int $id
- * @return array
- */
-function getMenuItemMeta($id) {
-	// Extend the Query class
-	global $rs_query;
-	
-	// Fetch the menu item's metadata from the database
-	$itemmeta = $rs_query->select('postmeta', array('_key', 'value'), array('post'=>$id));
-	
-	// Create an empty array to hold the metadata
-	$meta = array();
-	
-	// Loop through the metadata
-	foreach($itemmeta as $metadata) {
-		// Get the meta values
-		$values = array_values($metadata);
-		
-		// Loop through the individual metadata entries
-		for($i = 0; $i < count($metadata); $i += 2) {
-			// Assign the metadata to the meta array
-			$meta[$values[$i]] = $values[$i + 1];
-		}
-	}
-	
-	// Return the metadata
-	return $meta;
-}
-
-/**
- * Fetch a menu item's parent.
- * @since 2.2.2[a]
- *
- * @param int $id
- * @return int
- */
-function getMenuItemParent($id) {
-	// Extend the Query class
-	global $rs_query;
-	
-	// Fetch the menu item's parent id from the database and return it
-	return $rs_query->selectField('posts', 'id', array('id'=>$id));
-}
-
-/**
- * Fetch all descendants of a menu item.
- * @since 2.2.2[a]
- *
- * @param int $id
- * @return null
- */
-function getMenuItemDescendants($id) {
-	// Extend the Query class
-	global $rs_query;
-	?>
-	<ul class="sub-menu">
-		<?php
-		// Select any existing children from the database
-		$children = $rs_query->select('posts', array('id', 'title'), array('parent'=>$id));
-		
-		// Loop through the children
-		foreach($children as $child) {
-			// Fetch the menu item's metadata
-			$meta = getMenuItemMeta($child['id']);
-			
-			// Check what type of link is being used
-			if(isset($meta['post_link']))
-				$link = isHomePage((int)$meta['post_link']) ? '/' : getPermalink('post', getMenuItemParent($meta['post_link']));
-			elseif(isset($meta['term_link']))
-				$link = getPermalink('category', getMenuItemParent($meta['term_link']));
-			elseif(isset($meta['custom_link']))
-				$link = $meta['custom_link'];
-			?>
-			<li<?php echo menuItemHasChildren($child['id']) ? ' class="menu-item-has-children"' : ''; ?>>
-				<a href="<?php echo $link; ?>"><?php echo $child['title']; ?></a>
-				<?php
-				// Check whether the menu item has descendants
-				if(menuItemHasChildren($child['id'])) {
-					// Fetch the descendants of the menu item
-					getMenuItemDescendants($child['id']);
-				}
-				?>
-			</li>
-			<?php
-		}
-		?>
-	</ul>
-	<?php
+	// Display the menu
+	$rs_menu->getMenu($slug);
 }
 
 /**
@@ -300,6 +139,33 @@ function getWidget($slug, $display_title = false) {
 		</div>
 		<?php
 	}
+}
+
+/**
+ * Construct a list of CSS classes for the body tag.
+ * @since 2.2.3[a]
+ *
+ * @param array $addtl_classes (optional; default: array())
+ * @return string
+ */
+function bodyClasses($addtl_classes = array()) {
+	// Fetch the post object
+	$rs_post = getPost();
+	
+	// Fetch the post's slug and add an appropriate class
+	$classes[] = getPageSlug();
+	
+	// Fetch the post's type and id and add an appropriate class
+	$classes[] = $rs_post->getPostType(false).'-id-'.$rs_post->getPostId(false);
+	
+	// Check whether the current page is the home page and add an appropriate class if so
+	if(isHomePage($rs_post->getPostId(false))) $classes[] = 'home-page';
+
+	// Check whether the user is logged in and add an appropriate class if so
+	if(isValidSession($_COOKIE['session'])) $classes[] = 'logged-in';
+	
+	// Return the classes as a string
+	return implode(' ', $classes);
 }
 
 /**

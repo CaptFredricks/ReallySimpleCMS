@@ -185,9 +185,9 @@
 	  z-index: 998;
 }
 
-/* Wrapper */
+/* Main content */
 
-.wrapper {
+.content {
 	margin-top: 60px;
 }
 
@@ -195,10 +195,21 @@
     CONTENT
 \*------------------------------------*/
 
-/* Content pages */
+.wrapper {
+	margin: 0 auto;
+	max-width: 1200px;
+}
 
 .featured-image {
 	max-width: 100%;
+}
+
+.post-content {
+	padding: 1em;
+}
+
+.sidebar {
+	
 }
 
 /*------------------------------------*\
@@ -343,7 +354,7 @@
 		background-color: #eee;
 	}
 	
-	.wrapper {
+	.content {
 		margin-top: 112px;
 	}
 }

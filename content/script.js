@@ -28,18 +28,9 @@ jQuery(document).ready(function($) {
 			
 			// Check whether the current scroll position is greater than the header's offset (bottom)
 			if(scroll > header_offset) {
-				// Check whether a spacer has been added after the header
-				if(!$('.fix-space').length && $('body').hasClass('home-page')) {
-					// Add a spacer after the header
-					$(header).after('<div class="fix-space" style="height: ' + $(header).height() + 'px;"></div>');
-				}
-				
 				// Add the 'sticky' class to the header
 				$(header).addClass('sticky');
 			} else {
-				// Remove the spacer
-				$('.fix-space').remove();
-				
 				// Remove the 'sticky' class from the header
 				$(header).removeClass('sticky');
 			}

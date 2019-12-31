@@ -1,6 +1,26 @@
 <?php // A list of deprecated functions that may be used again later on (ordered by descending deprecated version).
 
 /**
+ * Fetch a post's data.
+ * @since 2.2.0[a]
+ * @deprecated since 2.2.3[a]
+ *
+ * @param string $callback
+ * @param string|array $data (optional; default: '')
+ * @return object
+ */
+function getPost($callback, $data = array()) {
+	// Create a Post object
+	$rs_post = new Post;
+	
+	// Check whether the data is an array and turn it into one if not
+	if(!is_array($data)) $data = array($data);
+	
+	// Return the post's data
+	return call_user_func_array(array($rs_post, 'getPost'.$callback), $data);
+}
+
+/**
  * Check whether a menu item is a sibling of another menu item.
  * @since 1.8.9[a]
  * @deprecated since 1.8.12[a]

@@ -4,6 +4,40 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 2.2.3[a] (2019-12-24)
+
+* Tweaked documentation in the globals.php file
+* Tweaked code in the getMedia function
+* Created a front end Menu class and moved all menu-related functions to it
+* Tweaked documentation in the includes functions.php file
+* Repurposed the getMenu function
+* Created a function that checks whether a menu item matches the current page
+* Improved conditional CSS class handling for menu items in the Menu::getMenu and Menu::getMenuItemDescendants functions
+* Restructured the content area of the front end
+* Created a function that fetches a page's slug
+* Created a function that constructs a list of body classes
+* Deprecated the getPost function and replaced it with a new function (named the same) that instantiates the Post object
+* A post's data can now be retrieved by calling getPost() and optionally supplying a slug
+* Fixed an issue in the Menu::getMenuItemDescendants function where sub menu items were not properly ordered
+* Tweaked styling of the content area
+* Created a function that fetches a post's metadata
+* Added meta tags to the front end header.php file
+* Created a function that constructs a post's full URL
+* Cleaned up code in the front end theme's script.js file
+
+**Modified files:**
+* content/footer.php (M)
+* content/header.php
+* content/index.php
+* content/script.js
+* content/style.css
+* includes/class-menu.php (N)
+* includes/class-post.php
+* includes/deprecated.php
+* includes/functions.php
+* includes/globals.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 2.2.2[a] (2019-12-22)
 
 * The front end header now remains sticky when the page is scrolled

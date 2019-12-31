@@ -4,12 +4,19 @@ if(!defined('PATH')) exit('You do not have permission to access this directory.'
 
 // Include the header
 getHeader();
+
+// Fetch the post object
+$rs_post = getPost();
 ?>
-<article>
-	<?php getPost('FeatImage', 'sample-page'); ?>
-	<h1><?php getPost('Title', 'sample-page'); ?></h1>
-	<?php getPost('Content', 'sample-page'); ?>
-</article>
+<div class="featured-image-wrap">
+	<?php $rs_post->getPostFeatImage(); ?>
+</div>
+<section class="wrapper">
+	<article class="post-content post-id-<?php $rs_post->getPostId(); ?>">
+		<h1><?php $rs_post->getPostTitle(); ?></h1>
+		<?php $rs_post->getPostContent(); ?>
+	</article>
+</section>
 <?php
 // Include the footer
 getFooter();

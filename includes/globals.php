@@ -5,7 +5,7 @@
  */
 
 // Current CMS version
-const VERSION = '2.2.2';
+const VERSION = '2.2.3';
 
 /**
  * Display the copyright information on the admin dashboard.
@@ -54,7 +54,7 @@ function redirect($url, $status = 302) {
 }
 
 /**
- * Check whether a post or page is the website's home page.
+ * Check whether a post is the website's home page.
  * @since 1.4.0[a]
  *
  * @param int $id
@@ -298,7 +298,7 @@ function getMediaSrc($id) {
 
 /**
  * Fetch a specified media item.
- * @since 2.1.5[a]
+ * @since 2.2.0[a]
  *
  * @param int $id
  * @param string $classes (optional; default: '')
@@ -321,22 +321,22 @@ function getMedia($id, $classes = '', $link_text = '') {
 		$alt_text = $rs_query->selectField('postmeta', 'value', array('post'=>$id, '_key'=>'alt_text'));
 		
 		// Construct an image tag
-		return '<img class="'.$classes.'" src="'.$src.'" alt="'.$alt_text.'">';
+		return '<img'.(!empty($classes) ? ' class="'.$classes.'"' : '').' src="'.$src.'" alt="'.$alt_text.'">';
 	} elseif(strpos($mime_type, 'audio') !== false) {
 		// Construct an audio tag
-		return '<audio class="'.$classes.'" src="'.$src.'"></audio>';
+		return '<audio'.(!empty($classes) ? ' class="'.$classes.'"' : '').' src="'.$src.'"></audio>';
 	} elseif(strpos($mime_type, 'video') !== false) {
 		// Construct a video tag
-		return '<video class="'.$classes.'" src="'.$src.'"></video>';
+		return '<video'.(!empty($classes) ? ' class="'.$classes.'"' : '').' src="'.$src.'"></video>';
 	} else {
 		// Check whether any link text has been provided
 		if(empty($link_text)) {
-			// Fetch the media's title
+			// Fetch the media's title from the database
 			$link_text = $rs_query->selectField('posts', 'title', array('id'=>$id));
 		}
 		
 		// Construct an anchor tag
-		return '<a class="'.$classes.'" href="'.$src.'">'.$link_text.'</a>';
+		return '<a'.(!empty($classes) ? ' class="'.$classes.'"' : '').' href="'.$src.'">'.$link_text.'</a>';
 	}
 }
 
