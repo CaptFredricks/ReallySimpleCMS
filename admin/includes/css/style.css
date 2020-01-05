@@ -1083,6 +1083,9 @@ h3 {
 	background-color: #4f4f4f;
 	border-radius: 0.375em;
 	box-shadow: 0 2px 4px #000;
+	margin: auto;
+	max-height: 600px;
+    max-width: 1200px;
 	position: fixed;
 	  top: 2em;
 	  right: 2em;

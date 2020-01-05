@@ -4,6 +4,46 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 2.2.5[a] (2020-01-04)
+
+* Removed an unnecessary console log from the theme script.js file
+* Deleted the page.php file (deprecated in a previous version)
+* Tweaked documentation in numerous front end files
+* Reorganized the changelog
+* Tweaked styling of the 'scroll to top' button
+* The current page's slug is now determined within the Post class' constructor
+* The Post::getPostParent function now correctly returns an integer
+* The getHeader and getFooter functions now include both the Post object and the user's session data as global variables
+* Deprecated the getPageSlug function (its functionality is now used directly by the Post class' constructor)
+* The getPost function's 'slug' parameter is now required, and it no longer makes use of the deprecated getPageSlug function
+* Cleaned up code in the bodyClasses function
+* A class is now added to the body if the post/page is a child of another post/page
+* Custom classes can now be added to the body tag by using the bodyClass function's optional 'addtl_classes' parameter
+* The global $session variable is now set in the root index.php file
+* Created a function that fetches a post's permalink (Post class)
+* Added a CSS class to the widget content wrapper div
+* The Font Awesome stylesheet is now included on the 'Log In' page
+* The jQuery library and the front end script.js file are now included on the 'Log In' page
+* Tweaked some styling of the log in form
+* The password field can now be set to plain text on the log in form
+* Set maximum a width and height for the delete and upload modals
+
+**Modified files:**
+* admin/includes/css/style.css (M)
+* content/script.js (M)
+* includes/class-login.php
+* includes/class-menu.php (M)
+* includes/class-post.php
+* includes/css/style.css
+* includes/deprecated.php
+* includes/functions.php
+* includes/globals.php (M)
+* includes/js/script.js
+* index.php
+* login.php (M)
+* page.php (X)
+
+----------------------------------------------------------------------------------------------------
 ## Version 2.2.4[a] (2019-12-30)
 
 * Tweaked styling of the front end theme
@@ -22,21 +62,21 @@
 * Added a scroll to top button to the front end
 
 **Modified files:**
-* index.php
 * admin/includes/class-menu.php
 * admin/includes/class-post.php
-* admin/includes/functions.php (M)
 * admin/includes/css/style.css
+* admin/includes/functions.php (M)
 * content/footer.php
 * content/header.php
 * content/index.php
 * content/style.css (M)
 * includes/class-menu.php
 * includes/class-post.php
-* includes/functions.php
 * includes/css/font-awesome.min.css
 * includes/css/style.css
+* includes/functions.php
 * includes/js/script.js
+* index.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.2.3[a] (2019-12-24)
@@ -99,9 +139,9 @@
 * content/header.php
 * content/script.js
 * content/style.css
+* includes/css/style.css
 * includes/functions.php
 * includes/globals.php
-* includes/css/style.css
 * includes/js/script.js
 
 ----------------------------------------------------------------------------------------------------
@@ -125,9 +165,9 @@
 * content/footer.php (M)
 * content/header.php
 * includes/class-post.php (M)
+* includes/css/style.css
 * includes/functions.php
 * includes/globals.php
-* includes/css/style.css
 * includes/js/script.js (N)
 
 ----------------------------------------------------------------------------------------------------
@@ -162,15 +202,14 @@
 
 **Modified files:**
 * 404.php
-* login.php (M)
 * admin/header.php
 * admin/includes/class-post.php (M)
 * admin/includes/class-profile.php (M)
 * admin/includes/class-settings.php
 * admin/includes/class-user.php (M)
-* admin/includes/functions.php (M)
 * admin/includes/css/install[.min].css (M)
 * admin/includes/css/style.css
+* admin/includes/functions.php (M)
 * admin/includes/js/modal.js
 * admin/includes/js/script.js (M)
 * content/footer.php
@@ -179,6 +218,7 @@
 * includes/class-post.php
 * includes/functions.php
 * includes/globals.php
+* login.php (M)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.1.11[a] (2019-12-07)
@@ -209,26 +249,26 @@
 * When a user's profile form is submitted, it now refreshes after only 2 seconds (reduced from 3)
 
 **Modified files:**
-* login.php
 * admin/header.php
-* admin/install.php (M)
-* admin/settings.php
-* admin/setup.php (M)
 * admin/includes/class-post.php
 * admin/includes/class-profile.php
 * admin/includes/class-settings.php
 * admin/includes/class-user.php
-* admin/includes/functions.php
 * admin/includes/css/install.css
 * admin/includes/css/install.min.css (N)
 * admin/includes/css/style.css
+* admin/includes/functions.php
 * admin/includes/js/modal.js
 * admin/includes/js/script.js
-* includes/globals.php
+* admin/install.php (M)
+* admin/settings.php
+* admin/setup.php (M)
 * includes/css/button.css (R)
 * includes/css/button.min.css (N)
 * includes/css/font-awesome.min.css (R)
 * includes/css/style.css
+* includes/globals.php
+* login.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.1.10[a] (2019-12-06)
@@ -253,15 +293,15 @@
 * Improved styling of the Ocean and Sunset admin themes
 
 **Modified files:**
-* admin/install.php
-* admin/setup.php (M)
 * admin/includes/class-post.php
 * admin/includes/class-profile.php
 * admin/includes/class-user.php
-* admin/includes/functions.php
-* admin/includes/modal-upload.php (M)
 * admin/includes/css/style.css
+* admin/includes/functions.php
 * admin/includes/js/modal.js
+* admin/includes/modal-upload.php (M)
+* admin/install.php
+* admin/setup.php (M)
 * content/admin-themes/ocean.css
 * content/admin-themes/sunset.css
 * includes/class-query.php (M)
@@ -284,7 +324,6 @@
 * Added a check to make sure the minimum PHP version or higher is being run on the web server RSCMS is installed on
 
 **Modified files:**
-* init.php
 * admin/includes/class-category.php
 * admin/includes/class-media.php
 * admin/includes/class-menu.php
@@ -298,6 +337,7 @@
 * content/admin-themes/harvest.css (N)
 * content/admin-themes/sunset.css
 * includes/class-query.php
+* init.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.1.8[a] (2019-11-27)
@@ -334,10 +374,10 @@
 * admin/includes/class-profile.php
 * admin/includes/class-user.php
 * admin/includes/class-widget.php
-* admin/includes/functions.php
-* admin/includes/modal-delete.php (N)
 * admin/includes/css/style.css
+* admin/includes/functions.php
 * admin/includes/js/modal.js
+* admin/includes/modal-delete.php (N)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.1.7[a] (2019-11-25)
@@ -352,10 +392,10 @@
 
 **Modified files:**
 * admin/includes/class-media.php
-* admin/includes/functions.php
-* admin/includes/modal-upload.php (M)
 * admin/includes/css/style.css (M)
+* admin/includes/functions.php
 * admin/includes/js/modal.js
+* admin/includes/modal-upload.php (M)
 * content/admin-themes/ocean.css
 * includes/css/buttons.css
 
@@ -371,13 +411,13 @@
 * Uploaded images can now be inserted as featured images and as avatars
 
 **Modified files:**
+* admin/includes/class-media.php
+* admin/includes/css/style.css
+* admin/includes/functions.php
+* admin/includes/js/modal.js
+* admin/includes/modal-upload.php
 * admin/media.php
 * admin/upload.php (N)
-* admin/includes/class-media.php
-* admin/includes/functions.php
-* admin/includes/modal-upload.php
-* admin/includes/css/style.css
-* admin/includes/js/modal.js
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.1.5[a] (2019-11-23)
@@ -406,8 +446,8 @@
 * admin/includes/class-profile.php
 * admin/includes/class-settings.php (M)
 * admin/includes/class-user.php
-* admin/includes/functions.php
 * admin/includes/css/style.css
+* admin/includes/functions.php
 * admin/includes/js/script.js
 * includes/css/buttons.css (M)
 
@@ -436,19 +476,19 @@
 
 **Modified files:**
 * admin/header.php
-* admin/load-media.php (M)
-* admin/posts.php
 * admin/includes/class-media.php (M)
 * admin/includes/class-post.php
 * admin/includes/class-profile.php (M)
 * admin/includes/class-user.php
-* admin/includes/functions.php
-* admin/includes/modal-upload.php (M)
 * admin/includes/css/style.css
+* admin/includes/functions.php
 * admin/includes/js/modal.js
 * admin/includes/js/script.js
-* includes/globals.php
+* admin/includes/modal-upload.php (M)
+* admin/load-media.php (M)
+* admin/posts.php
 * includes/css/buttons.css (M)
+* includes/globals.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.1.3[a] (2019-11-20)
@@ -467,10 +507,10 @@
 * admin/includes/class-media.php
 * admin/includes/class-profile.php
 * admin/includes/class-user.php
-* admin/includes/functions.php
-* admin/includes/modal-upload.php
 * admin/includes/css/style.css
+* admin/includes/functions.php
 * admin/includes/js/modal.js
+* admin/includes/modal-upload.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.1.2[a] (2019-11-18)
@@ -483,12 +523,12 @@
 * Styled the media library tab of the upload modal
 
 **Modified files:**
-* admin/load-media.php (N)
 * admin/includes/class-profile.php
-* admin/includes/functions.php
-* admin/includes/modal-upload.php
 * admin/includes/css/style.css
+* admin/includes/functions.php
 * admin/includes/js/modal.js
+* admin/includes/modal-upload.php
+* admin/load-media.php (N)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.1.1[a] (2019-11-13)
@@ -510,11 +550,11 @@
 * admin/includes/class-post.php
 * admin/includes/class-profile.php
 * admin/includes/class-widget.php (M)
-* admin/includes/functions.php
-* admin/includes/modal-upload.php (N)
 * admin/includes/css/style.css
+* admin/includes/functions.php
 * admin/includes/js/modal.js (N)
 * admin/includes/js/script.js (M)
+* admin/includes/modal-upload.php (N)
 * includes/css/buttons.css (M)
 
 ----------------------------------------------------------------------------------------------------
@@ -544,13 +584,13 @@
 
 **Modified files:**
 * admin/header.php (M)
-* admin/media.php (N)
 * admin/includes/class-media.php (N)
 * admin/includes/class-menu.php
 * admin/includes/class-post.php (M)
 * admin/includes/class-profile.php (M)
 * admin/includes/class-widget.php
 * admin/includes/css/style.css
+* admin/media.php (N)
 * includes/class-login.php (M)
 * includes/class-query.php
 
@@ -572,8 +612,8 @@
 **Modified files:**
 * admin/includes/class-profile.php
 * admin/includes/class-user.php
-* admin/includes/functions.php (M)
 * admin/includes/css/style.css (M)
+* admin/includes/functions.php (M)
 * content/admin-themes/ocean.css
 * includes/class-login.php
 * includes/globals.php (M)
@@ -609,8 +649,8 @@
 * admin/header.php
 * admin/includes/class-profile.php
 * admin/includes/class-user.php
-* admin/includes/functions.php
 * admin/includes/css/style.css (M)
+* admin/includes/functions.php
 * content/admin-themes/forest.css (N)
 * content/admin-themes/ocean.css (N)
 * content/admin-themes/sunset.css (N)
@@ -650,15 +690,15 @@
 * Created a function that validates the user profile form
 
 **Modified files:**
-* login.php
 * admin/footer.php (M)
 * admin/header.php (M)
 * admin/includes/class-profile.php
 * admin/includes/class-user.php
 * includes/class-login.php
+* includes/css/style.css (M)
 * includes/functions.php
 * includes/schema.php (M)
-* includes/css/style.css (M)
+* login.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.0.5[a] (2019-10-28)
@@ -677,11 +717,11 @@
 * A confirmation is now displayed over the 'Log In' form after the 'Reset Password' form is submitted
 
 **Modified files:**
-* login.php
+* admin/includes/functions.php
 * includes/class-login.php
 * includes/functions.php
 * includes/globals.php
-* admin/includes/functions.php
+* login.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.0.4[a] (2019-10-27)
@@ -695,8 +735,8 @@
 
 **Modified files:**
 * includes/class-login.php
-* includes/globals.php
 * includes/css/style.css
+* includes/globals.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.0.3[a] (2019-10-24)
@@ -713,9 +753,9 @@
 * Created a function that constructs the 'Forgot Password' form
 
 **Modified files:**
-* login.php
 * includes/class-login.php
 * includes/css/style.css
+* login.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.0.2[a] (2019-10-18)
@@ -737,13 +777,13 @@
 * Tweaked documentation in the admin widgets.php file
 
 **Modified files:**
-* login.php
 * admin/header.php (M)
 * admin/menus.php (M)
 * admin/users.php (M)
 * admin/widgets.php (M)
 * includes/class-login.php
 * includes/globals.php (M)
+* login.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.0.1[a] (2019-10-17)
@@ -759,7 +799,6 @@
 * The user is now redirected to the login page from the admin dashboard if they're logged out
 
 **Modified files:**
-* login.php
 * admin/categories.php
 * admin/header.php
 * admin/menus.php
@@ -771,6 +810,7 @@
 * includes/captcha.php (M)
 * includes/class-login.php
 * includes/globals.php
+* login.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.0.0[a] (2019-10-16)
@@ -797,21 +837,21 @@
 * Created a function that validates the login data and logs the user in
 
 **Modified files:**
-* index.php (M)
-* login.php
 * admin/header.php
-* admin/profile.php (N)
 * admin/includes/class-menu.php
 * admin/includes/class-post.php (M)
 * admin/includes/class-profile.php (N)
 * admin/includes/class-user.php (M)
 * admin/includes/class-widget.php (M)
-* admin/includes/functions.php (M)
 * admin/includes/css/style.css
+* admin/includes/functions.php (M)
+* admin/profile.php (N)
 * includes/captcha.php (M)
 * includes/class-login.php (N)
 * includes/css/fa-icons.css
 * includes/css/style.css
+* index.php (M)
+* login.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.8.12[a] (2019-10-13)
@@ -909,9 +949,9 @@
 * Added more documentation to the Query class
 
 **Modified files:**
-* admin/install.php (M)
 * admin/includes/class-menu.php
 * admin/includes/css/style.css
+* admin/install.php (M)
 * includes/class-query.php
 
 ----------------------------------------------------------------------------------------------------
@@ -945,17 +985,17 @@
 * Made several other elements mobile responsive
 
 **Modified files:**
-* init.php
 * admin/header.php
-* admin/includes/functions.php
 * admin/includes/css/style.css
+* admin/includes/functions.php
 * content/index.php
-* includes/schema.php (M)
 * includes/css/fa-icons.css (N)
 * includes/css/style.css (M)
-* includes/fonts/fa-solid.ttf (N)
 * includes/fonts/fa-brands.ttf (N)
 * includes/fonts/fa-regular.ttf (N)
+* includes/fonts/fa-solid.ttf (N)
+* includes/schema.php (M)
+* init.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.8.4[a] (2019-09-15)
@@ -971,12 +1011,12 @@
 * Tweaked some previous entries in the changelog
 
 **Modified files:**
-* index.php
-* init.php
-* admin/install.php
 * admin/includes/class-menu.php
+* admin/install.php
 * content/index.php (M)
 * includes/class-query.php
+* index.php
+* init.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.8.3[a] (2019-09-14)
@@ -1015,18 +1055,18 @@
 
 **Modified files:**
 * admin/categories.php
-* admin/index.php (M)
-* admin/menus.php (M)
-* admin/posts.php
-* admin/settings.php (M)
-* admin/users.php
-* admin/widgets.php
 * admin/includes/class-category.php
 * admin/includes/class-menu.php (M)
 * admin/includes/class-post.php
 * admin/includes/class-user.php
 * admin/includes/class-widget.php
 * admin/includes/css/style.css
+* admin/index.php (M)
+* admin/menus.php (M)
+* admin/posts.php
+* admin/settings.php (M)
+* admin/users.php
+* admin/widgets.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.8.1[a] (2019-09-09)
@@ -1054,7 +1094,6 @@
 * A cancel button will now appear when a menu item is being edited
 
 **Modified files:**
-* admin/menus.php
 * admin/includes/class-category.php
 * admin/includes/class-menu.php
 * admin/includes/class-post.php
@@ -1063,6 +1102,7 @@
 * admin/includes/class-widget.php
 * admin/includes/css/install.css (M)
 * admin/includes/css/style.css
+* admin/menus.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.8.0[a] (2019-09-08)
@@ -1083,11 +1123,11 @@
 
 **Modified files:**
 * admin/header.php (M)
-* admin/menus.php (N)
 * admin/includes/class-menu.php (N)
 * admin/includes/class-settings.php
-* admin/includes/functions.php
 * admin/includes/css/style.css
+* admin/includes/functions.php
+* admin/menus.php (N)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.7.5[a] (2019-09-07)
@@ -1103,12 +1143,12 @@
 
 **Modified files:**
 * admin/categories.php
-* admin/posts.php
-* admin/users.php (M)
 * admin/includes/class-category.php
 * admin/includes/class-settings.php
-* admin/includes/functions.php
 * admin/includes/css/style.css
+* admin/includes/functions.php
+* admin/posts.php
+* admin/users.php (M)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.7.4[a] (2019-09-03)
@@ -1129,13 +1169,13 @@
 * The users pages now check whether a logged in user has sufficient privileges to view the pages
 
 **Modified files:**
-* admin/users.php
-* admin/widgets.php
 * admin/includes/class-post.php (M)
 * admin/includes/class-settings.php (M)
 * admin/includes/class-user.php
-* admin/includes/functions.php
 * admin/includes/css/style.css
+* admin/includes/functions.php
+* admin/users.php
+* admin/widgets.php
 * includes/schema.php (M)
 
 ----------------------------------------------------------------------------------------------------
@@ -1189,14 +1229,14 @@
 
 **Modified files:**
 * admin/header.php (M)
-* admin/settings.php
 * admin/includes/class-category.php
 * admin/includes/class-post.php
 * admin/includes/class-settings.php
 * admin/includes/class-user.php (M)
 * admin/includes/class-widget.php (M)
-* admin/includes/functions.php
 * admin/includes/css/style.css
+* admin/includes/functions.php
+* admin/settings.php
 * includes/globals.php
 
 ----------------------------------------------------------------------------------------------------
@@ -1216,14 +1256,14 @@
 **Modified files:**
 * admin/categories.php (M)
 * admin/header.php
+* admin/includes/class-post.php
+* admin/includes/class-settings.php
+* admin/includes/functions.php
 * admin/index.php (M)
 * admin/posts.php (M)
 * admin/settings.php
 * admin/users.php (M)
 * admin/widgets.php (M)
-* admin/includes/class-post.php
-* admin/includes/class-settings.php
-* admin/includes/functions.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.7.0[a] (2019-08-24)
@@ -1250,15 +1290,15 @@
 
 **Modified files:**
 * admin/header.php
-* admin/install.php
-* admin/posts.php
 * admin/includes/class-category.php
 * admin/includes/class-post.php
 * admin/includes/class-settings.php
 * admin/includes/class-user.php
 * admin/includes/class-widget.php
-* admin/includes/functions.php
 * admin/includes/css/style.css
+* admin/includes/functions.php
+* admin/install.php
+* admin/posts.php
 * includes/deprecated.php
 * includes/schema.php
 
@@ -1280,16 +1320,16 @@
 * Updated documentation in the Query class
 
 **Modified files:**
-* page.php (D)
-* admin/install.php
 * admin/includes/class-post.php
 * admin/includes/class-user.php
-* admin/includes/functions.php
 * admin/includes/css/install.css
 * admin/includes/css/style.css (M)
+* admin/includes/functions.php
+* admin/install.php
 * includes/captcha.php (M)
 * includes/class-query.php
 * includes/config-setup.php (M)
+* page.php (D)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.6.2[a] (2019-08-20)
@@ -1315,14 +1355,14 @@
 
 **Modified files:**
 * admin/install.php
-* admin/widgets.php (M)
 * admin/includes/class-category.php (M)
 * admin/includes/class-post.php
 * admin/includes/class-settings.php
 * admin/includes/class-widget.php
-* admin/includes/functions.php
 * admin/includes/css/install.css (M)
 * admin/includes/css/style.css
+* admin/includes/functions.php
+* admin/widgets.php (M)
 * includes/globals.php
 
 ----------------------------------------------------------------------------------------------------
@@ -1336,12 +1376,12 @@
 
 **Modified files:**
 * admin/install.php
-* admin/widgets.php
 * admin/includes/class-category.php
 * admin/includes/class-post.php
 * admin/includes/class-user.php
 * admin/includes/class-widget.php
 * admin/includes/css/install.css
+* admin/widgets.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.6.0[a] (2019-08-16)
@@ -1360,14 +1400,14 @@
 
 **Modified files:**
 * admin/header.php
-* admin/widgets.php (N)
 * admin/includes/class-category.php
 * admin/includes/class-settings.php (M)
 * admin/includes/class-user.php
 * admin/includes/class-widget.php (N)
-* admin/includes/functions.php
 * admin/includes/css/install.css (M)
 * admin/includes/css/style.css
+* admin/includes/functions.php
+* admin/widgets.php (N)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.5.7[a] (2019-08-15)
@@ -1387,14 +1427,14 @@
 **Modified files:**
 * admin/footer.php (M)
 * admin/header.php
+* admin/includes/class-settings.php (M)
+* admin/includes/class-user.php (M)
+* admin/includes/css/style.css
+* admin/includes/functions.php
 * admin/index.php (M)
 * admin/install.php
 * admin/settings.php (M)
 * admin/setup.php (M)
-* admin/includes/class-settings.php (M)
-* admin/includes/class-user.php (M)
-* admin/includes/functions.php
-* admin/includes/css/style.css
 * includes/globals.php
 
 ----------------------------------------------------------------------------------------------------
@@ -1416,8 +1456,8 @@
 * admin/footer.php
 * admin/includes/class-category.php
 * admin/includes/class-post.php (M)
-* admin/includes/functions.php
 * admin/includes/css/style.css
+* admin/includes/functions.php
 * admin/includes/js/script.js (N)
 * includes/globals.php
 * includes/js/jquery.min.js (N)
@@ -1433,15 +1473,15 @@
 * Updated documentation in the deprecated.php file
 
 **Modified files:**
-* footer.php (X)
-* header.php (X)
-* index.php
-* init.php (M)
 * content/footer.php (N)
 * content/header.php (N)
 * content/index.php (N)
+* footer.php (X)
+* header.php (X)
 * includes/deprecated.php
 * includes/functions.php
+* index.php
+* init.php (M)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.5.4[a] (2019-08-04)
@@ -1460,8 +1500,8 @@
 **Modified files:**
 * admin/header.php (M)
 * admin/includes/class-post.php
-* admin/includes/functions.php
 * admin/includes/css/style.css
+* admin/includes/functions.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.5.3[a] (2019-08-02)
@@ -1538,11 +1578,11 @@
 **Modified files:**
 * admin/categories.php (N)
 * admin/header.php
-* admin/install.php
 * admin/includes/class-category.php (N)
 * admin/includes/class-post.php
 * admin/includes/class-user.php (M)
 * admin/includes/functions.php
+* admin/install.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.4.10[a] (2019-07-26)
@@ -1562,11 +1602,11 @@
 * Created a function to retrieve post metadata
 
 **Modified files:**
-* admin/install.php
 * admin/includes/class-post.php
 * admin/includes/class-user.php
-* admin/includes/functions.php
 * admin/includes/css/style.css
+* admin/includes/functions.php
+* admin/install.php
 * includes/schema.php
 
 ----------------------------------------------------------------------------------------------------
@@ -1634,8 +1674,8 @@
 
 **Modified files:**
 * admin/includes/class-post.php
-* admin/includes/functions.php
 * admin/includes/css/style.css
+* admin/includes/functions.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.4.4[a] (2019-05-03)
@@ -1674,8 +1714,8 @@
 * Added 'current' functionality to admin nav items (doesn't work for subnav items)
 
 **Modified files:**
-* admin/includes/functions.php
 * admin/includes/css/style.css
+* admin/includes/functions.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.4.1[a] (2019-04-09)
@@ -1690,11 +1730,11 @@
 
 **Modified files:**
 * admin/header.php
-* admin/index.php (M)
 * admin/includes/class-post.php
 * admin/includes/class-settings.php (M)
 * admin/includes/class-user.php
 * admin/includes/css/style.css
+* admin/index.php (M)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.4.0[a] (2019-04-05)
@@ -1717,12 +1757,12 @@
 
 **Modified files:**
 * admin/header.php
-* admin/posts.php (N)
-* admin/users.php
 * admin/includes/class-post.php (N)
 * admin/includes/class-settings.php (M)
 * admin/includes/class-user.php
 * admin/includes/functions.php
+* admin/posts.php (N)
+* admin/users.php
 * includes/functions.php
 * includes/globals.php
 * includes/logs/changelog.md (R)
@@ -1740,9 +1780,9 @@
 
 **Modified files:**
 * .gitignore
+* admin/includes/class-settings.php
 * admin/install.php
 * admin/setup.php
-* admin/includes/class-settings.php
 * includes/debug.php (M)
 * includes/globals.php
 
@@ -1762,15 +1802,15 @@
 * Cleaned up the change log a bit (mostly rewording and adding a few things that had been omitted)
 
 **Modified files:**
-* index.php
-* init.php (M)
+* admin/includes/class-settings.php (N)
+* admin/includes/class-user.php
+* admin/includes/functions.php
 * admin/index.php
 * admin/install.php
 * admin/settings.php
 * admin/users.php
-* admin/includes/class-settings.php (N)
-* admin/includes/class-user.php
-* admin/includes/functions.php
+* index.php
+* init.php (M)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.3.6[a] (2019-03-27)
@@ -1780,8 +1820,8 @@
 * Added __DIR__ to admin index.php require statements
 
 **Modified files:**
-* init.php (M)
 * admin/index.php (M)
+* init.php (M)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.3.5[a] (2019-03-26)
@@ -1797,16 +1837,16 @@
 
 **Modified files:**
 * .gitignore
-* init.php
-* login.php
+* admin/includes/css/install.css (M)
+* admin/includes/functions.php (M)
 * admin/install.php
 * admin/setup.php (M)
-* admin/includes/functions.php (M)
-* admin/includes/css/install.css (M)
 * includes/captcha.php (N)
+* includes/css/style.css
 * includes/functions.php (M)
 * includes/globals.php (M)
-* includes/css/style.css
+* init.php
+* login.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.3.4[a] (2019-03-24)
@@ -1838,19 +1878,19 @@
 * Removed PATH constant from config setup (PATH is defined in the init.php file)
 
 **Modified files:**
-* header.php
-* init.php
-* login.php (N)
 * admin/header.php
 * admin/install.php
 * content/script.js (N)
 * content/style.css (N)
+* header.php
 * includes/class-query.php
 * includes/config-setup.php (M)
-* includes/functions.php
-* includes/globals.php
 * includes/css/buttons.css (M)
 * includes/css/style.css (N)
+* includes/functions.php
+* includes/globals.php
+* init.php
+* login.php (N)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.3.2[a] (2019-03-20)
@@ -1874,10 +1914,10 @@
 
 **Modified files:**
 * admin/header.php
+* admin/includes/css/style.css (N)
+* admin/includes/functions.php
 * admin/install.php
 * admin/setup.php (M)
-* admin/includes/functions.php
-* admin/includes/css/style.css (N)
 * includes/config-setup.php (M)
 
 ----------------------------------------------------------------------------------------------------
@@ -1897,18 +1937,18 @@
 * Added more documentation
 
 **Modified files:**
-* header.php (M)
-* index.php (M)
-* init.php (N)
+* admin/includes/css/install.css (N)
+* admin/includes/functions.php
 * admin/install.php (N)
 * admin/setup.php (N)
-* admin/includes/functions.php
-* admin/includes/css/install.css (N)
+* header.php (M)
 * includes/class-query.php
 * includes/config-setup.php (N)
+* includes/css/buttons.css (N)
 * includes/debug.php (M)
 * includes/schema.php
-* includes/css/buttons.css (N)
+* index.php (M)
+* init.php (N)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.2.6[a] (2019-03-12)
@@ -1930,8 +1970,8 @@
 
 **Modified files:**
 * admin/header.php
-* admin/index.php
 * admin/includes/functions.php
+* admin/index.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.2.4[a] (2019-02-26)
@@ -1956,8 +1996,8 @@
 * Added validation for reset password form data
 
 **Modified files:**
-* admin/users.php
 * admin/includes/class-user.php
+* admin/users.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.2.2[a] (2019-02-21)
@@ -1983,9 +2023,9 @@
 * Added edit user form
 
 **Modified files:**
-* admin/users.php
 * admin/includes/class-user.php
 * admin/includes/functions.php
+* admin/users.php
 * includes/class-query.php (M)
 
 ----------------------------------------------------------------------------------------------------
@@ -2012,9 +2052,9 @@
 * Created a function that constructs the 'Create User' form
 
 **Modified files:**
-* admin/users.php
 * admin/includes/class-user.php
 * admin/includes/functions.php
+* admin/users.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.1.1[a] (2019-02-11)
@@ -2034,9 +2074,9 @@
 * Created admin 'List Users' page
 
 **Modified files:**
-* admin/users.php (N)
 * admin/includes/class-user.php (N)
 * admin/includes/functions.php
+* admin/users.php (N)
 * includes/class-query.php
 * includes/config.php (M)
 * includes/deprecated.php (N)
@@ -2063,17 +2103,17 @@
 * Created the admin directory and basic files
 
 **Modified files:**
-* footer.php
-* header.php
-* index.php (M)
 * admin/footer.php (N)
 * admin/header.php (N)
-* admin/index.php (N)
 * admin/includes/functions.php (N)
+* admin/index.php (N)
+* footer.php
+* header.php
 * includes/class-post.php (N)
 * includes/class-query.php
 * includes/config.php
 * includes/functions.php (M)
+* index.php (M)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.0.1[a] (2019-01-15)
@@ -2103,9 +2143,9 @@
 * 404.php (N)
 * footer.php (N)
 * header.php (N)
-* index.php (N)
-* page.php (N)
-* robots.txt (N)
 * includes/class-query.php (N)
 * includes/config.php (N)
 * includes/functions.php (N)
+* index.php (N)
+* page.php (N)
+* robots.txt (N)

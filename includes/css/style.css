@@ -20,6 +20,10 @@ small {
 	font-size: 0.8rem;
 }
 
+/*------------------------------------*\
+    CONTENT
+\*------------------------------------*/
+
 /* Log In and Forgot/Reset Password forms */
 
 .login {
@@ -74,7 +78,7 @@ small {
 
 /** Data form **/
 
-.login .data-form * {
+.login .data-form * :not(.far) {
     font-family: 'Segoe UI', Helvetica, sans-serif;
 }
 
@@ -89,6 +93,7 @@ small {
 
 .login .data-form p {
 	margin-top: 0;
+	position: relative;
 }
 
 .login .data-form a {
@@ -104,6 +109,22 @@ small {
 	margin-top: 4px;
 	padding: 4px;
 	width: 100%;
+}
+
+.login .data-form .password-field input {
+	padding-right: 2.75rem !important;
+}
+
+.login .data-form .password-field button {
+	background-color: transparent;
+	border-color: transparent;
+	  border-left-color: #c4c4c4;
+    border-radius: 0;
+    box-shadow: none;
+	height: 2.375rem;
+	position: absolute;
+	  right: 0;
+      bottom: 0;
 }
 
 .login .data-form #captcha {
@@ -148,16 +169,16 @@ small {
 
 #scroll-top {
 	background-color: #6f6f6f;
-	border-radius: 0.25em;
+	border-radius: 0.25rem;
 	box-shadow: 0 2px 3px rgba(0,0,0,0.5);
 	color: #fefefe;
     cursor: pointer;
-    line-height: 1.125em;
+    line-height: 1.125rem;
 	opacity: 0;
-	padding: 1em 1.125em;
+	padding: 1rem 1.125rem;
 	position: fixed;
-	  right: 1em;
-      bottom: 1em;
+	  right: 1rem;
+      bottom: 1rem;
       z-index: -1;
 	transition: background-color 0.25s, opacity 0.25s ease-in;
 }

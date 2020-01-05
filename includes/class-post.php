@@ -24,7 +24,29 @@ class Post {
 	 * @return null
 	 */
 	public function __construct($slug = '') {
-		$this->slug = $slug;
+		// Check whether a slug has been provided
+		if(!empty($slug)) {
+			// Fetch the slug value
+			$this->slug = $slug;
+		} else {
+			// Check whether the current page is the home page
+			if($_SERVER['REQUEST_URI'] === '/') {
+				// Extend the Query object
+				global $rs_query;
+				
+				// Fetch the home page's id from the database
+				$home_page = $rs_query->selectField('settings', 'value', array('name'=>'home_page'));
+				
+				// Fetch the slug from the database
+				$this->slug = $this->getPostSlug($home_page, false);
+			} else {
+				// Create an array from the page's URI
+				$uri = explode('/', $_SERVER['REQUEST_URI']);
+				
+				// Fetch the slug from the URI array
+				$this->slug = array_pop(array_filter($uri));
+			}
+		}
 	}
 	
 	/**
@@ -36,7 +58,7 @@ class Post {
 	 * @return null|int (null on $echo == true; int on $echo == false)
 	 */
 	public function getPostId($echo = true) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Fetch the post's id from the database
@@ -57,7 +79,7 @@ class Post {
 	 * @return null|string (null on $echo == true; string on $echo == false)
 	 */
 	public function getPostTitle($echo = true) {
-		// Extend the Query class
+		// Extend the Query object
         global $rs_query;
 		
 		// Fetch the post's title from the database
@@ -78,7 +100,7 @@ class Post {
 	 * @return null|string (null on $echo == true; string on $echo == false)
 	 */
 	public function getPostAuthor($echo = true) {
-		// Extend the Query class
+		// Extend the Query object
         global $rs_query;
 		
 		// Fetch the post's author from the database
@@ -102,7 +124,7 @@ class Post {
 	 * @return null|string (null on $echo == true; string on $echo == false)
 	 */
 	public function getPostDate($echo = true) {
-		// Extend the Query class
+		// Extend the Query object
         global $rs_query;
 		
 		// Fetch the post's title from the database
@@ -123,7 +145,7 @@ class Post {
 	 * @return null|string (null on $echo == true; string on $echo == false)
 	 */
 	public function getPostModDate($echo = true) {
-		// Extend the Query class
+		// Extend the Query object
         global $rs_query;
 		
 		// Fetch the post's title from the database
@@ -144,14 +166,11 @@ class Post {
 	 * @return null|string (null on $echo == true; string on $echo == false)
 	 */
 	public function getPostContent($echo = true) {
-		// Extend the Query class
+		// Extend the Query object
         global $rs_query;
 		
 		// Fetch the post's content from the database
         $content = $rs_query->selectField('posts', 'content', array('slug'=>$this->slug));
-		
-		// Filter out any HTML or JavaScript comments
-        //$filtered_content = $this->removeComments($post['content']);
 		
         if($echo)
             echo $content;
@@ -168,7 +187,7 @@ class Post {
 	 * @return null|string (null on $echo == true; string on $echo == false)
 	 */
 	public function getPostStatus($echo = true) {
-		// Extend the Query class
+		// Extend the Query object
         global $rs_query;
 		
 		// Fetch the post's status from the database
@@ -190,7 +209,7 @@ class Post {
 	 * @return null|string (null on $echo == true; string on $echo == false)
 	 */
     public function getPostSlug($id, $echo = true) {
-		// Extend the Query class
+		// Extend the Query object
         global $rs_query;
 		
 		// Fetch the post's slug from the database
@@ -208,14 +227,14 @@ class Post {
 	 *
 	 * @access public
 	 * @param bool $echo (optional; default: true)
-	 * @return null|string (null on $echo == true; string on $echo == false)
+	 * @return null|int (null on $echo == true; int on $echo == false)
 	 */
 	public function getPostParent($echo = true) {
-		// Extend the Query class
+		// Extend the Query object
         global $rs_query;
 		
 		// Fetch the post's parent from the database
-        $parent = $rs_query->selectField('posts', 'parent', array('slug'=>$this->slug));
+        $parent = (int)$rs_query->selectField('posts', 'parent', array('slug'=>$this->slug));
 		
         if($echo)
             echo $parent;
@@ -232,7 +251,7 @@ class Post {
 	 * @return null|string (null on $echo == true; string on $echo == false)
 	 */
 	public function getPostType($echo = true) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Fetch the post's type from the database
@@ -253,7 +272,7 @@ class Post {
 	 * @return null|string (null on $echo == true; string on $echo == false)
 	 */
 	public function getPostFeatImage($echo = true) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Fetch the featured image's id from the database
@@ -275,7 +294,7 @@ class Post {
 	 * @return null|string (null on $echo == true; string on $echo == false)
 	 */
 	public function getPostMeta($key, $echo = true) {
-		// Extend the Query class
+		// Extend the Query object
         global $rs_query;
 		
 		// Fetch the post's metadata from the database
@@ -288,6 +307,19 @@ class Post {
     }
 	
 	/**
+	 * Fetch a post's permalink.
+	 * @since 2.2.5[a]
+	 *
+	 * @access public
+	 * @param int $parent
+	 * @param string $slug (optional; default: '')
+	 * @return string
+	 */
+	public function getPostPermalink($parent, $slug = '') {
+		return getPermalink('post', $parent, $slug);
+	}
+	
+	/**
 	 * Fetch a post's full URL.
 	 * @since 2.2.3[a]
 	 *
@@ -297,9 +329,9 @@ class Post {
 	 */
 	public function getPostUrl($echo = true) {
         if($echo)
-            echo getSetting('site_url', false).getPermalink($this->getPostParent(false), $this->slug);
+            echo getSetting('site_url', false).$this->getPostPermalink($this->getPostParent(false), $this->slug);
         else
-            return getSetting('site_url', false).getPermalink($this->getPostParent(false), $this->slug);
+            return getSetting('site_url', false).$this->getPostPermalink($this->getPostParent(false), $this->slug);
     }
 	
 	/**
@@ -310,7 +342,7 @@ class Post {
 	 * @return bool
 	 */
 	public function postHasFeatImage() {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Return true if the post has a featured image

@@ -2,7 +2,7 @@
  * Script file for the default front end theme.
  * @since 2.2.2[a]
  */
-jQuery(document).ready(function($) {
+jQuery(document).ready($ => {
 	// Turn on strict mode
 	'use strict';
 	
@@ -77,7 +77,6 @@ jQuery(document).ready(function($) {
 		
 		// Convert the menu to mobile view
 		function doMobile() {
-			console.log('something is wrong');
 			// Append toggle buttons to any menu items that have children
 			$('.menu-item-has-children').append('<span class="submenu-toggle"><i class="fas fa-chevron-down"></i></span>');
 			

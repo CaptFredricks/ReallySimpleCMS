@@ -5,7 +5,7 @@
  */
 
 // Current CMS version
-const VERSION = '2.2.4';
+const VERSION = '2.2.5';
 
 /**
  * Display the copyright information on the admin dashboard.
@@ -61,7 +61,7 @@ function redirect($url, $status = 302) {
  * @return bool
  */
 function isHomePage($id) {
-	// Extend the Query class
+	// Extend the Query object
 	global $rs_query;
 	
 	// Return true if the post is the home page
@@ -141,7 +141,7 @@ function getThemeStylesheet($stylesheet, $version = VERSION, $echo = true) {
  * @return null|string (null on $echo == true; string on $echo == false)
  */
 function getSetting($name, $echo = true) {
-	// Extend the Query class
+	// Extend the Query object
 	global $rs_query;
 	
 	// Fetch the setting from the database
@@ -164,7 +164,7 @@ function getSetting($name, $echo = true) {
  * @return string|bool (string on recognized type, bool on unrecognized type)
  */
 function getPermalink($type, $parent, $slug = '') {
-	// Extend the Query class
+	// Extend the Query object
 	global $rs_query;
 	
 	switch($type) {
@@ -213,7 +213,7 @@ function getPermalink($type, $parent, $slug = '') {
  * @return bool
  */
 function isValidSession($session) {
-	// Extend the Query class
+	// Extend the Query object
 	global $rs_query;
 	
 	// Fetch the number of times the user appears in the database
@@ -231,7 +231,7 @@ function isValidSession($session) {
  * @return array
  */
 function getOnlineUser($session) {
-	// Extend the Query class
+	// Extend the Query object
 	global $rs_query;
 	
 	// Fetch the user from the database
@@ -259,7 +259,7 @@ function getOnlineUser($session) {
  * @return bool
  */
 function userHasPrivilege($role, $privilege) {
-	// Extend the Query class
+	// Extend the Query object
 	global $rs_query;
 	
 	// Fetch the privilege's id from the database
@@ -280,7 +280,7 @@ function userHasPrivilege($role, $privilege) {
  * @return string
  */
 function getMediaSrc($id) {
-	// Extend the Query class
+	// Extend the Query object
 	global $rs_query;
 	
 	// Fetch the media from the database
@@ -306,7 +306,7 @@ function getMediaSrc($id) {
  * @return string
  */
 function getMedia($id, $classes = '', $link_text = '') {
-	// Extend the Query class
+	// Extend the Query object
 	global $rs_query;
 	
 	// Fetch the media's source

@@ -30,8 +30,10 @@ $action = $_GET['action'] ?? '';
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="robots" content="noindex, nofollow">
 		<link type="image/x-icon" href="<?php echo getMediaSrc(getSetting('site_icon', false)); ?>" rel="icon">
-		<?php getStylesheet('style.css'); ?>
 		<?php getStylesheet('button.min.css'); ?>
+		<?php getStylesheet('style.css'); ?>
+		<?php getStylesheet('font-awesome.min.css', '5.12.0'); ?>
+		<?php getScript('jquery.min.js', '3.4.1'); ?>
 	</head>
 	<body class="login">
 		<div class="wrapper">
@@ -71,6 +73,7 @@ $action = $_GET['action'] ?? '';
 			}
 			?>
 		</div>
+		<?php getScript('script.js'); ?>
 	</body>
 </html>
 <?php

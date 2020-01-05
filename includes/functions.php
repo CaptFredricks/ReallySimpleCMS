@@ -19,8 +19,8 @@ define('COOKIE_HASH', md5(getSetting('site_url', false)));
  * @return null
  */
 function getHeader() {
-	// Extend the Post object
-	global $rs_post;
+	// Extend the Post object and the user's session data
+	global $rs_post, $session;
 	
 	// Include the header template
 	require_once PATH.CONT.'/header.php';
@@ -33,50 +33,21 @@ function getHeader() {
  * @return null
  */
 function getFooter() {
+	// Extend the Post object and the user's session data
+	global $rs_post, $session;
+	
+	// Include the footer template
 	require_once PATH.CONT.'/footer.php';
 }
 
 /**
- * Fetch the slug from the URL.
+ * Create a Post object based on a provided slug.
  * @since 2.2.3[a]
  *
- * @return string
- */
-function getPageSlug() {
-	// Check whether the current page is the home page
-	if($_SERVER['REQUEST_URI'] === '/') {
-		// Extend the Query class
-		global $rs_query;
-		
-		// Fetch the home page's id from the database
-		$home_page = $rs_query->selectField('settings', 'value', array('name'=>'home_page'));
-		
-		// Create a Post object
-		$rs_post = new Post;
-		
-		// Return the slug
-		return $rs_post->getPostSlug($home_page, false);
-	} else {
-		// Create an array from the page's URI
-		$uri = explode('/', $_SERVER['REQUEST_URI']);
-		
-		// Return the slug
-		return array_pop($uri);
-	}
-}
-
-/**
- * Set up a Post object.
- * @since 2.2.3[a]
- *
- * @param string $slug (optional; default: '')
+ * @param string $slug
  * @return object
  */
-function getPost($slug = '') {
-	// Check whether a slug has been provided and fetch the page's slug from the URL if so
-	if(empty($slug)) $slug = getPageSlug();
-	
-	// Create and return a Post object
+function getPost($slug) {
 	return new Post($slug);
 }
 
@@ -104,7 +75,7 @@ function getMenu($slug) {
  * @return null
  */
 function getWidget($slug, $display_title = false) {
-	// Extend the Query class
+	// Extend the Query object
 	global $rs_query;
 	
 	// Fetch the widget from the database
@@ -134,7 +105,7 @@ function getWidget($slug, $display_title = false) {
 				<?php
 			}
 			?>
-			<div>
+			<div class="widget-content">
 				<?php
 				// Display the widget's content
 				echo $widget['content'];
@@ -153,20 +124,32 @@ function getWidget($slug, $display_title = false) {
  * @return string
  */
 function bodyClasses($addtl_classes = array()) {
-	// Fetch the post object
-	$rs_post = getPost();
+	// Extend the Post object and the user's session data
+	global $rs_post, $session;
 	
-	// Fetch the post's slug and add an appropriate class
-	$classes[] = getPageSlug();
+	// Fetch the post's id from the database
+	$id = $rs_post->getPostId(false);
 	
-	// Fetch the post's type and id and add an appropriate class
-	$classes[] = $rs_post->getPostType(false).'-id-'.$rs_post->getPostId(false);
+	// Fetch the post's parent from the database
+	$parent = $rs_post->getPostParent(false);
+	
+	// Fetch the post's slug from the database and add an appropriate class
+	$classes[] = $rs_post->getPostSlug($id, false);
+	
+	// Fetch the post's type from the database and add an appropriate class (along with the id)
+	$classes[] = $rs_post->getPostType(false).'-id-'.$id;
+	
+	// Check whether the current page is a child of another page and add an appropriate class if so
+	if($parent !== 0) $classes[] = $rs_post->getPostSlug($parent, false).'-child';
 	
 	// Check whether the current page is the home page and add an appropriate class if so
-	if(isHomePage($rs_post->getPostId(false))) $classes[] = 'home-page';
+	if(isHomePage($id)) $classes[] = 'home-page';
 
 	// Check whether the user is logged in and add an appropriate class if so
-	if(isValidSession($_COOKIE['session'])) $classes[] = 'logged-in';
+	if($session) $classes[] = 'logged-in';
+	
+	// Merge any additional classes with the classes array
+	$classes = array_merge($classes, (array)$addtl_classes);
 	
 	// Return the classes as a string
 	return implode(' ', $classes);

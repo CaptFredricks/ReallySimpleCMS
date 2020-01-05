@@ -24,10 +24,18 @@ class Login {
 		echo isset($_POST['submit']) ? $this->validateLoginData($_POST) : '';
 		?>
 		<form class="data-form" action="login.php" method="post">
-			<p><label for="login">Username or Email<br><input type="text" name="login" autofocus></label></p>
-			<p><label for="password">Password<br><input type="password" name="password"></label></p>
-			<p><label for="captcha">Captcha<br><input type="text" name="captcha" autocomplete="off"><img id="captcha" src="<?php echo INC.'/captcha.php'; ?>"></label></p>
-			<p><label class="checkbox-label"><input type="checkbox" name="remember_login" value="checked"> <span>Keep me logged in</span></label></p>
+			<p class="login-field">
+				<label for="login">Username or Email<br><input type="text" name="login" autofocus></label>
+			</p>
+			<p class="password-field">
+				<label for="password">Password<br><input type="password" name="password"></label><button type="button" id="password-toggle" class="button" title="Show Password" data-visibility="hidden"><i class="far fa-eye"></i></button>
+			</p>
+			<p class="captcha-field">
+				<label for="captcha">Captcha<br><input type="text" name="captcha" autocomplete="off"><img id="captcha" src="<?php echo INC.'/captcha.php'; ?>"></label>
+			</p>
+			<p class="remember-field">
+				<label class="checkbox-label"><input type="checkbox" name="remember_login" value="checked"> <span>Keep me logged in</span></label>
+			</p>
 			<?php
 			// Check whether a redirect URL has been specified
 			if(isset($_GET['redirect'])) {
@@ -56,7 +64,7 @@ class Login {
 	 * @return null|string (null on no errors; string on error)
 	 */
 	private function validateLoginData($data) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Make sure no required fields are empty
@@ -133,7 +141,7 @@ class Login {
 	 * @return bool
 	 */
 	private function isValidPassword($login, $password) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Check whether the login used was an email
@@ -170,7 +178,7 @@ class Login {
 	 * @return bool
 	 */
 	private function sessionExists($session) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Fetch the number of times the session appears in the database
@@ -189,7 +197,7 @@ class Login {
 	 * @return bool
 	 */
 	private function emailExists($email) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Fetch the number of times the email appears in the database
@@ -208,7 +216,7 @@ class Login {
 	 * @return bool
 	 */
 	private function usernameExists($username) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Fetch the number of times the username appears in the database
@@ -281,7 +289,7 @@ class Login {
 	 * @return null
 	 */
 	public function userLogout($session) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Update the user's session in the database
@@ -329,7 +337,7 @@ class Login {
 	 * @return null|string (null on no errors; string on error)
 	 */
 	private function validateForgotPasswordData($data) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Make sure no required fields are empty
@@ -492,7 +500,7 @@ class Login {
 	 * @return null|string (null on no errors; string on error)
 	 */
 	private function validateResetPasswordData($data) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Make sure no required fields are empty
@@ -532,7 +540,7 @@ class Login {
 	 * @return bool
 	 */
 	private function isValidCookie($login, $key) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Return true if the key is found for the user in the database

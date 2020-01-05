@@ -1,4 +1,38 @@
-<?php // A list of deprecated functions that may be used again later on (ordered by descending deprecated version).
+<?php
+/**
+ * A list of deprecated functions that may be used again later on (ordered by descending deprecated version).
+ * @since 1.1.0[a]
+ */
+
+/**
+ * Fetch the slug from the URL.
+ * @since 2.2.3[a]
+ * @deprecated since 2.2.5[a]
+ *
+ * @return string
+ */
+function getPageSlug() {
+	// Check whether the current page is the home page
+	if($_SERVER['REQUEST_URI'] === '/') {
+		// Extend the Query object
+		global $rs_query;
+		
+		// Fetch the home page's id from the database
+		$home_page = $rs_query->selectField('settings', 'value', array('name'=>'home_page'));
+		
+		// Create a Post object
+		$rs_post = new Post;
+		
+		// Return the slug
+		return $rs_post->getPostSlug($home_page, false);
+	} else {
+		// Create an array from the page's URI
+		$uri = explode('/', $_SERVER['REQUEST_URI']);
+		
+		// Return the slug
+		return array_pop($uri);
+	}
+}
 
 /**
  * Fetch a post's data.

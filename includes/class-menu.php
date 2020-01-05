@@ -15,7 +15,7 @@ class Menu {
 	 * @return null
 	 */
 	public function getMenu($slug) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Fetch the menu's id from the database
@@ -107,7 +107,7 @@ class Menu {
 	 * @return bool
 	 */
 	private function isCurrentPage($uri) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Return true if the provided URI matches the current page's URI
@@ -123,7 +123,7 @@ class Menu {
 	 * @return bool
 	 */
 	private function menuItemHasParent($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Fetch the menu item's parent id from the database and return true if it's not equal to zero
@@ -139,7 +139,7 @@ class Menu {
 	 * @return bool
 	 */
 	private function menuItemHasChildren($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Fetch the number of children the menu item has from the database and return true if it's greater than zero
@@ -155,7 +155,7 @@ class Menu {
 	 * @return array
 	 */
 	private function getMenuItemMeta($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Fetch the menu item's metadata from the database
@@ -189,7 +189,7 @@ class Menu {
 	 * @return int
 	 */
 	private function getMenuItemParent($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Fetch the menu item's parent id from the database and return it
@@ -205,7 +205,7 @@ class Menu {
 	 * @return null
 	 */
 	private function getMenuItemDescendants($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		?>
 		<ul class="sub-menu">
