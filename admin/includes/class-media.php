@@ -15,7 +15,7 @@ class Media extends Post {
 	 * @return null
 	 */
 	public function listMedia() {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Set up pagination
@@ -84,13 +84,25 @@ class Media extends Post {
 					// Fetch the media's metadata from the database
 					$meta = $this->getPostMeta($media['id']);
 					
-					// Check whether the media is an image
-					if(strpos(mime_content_type(trailingSlash(PATH.UPLOADS).$meta['filename']), 'image') !== false) {
-						// Fetch the image's dimensions
-						list($width, $height) = getimagesize(trailingSlash(PATH.UPLOADS).$meta['filename']);
+					// Check whether the media exists
+					if(file_exists(trailingSlash(PATH.UPLOADS).$meta['filename'])) {
+						// Fetch the media's file size
+						$size = getFileSize(filesize(trailingSlash(PATH.UPLOADS).$meta['filename']));
 						
-						// Set the dimensions
-						$dimensions = $width.' x '.$height;
+						// Check whether the media is an image
+						if(strpos(mime_content_type(trailingSlash(PATH.UPLOADS).$meta['filename']), 'image') !== false) {
+							// Fetch the image's dimensions
+							list($width, $height) = getimagesize(trailingSlash(PATH.UPLOADS).$meta['filename']);
+							
+							// Set the dimensions
+							$dimensions = $width.' x '.$height;
+						} else {
+							// Set the dimensions to null
+							$dimensions = null;
+						}
+					} else {
+						// Set the file size to null
+						$size = null;
 					}
 					
 					echo tableRow(
@@ -98,8 +110,8 @@ class Media extends Post {
 						tableCell('<strong>'.$media['title'].'</strong><br><em>'.$meta['filename'].'</em><div class="actions"><a href="?id='.$media['id'].'&action=edit">Edit</a> &bull; <a class="modal-launch delete-item" href="?id='.$media['id'].'&action=delete" data-item="media">Delete</a> &bull; <a href="'.trailingSlash(UPLOADS).$meta['filename'].'" target="_blank">View</a></div>', 'file'),
 						tableCell($this->getAuthor($media['author']), 'author'),
 						tableCell(formatDate($media['date'], 'd M Y @ g:i A'), 'upload-date'),
-						tableCell(getFileSize(filesize(trailingSlash(PATH.UPLOADS).$meta['filename'])), 'size'),
-						tableCell($dimensions ?? '', 'dimensions'),
+						tableCell($size ?? '0 B', 'size'),
+						tableCell($dimensions ?? '&mdash;', 'dimensions'),
 						tableCell($meta['mime_type'], 'mime-type')
 					);
 				}
@@ -165,7 +177,7 @@ class Media extends Post {
 	 * @return null
 	 */
 	public function editMedia($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Check whether the media's id is valid
@@ -222,7 +234,7 @@ class Media extends Post {
 	 * @return null
 	 */
 	public function deleteMedia($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Create an empty array to hold conflicts
@@ -279,7 +291,7 @@ class Media extends Post {
 	 * @return null|string (null on $id == 0; string on $id != 0)
 	 */
 	private function validateData($data, $id = 0) {
-		// Extend the Query class and the user's session data
+		// Extend the Query object and the user's session data
 		global $rs_query, $session;
 		
 		// Make sure no required fields are empty

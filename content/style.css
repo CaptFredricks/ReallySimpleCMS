@@ -194,6 +194,101 @@ h1 {
 	margin-top: 60px;
 }
 
+/* Footer */
+
+.footer {
+	background-color: #3f3f3f;
+	color: #fefefe;
+	padding: 1em;
+}
+
+.footer a {
+	color: #b6e0fa;
+}
+
+.footer .row:last-child {
+	margin-top: 1.5em;
+}
+
+.footer [class^="col-"] {
+	padding: 0 1em;
+}
+
+.footer .col-4:nth-child(2) {
+	display: flex;
+	  justify-content: center;
+	text-align: center;
+}
+
+.footer .nav-menu ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.footer .nav-menu ul li {
+	border-bottom: 1px solid #4f4f4f;
+	padding: 1em;
+}
+
+.footer .nav-menu ul li:hover {
+	background-color: #2f2f2f;
+}
+
+.footer .nav-menu ul li a:hover {
+	text-decoration: none;
+}
+
+.footer .recent-posts ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.footer .recent-posts ul li {
+	margin-bottom: 1em;
+}
+
+.footer .recent-posts .feat-image {
+	float: left;
+	margin-right: 0.625em;
+}
+
+.footer .recent-posts h4 {
+	margin: 0;
+}
+
+.footer .recent-posts .date {
+	font-style: italic;
+	margin: 0;
+}
+
+.footer .widget.copyright {
+	font-size: 0.875em;
+	text-align: center
+}
+
+.footer .widget.social-media {
+	text-align: center;
+}
+
+.footer .widget.social-media a {
+	background-color: #5f5f5f;
+	border-radius: 50%;
+	color: #bdbdbd;
+	display: inline-flex;
+	  align-items: center;
+	  justify-content: center;
+	height: 2.25em;
+	margin-bottom: 0;
+	text-decoration: none;
+	width: 2.25em;
+}
+
+.footer .widget.social-media a:hover {
+	color: #ededed;
+}
+
 /*------------------------------------*\
     CONTENT
 \*------------------------------------*/

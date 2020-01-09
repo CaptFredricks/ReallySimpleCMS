@@ -5,7 +5,7 @@
  */
 
 // Current CMS version
-const VERSION = '2.2.5';
+const VERSION = '2.2.6';
 
 /**
  * Display the copyright information on the admin dashboard.
@@ -301,11 +301,10 @@ function getMediaSrc($id) {
  * @since 2.2.0[a]
  *
  * @param int $id
- * @param string $classes (optional; default: '')
- * @param string $link_text (optional; default: '')
+ * @param array $props (optional; default: array())
  * @return string
  */
-function getMedia($id, $classes = '', $link_text = '') {
+function getMedia($id, $props = array()) {
 	// Extend the Query object
 	global $rs_query;
 	
@@ -321,22 +320,22 @@ function getMedia($id, $classes = '', $link_text = '') {
 		$alt_text = $rs_query->selectField('postmeta', 'value', array('post'=>$id, '_key'=>'alt_text'));
 		
 		// Construct an image tag
-		return '<img'.(!empty($classes) ? ' class="'.$classes.'"' : '').' src="'.$src.'" alt="'.$alt_text.'">';
+		return '<img'.(!empty($props['class']) ? ' class="'.$props['class'].'"' : '').' src="'.$src.'" alt="'.$alt_text.'"'.(!empty($props['width']) ? ' width="'.$props['width'].'"' : '').'>';
 	} elseif(strpos($mime_type, 'audio') !== false) {
 		// Construct an audio tag
-		return '<audio'.(!empty($classes) ? ' class="'.$classes.'"' : '').' src="'.$src.'"></audio>';
+		return '<audio'.(!empty($props['class']) ? ' class="'.$props['class'].'"' : '').' src="'.$src.'"></audio>';
 	} elseif(strpos($mime_type, 'video') !== false) {
 		// Construct a video tag
-		return '<video'.(!empty($classes) ? ' class="'.$classes.'"' : '').' src="'.$src.'"></video>';
+		return '<video'.(!empty($props['class']) ? ' class="'.$props['class'].'"' : '').' src="'.$src.'"></video>';
 	} else {
 		// Check whether any link text has been provided
-		if(empty($link_text)) {
+		if(empty($props['link_text'])) {
 			// Fetch the media's title from the database
-			$link_text = $rs_query->selectField('posts', 'title', array('id'=>$id));
+			$props['link_text'] = $rs_query->selectField('posts', 'title', array('id'=>$id));
 		}
 		
 		// Construct an anchor tag
-		return '<a'.(!empty($classes) ? ' class="'.$classes.'"' : '').' href="'.$src.'">'.$link_text.'</a>';
+		return '<a'.(!empty($props['class']) ? ' class="'.$props['class'].'"' : '').' href="'.$src.'">'.$props['link_text'].'</a>';
 	}
 }
 

@@ -33,7 +33,7 @@ class User {
 	 * @return null
 	 */
 	public function listUsers() {
-		// Extend the Query class and the user's session data
+		// Extend the Query object and the user's session data
 		global $rs_query, $session;
 		
 		// Set up pagination
@@ -151,7 +151,7 @@ class User {
 	 * @return null
 	 */
 	public function editUser($id) {
-		// Extend the Query class and the user's session data
+		// Extend the Query object and the user's session data
 		global $rs_query, $session;
 		
 		// Check whether the user's id is valid
@@ -219,7 +219,7 @@ class User {
 	 * @return null
 	 */
 	public function deleteUser($id) {
-		// Extend the Query class and the user's session data
+		// Extend the Query object and the user's session data
 		global $rs_query, $session;
 		
 		// Check whether the user's id is valid
@@ -248,7 +248,7 @@ class User {
 	 * @return null|string (null on $id == 0; string on $id != 0)
 	 */
 	private function validateData($data, $id = 0) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Make sure no required fields are empty
@@ -321,7 +321,7 @@ class User {
 	 * @return bool
 	 */
 	protected function usernameExists($username, $id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		if($id === 0) {
@@ -343,7 +343,7 @@ class User {
 	 * @return bool
 	 */
 	protected function emailExists($email, $id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		if($id === 0) {
@@ -364,7 +364,7 @@ class User {
 	 * @return array
 	 */
 	protected function getUserMeta($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Fetch the user's metadata from the database
@@ -398,7 +398,7 @@ class User {
 	 * @return string
 	 */
 	private function getRole($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Fetch the user's role from the database and return it
@@ -414,7 +414,7 @@ class User {
 	 * @return string
 	 */
 	private function getRoleList($id = 0) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Create an empty list
@@ -479,7 +479,7 @@ class User {
 	 * @return string
 	 */
 	private function validatePasswordData($data, $id) {
-		// Extend the Query class and the user's session data
+		// Extend the Query object and the user's session data
 		global $rs_query, $session;
 		
 		// Make sure no required fields are empty
@@ -535,7 +535,7 @@ class User {
 	 * @return bool
 	 */
 	protected function verifyPassword($password, $id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Fetch the user's password from the database

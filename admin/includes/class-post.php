@@ -15,7 +15,7 @@ class Post {
 	 * @return null
 	 */
 	public function listPosts() {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Fetch the post's type
@@ -280,7 +280,7 @@ class Post {
 	 * @return null
 	 */
 	public function editPost($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Check whether the post's id is valid
@@ -461,7 +461,7 @@ class Post {
 	 * @return null
 	 */
 	public function trashPost($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Check whether the post's id is valid
@@ -489,7 +489,7 @@ class Post {
 	 * @return null
 	 */
 	public function restorePost($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Check whether the post's id is valid
@@ -517,7 +517,7 @@ class Post {
 	 * @return null
 	 */
 	public function deletePost($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Check whether the post's id is valid
@@ -573,7 +573,7 @@ class Post {
 	 * @return null|string (null on $id == 0; string on $id != 0)
 	 */
 	private function validateData($data, $id = 0) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Make sure no required fields are empty
@@ -708,7 +708,7 @@ class Post {
 	 * @return bool
 	 */
 	protected function slugExists($slug, $id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		if($id === 0) {
@@ -732,7 +732,7 @@ class Post {
 	 * @return bool
 	 */
 	private function isTrash($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Fetch the post's status from the database
@@ -752,7 +752,7 @@ class Post {
 	 * @return bool
 	 */
 	private function isDescendant($id, $ancestor) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		do {
@@ -779,7 +779,7 @@ class Post {
 	 * @return array
 	 */
 	protected function getPostMeta($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Fetch the post's metadata from the database
@@ -813,7 +813,7 @@ class Post {
 	 * @return string
 	 */
 	protected function getAuthor($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Fetch the author's username from the database and return it
@@ -829,7 +829,7 @@ class Post {
 	 * @return string
 	 */
 	private function getAuthorList($id = 0) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Create an empty list
@@ -855,7 +855,7 @@ class Post {
 	 * @return string
 	 */
 	private function getCategories($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Create an empty array to hold the categories
@@ -883,7 +883,7 @@ class Post {
 	 * @return string
 	 */
 	private function getCategoriesList($id = 0) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Create a list with an opening unordered list tag
@@ -917,7 +917,7 @@ class Post {
 	 * @return string
 	 */
 	private function getParent($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Fetch the post's parent from the database
@@ -938,7 +938,7 @@ class Post {
 	 * @return string
 	 */
 	private function getParentList($type, $parent = 0, $id = 0) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Create an empty list
@@ -989,7 +989,7 @@ class Post {
 	 * @return int
 	 */
 	private function getPostCount($type, $status = '') {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		if(empty($status)) {

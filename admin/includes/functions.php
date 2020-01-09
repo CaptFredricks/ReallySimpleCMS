@@ -22,7 +22,7 @@ spl_autoload_register(function($class_name) {
  * @return string
  */
 function getCurrentPage() {
-	// Extend the Query class
+	// Extend the Query object
 	global $rs_query;
 	
 	// Extract the current page from the filename
@@ -102,7 +102,7 @@ function getCurrentPage() {
  * @return string
  */
 function getPageTitle() {
-	// Extend the Query class
+	// Extend the Query object
 	global $rs_query;
 	
 	// Perform some checks based on what the current page is
@@ -250,7 +250,7 @@ function statusMessage($text, $success = false) {
  * @return null
  */
 function populateTables($user_data, $settings_data) {
-	// Extend the Query class
+	// Extend the Query object
 	global $rs_query;
 	
 	// Create an array of user roles
@@ -517,7 +517,7 @@ function adminNavMenuItem($item = array(), $submenu = array(), $icon = null) {
  * @return int
  */
 function getStatistics($table, $field = '', $value = '') {
-	// Extend the Query class
+	// Extend the Query object
 	global $rs_query;
 	
 	// Fetch the entry counts for the specified tables
@@ -931,7 +931,7 @@ function formRow($label = '', ...$args) {
  * @return string
  */
 function uploadMediaFile($data) {
-	// Extend the Query class
+	// Extend the Query object
 	global $rs_query;
 	
 	// Make sure a file has been selected
@@ -992,7 +992,7 @@ function uploadMediaFile($data) {
  * @return null
  */
 function loadMedia($image_only = false) {
-	// Extend the Query class
+	// Extend the Query object
 	global $rs_query;
 	
 	// Fetch all media from the database
@@ -1062,7 +1062,7 @@ function loadMedia($image_only = false) {
  * @return bool
  */
 function filenameExists($filename) {
-	// Extend the Query class
+	// Extend the Query object
 	global $rs_query;
 	
 	// Return true if the filename appears in the database
@@ -1077,7 +1077,7 @@ function filenameExists($filename) {
  * @return string
  */
 function getUniqueFilename($filename) {
-	// Extend the Query class
+	// Extend the Query object
 	global $rs_query;
 	
 	// Fetch the number of conflicting filenames in the database
@@ -1154,7 +1154,7 @@ function getFileSize($bytes, $decimals = 1) {
  * @return int
  */
 function getTaxonomyId($name) {
-	// Extend the Query class
+	// Extend the Query object
 	global $rs_query;
 	
 	// Fetch the taxonomy's id from the database

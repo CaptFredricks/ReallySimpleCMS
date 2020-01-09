@@ -15,7 +15,7 @@ class Settings {
 	 * @return null
 	 */
 	public function generalSettings() {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Validate the form data and return any messages
@@ -63,7 +63,7 @@ class Settings {
 	 * @return null
 	 */
 	public function designSettings() {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Validate the form data and return any messages
@@ -117,7 +117,7 @@ class Settings {
 	 * @return string
 	 */
 	private function validateSettingsData($data) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Remove the 'submit' value from the data array
@@ -181,7 +181,7 @@ class Settings {
 	 * @return string
 	 */
 	private function getUserRoles($default) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Create an empty list
@@ -207,7 +207,7 @@ class Settings {
 	 * @return string
 	 */
 	private function getPageList($home_page) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Create an empty list
@@ -232,7 +232,7 @@ class Settings {
 	 * @return null
 	 */
 	public function listUserRoles() {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Set up pagination
@@ -363,7 +363,7 @@ class Settings {
 	 * @return null
 	 */
 	public function editUserRole($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Check whether the user role's id is valid
@@ -415,7 +415,7 @@ class Settings {
 	 * @return null
 	 */
 	public function deleteUserRole($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Check whether the user role's id is valid
@@ -453,7 +453,7 @@ class Settings {
 	 * @return null|string (null on $id == 0; string on $id != 0)
 	 */
 	private function validateUserRoleData($data, $id = 0) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Make sure no required fields are empty
@@ -528,7 +528,7 @@ class Settings {
 	 * @return bool
 	 */
 	private function roleNameExists($name, $id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		if($id === 0) {
@@ -552,7 +552,7 @@ class Settings {
 	 * @return string
 	 */
 	private function getPrivileges($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Create an empty array to hold the privileges
@@ -583,7 +583,7 @@ class Settings {
 	 * @return string
 	 */
 	private function getPrivilegesList($id = 0) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Create a list with an opening unordered list tag

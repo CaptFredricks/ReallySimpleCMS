@@ -15,7 +15,7 @@ class Category {
 	 * @return null
 	 */
 	public function listCategories() {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Set up pagination
@@ -121,7 +121,7 @@ class Category {
 	 * @return null
 	 */
 	public function editCategory($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Check whether the category's id is valid
@@ -174,7 +174,7 @@ class Category {
 	 * @return null
 	 */
 	public function deleteCategory($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Check whether the category's id is valid
@@ -203,7 +203,7 @@ class Category {
 	 * @return null|string (null on $id == 0; string on $id != 0)
 	 */
 	private function validateData($data, $id = 0) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Make sure no required fields are empty
@@ -239,7 +239,7 @@ class Category {
 	 * @return bool
 	 */
 	private function slugExists($slug, $id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		if($id === 0) {
@@ -264,7 +264,7 @@ class Category {
 	 * @return bool
 	 */
 	private function isDescendant($id, $ancestor) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		do {
@@ -291,7 +291,7 @@ class Category {
 	 * @return string
 	 */
 	private function getParent($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Fetch the parent category from the database
@@ -311,7 +311,7 @@ class Category {
 	 * @return string
 	 */
 	private function getParentList($parent = 0, $id = 0) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Create an empty list

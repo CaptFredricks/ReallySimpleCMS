@@ -15,7 +15,7 @@ class Profile extends User {
 	 * @return null
 	 */
 	public function editProfile($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Validate the form data and return any messages
@@ -68,7 +68,7 @@ class Profile extends User {
 	 * @return string
 	 */
 	private function validateData($data) {
-		// Extend the Query class and the user's session data
+		// Extend the Query object and the user's session data
 		global $rs_query, $session;
 		
 		// Make sure no required fields are empty
@@ -110,7 +110,7 @@ class Profile extends User {
 	 * @return string
 	 */
 	private function getThemesList($current) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Create a list with just the default theme
@@ -197,7 +197,7 @@ class Profile extends User {
 	 * @return string
 	 */
 	private function validatePasswordData($data, $id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Make sure no required fields are empty

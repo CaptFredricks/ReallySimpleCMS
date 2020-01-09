@@ -15,7 +15,7 @@ class Widget extends Post {
 	 * @return null
 	 */
 	public function listWidgets() {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Set up pagination
@@ -121,7 +121,7 @@ class Widget extends Post {
 	 * @return null
 	 */
 	public function editWidget($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Check whether the widget's id is valid
@@ -175,7 +175,7 @@ class Widget extends Post {
 	 * @return null
 	 */
 	public function deleteWidget($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Check whether the widget's id is valid
@@ -201,7 +201,7 @@ class Widget extends Post {
 	 * @return null|string (null on $id == 0; string on $id != 0)
 	 */
 	private function validateData($data, $id = 0) {
-		// Extend the Query class and the user's session data
+		// Extend the Query object and the user's session data
 		global $rs_query, $session;
 		
 		// Make sure no required fields are empty

@@ -15,30 +15,36 @@ jQuery(document).ready($ => {
 	 * @since 2.2.2[a]
 	 */
 	(() => {
-		// Create a variable to hold the header
-		let header = $('.header');
+		// Fetch the current scroll position
+		let scroll = getCurrentScroll();
 		
-		// Create a variable to hold the header's offset from the top of the page
-		let header_offset = $('.header').offset().top;
+		// Toggle the sticky header based on the scroll position
+		toggleStickyHeader((scroll > 0));
 		
 		// Execute an event when the page is scrolled
 		$(window).on('scroll', function() {
 			// Fetch the current scroll position
-			let scroll = getCurrentScroll();
+			scroll = getCurrentScroll();
 			
-			// Check whether the current scroll position is greater than the header's offset (bottom)
-			if(scroll > header_offset) {
-				// Add the 'sticky' class to the header
-				$(header).addClass('sticky');
-			} else {
-				// Remove the 'sticky' class from the header
-				$(header).removeClass('sticky');
-			}
+			// Toggle the sticky header based on the scroll position
+			toggleStickyHeader((scroll > 0));
 		});
 		
 		// Fetch and return the current scroll position
 		function getCurrentScroll() {
 			return window.pageYOffset || document.documentElement.scrollTop;
+		}
+		
+		// Toggle the sticky header
+		function toggleStickyHeader(is_sticky = false) {
+			// Check whether the header should be sticky
+			if(is_sticky) {
+				// Add the 'sticky' class to the header
+				$('.header').addClass('sticky');
+			} else {
+				// Remove the 'sticky' class from the header
+				$('.header').removeClass('sticky');
+			}
 		}
 	})();
 	

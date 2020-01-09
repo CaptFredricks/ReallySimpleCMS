@@ -4,6 +4,47 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 2.2.6[a] (2020-01-08)
+
+* Tweaked styling of the setup and installation forms
+* Tweaked styling of the log in and forgot/reset password forms
+* Added a missing CSS class to the setup form
+* Tweaked documentation in numerous back end files
+* Added error checking to the Media::listMedia function that checks whether the media actually exists in the uploads directory
+* Created a footer for the default front end theme
+* Created a functions.php file for the front end theme and included it in the root index.php file
+* Created a function that fetches the most recent blog posts from the database
+* Constructed and styled the front end footer
+* Fixed an issue with the sticky header functionality
+* Cleaned up code in the default theme's script.js file
+* Merged the 'classes' and 'link_text' parameters on the getMedia function into a single parameter, 'props' that accepts an array of key/value pairs
+* Updated all instances where the above parameters were being used
+* Tweaked the .gitignore file
+
+**Modified files:**
+* .gitignore
+* admin/includes/class-category.php (M)
+* admin/includes/class-media.php
+* admin/includes/class-menu.php (M)
+* admin/includes/class-post.php (M)
+* admin/includes/class-profile.php (M)
+* admin/includes/class-settings.php (M)
+* admin/includes/class-user.php (M)
+* admin/includes/class-widget.php (M)
+* admin/includes/css/install[.min].css (M)
+* admin/includes/functions.php (M)
+* admin/install.php (M)
+* admin/setup.php
+* content/footer.php
+* content/functions.php (N)
+* content/script.js
+* content/style.css
+* includes/class-post.php
+* includes/css/style.css
+* includes/globals.php
+* index.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 2.2.5[a] (2020-01-04)
 
 * Removed an unnecessary console log from the theme script.js file

@@ -84,7 +84,7 @@ $step = (int)($_GET['step'] ?? 1);
  * @return null
  */
 function runInstall($data) {
-	// Extend the Query class
+	// Extend the Query object
 	global $rs_query;
 	
 	// Fetch the database schema tables

@@ -60,7 +60,7 @@ $step = (int)($_GET['step'] ?? 0);
 					?>
 					<p>Enter your database information in the form below.</p>
 					<p>If <code>localhost</code> doesn't work, contact your hosting provider.</p>
-					<form action="?step=2" method="post">
+					<form class="data-form" action="?step=2" method="post">
 						<table class="form-table">
 							<tr>
 								<th><label for="db_name">Database Name</label></th>

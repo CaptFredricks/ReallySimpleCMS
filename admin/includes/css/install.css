@@ -44,7 +44,7 @@ code {
 
 .wrapper {
 	background-color: #ededed;
-	border-radius: 5px;
+	border-radius: 0.375em;
 	box-shadow: 0 2px 4px #000;
 	color: #101010;
 	padding: 1em;

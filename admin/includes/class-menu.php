@@ -24,7 +24,7 @@ class Menu {
 	 * @return null
 	 */
 	public function listMenus() {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Set up pagination
@@ -151,7 +151,7 @@ class Menu {
 	 * @return null
 	 */
 	public function editMenu($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Check whether the menu's id is valid
@@ -248,7 +248,7 @@ class Menu {
 	 * @return null
 	 */
 	public function deleteMenu($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Check whether the menu's id is valid
@@ -289,7 +289,7 @@ class Menu {
 	 * @return null|string (null on $id == 0; string on $id != 0)
 	 */
 	private function validateMenuData($data, $id = 0) {
-		// Extend the Query class and the user's session data
+		// Extend the Query object and the user's session data
 		global $rs_query, $session;
 		
 		// Make sure no required fields are empty
@@ -479,7 +479,7 @@ class Menu {
 	 * @return bool
 	 */
 	private function slugExists($slug, $id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		if($id === 0) {
@@ -503,7 +503,7 @@ class Menu {
 	 * @return null
 	 */
 	private function getMenuItems($id = 0) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		?>
 		<ul class="item-list">
@@ -617,7 +617,7 @@ class Menu {
 	 * @return null
 	 */
 	private function getMenuItemsLists() {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		?>
 		<fieldset>
@@ -693,7 +693,7 @@ class Menu {
 	 * @return null
 	 */
 	private function moveUpMenuItem($id, $menu) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Check whether the menu item has siblings and is not the first sibling
@@ -750,7 +750,7 @@ class Menu {
 	 * @return null
 	 */
 	private function moveDownMenuItem($id, $menu) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Check whether the menu item has siblings and is not the last sibling
@@ -810,7 +810,7 @@ class Menu {
 	 * @return null
 	 */
 	private function editMenuItem($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Validate the form data and return any messages
@@ -867,7 +867,7 @@ class Menu {
 	 * @return null
 	 */
 	public function deleteMenuItem($id, $menu) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Fetch the parent of the current menu item from the database
@@ -929,7 +929,7 @@ class Menu {
 	 * @return null
 	 */
 	private function validateMenuItemData($data, $id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Make sure no required fields are empty
@@ -1059,7 +1059,7 @@ class Menu {
 	 * @return bool
 	 */
 	private function isFirstSibling($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Fetch the current menu item's index from the database
@@ -1090,7 +1090,7 @@ class Menu {
 	 * @return bool
 	 */
 	private function isLastSibling($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Fetch the current menu item's index from the database
@@ -1122,7 +1122,7 @@ class Menu {
 	 * @return bool
 	 */
 	private function isPreviousSibling($previous, $id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Fetch the previous sibling's index from the database
@@ -1162,7 +1162,7 @@ class Menu {
 	 * @return bool
 	 */
 	private function isNextSibling($next, $id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Fetch the next sibling's index from the database
@@ -1202,7 +1202,7 @@ class Menu {
 	 * @return bool
 	 */
 	private function isDescendant($id, $ancestor) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		do {
@@ -1229,7 +1229,7 @@ class Menu {
 	 * @return bool
 	 */
 	private function hasSiblings($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Fetch any siblings that the menu item has from the database
@@ -1249,7 +1249,7 @@ class Menu {
 	 * @return string
 	 */
 	private function getMenuItemsList($id, $type) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Create an empty list
@@ -1284,7 +1284,7 @@ class Menu {
 	 * @return int
 	 */
 	private function getMenuItemDepth($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Create an empty variable to hold the nested depth
@@ -1314,7 +1314,7 @@ class Menu {
 	 * @return array
 	 */
 	private function getMenuItemMeta($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Fetch the menu item's metadata from the database
@@ -1348,7 +1348,7 @@ class Menu {
 	 * @return int
 	 */
 	private function getParent($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Fetch the parent menu item from the database and return it
@@ -1365,7 +1365,7 @@ class Menu {
 	 * @return string
 	 */
 	private function getParentList($parent, $id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Create an empty list
@@ -1426,7 +1426,7 @@ class Menu {
 	 * @return int
 	 */
 	private function getPreviousSibling($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Fetch the siblings of the menu item from the database
@@ -1448,7 +1448,7 @@ class Menu {
 	 * @return int
 	 */
 	private function getNextSibling($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Fetch the siblings of the menu item from the database
@@ -1470,7 +1470,7 @@ class Menu {
 	 * @return int
 	 */
 	private function getFamilyTree($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Fetch the menu item's id from the database
@@ -1504,7 +1504,7 @@ class Menu {
 	 * @return null
 	 */
 	private function getDescendants($id) {
-		// Extend the Query class
+		// Extend the Query object
 		global $rs_query;
 		
 		// Select any existing children from the database
