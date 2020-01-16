@@ -4,6 +4,52 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 2.3.0[a] (2020-01-15)
+
+* Created a file to hold named constants used throughout the CMS
+* Moved all constant declarations to the new constants.php file
+* Created a new named constant for the themes directory
+* Updated the file path for the config.php file in the setup.php file
+* Created a global function that checks whether a directory is empty
+* Created a fallback theme file in case the themes directory is empty
+* Moved the front end theme files to the new Carbon theme folder
+* Added an optional parameter for the getHeader and getFooter functions to allow specifying alternate template files from header.php and footer.php
+* Added error checking to the getHeader and getFooter functions
+* Modified the getThemeScript and getThemeStylesheet functions to search in the proper file path
+* Created an admin page and a class for front end themes
+* Added the 'List Themes' page to the admin nav menu
+* Created user privileges for themes
+* Updated the file path for the config.php file in the install.php file
+* Created a function that displays a list of installed themes
+
+**Modified files:**
+* admin/header.php
+* admin/includes/class-theme.php (N)
+* admin/includes/functions.php
+* admin/install.php
+* admin/setup.php (M)
+* admin/themes.php (N)
+* content/footer.php (X)
+* content/functions.php (X)
+* content/header.php (X)
+* content/index.php (X)
+* content/script.js (X)
+* content/style.css (X)
+* content/themes/carbon/footer.php (N)
+* content/themes/carbon/functions.php (N)
+* content/themes/carbon/header.php (N)
+* content/themes/carbon/index.php (N)
+* content/themes/carbon/script.js (N)
+* content/themes/carbon/style.css (N)
+* includes/constants.php (N)
+* includes/fallback.php (N)
+* includes/functions.php
+* includes/globals.php
+* includes/load-theme.php (N)
+* index.php
+* init.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 2.2.7[a] (2020-01-14)
 
 * Added the 'theme color' meta tag to the login.php file

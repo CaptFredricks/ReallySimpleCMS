@@ -267,7 +267,7 @@ function populateTables($user_data, $settings_data) {
 	}
 	
 	// Create an array of admin pages (for privileges)
-	$admin_pages = array('pages', 'posts', 'categories', 'comments', 'media', 'menus', 'widgets', 'users', 'settings', 'user_roles');
+	$admin_pages = array('pages', 'posts', 'categories', 'comments', 'media', 'themes', 'menus', 'widgets', 'users', 'settings', 'user_roles');
 	
 	// Create an array of user privileges
 	$privileges = array('can_view_', 'can_create_', 'can_edit_', 'can_delete_');
@@ -303,11 +303,12 @@ function populateTables($user_data, $settings_data) {
 	 * 5=>'can_view_posts', 6=>'can_create_posts', 7=>'can_edit_posts', 8=>'can_delete_posts',
 	 * 9=>'can_view_categories', 10=>'can_create_categories', 11=>'can_edit_categories', 12=>'can_delete_categories',
 	 * 13=>'can_view_media', 14=>'can_upload_media', 15=>'can_edit_media', 16=>'can_delete_media',
-	 * 17=>'can_view_menus', 18=>'can_create_menus', 19=>'can_edit_menus', 20=>'can_delete_menus',
-	 * 21=>'can_view_widgets', 22=>'can_create_widgets', 23=>'can_edit_widgets', 24=>'can_delete_widgets',
-	 * 25=>'can_view_users', 26=>'can_create_users', 27=>'can_edit_users', 28=>'can_delete_users',
-	 * 29=>'can_edit_settings',
-	 * 30=>'can_view_user_roles', 31=>'can_create_user_roles', 32=>'can_edit_user_roles', 33=>'can_delete_user_roles'
+	 * 17=>'can_view_themes', 18=>'can_create_themes', 19=>'can_edit_themes', 20=>'can_delete_themes',
+	 * 21=>'can_view_menus', 22=>'can_create_menus', 23=>'can_edit_menus', 24=>'can_delete_menus',
+	 * 25=>'can_view_widgets', 26=>'can_create_widgets', 27=>'can_edit_widgets', 28=>'can_delete_widgets',
+	 * 29=>'can_view_users', 30=>'can_create_users', 31=>'can_edit_users', 32=>'can_delete_users',
+	 * 33=>'can_edit_settings',
+	 * 34=>'can_view_user_roles', 35=>'can_create_user_roles', 36=>'can_edit_user_roles', 37=>'can_delete_user_roles'
 	 */
 	
 	// Fetch all user roles from the database
@@ -322,15 +323,15 @@ function populateTables($user_data, $settings_data) {
 				break;
 			case 2:
 				// Set the privileges for the 'editor' role
-				$privileges = array(1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19, 21, 22, 23, 25);
+				$privileges = array(1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19, 21, 22, 23, 25, 26, 27, 29);
 				break;
 			case 3:
 				// Set the privileges for the 'moderator' role
-				$privileges = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28);
+				$privileges = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32);
 				break;
 			case 4:
 				// Set the privileges for the 'administrator' role
-				$privileges = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33);
+				$privileges = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37);
 				break;
 		}
 		

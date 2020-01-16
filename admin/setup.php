@@ -23,7 +23,7 @@ if(!defined('ADMIN_STYLES')) define('ADMIN_STYLES', ADMIN.INC.'/css');
 $config_file = file(PATH.INC.'/config-setup.php');
 
 // Make sure config file doesn't already exist (this will be created in a moment)
-if(file_exists(PATH.INC.'/config.php')) exit('A configuration file already exists. If you wish to continue installation, please delete the existing file.');
+if(file_exists(PATH.'/config.php')) exit('A configuration file already exists. If you wish to continue installation, please delete the existing file.');
 
 // Set the current step of the setup process
 $step = (int)($_GET['step'] ?? 0);

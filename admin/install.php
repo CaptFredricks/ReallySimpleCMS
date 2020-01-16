@@ -14,7 +14,7 @@ if(!defined('INC')) define('INC', '/includes');
 if(!defined('ADMIN')) define('ADMIN', '/admin');
 
 // Make sure config file has been created already (if not, redirect to the setup page)
-if(!file_exists(PATH.INC.'/config.php')) header('Location: '.ADMIN.'/setup.php');
+if(!file_exists(PATH.'/config.php')) header('Location: '.ADMIN.'/setup.php');
 
 // Path to the stylesheets directory
 if(!defined('STYLES')) define('STYLES', INC.'/css');
@@ -32,7 +32,7 @@ const PW_LENGTH = 8;
 require_once PATH.INC.'/debug.php';
 
 // Include database configuration
-require_once PATH.INC.'/config.php';
+require_once PATH.'/config.php';
 
 // Include Query class
 require_once PATH.INC.'/class-query.php';

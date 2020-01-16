@@ -5,7 +5,7 @@
  */
 
 // Current CMS version
-const VERSION = '2.2.6';
+const VERSION = '2.3.0';
 
 /**
  * Display the copyright information on the admin dashboard.
@@ -51,6 +51,33 @@ function redirect($url, $status = 302) {
 	
 	// Stop any further script execution
 	exit;
+}
+
+/**
+ * Check whether a directory is empty.
+ * @since 2.3.0[a]
+ *
+ * @param string $dir
+ * @return null|bool (null on unreadable directory, bool otherwise)
+ */
+function isEmptyDir($dir) {
+	// Check whether the directory is readable and return null if so
+	if(!is_readable($dir)) return null;
+	
+	// Open the directory handle
+	$handle = opendir($dir);
+	
+	// Loop through the directory's contents
+	while(($entry = readdir($handle)) !== false) {
+		// Check whether the current entry is anything other than '.' or '..'
+		if($entry !== '.' && $entry !== '..') {
+			// Return false
+			return false;
+		}
+	}
+	
+	// Return true
+	return true;
 }
 
 /**
@@ -111,9 +138,9 @@ function getStylesheet($stylesheet, $version = VERSION, $echo = true) {
  */
 function getThemeScript($script, $version = VERSION, $echo = true) {
 	if($echo)
-		echo '<script src="'.trailingSlash(CONT).$script.(!empty($version) ? '?v='.$version : '').'"></script>';
+		echo '<script src="'.trailingSlash(THEMES).trailingSlash(getSetting('theme', false)).$script.(!empty($version) ? '?v='.$version : '').'"></script>';
 	else
-		return '<script src="'.trailingSlash(CONT).$script.(!empty($version) ? '?v='.$version : '').'"></script>';
+		return '<script src="'.trailingSlash(THEMES).trailingSlash(getSetting('theme', false)).$script.(!empty($version) ? '?v='.$version : '').'"></script>';
 }
 
 /**
@@ -127,9 +154,9 @@ function getThemeScript($script, $version = VERSION, $echo = true) {
  */
 function getThemeStylesheet($stylesheet, $version = VERSION, $echo = true) {
 	if($echo)
-		echo '<link href="'.trailingSlash(CONT).$stylesheet.(!empty($version) ? '?v='.$version : '').'" rel="stylesheet">';
+		echo '<link href="'.trailingSlash(THEMES).trailingSlash(getSetting('theme', false)).$stylesheet.(!empty($version) ? '?v='.$version : '').'" rel="stylesheet">';
 	else
-		return '<link href="'.trailingSlash(CONT).$stylesheet.(!empty($version) ? '?v='.$version : '').'" rel="stylesheet">';
+		return '<link href="'.trailingSlash(THEMES).trailingSlash(getSetting('theme', false)).$stylesheet.(!empty($version) ? '?v='.$version : '').'" rel="stylesheet">';
 }
 
 /**

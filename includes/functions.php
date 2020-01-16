@@ -16,28 +16,42 @@ define('COOKIE_HASH', md5(getSetting('site_url', false)));
  * Include the theme's header template.
  * @since 1.5.5[a]
  *
+ * @param string $template (optional; default: '')
  * @return null
  */
-function getHeader() {
+function getHeader($template = '') {
 	// Extend the Post object and the user's session data
 	global $rs_post, $session;
 	
-	// Include the header template
-	require_once PATH.CONT.'/header.php';
+	// Check whether the template file exists
+	if(!file_exists(trailingSlash(PATH.THEMES).getSetting('theme', false).'/header.php') && !file_exists(trailingSlash(PATH.THEMES).trailingSlash(getSetting('theme', false)).$template.'.php')) {
+		// Don't load anything
+		return null;
+	} else {
+		// Include the header template
+		require_once trailingSlash(PATH.THEMES).trailingSlash(getSetting('theme', false)).(!empty($template) ? $template : 'header').'.php';
+	}
 }
 
 /**
  * Include the theme's footer template.
  * @since 1.5.5[a]
  *
+ * @param string $template (optional; default: '')
  * @return null
  */
-function getFooter() {
+function getFooter($template = '') {
 	// Extend the Post object and the user's session data
 	global $rs_post, $session;
 	
-	// Include the footer template
-	require_once PATH.CONT.'/footer.php';
+	// Check whether the template file exists
+	if(!file_exists(trailingSlash(PATH.THEMES).getSetting('theme', false).'/footer.php') && !file_exists(trailingSlash(PATH.THEMES).trailingSlash(getSetting('theme', false)).$template.'.php')) {
+		// Don't load anything
+		return null;
+	} else {
+		// Include the footer template
+		require_once trailingSlash(PATH.THEMES).trailingSlash(getSetting('theme', false)).(!empty($template) ? $template : 'footer').'.php';
+	}
 }
 
 /**
