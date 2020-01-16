@@ -156,6 +156,89 @@ function bodyClasses($addtl_classes = array()) {
 }
 
 /**
+ * Construct an admin bar for logged in users.
+ * @since 2.2.7[a]
+ *
+ * @return null
+ */
+function adminBar() {
+	// Extend the Post object and the user's session data
+	global $rs_post, $session;
+	?>
+	<div id="admin-bar">
+		<ul class="menu">
+			<li>
+				<a href="javascript:void(0)"><i class="fas fa-tachometer-alt"></i> <span>Admin</span></a>
+				<ul class="sub-menu">
+					<li><a href="/admin/">Dashboard</a></li>
+					<li><a href="/admin/posts.php?type=page">Pages</a></li>
+					<li>
+						<a href="/admin/posts.php">Posts</a>
+						<ul class="sub-menu">
+							<li><a href="/admin/categories.php">Categories</a></li>
+						</ul>
+					</li>
+					<li><a href="/admin/media.php">Media</a></li>
+					<li>
+						<a href="javascript:void(0)">Customization</a>
+						<ul class="sub-menu">
+							<li><a href="/admin/themes.php">Themes</a></li>
+							<li><a href="/admin/menus.php">Menus</a></li>
+							<li><a href="/admin/widgets.php">Widgets</a></li>
+						</ul>
+					</li>
+					<li><a href="/admin/users.php">Users</a></li>
+					<li>
+						<a href="javascript:void(0)">Settings</a>
+						<ul class="sub-menu">
+							<li><a href="/admin/settings.php">General</a></li>
+							<li><a href="/admin/settings.php?page=design">Design</a></li>
+							<li><a href="/admin/settings.php?page=user_roles">User Roles</a></li>
+						</ul>
+					</li>
+				</ul>
+			</li>
+			<li>
+				<a href="javascript:void(0)"><i class="fas fa-plus"></i> <span>New</span></a>
+				<ul class="sub-menu">
+					<li><a href="/admin/posts.php?type=page&action=create">Page</a></li>
+					<li>
+						<a href="/admin/posts.php?action=create">Post</a>
+						<ul class="sub-menu">
+							<li><a href="/admin/categories.php?action=create">Category</a></li>
+						</ul>
+						<li><a href="/admin/media.php?action=upload">Media</a></li>
+						<li>
+							<a href="javascript:void(0)">Customization</a>
+							<ul class="sub-menu">
+								<li><a href="/admin/menus.php?action=create">Menu</a></li>
+								<li><a href="/admin/widgets.php?action=create">Widget</a></li>
+							</ul>
+						</li>
+						<li><a href="/admin/users.php?action=create">User</a></li>
+					</li>
+				</ul>
+			</li>
+			<?php if(!is_null($rs_post)): ?>
+				<li>
+					<a href="/admin/posts.php?id=<?php $rs_post->getPostId(); ?>&action=edit"><i class="fas fa-feather-alt"></i> <span>Edit</span></a>
+				</li>
+			<?php endif; ?>
+		</ul>
+		<div class="user-dropdown">
+			<span>Welcome, <?php echo $session['username']; ?></span>
+			<?php echo getMedia($session['avatar'], array('class'=>'avatar', 'width'=>20, 'height'=>20)); ?>
+			<ul class="user-dropdown-menu">
+				<?php echo getMedia($session['avatar'], array('class'=>'avatar-large', 'width'=>100, 'height'=>100)); ?>
+				<li><a href="/admin/profile.php">My Profile</a></li>
+				<li><a href="/login.php?action=logout">Log Out</a></li>
+			</ul>
+		</div>
+	</div>
+	<?php
+}
+
+/**
  * Generate a random hash.
  * @since 2.0.5[a]
  *

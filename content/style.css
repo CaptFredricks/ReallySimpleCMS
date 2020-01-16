@@ -27,6 +27,10 @@ h1 {
 	box-shadow: 0 2px 3px rgba(0,0,0,0.5);
 }
 
+.logged-in .header {
+	top: 1.875em;
+}
+
 .header .top-bar {
 	background-color: #fefefe;
 	height: 3.75em;
@@ -116,11 +120,15 @@ h1 {
 	height: 100%;
 	max-width: 320px;
 	position: fixed;
-	  top: 3.75rem;
+	  top: 3.75em;
 	  right: -100%;
 	  z-index: 999;
 	transition: all 0.3s ease, background-color 0s;
 	width: 80%;
+}
+
+.logged-in .header .nav-menu-wrap {
+	top: 5.625em;
 }
 
 .header .nav-menu-wrap.open {
@@ -191,7 +199,11 @@ h1 {
 /* Main content */
 
 .content {
-	margin-top: 60px;
+	margin-top: 3.75em;
+}
+
+.logged-in .content {
+	margin-top: 5.625em;
 }
 
 /* Footer */
@@ -214,10 +226,13 @@ h1 {
 	padding: 0 1em;
 }
 
+.footer .col-4 {
+	text-align: center;
+}
+
 .footer .col-4:nth-child(2) {
 	display: flex;
 	  justify-content: center;
-	text-align: center;
 }
 
 .footer .nav-menu ul {
@@ -243,6 +258,7 @@ h1 {
 	list-style: none;
 	margin: 0;
 	padding: 0;
+	text-align: left;
 }
 
 .footer .recent-posts ul li {
@@ -320,13 +336,23 @@ h1 {
 	}
 }
 
+@media screen and (min-width: 850px) {
+	.footer .col-4:first-child {
+		text-align: left;
+	}
+}
+
 @media screen and (min-width: 1050px) {
 	.header {
 		transition: top 0.3s;
 	}
 	
 	.header.sticky {
-		top: -56px;
+		top: -3.5em;
+	}
+	
+	.logged-in .header.sticky {
+		top: calc(1.875em + -3.5em);
 	}
 	
 	.header .top-bar {
@@ -436,6 +462,7 @@ h1 {
         box-shadow: 0 5px 3px -3px rgba(0,0,0,0.5);
         display: none;
         min-width: 100%;
+		padding-top: 1em;
         padding-left: 0;
         position: absolute;
           z-index: 9999;
@@ -453,6 +480,10 @@ h1 {
 	}
 	
 	.content {
-		margin-top: 112px;
+		margin-top: 7em;
+	}
+	
+	.logged-in .content {
+		margin-top: 8.875em;
 	}
 }

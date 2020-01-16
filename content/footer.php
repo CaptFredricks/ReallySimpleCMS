@@ -23,6 +23,7 @@
 				</div>
 			</div>
 		</footer>
+		<?php if(isValidSession($_COOKIE['session'])) adminBar(); ?>
 		<?php getScript('script.js'); ?>
 		<?php getThemeScript('script.js'); ?>
 	</body>

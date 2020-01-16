@@ -24,12 +24,12 @@ if(!defined('ADMIN')) define('ADMIN', '/admin');
 if(!defined('CONT')) define('CONT', '/content');
 
 // Try to initialize the CMS or run setup if the config file doesn't exist
-if(file_exists(PATH.INC.'/config.php')) {
+if(file_exists(PATH.'/config.php')) {
 	// Include debugging functions
 	require_once PATH.INC.'/debug.php';
 	
 	// Include the database configuration
-	require_once PATH.INC.'/config.php';
+	require_once PATH.'/config.php';
 	
 	// Include the Query class
 	require_once PATH.INC.'/class-query.php';

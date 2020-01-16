@@ -238,10 +238,7 @@ function getOnlineUser($session) {
 	$user = $rs_query->selectRow('users', array('id', 'username', 'role'), array('session'=>$session));
 	
 	// Fetch the user's avatar from the database
-	$avatar = (int)$rs_query->selectField('usermeta', 'value', array('user'=>$user['id'], '_key'=>'avatar'));
-	
-	// Construct the full file path of the avatar
-	$user['avatar'] = getMediaSrc($avatar);
+	$user['avatar'] = (int)$rs_query->selectField('usermeta', 'value', array('user'=>$user['id'], '_key'=>'avatar'));
 	
 	// Fetch the user's admin theme from the database
 	$user['theme'] = $rs_query->selectField('usermeta', 'value', array('user'=>$user['id'], '_key'=>'theme'));
@@ -320,7 +317,7 @@ function getMedia($id, $props = array()) {
 		$alt_text = $rs_query->selectField('postmeta', 'value', array('post'=>$id, '_key'=>'alt_text'));
 		
 		// Construct an image tag
-		return '<img'.(!empty($props['class']) ? ' class="'.$props['class'].'"' : '').' src="'.$src.'" alt="'.$alt_text.'"'.(!empty($props['width']) ? ' width="'.$props['width'].'"' : '').'>';
+		return '<img'.(!empty($props['class']) ? ' class="'.$props['class'].'"' : '').' src="'.$src.'" alt="'.$alt_text.'"'.(!empty($props['width']) ? ' width="'.$props['width'].'"' : '').(!empty($props['height']) ? ' height="'.$props['height'].'"' : '').'>';
 	} elseif(strpos($mime_type, 'audio') !== false) {
 		// Construct an audio tag
 		return '<audio'.(!empty($props['class']) ? ' class="'.$props['class'].'"' : '').' src="'.$src.'"></audio>';

@@ -143,7 +143,7 @@ $step = (int)($_GET['step'] ?? 0);
 						<?php
 					} else {
 						// File path for the config file
-						$config_file_path = PATH.INC.'/config.php';
+						$config_file_path = PATH.'/config.php';
 						
 						// Open file stream
 						$handle = fopen($config_file_path, 'w');

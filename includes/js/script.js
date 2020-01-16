@@ -43,10 +43,10 @@ jQuery(document).ready($ => {
 			// Set the visibility to 'visible'
 			$(this).data('visibility', 'visible');
 			
-			// Change the title text
+			// Change the button's title text
 			$(this).attr('title', 'Hide password');
 			
-			// Swap the icon
+			// Swap the button's icon
 			$(this).children().removeClass('fa-eye').addClass('fa-eye-slash');
 		} else if($(this).data('visibility') === 'visible') {
 			// Set the password field's type to 'password'
@@ -55,10 +55,10 @@ jQuery(document).ready($ => {
 			// Set the visibility to 'hidden'
 			$(this).data('visibility', 'hidden');
 			
-			// Change the title text
+			// Change the button's title text
 			$(this).attr('title', 'Show password');
 			
-			// Swap the icon
+			// Swap the button's icon
 			$(this).children().removeClass('fa-eye-slash').addClass('fa-eye');
 		}
 	});

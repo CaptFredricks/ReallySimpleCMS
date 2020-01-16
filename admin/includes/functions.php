@@ -375,7 +375,7 @@ function populateTables($user_data, $settings_data) {
 	}
 	
 	// Settings
-	$settings = array('site_title'=>$settings_data['site_title'], 'description'=>'A new ReallySimpleCMS website!', 'site_url'=>$settings_data['site_url'], 'admin_email'=>$settings_data['admin_email'], 'default_user_role'=>$default_user_role, 'home_page'=>$post['home_page'], 'do_robots'=>$settings_data['do_robots'], 'site_logo'=>0, 'site_icon'=>0, 'theme_color'=>'#ededed');
+	$settings = array('site_title'=>$settings_data['site_title'], 'description'=>'A new ReallySimpleCMS website!', 'site_url'=>$settings_data['site_url'], 'admin_email'=>$settings_data['admin_email'], 'default_user_role'=>$default_user_role, 'home_page'=>$post['home_page'], 'do_robots'=>$settings_data['do_robots'], 'site_logo'=>0, 'site_icon'=>0, 'theme'=>'carbon', 'theme_color'=>'#ededed');
 	
 	// Insert the settings into the database
 	foreach($settings as $name=>$value)

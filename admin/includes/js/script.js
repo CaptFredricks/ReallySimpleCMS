@@ -2,7 +2,7 @@
  * Scripts for the admin dashboard.
  * @since 1.5.6[a]
  */
-jQuery(document).ready(function($) {
+jQuery(document).ready($ => {
 	// Turn on strict mode
 	'use strict';
 	

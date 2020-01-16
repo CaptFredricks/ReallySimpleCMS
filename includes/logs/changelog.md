@@ -4,6 +4,37 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 2.2.7[a] (2020-01-14)
+
+* Added the 'theme color' meta tag to the login.php file
+* Tweaked documentation in the front end script.js file
+* Replaced some standard anonymous functions with arrow functions in the admin modal.js and script.js files
+* Tweaked a styling rule in the front end style.css file
+* The config.php file is now created in the root directory when the CMS is installed (it was previously created in the includes directory)
+* Added a settings database entry for storing the current front end theme
+* When the CMS is being initialized, it now looks for the config.php in the root directory
+* Constructed and styled the front end admin bar
+* The getOnlineUser function now only fetches the user's avatar id and not the whole file path
+* Replaced some hard coded img tags with the getMedia function in the admin header.php file
+* Made all remaining elements on the Carbon theme mobile responsive
+
+**Modified files:**
+* .gitignore (M)
+* admin/header.php
+* admin/includes/functions.php (M)
+* admin/includes/js/modal.js (M)
+* admin/includes/js/script.js (M)
+* admin/setup.php (M)
+* content/footer.php
+* content/style.css
+* includes/css/style.css
+* includes/functions.php
+* includes/globals.php
+* includes/js/script.js (M)
+* init.php
+* login.php (M)
+
+----------------------------------------------------------------------------------------------------
 ## Version 2.2.6[a] (2020-01-08)
 
 * Tweaked styling of the setup and installation forms
@@ -11,12 +42,12 @@
 * Added a missing CSS class to the setup form
 * Tweaked documentation in numerous back end files
 * Added error checking to the Media::listMedia function that checks whether the media actually exists in the uploads directory
-* Created a footer for the default front end theme
+* Created a footer for the front end theme
 * Created a functions.php file for the front end theme and included it in the root index.php file
 * Created a function that fetches the most recent blog posts from the database
 * Constructed and styled the front end footer
 * Fixed an issue with the sticky header functionality
-* Cleaned up code in the default theme's script.js file
+* Cleaned up code in the front end theme's script.js file
 * Merged the 'classes' and 'link_text' parameters on the getMedia function into a single parameter, 'props' that accepts an array of key/value pairs
 * Updated all instances where the above parameters were being used
 * Tweaked the .gitignore file
@@ -47,7 +78,7 @@
 ----------------------------------------------------------------------------------------------------
 ## Version 2.2.5[a] (2020-01-04)
 
-* Removed an unnecessary console log from the theme script.js file
+* Removed an unnecessary console log from the front end theme's script.js file
 * Deleted the page.php file (deprecated in a previous version)
 * Tweaked documentation in numerous front end files
 * Reorganized the changelog

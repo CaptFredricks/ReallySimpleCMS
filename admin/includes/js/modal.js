@@ -2,7 +2,7 @@
  * Scripts for admin modal windows.
  * @since 2.1.1[a]
  */
-jQuery(document).ready(function($) {
+jQuery(document).ready($ => {
 	// Turn on strict mode
 	'use strict';
 	
