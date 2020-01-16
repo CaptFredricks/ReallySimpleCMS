@@ -5,7 +5,11 @@
  */
 
 // Current CMS version
+<<<<<<< HEAD
 const VERSION = '2.3.0';
+=======
+const VERSION = '2.2.7';
+>>>>>>> 96151f77a5cc1db971853bb75eeda9b3ca5b6bda
 
 /**
  * Display the copyright information on the admin dashboard.
