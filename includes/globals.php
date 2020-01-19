@@ -5,11 +5,7 @@
  */
 
 // Current CMS version
-<<<<<<< HEAD
-const VERSION = '2.3.0';
-=======
-const VERSION = '2.2.7';
->>>>>>> 96151f77a5cc1db971853bb75eeda9b3ca5b6bda
+const VERSION = '2.3.1';
 
 /**
  * Display the copyright information on the admin dashboard.
@@ -73,14 +69,11 @@ function isEmptyDir($dir) {
 	
 	// Loop through the directory's contents
 	while(($entry = readdir($handle)) !== false) {
-		// Check whether the current entry is anything other than '.' or '..'
-		if($entry !== '.' && $entry !== '..') {
-			// Return false
-			return false;
-		}
+		// Check whether the current entry is anything other than '.' or '..' and return false if so
+		if($entry !== '.' && $entry !== '..') return false;
 	}
 	
-	// Return true
+	// Return true otherwise
 	return true;
 }
 
@@ -132,38 +125,6 @@ function getStylesheet($stylesheet, $version = VERSION, $echo = true) {
 }
 
 /**
- * Fetch a theme-specific script file.
- * @since 2.0.7[a]
- *
- * @param string $script
- * @param string $version (optional; default: VERSION)
- * @param bool $echo (optional; default: true)
- * @return null|string (null on $echo == true; string on $echo == false)
- */
-function getThemeScript($script, $version = VERSION, $echo = true) {
-	if($echo)
-		echo '<script src="'.trailingSlash(THEMES).trailingSlash(getSetting('theme', false)).$script.(!empty($version) ? '?v='.$version : '').'"></script>';
-	else
-		return '<script src="'.trailingSlash(THEMES).trailingSlash(getSetting('theme', false)).$script.(!empty($version) ? '?v='.$version : '').'"></script>';
-}
-
-/**
- * Fetch a theme-specific stylesheet.
- * @since 2.0.7[a]
- *
- * @param string $stylesheet
- * @param string $version (optional; default: VERSION)
- * @param bool $echo (optional; default: true)
- * @return null|string (null on $echo == true; string on $echo == false)
- */
-function getThemeStylesheet($stylesheet, $version = VERSION, $echo = true) {
-	if($echo)
-		echo '<link href="'.trailingSlash(THEMES).trailingSlash(getSetting('theme', false)).$stylesheet.(!empty($version) ? '?v='.$version : '').'" rel="stylesheet">';
-	else
-		return '<link href="'.trailingSlash(THEMES).trailingSlash(getSetting('theme', false)).$stylesheet.(!empty($version) ? '?v='.$version : '').'" rel="stylesheet">';
-}
-
-/**
  * Retrieve a setting from the database.
  * @since 1.2.5[a]
  *
@@ -178,7 +139,6 @@ function getSetting($name, $echo = true) {
 	// Fetch the setting from the database
 	$setting = $rs_query->selectField('settings', 'value', array('name'=>$name));
 	
-	// Display or return the setting based upon the value of $echo
 	if($echo)
 		echo $setting;
 	else
@@ -269,7 +229,7 @@ function getOnlineUser($session) {
 	$user = $rs_query->selectRow('users', array('id', 'username', 'role'), array('session'=>$session));
 	
 	// Fetch the user's avatar from the database
-	$user['avatar'] = (int)$rs_query->selectField('usermeta', 'value', array('user'=>$user['id'], '_key'=>'avatar'));
+	$user['avatar'] = $rs_query->selectField('usermeta', 'value', array('user'=>$user['id'], '_key'=>'avatar'));
 	
 	// Fetch the user's admin theme from the database
 	$user['theme'] = $rs_query->selectField('usermeta', 'value', array('user'=>$user['id'], '_key'=>'theme'));

@@ -10,6 +10,9 @@ if(!defined('ADMIN_STYLES')) define('ADMIN_STYLES', ADMIN.INC.'/css');
 // Path to the admin scripts directory
 if(!defined('ADMIN_SCRIPTS')) define('ADMIN_SCRIPTS', ADMIN.INC.'/js');
 
+// Path to the admin themes directory
+if(!defined('ADMIN_THEMES')) define('ADMIN_THEMES', CONT.'/admin-themes');
+
 // Autoload classes
 spl_autoload_register(function($class_name) {
 	require_once trailingSlash(PATH.ADMIN.INC).'class-'.strtolower($class_name).'.php';
@@ -37,7 +40,7 @@ function getCurrentPage() {
 		foreach($query_params as $query_param) {
 			// Check whether the query parameter contains 'type'
 			if(strpos($query_param, 'type') !== false) {
-				// Set the current page 
+				// Set the current page
 				$current = substr($query_param, strpos($query_param, '=') + 1).'s';
 			}
 			
@@ -162,6 +165,22 @@ function getAdminStylesheet($stylesheet, $version = VERSION, $echo = true) {
 }
 
 /**
+ * Fetch an admin theme's stylesheet.
+ * @since 2.3.1[a]
+ *
+ * @param string $stylesheet
+ * @param string $version (optional; default: VERSION)
+ * @param bool $echo (optional; default: true)
+ * @return null|string (null on $echo == true; string on $echo == false)
+ */
+function getAdminTheme($stylesheet, $version = VERSION, $echo = true) {
+	if($echo)
+		echo '<link href="'.trailingSlash(ADMIN_THEMES).$stylesheet.(!empty($version) ? '?v='.$version : '').'" rel="stylesheet">';
+	else
+		return '<link href="'.trailingSlash(ADMIN_THEMES).$stylesheet.(!empty($version) ? '?v='.$version : '').'" rel="stylesheet">';
+}
+
+/**
  * Load all admin header scripts and stylesheets.
  * @since 2.0.7[a]
  *
@@ -179,13 +198,13 @@ function adminHeaderScripts() {
 	
 	// Check whether the user has a custom admin theme selected
 	if($session['theme'] !== 'default') {
-		// File path for the admin theme stylesheet
-		$file_path = 'admin-themes/'.$session['theme'].'.css';
+		// Filename for the admin theme stylesheet
+		$filename = $session['theme'].'.css';
 		
 		// Check whether the stylesheet exists
-		if(file_exists(trailingSlash(PATH.CONT).$file_path)) {
+		if(file_exists(trailingSlash(PATH.ADMIN_THEMES).$filename)) {
 			// Admin theme stylesheet
-			getThemeStylesheet($file_path);
+			getAdminTheme($filename);
 		}
 	}
 	

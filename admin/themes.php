@@ -10,21 +10,21 @@ $rs_theme = new Theme;
 	// Fetch the current action
 	$action = $_GET['action'] ?? '';
 	
-	// Fetch the theme's id
-	$id = (int)($_GET['id'] ?? 0);
+	// Fetch the theme's name
+	$name = $_GET['name'] ?? '';
 	
 	switch($action) {
 		case 'create':
 			// Create a new theme
 			userHasPrivilege($session['role'], 'can_create_themes') ? $rs_theme->createTheme() : redirect('themes.php');
 			break;
-		case 'edit':
-			// Edit an existing theme
-			userHasPrivilege($session['role'], 'can_edit_themes') ? $rs_theme->editTheme($id) : redirect('themes.php');
+		case 'activate':
+			// Activate an inactive theme
+			userHasPrivilege($session['role'], 'can_edit_themes') ? $rs_theme->activateTheme($name) : redirect('themes.php');
 			break;
 		case 'delete':
 			// Delete an existing theme
-			userHasPrivilege($session['role'], 'can_delete_themes') ? $rs_theme->deleteTheme($id) : redirect('themes.php');
+			userHasPrivilege($session['role'], 'can_delete_themes') ? $rs_theme->deleteTheme($name) : redirect('themes.php');
 			break;
 		default:
 			// List all themes

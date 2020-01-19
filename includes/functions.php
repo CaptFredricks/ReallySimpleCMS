@@ -13,7 +13,7 @@ spl_autoload_register(function($class_name) {
 define('COOKIE_HASH', md5(getSetting('site_url', false)));
 
 /**
- * Include the theme's header template.
+ * Fetch the theme's header template.
  * @since 1.5.5[a]
  *
  * @param string $template (optional; default: '')
@@ -23,18 +23,21 @@ function getHeader($template = '') {
 	// Extend the Post object and the user's session data
 	global $rs_post, $session;
 	
+	// Construct the file path for the current theme
+	$theme_path = trailingSlash(PATH.THEMES).getSetting('theme', false);
+	
 	// Check whether the template file exists
-	if(!file_exists(trailingSlash(PATH.THEMES).getSetting('theme', false).'/header.php') && !file_exists(trailingSlash(PATH.THEMES).trailingSlash(getSetting('theme', false)).$template.'.php')) {
+	if(!file_exists($theme_path.'/header.php') && !file_exists(trailingSlash($theme_path).$template.'.php')) {
 		// Don't load anything
 		return null;
 	} else {
 		// Include the header template
-		require_once trailingSlash(PATH.THEMES).trailingSlash(getSetting('theme', false)).(!empty($template) ? $template : 'header').'.php';
+		require_once trailingSlash($theme_path).(!empty($template) ? $template : 'header').'.php';
 	}
 }
 
 /**
- * Include the theme's footer template.
+ * Fetch the theme's footer template.
  * @since 1.5.5[a]
  *
  * @param string $template (optional; default: '')
@@ -44,14 +47,55 @@ function getFooter($template = '') {
 	// Extend the Post object and the user's session data
 	global $rs_post, $session;
 	
+	// Construct the file path for the current theme
+	$theme_path = trailingSlash(PATH.THEMES).getSetting('theme', false);
+	
 	// Check whether the template file exists
-	if(!file_exists(trailingSlash(PATH.THEMES).getSetting('theme', false).'/footer.php') && !file_exists(trailingSlash(PATH.THEMES).trailingSlash(getSetting('theme', false)).$template.'.php')) {
+	if(!file_exists($theme_path.'/footer.php') && !file_exists(trailingSlash($theme_path).$template.'.php')) {
 		// Don't load anything
 		return null;
 	} else {
 		// Include the footer template
-		require_once trailingSlash(PATH.THEMES).trailingSlash(getSetting('theme', false)).(!empty($template) ? $template : 'footer').'.php';
+		require_once trailingSlash($theme_path).(!empty($template) ? $template : 'footer').'.php';
 	}
+}
+
+/**
+ * Fetch a theme-specific script file.
+ * @since 2.0.7[a]
+ *
+ * @param string $script
+ * @param string $version (optional; default: VERSION)
+ * @param bool $echo (optional; default: true)
+ * @return null|string (null on $echo == true; string on $echo == false)
+ */
+function getThemeScript($script, $version = VERSION, $echo = true) {
+	// Construct the file path for the current theme
+	$theme_path = trailingSlash(THEMES).getSetting('theme', false);
+	
+	if($echo)
+		echo '<script src="'.trailingSlash($theme_path).$script.(!empty($version) ? '?v='.$version : '').'"></script>';
+	else
+		return '<script src="'.trailingSlash($theme_path).$script.(!empty($version) ? '?v='.$version : '').'"></script>';
+}
+
+/**
+ * Fetch a theme-specific stylesheet.
+ * @since 2.0.7[a]
+ *
+ * @param string $stylesheet
+ * @param string $version (optional; default: VERSION)
+ * @param bool $echo (optional; default: true)
+ * @return null|string (null on $echo == true; string on $echo == false)
+ */
+function getThemeStylesheet($stylesheet, $version = VERSION, $echo = true) {
+	// Construct the file path for the current theme
+	$theme_path = trailingSlash(THEMES).getSetting('theme', false);
+	
+	if($echo)
+		echo '<link href="'.trailingSlash($theme_path).$stylesheet.(!empty($version) ? '?v='.$version : '').'" rel="stylesheet">';
+	else
+		return '<link href="'.trailingSlash($theme_path).$stylesheet.(!empty($version) ? '?v='.$version : '').'" rel="stylesheet">';
 }
 
 /**
@@ -221,16 +265,16 @@ function adminBar() {
 						<ul class="sub-menu">
 							<li><a href="/admin/categories.php?action=create">Category</a></li>
 						</ul>
-						<li><a href="/admin/media.php?action=upload">Media</a></li>
-						<li>
-							<a href="javascript:void(0)">Customization</a>
-							<ul class="sub-menu">
-								<li><a href="/admin/menus.php?action=create">Menu</a></li>
-								<li><a href="/admin/widgets.php?action=create">Widget</a></li>
-							</ul>
-						</li>
-						<li><a href="/admin/users.php?action=create">User</a></li>
 					</li>
+					<li><a href="/admin/media.php?action=upload">Media</a></li>
+					<li>
+						<a href="javascript:void(0)">Customization</a>
+						<ul class="sub-menu">
+							<li><a href="/admin/menus.php?action=create">Menu</a></li>
+							<li><a href="/admin/widgets.php?action=create">Widget</a></li>
+						</ul>
+					</li>
+					<li><a href="/admin/users.php?action=create">User</a></li>
 				</ul>
 			</li>
 			<?php if(!is_null($rs_post)): ?>

@@ -113,7 +113,7 @@ h3 {
 
 .user-dropdown-menu {
 	background-color: #2f2f2f;
-	box-shadow: 0 2px 3px rgba(0,0,0,0.5);
+	box-shadow: -1px 2px 3px rgba(0,0,0,0.5);
 	cursor: auto;
 	display: none;
 	list-style: none;
@@ -1055,6 +1055,53 @@ h3 {
 	color: #fefefe;
 }
 
+/* Data lists */
+
+.data-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.data-list li {
+	background-color: #ededed;
+	box-shadow: 0 2px 4px #000;
+	color: #101010;
+	float: left;
+	margin-bottom: 1.5em;
+	min-height: 2.875rem;
+	overflow: hidden;
+	position: relative;
+	width: 100%;
+}
+
+.data-list .theme-preview img {
+	height: auto;
+	width: 100%;
+}
+
+.data-list .theme-name {
+	background-color: #ededed;
+	border-top: 1px solid #cdcdcd;
+	font-size: 1em;
+	font-weight: 600;
+	line-height: 1.25rem;
+	margin: 0;
+	padding: 0.75rem;
+	position: absolute;
+	  bottom: 0;
+	width: 100%;
+}
+
+.data-list .theme-name .actions {
+	float: right;
+	font-size: 0.8125rem;
+}
+
+.data-list .theme-name .actions a {
+	color: #46708a;
+}
+
 /* Modal */
 
 .modal-open {
@@ -1324,6 +1371,14 @@ h3 {
 }
 
 @media screen and (min-width: 650px) {
+	.data-list li {
+		width: 48%;
+	}
+	
+	.data-list li:nth-child(2n+1) {
+		margin-right: 4%;
+	}
+	
 	#admin-footer {
 		text-align: left;
 	}
@@ -1398,12 +1453,28 @@ h3 {
 }
 
 @media screen and (min-width: 1250px) {
+	.data-list li {
+		margin-bottom: 2.5em;
+	}
+	
 	.modal-body .media-item-wrap {
 		width: 14.286%;
 	}
 }
 
 @media screen and (min-width: 1350px) {
+	.data-list li {
+		width: 32%;
+	}
+	
+	.data-list li:nth-child(2n+1) {
+		margin-right: 0;
+	}
+	
+	.data-list li:not(:nth-child(3n)) {
+		margin-right: 2%;
+	}
+	
 	.modal-body .media-details .info .thumb {
 		float: left;
 		margin-right: 0.625rem;

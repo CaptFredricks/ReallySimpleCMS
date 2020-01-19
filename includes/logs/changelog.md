@@ -4,6 +4,36 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 2.3.1[a] (2020-01-18)
+
+* Removed an unnecessary int cast in the getOnlineUser function
+* Moved the getThemeScript and getThemeStylesheet functions to the front end functions.php file and optimized them
+* Fixed a minor issue with the HTML in the adminBar function
+* Optimized the isEmptyDir function
+* Tweaked styling of the front end admin bar
+* Created a function that fetches stylesheets for the admin themes
+* Added a preview image for the Carbon theme
+* Styled the admin 'List Themes' page
+* Created a function that checks whether a theme is the active theme
+* Created a function that activates an inactive theme
+* Created a function that checks whether a theme exists
+* Created a function that recursively deletes files and directories
+* Created a function that deletes a selected theme
+* Created a function that constructs the 'Create Theme' form
+* Created a function that validates data submitted on the 'Create Theme' form
+* Optimized code in the getHeader, getFooter, getThemeScript, and getThemeStylesheet functions
+
+**Modified files:**
+* admin/includes/class-theme.php
+* admin/includes/css/style.css
+* admin/includes/functions.php
+* admin/themes.php
+* content/themes/carbon/preview.png (N)
+* includes/css/style.css
+* includes/functions.php
+* includes/globals.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 2.3.0[a] (2020-01-15)
 
 * Created a file to hold named constants used throughout the CMS
