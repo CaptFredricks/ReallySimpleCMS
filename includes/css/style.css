@@ -195,6 +195,10 @@ small {
 	text-align: center;
 }
 
+.not-found.logged-in .wrapper {
+	margin-top: calc(5em + 1.875em);
+}
+
 /* Scroll to top button */
 
 #scroll-top {
@@ -226,6 +230,7 @@ small {
 
 #admin-bar {
 	background-color: #4f4f4f;
+	box-shadow: 0 2px 3px rgba(0,0,0,0.5);
 	font-size: 0.875em;
 	height: 1.875rem;
 	position: fixed;

@@ -1069,7 +1069,7 @@ h3 {
 	color: #101010;
 	float: left;
 	margin-bottom: 1.5em;
-	min-height: 2.875rem;
+	min-height: 2.875em;
 	overflow: hidden;
 	position: relative;
 	width: 100%;
@@ -1371,14 +1371,6 @@ h3 {
 }
 
 @media screen and (min-width: 650px) {
-	.data-list li {
-		width: 48%;
-	}
-	
-	.data-list li:nth-child(2n+1) {
-		margin-right: 4%;
-	}
-	
 	#admin-footer {
 		text-align: left;
 	}
@@ -1396,6 +1388,14 @@ h3 {
 		float: right;
 		font-size: 0.8125em;
 		padding: 0;
+	}
+	
+	.data-list li {
+		width: 48%;
+	}
+	
+	.data-list li:nth-child(2n+1) {
+		margin-right: 4%;
 	}
 }
 

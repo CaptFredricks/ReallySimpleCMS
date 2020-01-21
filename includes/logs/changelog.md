@@ -4,9 +4,44 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 2.3.2[a] (2020-01-20)
+
+* Corrected an erroneous entry in the changelog
+* Tweaked styling of the front end admin bar
+* Improved the internal logic of the bodyClasses function
+* Tweaked styling of the 404 (Not Found) page
+* The admin bar now displays on the 404 page if the user is logged in
+* Tweaked styling of the admin data lists
+* Cleaned up code in the Theme::listThemes function
+* Corrected a text error on the 'Create Theme' submit button
+* Added an extra logic check to the Theme::activateTheme function
+* Corrected a regular expression in the Theme::validateData function
+* Tweaked documentation in the Theme class
+* The select media button now remains disabled if the media upload form does not return a success
+* Tweaked a regular expression in the uploadMediaFile function
+* Added a regular expression to sanitize the menu slug in the Menu::validateMenuData function
+* Created a function that inserts a nav menu item into the database
+* Created a function that fetches all relationships for a menu
+* Fixed some bugs with reordering menu items on the 'Edit Menu' page, namely in the Menu::hasSiblings and Menu::isLastSibling functions
+* Tweaked code in the getPermalink function
+
+**Modified files:**
+* 404.php
+* admin/includes/class-menu.php
+* admin/includes/class-theme.php
+* admin/includes/css/style.css (M)
+* admin/includes/functions.php (M)
+* admin/includes/js/modal.js
+* content/themes/carbon/style.css (M)
+* includes/css/style.css (M)
+* includes/functions.php
+* includes/globals.php (M)
+
+----------------------------------------------------------------------------------------------------
 ## Version 2.3.1[a] (2020-01-18)
 
 * Removed an unnecessary int cast in the getOnlineUser function
+* Optimized code in the getHeader and getFooter functions
 * Moved the getThemeScript and getThemeStylesheet functions to the front end functions.php file and optimized them
 * Fixed a minor issue with the HTML in the adminBar function
 * Optimized the isEmptyDir function
@@ -21,7 +56,6 @@
 * Created a function that deletes a selected theme
 * Created a function that constructs the 'Create Theme' form
 * Created a function that validates data submitted on the 'Create Theme' form
-* Optimized code in the getHeader, getFooter, getThemeScript, and getThemeStylesheet functions
 
 **Modified files:**
 * admin/includes/class-theme.php

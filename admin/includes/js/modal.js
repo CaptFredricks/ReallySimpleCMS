@@ -114,15 +114,18 @@ jQuery(document).ready($ => {
 			data: new FormData(this),
 			method: 'POST',
 			processData: false,
-			success: (result) => {
+			success: result => {
 				// Display the result
 				$('.upload-result').html(result);
+				
+				// Check whether the upload was successful
+				if(result.indexOf('success') !== -1) {
+					// Enable the 'Select Media' button
+					$('#media-select').prop('disabled', false);
+				}
 			},
 			url: $(this).attr('action')
 		});
-		
-		// Enable the 'Select Media' button
-		$('#media-select').prop('disabled', false);
 	});
 	
 	/**

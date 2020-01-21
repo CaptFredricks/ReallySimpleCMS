@@ -5,7 +5,7 @@
  */
 
 // Current CMS version
-const VERSION = '2.3.1';
+const VERSION = '2.3.2';
 
 /**
  * Display the copyright information on the admin dashboard.
@@ -176,14 +176,14 @@ function getPermalink($type, $parent, $slug = '') {
 	$permalink = array();
 	
 	while($parent !== 0) {
-		// Fetch the parent post from the database
-		$post = $rs_query->selectRow($table, array('slug', 'parent'), array('id'=>$parent));
+		// Fetch the parent post or term from the database
+		$item = $rs_query->selectRow($table, array('slug', 'parent'), array('id'=>$parent));
 		
 		// Set the new parent id
-		$parent = (int)$post['parent'];
+		$parent = (int)$item['parent'];
 		
 		// Add to the permalink array
-		$permalink[] = $post['slug'];
+		$permalink[] = $item['slug'];
 	};
 	
 	// Reverse and merge the permalink array

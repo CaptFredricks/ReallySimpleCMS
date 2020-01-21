@@ -972,7 +972,7 @@ function uploadMediaFile($data) {
 	if(!file_exists($file_path)) mkdir($file_path);
 	
 	// Convert the filename to all lowercase, replace spaces with hyphens, and remove all special characters
-	$filename = preg_replace('/[^\w.\-]/i', '', str_replace(' ', '-', strtolower($data['name'])));
+	$filename = preg_replace('/[^\w.-]/i', '', str_replace(' ', '-', strtolower($data['name'])));
 	
 	// Check whether the filename is already in the database and make it unique if so
 	if(filenameExists($filename))

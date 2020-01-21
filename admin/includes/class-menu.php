@@ -296,13 +296,16 @@ class Menu {
 		if(empty($data['name']) || empty($data['slug']))
 			return statusMessage('R');
 		
+		// Sanitize the slug (strip off HTML and/or PHP tags and replace any characters not specified in the filter)
+		$slug = preg_replace('/[^a-zA-Z0-9-]/i', '', strip_tags($data['slug']));
+		
 		// Make sure the slug is not already being used
-		if($this->slugExists($data['slug'], $id))
+		if($this->slugExists($slug, $id))
 			return statusMessage('That slug is already in use. Please choose another one.');
 		
 		if($id === 0) {
 			// Insert the new menu into the database
-			$menu_id = $rs_query->insert('terms', array('name'=>$data['name'], 'slug'=>$data['slug'], 'taxonomy'=>getTaxonomyId('nav_menu')));
+			$menu_id = $rs_query->insert('terms', array('name'=>$data['name'], 'slug'=>$slug, 'taxonomy'=>getTaxonomyId('nav_menu')));
 			
 			// Check whether any menu items have been selected
 			if(!empty($data['menu_items'])) {
@@ -311,35 +314,14 @@ class Menu {
 				
 				// Loop through the menu items
 				for($i = 0; $i < count($menu_items); $i++) {
-					// Split the menu item into an array
-					$menu_item = explode('-', $menu_items[$i]);
+					// Split the menu item data into separate variables
+					list($item_type, $item_id) = explode('-', $menu_items[$i]);
 					
-					// Check whether the menu item's type is 'post' or 'cat'
-					if($menu_item[0] === 'post') {
-						// Fetch the corresponding post from the database
-						$post = $rs_query->selectRow('posts', array('id', 'title'), array('id'=>$menu_item[1]));
-						
-						// Insert the new menu item into the database
-						$menu_item_id = $rs_query->insert('posts', array('title'=>$post['title'], 'author'=>$session['id'], 'date'=>'NOW()', 'slug'=>'', 'type'=>'nav_menu_item'));
-						
-						// Update the menu item's slug in the database
-						$rs_query->update('posts', array('slug'=>'menu-item-'.$menu_item_id), array('id'=>$menu_item_id));
-						
-						// Create an array to hold the menu item's metadata
-						$itemmeta = array('post_link'=>$post['id'], 'menu_index'=>$i);
-					} elseif($menu_item[0] === 'cat') {
-						// Fetch the corresponding category from the database
-						$category = $rs_query->selectRow('terms', array('id', 'name'), array('id'=>$menu_item[1], 'taxonomy'=>getTaxonomyId('category')));
-						
-						// Insert the new menu item into the database
-						$menu_item_id = $rs_query->insert('posts', array('title'=>$category['name'], 'author'=>$session['id'], 'date'=>'NOW()', 'slug'=>'', 'type'=>'nav_menu_item'));
-						
-						// Update the menu item's slug in the database
-						$rs_query->update('posts', array('slug'=>'menu-item-'.$menu_item_id), array('id'=>$menu_item_id));
-						
-						// Create an array to hold the menu item's metadata
-						$itemmeta = array('term_link'=>$category['id'], 'menu_index'=>$i);
-					}
+					// Create a new menu item
+					$itemmeta = $this->createMenuItem($item_type, $item_id, $i);
+					
+					// Retrieve the first element from the itemmeta array
+					$menu_item_id = array_shift($itemmeta);
 					
 					// Insert the menu item's metadata into the database
 					foreach($itemmeta as $key=>$value)
@@ -391,38 +373,17 @@ class Menu {
 				
 				// Loop through the menu items
 				for($i = 0; $i < count($menu_items); $i++) {
-					// Split the menu item into an array
-					$menu_item = explode('-', $menu_items[$i]);
+					// Split the menu item data into separate variables
+					list($item_type, $item_id) = explode('-', $menu_items[$i]);
 					
 					// Fetch the number of menu items associated with the menu
 					$count = $rs_query->select('term_relationships', 'COUNT(*)', array('term'=>$id));
 					
-					// Check whether the menu item's type is 'post' or 'cat'
-					if($menu_item[0] === 'post') {
-						// Fetch the corresponding post from the database
-						$post = $rs_query->selectRow('posts', array('id', 'title'), array('id'=>$menu_item[1]));
+					// Create a new menu item
+					$itemmeta = $this->createMenuItem($item_type, $item_id, $count);
 					
-						// Insert the new menu item into the database
-						$menu_item_id = $rs_query->insert('posts', array('title'=>$post['title'], 'author'=>$session['id'], 'date'=>'NOW()', 'slug'=>'', 'type'=>'nav_menu_item'));
-						
-						// Update the menu item's slug in the database
-						$rs_query->update('posts', array('slug'=>'menu-item-'.$menu_item_id), array('id'=>$menu_item_id));
-						
-						// Create an array to hold the menu item's metadata
-						$itemmeta = array('post_link'=>$post['id'], 'menu_index'=>$count);
-					} elseif($menu_item[0] === 'cat') {
-						// Fetch the corresponding category from the database
-						$category = $rs_query->selectRow('terms', array('id', 'name'), array('id'=>$menu_item[1], 'taxonomy'=>getTaxonomyId('category')));
-						
-						// Insert the new menu item into the database
-						$menu_item_id = $rs_query->insert('posts', array('title'=>$category['name'], 'author'=>$session['id'], 'date'=>'NOW()', 'slug'=>'', 'type'=>'nav_menu_item'));
-						
-						// Update the menu item's slug in the database
-						$rs_query->update('posts', array('slug'=>'menu-item-'.$menu_item_id), array('id'=>$menu_item_id));
-						
-						// Create an array to hold the menu item's metadata
-						$itemmeta = array('term_link'=>$category['id'], 'menu_index'=>$count);
-					}
+					// Retrieve the first element from the itemmeta array
+					$menu_item_id = array_shift($itemmeta);
 					
 					// Insert the menu item's metadata into the database
 					foreach($itemmeta as $key=>$value)
@@ -549,7 +510,7 @@ class Menu {
 					$type = 'custom';
 				?>
 				<li class="menu-item depth-<?php echo $this->getMenuItemDepth($menu_item['id']).($menu_item['status'] === 'invalid' ? ' invalid' : ''); ?>">
-					<strong><?php echo $menu_item['title']; ?></strong> &mdash; <small><em><?php echo empty($type) ? $menu_item['status'] : $type; ?></em></small>
+					<strong><?php echo $menu_item['title']; ?></strong> &mdash; <small><em><?php echo empty($type) ? $menu_item['status'] : $type; ?></em></small> <span>(<?php echo $meta['menu_index']; ?>)</span>
 					<?php
 					// Check whether the menu item's id is set
 					if(isset($_GET['item_id']) && (int)$_GET['item_id'] === $menu_item['id']) {
@@ -697,7 +658,7 @@ class Menu {
 		global $rs_query;
 		
 		// Check whether the menu item has siblings and is not the first sibling
-		if($this->hasSiblings($id) && !$this->isFirstSibling($id)) {
+		if($this->hasSiblings($id, $menu) && !$this->isFirstSibling($id)) {
 			// Fetch the index of the current menu item from the database
 			$current_index = (int)$rs_query->selectField('postmeta', 'value', array('post'=>$id, '_key'=>'menu_index'));
 			
@@ -753,8 +714,10 @@ class Menu {
 		// Extend the Query object
 		global $rs_query;
 		
+		//var_dump($this->isLastSibling($id, $menu)); exit;
+		
 		// Check whether the menu item has siblings and is not the last sibling
-		if($this->hasSiblings($id) && !$this->isLastSibling($id)) {
+		if($this->hasSiblings($id, $menu) && !$this->isLastSibling($id, $menu)) {
 			// Fetch the id of the next sibling
 			$next_sibling = $this->getNextSibling($id);
 			
@@ -798,6 +761,48 @@ class Menu {
 					$rs_query->update('postmeta', array('value'=>((int)$index['value'] - $this->getFamilyTree($id))), array('post'=>$index['post'], '_key'=>'menu_index'));
 				}
 			}
+		}
+	}
+	
+		/**
+	 * Insert a new menu item into the database.
+	 * @since 2.3.2[a]
+	 *
+	 * @access private
+	 * @param string $type
+	 * @param int $id
+	 * @param int $index
+	 * @return array
+	 */
+	private function createMenuItem($type, $id, $index) {
+		// Extend the Query object and the user's session data
+		global $rs_query, $session;
+		
+		// Check whether the type is 'post' or 'cat'
+		if($type === 'post') {
+			// Fetch the corresponding post from the database
+			$post = $rs_query->selectRow('posts', array('id', 'title'), array('id'=>$id));
+			
+			// Insert the new menu item into the database
+			$menu_item_id = $rs_query->insert('posts', array('title'=>$post['title'], 'author'=>$session['id'], 'date'=>'NOW()', 'slug'=>'', 'type'=>'nav_menu_item'));
+			
+			// Update the menu item's slug in the database
+			$rs_query->update('posts', array('slug'=>'menu-item-'.$menu_item_id), array('id'=>$menu_item_id));
+			
+			// Return the menu item's metadata
+			return array('id'=>$menu_item_id, 'post_link'=>$post['id'], 'menu_index'=>$index);
+		} elseif($type === 'cat') {
+			// Fetch the corresponding category from the database
+			$category = $rs_query->selectRow('terms', array('id', 'name'), array('id'=>$id, 'taxonomy'=>getTaxonomyId('category')));
+			
+			// Insert the new menu item into the database
+			$menu_item_id = $rs_query->insert('posts', array('title'=>$category['name'], 'author'=>$session['id'], 'date'=>'NOW()', 'slug'=>'', 'type'=>'nav_menu_item'));
+			
+			// Update the menu item's slug in the database
+			$rs_query->update('posts', array('slug'=>'menu-item-'.$menu_item_id), array('id'=>$menu_item_id));
+			
+			// Return the menu item's metadata
+			return array('id'=>$menu_item_id, 'term_link'=>$category['id'], 'menu_index'=>$index);
 		}
 	}
 	
@@ -1087,22 +1092,35 @@ class Menu {
 	 *
 	 * @access private
 	 * @param int $id
+	 * @param int $menu
 	 * @return bool
 	 */
-	private function isLastSibling($id) {
+	private function isLastSibling($id, $menu) {
 		// Extend the Query object
 		global $rs_query;
+		
+		// Fetch all other menu items related to the menu from the database
+		$menu_items = $this->getMenuRelationships($menu, $id);
 		
 		// Fetch the current menu item's index from the database
 		$current_index = (int)$rs_query->selectField('postmeta', 'value', array('post'=>$id, '_key'=>'menu_index'));
 		
-		// Fetch the siblings of the menu item from the database
-		$siblings = $rs_query->select('posts', 'id', array('parent'=>$this->getParent($id), 'id'=>array('<>', $id)));
+		// Fetch any posts that share the same parent from the database
+		$posts = $rs_query->select('posts', 'id', array('parent'=>$this->getParent($id), 'id'=>array('<>', $id)));
+		
+		// Loop through the posts
+		foreach($posts as $post) {
+			// Assign the posts to an array
+			$same_parent[] = $post['id'];
+		}
+		
+		// Determine which menu items both arrays have in common
+		$siblings = array_intersect($menu_items, $same_parent);
 		
 		// Loop through the siblings
 		foreach($siblings as $sibling) {
 			// Fetch the sibling's index from the database
-			$index = (int)$rs_query->selectField('postmeta', 'value', array('post'=>$sibling['id'], '_key'=>'menu_index'));
+			$index = (int)$rs_query->selectField('postmeta', 'value', array('post'=>$sibling, '_key'=>'menu_index'));
 			
 			// Check whether the sibling's index is higher than the current index and return if it is
 			if($index > $current_index) return false;
@@ -1226,17 +1244,83 @@ class Menu {
 	 *
 	 * @access private
 	 * @param int $id
+	 * @param int $menu
 	 * @return bool
 	 */
-	private function hasSiblings($id) {
+	private function hasSiblings($id, $menu) {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Fetch any siblings that the menu item has from the database
-		$siblings = $rs_query->select('posts', 'COUNT(id)', array('parent'=>$this->getParent($id), 'id'=>array('<>', $id)));
+		// Fetch all other menu items related to the menu from the database
+		$menu_items = $this->getMenuRelationships($menu, $id);
+		
+		// Fetch any posts that share the same parent from the database
+		$posts = $rs_query->select('posts', 'id', array('parent'=>$this->getParent($id), 'id'=>array('<>', $id)));
+		
+		// Loop through the posts
+		foreach($posts as $post) {
+			// Assign the posts to an array
+			$same_parent[] = $post['id'];
+		}
+		
+		// Determine which menu items both arrays have in common
+		$siblings = array_intersect($menu_items, $same_parent);
 		
 		// Return true if there are one or more siblings
-		return $siblings > 0;
+		return count($siblings) > 0;
+	}
+	
+	/**
+	 * Fetch a list of menu items related to a menu.
+	 * @since 2.3.2[a]
+	 *
+	 * @access private
+	 * @param int $id
+	 * @param int $exclude
+	 * @return array
+	 */
+	private function getMenuRelationships($id, $exclude) {
+		// Extend the Query object
+		global $rs_query;
+		
+		// Fetch the term relationships from the database
+		$relationships = $rs_query->select('term_relationships', 'post', array('term'=>$id));
+		
+		// Create an empty array to hold the menu items' metadata
+		$itemmeta = array();
+		
+		// Create an index counter for the metadata array
+		$i = 0;
+		
+		// Loop through the term relationships
+		foreach($relationships as $relationship) {
+			// Fetch the metadata associated with each menu item from the database
+			$itemmeta[] = $this->getMenuItemMeta($relationship['post']);
+			
+			// Reverse the array (to place the index first)
+			$itemmeta[$i] = array_reverse($itemmeta[$i]);
+			
+			// Push the menu item's id onto the array
+			$itemmeta[$i]['post'] = $relationship['post'];
+			
+			// Increment the index counter
+			$i++;
+		}
+		
+		// Sort the array in ascending index order
+		asort($itemmeta);
+		
+		// Loop through the menu items' metadata
+		foreach($itemmeta as $meta) {
+			// Check whether the menu item should be excluded
+			if($meta['post'] === $exclude) continue;
+			
+			// Assign each menu item's id to an array
+			$items[] = $meta['post'];
+		}
+		
+		// Return the menu item ids
+		return $items;
 	}
 	
 	/**

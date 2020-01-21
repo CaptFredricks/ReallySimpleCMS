@@ -185,29 +185,35 @@ function bodyClasses($addtl_classes = array()) {
 	// Extend the Post object and the user's session data
 	global $rs_post, $session;
 	
-	// Fetch the post's id from the database
-	$id = $rs_post->getPostId(false);
+	// Create an empty array to hold the classes
+	$classes = array();
 	
-	// Fetch the post's parent from the database
-	$parent = $rs_post->getPostParent(false);
-	
-	// Fetch the post's slug from the database and add an appropriate class
-	$classes[] = $rs_post->getPostSlug($id, false);
-	
-	// Fetch the post's type from the database and add an appropriate class (along with the id)
-	$classes[] = $rs_post->getPostType(false).'-id-'.$id;
-	
-	// Check whether the current page is a child of another page and add an appropriate class if so
-	if($parent !== 0) $classes[] = $rs_post->getPostSlug($parent, false).'-child';
-	
-	// Check whether the current page is the home page and add an appropriate class if so
-	if(isHomePage($id)) $classes[] = 'home-page';
-
-	// Check whether the user is logged in and add an appropriate class if so
-	if($session) $classes[] = 'logged-in';
+	// Check whether the Post object has data
+	if($rs_post) {
+		// Fetch the post's id from the database
+		$id = $rs_post->getPostId(false);
+		
+		// Fetch the post's parent from the database
+		$parent = $rs_post->getPostParent(false);
+		
+		// Fetch the post's slug from the database and add an appropriate class
+		$classes[] = $rs_post->getPostSlug($id, false);
+		
+		// Fetch the post's type from the database and add an appropriate class (along with the id)
+		$classes[] = $rs_post->getPostType(false).'-id-'.$id;
+		
+		// Check whether the current page is a child of another page and add an appropriate class if so
+		if($parent !== 0) $classes[] = $rs_post->getPostSlug($parent, false).'-child';
+		
+		// Check whether the current page is the home page and add an appropriate class if so
+		if(isHomePage($id)) $classes[] = 'home-page';
+	}
 	
 	// Merge any additional classes with the classes array
 	$classes = array_merge($classes, (array)$addtl_classes);
+	
+	// Check whether the user is logged in and add an appropriate class if so
+	if($session) $classes[] = 'logged-in';
 	
 	// Return the classes as a string
 	return implode(' ', $classes);

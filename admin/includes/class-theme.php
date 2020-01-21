@@ -37,12 +37,15 @@ class Theme {
 			
 			// Loop through the themes
 			foreach($themes as $theme) {
+				// Construct the file path for the current theme
+				$theme_path = trailingSlash(PATH.THEMES).$theme;
+				
 				// Check whether the theme has an index.php file and skip it if not
-				if(!file_exists(trailingSlash(PATH.THEMES).$theme.'/index.php')) continue;
+				if(!file_exists($theme_path.'/index.php')) continue;
 				?>
 				<li>
 					<div class="theme-preview">
-						<?php if(file_exists(trailingSlash(PATH.THEMES).$theme.'/preview.png')): ?>
+						<?php if(file_exists($theme_path.'/preview.png')): ?>
 							<img src="<?php echo trailingSlash(THEMES).$theme.'/preview.png'; ?>" alt="<?php echo ucwords(str_replace('-', ' ', $theme)); ?> preview">
 						<?php endif; ?>
 					</div>
@@ -85,7 +88,7 @@ class Theme {
 					<?php
 					echo formRow(array('Name', true), array('tag'=>'input', 'id'=>'slug-field', 'class'=>'text-input required invalid init', 'name'=>'name', 'value'=>($_POST['name'] ?? '')));
 					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Create Category'));
+					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Create Theme'));
 					?>
 				</table>
 			</form>
@@ -106,7 +109,7 @@ class Theme {
 		global $rs_query;
 		
 		// Check whether the theme's name is valid
-		if(!empty($name) && $this->themeExists($name)) {
+		if(!empty($name) && $this->themeExists($name) && !$this->isActiveTheme($name)) {
 			// Update the theme setting in the database
 			$rs_query->update('settings', array('value'=>$name), array('name'=>'theme'));
 		}
@@ -150,8 +153,8 @@ class Theme {
 		if(empty($data['name']))
 			return statusMessage('R');
 		
-		// Strip off HTML and/or PHP tags, replace any characters not specified in the filter, and return the data
-		$name = preg_replace('/[^\w]/i', '', strip_tags($data['name']));
+		// Sanitize the name (strip off HTML and/or PHP tags and replace any characters not specified in the filter)
+		$name = preg_replace('/[^a-zA-Z0-9-]/i', '', strip_tags($data['name']));
 		
 		// Make sure the theme doesn't already exist
 		if($this->themeExists($name))
@@ -210,13 +213,13 @@ class Theme {
 	 *
 	 * @access private
 	 * @param string $dir
-	 * @
+	 * @return null
 	 */
 	private function recursiveDelete($dir) {
-		// Fetch the directories contents
+		// Fetch the directory's contents
 		$contents = array_diff(scandir($dir), array('.', '..'));
 		
-		// Loop through the dir
+		// Loop through the directory
 		foreach($contents as $content) {
 			// If the content is a directory, recursively delete its contents, otherwise delete the file
 			is_dir($dir.'/'.$content) ? recursiveDelete($dir.'/'.$content) : unlink($dir.'/'.$content);
