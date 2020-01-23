@@ -510,7 +510,7 @@ class Menu {
 					$type = 'custom';
 				?>
 				<li class="menu-item depth-<?php echo $this->getMenuItemDepth($menu_item['id']).($menu_item['status'] === 'invalid' ? ' invalid' : ''); ?>">
-					<strong><?php echo $menu_item['title']; ?></strong> &mdash; <small><em><?php echo empty($type) ? $menu_item['status'] : $type; ?></em></small> <span>(<?php echo $meta['menu_index']; ?>)</span>
+					<strong><?php echo $menu_item['title']; ?></strong> &mdash; <small><em><?php echo empty($type) ? $menu_item['status'] : $type; ?></em></small>
 					<?php
 					// Check whether the menu item's id is set
 					if(isset($_GET['item_id']) && (int)$_GET['item_id'] === $menu_item['id']) {
@@ -591,7 +591,7 @@ class Menu {
 				// Loop through the pages
 				foreach($pages as $page) {
 					?>
-					<li><?php echo formTag('input', array('type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'menu_items[]', 'value'=>'post-'.$page['id'], 'label'=>array('content'=>'<span>'.$page['title'].'</span>'))); ?></li>
+					<li><?php echo formTag('input', array('type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'menu_items[]', 'value'=>'post-'.$page['id'], 'label'=>array('content'=>'<span title="'.$page['title'].'">'.trimWords($page['title'], 5).'</span>'))); ?></li>
 					<?php
 				}
 				?>
@@ -607,7 +607,7 @@ class Menu {
 				// Loop through the posts
 				foreach($posts as $post) {
 					?>
-					<li><?php echo formTag('input', array('type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'menu_items[]', 'value'=>'post-'.$post['id'], 'label'=>array('content'=>'<span>'.$post['title'].'</span>'))); ?></li>
+					<li><?php echo formTag('input', array('type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'menu_items[]', 'value'=>'post-'.$post['id'], 'label'=>array('content'=>'<span title="'.$post['title'].'">'.trimWords($post['title'], 5).'</span>'))); ?></li>
 					<?php
 				}
 				?>
@@ -623,7 +623,7 @@ class Menu {
 				// Loop through the categories
 				foreach($categories as $category) {
 					?>
-					<li><?php echo formTag('input', array('type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'menu_items[]', 'value'=>'cat-'.$category['id'], 'label'=>array('content'=>'<span>'.$category['name'].'</span>'))); ?></li>
+					<li><?php echo formTag('input', array('type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'menu_items[]', 'value'=>'cat-'.$category['id'], 'label'=>array('content'=>'<span title="'.$category['name'].'">'.trimWords($category['name'], 5).'</span>'))); ?></li>
 					<?php
 				}
 				?>
@@ -658,12 +658,12 @@ class Menu {
 		global $rs_query;
 		
 		// Check whether the menu item has siblings and is not the first sibling
-		if($this->hasSiblings($id, $menu) && !$this->isFirstSibling($id)) {
+		if($this->hasSiblings($id, $menu) && !$this->isFirstSibling($id, $menu)) {
 			// Fetch the index of the current menu item from the database
 			$current_index = (int)$rs_query->selectField('postmeta', 'value', array('post'=>$id, '_key'=>'menu_index'));
 			
 			// Fetch the index of the previous sibling from the database
-			$previous_index = (int)$rs_query->selectField('postmeta', 'value', array('post'=>$this->getPreviousSibling($id), '_key'=>'menu_index'));
+			$previous_index = (int)$rs_query->selectField('postmeta', 'value', array('post'=>$this->getPreviousSibling($id, $menu), '_key'=>'menu_index'));
 			
 			// Update the current menu item's index in the database
 			$rs_query->update('postmeta', array('value'=>$previous_index), array('post'=>$id, '_key'=>'menu_index'));
@@ -714,12 +714,10 @@ class Menu {
 		// Extend the Query object
 		global $rs_query;
 		
-		//var_dump($this->isLastSibling($id, $menu)); exit;
-		
 		// Check whether the menu item has siblings and is not the last sibling
 		if($this->hasSiblings($id, $menu) && !$this->isLastSibling($id, $menu)) {
 			// Fetch the id of the next sibling
-			$next_sibling = $this->getNextSibling($id);
+			$next_sibling = $this->getNextSibling($id, $menu);
 			
 			// Fetch the index of the current menu item from the database
 			$current_index = (int)$rs_query->selectField('postmeta', 'value', array('post'=>$id, '_key'=>'menu_index'));
@@ -753,18 +751,17 @@ class Menu {
 				// Check whether any menu items are children of the current menu item
 				if($this->isDescendant($index['post'], $id)) {
 					// Update each menu item's index
-					$rs_query->update('postmeta', array('value'=>($current_index + $this->getFamilyTree($this->getNextSibling($id)) + $i)), array('post'=>$index['post'], '_key'=>'menu_index'));
+					$rs_query->update('postmeta', array('value'=>($current_index + $this->getFamilyTree($this->getNextSibling($id, $menu)) + $i)), array('post'=>$index['post'], '_key'=>'menu_index'));
 					$i++;
 				} else {
 					// Update each menu item's index
-					//var_dump((int)$index['value']);
 					$rs_query->update('postmeta', array('value'=>((int)$index['value'] - $this->getFamilyTree($id))), array('post'=>$index['post'], '_key'=>'menu_index'));
 				}
 			}
 		}
 	}
 	
-		/**
+	/**
 	 * Insert a new menu item into the database.
 	 * @since 2.3.2[a]
 	 *
@@ -1061,22 +1058,23 @@ class Menu {
 	 *
 	 * @access private
 	 * @param int $id
+	 * @param int $menu
 	 * @return bool
 	 */
-	private function isFirstSibling($id) {
+	private function isFirstSibling($id, $menu) {
 		// Extend the Query object
 		global $rs_query;
 		
 		// Fetch the current menu item's index from the database
 		$current_index = (int)$rs_query->selectField('postmeta', 'value', array('post'=>$id, '_key'=>'menu_index'));
 		
-		// Fetch the siblings of the menu item from the database
-		$siblings = $rs_query->select('posts', 'id', array('parent'=>$this->getParent($id), 'id'=>array('<>', $id)));
+		// Fetch all of the menu item's siblings
+		$siblings = $this->getSiblings($id, $menu);
 		
 		// Loop through the siblings
 		foreach($siblings as $sibling) {
 			// Fetch the sibling's index from the database
-			$index = (int)$rs_query->selectField('postmeta', 'value', array('post'=>$sibling['id'], '_key'=>'menu_index'));
+			$index = (int)$rs_query->selectField('postmeta', 'value', array('post'=>$sibling, '_key'=>'menu_index'));
 			
 			// Check whether the sibling's index is lower than the current index and return if it is
 			if($index < $current_index) return false;
@@ -1099,23 +1097,11 @@ class Menu {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Fetch all other menu items related to the menu from the database
-		$menu_items = $this->getMenuRelationships($menu, $id);
-		
 		// Fetch the current menu item's index from the database
 		$current_index = (int)$rs_query->selectField('postmeta', 'value', array('post'=>$id, '_key'=>'menu_index'));
 		
-		// Fetch any posts that share the same parent from the database
-		$posts = $rs_query->select('posts', 'id', array('parent'=>$this->getParent($id), 'id'=>array('<>', $id)));
-		
-		// Loop through the posts
-		foreach($posts as $post) {
-			// Assign the posts to an array
-			$same_parent[] = $post['id'];
-		}
-		
-		// Determine which menu items both arrays have in common
-		$siblings = array_intersect($menu_items, $same_parent);
+		// Fetch all of the menu item's siblings
+		$siblings = $this->getSiblings($id, $menu);
 		
 		// Loop through the siblings
 		foreach($siblings as $sibling) {
@@ -1137,37 +1123,42 @@ class Menu {
 	 * @access private
 	 * @param int $previous
 	 * @param int $id
+	 * @param int $menu
 	 * @return bool
 	 */
-	private function isPreviousSibling($previous, $id) {
+	private function isPreviousSibling($previous, $id, $menu) {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Fetch the previous sibling's index from the database
-		$previous_index = (int)$rs_query->selectField('postmeta', 'value', array('post'=>$previous, '_key'=>'menu_index'));
+		// Fetch all of the menu item's siblings
+		$siblings = $this->getSiblings($id, $menu);
 		
-		// Fetch the current menu item's index from the database
-		$current_index = (int)$rs_query->selectField('postmeta', 'value', array('post'=>$id, '_key'=>'menu_index'));
-		
-		// Check whether the previous index is less than the current index
-		if($previous_index < $current_index) {
-			// Fetch the siblings of the menu item from the database
-			$siblings = $rs_query->select('posts', 'id', array('parent'=>$this->getParent($id), 'id'=>array('<>', $id)));
+		// Check whether the previous menu item is a sibling of the current menu item
+		if(in_array($previous, $siblings, true)) {
+			// Fetch the previous sibling's index from the database
+			$previous_index = (int)$rs_query->selectField('postmeta', 'value', array('post'=>$previous, '_key'=>'menu_index'));
 			
-			// Loop through the siblings
-			foreach($siblings as $sibling) {
-				// Fetch the sibling's index from the database
-				$index = (int)$rs_query->selectField('postmeta', 'value', array('post'=>$sibling['id'], '_key'=>'menu_index'));
+			// Fetch the current menu item's index from the database
+			$current_index = (int)$rs_query->selectField('postmeta', 'value', array('post'=>$id, '_key'=>'menu_index'));
+			
+			// Check whether the previous index is less than the current index
+			if($previous_index < $current_index) {
+				// Loop through the siblings
+				foreach($siblings as $sibling) {
+					// Fetch the sibling's index from the database
+					$index = (int)$rs_query->selectField('postmeta', 'value', array('post'=>$sibling, '_key'=>'menu_index'));
+					
+					// Check whether the sibling's index falls in between the previous index and the current index
+					if($index > $previous_index && $index < $current_index) return false;
+				}
 				
-				// Check whether the sibling's index falls in between the previous index and the current index
-				if($index > $previous_index && $index < $current_index) return false;
+				// Return true if the current index is the next sibling
+				return true;
 			}
-			
-			// Return true if the current index is the next sibling
-			return true;
-		} else {
-			return false;
 		}
+		
+		// Return false otherwise
+		return false;
 	}
 	
 	/**
@@ -1177,37 +1168,42 @@ class Menu {
 	 * @access private
 	 * @param int $next
 	 * @param int $id
+	 * @param int $menu
 	 * @return bool
 	 */
-	private function isNextSibling($next, $id) {
+	private function isNextSibling($next, $id, $menu) {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Fetch the next sibling's index from the database
-		$next_index = (int)$rs_query->selectField('postmeta', 'value', array('post'=>$next, '_key'=>'menu_index'));
+		// Fetch all of the menu item's siblings
+		$siblings = $this->getSiblings($id, $menu);
 		
-		// Fetch the current menu item's index from the database
-		$current_index = (int)$rs_query->selectField('postmeta', 'value', array('post'=>$id, '_key'=>'menu_index'));
-		
-		// Check whether the next index is greater than the current index
-		if($next_index > $current_index) {
-			// Fetch the siblings of the menu item from the database
-			$siblings = $rs_query->select('posts', 'id', array('parent'=>$this->getParent($id), 'id'=>array('<>', $id)));
+		// Check whether the next menu item is a sibling of the current menu item
+		if(in_array($next, $siblings, true)) {
+			// Fetch the next sibling's index from the database
+			$next_index = (int)$rs_query->selectField('postmeta', 'value', array('post'=>$next, '_key'=>'menu_index'));
 			
-			// Loop through the siblings
-			foreach($siblings as $sibling) {
-				// Fetch the sibling's index from the database
-				$index = (int)$rs_query->selectField('postmeta', 'value', array('post'=>$sibling['id'], '_key'=>'menu_index'));
+			// Fetch the current menu item's index from the database
+			$current_index = (int)$rs_query->selectField('postmeta', 'value', array('post'=>$id, '_key'=>'menu_index'));
+			
+			// Check whether the next index is greater than the current index
+			if($next_index > $current_index) {
+				// Loop through the siblings
+				foreach($siblings as $sibling) {
+					// Fetch the sibling's index from the database
+					$index = (int)$rs_query->selectField('postmeta', 'value', array('post'=>$sibling['id'], '_key'=>'menu_index'));
+					
+					// Check whether the sibling's index falls in between the current index and the next index
+					if($index > $current_index && $index < $next_index) return false;
+				}
 				
-				// Check whether the sibling's index falls in between the current index and the next index
-				if($index > $current_index && $index < $next_index) return false;
+				// Return true if the current index is the next sibling
+				return true;
 			}
-			
-			// Return true if the current index is the next sibling
-			return true;
-		} else {
-			return false;
 		}
+		
+		// Return false otherwise
+		return false;
 	}
 	
 	/**
@@ -1248,26 +1244,7 @@ class Menu {
 	 * @return bool
 	 */
 	private function hasSiblings($id, $menu) {
-		// Extend the Query object
-		global $rs_query;
-		
-		// Fetch all other menu items related to the menu from the database
-		$menu_items = $this->getMenuRelationships($menu, $id);
-		
-		// Fetch any posts that share the same parent from the database
-		$posts = $rs_query->select('posts', 'id', array('parent'=>$this->getParent($id), 'id'=>array('<>', $id)));
-		
-		// Loop through the posts
-		foreach($posts as $post) {
-			// Assign the posts to an array
-			$same_parent[] = $post['id'];
-		}
-		
-		// Determine which menu items both arrays have in common
-		$siblings = array_intersect($menu_items, $same_parent);
-		
-		// Return true if there are one or more siblings
-		return count($siblings) > 0;
+		return count($this->getSiblings($id, $menu)) > 0;
 	}
 	
 	/**
@@ -1502,24 +1479,54 @@ class Menu {
 	}
 	
 	/**
+	 * Fetch all siblings of a menu item.
+	 * @since 2.3.3[a]
+	 *
+	 * @access private
+	 * @param int $id
+	 * @param int $menu
+	 * @return array
+	 */
+	private function getSiblings($id, $menu) {
+		// Extend the Query object
+		global $rs_query;
+		
+		// Fetch all menu items related to the menu from the database
+		$menu_items = $this->getMenuRelationships($menu, $id);
+		
+		// Fetch any posts that share the same parent from the database
+		$posts = $rs_query->select('posts', 'id', array('parent'=>$this->getParent($id), 'id'=>array('<>', $id)));
+		
+		// Loop through the posts
+		foreach($posts as $post) {
+			// Assign the posts to an array
+			$same_parent[] = $post['id'];
+		}
+		
+		// Return all siblings of the menu item (if it has any)
+		return isset($same_parent) ? array_intersect($menu_items, $same_parent) : array();
+	}
+	
+	/**
 	 * Fetch the previous sibling of a menu item.
 	 * @since 1.8.12[a]
 	 *
 	 * @access private
 	 * @param int $id
+	 * @param int $menu
 	 * @return int
 	 */
-	private function getPreviousSibling($id) {
+	private function getPreviousSibling($id, $menu) {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Fetch the siblings of the menu item from the database
-		$siblings = $rs_query->select('posts', 'id', array('parent'=>$this->getParent($id), 'id'=>array('<>', $id)));
+		// Fetch all of the menu item's siblings
+		$siblings = $this->getSiblings($id, $menu);
 		
 		// Loop through the siblings
 		foreach($siblings as $sibling) {
 			// Check whether the sibling is the previous sibling of the current menu item and return if so
-			if($this->isPreviousSibling($sibling['id'], $id)) return $sibling['id'];
+			if($this->isPreviousSibling($sibling, $id, $menu)) return $sibling;
 		}
 	}
 	
@@ -1529,19 +1536,20 @@ class Menu {
 	 *
 	 * @access private
 	 * @param int $id
+	 * @param int $menu
 	 * @return int
 	 */
-	private function getNextSibling($id) {
+	private function getNextSibling($id, $menu) {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Fetch the siblings of the menu item from the database
-		$siblings = $rs_query->select('posts', 'id', array('parent'=>$this->getParent($id), 'id'=>array('<>', $id)));
+		// Fetch all of the menu item's siblings
+		$siblings = $this->getSiblings($id, $menu);
 		
 		// Loop through the siblings
 		foreach($siblings as $sibling) {
 			// Check whether the sibling is the next sibling of the current menu item and return if so
-			if($this->isNextSibling($sibling['id'], $id)) return $sibling['id'];
+			if($this->isNextSibling($sibling, $id, $menu)) return $sibling;
 		}
 	}
 	

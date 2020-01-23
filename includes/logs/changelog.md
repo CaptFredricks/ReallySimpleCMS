@@ -4,6 +4,41 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 2.3.3[a] (2020-01-22)
+
+* Tweaked a previous entry in the changelog
+* Fixed a bug with the Menu::isFirstSibling, Menu::getPreviousSibling, and Menu::getNextSibling functions that allowed menu items to be confused with items on other menus (the functions now receive the menu id as a second parameter)
+* Fixed a bug with the Menu::isPreviousSibling and Menu::isNextSibling functions that allowed menu items to be confused with items on other menus (the functions now receive the menu id as a third parameter)
+* Tweaked styling of the header menu for the Carbon theme
+* Added a page template field to the 'Create Page' and 'Edit Page' forms
+* A page template metadata entry is now created for the sample page when the CMS is installed
+* Created a directory in the Carbon theme for page templates
+* Created a function that constructs a list of page templates
+* Created a function that fetches all siblings of a specified menu item
+* Cleaned up code in numerous functions in the Menu class
+* Fixed a bug in the Menu::isNextSibling function that prevented a menu item with children from being moved down
+* Page/post/category titles are trimmed down to a maximum of 5 words on the menu sidebar
+* Created a file that loads page templates
+* Created a function that checks whether a page template exists
+* Tweaked documentation and renamed a variable in the load-theme.php file
+* Added a regular expression to sanitize the category slug in the Category::validateData function
+* Added a regular expression to sanitize the post slug in the Post::validateData function
+* Added a regular expression to sanitize the widget slug in the Widget::validateData function
+* Improved mobile responsive design for admin forms
+
+**Modified files:**
+* admin/includes/class-category.php
+* admin/includes/class-menu.php
+* admin/includes/class-post.php
+* admin/includes/class-widget.php
+* admin/includes/css/style.css
+* admin/includes/functions.php (M)
+* content/themes/carbon/style.css
+* includes/functions.php
+* includes/load-template.php (N)
+* includes/load-theme.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 2.3.2[a] (2020-01-20)
 
 * Corrected an erroneous entry in the changelog
@@ -22,7 +57,7 @@
 * Added a regular expression to sanitize the menu slug in the Menu::validateMenuData function
 * Created a function that inserts a nav menu item into the database
 * Created a function that fetches all relationships for a menu
-* Fixed some bugs with reordering menu items on the 'Edit Menu' page, namely in the Menu::hasSiblings and Menu::isLastSibling functions
+* Fixed a bug with the Menu::hasSiblings and Menu::isLastSibling functions that allowed menu items to be confused with items on other menus (the functions now receive the menu id as a second parameter)
 * Tweaked code in the getPermalink function
 
 **Modified files:**

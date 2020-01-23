@@ -380,7 +380,7 @@ function populateTables($user_data, $settings_data) {
 	
 	// Post metadata
 	$postmeta = array(
-		'home_page'=>array('title'=>'Sample Page', 'description'=>'Just a simple meta description for your sample page.', 'feat_image'=>0),
+		'home_page'=>array('title'=>'Sample Page', 'description'=>'Just a simple meta description for your sample page.', 'template'=>'default', 'feat_image'=>0),
 		'blog_post'=>array('title'=>'Sample Blog Post', 'description'=>'Just a simple meta description for your first blog post.', 'feat_image'=>0)
 	);
 	

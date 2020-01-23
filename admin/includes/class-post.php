@@ -219,6 +219,13 @@ class Post {
 								echo formTag('select', array('class'=>'select-input', 'name'=>'parent', 'content'=>'<option value="0">(none)</option>'.$this->getParentList($type)));
 								?>
 							</div>
+							<div class="row">
+								<?php
+								// Construct a 'template' form tag
+								echo formTag('label', array('for'=>'template', 'content'=>'Template'));
+								echo formTag('select', array('class'=>'select-input', 'name'=>'template', 'content'=>'<option value="default">Default</option>'.$this->getTemplateList()));
+								?>
+							</div>
 							<?php
 						}
 						?>
@@ -395,6 +402,13 @@ class Post {
 											// Construct a 'parent' form tag
 											echo formTag('label', array('for'=>'parent', 'content'=>'Parent'));
 											echo formTag('select', array('class'=>'select-input', 'name'=>'parent', 'content'=>'<option value="0">(none)</option>'.$this->getParentList($post['type'], $post['parent'], $post['id'])));
+											?>
+										</div>
+										<div class="row">
+											<?php
+											// Construct a 'template' form tag
+											echo formTag('label', array('for'=>'template', 'content'=>'Template'));
+											echo formTag('select', array('class'=>'select-input', 'name'=>'template', 'content'=>'<option value="default">Default</option>'.$this->getTemplateList($post['id'])));
 											?>
 										</div>
 										<?php
@@ -580,8 +594,11 @@ class Post {
 		if(empty($data['title']) || empty($data['slug']))
 			return statusMessage('R');
 		
+		// Sanitize the slug (strip off HTML and/or PHP tags and replace any characters not specified in the filter)
+		$slug = preg_replace('/[^a-zA-Z0-9-]/i', '', strip_tags($data['slug']));
+		
 		// Make sure the slug is not already being used
-		if($this->slugExists($data['slug'], $id))
+		if($this->slugExists($slug, $id))
 			return statusMessage('That slug is already in use. Please choose another one.');
 		
 		// Make sure the post has a valid status
@@ -589,7 +606,7 @@ class Post {
 			$data['status'] = 'draft';
 		
 		// Create an array to hold the post's metadata
-		$postmeta = array('title'=>$data['meta_title'], 'description'=>$data['meta_description'], 'feat_image'=>$data['feat_image']);
+		$postmeta = array('title'=>$data['meta_title'], 'description'=>$data['meta_description'], 'template'=>$data['template'], 'feat_image'=>$data['feat_image']);
 		
 		if($id === 0) {
 			// Check whether a date has been provided and is valid
@@ -605,7 +622,7 @@ class Post {
 			if($data['type'] === 'post') $data['parent'] = 0;
 			
 			// Insert the new post into the database
-			$insert_id = $rs_query->insert('posts', array('title'=>$data['title'], 'author'=>$data['author'], 'date'=>$data['date'], 'content'=>$data['content'], 'status'=>$data['status'], 'slug'=>$data['slug'], 'parent'=>$data['parent'], 'type'=>$data['type']));
+			$insert_id = $rs_query->insert('posts', array('title'=>$data['title'], 'author'=>$data['author'], 'date'=>$data['date'], 'content'=>$data['content'], 'status'=>$data['status'], 'slug'=>$slug, 'parent'=>$data['parent'], 'type'=>$data['type']));
 			
 			// Insert the post's metadata into the database
 			foreach($postmeta as $key=>$value)
@@ -645,7 +662,7 @@ class Post {
 			if($type === 'post') $data['parent'] = 0;
 			
 			// Update the post in the database
-			$rs_query->update('posts', array('title'=>$data['title'], 'author'=>$data['author'], 'date'=>$data['date'], 'modified'=>'NOW()', 'content'=>$data['content'], 'status'=>$data['status'], 'slug'=>$data['slug'], 'parent'=>$data['parent']), array('id'=>$id));
+			$rs_query->update('posts', array('title'=>$data['title'], 'author'=>$data['author'], 'date'=>$data['date'], 'modified'=>'NOW()', 'content'=>$data['content'], 'status'=>$data['status'], 'slug'=>$slug, 'parent'=>$data['parent']), array('id'=>$id));
 			
 			// Update the post's metadata in the database
 			foreach($postmeta as $key=>$value)
@@ -964,6 +981,41 @@ class Post {
 		
 		// Return the list
 		return $list;
+	}
+	
+	/**
+	 * Construct a list of templates.
+	 * @since 2.3.3[a]
+	 *
+	 * @access private
+	 * @param int $id (optional; default: 0)
+	 * @return string
+	 */
+	private function getTemplateList($id = 0) {
+		// Extend the Query object
+		global $rs_query;
+		
+		// Construct the file path for the current theme's page templates directory
+		$templates_path = trailingSlash(PATH.THEMES).getSetting('theme', false).'/templates';
+		
+		// Check whether the templates directory exists within the current theme
+		if(file_exists($templates_path)) {
+			// Fetch all templates in the directory
+			$templates = array_diff(scandir($templates_path), array('.', '..'));
+			
+			// Fetch the page's current template from the database
+			$current = $rs_query->selectField('postmeta', 'value', array('post'=>$id, '_key'=>'template'));
+			
+			// Loop through the templates and add each one to an array
+			foreach($templates as $template)
+				$list[] = '<option value="'.$template.'"'.(isset($current) && $current === $template ? ' selected' : '').'>'.ucwords(substr(str_replace('-', ' ', $template), 0, strpos($template, '.'))).'</option>';
+			
+			// Convert the list array into a string
+			$list = implode('', $list);
+		}
+		
+		// Return the list
+		return $list ?? '';
 	}
 	
 	/**

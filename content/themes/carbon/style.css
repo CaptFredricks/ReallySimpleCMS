@@ -439,6 +439,10 @@ h1 {
     	vertical-align: text-top;
     }
 	
+	.header .nav-menu > ul > li.menu-item-has-children:last-child > .sub-menu {
+		right: -1em;
+	}
+	
 	.header .nav-menu > ul > li > a {
 		display: inline-block;
 		margin: 1.375em 1em 0;
@@ -481,6 +485,12 @@ h1 {
 	
 	.header .nav-menu .sub-menu li a:hover {
 		background-color: #eee;
+	}
+	
+	.header .nav-menu .sub-menu .sub-menu {
+		padding-top: 0;
+		top: 0;
+		right: 100%;
 	}
 	
 	.content {

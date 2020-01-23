@@ -210,19 +210,22 @@ class Category {
 		if(empty($data['name']) || empty($data['slug']))
 			return statusMessage('R');
 		
+		// Sanitize the slug (strip off HTML and/or PHP tags and replace any characters not specified in the filter)
+		$slug = preg_replace('/[^a-zA-Z0-9-]/i', '', strip_tags($data['slug']));
+		
 		// Make sure the slug is not already being used
-		if($this->slugExists($data['slug'], $id))
+		if($this->slugExists($slug, $id))
 			return statusMessage('That slug is already in use. Please choose another one.');
 		
 		if($id === 0) {
 			// Insert the new category into the database
-			$insert_id = $rs_query->insert('terms', array('name'=>$data['name'], 'slug'=>$data['slug'], 'taxonomy'=>getTaxonomyId('category'), 'parent'=>$data['parent']));
+			$insert_id = $rs_query->insert('terms', array('name'=>$data['name'], 'slug'=>$slug, 'taxonomy'=>getTaxonomyId('category'), 'parent'=>$data['parent']));
 			
 			// Redirect to the 'Edit Category' page
 			redirect('categories.php?id='.$insert_id.'&action=edit');
 		} else {
 			// Update the category in the database
-			$rs_query->update('terms', array('name'=>$data['name'], 'slug'=>$data['slug'], 'parent'=>$data['parent']), array('id'=>$id));
+			$rs_query->update('terms', array('name'=>$data['name'], 'slug'=>$slug, 'parent'=>$data['parent']), array('id'=>$id));
 			
 			// Return a status message
 			return statusMessage('Category updated! <a href="categories.php">Return to list</a>?', true);

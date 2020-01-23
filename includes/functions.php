@@ -13,6 +13,18 @@ spl_autoload_register(function($class_name) {
 define('COOKIE_HASH', md5(getSetting('site_url', false)));
 
 /**
+ * Check whether a page template exists.
+ * @since 2.3.3[a]
+ *
+ * @param string $template
+ * @param string $dir
+ * @return bool
+ */
+function templateExists($template, $dir) {
+    return file_exists(trailingSlash($dir).$template);
+}
+
+/**
  * Fetch the theme's header template.
  * @since 1.5.5[a]
  *

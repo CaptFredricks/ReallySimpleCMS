@@ -12,18 +12,18 @@ if(isEmptyDir(PATH.THEMES) || !file_exists(trailingSlash(PATH.THEMES).getSetting
 	// Load the fallback theme
 	require_once PATH.INC.'/fallback.php';
 } else {
-	// Set the file path for the current theme
-	$theme_dir = trailingSlash(PATH.THEMES).getSetting('theme', false);
+	// Construct the file path for the current theme
+	$theme_path = trailingSlash(PATH.THEMES).getSetting('theme', false);
 	
 	// Check whether the theme has an index file
-	if(!file_exists($theme_dir.'/index.php')) {
+	if(!file_exists($theme_path.'/index.php')) {
 		// Load the fallback theme
 		require_once PATH.INC.'/fallback.php';
 	} else {
 		// Check whether the theme has a functions.php file and include it if so
-		if(file_exists($theme_dir.'/functions.php')) require_once $theme_dir.'/functions.php';
+		if(file_exists($theme_path.'/functions.php')) require_once $theme_path.'/functions.php';
 		
-		// Include the theme's index file
-		require_once $theme_dir.'/index.php';
+		// Include the template loader file
+		require_once PATH.INC.'/load-template.php';
 	}
 }

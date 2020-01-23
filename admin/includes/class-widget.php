@@ -208,8 +208,11 @@ class Widget extends Post {
 		if(empty($data['title']) || empty($data['slug']))
 			return statusMessage('R');
 		
+		// Sanitize the slug (strip off HTML and/or PHP tags and replace any characters not specified in the filter)
+		$slug = preg_replace('/[^a-zA-Z0-9-]/i', '', strip_tags($data['slug']));
+		
 		// Make sure the slug is not already being used
-		if($this->slugExists($data['slug'], $id))
+		if($this->slugExists($slug, $id))
 			return statusMessage('That slug is already in use. Please choose another one.');
 		
 		// Make sure the widget has a valid status
@@ -218,13 +221,13 @@ class Widget extends Post {
 		
 		if($id === 0) {
 			// Insert the new widget into the database
-			$insert_id = $rs_query->insert('posts', array('title'=>$data['title'], 'author'=>$session['id'], 'date'=>'NOW()', 'content'=>$data['content'], 'status'=>$data['status'], 'slug'=>$data['slug'], 'type'=>'widget'));
+			$insert_id = $rs_query->insert('posts', array('title'=>$data['title'], 'author'=>$session['id'], 'date'=>'NOW()', 'content'=>$data['content'], 'status'=>$data['status'], 'slug'=>$slug, 'type'=>'widget'));
 			
 			// Redirect to the 'Edit Widget' page
 			redirect('widgets.php?id='.$insert_id.'&action=edit');
 		} else {
 			// Update the widget in the database
-			$rs_query->update('posts', array('title'=>$data['title'], 'modified'=>'NOW()', 'content'=>$data['content'], 'status'=>$data['status'], 'slug'=>$data['slug']), array('id'=>$id));
+			$rs_query->update('posts', array('title'=>$data['title'], 'modified'=>'NOW()', 'content'=>$data['content'], 'status'=>$data['status'], 'slug'=>$slug), array('id'=>$id));
 			
 			// Return a status message
 			return statusMessage('Widget updated! <a href="widgets.php">Return to list</a>?', true);
