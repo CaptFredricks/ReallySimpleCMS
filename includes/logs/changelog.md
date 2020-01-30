@@ -4,6 +4,47 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 2.4.0[a] (2020-01-30)
+
+* Tweaked styling of certain title/name fields on the admin forms
+* The recent post titles now link to the proper blog posts in the Carbon theme's getRecentPosts function
+* Added redirect rules to the .htaccess file
+* Fixed a pass by reference error in the Post class constructor
+* Invalid post slugs and unpublished posts are now redirected to the 404 (Not Found) page
+* Invalid permalinks now redirect to the proper permalink
+* Tweaked a logic statement in the load-template.php file
+* The getPermalink function now adds /category/ as the base slug for category pages
+* Created a function that checks whether the current page is actually a category archive
+* Created a front end class to handle entries in the 'terms' table
+* Created a front end class to handle categories
+* Changed the CSS classes for the Carbon theme's index.php article content wrapper
+* Created a category template for the Carbon theme
+* Added a global call to the Category object in the getHeader and getFooter functions
+* Tweaked styling of the Carbon theme
+* Optimized code in the getRecentPosts function
+* Began styling the category template page
+* Added a 'view' link to the 'List Categories' admin table
+* Improved mobile responsive design of the admin modals and post forms
+
+**Modified files:**
+* .htaccess
+* admin/includes/class-category.php
+* admin/includes/css/style.css
+* content/themes/carbon/category.php (N)
+* content/themes/carbon/footer.php (M)
+* content/themes/carbon/functions.php
+* content/themes/carbon/header-cat.php (N)
+* content/themes/carbon/index.php
+* content/themes/carbon/style.css
+* includes/class-category.php (N)
+* includes/class-post.php
+* includes/class-term.php (N)
+* includes/functions.php
+* includes/globals.php
+* includes/load-template.php (M)
+* index.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 2.3.3[a] (2020-01-22)
 
 * Tweaked a previous entry in the changelog

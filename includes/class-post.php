@@ -24,27 +24,60 @@ class Post {
 	 * @return null
 	 */
 	public function __construct($slug = '') {
+		// Extend the Query object
+		global $rs_query;
+		
 		// Check whether a slug has been provided
 		if(!empty($slug)) {
 			// Fetch the slug value
 			$this->slug = $slug;
+			
+			// Fetch the post's status from the database
+			$status = $this->getPostStatus(false);
+			
+			// Check whether the post is published and redirect to the 404 (Not Found) page if not
+			if($status !== 'published') redirect('/404.php');
 		} else {
 			// Check whether the current page is the home page
 			if($_SERVER['REQUEST_URI'] === '/') {
-				// Extend the Query object
-				global $rs_query;
-				
 				// Fetch the home page's id from the database
 				$home_page = $rs_query->selectField('settings', 'value', array('name'=>'home_page'));
 				
 				// Fetch the slug from the database
 				$this->slug = $this->getPostSlug($home_page, false);
+				
+				// Fetch the post's status from the database
+				$status = $this->getPostStatus(false);
+				
+				// Check whether the post is published and redirect to the 404 (Not Found) page if not
+				if($status !== 'published') redirect('/404.php');
 			} else {
-				// Create an array from the page's URI
-				$uri = explode('/', $_SERVER['REQUEST_URI']);
+				// Fetch the post's URI
+				$raw_uri = $_SERVER['REQUEST_URI'];
+				
+				// Create an array from the post's URI
+				$uri = explode('/', $raw_uri);
+				
+				// Filter out any empty array values
+				$uri = array_filter($uri);
 				
 				// Fetch the slug from the URI array
-				$this->slug = array_pop(array_filter($uri));
+				$this->slug = array_pop($uri);
+				
+				// Fetch the post's id from the database
+				$id = $this->getPostId(false);
+				
+				// Fetch the post's status from the database
+				$status = $this->getPostStatus(false);
+				
+				// Construct the post's permalink
+				$permalink = $this->getPostPermalink($this->getPostParent(false), $this->getPostSlug($id, false));
+				
+				// Check whether the slug is valid and the post is published; redirect to the 404 (Not Found) page if not
+				if(empty($id) || $status !== 'published') redirect('/404.php');
+				
+				// Check whether the permalink is valid and redirect to the proper one if not
+				if($raw_uri !== $permalink) redirect($permalink);
 			}
 		}
 	}

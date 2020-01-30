@@ -12,7 +12,7 @@ if($rs_post->postHasFeatImage()): ?>
 	</div>
 <?php endif; ?>
 <section class="wrapper">
-	<article class="post-content post-id-<?php $rs_post->getPostId(); ?>">
+	<article class="article-content">
 		<h1><?php $rs_post->getPostTitle(); ?></h1>
 		<?php $rs_post->getPostContent(); ?>
 	</article>

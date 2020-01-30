@@ -5,7 +5,7 @@
  */
 
 // Current CMS version
-const VERSION = '2.3.3';
+const VERSION = '2.4.0';
 
 /**
  * Display the copyright information on the admin dashboard.
@@ -163,9 +163,12 @@ function getPermalink($type, $parent, $slug = '') {
 			// The posts table should be searched
 			$table = 'posts';
 			break;
-		case 'category':
+		case 'term': case 'category':
 			// The terms table should be searched
 			$table = 'terms';
+			
+			// Set the base slug for categories
+			$base = $type;
 			break;
 		default:
 			// Return false because the type is not recognized
@@ -190,7 +193,7 @@ function getPermalink($type, $parent, $slug = '') {
 	$permalink = implode('/', array_reverse($permalink));
 	
 	// Construct the full permalink
-	$permalink = (!empty($permalink) ? '/'.$permalink : '').(!empty($slug) ? '/'.$slug : '').'/';
+	$permalink = (isset($base) ? '/'.$base : '').(!empty($permalink) ? '/'.$permalink : '').(!empty($slug) ? '/'.$slug : '').'/';
 	
 	// Return the permalink
 	return $permalink;

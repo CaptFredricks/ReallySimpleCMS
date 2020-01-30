@@ -10,8 +10,14 @@ require_once __DIR__.'/init.php';
 // Include functions
 require_once PATH.INC.'/functions.php';
 
-// Create a Post object
-$rs_post = new Post;
+// Check whether the page is a category archive
+if(isCategory()) {
+	// Create a Category object
+	$rs_category = new Category;
+} else {
+	// Create a Post object
+	$rs_post = new Post;
+}
 
 // Check whether the session cookie is set and the user's session is valid
 if(isset($_COOKIE['session']) && isValidSession($_COOKIE['session'])) {

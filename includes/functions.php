@@ -25,6 +25,17 @@ function templateExists($template, $dir) {
 }
 
 /**
+ * Check whether the current 'page' is a category archive.
+ * @since 2.4.0[a]
+ *
+ * @param string $base (optional; default: 'category')
+ * @return bool
+ */
+function isCategory($base = 'category') {
+	return strpos($_SERVER['REQUEST_URI'], $base) !== false;
+}
+
+/**
  * Fetch the theme's header template.
  * @since 1.5.5[a]
  *
@@ -32,8 +43,8 @@ function templateExists($template, $dir) {
  * @return null
  */
 function getHeader($template = '') {
-	// Extend the Post object and the user's session data
-	global $rs_post, $session;
+	// Extend the Post and Category objects and the user's session data
+	global $rs_post, $rs_category, $session;
 	
 	// Construct the file path for the current theme
 	$theme_path = trailingSlash(PATH.THEMES).getSetting('theme', false);
@@ -56,8 +67,8 @@ function getHeader($template = '') {
  * @return null
  */
 function getFooter($template = '') {
-	// Extend the Post object and the user's session data
-	global $rs_post, $session;
+	// Extend the Post and Category objects and the user's session data
+	global $rs_post, $rs_category, $session;
 	
 	// Construct the file path for the current theme
 	$theme_path = trailingSlash(PATH.THEMES).getSetting('theme', false);

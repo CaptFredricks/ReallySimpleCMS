@@ -12,7 +12,7 @@
 						<?php getWidget('business-info', true); ?>
 					</div>
 					<div class="col-4">
-						<?php getRecentPosts(); ?>
+						<?php getRecentPosts(3, true); ?>
 					</div>
 				</div>
 				<div class="row">
