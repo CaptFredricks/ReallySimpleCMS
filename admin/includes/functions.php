@@ -380,7 +380,7 @@ function populateTables($user_data, $settings_data) {
 	
 	// Post metadata
 	$postmeta = array(
-		'home_page'=>array('title'=>'Sample Page', 'description'=>'Just a simple meta description for your sample page.', 'template'=>'default', 'feat_image'=>0),
+		'home_page'=>array('title'=>'Sample Page', 'description'=>'Just a simple meta description for your sample page.', 'feat_image'=>0, 'template'=>'default'),
 		'blog_post'=>array('title'=>'Sample Blog Post', 'description'=>'Just a simple meta description for your first blog post.', 'feat_image'=>0)
 	);
 	
@@ -1164,22 +1164,4 @@ function getFileSize($bytes, $decimals = 1) {
 	
 	// Return the converted file size
 	return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)).' '.$multiples[(int)$factor].($factor > 0 ? 'B' : '');
-}
-
-/**
- * Fetch a taxonomy's id.
- * @since 1.5.0[a]
- *
- * @param string $name
- * @return int
- */
-function getTaxonomyId($name) {
-	// Extend the Query object
-	global $rs_query;
-	
-	// Fetch the taxonomy's id from the database
-	$id = (int)$rs_query->selectField('taxonomies', 'id', array('name'=>$name));
-	
-	// Return the taxonomy's id
-	return $id ?? 0;
 }

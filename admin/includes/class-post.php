@@ -606,7 +606,10 @@ class Post {
 			$data['status'] = 'draft';
 		
 		// Create an array to hold the post's metadata
-		$postmeta = array('title'=>$data['meta_title'], 'description'=>$data['meta_description'], 'template'=>$data['template'], 'feat_image'=>$data['feat_image']);
+		$postmeta = array('title'=>$data['meta_title'], 'description'=>$data['meta_description'], 'feat_image'=>$data['feat_image']);
+		
+		// Check whether a page template has been submitted and add it to the postmeta array if so
+		if(isset($data['template'])) $postmeta['template'] = $data['template'];
 		
 		if($id === 0) {
 			// Check whether a date has been provided and is valid

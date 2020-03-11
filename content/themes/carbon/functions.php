@@ -9,9 +9,11 @@
  * @since 2.2.6[a]
  *
  * @param int $count (optional; default: 3)
+ * @param array $categories (optional; default: 0)
+ * @param bool $display_title (optional; default: false)
  * @return null
  */
-function getRecentPosts($count = 3, $display_title = false) {
+function getRecentPosts($count = 3, $categories = 0, $display_title = false) {
 	// Extend the Query object
 	global $rs_query;
 	?>
@@ -26,8 +28,32 @@ function getRecentPosts($count = 3, $display_title = false) {
 		?>
 		<ul>
 			<?php
-			// Fetch the posts from the database
-			$posts = $rs_query->select('posts', '*', array('status'=>'published', 'type'=>'post'), 'date', 'DESC', $count);
+			// Check whether a category or categories have been specified
+			if($categories === 0) {
+				// Fetch the posts from the database
+				$posts = $rs_query->select('posts', '*', array('status'=>'published', 'type'=>'post'), 'date', 'DESC', $count);
+			} else {
+				// Check whether the category value is null
+				if(is_null($categories)) {
+					// Fetch only the posts in the current category
+					$posts = getPostsInCategory($categories, 'date', 'DESC', $count);
+				} else {
+					// Check whether the categories are in an array and convert them if not
+					if(!is_array($categories)) $categories = (array)$categories;
+					
+					// Create an empty array to hold the posts
+					$posts = array();
+					
+					// Loop through the categories
+					foreach($categories as $category) {
+						// Fetch only the posts in the specified category or categories from the database
+						$posts[] = getPostsInCategory($category, 'date', 'DESC', $count);
+					}
+					
+					// Merge all posts into one array
+					$posts = array_merge(...$posts);
+				}
+			}
 			
 			// Loop through the posts
 			foreach($posts as $post) {

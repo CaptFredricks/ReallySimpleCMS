@@ -4,6 +4,29 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 2.4.1[a] (2020-02-19)
+
+* Reordered the postmeta entries in the populateTables function
+* The Post::validateData function will no longer try to submit the 'template' postmeta entry if it is not included in the submitted data
+* Created a template file for blog posts in the Carbon theme
+* Moved the getTaxonomyId function to the globals.php file
+* Created a function that fetches a post's categories
+* Created a function that creates a Category object based on a provided slug
+* Modified the Carbon theme's getRecentPosts function to accept an optional 'categories' parameter (if populated, it will display posts from specified categories)
+* Created a function that returns the posts in a specific category
+
+**Modified files:**
+* admin/includes/class-post.php
+* admin/includes/functions.php
+* content/themes/carbon/category.php (M)
+* content/themes/carbon/footer.php (M)
+* content/themes/carbon/functions.php
+* content/themes/carbon/post.php (N)
+* includes/class-post.php
+* includes/functions.php
+* includes/globals.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 2.4.0[a] (2020-01-30)
 
 * Tweaked styling of certain title/name fields on the admin forms

@@ -5,7 +5,7 @@
  */
 
 // Current CMS version
-const VERSION = '2.4.0';
+const VERSION = '2.4.1';
 
 /**
  * Display the copyright information on the admin dashboard.
@@ -328,6 +328,24 @@ function getMedia($id, $props = array()) {
 		// Construct an anchor tag
 		return '<a'.(!empty($props['class']) ? ' class="'.$props['class'].'"' : '').' href="'.$src.'">'.$props['link_text'].'</a>';
 	}
+}
+
+/**
+ * Fetch a taxonomy's id.
+ * @since 1.5.0[a]
+ *
+ * @param string $name
+ * @return int
+ */
+function getTaxonomyId($name) {
+	// Extend the Query object
+	global $rs_query;
+	
+	// Fetch the taxonomy's id from the database
+	$id = (int)$rs_query->selectField('taxonomies', 'id', array('name'=>$name));
+	
+	// Return the taxonomy's id
+	return $id ?? 0;
 }
 
 /**

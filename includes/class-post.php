@@ -340,6 +340,41 @@ class Post {
     }
 	
 	/**
+	 * Fetch a post's categories.
+	 * @since 2.4.1[a]
+	 *
+	 * @param bool $echo (optional; default: true)
+	 * @return null|string (null on $echo == true; string on $echo == false)
+	 */
+	public function getPostCategories($echo = true) {
+		// Extend the Query object
+		global $rs_query;
+		
+		// Create an empty array to hold the categories
+		$categories = array();
+		
+		// Fetch the term relationships from the database
+		$relationships = $rs_query->select('term_relationships', 'term', array('post'=>$this->getPostId(false)));
+		
+		// Loop through the term relationships
+		foreach($relationships as $relationship) {
+			// Fetch the category's slug from the database
+			$slug = $rs_query->selectField('terms', 'slug', array('id'=>$relationship['term'], 'taxonomy'=>getTaxonomyId('category')));
+			
+			// Create a Category object
+			$rs_category = getCategory($slug);
+			
+			// Fetch each term from the database and assign them to the categories array
+			$categories[] = $echo ? '<a href="'.$rs_category->getCategoryUrl(false).'">'.$rs_category->getCategoryName(false).'</a>' : $rs_category->getCategoryName(false);
+		}
+		
+		if($echo)
+			echo empty($categories) ? 'None' : implode(', ', $categories);
+		else
+			return $categories;
+	}
+	
+	/**
 	 * Fetch a post's permalink.
 	 * @since 2.2.5[a]
 	 *

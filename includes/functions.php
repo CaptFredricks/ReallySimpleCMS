@@ -133,6 +133,17 @@ function getPost($slug) {
 }
 
 /**
+ * Create a Category object based on a provided slug.
+ * @since 2.4.1[a]
+ *
+ * @param string $slug
+ * @return object
+ */
+function getCategory($slug) {
+	return new Category($slug);
+}
+
+/**
  * Fetch a nav menu.
  * @since 2.2.3[a]
  *
@@ -195,6 +206,54 @@ function getWidget($slug, $display_title = false) {
 		</div>
 		<?php
 	}
+}
+
+/**
+ * Fetch all posts in the current category.
+ * @since 2.4.1[a]
+ *
+ * @param int|string $category (optional; default: null)
+ * @param string $order_by (optional; default: 'date')
+ * @param string $order (optional; default: 'DESC')
+ * @param int $limit (optional; default: 0)
+ * @return array
+ */
+function getPostsInCategory($category = null, $order_by = 'date', $order = 'DESC', $limit = 0) {
+	// Extend the Query object
+	global $rs_query;
+	
+	// Create an empty array to hold the posts
+	$posts = array();
+	
+	// Check whether the category value is null
+	if(!is_null($category)) {
+		// Check whether the category value is an integer
+		if(is_int($category)) {
+			// Fetch the category
+			$cat = $category;
+		} else {
+			// Fetch the category's id
+			$cat = getCategory($category)->getCategoryId(false);
+		}
+	} else {
+		// Create a Category object
+		$rs_category = new Category;
+		
+		// Fetch the category's id
+		$cat = $rs_category->getCategoryId(false);
+	}
+	
+	// Fetch the term relationships from the database
+	$relationships = $rs_query->select('term_relationships', 'post', array('term'=>$cat));
+	
+	// Loop through the term relationships
+	foreach($relationships as $relationship) {
+		// Fetch each post from the database and assign them to the posts array
+		$posts[] = $rs_query->selectRow('posts', '*', array('id'=>$relationship['post'], 'status'=>'published', 'type'=>'post'), $order_by, $order, $limit);
+	}
+	
+	// Return the posts
+	return $posts;
 }
 
 /**
