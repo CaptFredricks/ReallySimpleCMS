@@ -25,8 +25,7 @@ if(isset($_COOKIE['session']) && isValidSession($_COOKIE['session'])) {
 		<meta name="robots" content="noindex, nofollow">
 		<meta name="theme-color" content="<?php getSetting('theme_color'); ?>">
 		<link type="image/x-icon" href="<?php echo getMediaSrc(getSetting('site_icon', false)); ?>" rel="icon">
-		<?php getStylesheet('style.css'); ?>
-		<?php getStylesheet('font-awesome.min.css', '5.12.0'); ?>
+		<?php headerScripts(array('button', 'jquery')); ?>
 	</head>
 	<body class="<?php echo bodyClasses('not-found'); ?>">
 		<div class="wrapper">

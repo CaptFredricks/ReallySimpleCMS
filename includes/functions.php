@@ -257,6 +257,85 @@ function getPostsInCategory($category = null, $order_by = 'date', $order = 'DESC
 }
 
 /**
+ * Load all header scripts and stylesheets.
+ * @since 2.4.2[a]
+ *
+ * @param string|array $exclude (optional; default: '')
+ * @param string|array $include_styles (optional; default: array())
+ * @param string|array $include_scripts (optional; default: array())
+ * @return null
+ */
+function headerScripts($exclude = '', $include_styles = array(), $include_scripts = array()) {
+	// Convert $exclude to an array if it isn't already one
+	if(!is_array($exclude)) $exclude = explode(' ', $exclude);
+	
+	// Button stylesheet
+	if(!in_array('button', $exclude, true)) getStylesheet('button.min.css');
+	
+	// Default stylesheet
+	if(!in_array('style', $exclude, true)) getStylesheet('style.css');
+	
+	// Font Awesome icons stylesheet
+	if(!in_array('fa', $exclude, true)) getStylesheet('font-awesome.min.css', '5.12.1');
+	
+	// Check whether any custom stylesheets have been included
+	if(!empty($include_styles)) {
+		// Check whether the included stylesheets are in an array
+		if(is_array($include_styles)) {
+			// Loop through the array and include the stylesheets
+			foreach($include_styles as $style) getThemeStylesheet($style[0].'.css', $style[1] ?? VERSION);
+		}
+	}
+	
+	// JQuery library
+	if(!in_array('jquery', $exclude, true)) getScript('jquery.min.js', '3.4.1');
+	
+	// Check whether any custom scripts have been included
+	if(!empty($include_scripts)) {
+		// Check whether the included scripts are in an array
+		if(is_array($include_scripts)) {
+			// Loop through the array and include the scripts
+			foreach($include_scripts as $script) getThemeScript($script[0].'.js', $script[1] ?? VERSION);
+		}
+	}
+}
+
+/**
+ * Load all footer scripts and stylesheets.
+ * @since 2.4.2[a]
+ *
+ * @param string|array $exclude (optional; default: '')
+ * @param string|array $include_styles (optional; default: array())
+ * @param string|array $include_scripts (optional; default: array())
+ * @return null
+ */
+function footerScripts($exclude = '', $include_styles = array(), $include_scripts = array()) {
+	// Convert $exclude to an array if it isn't already one
+	if(!is_array($exclude)) $exclude = explode(' ', $exclude);
+	
+	// Check whether any custom stylesheets have been included
+	if(!empty($include_styles)) {
+		// Check whether the included stylesheets are in an array
+		if(is_array($include_styles)) {
+			// Loop through the array and include the stylesheets
+			foreach($include_styles as $style) getThemeStylesheet($style[0].'.css', $style[1] ?? VERSION);
+		}
+	}
+	
+	// Default scripts
+	if(!in_array('script', $exclude, true)) getScript('script.js');
+	
+	// Check whether any custom scripts have been included
+	if(!empty($include_scripts)) {
+		// Check whether the included scripts are in an array
+		if(is_array($include_scripts)) {
+			// Loop through the array and include the scripts
+			foreach($include_scripts as $script) getThemeScript($script[0].'.js', $script[1] ?? VERSION);
+		}
+	}
+}
+
+/**
  * Construct a list of CSS classes for the body tag.
  * @since 2.2.3[a]
  *

@@ -1,6 +1,7 @@
 /**
  * Admin dashboard Sunset theme.
  * @since 2.0.7[a]
+ * @version 1.3
  */
 
 html {
@@ -206,6 +207,21 @@ a {
 
 .checkbox-label.init {
 	color: #fff;
+}
+
+/* Data lists */
+
+.data-list li {
+	background-color: #fdaddd;
+}
+
+.data-list .theme-name {
+	background-color: #fdaddd;
+	border-top-color: #dd8dad;
+}
+
+.data-list .theme-name .actions a {
+	color: #ca4006;
 }
 
 /* Modal */

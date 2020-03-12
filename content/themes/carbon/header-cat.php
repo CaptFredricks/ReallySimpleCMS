@@ -12,10 +12,7 @@
 		<meta property="og:image" content="<?php echo getMediaSrc(getSetting('site_logo', false)); ?>">
 		<meta property="og:description" content="">
 		<link type="image/x-icon" href="<?php echo getMediaSrc(getSetting('site_icon', false)); ?>" rel="icon">
-		<?php getStylesheet('style.css'); ?>
-		<?php getStylesheet('font-awesome.min.css', '5.12.0'); ?>
-		<?php getThemeStylesheet('style.css'); ?>
-		<?php getScript('jquery.min.js', '3.4.1'); ?>
+		<?php headerScripts('button', array(array('style'))); ?>
 	</head>
 	<body class="<?php echo bodyClasses(); ?>">
 		<header class="header">

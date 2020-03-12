@@ -4,6 +4,29 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 2.4.2[a] (2020-03-11)
+
+* Updated Font Awesome to version 5.12.1
+* Created a function that loads header scripts and stylesheets
+* Created a function that loads footer scripts and stylesheets
+* Added internal version numbers for the admin themes
+* Improved styling of the admin themes
+
+**Modified files:**
+* 404.php
+* admin/includes/functions.php (M)
+* content/admin-themes/forest.css
+* content/admin-themes/harvest.css
+* content/admin-themes/ocean.css
+* content/admin-themes/sunset.css
+* content/themes/carbon/footer.php
+* content/themes/carbon/header.php
+* content/themes/carbon/header-cat.php
+* includes/css/font-awesome.min.css
+* includes/functions.php
+* login.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 2.4.1[a] (2020-02-19)
 
 * Reordered the postmeta entries in the populateTables function

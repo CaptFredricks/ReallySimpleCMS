@@ -190,7 +190,7 @@ function adminHeaderScripts() {
 	// Extend the user's session data
 	global $session;
 	
-	// Buttons stylesheet
+	// Button stylesheet
 	getStylesheet('button.min.css');
 	
 	// Admin stylesheet
@@ -209,7 +209,7 @@ function adminHeaderScripts() {
 	}
 	
 	// Font Awesome icons stylesheet
-	getStylesheet('font-awesome.min.css', '5.12.0');
+	getStylesheet('font-awesome.min.css', '5.12.1');
 	
 	// JQuery library
 	getScript('jquery.min.js', '3.4.1');

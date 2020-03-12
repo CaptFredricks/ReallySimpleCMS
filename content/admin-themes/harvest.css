@@ -1,10 +1,15 @@
 /**
  * Admin dashboard Harvest theme.
  * @since 2.1.9[a]
+ * @version 1.1
  */
 
 html {
 	background-color: #2f0f06;
+}
+
+body {
+	color: #fff;
 }
 
 a {
@@ -23,6 +28,10 @@ a {
 
 /** Site title **/
 
+#site-title {
+	color: #fff;
+}
+
 #site-title:hover {
 	background-color: #2f0f06;
 	color: #fa8026;
@@ -37,6 +46,10 @@ a {
 
 .user-dropdown-menu {
 	background-color: #2f0f06;
+}
+
+.user-dropdown-menu li a {
+	color: #fff;
 }
 
 .user-dropdown-menu li a:hover {
@@ -54,12 +67,7 @@ a {
 	border-top-color: #dfbf2f;
 }
 
-#admin-nav-menu .menu > li {
-	border-bottom-color: #dfbf2f;
-}
-
-#admin-nav-menu .menu > li:hover,
-#admin-nav-menu .submenu > li:hover {
+#admin-nav-menu .menu > li:hover {
 	background-color: #2f0f06;
 }
 
@@ -77,8 +85,8 @@ a {
 	background-color: #8f4f0f;
 }
 
-#admin-nav-menu .submenu > li:not(:last-child) {
-	border-bottom-color: #dfbf2f;
+#admin-nav-menu .submenu::before {
+	border-right-color: #8f4f0f;
 }
 
 #admin-nav-menu .submenu > li.current-submenu-item {
@@ -87,6 +95,14 @@ a {
 
 #admin-nav-menu .submenu > li.current-submenu-item > a {
 	color: #fa8026
+}
+
+#admin-nav-menu .submenu > li > a {
+	color: #eee;
+}
+
+#admin-nav-menu .submenu > li:not(.current-submenu-item):hover > a {
+	color: #f6ca30;
 }
 
 /* Footer */
@@ -105,7 +121,35 @@ a {
 \*------------------------------------*/
 
 .notice-nojs {
-	background-color: #00000f;
+	background-color: #0f0400;
+}
+
+/* Data tables */
+
+.data-table {
+	background-color: #eddd8d;
+}
+
+.data-table thead tr,
+.data-table tbody tr:not(:last-child) {
+	border-bottom-color: #8dbd6d;
+}
+
+.data-table tbody tr:nth-child(odd) {
+	background-color: #addd8d;
+}
+
+.data-table tbody tr:hover {
+	background-color: #cdfdad;
+}
+
+.data-table th:not(:last-child),
+.data-table td:not(:last-child) {
+	border-right-color: #8dbd6d;
+}
+
+.data-table a {
+	color: #369a20;
 }
 
 /* Data forms */
@@ -121,6 +165,27 @@ a {
 	border-color: #7f3f0f;
 }
 
+/** Required fields **/
+
+.checkbox-label.init {
+	color: #fff;
+}
+
+/* Data lists */
+
+.data-list li {
+	background-color: #eddd8d;
+}
+
+.data-list .theme-name {
+	background-color: #eddd8d;
+	border-top-color: #cdbd6d;
+}
+
+.data-list .theme-name .actions a {
+	/* color: #369a20; */
+}
+
 /*------------------------------------*\
     RESPONSIVE
 \*------------------------------------*/
@@ -129,6 +194,5 @@ a {
 	#admin-nav-menu .menu > li.current-menu-item .submenu,
 	#admin-nav-menu .menu > li.child-is-current .submenu {
 		background-color: #7f3f0f;
-		border-top-color: #dfbf2f;
 	}
 }

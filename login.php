@@ -31,10 +31,7 @@ $action = $_GET['action'] ?? '';
 		<meta name="robots" content="noindex, nofollow">
 		<meta name="theme-color" content="<?php getSetting('theme_color'); ?>">
 		<link type="image/x-icon" href="<?php echo getMediaSrc(getSetting('site_icon', false)); ?>" rel="icon">
-		<?php getStylesheet('button.min.css'); ?>
-		<?php getStylesheet('style.css'); ?>
-		<?php getStylesheet('font-awesome.min.css', '5.12.0'); ?>
-		<?php getScript('jquery.min.js', '3.4.1'); ?>
+		<?php headerScripts(); ?>
 	</head>
 	<body class="login">
 		<div class="wrapper">
@@ -74,7 +71,7 @@ $action = $_GET['action'] ?? '';
 			}
 			?>
 		</div>
-		<?php getScript('script.js'); ?>
+		<?php footerScripts(); ?>
 	</body>
 </html>
 <?php

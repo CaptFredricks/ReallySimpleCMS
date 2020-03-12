@@ -24,7 +24,6 @@
 			</div>
 		</footer>
 		<?php if($session) adminBar(); ?>
-		<?php getScript('script.js'); ?>
-		<?php getThemeScript('script.js'); ?>
+		<?php footerScripts('', array(), array(array('script'))); ?>
 	</body>
 </html>
