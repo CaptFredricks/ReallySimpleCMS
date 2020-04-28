@@ -30,6 +30,10 @@ $rs_user = new User;
 			// Reset a user's password
 			userHasPrivilege($session['role'], 'can_edit_users') ? $rs_user->resetPassword($id) : redirect('users.php');
 			break;
+		case 'reassign_content':
+			// Reassign a user's content
+			userHasPrivilege($session['role'], 'can_delete_users') ? $rs_user->reassignContent($id) : redirect('users.php');
+			break;
 		default:
 			// List all users
 			userHasPrivilege($session['role'], 'can_view_users') ? $rs_user->listUsers() : redirect('index.php');

@@ -81,7 +81,7 @@ class User {
 					$meta = $this->getUserMeta($user['id']);
 					
 					echo tableRow(
-						tableCell('<img class="avatar" src="'.(!empty($meta['avatar']) ? getMediaSrc($meta['avatar']) : '').'" width="32" height="32"><strong>'.$user['username'].'</strong><div class="actions"><a href="?id='.$user['id'].'&action=edit">Edit</a>'.($user['id'] !== $session['id'] ? ' &bull; <a class="modal-launch delete-item" href="?id='.$user['id'].'&action=delete" data-item="user">Delete</a>' : '').'</div>', 'username'),
+						tableCell('<img class="avatar" src="'.(!empty($meta['avatar']) ? getMediaSrc($meta['avatar']) : '').'" width="32" height="32"><strong>'.$user['username'].'</strong><div class="actions"><a href="?id='.$user['id'].'&action=edit">Edit</a>'.($user['id'] !== $session['id'] ? ' &bull; '.($this->userHasContent($user['id']) ? '<a href="?id='.$user['id'].'&action=reassign_content">Delete</a>' : '<a class="modal-launch delete-item" href="?id='.$user['id'].'&action=delete" data-item="user">Delete</a>') : '').'</div>', 'username'),
 						tableCell(empty($meta['first_name']) && empty($meta['last_name']) ? '&mdash;' : $meta['first_name'].' '.$meta['last_name'], 'full-name'),
 						tableCell($user['email'], 'email'),
 						tableCell(formatDate($user['registered'], 'd M Y @ g:i A'), 'registered'),
@@ -356,6 +356,22 @@ class User {
 	}
 	
 	/**
+	 * Check whether a user has content assigned to them.
+	 * @since 2.4.3[a]
+	 *
+	 * @access private
+	 * @param int $id
+	 * @return bool
+	 */
+	private function userHasContent($id) {
+		// Extend the Query object
+		global $rs_query;
+		
+		// Return true if the user has any content assigned to them
+		return $rs_query->selectRow('posts', 'COUNT(author)', array('author'=>$id)) > 0;
+	}
+	
+	/**
 	 * Fetch a user's metadata.
 	 * @since 1.2.2[a]
 	 *
@@ -543,5 +559,111 @@ class User {
 		
 		// Return true if the password is valid
 		return !empty($db_password) && password_verify($password, $db_password);
+	}
+	
+	/**
+	 * Reassign a user's content to another user.
+	 * @since 2.4.3[a]
+	 *
+	 * @access public
+	 * @param int $id
+	 * @return null
+	 */
+	public function reassignContent($id) {
+		// Extend the user's session data
+		global $session;
+		
+		// Check whether the user's id is valid
+		if(empty($id) || $id <= 0 || $id === $session['id']) {
+			// Redirect to the 'List Users' page
+			redirect('users.php');
+		} else {
+			// Validate the form data
+			if(isset($_POST['submit'])) $this->validateReassignContentData($_POST, $id);
+			?>
+			<div class="heading-wrap">
+				<h1>Reassign Content by <i><?php echo $this->getUsername($id); ?></i></h1>
+			</div>
+			<div class="data-form-wrap clear">
+				<form class="data-form" action="" method="post" autocomplete="off">
+					<table class="form-table">
+						<?php
+						echo formRow('Reassign to User', array('tag'=>'select', 'class'=>'select-input', 'name'=>'reassign_to', 'content'=>$this->getUserList($id)));
+						echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
+						echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Submit'));
+						?>
+					</table>
+				</form>
+			</div>
+			<?php
+		}
+	}
+	
+	/**
+	 * Validate the 'Reassign Content' form data.
+	 * @since 2.4.3[a]
+	 *
+	 * @access private
+	 * @param array $data
+	 * @param int $id
+	 * @return null
+	 */
+	private function validateReassignContentData($data, $id) {
+		// Extend the Query object and the user's session data
+		global $rs_query;
+		
+		// Reassign all posts to the new author
+		$rs_query->update('posts', array('author'=>$data['reassign_to']), array('author'=>$id));
+		
+		// Delete the user from the database
+		$rs_query->delete('users', array('id'=>$id));
+		
+		// Delete the user's metadata from the database
+		$rs_query->delete('usermeta', array('user'=>$id));
+		
+		// Redirect to the 'List Users' page (with a success message)
+		redirect('users.php?exit_status=success');
+	}
+	
+	/**
+	 * Fetch a username by a user's id.
+	 * @since 2.4.3[a]
+	 *
+	 * @access private
+	 * @param int $id
+	 * @return string
+	 */
+	private function getUsername($id) {
+		// Extend the Query object
+		global $rs_query;
+		
+		// Return the username
+		return $rs_query->selectField('users', 'username', array('id'=>$id));
+	}
+	
+	/**
+	 * Construct a list of users.
+	 * @since 2.4.3[a]
+	 *
+	 * @access private
+	 * @param int $exclude
+	 * @return string
+	 */
+	private function getUserList($id) {
+		// Extend the Query object
+		global $rs_query;
+		
+		// Create an empty list
+		$list = '';
+		
+		// Fetch all users from the database
+		$users = $rs_query->select('users', array('id', 'username'), array('id'=>array('<>', $id)), 'username');
+		
+		// Add each user to the list
+		foreach($users as $user)
+			$list .= '<option value="'.$user['id'].'">'.$user['username'].'</option>';
+		
+		// Return the list
+		return $list;
 	}
 }

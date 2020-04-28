@@ -4,17 +4,8 @@
  * @since 1.3.0[a]
  */
 
-// Absolute path to the root directory
-if(!defined('PATH')) define('PATH', dirname(__DIR__));
-
-// Path to the includes directory
-if(!defined('INC')) define('INC', '/includes');
-
-// Path to the admin directory
-if(!defined('ADMIN')) define('ADMIN', '/admin');
-
-// Path to the stylesheets directory
-if(!defined('STYLES')) define('STYLES', INC.'/css');
+// Include named constants
+require_once dirname(__DIR__).'/includes/constants.php';
 
 // Path to the admin stylesheets directory
 if(!defined('ADMIN_STYLES')) define('ADMIN_STYLES', ADMIN.INC.'/css');

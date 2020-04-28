@@ -4,6 +4,22 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 2.4.3[a] (2020-04-27)
+
+* The constants.php file is now included in the setup.php and install.php files (this fixes an error with an undefined constant)
+* Added a form for reassigning a user's content to another user when the former is deleted
+* Created a function that checks whether a user has content assigned to them
+* If a user has no assigned content, deletion of their account will work as normal; if they do, however, the admin performing the deletion will be redirected to the new form
+* Improved mobile responsive design of the admin dashboard
+
+**Modified files:**
+* admin/includes/class-user.php
+* admin/includes/css/style.css
+* admin/install.php
+* admin/setup.php
+* admin/users.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 2.4.2[a] (2020-03-11)
 
 * Updated Font Awesome to version 5.12.1
