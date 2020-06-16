@@ -66,7 +66,7 @@ function getRecentPosts($count = 3, $categories = 0, $display_title = false) {
 					if($feat_image) echo getMedia($feat_image, array('class'=>'feat-image', 'width'=>80));
 					?>
 					<h4><a href="<?php echo getPost($post['slug'])->getPostPermalink($post['parent'], $post['slug']); ?>"><?php echo $post['title']; ?></a></h4>
-					<p class="date"><?php echo formatDate($post['date'], 'M j, Y'); ?></p>
+					<p class="date"><?php echo formatDate($post['date'], 'j M Y'); ?></p>
 				</li>
 				<?php
 			}

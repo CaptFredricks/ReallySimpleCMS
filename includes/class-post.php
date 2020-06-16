@@ -164,9 +164,9 @@ class Post {
         $date = $rs_query->selectField('posts', 'date', array('slug'=>$this->slug));
 		
         if($echo)
-            echo formatDate($date, 'd M Y @ g:i A');
+            echo formatDate($date, 'j M Y @ g:i A');
         else
-            return formatDate($date, 'd M Y @ g:i A');
+            return formatDate($date, 'j M Y @ g:i A');
     }
 	
 	/**
@@ -185,9 +185,9 @@ class Post {
         $modified = $rs_query->selectField('posts', 'modified', array('slug'=>$this->slug));
 		
         if($echo)
-            echo formatDate($modified, 'd M Y @ g:i A');
+            echo formatDate($modified, 'j M Y @ g:i A');
         else
-            return formatDate($modified, 'd M Y @ g:i A');
+            return formatDate($modified, 'j M Y @ g:i A');
     }
 	
 	/**

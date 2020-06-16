@@ -4,10 +4,29 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 2.4.4[a] (2020-04-30)
+
+* Added more details to the previous log in the changelog
+* Tweaked the title in the Carbon theme's category archive
+* Tweaked styling of the Carbon theme's category archive
+* Added the author and date to single posts in the Carbon theme
+* Tweaked styling of the Carbon theme's single posts
+* Adjusted date formats for the Carbon theme
+
+**Modified files:**
+* content/themes/carbon/category.php (M)
+* content/themes/carbon/functions.php (M)
+* content/themes/carbon/post.php
+* content/themes/carbon/style.css
+* includes/class-post.php (M)
+
+----------------------------------------------------------------------------------------------------
 ## Version 2.4.3[a] (2020-04-27)
 
 * The constants.php file is now included in the setup.php and install.php files (this fixes an error with an undefined constant)
 * Added a form for reassigning a user's content to another user when the former is deleted
+* Created a function that fetches a username based on a user id (User class)
+* Created a function that constructs a list of users (User class)
 * Created a function that checks whether a user has content assigned to them
 * If a user has no assigned content, deletion of their account will work as normal; if they do, however, the admin performing the deletion will be redirected to the new form
 * Improved mobile responsive design of the admin dashboard
