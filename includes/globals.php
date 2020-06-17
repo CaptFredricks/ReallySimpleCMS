@@ -5,7 +5,7 @@
  */
 
 // Current CMS version
-const VERSION = '2.4.4';
+const VERSION = '2.4.5';
 
 /**
  * Display the copyright information on the admin dashboard.
@@ -15,7 +15,7 @@ const VERSION = '2.4.4';
  * @return null|string (null on $echo == true; string on $echo == false)
  */
 function RSCopyright($echo = true) {
-	$content = '&copy; '.date('Y').' <a href="/">ReallySimpleCMS</a> &bull; Created by <a href="https://jacefincham.com/" target="_blank">Jace Fincham</a>';
+	$content = '&copy; '.date('Y').' <a href="/">ReallySimpleCMS</a> &bull; Created by <a href="https://jacefincham.com/" target="_blank" rel="noreferrer noopener">Jace Fincham</a>';
 	
 	if($echo)
 		echo $content;
@@ -306,7 +306,7 @@ function getMedia($id, $props = array()) {
 	$mime_type = $rs_query->selectField('postmeta', 'value', array('post'=>$id, '_key'=>'mime_type'));
 	
 	// Determine what kind of HTML tag to construct based on the media's MIME type
-	if(strpos($mime_type, 'image') !== false) {
+	if(strpos($mime_type, 'image') !== false || $src === '//:0') {
 		// Fetch the image's alt text
 		$alt_text = $rs_query->selectField('postmeta', 'value', array('post'=>$id, '_key'=>'alt_text'));
 		

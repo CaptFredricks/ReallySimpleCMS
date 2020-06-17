@@ -81,7 +81,7 @@ class User {
 					$meta = $this->getUserMeta($user['id']);
 					
 					echo tableRow(
-						tableCell('<img class="avatar" src="'.(!empty($meta['avatar']) ? getMediaSrc($meta['avatar']) : '').'" width="32" height="32"><strong>'.$user['username'].'</strong><div class="actions"><a href="?id='.$user['id'].'&action=edit">Edit</a>'.($user['id'] !== $session['id'] ? ' &bull; '.($this->userHasContent($user['id']) ? '<a href="?id='.$user['id'].'&action=reassign_content">Delete</a>' : '<a class="modal-launch delete-item" href="?id='.$user['id'].'&action=delete" data-item="user">Delete</a>') : '').'</div>', 'username'),
+						tableCell('<img class="avatar" src="'.getMediaSrc($meta['avatar']).'" width="32" height="32"><strong>'.$user['username'].'</strong><div class="actions"><a href="?id='.$user['id'].'&action=edit">Edit</a>'.($user['id'] !== $session['id'] ? ' &bull; '.($this->userHasContent($user['id']) ? '<a href="?id='.$user['id'].'&action=reassign_content">Delete</a>' : '<a class="modal-launch delete-item" href="?id='.$user['id'].'&action=delete" data-item="user">Delete</a>') : '').'</div>', 'username'),
 						tableCell(empty($meta['first_name']) && empty($meta['last_name']) ? '&mdash;' : $meta['first_name'].' '.$meta['last_name'], 'full-name'),
 						tableCell($user['email'], 'email'),
 						tableCell(formatDate($user['registered'], 'd M Y @ g:i A'), 'registered'),

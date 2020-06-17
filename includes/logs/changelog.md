@@ -4,6 +4,48 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 2.4.5[a] (2020-06-16)
+
+* Added a blank avatar for users with no avatar
+* Added styling for the blank avatar on the front end and back end
+* The getMedia function now creates a blank <img> tag instead of an <a> tag if the 'src' attribute is '//:0'
+* Removed an unnecessary if statement in the User::listUsers function
+* Improved styling of the admin themes
+* Tweaked previous entries in the changelog
+* Updated jQuery to v3.5.1
+* Updated Font Awesome to v5.13.0
+* Moved Font Awesome's font-face rules to a separate css file (for easier updating moving forward)
+* Improved mobile responsive design of the admin dashboard (should be fully responsive)
+* Tweaked how the post's permalink displays on mobile
+* Tweaked how the custom menu item fieldset displays on mobile
+* Posts can now be previewed
+* Added the "noreferrer" and "noopener" directives to all links using the target attribute
+
+**Modified files:**
+* admin/header.php (M)
+* admin/includes/class-media.php (M)
+* admin/includes/class-menu.php (M)
+* admin/includes/class-post.php (M)
+* admin/includes/class-user.php (M)
+* admin/includes/css/style.css
+* admin/includes/functions.php
+* content/admin-themes/forest.css
+* content/admin-themes/harvest.css
+* content/admin-themes/ocean.css
+* content/admin-themes/sunset.css
+* includes/class-post.php
+* includes/css/font-awesome-rules.min.css (N)
+* includes/css/font-awesome.min.css
+* includes/css/style.css
+* includes/fonts/fa-brands.ttf
+* includes/fonts/fa-regular.ttf
+* includes/fonts/fa-solid.ttf
+* includes/functions.php
+* includes/globals.php (M)
+* includes/img/blank.png (N)
+* includes/js/jquery.min.js
+
+----------------------------------------------------------------------------------------------------
 ## Version 2.4.4[a] (2020-04-30)
 
 * Added more details to the previous log in the changelog
@@ -41,7 +83,7 @@
 ----------------------------------------------------------------------------------------------------
 ## Version 2.4.2[a] (2020-03-11)
 
-* Updated Font Awesome to version 5.12.1
+* Updated Font Awesome to v5.12.1
 * Created a function that loads header scripts and stylesheets
 * Created a function that loads footer scripts and stylesheets
 * Added internal version numbers for the admin themes
@@ -397,7 +439,7 @@
 * If an existing post is updated without a date being set, its publish date will be set to null
 * The front end Post object is now created in the root index.php file
 * Created a function that checks whether a post has a featured image
-* Updated Font Awesome to 5.12.0
+* Updated Font Awesome to v5.12.0
 * Added a scroll to top button to the front end
 
 **Modified files:**

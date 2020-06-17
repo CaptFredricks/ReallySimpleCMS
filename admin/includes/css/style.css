@@ -109,6 +109,17 @@ h3 {
 .user-dropdown .avatar {
 	border-radius: 50%;
 	margin-left: 0.375rem;
+	position: relative;
+}
+
+.user-dropdown .avatar::before {
+	background-image: url('/includes/img/blank.png');
+	background-size: 100%;
+	border-radius: 50%;
+	content: '';
+	height: 100%;
+	position: absolute;
+	width: 100%;
 }
 
 .user-dropdown-menu {
@@ -128,6 +139,16 @@ h3 {
 .user-dropdown-menu .avatar-large {
 	float: left;
 	margin-right: 0.5rem;
+	position: relative;
+}
+
+.user-dropdown-menu .avatar-large::before {
+	background-image: url('/includes/img/blank.png');
+	background-size: 100%;
+	content: '';
+	height: 100%;
+	position: absolute;
+	width: 100%;
 }
 
 .user-dropdown-menu li a {
@@ -571,6 +592,16 @@ h3 {
 .data-table .username .avatar {
 	float: left;
 	margin-right: 0.5em;
+	position: relative;
+}
+
+.data-table .username .avatar::before {
+	background-image: url('/includes/img/blank.png');
+	background-size: 100%;
+	content: '';
+	height: 100%;
+	position: absolute;
+	width: 100%;
 }
 
 .data-table .username .actions {
@@ -603,9 +634,9 @@ h3 {
 	position: relative;
 }
 
-.data-form-wrap .item-list-wrap {
-	float: left;
-	width: calc(100% - 300px);
+.users .data-form-wrap,
+.profile .data-form-wrap {
+	text-align: center;
 }
 
 .data-form-wrap .item-list {
@@ -644,7 +675,7 @@ h3 {
 }
 
 .data-form-wrap .menu-item .actions {
-	float: right;
+	margin-top: 0.5rem;
 	font-size: 0.85em;
 }
 
@@ -661,13 +692,11 @@ h3 {
 }
 
 .data-form-wrap .reset-password {
-	position: absolute;
-	  right: 1.1875rem;
-	  bottom: 1.1875rem;
+	margin-top: 0.5rem;
 }
 
 .data-form {
-	
+	text-align: left;
 }
 
 .data-form * {
@@ -704,6 +733,7 @@ h3 {
 .data-form .select-input {
 	background-color: #fdfdfd;
 	border: 1px solid #adadad;
+	max-width: 15rem;
 	font-size: 0.875em;
 	padding: 0.125rem;
 }
@@ -731,8 +761,9 @@ h3 {
 
 .data-form .file-input {
 	font-size: 0.875em;
+	max-width: 18rem;
 	padding: 0.375rem;
-	width: 18rem;
+	width: 100%;
 }
 
 .data-form .color-input {
@@ -787,7 +818,7 @@ h3 {
 }
 
 .data-form #password-gen {
-	margin-left: 0.375rem;
+	margin-top: 0.5rem;
 }
 
 .data-form .image-wrap {
@@ -900,10 +931,6 @@ h3 {
 .data-form .sidebar .block fieldset legend {
 	font-size: 0.875em;
 	font-weight: 500;
-}
-
-.data-form .sidebar .block fieldset label {
-	margin-right: 0;
 }
 
 .data-form .sidebar .block fieldset .text-input {
@@ -1348,9 +1375,86 @@ h3 {
 \*------------------------------------*/
 
 @media screen and (max-width: 649px) {
+	#stats-graph {
+		height: 21rem;
+	}
+	
+	.graph-content {
+		width: calc(100% - 2rem);
+	}
+	
+	.graph-x {
+		margin-left: 2rem;
+	}
+	
+	.graph-y {
+		width: 2rem;
+	}
+	
+	.graph-x-label,
+	.graph-y-label {
+		display: none;
+	}
+	
 	.data-table th:not(:first-child),
 	.data-table td:not(:first-child) {
 		display: none;
+	}
+	
+	.media .data-table th:nth-child(2),
+	.media .data-table td:nth-child(2) {
+		display: table-cell;
+	}
+	
+	.menus .data-form .select-input {
+		width: 100%;
+	}
+	
+	.data-form .date-input:last-of-type {
+		margin-top: 0.25rem;
+	}
+	
+	.data-form .content .permalink span {
+		display: none;
+	}
+	
+	.modal-body .delete-wrap {
+		padding: 0 0.5em;
+		text-align: center;
+	}
+	
+	.modal-body .delete-wrap h2 {
+		font-size: 1.125em;
+	}
+	
+	.modal-body .delete-wrap h3 {
+		font-size: 0.9375em;
+	}
+	
+	.modal-body .tab.active {
+		position: relative;
+	}
+	
+	.modal-body .upload-wrap form .submit-input {
+		margin-top: 0.75rem;
+	}
+	
+	.modal-footer {
+		text-align: center;
+	}
+}
+
+@media screen and (max-width: 849px) {
+	.modal-body .media-wrap {
+		height: 16rem;
+		overflow: auto;
+	}
+	
+	.modal-body .media-details {
+		border-top: 1px solid #7d7d7d;
+		min-height: 12rem;
+		position: absolute;
+		  top: 16rem;
 	}
 }
 
@@ -1412,6 +1516,23 @@ h3 {
 		padding: 1em;
 	}
 	
+	.data-form-wrap .menu-item .actions {
+		float: right;
+		margin-top: 0;
+	}
+	
+	.data-form-wrap .reset-password {
+		margin-top: 0;
+		position: absolute;
+		  right: 1.1875rem;
+		  bottom: 1.1875rem;
+	}
+	
+	.data-form #password-gen {
+		margin-top: 0;
+		margin-left: 0.375rem;
+	}
+	
 	.form-table td[colspan="2"] {
 		text-align: left;
 	}
@@ -1430,6 +1551,7 @@ h3 {
 }
 
 @media screen and (min-width: 850px) {
+	.data-form-wrap .item-list-wrap,
 	.data-form .content,
 	.data-form .metadata {
 		float: left;

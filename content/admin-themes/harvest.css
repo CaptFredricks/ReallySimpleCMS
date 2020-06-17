@@ -1,7 +1,7 @@
 /**
  * Admin dashboard Harvest theme.
  * @since 2.1.9[a]
- * @version 1.1
+ * @version 1.2
  */
 
 html {
@@ -124,6 +124,44 @@ a {
 	background-color: #0f0400;
 }
 
+/* Statistics graph */
+
+#stats-graph {
+	background-color: #eddd8d;
+}
+
+.graph-content {
+	background-color: #8d3d1d;
+}
+
+.graph-content > li .bar {
+	background-color: #fa8026;
+}
+
+.graph-content > li .bar:hover {
+	background-color: #ff963d;
+}
+
+.graph-overlay {
+	background-color: #8d3d1d;
+}
+
+.graph-overlay li {
+	border-bottom-color: #cd9d6d;
+}
+
+.graph-x {
+	border-top-color: #cdbd6d;
+}
+
+.graph-x .value {
+	color: #ba4016;
+}
+
+.graph-y {
+	border-right-color: #cdbd6d;
+}
+
 /* Data tables */
 
 .data-table {
@@ -132,24 +170,24 @@ a {
 
 .data-table thead tr,
 .data-table tbody tr:not(:last-child) {
-	border-bottom-color: #8dbd6d;
+	border-bottom-color: #bdad5d;
 }
 
 .data-table tbody tr:nth-child(odd) {
-	background-color: #addd8d;
+	background-color: #ddcd7d;
 }
 
 .data-table tbody tr:hover {
-	background-color: #cdfdad;
+	background-color: #fffdad;
 }
 
 .data-table th:not(:last-child),
 .data-table td:not(:last-child) {
-	border-right-color: #8dbd6d;
+	border-right-color: #bdad5d;
 }
 
 .data-table a {
-	color: #369a20;
+	color: #ba4016;
 }
 
 /* Data forms */
@@ -157,6 +195,43 @@ a {
 .data-form-wrap {
 	background-color: #1f0903;
 	border-color: #dfbf2f;
+}
+
+.data-form-wrap .item-list {
+	background-color: #eddd8d;
+}
+
+.data-form-wrap .menu-item {
+	background-color: #fffdad;
+}
+
+.data-form-wrap .menu-item .actions a:not(.button) {
+	color: #ba4016;
+}
+
+.data-form-wrap .menu-item .separator {
+	border-color: #ddcd7d;
+}
+
+.data-form .block {
+	background-color: #eddd8d;
+}
+
+.data-form .block h2 {
+	border-bottom-color: #bdad5d;
+}
+
+.data-form .sidebar .block a {
+	color: #ba4016;
+}
+
+.data-form .sidebar .block fieldset {
+	border-color: #fffdad;
+}
+
+.data-form .sidebar #submit {
+	background-color: #ddcd7d;
+	border-top-color: #bdad5d;
 }
 
 /** Form tables **/
@@ -183,7 +258,52 @@ a {
 }
 
 .data-list .theme-name .actions a {
-	/* color: #369a20; */
+	color: #ba4016;
+}
+
+/* Modal */
+
+.modal-wrap {
+	background-color: #8f4f0f;
+}
+
+.modal-header {
+	border-bottom-color: #dfbf2f;
+}
+
+.modal-header .tabber .tab {
+	border-color: #dfbf2f;
+}
+
+.modal-header .tabber .tab:hover {
+	background-color: #6f2f0f;
+	border-color: #dfbf2f;
+}
+
+.modal-header .tabber .tab.active {
+	background-color: #4f1f08;
+	border-color: #dfbf2f;
+}
+
+.modal-header .tabber .tab a {
+	color: #fff;
+}
+
+.modal-header #modal-close {
+	color: #fff;
+}
+
+.modal-body {
+	background-color: #6f2f0f;
+}
+
+.modal-body .media-details {
+	background-color: #7f3f0f;
+	border-color: #dfbf2f;
+}
+
+.modal-footer {
+	border-top-color: #dfbf2f;
 }
 
 /*------------------------------------*\

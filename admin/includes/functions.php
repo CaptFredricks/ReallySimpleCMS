@@ -209,10 +209,13 @@ function adminHeaderScripts() {
 	}
 	
 	// Font Awesome icons stylesheet
-	getStylesheet('font-awesome.min.css', '5.12.1');
+	getStylesheet('font-awesome.min.css', '5.13.0');
+	
+	// Font Awesome font-face rules stylesheet
+	getStylesheet('font-awesome-rules.min.css');
 	
 	// JQuery library
-	getScript('jquery.min.js', '3.4.1');
+	getScript('jquery.min.js', '3.5.1');
 }
 
 /**
@@ -1057,7 +1060,7 @@ function loadMedia($image_only = false) {
 					<div class="hidden" data-field="thumb"><img src="<?php echo trailingSlash(UPLOADS).$meta['filename']; ?>" width="150"></div>
 					<div class="hidden" data-field="title"><?php echo $media['title']; ?></div>
 					<div class="hidden" data-field="date"><?php echo formatDate($media['date'], 'd M Y @ g:i A'); ?></div>
-					<div class="hidden" data-field="filename"><a href="<?php echo trailingSlash(UPLOADS).$meta['filename']; ?>" target="_blank"><?php echo $meta['filename']; ?></a></div>
+					<div class="hidden" data-field="filename"><a href="<?php echo trailingSlash(UPLOADS).$meta['filename']; ?>" target="_blank" rel="noreferrer noopener"><?php echo $meta['filename']; ?></a></div>
 					<div class="hidden" data-field="mime_type"><?php echo $meta['mime_type']; ?></div>
 					<div class="hidden" data-field="alt_text"><?php echo $meta['alt_text']; ?></div>
 				</div>

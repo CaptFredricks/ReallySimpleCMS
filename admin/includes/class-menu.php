@@ -635,7 +635,9 @@ class Menu {
 			// Construct a 'custom menu item title' form tag
 			echo formTag('label', array('for'=>'custom_title', 'content'=>'Title'));
 			echo formTag('input', array('class'=>'text-input', 'name'=>'custom_title'));
-			
+			?>
+			<div class="clear" style="height: 2px;"></div>
+			<?php
 			// Construct a 'custom menu item link' form tag
 			echo formTag('label', array('for'=>'custom_link', 'content'=>'Link'));
 			echo formTag('input', array('class'=>'text-input', 'name'=>'custom_link'));

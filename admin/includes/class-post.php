@@ -154,7 +154,7 @@ class Post {
 						// Construct a 'permalink' form tag
 						echo formTag('label', array('for'=>'slug', 'content'=>'<strong>Permalink:</strong> '.getSetting('site_url', false).'/'));
 						echo formTag('input', array('id'=>'slug-field', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>($_POST['slug'] ?? '')));
-						echo '/';
+						echo '<span>/</span>';
 						?>
 					</div>
 					<?php
@@ -336,7 +336,7 @@ class Post {
 									// Construct a 'permalink' form tag
 									echo formTag('label', array('for'=>'slug', 'content'=>'<strong>Permalink:</strong> '.getSetting('site_url', false).($post['parent'] !== 0 ? $this->getPermalink($post['parent']) : '/')));
 									echo formTag('input', array('id'=>'slug-field', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>$post['slug']));
-									echo '/';
+									echo '<span>/</span>';
 									?>
 								</div>
 								<?php

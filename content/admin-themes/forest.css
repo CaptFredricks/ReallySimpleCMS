@@ -1,7 +1,7 @@
 /**
  * Admin dashboard Forest theme.
  * @since 2.0.7[a]
- * @version 1.1
+ * @version 1.2
  */
 
 html {
@@ -178,7 +178,7 @@ a {
 }
 
 .data-table tbody tr:hover {
-	background-color: #cdfdad;
+	background-color: #ddffbd;
 }
 
 .data-table th:not(:last-child),
@@ -195,6 +195,43 @@ a {
 .data-form-wrap {
 	background-color: #091f0c;
 	border-color: #6fdf2f;
+}
+
+.data-form-wrap .item-list {
+	background-color: #bded9d;
+}
+
+.data-form-wrap .menu-item {
+	background-color: #ddffbd;
+}
+
+.data-form-wrap .menu-item .actions a:not(.button) {
+	color: #369a20;
+}
+
+.data-form-wrap .menu-item .separator {
+	border-color: #addd8d;
+}
+
+.data-form .block {
+	background-color: #bded9d;
+}
+
+.data-form .block h2 {
+	border-bottom-color: #8dbd6d;
+}
+
+.data-form .sidebar .block a {
+	color: #369a20;
+}
+
+.data-form .sidebar .block fieldset {
+	border-color: #ddffbd;
+}
+
+.data-form .sidebar #submit {
+	background-color: #addd8d;
+	border-top-color: #8dbd6d;
 }
 
 /** Form tables **/
@@ -262,7 +299,7 @@ a {
 
 .modal-body .media-details {
 	background-color: #0f7f3f;
-	border-left-color: #6fdf2f;
+	border-color: #6fdf2f;
 }
 
 .modal-footer {

@@ -52,32 +52,53 @@ class Post {
 				// Check whether the post is published and redirect to the 404 (Not Found) page if not
 				if($status !== 'published') redirect('/404.php');
 			} else {
-				// Fetch the post's URI
-				$raw_uri = $_SERVER['REQUEST_URI'];
-				
-				// Create an array from the post's URI
-				$uri = explode('/', $raw_uri);
-				
-				// Filter out any empty array values
-				$uri = array_filter($uri);
-				
-				// Fetch the slug from the URI array
-				$this->slug = array_pop($uri);
-				
-				// Fetch the post's id from the database
-				$id = $this->getPostId(false);
-				
-				// Fetch the post's status from the database
-				$status = $this->getPostStatus(false);
-				
-				// Construct the post's permalink
-				$permalink = $this->getPostPermalink($this->getPostParent(false), $this->getPostSlug($id, false));
-				
-				// Check whether the slug is valid and the post is published; redirect to the 404 (Not Found) page if not
-				if(empty($id) || $status !== 'published') redirect('/404.php');
-				
-				// Check whether the permalink is valid and redirect to the proper one if not
-				if($raw_uri !== $permalink) redirect($permalink);
+				// Check whether the current post is a preview and the id is valid
+				if(isset($_GET['preview']) && $_GET['preview'] === 'true' && isset($_GET['id']) && $_GET['id'] > 0) {
+					// Fetch the slug from the database
+					$this->slug = $this->getPostSlug($_GET['id'], false);
+					
+					// Fetch the post's status from the database
+					$status = $this->getPostStatus(false);
+					
+					// Check whether the post is a draft and whether the user is logged in; redirect to the 404 (Not Found) page if not
+					if($status !== 'draft' || !isset($_COOKIE['session'])) redirect('/404.php');
+				} else {
+					// Fetch the post's URI
+					$raw_uri = $_SERVER['REQUEST_URI'];
+					
+					// Create an array from the post's URI
+					$uri = explode('/', $raw_uri);
+					
+					// Filter out any empty array values
+					$uri = array_filter($uri);
+					
+					// Fetch the slug from the URI array
+					$this->slug = array_pop($uri);
+					
+					// Fetch the post's id from the database
+					$id = $this->getPostId(false);
+					
+					// Fetch the post's status from the database
+					$status = $this->getPostStatus(false);
+					
+					// Check whether the post is published
+					if($status !== 'published') {
+						// Check whether the id is valid and whether the post is a draft
+						if(!empty($id) && $status === 'draft') {
+							// Redirect to the post preview
+							redirect('/?id='.$id.'&preview=true');
+						} else {
+							// Redirect to the 404 (Not Found) page
+							redirect('/404.php');
+						}
+					} else {
+						// Construct the post's permalink
+						$permalink = $this->getPostPermalink($this->getPostParent(false), $this->getPostSlug($id, false));
+						
+						// Check whether the permalink is valid and redirect to the proper one if not
+						if($raw_uri !== $permalink) redirect($permalink);
+					}
+				}
 			}
 		}
 	}

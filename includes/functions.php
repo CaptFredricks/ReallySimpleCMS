@@ -275,8 +275,13 @@ function headerScripts($exclude = '', $include_styles = array(), $include_script
 	// Default stylesheet
 	if(!in_array('style', $exclude, true)) getStylesheet('style.css');
 	
-	// Font Awesome icons stylesheet
-	if(!in_array('fa', $exclude, true)) getStylesheet('font-awesome.min.css', '5.12.1');
+	if(!in_array('fa', $exclude, true)) {
+		// Font Awesome icons stylesheet
+		getStylesheet('font-awesome.min.css', '5.13.0');
+	
+		// Font Awesome font-face rules stylesheet
+		getStylesheet('font-awesome-rules.min.css');
+	}
 	
 	// Check whether any custom stylesheets have been included
 	if(!empty($include_styles)) {
@@ -288,7 +293,7 @@ function headerScripts($exclude = '', $include_styles = array(), $include_script
 	}
 	
 	// JQuery library
-	if(!in_array('jquery', $exclude, true)) getScript('jquery.min.js', '3.4.1');
+	if(!in_array('jquery', $exclude, true)) getScript('jquery.min.js', '3.5.1');
 	
 	// Check whether any custom scripts have been included
 	if(!empty($include_scripts)) {

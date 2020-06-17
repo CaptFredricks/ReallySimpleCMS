@@ -61,4 +61,4 @@ $current_page = getCurrentPage();
 				?>
 			</ul>
 		</nav>
-		<noscript class="notice-nojs">Warning! Your browser either does not support or is set to disable <a href="https://www.w3schools.com/js/default.asp" target="_blank">JavaScript</a>. Some features may not work as expected.</noscript>
+		<noscript class="notice-nojs">Warning! Your browser either does not support or is set to disable <a href="https://www.w3schools.com/js/default.asp" target="_blank" rel="noreferrer noopener">JavaScript</a>. Some features may not work as expected.</noscript>
