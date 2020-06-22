@@ -2,8 +2,15 @@
 // Include the initialization file
 require_once dirname(__DIR__).'/init.php';
 
-// Include functions
+// Include admin functions
 require_once PATH.ADMIN.INC.'/functions.php';
+
+// Include functions
+require_once PATH.INC.'/functions.php';
+
+// Check whether the current theme has a functions.php file and include it if so
+if(file_exists(trailingSlash(PATH.THEMES).getSetting('theme', false).'/functions.php'))
+	require_once trailingSlash(PATH.THEMES).getSetting('theme', false).'/functions.php';
 
 // Start output buffering
 ob_start();
@@ -50,15 +57,7 @@ $current_page = getCurrentPage();
 		<div id="admin-nav-wrap"></div>
 		<nav id="admin-nav-menu">
 			<ul class="menu">
-				<?php
-				adminNavMenuItem(array('id'=>'dashboard', 'link'=>'index.php'), array(), 'tachometer-alt');
-				adminNavMenuItem(array('id'=>'pages'), array(array('link'=>'posts.php?type=page', 'caption'=>'List Pages'), array('id'=>'pages-create', 'link'=>'posts.php?type=page&action=create', 'caption'=>'Create Page')), array('copy', 'regular'));
-				adminNavMenuItem(array('id'=>'posts'), array(array('link'=>'posts.php', 'caption'=>'List Posts'), array('id'=>'posts-create', 'link'=>'posts.php?action=create', 'caption'=>'Create Post'), array('id'=>'categories', 'link'=>'categories.php', 'caption'=>'List Categories')), 'newspaper');
-				adminNavMenuItem(array('id'=>'media'), array(array('link'=>'media.php', 'caption'=>'List Media'), array('id'=>'media-upload', 'link'=>'media.php?action=upload', 'caption'=>'Upload Media')), 'images');
-				adminNavMenuItem(array('id'=>'customization'), array(array('id'=>'themes', 'link'=>'themes.php', 'caption'=>'List Themes'), array('id'=>'menus', 'link'=>'menus.php', 'caption'=>'List Menus'), array('id'=>'widgets', 'link'=>'widgets.php', 'caption'=>'List Widgets')), 'palette');
-				adminNavMenuItem(array('id'=>'users'), array(array('link'=>'users.php', 'caption'=>'List Users'), array('id'=>'users-create', 'link'=>'users.php?action=create', 'caption'=>'Create User'), array('id'=>'profile', 'link'=>'profile.php', 'caption'=>'Your Profile')), 'users');
-				adminNavMenuItem(array('id'=>'settings'), array(array('link'=>'settings.php', 'caption'=>'General'), array('id'=>'design', 'link'=>'settings.php?page=design', 'caption'=>'Design'), array('id'=>'user-roles', 'link'=>'settings.php?page=user_roles', 'caption'=>'User Roles')), 'cogs');
-				?>
+				<?php adminNavMenu(); ?>
 			</ul>
 		</nav>
 		<noscript class="notice-nojs">Warning! Your browser either does not support or is set to disable <a href="https://www.w3schools.com/js/default.asp" target="_blank" rel="noreferrer noopener">JavaScript</a>. Some features may not work as expected.</noscript>

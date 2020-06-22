@@ -531,6 +531,51 @@ function adminNavMenuItem($item = array(), $submenu = array(), $icon = null) {
 }
 
 /**
+ * Construct the admin nav menu.
+ * @since 1.0.0[b]
+ *
+ */
+function adminNavMenu() {
+	// Extend the user's session data and the post types array
+	global $session, $post_types;
+	
+	// Dashboard
+	adminNavMenuItem(array('id'=>'dashboard', 'link'=>'index.php'), array(), 'tachometer-alt');
+	
+	// Pages
+	if(userHasPrivilege($session['role'], 'can_view_pages'))
+		adminNavMenuItem(array('id'=>'pages'), array(array('link'=>'posts.php?type=page', 'caption'=>'List Pages'), array('id'=>'pages-create', 'link'=>'posts.php?type=page&action=create', 'caption'=>'Create Page')), array('copy', 'regular'));
+	
+	// Posts
+	if(userHasPrivilege($session['role'], 'can_view_posts'))
+		adminNavMenuItem(array('id'=>'posts'), array(array('link'=>'posts.php', 'caption'=>'List Posts'), array('id'=>'posts-create', 'link'=>'posts.php?action=create', 'caption'=>'Create Post'), array('id'=>'categories', 'link'=>'categories.php', 'caption'=>'List Categories')), 'newspaper');
+	
+	// Custom post types (if any)
+	foreach($post_types as $post_type) {
+		$id = strtolower($post_type['label']);
+		
+		if(userHasPrivilege($session['role'], 'can_view_'.$post_type['name'].'s'))
+			adminNavMenuItem(array('id'=>$id), array(array('link'=>'posts.php?type='.$post_type['name'], 'caption'=>'List '.$post_type['label']), array('id'=>$id.'-create', 'link'=>'posts.php?type='.$post_type['name'].'&action=create', 'caption'=>'Create '.$post_type['label_singular'])), $post_type['icon']);
+	}
+	
+	// Media
+	if(userHasPrivilege($session['role'], 'can_view_media'))
+		adminNavMenuItem(array('id'=>'media'), array(array('link'=>'media.php', 'caption'=>'List Media'), array('id'=>'media-upload', 'link'=>'media.php?action=upload', 'caption'=>'Upload Media')), 'images');
+	
+	// Customization
+	if(userHasPrivilege($session['role'], 'can_view_themes') || userHasPrivilege($session['role'], 'can_view_menus') || userHasPrivilege($session['role'], 'can_view_widgets'))
+		adminNavMenuItem(array('id'=>'customization'), array(array('id'=>'themes', 'link'=>'themes.php', 'caption'=>'List Themes'), array('id'=>'menus', 'link'=>'menus.php', 'caption'=>'List Menus'), array('id'=>'widgets', 'link'=>'widgets.php', 'caption'=>'List Widgets')), 'palette');
+	
+	// Users
+	if(userHasPrivilege($session['role'], 'can_view_users'))
+		adminNavMenuItem(array('id'=>'users'), array(array('link'=>'users.php', 'caption'=>'List Users'), array('id'=>'users-create', 'link'=>'users.php?action=create', 'caption'=>'Create User'), array('id'=>'profile', 'link'=>'profile.php', 'caption'=>'Your Profile')), 'users');
+	
+	// Settings
+	if(userHasPrivilege($session['role'], 'can_edit_settings'))
+		adminNavMenuItem(array('id'=>'settings'), array(array('link'=>'settings.php', 'caption'=>'General'), array('id'=>'design', 'link'=>'settings.php?page=design', 'caption'=>'Design'), array('id'=>'user-roles', 'link'=>'settings.php?page=user_roles', 'caption'=>'User Roles')), 'cogs');
+}
+
+/**
  * Get statistics for a specific set of table entries.
  * @since 1.2.5[a]
  *

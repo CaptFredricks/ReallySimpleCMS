@@ -48,18 +48,21 @@ if($rs_query->conn_status) {
 	// Get a list of tables in the database
 	$data = $rs_query->showTables();
 	
-	// Check whether or not there are tables in the database
-	if(!empty($data) && count($data) >= count($tables)) {
-		// Warn the user that the database is already installed
-		exit('ReallySimpleCMS is already installed!');
-	} else {
-		// Loop through the schema tables
-		for($i = 0; $i < count($tables); $i++) {
-			// Drop each existing table from the database
-			$rs_query->doQuery("DROP TABLE `".key($tables)."`");
-			
-			// Move the array pointer to the next element
-			next($tables);
+	// Check whether there are tables in the database
+	if(!empty($data)) {
+		// Check whether the proper number of tables are in the database
+		if(count($data) >= count($tables)) {
+			// Warn the user that the database is already installed
+			exit('ReallySimpleCMS is already installed!');
+		} else {
+			// Loop through the schema tables
+			for($i = 0; $i < count($tables); $i++) {
+				// Drop each existing table from the database
+				$rs_query->doQuery("DROP TABLE `".key($tables)."`");
+				
+				// Move the array pointer to the next element
+				next($tables);
+			}
 		}
 	}
 }
@@ -256,7 +259,7 @@ function runInstall($data) {
 						runInstall($data);
 						?>
 						<p>The ReallySimpleCMS has successfully been installed! You are now ready to start using your website.</p>
-						<div><a class="button" href="/login.php">Log In</a></div>
+						<div class="button-wrap"><a class="button" href="/login.php">Log In</a></div>
 						<?php
 					}
 					break;

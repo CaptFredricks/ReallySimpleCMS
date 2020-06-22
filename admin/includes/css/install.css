@@ -16,7 +16,7 @@ body {
 	font-family: 'Segoe UI', Helvetica, sans-serif;
 	font-size: 100%;
 	margin: 5em auto;
-	max-width: 700px;
+	max-width: 732px;
 }
 
 h1 {
@@ -47,6 +47,7 @@ code {
 	border-radius: 0.375em;
 	box-shadow: 0 2px 4px #000;
 	color: #101010;
+	margin: 0 1em;
 	padding: 1em;
 }
 
@@ -108,4 +109,28 @@ code {
 .status-message.failure {
 	background-color: #f9d7d5;
     border-left: 5px solid #f00;
+}
+
+/*------------------------------------*\
+    RESPONSIVE
+\*------------------------------------*/
+
+@media screen and (max-width: 549px) {
+	.button-wrap {
+		text-align: center;
+	}
+	
+	.data-form {
+		text-align: center;
+	}
+	
+	.data-form input:not([type="checkbox"]):not(.button) {
+		width: 100%;
+	}
+	
+	.form-table th,
+	.form-table td {
+		display: table;
+		width: 100%;
+	}
 }

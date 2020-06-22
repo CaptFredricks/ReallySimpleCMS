@@ -92,11 +92,17 @@ class Post {
 							redirect('/404.php');
 						}
 					} else {
-						// Construct the post's permalink
-						$permalink = $this->getPostPermalink($this->getPostParent(false), $this->getPostSlug($id, false));
-						
-						// Check whether the permalink is valid and redirect to the proper one if not
-						if($raw_uri !== $permalink) redirect($permalink);
+						// Check whether the post is actually the home page
+						if(isHomePage($id)) {
+							// Redirect to the home URL
+							redirect('/');
+						} else {
+							// Construct the post's permalink
+							$permalink = $this->getPostPermalink($this->getPostType(false), $this->getPostParent(false), $this->getPostSlug($id, false));
+							
+							// Check whether the permalink is valid and redirect to the proper one if not
+							if($raw_uri !== $permalink) redirect($permalink);
+						}
 					}
 				}
 			}
@@ -400,12 +406,13 @@ class Post {
 	 * @since 2.2.5[a]
 	 *
 	 * @access public
+	 * @param string $type
 	 * @param int $parent
 	 * @param string $slug (optional; default: '')
 	 * @return string
 	 */
-	public function getPostPermalink($parent, $slug = '') {
-		return getPermalink('post', $parent, $slug);
+	public function getPostPermalink($type, $parent, $slug = '') {
+		return getPermalink($type, $parent, $slug);
 	}
 	
 	/**
@@ -418,9 +425,9 @@ class Post {
 	 */
 	public function getPostUrl($echo = true) {
         if($echo)
-            echo getSetting('site_url', false).$this->getPostPermalink($this->getPostParent(false), $this->slug);
+            echo getSetting('site_url', false).$this->getPostPermalink($this->getPostType(false), $this->getPostParent(false), $this->slug);
         else
-            return getSetting('site_url', false).$this->getPostPermalink($this->getPostParent(false), $this->slug);
+            return getSetting('site_url', false).$this->getPostPermalink($this->getPostType(false), $this->getPostParent(false), $this->slug);
     }
 	
 	/**

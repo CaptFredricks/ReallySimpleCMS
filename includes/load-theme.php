@@ -22,8 +22,5 @@ if(isEmptyDir(PATH.THEMES) || !file_exists(trailingSlash(PATH.THEMES).getSetting
 	} else {
 		// Check whether the theme has a functions.php file and include it if so
 		if(file_exists($theme_path.'/functions.php')) require_once $theme_path.'/functions.php';
-		
-		// Include the template loader file
-		require_once PATH.INC.'/load-template.php';
 	}
 }

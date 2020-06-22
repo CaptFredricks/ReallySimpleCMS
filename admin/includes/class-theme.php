@@ -154,7 +154,7 @@ class Theme {
 			return statusMessage('R');
 		
 		// Sanitize the name (strip off HTML and/or PHP tags and replace any characters not specified in the filter)
-		$name = preg_replace('/[^a-zA-Z0-9-]/i', '', strip_tags($data['name']));
+		$name = preg_replace('/[^a-z0-9\-]/', '', strip_tags(strtolower($data['name'])));
 		
 		// Make sure the theme doesn't already exist
 		if($this->themeExists($name))

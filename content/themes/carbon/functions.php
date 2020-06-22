@@ -5,6 +5,27 @@
  */
 
 /**
+ * Register custom post types.
+ * @since 1.0.0[b]
+ */
+// registerPostType('slug', array('args'));
+
+/**
+ * Register theme menus.
+ * @since 1.0.0[b]
+ */
+registerMenu('Main Menu', 'main-menu');
+registerMenu('Footer Menu', 'footer-menu');
+
+/**
+ * Register theme widgets.
+ * @since 1.0.0[b]
+ */
+registerWidget('Social Media', 'social-media');
+registerWidget('Get in contact with us!', 'business-info');
+registerWidget('Copyright', 'copyright');
+
+/**
  * Fetch the most recent blog posts.
  * @since 2.2.6[a]
  *
@@ -65,7 +86,7 @@ function getRecentPosts($count = 3, $categories = 0, $display_title = false) {
 					// Check whether the post has a featured image and display it if so
 					if($feat_image) echo getMedia($feat_image, array('class'=>'feat-image', 'width'=>80));
 					?>
-					<h4><a href="<?php echo getPost($post['slug'])->getPostPermalink($post['parent'], $post['slug']); ?>"><?php echo $post['title']; ?></a></h4>
+					<h4><a href="<?php echo getPost($post['slug'])->getPostPermalink($post['type'], $post['parent'], $post['slug']); ?>"><?php echo $post['title']; ?></a></h4>
 					<p class="date"><?php echo formatDate($post['date'], 'j M Y'); ?></p>
 				</li>
 				<?php

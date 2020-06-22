@@ -5,6 +5,20 @@
  */
 
 /**
+ * Construct a post's permalink. (Admin Post class)
+ * @since 1.4.9[a]
+ * @deprecated since 1.0.0[b]
+ *
+ * @access private
+ * @param int $parent
+ * @param string $slug (optional; default: '')
+ * @return string
+ */
+private function getPermalink($parent, $slug = '') {
+	return getPermalink('post', $parent, $slug);
+}
+
+/**
  * Fetch the slug from the URL.
  * @since 2.2.3[a]
  * @deprecated since 2.2.5[a]

@@ -43,8 +43,8 @@ $step = (int)($_GET['step'] ?? 0);
 						<li>Database password</li>
 						<li>Database host</li>
 					</ol>
-					<p>This data will be used to construct a configuration file so that ReallySimpleCMS can connect to your database. If you'd like to complete this task manually, copy the code in the <code>config-setup.php</code> (located in the <code>includes</code> directory) and create a new file called <code>config.php</code> (place it in the same directory). Then, replace all sample data with the appropriate information.</p>
-					<div><a class="button" href="?step=1">Begin installation</a></div>
+					<p>This data will be used to construct a configuration file so that ReallySimpleCMS can connect to your database. If you'd like to complete this task manually, copy the code in the <code>config-setup.php</code> (located in the <code>includes</code> directory) and create a new file called <code>config.php</code> (place it in the <code>root</code> directory). Then, replace all sample data with the appropriate information.</p>
+					<div class="button-wrap"><a class="button" href="?step=1">Begin setup</a></div>
 					<?php
 					break;
 				case 1:
@@ -94,8 +94,8 @@ $step = (int)($_GET['step'] ?? 0);
 					// Stop execution if the database connection can't be established
 					if(!$rs_query->conn_status) {
 						?>
-						<p><strong>Error!</strong> ReallySimpleCMS could not connect to the database. Please return to the previous page and make sure all the provided information is correct.</p>
-						<div><a class="button" href="?step=1">Go Back</a></div>
+						<p><strong>Error!</strong> ReallySimpleCMS could not connect to the database. Please return to the previous page and make sure all of the provided information is correct.</p>
+						<div class="button-wrap"><a class="button" href="?step=1">Go Back</a></div>
 						<?php
 						exit;
 					}
@@ -119,7 +119,7 @@ $step = (int)($_GET['step'] ?? 0);
 					if(!is_writable(PATH)) {
 						?>
 						<p><strong>Error!</strong> The <code>config.php</code> file cannot be created. Write permissions may be disabled on your server.</p>
-						<p>If that's the case, just copy the code below and create <code>config.php</code> in the <code>includes</code> directory of ReallySimpleCMS.</p>
+						<p>If that's the case, just copy the code below and create <code>config.php</code> in the <code>root</code> directory of ReallySimpleCMS.</p>
 						<?php
 						// Create an empty text
 						$text = '';
@@ -130,7 +130,7 @@ $step = (int)($_GET['step'] ?? 0);
 						?>
 						<textarea class="no-resize" rows="15" readonly><?php echo $text; ?></textarea>
 						<p>Once you're done, you can run the installation.</p>
-						<div><a class="button" href="install.php">Run installation</a></div>
+						<div class="button-wrap"><a class="button" href="install.php">Run installation</a></div>
 						<?php
 					} else {
 						// File path for the config file
@@ -150,7 +150,7 @@ $step = (int)($_GET['step'] ?? 0);
 						chmod($config_file_path, 0666);
 						?>
 						<p>The <code>config.php</code> file was successfully created! The database connection is all set up. You may now proceed with the installation.</p>
-						<div><a class="button" href="install.php">Run installation</a></div>
+						<div class="button-wrap"><a class="button" href="install.php">Run installation</a></div>
 						<?php
 					}
 					break;

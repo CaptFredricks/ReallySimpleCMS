@@ -297,7 +297,7 @@ class Menu {
 			return statusMessage('R');
 		
 		// Sanitize the slug (strip off HTML and/or PHP tags and replace any characters not specified in the filter)
-		$slug = preg_replace('/[^a-zA-Z0-9-]/i', '', strip_tags($data['slug']));
+		$slug = preg_replace('/[^a-z0-9\-]/', '', strip_tags(strtolower($data['slug'])));
 		
 		// Make sure the slug is not already being used
 		if($this->slugExists($slug, $id))
@@ -1299,7 +1299,7 @@ class Menu {
 		}
 		
 		// Return the menu item ids
-		return $items;
+		return $items ?? array();
 	}
 	
 	/**

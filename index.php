@@ -10,6 +10,9 @@ require_once __DIR__.'/init.php';
 // Include functions
 require_once PATH.INC.'/functions.php';
 
+// Include the theme loader file
+require_once PATH.INC.'/load-theme.php';
+
 // Check whether the page is a category archive
 if(isCategory()) {
 	// Create a Category object
@@ -25,5 +28,5 @@ if(isset($_COOKIE['session']) && isValidSession($_COOKIE['session'])) {
 	$session = getOnlineUser($_COOKIE['session']);
 }
 
-// Include the theme loader file
-require_once PATH.INC.'/load-theme.php';
+// Include the template loader file
+require_once PATH.INC.'/load-template.php';

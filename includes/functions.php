@@ -257,6 +257,56 @@ function getPostsInCategory($category = null, $order_by = 'date', $order = 'DESC
 }
 
 /**
+ * Register a menu.
+ * @since 1.0.0[b]
+ *
+ * @param string $name
+ * @param string $slug
+ * @return null
+ */
+function registerMenu($name, $slug) {
+	// Extend the Query object
+	global $rs_query;
+	
+	// Sanitize the slug
+	$slug = sanitize($slug);
+	
+	// Fetch any menus that have the same slug as the registered one
+	$menu = $rs_query->selectRow('terms', '*', array('slug'=>$slug, 'taxonomy'=>getTaxonomyId('nav_menu')));
+	
+	// Check whether the menu already exists
+	if(empty($menu)) {
+		// Insert the new menu into the database
+		$rs_query->insert('terms', array('name'=>$name, 'slug'=>$slug, 'taxonomy'=>getTaxonomyId('nav_menu')));
+	}
+}
+
+/**
+ * Register a widget.
+ * @since 1.0.0[b]
+ *
+ * @param string $title
+ * @param string $slug
+ * @return null
+ */
+function registerWidget($title, $slug) {
+	// Extend the Query object
+	global $rs_query;
+	
+	// Sanitize the slug
+	$slug = sanitize($slug);
+	
+	// Fetch any widgets that have the same slug as the registered one
+	$widget = $rs_query->selectRow('posts', '*', array('slug'=>$slug, 'type'=>'widget'));
+	
+	// Check whether the widget already exists
+	if(empty($widget)) {
+		// Insert the new widget into the database
+		$rs_query->insert('posts', array('title'=>$title, 'date'=>'NOW()', 'content'=>'', 'status'=>'active', 'slug'=>$slug, 'type'=>'widget'));
+	}
+}
+
+/**
  * Load all header scripts and stylesheets.
  * @since 2.4.2[a]
  *

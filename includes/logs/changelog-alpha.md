@@ -1,3 +1,5 @@
+# ReallySimpleCMS Changelog (Alpha)
+
 ----------------------------------------------------------------------------------------------------
 *Legend: N - new file, D - deprecated file, R - renamed file, X - removed file, M - minor change*<br>
 *Versions: X.x.x (major releases), x.X.x (standard releases), x.x.X (minor releases/bug fixes)*<br>

@@ -69,6 +69,7 @@ small {
 .login .wrapper {
 	margin: 5em auto;
 	max-width: 400px;
+	width: calc(100% - 2em);
 }
 
 .login a {
@@ -390,6 +391,16 @@ small {
 /*------------------------------------*\
     RESPONSIVE
 \*------------------------------------*/
+
+@media screen and (max-width: 549px) {
+	.login .data-form {
+		text-align: center;
+	}
+	
+	.login .data-form p {
+		text-align: left;
+	}
+}
 
 @media screen and (min-width: 550px) {
 	#admin-bar .menu > li > a > span {

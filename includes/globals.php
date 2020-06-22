@@ -5,7 +5,10 @@
  */
 
 // Current CMS version
-const VERSION = '2.4.5';
+const VERSION = '1.0.0';
+
+// Custom post types
+$post_types = array();
 
 /**
  * Display the copyright information on the admin dashboard.
@@ -32,9 +35,9 @@ function RSCopyright($echo = true) {
  */
 function RSVersion($echo = true) {
 	if($echo)
-		echo 'Version '.VERSION.' (&alpha;)';
+		echo 'Version '.VERSION.' (&beta;)';
 	else
-		return 'Version '.VERSION.' (&alpha;)';
+		return 'Version '.VERSION.' (&beta;)';
 }
 
 /**
@@ -155,8 +158,8 @@ function getSetting($name, $echo = true) {
  * @return string|bool (string on recognized type, bool on unrecognized type)
  */
 function getPermalink($type, $parent, $slug = '') {
-	// Extend the Query object
-	global $rs_query;
+	// Extend the Query object and the post types array
+	global $rs_query, $post_types;
 	
 	switch($type) {
 		case 'post': case 'page':
@@ -171,8 +174,17 @@ function getPermalink($type, $parent, $slug = '') {
 			$base = $type;
 			break;
 		default:
-			// Return false because the type is not recognized
-			return false;
+			// Check whether the case matches one of the defined custom post types
+			if(array_key_exists($type, $post_types)) {
+				// The posts table should be searched
+				$table = 'posts';
+				
+				// Set the base slug for categories
+				$base = $type;
+			} else {
+				// Return false because the type is not recognized
+				return false;
+			}
 	}
 	
 	// Create an empty permalink array
@@ -349,6 +361,74 @@ function getTaxonomyId($name) {
 }
 
 /**
+ * Register a custom post type.
+ * @since 1.0.0[b]
+ *
+ * @param string $name
+ * @param array $args
+ * @return null
+ */
+function registerPostType($name, $args = array()) {
+	// Extend the Query object and the post types array
+	global $rs_query, $post_types;
+	
+	// Make sure the post types global is an array
+	if(!is_array($post_types)) $post_types = array();
+	
+	// Sanitize the post type's name
+	$name = sanitize($name);
+	
+	// Check whether the post type's name is valid
+	if(empty($name) || strlen($name) > 20)
+		exit('A post type\'s name must be between 1 and 20 characters long.');
+	
+	// Set the default arguments
+	$defaults = array('label'=>'', 'label_singular'=>'', 'icon'=>null);
+	
+	// Merge the defaults with the provided arguments
+	$args = array_merge($defaults, $args);
+	
+	// Set 'label_singular' to the value of 'label' if it's not set
+	if(empty($args['label_singular'])) $args['label_singular'] = $args['label'];
+	
+	// Add the post type's name to the list of arguments
+	$args['name'] = $name;
+	
+	// Assign the arguments to the global post types array
+	$post_types[$name] = $args;
+	
+	// Create an array of privileges for the post type
+	$privileges = array('can_view_'.$name.'s', 'can_create_'.$name.'s', 'can_edit_'.$name.'s', 'can_delete_'.$name.'s');
+	
+	// Fetch any privileges that match the ones in the array
+	$db_privileges = $rs_query->select('user_privileges', '*', array('name'=>array('IN', $privileges[0], $privileges[1], $privileges[2], $privileges[3])));
+	
+	// Check whether the privileges exist in the database
+	if(empty($db_privileges)) {
+		// Create an empty array to hold the new privileges' ids
+		$insert_ids = array();
+		
+		// Loop through the privileges
+		for($i = 0; $i < count($privileges); $i++) {
+			// Insert the new privileges into the database
+			$insert_ids[] = $rs_query->insert('user_privileges', array('name'=>$privileges[$i]));
+			
+			// Determine which privileges should be assigned to which roles
+			if($privileges[$i] === 'can_view_'.$name.'s' || $privileges[$i] === 'can_create_'.$name.'s' || $privileges[$i] === 'can_edit_'.$name.'s') {
+				// Insert new user role relationships into the database
+				$rs_query->insert('user_relationships', array('role'=>2, 'privilege'=>$insert_ids[$i]));
+				$rs_query->insert('user_relationships', array('role'=>3, 'privilege'=>$insert_ids[$i]));
+				$rs_query->insert('user_relationships', array('role'=>4, 'privilege'=>$insert_ids[$i]));
+			} elseif($privileges[$i] === 'can_delete_'.$name.'s') {
+				// Insert new user role relationships into the database
+				$rs_query->insert('user_relationships', array('role'=>3, 'privilege'=>$insert_ids[$i]));
+				$rs_query->insert('user_relationships', array('role'=>4, 'privilege'=>$insert_ids[$i]));
+			}
+		}
+	}
+}
+
+/**
  * Trim text down to a specified number of words.
  * @since 1.2.5[a]
  *
@@ -371,6 +451,24 @@ function trimWords($text, $num_words = 50, $more = '&hellip;') {
 		// Return the untrimmed text
 		return $text;
 	}
+}
+
+/**
+ * Sanitize a string of text.
+ * @since 1.0.0[b]
+ *
+ * @param string $text
+ * @return string
+ */
+function sanitize($text) {
+	// Convert the string to lowercase
+	$text = strtolower($text);
+	
+	// Sanitize the string
+	$sanitized = preg_replace('/[^a-z0-9_\-]/', '', $text);
+	
+	// Return the sanitized string
+	return $sanitized;
 }
 
 /**
