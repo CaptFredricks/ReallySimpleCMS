@@ -8,6 +8,131 @@
  */
 class Post {
 	/**
+	 * The currently queried post's id.
+	 * @since 1.0.1[b]
+	 *
+	 * @access private
+	 * @var int
+	 */
+	private $id;
+	
+	/**
+	 * The currently queried post's title.
+	 * @since 1.0.1[b]
+	 *
+	 * @access private
+	 * @var string
+	 */
+	private $title;
+	
+	/**
+	 * The currently queried post's author.
+	 * @since 1.0.1[b]
+	 *
+	 * @access private
+	 * @var int
+	 */
+	private $author;
+	
+	/**
+	 * The currently queried post's date.
+	 * @since 1.0.1[b]
+	 *
+	 * @access private
+	 * @var string
+	 */
+	private $date;
+	
+	/**
+	 * The currently queried post's modified date.
+	 * @since 1.0.1[b]
+	 *
+	 * @access private
+	 * @var string
+	 */
+	private $modified;
+	
+	/**
+	 * The currently queried post's content.
+	 * @since 1.0.1[b]
+	 *
+	 * @access private
+	 * @var string
+	 */
+	private $content;
+	
+	/**
+	 * The currently queried post's status.
+	 * @since 1.0.1[b]
+	 *
+	 * @access private
+	 * @var string
+	 */
+	private $status;
+	
+	/**
+	 * The currently queried post's slug.
+	 * @since 1.0.1[b]
+	 *
+	 * @access private
+	 * @var string
+	 */
+	private $slug;
+	
+	/**
+	 * The currently queried post's parent.
+	 * @since 1.0.1[b]
+	 *
+	 * @access private
+	 * @var int
+	 */
+	private $parent;
+	
+	/**
+	 * The currently queried post's type.
+	 * @since 1.0.1[b]
+	 *
+	 * @access private
+	 * @var string
+	 */
+	private $type;
+	
+	/**
+	 * The currently queried post's type data.
+	 * @since 1.0.1[b]
+	 *
+	 * @access private
+	 * @var array
+	 */
+	private $type_data = array();
+	
+	/**
+	 * Class constructor.
+	 * @since 1.0.1[b]
+	 *
+	 * @access public
+	 * @param int $id (optional; default: 0)
+	 * @param array $type_data (optional; default: array())
+	 * @return null
+	 */
+	public function __construct($id = 0, $type_data = array()) {
+		// Extend the Query object
+		global $rs_query;
+		
+		// Check whether the id is '0'
+		if($id !== 0) {
+			// Fetch the post from the database
+			$post = $rs_query->selectRow('posts', '*', array('id'=>$id));
+			
+			// Loop through the post array and set the class variables
+			foreach($post as $key=>$value) $this->$key = $post[$key];
+		}
+		
+		// Set the $type_data class variable
+		$this->type_data = $type_data;
+	}
+	
+	/**
 	 * Construct a list of all posts in the database.
 	 * @since 1.4.0[a]
 	 *
@@ -31,7 +156,7 @@ class Post {
 		$count = array('all'=>$this->getPostCount($type), 'published'=>$this->getPostCount($type, 'published'), 'draft'=>$this->getPostCount($type, 'draft'), 'trash'=>$this->getPostCount($type, 'trash'));
 		?>
 		<div class="heading-wrap">
-			<h1><?php echo ucfirst($type).'s'; ?></h1>
+			<h1><?php echo $this->type_data['label']; ?></h1>
 			<a class="button" href="?<?php echo $type === 'post' ? '' : 'type='.$type.'&'; ?>action=create">Create New</a>
 			<hr>
 			<?php
@@ -136,7 +261,7 @@ class Post {
 		$message = isset($_POST['submit']) ? $this->validateData($_POST) : '';
 		?>
 		<div class="heading-wrap">
-			<h1>Create <?php echo ucwords(str_replace('_', ' ', $type)); ?></h1>
+			<h1><?php echo $this->type_data['labels']['create_item']; ?></h1>
 			<?php echo $message; ?>
 		</div>
 		<div class="data-form-wrap clear">
@@ -283,45 +408,41 @@ class Post {
 	 * @since 1.4.9[a]
 	 *
 	 * @access public
-	 * @param int $id
 	 * @return null
 	 */
-	public function editPost($id) {
+	public function editPost() {
 		// Extend the Query object
 		global $rs_query;
 		
 		// Check whether the post's id is valid
-		if(empty($id) || $id <= 0) {
+		if(empty($this->id) || $this->id <= 0) {
 			// Redirect to the 'List Posts' page
 			redirect('posts.php');
 		} else {
-			// Fetch the post's type from the database
-			$type = $rs_query->selectField('posts', 'type', array('id'=>$id));
-			
 			// Check whether the post's type is valid
-			if(empty($type)) {
+			if(empty($this->type)) {
 				// Redirect to the 'List Posts' page
 				redirect('posts.php');
-			} elseif($type === 'widget') {
+			} elseif($this->type === 'media') {
+				// Redirect to the appropriate 'Edit Media' form
+				redirect('media.php?id='.$this->id.'&action=edit');
+			} elseif($this->type === 'widget') {
 				// Redirect to the appropriate 'Edit Widget' form
-				redirect('widgets.php?id='.$id.'&action=edit');
+				redirect('widgets.php?id='.$this->id.'&action=edit');
 			} else {
 				// Check whether the post is in the trash
-				if($this->isTrash($id)) {
+				if($this->isTrash($this->id)) {
 					// Redirect to the 'List Posts' trash page
-					redirect('posts.php'.($type !== 'post' ? '?type='.$type.'&' : '?').'status=trash');
+					redirect('posts.php'.($this->type !== 'post' ? '?type='.$this->type.'&' : '?').'status=trash');
 				} else {
 					// Validate the form data and return any messages
-					$message = isset($_POST['submit']) ? $this->validateData($_POST, $id) : '';
-					
-					// Fetch the post from the database
-					$post = $rs_query->selectRow('posts', '*', array('id'=>$id));
+					$message = isset($_POST['submit']) ? $this->validateData($_POST, $this->id) : '';
 					
 					// Fetch the post's metadata from the database
-					$meta = $this->getPostMeta($id);
+					$meta = $this->getPostMeta($this->id);
 					?>
 					<div class="heading-wrap">
-						<h1>Edit <?php echo ucwords(str_replace('_', ' ', $post['type'])); ?></h1>
+						<h1><?php echo $this->type_data['labels']['edit_item']; ?></h1>
 						<?php echo $message; ?>
 					</div>
 					<div class="data-form-wrap clear">
@@ -329,13 +450,13 @@ class Post {
 							<div class="content">
 								<?php
 								// Construct a 'title' form tag
-								echo formTag('input', array('id'=>'title-field', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>$post['title'], 'placeholder'=>ucfirst($post['type']).' title'));
+								echo formTag('input', array('id'=>'title-field', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>$this->title, 'placeholder'=>ucfirst($this->type).' title'));
 								?>
 								<div class="permalink">
 									<?php
 									// Construct a 'permalink' form tag
-									echo formTag('label', array('for'=>'slug', 'content'=>'<strong>Permalink:</strong> '.getSetting('site_url', false).getPermalink($post['type'], $post['parent'])));
-									echo formTag('input', array('id'=>'slug-field', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>$post['slug']));
+									echo formTag('label', array('for'=>'slug', 'content'=>'<strong>Permalink:</strong> '.getSetting('site_url', false).getPermalink($this->type, $this->parent)));
+									echo formTag('input', array('id'=>'slug-field', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>$this->slug));
 									echo '<span>/</span>';
 									?>
 								</div>
@@ -344,7 +465,7 @@ class Post {
 								echo formTag('input', array('type'=>'button', 'class'=>'button-input button modal-launch', 'value'=>'Insert Media', 'data-type'=>'all', 'data-insert'=>'true'));
 								
 								// Construct a 'content' form tag
-								echo formTag('textarea', array('class'=>'textarea-input', 'name'=>'content', 'rows'=>25, 'content'=>htmlspecialchars($post['content'])));
+								echo formTag('textarea', array('class'=>'textarea-input', 'name'=>'content', 'rows'=>25, 'content'=>htmlspecialchars($this->content)));
 								?>
 							</div>
 							<div class="sidebar">
@@ -354,28 +475,28 @@ class Post {
 										<?php
 										// Construct a 'status' form tag
 										echo formTag('label', array('for'=>'status', 'content'=>'Status'));
-										echo formTag('select', array('class'=>'select-input', 'name'=>'status', 'content'=>'<option value="'.$post['status'].'">'.ucfirst($post['status']).'</option>'.($post['status'] === 'draft' ? '<option value="published">Published</option>' : '<option value="draft">Draft</option>')));
+										echo formTag('select', array('class'=>'select-input', 'name'=>'status', 'content'=>'<option value="'.$this->status.'">'.ucfirst($this->status).'</option>'.($this->status === 'draft' ? '<option value="published">Published</option>' : '<option value="draft">Draft</option>')));
 										?>
 									</div>
 									<div class="row">
 										<?php
 										// Construct an 'author' form tag
 										echo formTag('label', array('for'=>'author', 'content'=>'Author'));
-										echo formTag('select', array('class'=>'select-input', 'name'=>'author', 'content'=>$this->getAuthorList($post['author'])));
+										echo formTag('select', array('class'=>'select-input', 'name'=>'author', 'content'=>$this->getAuthorList($this->author)));
 										?>
 									</div>
 									<div class="row">
 										<?php
 										// Construct a 'publish date' form tag
 										echo formTag('label', array('for'=>'date', 'content'=>'Published on')).formTag('br');
-										echo formTag('input', array('type'=>'date', 'class'=>'date-input', 'name'=>'date[]', 'value'=>(!is_null($post['date']) ? formatDate($post['date'], 'Y-m-d') : '')));
-										echo formTag('input', array('type'=>'time', 'class'=>'date-input', 'name'=>'date[]', 'value'=>(!is_null($post['date']) ? formatDate($post['date'], 'H:i') : '')));
+										echo formTag('input', array('type'=>'date', 'class'=>'date-input', 'name'=>'date[]', 'value'=>(!is_null($this->date) ? formatDate($this->date, 'Y-m-d') : '')));
+										echo formTag('input', array('type'=>'time', 'class'=>'date-input', 'name'=>'date[]', 'value'=>(!is_null($this->date) ? formatDate($this->date, 'H:i') : '')));
 										?>
 									</div>
 									<div id="submit" class="row">
 										<?php
 										// Construct a view/preview link
-										echo $post['status'] === 'published' ? '<a href="'.(isHomePage($post['id']) ? '/' : getPermalink($post['type'], $post['parent'], $post['slug'])).'">View</a>' : '<a href="/?id='.$post['id'].'&preview=true">Preview</a>';
+										echo $this->status === 'published' ? '<a href="'.(isHomePage($this->id) ? '/' : getPermalink($this->type, $this->parent, $this->slug)).'">View</a>' : '<a href="/?id='.$this->id.'&preview=true">Preview</a>';
 										
 										// Construct a 'submit' button form tag
 										echo formTag('input', array('type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update'));
@@ -384,31 +505,31 @@ class Post {
 								</div>
 								<div class="block">
 									<?php
-									if($post['type'] === 'post') {
+									if($this->type_data['hierarchical'] === false) {
 										?>
 										<h2>Categories</h2>
 										<div class="row">
 											<?php
 											// Construct a 'categories' form checklist
-											echo $this->getCategoriesList($id);
+											echo $this->getCategoriesList($this->id);
 											?>
 										</div>
 										<?php
-									} else {
+									} elseif($this->type_data['hierarchical']) {
 										?>
 										<h2>Attributes</h2>
 										<div class="row">
 											<?php
 											// Construct a 'parent' form tag
 											echo formTag('label', array('for'=>'parent', 'content'=>'Parent'));
-											echo formTag('select', array('class'=>'select-input', 'name'=>'parent', 'content'=>'<option value="0">(none)</option>'.$this->getParentList($post['type'], $post['parent'], $post['id'])));
+											echo formTag('select', array('class'=>'select-input', 'name'=>'parent', 'content'=>'<option value="0">(none)</option>'.$this->getParentList($this->type, $this->parent, $this->id)));
 											?>
 										</div>
 										<div class="row">
 											<?php
 											// Construct a 'template' form tag
 											echo formTag('label', array('for'=>'template', 'content'=>'Template'));
-											echo formTag('select', array('class'=>'select-input', 'name'=>'template', 'content'=>'<option value="default">Default</option>'.$this->getTemplateList($post['id'])));
+											echo formTag('select', array('class'=>'select-input', 'name'=>'template', 'content'=>'<option value="default">Default</option>'.$this->getTemplateList($this->id)));
 											?>
 										</div>
 										<?php
@@ -471,26 +592,22 @@ class Post {
 	 * @since 1.4.6[a]
 	 *
 	 * @access public
-	 * @param int $id
 	 * @return null
 	 */
-	public function trashPost($id) {
+	public function trashPost() {
 		// Extend the Query object
 		global $rs_query;
 		
 		// Check whether the post's id is valid
-		if(empty($id) || $id <= 0) {
+		if(empty($this->id) || $this->id <= 0) {
 			// Redirect to the 'List Posts' page
 			redirect('posts.php');
 		} else {
-			// Fetch the post's type from the database
-			$type = $rs_query->selectField('posts', 'type', array('id'=>$id));
-			
 			// Set the post's status to 'trash'
-			$rs_query->update('posts', array('status'=>'trash'), array('id'=>$id));
+			$rs_query->update('posts', array('status'=>'trash'), array('id'=>$this->id));
 			
 			// Redirect to the 'List Posts' page
-			redirect('posts.php'.($type !== 'post' ? '?type='.$type : ''));
+			redirect($this->type_data['menu_link']);
 		}
 	}
 	
@@ -499,26 +616,22 @@ class Post {
 	 * @since 1.4.6[a]
 	 *
 	 * @access public
-	 * @param int $id
 	 * @return null
 	 */
-	public function restorePost($id) {
+	public function restorePost() {
 		// Extend the Query object
 		global $rs_query;
 		
 		// Check whether the post's id is valid
-		if(empty($id) || $id <= 0) {
+		if(empty($this->id) || $this->id <= 0) {
 			// Redirect to the 'List Posts' page
 			redirect('posts.php');
 		} else {
-			// Fetch the post's type from the database
-			$type = $rs_query->selectField('posts', 'type', array('id'=>$id));
-			
 			// Set the post's status to 'draft'
-			$rs_query->update('posts', array('status'=>'draft'), array('id'=>$id));
+			$rs_query->update('posts', array('status'=>'draft'), array('id'=>$this->id));
 			
 			// Redirect to the 'List Posts' trash page
-			redirect('posts.php'.($type !== 'post' ? '?type='.$type.'&' : '?').'status=trash');
+			redirect($this->type_data['menu_link'].($this->type !== 'post' ? '&' : '?').'status=trash');
 		}
 	}
 	
@@ -527,29 +640,25 @@ class Post {
 	 * @since 1.4.7[a]
 	 *
 	 * @access public
-	 * @param int $id
 	 * @return null
 	 */
-	public function deletePost($id) {
+	public function deletePost() {
 		// Extend the Query object
 		global $rs_query;
 		
 		// Check whether the post's id is valid
-		if(empty($id) || $id <= 0) {
+		if(empty($this->id) || $this->id <= 0) {
 			// Redirect to the 'List Posts' page
 			redirect('posts.php');
 		} else {
-			// Fetch the post's type from the database
-			$type = $rs_query->selectField('posts', 'type', array('id'=>$id));
-			
 			// Delete the post from the database
-			$rs_query->delete('posts', array('id'=>$id));
+			$rs_query->delete('posts', array('id'=>$this->id));
 			
 			// Delete the post's metadata from the database
-			$rs_query->delete('postmeta', array('post'=>$id));
+			$rs_query->delete('postmeta', array('post'=>$this->id));
 			
 			// Fetch all term relationships associated with the post from the database
-			$relationships = $rs_query->select('term_relationships', '*', array('post'=>$id));
+			$relationships = $rs_query->select('term_relationships', '*', array('post'=>$this->id));
 			
 			// Loop through the relationships
 			foreach($relationships as $relationship) {
@@ -564,7 +673,7 @@ class Post {
 			}
 			
 			// Fetch any menu items associated with the post from the database
-			$menu_items = $rs_query->select('postmeta', 'post', array('_key'=>'post_link', 'value'=>$id));
+			$menu_items = $rs_query->select('postmeta', 'post', array('_key'=>'post_link', 'value'=>$this->id));
 			
 			// Loop through the menu items
 			foreach($menu_items as $menu_item) {
@@ -573,7 +682,7 @@ class Post {
 			}
 			
 			// Redirect to the 'List Posts' page (with a success status)
-			redirect('posts.php'.($type !== 'post' ? '?type='.$type.'&' : '?').'status=trash&exit_status=success');
+			redirect($this->type_data['menu_link'].($this->type !== 'post' ? '&' : '?').'status=trash&exit_status=success');
 		}
 	}
 	
@@ -595,7 +704,7 @@ class Post {
 			return statusMessage('R');
 		
 		// Sanitize the slug (strip off HTML and/or PHP tags and replace any characters not specified in the filter)
-		$slug = preg_replace('/[^a-zA-Z0-9-]/i', '', strip_tags($data['slug']));
+		$slug = preg_replace('/[^a-zA-Z0-9\-]/i', '', strip_tags($data['slug']));
 		
 		// Make sure the slug is not already being used
 		if($this->slugExists($slug, $id))

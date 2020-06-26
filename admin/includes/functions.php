@@ -194,7 +194,7 @@ function adminHeaderScripts() {
 	getStylesheet('button.min.css');
 	
 	// Admin stylesheet
-	getAdminStylesheet('style.css');
+	getAdminStylesheet('style.min.css');
 	
 	// Check whether the user has a custom admin theme selected
 	if($session['theme'] !== 'default') {
@@ -504,8 +504,8 @@ function adminNavMenuItem($item = array(), $submenu = array(), $icon = null) {
 				<?php
 				// Loop through the submenu items
 				foreach($submenu as $sub_item) {
-					// Break out of the loop if the menu item is not an array
-					if(!empty($sub_item) && !is_array($sub_item)) break;
+					// Break out of the loop if the menu item is empty or is not an array
+					if(empty($sub_item) || !empty($sub_item) && !is_array($sub_item)) break;
 					
 					// Fetch the submenu item id
 					$sub_item_id = $sub_item['id'] ?? $item_id;
@@ -542,25 +542,63 @@ function adminNavMenu() {
 	// Dashboard
 	adminNavMenuItem(array('id'=>'dashboard', 'link'=>'index.php'), array(), 'tachometer-alt');
 	
-	// Pages
-	if(userHasPrivilege($session['role'], 'can_view_pages'))
-		adminNavMenuItem(array('id'=>'pages'), array(array('link'=>'posts.php?type=page', 'caption'=>'List Pages'), array('id'=>'pages-create', 'link'=>'posts.php?type=page&action=create', 'caption'=>'Create Page')), array('copy', 'regular'));
-	
-	// Posts
-	if(userHasPrivilege($session['role'], 'can_view_posts'))
-		adminNavMenuItem(array('id'=>'posts'), array(array('link'=>'posts.php', 'caption'=>'List Posts'), array('id'=>'posts-create', 'link'=>'posts.php?action=create', 'caption'=>'Create Post'), array('id'=>'categories', 'link'=>'categories.php', 'caption'=>'List Categories')), 'newspaper');
-	
-	// Custom post types (if any)
+	// Loop through the post types (default)
 	foreach($post_types as $post_type) {
+		// Skip any post type that is not a default post type or has 'show_in_admin_menu' set to false
+		if(!$post_type['default'] || !$post_type['show_in_admin_menu']) continue;
+		
+		// Create an id from the post type's label
 		$id = strtolower($post_type['label']);
 		
-		if(userHasPrivilege($session['role'], 'can_view_'.$post_type['name'].'s'))
-			adminNavMenuItem(array('id'=>$id), array(array('link'=>'posts.php?type='.$post_type['name'], 'caption'=>'List '.$post_type['label']), array('id'=>$id.'-create', 'link'=>'posts.php?type='.$post_type['name'].'&action=create', 'caption'=>'Create '.$post_type['label_singular'])), $post_type['icon']);
+		// Make sure the user has the proper privileges to view the post type
+		if(userHasPrivilege($session['role'], 'can_view_'.$id)) {
+			adminNavMenuItem(array('id'=>$id), array( // Submenu
+				array( // List <post type>
+					'link'=>$post_type['menu_link'],
+					'caption'=>$post_type['labels']['list_items']
+				),
+				array( // Create <post type>
+					'id'=>$id === 'media' ? $id.'-upload' : $id.'-create',
+					'link'=>$post_type['menu_link'].($post_type['name'] === 'media' ? '?action=upload' : ($post_type['name'] === 'post' ? '?action=create' : '&action=create')),
+					'caption'=>$post_type['labels']['create_item']
+				),
+				(!empty($post_type['taxonomy']) ? array( // Taxonomy
+					'id'=>strtolower($post_type['labels']['taxonomy']),
+					'link'=>'categories.php',
+					'caption'=>'List '.$post_type['labels']['taxonomy']
+				) : array())
+			), $post_type['menu_icon']);
+		}
 	}
 	
-	// Media
-	if(userHasPrivilege($session['role'], 'can_view_media'))
-		adminNavMenuItem(array('id'=>'media'), array(array('link'=>'media.php', 'caption'=>'List Media'), array('id'=>'media-upload', 'link'=>'media.php?action=upload', 'caption'=>'Upload Media')), 'images');
+	// Loop through the post types (custom)
+	foreach($post_types as $post_type) {
+		// Skip any post type that is a default post type or has 'show_in_admin_menu' set to false
+		if($post_type['default'] || !$post_type['show_in_admin_menu']) continue;
+		
+		// Create an id from the post type's label
+		$id = strtolower($post_type['label']);
+		
+		// Make sure the user has the proper privileges to view the post type
+		if(userHasPrivilege($session['role'], 'can_view_'.$id)) {
+			adminNavMenuItem(array('id'=>$id), array( // Submenu
+				array( // List <post type>
+					'link'=>$post_type['menu_link'],
+					'caption'=>$post_type['labels']['list_items']
+				),
+				array( // Create <post type>
+					'id'=>$id.'-create',
+					'link'=>$post_type['menu_link'].'&action=create',
+					'caption'=>$post_type['labels']['create_item']
+				),
+				(!empty($post_type['taxonomy']) ? array( // Taxonomy
+					'id'=>strtolower($post_type['labels']['taxonomy']),
+					'link'=>$post_type['name'] === 'post' ? 'categories.php' : '',
+					'caption'=>'List '.$post_type['labels']['taxonomy']
+				) : array())
+			), $post_type['menu_icon']);
+		}
+	}
 	
 	// Customization
 	if(userHasPrivilege($session['role'], 'can_view_themes') || userHasPrivilege($session['role'], 'can_view_menus') || userHasPrivilege($session['role'], 'can_view_widgets'))
@@ -1049,7 +1087,7 @@ function uploadMediaFile($data) {
 		$rs_query->insert('postmeta', array('post'=>$insert_id, '_key'=>$key, 'value'=>$value));
 	
 	// Return a success message and a hidden field with the media's id
-	return statusMessage('Upload successful!', true).(in_array($data['type'], array('image/jpeg', 'image/png', 'image/gif'), true) ? '<div class="hidden" data-field="id">'.$insert_id.'</div><div class="hidden" data-field="title">'.$title.'</div><div class="hidden" data-field="filename">'.trailingSlash(UPLOADS).$filename.'</div><div class="hidden" data-field="mime_type">'.$data['type'].'</div>' : '');
+	return statusMessage('Upload successful!', true).(in_array($data['type'], array('image/jpeg', 'image/png', 'image/gif', 'image/x-icon'), true) ? '<div class="hidden" data-field="id">'.$insert_id.'</div><div class="hidden" data-field="title">'.$title.'</div><div class="hidden" data-field="filename">'.trailingSlash(UPLOADS).$filename.'</div><div class="hidden" data-field="mime_type">'.$data['type'].'</div>' : '');
 }
 
 /**
@@ -1089,7 +1127,7 @@ function loadMedia($image_only = false) {
 		// Check whether only images should be loaded
 		if($image_only) {
 			// Create an array of image MIME types
-			$image_mime = array('image/jpeg', 'image/png', 'image/gif');
+			$image_mime = array('image/jpeg', 'image/png', 'image/gif', 'image/x-icon');
 			
 			// Check whether the current media item is an image and skip to the next item if not
 			if(!in_array($meta['mime_type'], $image_mime, true)) continue;

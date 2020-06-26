@@ -201,8 +201,8 @@ class Widget extends Post {
 	 * @return null|string (null on $id == 0; string on $id != 0)
 	 */
 	private function validateData($data, $id = 0) {
-		// Extend the Query object and the user's session data
-		global $rs_query, $session;
+		// Extend the Query object
+		global $rs_query;
 		
 		// Make sure no required fields are empty
 		if(empty($data['title']) || empty($data['slug']))
@@ -221,7 +221,7 @@ class Widget extends Post {
 		
 		if($id === 0) {
 			// Insert the new widget into the database
-			$insert_id = $rs_query->insert('posts', array('title'=>$data['title'], 'author'=>$session['id'], 'date'=>'NOW()', 'content'=>$data['content'], 'status'=>$data['status'], 'slug'=>$slug, 'type'=>'widget'));
+			$insert_id = $rs_query->insert('posts', array('title'=>$data['title'], 'date'=>'NOW()', 'content'=>$data['content'], 'status'=>$data['status'], 'slug'=>$slug, 'type'=>'widget'));
 			
 			// Redirect to the 'Edit Widget' page
 			redirect('widgets.php?id='.$insert_id.'&action=edit');

@@ -5,7 +5,7 @@
  */
 
 // Current CMS version
-const VERSION = '1.0.0';
+const VERSION = '1.0.1';
 
 // Custom post types
 $post_types = array();
@@ -361,6 +361,37 @@ function getTaxonomyId($name) {
 }
 
 /**
+ * Set all post type labels.
+ * @since 1.0.1[b]
+ *
+ * @param string $post_type
+ * @param array $labels (optional; default: array())
+ * @return array
+ */
+function getPostTypeLabels($post_type, $labels = array()) {
+	// Set the default and singular names
+	$name = str_replace('_', ' ', $post_type === 'media' ? ucfirst($post_type) : ucfirst($post_type).'s');
+	$name_singular = str_replace('_', ' ', ucfirst($post_type));
+	
+	// Set the default labels
+	$defaults = array(
+		'name'=>$name,
+		'name_singular'=>$name_singular,
+		'list_items'=>'List '.$name,
+		'create_item'=>'Create '.$name_singular,
+		'edit_item'=>'Edit '.$name_singular,
+		'taxonomy'=>'',
+		'taxonomy_singular'=>''
+	);
+	
+	// Merge the defaults with the provided labels
+	$labels = array_merge($defaults, $labels);
+	
+	// Return the labels
+	return $labels;
+}
+
+/**
  * Register a custom post type.
  * @since 1.0.0[b]
  *
@@ -383,16 +414,56 @@ function registerPostType($name, $args = array()) {
 		exit('A post type\'s name must be between 1 and 20 characters long.');
 	
 	// Set the default arguments
-	$defaults = array('label'=>'', 'label_singular'=>'', 'icon'=>null);
+	$defaults = array(
+		'labels'=>array(),
+		'hierarchical'=>false,
+		'show_in_stats_graph'=>true,
+		'show_in_admin_menu'=>true,
+		'show_in_admin_bar'=>true,
+		'show_in_nav_menus'=>true,
+		'menu_link'=>'posts.php',
+		'menu_icon'=>null,
+		'taxonomy'=>''
+	);
 	
 	// Merge the defaults with the provided arguments
 	$args = array_merge($defaults, $args);
 	
-	// Set 'label_singular' to the value of 'label' if it's not set
-	if(empty($args['label_singular'])) $args['label_singular'] = $args['label'];
+	// Loop through the args array
+	foreach($args as $key=>$value) {
+		// Remove any unrecognized arguments from the array
+		if(!array_key_exists($key, $defaults)) unset($args[$key]);
+	}
+	
+	// Check whether the post type behaves like a post (hierarchical === false)
+	if($args['hierarchical'] === false) {
+		// Check whether a custom taxonomy has been specified
+		if(!empty($args['taxonomy'])) {
+			// Fetch any taxonomies that have the same name as the specified one
+			$taxonomy = $rs_query->selectRow('taxonomies', '*', array('name'=>$args['taxonomy']));
+			
+			// Check whether the taxonomy already exists
+			if(empty($taxonomy)) {
+				// Set the taxonomy to 'category'
+				$args['taxonomy'] = 'category';
+			}
+		}
+	}
+	
+	// Set the default post types
+	$default_post_types = array('page', 'media', 'post', 'nav_menu_item', 'widget');
+	
+	// Tag the post type as default if its name is in the $default_post_types array
+	$args['default'] = in_array($name, $default_post_types, true) ? true : false;
 	
 	// Add the post type's name to the list of arguments
 	$args['name'] = $name;
+	
+	// Set the default labels
+	$args['labels'] = getPostTypeLabels($name, $args['labels']);
+	
+	// Set the label
+	$args['label'] = $args['labels']['name'];
 	
 	// Assign the arguments to the global post types array
 	$post_types[$name] = $args;
@@ -426,6 +497,59 @@ function registerPostType($name, $args = array()) {
 			}
 		}
 	}
+}
+
+/**
+ * Register default post types.
+ * @since 1.0.1[b]
+ *
+ * @return null
+ */
+function registerDefaultPostTypes() {
+	// Page
+	registerPostType('page', array(
+		'hierarchical'=>true,
+		'menu_link'=>'posts.php?type=page',
+		'menu_icon'=>array('copy', 'regular')
+	));
+	
+	// Post
+	registerPostType('post', array(
+		'labels'=>array(
+			'taxonomy'=>'Categories',
+			'taxonomy_singular'=>'Category'
+		),
+		'menu_icon'=>'newspaper',
+		'taxonomy'=>'category'
+	));
+	
+	// Media
+	registerPostType('media', array(
+		'labels'=>array(
+			'create_item'=>'Upload Media'
+		),
+		'show_in_stats_graph'=>false,
+		'menu_link'=>'media.php',
+		'menu_icon'=>'images'
+	));
+	
+	// Nav_menu_item
+	registerPostType('nav_menu_item', array(
+		'labels'=>array(
+			'name'=>'Menu Items',
+			'name_singular'=>'Menu Item'
+		),
+		'show_in_stats_graph'=>false,
+		'show_in_admin_menu'=>false,
+		'show_in_admin_bar'=>false
+	));
+	
+	// Widget
+	registerPostType('widget', array(
+		'show_in_stats_graph'=>false,
+		'show_in_admin_menu'=>false,
+		'menu_link'=>'widgets.php'
+	));
 }
 
 /**

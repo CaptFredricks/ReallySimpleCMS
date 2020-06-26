@@ -46,6 +46,9 @@ if(file_exists(PATH.'/config.php')) {
 	
 	// Include global functions
 	require_once PATH.INC.'/globals.php';
+	
+	// Register the default post types
+	registerDefaultPostTypes();
 } else {
 	// Redirect to the setup page
 	header('Location: '.ADMIN.'/setup.php');

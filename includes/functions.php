@@ -271,7 +271,7 @@ function registerMenu($name, $slug) {
 	// Sanitize the slug
 	$slug = sanitize($slug);
 	
-	// Fetch any menus that have the same slug as the registered one
+	// Fetch any menus that have the same slug as the newly registered one
 	$menu = $rs_query->selectRow('terms', '*', array('slug'=>$slug, 'taxonomy'=>getTaxonomyId('nav_menu')));
 	
 	// Check whether the menu already exists
@@ -296,13 +296,37 @@ function registerWidget($title, $slug) {
 	// Sanitize the slug
 	$slug = sanitize($slug);
 	
-	// Fetch any widgets that have the same slug as the registered one
+	// Fetch any widgets that have the same slug as the newly registered one
 	$widget = $rs_query->selectRow('posts', '*', array('slug'=>$slug, 'type'=>'widget'));
 	
 	// Check whether the widget already exists
 	if(empty($widget)) {
 		// Insert the new widget into the database
 		$rs_query->insert('posts', array('title'=>$title, 'date'=>'NOW()', 'content'=>'', 'status'=>'active', 'slug'=>$slug, 'type'=>'widget'));
+	}
+}
+
+/**
+ * Register a custom taxonomy.
+ * @since 1.0.1[b]
+ *
+ * @param string $name
+ * @return null
+ */
+function registerTaxonomy($name) {
+	// Extend the Query object
+	global $rs_query;
+	
+	// Sanitize the name
+	$name = sanitize($name);
+	
+	// Fetch any taxonomies that have the same name as the newly registered one
+	$taxonomy = $rs_query->selectRow('taxonomies', '*', array('name'=>$name));
+	
+	// Check whether the taxonomy already exists
+	if(empty($taxonomy)) {
+		// Insert the new taxonomy into the database
+		$rs_query->insert('taxonomies', array('name'=>$name));
 	}
 }
 
@@ -323,7 +347,7 @@ function headerScripts($exclude = '', $include_styles = array(), $include_script
 	if(!in_array('button', $exclude, true)) getStylesheet('button.min.css');
 	
 	// Default stylesheet
-	if(!in_array('style', $exclude, true)) getStylesheet('style.css');
+	if(!in_array('style', $exclude, true)) getStylesheet('style.min.css');
 	
 	if(!in_array('fa', $exclude, true)) {
 		// Font Awesome icons stylesheet

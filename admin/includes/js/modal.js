@@ -271,7 +271,7 @@ jQuery(document).ready($ => {
 		content.text_before = text.substring(0, content.selection_start);
 		
 		// Fetch the text after the selection
-		content.text_after = text.substring(content.selection_end, text.length)
+		content.text_after = text.substring(content.selection_end, text.length);
 		
 		// Create an empty variable to hold the media element
 		let media = '';

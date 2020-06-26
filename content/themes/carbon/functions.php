@@ -8,7 +8,13 @@
  * Register custom post types.
  * @since 1.0.0[b]
  */
-// registerPostType('slug', array('args'));
+// registerPostType($slug, $args);
+
+/**
+ * Register custom taxonomies.
+ * @since 1.0.1[b]
+ */
+// registerTaxonomy($name);
 
 /**
  * Register theme menus.
