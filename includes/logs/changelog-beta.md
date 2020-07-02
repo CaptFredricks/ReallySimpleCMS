@@ -6,6 +6,34 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.0.2[b] (2020-07-02)
+
+- Code cleanup in the Post class
+- The Post class variables are now updated by the `Post::validateData` function
+- Custom posts will now display on the admin bar if `show_in_admin_bar` is set to true
+- Media entries now display in the admin stats bar graph
+- Restructured the `statsBarGraph` function to display posts based on whether their `show_in_stats_graph` property is true
+- Cleaned up the admin `index.php` file
+- Fixed a visual issue with media thumbnails smaller than 100px on the 'List Media' page
+- Fixed a visual issue with media thumbnails smaller than 150px on the 'Edit Media', 'Edit User', and 'Edit Profile' pages
+- Tweaked previous entries of the changelog
+- Fixed a bug in the global `getPermalink` function where the `parent` parameter was not type cast to an integer
+- Post previews now redirect to the proper permalink when the post is published
+
+**Modified files:**
+- admin/includes/class-media.php (M)
+- admin/includes/class-post.php
+- admin/includes/class-profile.php (M)
+- admin/includes/class-user.php (M)
+- admin/includes/css/style.css (M)
+- admin/includes/css/style.min.css (M)
+- admin/includes/functions.php
+- admin/index.php
+- includes/class-post.php
+- includes/functions.php
+- includes/globals.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.0.1[b] (2020-06-25)
 
 - Tweaked the README
@@ -14,17 +42,17 @@
 - When a widget is created, it is no longer assigned an author
 - When a menu item is created, it is no longer assigned an author
 - All stylesheets are now served minified
-- Added a missing semicolon in the modal.js file
+- Added a missing semicolon in the `modal.js` file
 - Created a function that registers custom taxonomies
-- Tweaked documentation in the Carbon theme's functions.php file
-- The registerPostType function now sets the label to the post type's name if no label is provided
-- Tweaked the adminNavMenuItem function to allow empty arrays to be passed without creating an empty submenu item
+- Tweaked documentation in the Carbon theme's `functions.php` file
+- The `registerPostType` function now sets the label to the post type's name if no label is provided
+- Tweaked the `adminNavMenuItem` function to allow empty arrays to be passed without creating an empty submenu item
 - Created a global function that sets all post type labels
 - The admin Post class now sets the queried post data in the constructor
 - Custom post type data is now passed to the Post class constructor
 - Fixed a minor issue with redirection for certain post types (media, nav_menu_items, widgets)
 - Created a global function that registers the default post types (page, post, media, nav_menu_item, widget)
-- Added multiple new arguments to the registerPostType function:
+- Added multiple new arguments to the `registerPostType` function:
   - hierarchical (whether the post type should be treated like a post or a page)
   - show_in_stats_graph (whether to show the post type in the admin stats bar graph)
   - show_in_admin_menu (whether to show the post type in the admin nav menu)
@@ -53,11 +81,11 @@
 ## Version 1.0.0[b] (2020-06-21)
 
 - Created content for the README file
-- Renamed changelog.md to changelog-alpha.md
+- Renamed `changelog.md` to `changelog-alpha.md`
 - Created a new changelog for Beta
 - Improved mobile styling for the setup and installation pages
-- Tweaked some of the text in the setup.php file
-- Fixed a bug where a 'DROP TABLE' query was run on empty database installs
+- Tweaked some of the text in the `setup.php` file
+- Fixed a bug where a `DROP TABLE` query was run on empty database installs
 - Improved mobile styling for the log in and forgot password pages
 - Created a function that registers widgets for a theme
 - The Carbon theme now registers three widgets by default
@@ -66,14 +94,14 @@
 - Created a global function that sanitizes text strings
 - Created a global function that registers custom post types
 - Moved the admin nav menu items to a new function that simply displays them
-- The includes/functions.php and themes/<theme>/functions.php files are now included on the back end
+- The `includes/functions.php` and `themes/<theme>/functions.php` files are now included on the back end
 - The admin nav menu now supports custom post types
 - User privileges are now created when a custom post type is registered
-- The Post::getPermalink function is now deprecated
-- Added a 'type' parameter to the front end Post::getPostPermalink function
+- The `Post::getPermalink` function is now deprecated
+- Added a 'type' parameter to the front end `Post::getPostPermalink` function
 - Modified the way post permalinks are constructed so that custom post types have a base permalink before the slug
-- Changed the inclusion order of the load-theme.php, class-post.php, class-category.php, and load-template.php files in the root index.php file
-- The load-template.php file is no longer included in the load-theme.php file
+- Changed the inclusion order of the `load-theme.php`, `class-post.php`, `class-category.php`, and `load-template.php` files in the root `index.php` file
+- The `load-template.php` file is no longer included in the `load-theme.php` file
 - Fixed an error that occurred when attempting to move a menu item up or down when it is the only item on a given menu
 - Tweaked how slugs are sanitized in several back end classes
 - If the site's home page is accessed from its full permalink, it now redirects to the home URL (e.g., `www.mydomain.com`)

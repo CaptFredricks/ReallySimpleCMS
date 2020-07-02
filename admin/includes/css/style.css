@@ -581,6 +581,7 @@ h3 {
 }
 
 .data-table .thumbnail img {
+	max-width: 100px;
 	vertical-align: middle;
 }
 
@@ -711,6 +712,10 @@ h3 {
 
 .data-form label .required {
 	color: #f00;
+}
+
+.data-form img {
+	max-width: 150px;
 }
 
 .data-form .text-input {
@@ -845,6 +850,7 @@ h3 {
 }
 
 .data-form .block .image-wrap img[data-field="thumb"] {
+	max-width: none;
 	vertical-align: top;
 }
 

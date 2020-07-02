@@ -49,8 +49,17 @@ class Post {
 				// Fetch the post's status from the database
 				$status = $this->getPostStatus(false);
 				
-				// Check whether the post is published and redirect to the 404 (Not Found) page if not
-				if($status !== 'published') redirect('/404.php');
+				// Check whether the post is published
+				if($status !== 'published') {
+					// Check whether the post is a draft
+					if($status === 'draft') {
+						// Redirect to the post preview
+						redirect('/?id='.$home_page.'&preview=true');
+					} else {
+						// Redirect to the 404 (Not Found) page
+						redirect('/404.php');
+					}
+				}
 			} else {
 				// Check whether the current post is a preview and the id is valid
 				if(isset($_GET['preview']) && $_GET['preview'] === 'true' && isset($_GET['id']) && $_GET['id'] > 0) {
@@ -60,8 +69,20 @@ class Post {
 					// Fetch the post's status from the database
 					$status = $this->getPostStatus(false);
 					
-					// Check whether the post is a draft and whether the user is logged in; redirect to the 404 (Not Found) page if not
-					if($status !== 'draft' || !isset($_COOKIE['session'])) redirect('/404.php');
+					// Check whether the post is a draft
+					if($status !== 'draft') {
+						// Check whether the post is published
+						if($status === 'published') {
+							// Redirect to the proper URL
+							redirect($this->getPostPermalink($this->getPostType(false), $this->getPostParent(false), $this->slug));
+						} else {
+							// Redirect to the 404 (Not Found) page
+							redirect('/404.php');
+						}
+					}
+					
+					// Check whether the user is logged in and redirect to the 404 (Not Found) page if not
+					if(!isset($_COOKIE['session'])) redirect('/404.php');
 				} else {
 					// Fetch the post's URI
 					$raw_uri = $_SERVER['REQUEST_URI'];

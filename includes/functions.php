@@ -466,8 +466,8 @@ function bodyClasses($addtl_classes = array()) {
  * @return null
  */
 function adminBar() {
-	// Extend the Post object and the user's session data
-	global $rs_post, $session;
+	// Extend the Post object, the user's session data, and the post types array
+	global $rs_post, $session, $post_types;
 	?>
 	<div id="admin-bar">
 		<ul class="menu">
@@ -475,14 +475,49 @@ function adminBar() {
 				<a href="javascript:void(0)"><i class="fas fa-tachometer-alt"></i> <span>Admin</span></a>
 				<ul class="sub-menu">
 					<li><a href="/admin/">Dashboard</a></li>
-					<li><a href="/admin/posts.php?type=page">Pages</a></li>
-					<li>
-						<a href="/admin/posts.php">Posts</a>
-						<ul class="sub-menu">
-							<li><a href="/admin/categories.php">Categories</a></li>
-						</ul>
-					</li>
-					<li><a href="/admin/media.php">Media</a></li>
+					<?php
+					// Loop through the post types (default)
+					foreach($post_types as $post_type) {
+						// Skip any post type that is not a default post type or has 'show_in_admin_bar' set to false
+						if(!$post_type['default'] || !$post_type['show_in_admin_bar']) continue;
+						?>
+						<li>
+							<a href="/admin/<?php echo $post_type['menu_link']; ?>"><?php echo $post_type['label']; ?></a>
+							<?php
+							// Check whether the post type has a taxonomy
+							if(!empty($post_type['taxonomy'])) {
+								?>
+								<ul class="sub-menu">
+									<li><a href="/admin/categories.php"><?php echo $post_type['labels']['taxonomy']; ?></a></li>
+								</ul>
+								<?php
+							}
+							?>
+						</li>
+						<?php
+					}
+					
+					// Loop through the post types (custom)
+					foreach($post_types as $post_type) {
+						// Skip any post type that is not a custom post type or has 'show_in_admin_bar' set to false
+						if($post_type['default'] || !$post_type['show_in_admin_bar']) continue;
+						?>
+						<li>
+							<a href="/admin/<?php echo $post_type['menu_link']; ?>"><?php echo $post_type['label']; ?></a>
+							<?php
+							// Check whether the post type has a taxonomy
+							if(!empty($post_type['taxonomy'])) {
+								?>
+								<ul class="sub-menu">
+									<li><a href="/admin/categories.php"><?php echo $post_type['labels']['taxonomy']; ?></a></li>
+								</ul>
+								<?php
+							}
+							?>
+						</li>
+						<?php
+					}
+					?>
 					<li>
 						<a href="javascript:void(0)">Customization</a>
 						<ul class="sub-menu">
@@ -505,14 +540,49 @@ function adminBar() {
 			<li>
 				<a href="javascript:void(0)"><i class="fas fa-plus"></i> <span>New</span></a>
 				<ul class="sub-menu">
-					<li><a href="/admin/posts.php?type=page&action=create">Page</a></li>
-					<li>
-						<a href="/admin/posts.php?action=create">Post</a>
-						<ul class="sub-menu">
-							<li><a href="/admin/categories.php?action=create">Category</a></li>
-						</ul>
-					</li>
-					<li><a href="/admin/media.php?action=upload">Media</a></li>
+					<?php
+					// Loop through the post types (default)
+					foreach($post_types as $post_type) {
+						// Skip any post type that is not a default post type or has 'show_in_admin_bar' set to false
+						if(!$post_type['default'] || !$post_type['show_in_admin_bar']) continue;
+						?>
+						<li>
+							<a href="/admin/<?php echo $post_type['menu_link'].($post_type['name'] === 'media' ? '?action=upload' : ($post_type['name'] === 'post' ? '?action=create' : '&action=create')); ?>"><?php echo $post_type['labels']['name_singular']; ?></a>
+							<?php
+							// Check whether the post type has a taxonomy
+							if(!empty($post_type['taxonomy'])) {
+								?>
+								<ul class="sub-menu">
+									<li><a href="/admin/categories.php?action=create"><?php echo $post_type['labels']['taxonomy_singular']; ?></a></li>
+								</ul>
+								<?php
+							}
+							?>
+						</li>
+						<?php
+					}
+					
+					// Loop through the post types (custom)
+					foreach($post_types as $post_type) {
+						// Skip any post type that is not a custom post type or has 'show_in_admin_bar' set to false
+						if($post_type['default'] || !$post_type['show_in_admin_bar']) continue;
+						?>
+						<li>
+							<a href="/admin/<?php echo $post_type['menu_link'].'&action=create'; ?>"><?php echo $post_type['labels']['name_singular']; ?></a>
+							<?php
+							// Check whether the post type has a taxonomy
+							if(!empty($post_type['taxonomy'])) {
+								?>
+								<ul class="sub-menu">
+									<li><a href="/admin/categories.php"><?php echo $post_type['labels']['taxonomy_singular']; ?></a></li>
+								</ul>
+								<?php
+							}
+							?>
+						</li>
+						<?php
+					}
+					?>
 					<li>
 						<a href="javascript:void(0)">Customization</a>
 						<ul class="sub-menu">

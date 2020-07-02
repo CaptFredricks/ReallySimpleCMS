@@ -5,7 +5,7 @@
  */
 
 // Current CMS version
-const VERSION = '1.0.1';
+const VERSION = '1.0.2';
 
 // Custom post types
 $post_types = array();
@@ -190,7 +190,7 @@ function getPermalink($type, $parent, $slug = '') {
 	// Create an empty permalink array
 	$permalink = array();
 	
-	while($parent !== 0) {
+	while((int)$parent !== 0) {
 		// Fetch the parent post or term from the database
 		$item = $rs_query->selectRow($table, array('slug', 'parent'), array('id'=>$parent));
 		
@@ -199,7 +199,7 @@ function getPermalink($type, $parent, $slug = '') {
 		
 		// Add to the permalink array
 		$permalink[] = $item['slug'];
-	};
+	}
 	
 	// Reverse and merge the permalink array
 	$permalink = implode('/', array_reverse($permalink));
@@ -528,7 +528,6 @@ function registerDefaultPostTypes() {
 		'labels'=>array(
 			'create_item'=>'Upload Media'
 		),
-		'show_in_stats_graph'=>false,
 		'menu_link'=>'media.php',
 		'menu_icon'=>'images'
 	));
@@ -548,6 +547,7 @@ function registerDefaultPostTypes() {
 	registerPostType('widget', array(
 		'show_in_stats_graph'=>false,
 		'show_in_admin_menu'=>false,
+		'show_in_admin_bar'=>false,
 		'menu_link'=>'widgets.php'
 	));
 }

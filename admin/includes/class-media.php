@@ -106,7 +106,7 @@ class Media extends Post {
 					}
 					
 					echo tableRow(
-						tableCell('<img src="'.trailingSlash(UPLOADS).$meta['filename'].'" width="100">', 'thumbnail'),
+						tableCell('<img src="'.trailingSlash(UPLOADS).$meta['filename'].'">', 'thumbnail'),
 						tableCell('<strong>'.$media['title'].'</strong><br><em>'.$meta['filename'].'</em><div class="actions"><a href="?id='.$media['id'].'&action=edit">Edit</a> &bull; <a class="modal-launch delete-item" href="?id='.$media['id'].'&action=delete" data-item="media">Delete</a> &bull; <a href="'.trailingSlash(UPLOADS).$meta['filename'].'" target="_blank" rel="noreferrer noopener">View</a></div>', 'file'),
 						tableCell($this->getAuthor($media['author']), 'author'),
 						tableCell(formatDate($media['date'], 'd M Y @ g:i A'), 'upload-date'),
@@ -210,7 +210,7 @@ class Media extends Post {
 					<form class="data-form" action="" method="post" autocomplete="off">
 						<table class="form-table">
 							<?php
-							echo formRow('Thumbnail', array('tag'=>'img', 'src'=>trailingSlash(UPLOADS).$meta['filename'], 'width'=>150));
+							echo formRow('Thumbnail', array('tag'=>'img', 'src'=>trailingSlash(UPLOADS).$meta['filename']));
 							echo formRow(array('Title', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>$media['title']));
 							echo formRow('Alt Text', array('tag'=>'input', 'class'=>'text-input', 'name'=>'alt_text', 'value'=>$meta['alt_text']));
 							echo formRow('Description', array('tag'=>'textarea', 'class'=>'textarea-input', 'name'=>'description', 'cols'=>30, 'rows'=>10, 'content'=>htmlspecialchars($media['content'])));

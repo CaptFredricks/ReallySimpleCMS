@@ -324,7 +324,7 @@ class Post {
 					</div>
 					<div class="block">
 						<?php
-						if($type === 'post') {
+						if(!$this->type_data['hierarchical']) {
 							?>
 							<h2>Categories</h2>
 							<div class="row">
@@ -505,7 +505,7 @@ class Post {
 								</div>
 								<div class="block">
 									<?php
-									if($this->type_data['hierarchical'] === false) {
+									if(!$this->type_data['hierarchical']) {
 										?>
 										<h2>Categories</h2>
 										<div class="row">
@@ -515,7 +515,7 @@ class Post {
 											?>
 										</div>
 										<?php
-									} elseif($this->type_data['hierarchical']) {
+									} else {
 										?>
 										<h2>Attributes</h2>
 										<div class="row">
@@ -821,6 +821,9 @@ class Post {
 					}
 				}
 			}
+			
+			// Update the class variables
+			foreach($data as $key=>$value) $this->$key = $value;
 			
 			// Return a status message
 			return statusMessage(ucfirst($type).' updated! <a href="posts.php'.($type === 'post' ? '' : '?type='.$type).'">Return to list</a>?', true);

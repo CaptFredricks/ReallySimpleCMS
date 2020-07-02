@@ -637,29 +637,28 @@ function getStatistics($table, $field = '', $value = '') {
  * Create and display a bar graph of site statistics.
  * @since 1.2.4[a]
  *
- * @param array $bars
  * @return null
  */
-function statsBarGraph($bars) {
-	// Return if the bars array is not countable
-	if(!is_countable($bars)) return;
+function statsBarGraph() {
+	// Extend the post types array
+	global $post_types;
 	
-	// Create empty arrays for the stats and links
-	$stats = $links = array();
+	// Create empty arrays to hold the bar data and the stats data
+	$bars = $stats = array();
 	
-	// Loop through the bars
-	foreach($bars as $bar) {
-		// Return if the bar is not an array
-		if(!is_array($bar)) return;
+	// Loop through the post types
+	foreach($post_types as $key=>$value) {
+		// Skip any post type that has 'show_in_stats_graph' set to false
+		if(!$post_types[$key]['show_in_stats_graph']) continue;
 		
-		// Check whether multiple arguments have been supplied for the bar
-		if(count($bar) === 3) {
-			$stats[] = getStatistics($bar[0], $bar[1], $bar[2]);
-			$links[] = $bar[0].'.php?'.$bar[1].'='.$bar[2];
-		} else {
-			$stats[] = getStatistics($bar[0]);
-			$links[] = $bar[0].'.php';
-		}
+		// Assign each post type to the bar data array
+		$bars[$key] = $value;
+		
+		// Assign the post type's stats to its dataset
+		$bars[$key]['stats'] = getStatistics('posts', 'type', $bars[$key]['name']);
+		
+		// Assign the post type's stats to the stats array
+		$stats[] = $bars[$key]['stats'];
 	}
 	
 	// Find the max count
@@ -685,24 +684,19 @@ function statsBarGraph($bars) {
 		</ul>
 		<ul class="graph-content">
 			<?php
-			// Set a counter
-			$j = 0;
-			
 			// Loop through the bars
 			foreach($bars as $bar) {
 				?>
 				<li style="width: <?php echo 1 / count($bars) * 100; ?>%;">
-					<a class="bar" href="<?php echo $links[$j]; ?>" title="<?php echo ucfirst(isset($bar[2]) ? $bar[2].'s' : $bar[0]); ?>: <?php echo $stats[$j].($stats[$j] === 1 ? ' entry' : ' entries'); ?>"><?php echo $stats[$j]; ?></a>
+					<a class="bar" href="<?php echo $bar['menu_link']; ?>" title="<?php echo $bar['label']; ?>: <?php echo $bar['stats'].($bar['stats'] === 1 ? ' entry' : ' entries'); ?>"><?php echo $bar['stats']; ?></a>
 				</li>
 				<?php
-				// Increment the counter
-				$j++;
 			}
 			?>
 			<ul class="graph-overlay">
 				<?php
 				// Loop through the overlay items
-				for($k = 5; $k >= 0; $k--) {
+				for($j = 5; $j >= 0; $j--) {
 					?>
 					<li></li>
 					<?php
@@ -712,18 +706,13 @@ function statsBarGraph($bars) {
 		</ul>
 		<ul class="graph-x">
 			<?php
-			// Set a counter
-			$l = 0;
-			
 			// Loop through the bars
 			foreach($bars as $bar) {
 				?>
 				<li style="width: <?php echo 1 / count($bars) * 100; ?>%;">
-					<a class="value" href="<?php echo $links[$l]; ?>" title="<?php echo ucfirst(isset($bar[2]) ? $bar[2].'s' : $bar[0]); ?>: <?php echo $stats[$l].($stats[$l] === 1 ? ' entry' : ' entries'); ?>"><?php echo ucfirst(isset($bar[2]) ? $bar[2].'s' : $bar[0]); ?></a>
+					<a class="value" href="<?php echo $bar['menu_link']; ?>" title="<?php echo $bar['label']; ?>: <?php echo $bar['stats'].($bar['stats'] === 1 ? ' entry' : ' entries'); ?>"><?php echo $bar['label']; ?></a>
 				</li>
 				<?php
-				// Increment the counter
-				$l++;
 			}
 			?>
 		</ul>
