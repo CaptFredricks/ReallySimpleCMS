@@ -26,6 +26,12 @@ class Profile extends User {
 		
 		// Fetch the user's metadata from the database
 		$meta = $this->getUserMeta($id);
+		
+		// Check whether the user has an avatar
+		if(!empty($meta['avatar'])) {
+			// Fetch the avatar's dimensions
+			list($width, $height) = getimagesize(PATH.getMediaSrc($meta['avatar']));
+		}
 		?>
 		<div class="heading-wrap">
 			<h1>Edit Profile</h1>
@@ -45,7 +51,7 @@ class Profile extends User {
 					echo formRow(array('Email', true), array('tag'=>'input', 'type'=>'email', 'class'=>'text-input required invalid init', 'name'=>'email', 'value'=>$user['email']));
 					echo formRow('First Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'first_name', 'value'=>$meta['first_name']));
 					echo formRow('Last Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'last_name', 'value'=>$meta['last_name']));
-					echo formRow('Avatar', array('tag'=>'div', 'class'=>'image-wrap'.(!empty($meta['avatar']) ? ' visible' : ''), 'content'=>formTag('img', array('src'=>getMediaSrc($meta['avatar']), 'data-field'=>'thumb')).formTag('span', array('class'=>'image-remove', 'title'=>'Remove', 'content'=>formTag('i', array('class'=>'fas fa-times'))))), array('tag'=>'input', 'type'=>'hidden', 'name'=>'avatar', 'value'=>$meta['avatar'], 'data-field'=>'id'), array('tag'=>'input', 'type'=>'button', 'class'=>'button-input button modal-launch', 'value'=>'Choose Image', 'data-type'=>'image'));
+					echo formRow('Avatar', array('tag'=>'div', 'class'=>'image-wrap'.(!empty($meta['avatar']) ? ' visible' : ''), 'style'=>'width: '.($width ?? 0).'px;', 'content'=>formTag('img', array('src'=>getMediaSrc($meta['avatar']), 'data-field'=>'thumb')).formTag('span', array('class'=>'image-remove', 'title'=>'Remove', 'content'=>formTag('i', array('class'=>'fas fa-times'))))), array('tag'=>'input', 'type'=>'hidden', 'name'=>'avatar', 'value'=>$meta['avatar'], 'data-field'=>'id'), array('tag'=>'input', 'type'=>'button', 'class'=>'button-input button modal-launch', 'value'=>'Choose Image', 'data-type'=>'image'));
 					echo formRow('Theme', array('tag'=>'select', 'class'=>'select-input', 'name'=>'theme', 'content'=>$this->getThemesList($meta['theme'])));
 					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
 					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Profile'));

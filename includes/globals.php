@@ -5,7 +5,7 @@
  */
 
 // Current CMS version
-const VERSION = '1.0.2';
+const VERSION = '1.0.3';
 
 // Custom post types
 $post_types = array();
@@ -416,11 +416,12 @@ function registerPostType($name, $args = array()) {
 	// Set the default arguments
 	$defaults = array(
 		'labels'=>array(),
+		'public'=>true,
 		'hierarchical'=>false,
-		'show_in_stats_graph'=>true,
-		'show_in_admin_menu'=>true,
-		'show_in_admin_bar'=>true,
-		'show_in_nav_menus'=>true,
+		'show_in_stats_graph'=>null,
+		'show_in_admin_menu'=>null,
+		'show_in_admin_bar'=>null,
+		'show_in_nav_menus'=>null,
 		'menu_link'=>'posts.php',
 		'menu_icon'=>null,
 		'taxonomy'=>''
@@ -449,6 +450,18 @@ function registerPostType($name, $args = array()) {
 			}
 		}
 	}
+	
+	// Set 'show_in_stats_graph' to the value of 'public' if not specified
+	if(is_null($args['show_in_stats_graph'])) $args['show_in_stats_graph'] = $args['public'];
+	
+	// Set 'show_in_admin_menu' to the value of 'public' if not specified
+	if(is_null($args['show_in_admin_menu'])) $args['show_in_admin_menu'] = $args['public'];
+	
+	// Set 'show_in_admin_bar' to the value of 'public' if not specified
+	if(is_null($args['show_in_admin_bar'])) $args['show_in_admin_bar'] = $args['public'];
+	
+	// Set 'show_in_nav_menus' to the value of 'public' if not specified
+	if(is_null($args['show_in_nav_menus'])) $args['show_in_nav_menus'] = $args['public'];
 	
 	// Set the default post types
 	$default_post_types = array('page', 'media', 'post', 'nav_menu_item', 'widget');
@@ -528,6 +541,7 @@ function registerDefaultPostTypes() {
 		'labels'=>array(
 			'create_item'=>'Upload Media'
 		),
+		'show_in_nav_menus'=>false,
 		'menu_link'=>'media.php',
 		'menu_icon'=>'images'
 	));
@@ -538,16 +552,12 @@ function registerDefaultPostTypes() {
 			'name'=>'Menu Items',
 			'name_singular'=>'Menu Item'
 		),
-		'show_in_stats_graph'=>false,
-		'show_in_admin_menu'=>false,
-		'show_in_admin_bar'=>false
+		'public'=>false
 	));
 	
 	// Widget
 	registerPostType('widget', array(
-		'show_in_stats_graph'=>false,
-		'show_in_admin_menu'=>false,
-		'show_in_admin_bar'=>false,
+		'public'=>false,
 		'menu_link'=>'widgets.php'
 	));
 }

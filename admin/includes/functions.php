@@ -856,14 +856,14 @@ function formTag($tag_name, $args = null) {
 	$whitelisted_props = array(
 		'a'=>array('id', 'class', 'href', 'content'),
 		'br'=>array('id', 'class'),
-		'div'=>array('id', 'class', 'content'),
+		'div'=>array('id', 'class', 'style', 'content'),
 		'hr'=>array('id', 'class'),
 		'i'=>array('id', 'class'),
 		'img'=>array('id', 'src', 'width'),
 		'input'=>array('type', 'id', 'class', 'name', 'maxlength', 'value', 'placeholder', '*'),
 		'label'=>array('id', 'class', 'for', 'content'),
 		'select'=>array('id', 'class', 'name', 'content'),
-		'span'=>array('id', 'class', 'title', 'content'),
+		'span'=>array('id', 'class', 'style', 'title', 'content'),
 		'textarea'=>array('id', 'class', 'name', 'cols', 'rows', 'content')
 	);
 	
@@ -1129,7 +1129,7 @@ function loadMedia($image_only = false) {
 				</div>
 				<div>
 					<div class="hidden" data-field="id"><?php echo $media['id']; ?></div>
-					<div class="hidden" data-field="thumb"><img src="<?php echo trailingSlash(UPLOADS).$meta['filename']; ?>" width="150"></div>
+					<div class="hidden" data-field="thumb"><img src="<?php echo trailingSlash(UPLOADS).$meta['filename']; ?>"></div>
 					<div class="hidden" data-field="title"><?php echo $media['title']; ?></div>
 					<div class="hidden" data-field="date"><?php echo formatDate($media['date'], 'd M Y @ g:i A'); ?></div>
 					<div class="hidden" data-field="filename"><a href="<?php echo trailingSlash(UPLOADS).$meta['filename']; ?>" target="_blank" rel="noreferrer noopener"><?php echo $meta['filename']; ?></a></div>

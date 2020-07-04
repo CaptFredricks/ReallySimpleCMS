@@ -233,11 +233,23 @@ jQuery(document).ready($ => {
 		
 		// Check whether the thumbnail's source points to an image
 		if($(clicked_button).siblings('.image-wrap').children('img[data-field="thumb"]').attr('src') !== '//:0' && $(clicked_button).siblings('.image-wrap').children('img[data-field="thumb"]').attr('src') !== '') {
+			// Set the image's max width to 'none'
+			$(clicked_button).siblings('.image-wrap').children('img[data-field="thumb"]').css({maxWidth: 'none'});
+			
 			// Display the image
 			$(clicked_button).siblings('.image-wrap').addClass('visible');
 			
 			// Remove the greyed out effect from the media thumbnail
 			$(clicked_button).siblings('.image-wrap').children('img[data-field="thumb"]').removeClass('greyout');
+			
+			// Get the width of the image
+			let width = $(clicked_button).siblings('.image-wrap').children('img[data-field="thumb"]').width();
+			
+			// Set the image wrap's width based on the image's width
+			$(clicked_button).siblings('.image-wrap').width(width);
+			
+			// Set the image's max width to '100%'
+			$(clicked_button).siblings('.image-wrap').children('img[data-field="thumb"]').css({maxWidth: '100%'});
 		} else {
 			// Hide the image
 			$(clicked_button).siblings('.image-wrap').removeClass('visible');

@@ -144,7 +144,7 @@ class Post {
 		global $rs_query;
 		
 		// Fetch the post's type
-		$type = $_GET['type'] ?? 'post';
+		$type = $this->type_data['name'];
 		
 		// Fetch the post's status
 		$status = $_GET['status'] ?? 'all';
@@ -255,7 +255,7 @@ class Post {
 	 */
 	public function createPost() {
 		// Fetch the post's type
-		$type = $_GET['type'] ?? 'post';
+		$type = $this->type_data['name'];
 		
 		// Validate the form data and return any messages
 		$message = isset($_POST['submit']) ? $this->validateData($_POST) : '';
@@ -361,7 +361,7 @@ class Post {
 							<div class="image-wrap">
 								<?php
 								// Construct an image tag to display the featured image thumbnail
-								echo formTag('img', array('src'=>'//:0', 'width'=>'100%', 'data-field'=>'thumb'));
+								echo formTag('img', array('src'=>'//:0', 'data-field'=>'thumb'));
 								
 								// Construct a span tag to display the 'remove image' button
 								echo formTag('span', array('class'=>'image-remove', 'title'=>'Remove', 'content'=>formTag('i', array('class'=>'fas fa-times'))));
@@ -440,6 +440,12 @@ class Post {
 					
 					// Fetch the post's metadata from the database
 					$meta = $this->getPostMeta($this->id);
+					
+					// Check whether the post has a featured image
+					if(!empty($meta['feat_image'])) {
+						// Fetch the avatar's dimensions
+						list($width, $height) = getimagesize(PATH.getMediaSrc($meta['feat_image']));
+					}
 					?>
 					<div class="heading-wrap">
 						<h1><?php echo $this->type_data['labels']['edit_item']; ?></h1>
@@ -539,10 +545,10 @@ class Post {
 								<div class="block">
 									<h2>Featured Image</h2>
 									<div class="row">
-										<div class="image-wrap<?php echo !empty($meta['feat_image']) ? ' visible' : ''; ?>">
+										<div class="image-wrap<?php echo !empty($meta['feat_image']) ? ' visible' : ''; ?>" style="width: <?php echo $width ?? 0; ?>px;">
 											<?php
 											// Construct an image tag to display the featured image thumbnail
-											echo formTag('img', array('src'=>getMediaSrc($meta['feat_image']), 'width'=>'100%', 'data-field'=>'thumb'));
+											echo formTag('img', array('src'=>getMediaSrc($meta['feat_image']), 'data-field'=>'thumb'));
 											
 											// Construct a span tag to display the 'remove image' button
 											echo formTag('span', array('class'=>'image-remove', 'title'=>'Remove', 'content'=>formTag('i', array('class'=>'fas fa-times'))));
@@ -767,11 +773,8 @@ class Post {
 				$data['date'] = null;
 			}
 			
-			// Fetch the post's type from the database
-			$type = $rs_query->selectField('posts', 'type', array('id'=>$id));
-			
-			// Set the parent to zero if the post's type is 'post' (non-hierarchical)
-			if($type === 'post') $data['parent'] = 0;
+			// Set the parent to zero if the post is non-hierarchical
+			if(!$this->type_data['hierarchical']) $data['parent'] = 0;
 			
 			// Update the post in the database
 			$rs_query->update('posts', array('title'=>$data['title'], 'author'=>$data['author'], 'date'=>$data['date'], 'modified'=>'NOW()', 'content'=>$data['content'], 'status'=>$data['status'], 'slug'=>$slug, 'parent'=>$data['parent']), array('id'=>$id));
@@ -826,7 +829,7 @@ class Post {
 			foreach($data as $key=>$value) $this->$key = $value;
 			
 			// Return a status message
-			return statusMessage(ucfirst($type).' updated! <a href="posts.php'.($type === 'post' ? '' : '?type='.$type).'">Return to list</a>?', true);
+			return statusMessage($this->type_data['labels']['name_singular'].' updated! <a href="posts.php'.($this->type === 'post' ? '' : '?type='.$this->type).'">Return to list</a>?', true);
 		}
 	}
 	

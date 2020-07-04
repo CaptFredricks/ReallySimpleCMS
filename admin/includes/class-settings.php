@@ -75,6 +75,18 @@ class Settings {
 		// Loop through the settings
 		foreach($db_settings as $db_setting)
 			$setting[$db_setting['name']] = $db_setting['value'];
+		
+		// Check whether the site logo has been set
+		if(!empty($setting['site_logo'])) {
+			// Fetch the logo's dimensions
+			list($logo_width, $logo_height) = getimagesize(PATH.getMediaSrc($setting['site_logo']));
+		}
+		
+		// Check whether the site icon has been set
+		if(!empty($setting['site_icon'])) {
+			// Fetch the icon's dimensions
+			list($icon_width, $icon_height) = getimagesize(PATH.getMediaSrc($setting['site_icon']));
+		}
 		?>
 		<div class="heading-wrap">
 			<h1>Design Settings</h1>
@@ -94,8 +106,8 @@ class Settings {
 				?>
 				<table class="form-table">
 					<?php
-					echo formRow('Site Logo', array('tag'=>'div', 'class'=>'image-wrap'.(!empty($setting['site_logo']) ? ' visible' : ''), 'content'=>formTag('img', array('src'=>getMediaSrc((int)$setting['site_logo']), 'width'=>150, 'data-field'=>'thumb')).formTag('span', array('class'=>'image-remove', 'title'=>'Remove', 'content'=>formTag('i', array('class'=>'fas fa-times'))))), array('tag'=>'input', 'type'=>'hidden', 'name'=>'site_logo', 'value'=>(int)$setting['site_logo'], 'data-field'=>'id'), array('tag'=>'input', 'type'=>'button', 'class'=>'button-input button modal-launch', 'value'=>'Choose Image', 'data-type'=>'image'));
-					echo formRow('Site Icon', array('tag'=>'div', 'class'=>'image-wrap'.(!empty($setting['site_icon']) ? ' visible' : ''), 'content'=>formTag('img', array('src'=>getMediaSrc((int)$setting['site_icon']), 'width'=>150, 'data-field'=>'thumb')).formTag('span', array('class'=>'image-remove', 'title'=>'Remove', 'content'=>formTag('i', array('class'=>'fas fa-times'))))), array('tag'=>'input', 'type'=>'hidden', 'name'=>'site_icon', 'value'=>(int)$setting['site_icon'], 'data-field'=>'id'), array('tag'=>'input', 'type'=>'button', 'class'=>'button-input button modal-launch', 'value'=>'Choose Image', 'data-type'=>'image'));
+					echo formRow('Site Logo', array('tag'=>'div', 'class'=>'image-wrap'.(!empty($setting['site_logo']) ? ' visible' : ''), 'style'=>'width: '.($logo_width ?? 0).'px;', 'content'=>formTag('img', array('src'=>getMediaSrc($setting['site_logo']), 'data-field'=>'thumb')).formTag('span', array('class'=>'image-remove', 'title'=>'Remove', 'content'=>formTag('i', array('class'=>'fas fa-times'))))), array('tag'=>'input', 'type'=>'hidden', 'name'=>'site_logo', 'value'=>(int)$setting['site_logo'], 'data-field'=>'id'), array('tag'=>'input', 'type'=>'button', 'class'=>'button-input button modal-launch', 'value'=>'Choose Image', 'data-type'=>'image'));
+					echo formRow('Site Icon', array('tag'=>'div', 'class'=>'image-wrap'.(!empty($setting['site_icon']) ? ' visible' : ''), 'style'=>'width: '.($icon_width ?? 0).'px;', 'content'=>formTag('img', array('src'=>getMediaSrc($setting['site_icon']), 'data-field'=>'thumb')).formTag('span', array('class'=>'image-remove', 'title'=>'Remove', 'content'=>formTag('i', array('class'=>'fas fa-times'))))), array('tag'=>'input', 'type'=>'hidden', 'name'=>'site_icon', 'value'=>(int)$setting['site_icon'], 'data-field'=>'id'), array('tag'=>'input', 'type'=>'button', 'class'=>'button-input button modal-launch', 'value'=>'Choose Image', 'data-type'=>'image'));
 					echo formRow('Theme Color', array('tag'=>'input', 'type'=>'color', 'class'=>'color-input', 'name'=>'theme_color', 'value'=>$setting['theme_color']));
 					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
 					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Settings'));

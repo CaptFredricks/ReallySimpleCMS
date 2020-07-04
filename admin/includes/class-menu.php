@@ -578,41 +578,33 @@ class Menu {
 	 * @return null
 	 */
 	private function getMenuItemsLists() {
-		// Extend the Query object
-		global $rs_query;
+		// Extend the Query object and the post types array
+		global $rs_query, $post_types;
+		
+		// Loop through the post types
+		foreach($post_types as $post_type) {
+			// Skip any post type that has 'show_in_nav_menus' set to false
+			if(!$post_type['show_in_nav_menus']) continue;
+			?>
+			<fieldset>
+				<legend><?php echo $post_type['label']; ?></legend>
+				<ul class="checkbox-list">
+					<?php
+					// Fetch all published posts from the database
+					$posts = $rs_query->select('posts', array('id', 'title'), array('status'=>'published', 'type'=>$post_type['name']));
+					
+					// Loop through the posts
+					foreach($posts as $post) {
+						?>
+						<li><?php echo formTag('input', array('type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'menu_items[]', 'value'=>'post-'.$post['id'], 'label'=>array('content'=>'<span title="'.$post['title'].'">'.trimWords($post['title'], 5).'</span>'))); ?></li>
+						<?php
+					}
+					?>
+				</ul>
+			</fieldset>
+			<?php
+		}
 		?>
-		<fieldset>
-			<legend>Pages</legend>
-			<ul class="checkbox-list">
-				<?php
-				// Fetch all published pages from the database
-				$pages = $rs_query->select('posts', array('id', 'title'), array('status'=>'published', 'type'=>'page'));
-				
-				// Loop through the pages
-				foreach($pages as $page) {
-					?>
-					<li><?php echo formTag('input', array('type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'menu_items[]', 'value'=>'post-'.$page['id'], 'label'=>array('content'=>'<span title="'.$page['title'].'">'.trimWords($page['title'], 5).'</span>'))); ?></li>
-					<?php
-				}
-				?>
-			</ul>
-		</fieldset>
-		<fieldset>
-			<legend>Posts</legend>
-			<ul class="checkbox-list">
-				<?php
-				// Fetch all published posts from the database
-				$posts = $rs_query->select('posts', array('id', 'title'), array('status'=>'published', 'type'=>'post'));
-			
-				// Loop through the posts
-				foreach($posts as $post) {
-					?>
-					<li><?php echo formTag('input', array('type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'menu_items[]', 'value'=>'post-'.$post['id'], 'label'=>array('content'=>'<span title="'.$post['title'].'">'.trimWords($post['title'], 5).'</span>'))); ?></li>
-					<?php
-				}
-				?>
-			</ul>
-		</fieldset>
 		<fieldset>
 			<legend>Categories</legend>
 			<ul class="checkbox-list">

@@ -15,8 +15,8 @@ class Menu {
 	 * @return null
 	 */
 	public function getMenu($slug) {
-		// Extend the Query object
-		global $rs_query;
+		// Extend the Query object and the post types array
+		global $rs_query, $post_types;
 		
 		// Fetch the menu's id from the database
 		$id = $rs_query->selectField('terms', 'id', array('slug'=>$slug));
@@ -61,35 +61,51 @@ class Menu {
 					
 					// Check whether the menu item has a parent or is on the top level
 					if(!$this->menuItemHasParent($menu_item['id'])) {
+						// Create an empty variable to hold the menu item's permalink
+						$permalink = '';
+						
 						// Check what type of link is being used
-						if(isset($meta['post_link']))
-							$link = isHomePage((int)$meta['post_link']) ? '/' : getPermalink('post', $this->getMenuItemParent($meta['post_link']));
-						elseif(isset($meta['term_link']))
-							$link = getPermalink('category', $this->getMenuItemParent($meta['term_link']));
-						elseif(isset($meta['custom_link']))
-							$link = $meta['custom_link'];
+						if(isset($meta['post_link'])) {
+							// Fetch the type of the post the menu item points to
+							$type = $rs_query->selectField('posts', 'type', array('id'=>$meta['post_link']));
+							
+							// Check whether the post type is set to display in nav menus
+							if($post_types[$type]['show_in_nav_menus']) {
+								// Construct the permalink
+								$permalink = isHomePage((int)$meta['post_link']) ? '/' : getPermalink($type, $this->getMenuItemParent($meta['post_link']));
+							}
+						} elseif(isset($meta['term_link'])) {
+							// Construct the permalink
+							$permalink = getPermalink('category', $this->getMenuItemParent($meta['term_link']));
+						} elseif(isset($meta['custom_link'])) {
+							// Fetch the permalink
+							$permalink = $meta['custom_link'];
+						}
 						
-						// Create an empty array to hold classes for the menu items
-						$classes = array();
-						
-						// Check whether the link matches the current page's URI and assign it the appropriate class if so
-						if($this->isCurrentPage($link)) $classes[] = 'current-menu-item';
-						
-						// Check whether the menu item has children and assign it the appropriate class if so
-						if($this->menuItemHasChildren($menu_item['id'])) $classes[] = 'menu-item-has-children';
-						
-						// Sort the classes to make sure they're in alphabetical order
-						asort($classes);
-						?>
-						<li<?php echo !empty($classes) ? ' class="'.implode(' ', $classes).'"' : ''; ?>>
-							<a href="<?php echo $link; ?>"><?php echo $menu_item['title']; ?></a>
-							<?php
-							// Check whether the menu item has descendants and fetch any that exist
-							if($this->menuItemHasChildren($menu_item['id']))
-								$this->getMenuItemDescendants($menu_item['id']);
+						// Check whether a permalink has been constructed
+						if(!empty($permalink)) {
+							// Create an empty array to hold classes for the menu items
+							$classes = array();
+							
+							// Check whether the permalink matches the current page's URI and assign it the appropriate class if so
+							if($this->isCurrentPage($permalink)) $classes[] = 'current-menu-item';
+							
+							// Check whether the menu item has children and assign it the appropriate class if so
+							if($this->menuItemHasChildren($menu_item['id'])) $classes[] = 'menu-item-has-children';
+							
+							// Sort the classes to make sure they're in alphabetical order
+							asort($classes);
 							?>
-						</li>
-						<?php
+							<li<?php echo !empty($classes) ? ' class="'.implode(' ', $classes).'"' : ''; ?>>
+								<a href="<?php echo $permalink; ?>"><?php echo $menu_item['title']; ?></a>
+								<?php
+								// Check whether the menu item has descendants and fetch any that exist
+								if($this->menuItemHasChildren($menu_item['id']))
+									$this->getMenuItemDescendants($menu_item['id']);
+								?>
+							</li>
+							<?php
+						}
 					}
 				}
 				?>
@@ -205,8 +221,8 @@ class Menu {
 	 * @return null
 	 */
 	private function getMenuItemDescendants($id) {
-		// Extend the Query object
-		global $rs_query;
+		// Extend the Query object and the post types array
+		global $rs_query, $post_types;
 		?>
 		<ul class="sub-menu">
 			<?php
@@ -242,35 +258,51 @@ class Menu {
 				// Fetch the menu item from the database
 				$menu_item = $rs_query->selectRow('posts', array('id', 'title'), array('id'=>$meta['post']));
 				
+				// Create an empty variable to hold the menu item's permalink
+				$permalink = '';
+				
 				// Check what type of link is being used
-				if(isset($meta['post_link']))
-					$link = isHomePage((int)$meta['post_link']) ? '/' : getPermalink('post', $this->getMenuItemParent($meta['post_link']));
-				elseif(isset($meta['term_link']))
-					$link = getPermalink('category', $this->getMenuItemParent($meta['term_link']));
-				elseif(isset($meta['custom_link']))
-					$link = $meta['custom_link'];
+				if(isset($meta['post_link'])) {
+					// Fetch the type of the post the menu item points to
+					$type = $rs_query->selectField('posts', 'type', array('id'=>$meta['post_link']));
+					
+					// Check whether the post type is set to display in nav menus
+					if($post_types[$type]['show_in_nav_menus']) {
+						// Construct the permalink
+						$permalink = isHomePage((int)$meta['post_link']) ? '/' : getPermalink($type, $this->getMenuItemParent($meta['post_link']));
+					}
+				} elseif(isset($meta['term_link'])) {
+					// Construct the permalink
+					$permalink = getPermalink('category', $this->getMenuItemParent($meta['term_link']));
+				} elseif(isset($meta['custom_link'])) {
+					// Fetch the permalink
+					$permalink = $meta['custom_link'];
+				}
 				
-				// Create an empty array to hold classes for the menu items
-				$classes = array();
-				
-				// Check whether the link matches the current page's URI and assign it the appropriate class if so
-				if($this->isCurrentPage($link)) $classes[] = 'current-menu-item';
-				
-				// Check whether the menu item has children and assign it the appropriate class if so
-				if($this->menuItemHasChildren($menu_item['id'])) $classes[] = 'menu-item-has-children';
-				
-				// Sort the classes to make sure they're in alphabetical order
-				asort($classes);
-				?>
-				<li<?php echo !empty($classes) ? ' class="'.implode(' ', $classes).'"' : ''; ?>>
-					<a href="<?php echo $link; ?>"><?php echo $menu_item['title']; ?></a>
-					<?php
-					// Check whether the menu item has descendants and fetch any that exist
-					if($this->menuItemHasChildren($menu_item['id']))
-						$this->getMenuItemDescendants($menu_item['id']);
+				// Check whether a permalink has been constructed
+				if(!empty($permalink)) {
+					// Create an empty array to hold classes for the menu items
+					$classes = array();
+					
+					// Check whether the permalink matches the current page's URI and assign it the appropriate class if so
+					if($this->isCurrentPage($permalink)) $classes[] = 'current-menu-item';
+					
+					// Check whether the menu item has children and assign it the appropriate class if so
+					if($this->menuItemHasChildren($menu_item['id'])) $classes[] = 'menu-item-has-children';
+					
+					// Sort the classes to make sure they're in alphabetical order
+					asort($classes);
 					?>
-				</li>
-				<?php
+					<li<?php echo !empty($classes) ? ' class="'.implode(' ', $classes).'"' : ''; ?>>
+						<a href="<?php echo $permalink; ?>"><?php echo $menu_item['title']; ?></a>
+						<?php
+						// Check whether the menu item has descendants and fetch any that exist
+						if($this->menuItemHasChildren($menu_item['id']))
+							$this->getMenuItemDescendants($menu_item['id']);
+						?>
+					</li>
+					<?php
+				}
 			}
 			?>
 		</ul>
