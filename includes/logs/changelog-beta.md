@@ -6,6 +6,51 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.0.4[b] (2020-07-12)
+
+- Tweaked the max width of select inputs in data form sidebars
+- Permalinks no longer redirect to the 404 not found page if they contain query parameters
+- Cleaned up some entries in the Alpha changelog
+- Cleaned up code in the admin `posts.php` file
+- Created a global array to hold the registered taxonomies
+- Moved the `registerTaxonomy` function to the `globals.php` file
+- Created a function that sets the default labels for registered taxonomies
+- Created a function that registers the default taxonomies
+- Added a new argument to the `registerPostType` function: `create_privileges` (will create new privileges in the database for the post type if true)
+- The `registerTaxonomy` function can now accept arguments
+- Custom taxonomies now have proper links on the admin nav menu
+- Cleaned up code in the `adminNavMenu` function
+- Cleaned up code in the `adminBar` function
+- Custom taxonomies now have proper links on the admin bar
+- Fixed an issue with the `adminNavMenuItem` function that caused an empty submenu item to break out of the loop (causing subsequent submenu items not to display)
+- Added a link to the 'Create Theme' page to the admin bar
+- Improved privilege checking for items on the admin nav menu
+- Added privilege checking for items on the admin bar
+- Improved privilege checking for the admin 'List <item>' pages
+- The `getPrivileges` function now orders privileges by their ids
+
+**Modified files:**
+- admin/includes/class-category.php
+- admin/includes/class-media.php
+- admin/includes/class-menu.php
+- admin/includes/class-post.php
+- admin/includes/class-settings.php
+- admin/includes/class-term.php (N)
+- admin/includes/class-theme.php
+- admin/includes/class-user.php
+- admin/includes/class-widget.php
+- admin/includes/css/style.css (M)
+- admin/includes/css/style.min.css (M)
+- admin/includes/functions.php
+- admin/posts.php
+- admin/terms.php (N)
+- includes/class-post.php
+- includes/class-term.php
+- includes/functions.php
+- includes/globals.php
+- init.php (M)
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.0.3[b] (2020-07-04)
 
 - Tweaked previous entries in the changelog

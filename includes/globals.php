@@ -1,14 +1,17 @@
 <?php
 /**
- * Global functions (front end and back end accessible).
+ * Global variables and functions (front end and back end accessible).
  * @since 1.2.0[a]
  */
 
 // Current CMS version
-const VERSION = '1.0.3';
+const VERSION = '1.0.4';
 
-// Custom post types
+// Post types
 $post_types = array();
+
+// Taxonomies
+$taxonomies = array();
 
 /**
  * Display the copyright information on the admin dashboard.
@@ -376,6 +379,7 @@ function getPostTypeLabels($post_type, $labels = array()) {
 	// Set the default labels
 	$defaults = array(
 		'name'=>$name,
+		'name_lowercase'=>strtolower($name),
 		'name_singular'=>$name_singular,
 		'list_items'=>'List '.$name,
 		'create_item'=>'Create '.$name_singular,
@@ -392,11 +396,11 @@ function getPostTypeLabels($post_type, $labels = array()) {
 }
 
 /**
- * Register a custom post type.
+ * Register a post type.
  * @since 1.0.0[b]
  *
  * @param string $name
- * @param array $args
+ * @param array $args (optional; default: array())
  * @return null
  */
 function registerPostType($name, $args = array()) {
@@ -418,6 +422,7 @@ function registerPostType($name, $args = array()) {
 		'labels'=>array(),
 		'public'=>true,
 		'hierarchical'=>false,
+		'create_privileges'=>true,
 		'show_in_stats_graph'=>null,
 		'show_in_admin_menu'=>null,
 		'show_in_admin_bar'=>null,
@@ -481,32 +486,38 @@ function registerPostType($name, $args = array()) {
 	// Assign the arguments to the global post types array
 	$post_types[$name] = $args;
 	
-	// Create an array of privileges for the post type
-	$privileges = array('can_view_'.$name.'s', 'can_create_'.$name.'s', 'can_edit_'.$name.'s', 'can_delete_'.$name.'s');
-	
-	// Fetch any privileges that match the ones in the array
-	$db_privileges = $rs_query->select('user_privileges', '*', array('name'=>array('IN', $privileges[0], $privileges[1], $privileges[2], $privileges[3])));
-	
-	// Check whether the privileges exist in the database
-	if(empty($db_privileges)) {
-		// Create an empty array to hold the new privileges' ids
-		$insert_ids = array();
+	// Check whether privileges should be created for the post type
+	if($args['create_privileges']) {
+		// Replace any spaces in the name with underscores
+		$name_lowercase = str_replace(' ', '_', $args['labels']['name_lowercase']);
 		
-		// Loop through the privileges
-		for($i = 0; $i < count($privileges); $i++) {
-			// Insert the new privileges into the database
-			$insert_ids[] = $rs_query->insert('user_privileges', array('name'=>$privileges[$i]));
+		// Create an array of privileges for the post type
+		$privileges = array('can_view_'.$name_lowercase, 'can_create_'.$name_lowercase, 'can_edit_'.$name_lowercase, 'can_delete_'.$name_lowercase);
+		
+		// Fetch any privileges that match the ones in the array
+		$db_privileges = $rs_query->select('user_privileges', '*', array('name'=>array('IN', $privileges[0], $privileges[1], $privileges[2], $privileges[3])));
+		
+		// Check whether the privileges exist in the database
+		if(empty($db_privileges)) {
+			// Create an empty array to hold the new privileges' ids
+			$insert_ids = array();
 			
-			// Determine which privileges should be assigned to which roles
-			if($privileges[$i] === 'can_view_'.$name.'s' || $privileges[$i] === 'can_create_'.$name.'s' || $privileges[$i] === 'can_edit_'.$name.'s') {
-				// Insert new user role relationships into the database
-				$rs_query->insert('user_relationships', array('role'=>2, 'privilege'=>$insert_ids[$i]));
-				$rs_query->insert('user_relationships', array('role'=>3, 'privilege'=>$insert_ids[$i]));
-				$rs_query->insert('user_relationships', array('role'=>4, 'privilege'=>$insert_ids[$i]));
-			} elseif($privileges[$i] === 'can_delete_'.$name.'s') {
-				// Insert new user role relationships into the database
-				$rs_query->insert('user_relationships', array('role'=>3, 'privilege'=>$insert_ids[$i]));
-				$rs_query->insert('user_relationships', array('role'=>4, 'privilege'=>$insert_ids[$i]));
+			// Loop through the privileges
+			for($i = 0; $i < count($privileges); $i++) {
+				// Insert the new privileges into the database
+				$insert_ids[] = $rs_query->insert('user_privileges', array('name'=>$privileges[$i]));
+				
+				// Determine which privileges should be assigned to which roles
+				if($privileges[$i] === 'can_view_'.$name_lowercase || $privileges[$i] === 'can_create_'.$name_lowercase || $privileges[$i] === 'can_edit_'.$name_lowercase) {
+					// Insert new user role relationships into the database
+					$rs_query->insert('user_relationships', array('role'=>2, 'privilege'=>$insert_ids[$i]));
+					$rs_query->insert('user_relationships', array('role'=>3, 'privilege'=>$insert_ids[$i]));
+					$rs_query->insert('user_relationships', array('role'=>4, 'privilege'=>$insert_ids[$i]));
+				} elseif($privileges[$i] === 'can_delete_'.$name_lowercase) {
+					// Insert new user role relationships into the database
+					$rs_query->insert('user_relationships', array('role'=>3, 'privilege'=>$insert_ids[$i]));
+					$rs_query->insert('user_relationships', array('role'=>4, 'privilege'=>$insert_ids[$i]));
+				}
 			}
 		}
 	}
@@ -552,13 +563,186 @@ function registerDefaultPostTypes() {
 			'name'=>'Menu Items',
 			'name_singular'=>'Menu Item'
 		),
-		'public'=>false
+		'public'=>false,
+		'create_privileges'=>false
 	));
 	
 	// Widget
 	registerPostType('widget', array(
 		'public'=>false,
 		'menu_link'=>'widgets.php'
+	));
+}
+
+/**
+ * Set all taxonomy labels.
+ * @since 1.0.4[b]
+ *
+ * @param string $taxonomy
+ * @param array $labels (optional; default: array())
+ * @return array
+ */
+function getTaxonomyLabels($taxonomy, $labels = array()) {
+	// Set the default and singular names
+	$name = str_replace('_', ' ', $taxonomy === 'category' ? 'Categories' : ucfirst($taxonomy).'s');
+	$name_singular = str_replace('_', ' ', ucfirst($taxonomy));
+	
+	// Set the default labels
+	$defaults = array(
+		'name'=>$name,
+		'name_lowercase'=>strtolower($name),
+		'name_singular'=>$name_singular,
+		'list_items'=>'List '.$name,
+		'create_item'=>'Create '.$name_singular,
+		'edit_item'=>'Edit '.$name_singular,
+	);
+	
+	// Merge the defaults with the provided labels
+	$labels = array_merge($defaults, $labels);
+	
+	// Return the labels
+	return $labels;
+}
+
+/**
+ * Register a taxonomy.
+ * @since 1.0.1[b]
+ *
+ * @param string $name
+ * @param array $args (optional; default: array())
+ * @return null
+ */
+function registerTaxonomy($name, $args = array()) {
+	// Extend the Query object and the taxonomies array
+	global $rs_query, $taxonomies;
+	
+	// Make sure the taxonomies global is an array
+	if(!is_array($taxonomies)) $taxonomies = array();
+	
+	// Sanitize the name
+	$name = sanitize($name);
+	
+	// Check whether the taxonomy's name is valid
+	if(empty($name) || strlen($name) > 20)
+		exit('A taxonomy\'s name must be between 1 and 20 characters long.');
+	
+	// Fetch any taxonomies that have the same name as the newly registered one
+	$taxonomy = $rs_query->selectRow('taxonomies', '*', array('name'=>$name));
+	
+	// Check whether the taxonomy already exists
+	if(empty($taxonomy)) {
+		// Insert the new taxonomy into the database
+		$rs_query->insert('taxonomies', array('name'=>$name));
+	}
+	
+	// Set the default arguments
+	$defaults = array(
+		'labels'=>array(),
+		'public'=>true,
+		'hierarchical'=>false,
+		'create_privileges'=>true,
+		'show_in_stats_graph'=>null,
+		'show_in_admin_menu'=>null,
+		'show_in_admin_bar'=>null,
+		'show_in_nav_menus'=>null,
+		'menu_link'=>'terms.php',
+		'post_type'=>''
+	);
+	
+	// Merge the defaults with the provided arguments
+	$args = array_merge($defaults, $args);
+	
+	// Loop through the args array
+	foreach($args as $key=>$value) {
+		// Remove any unrecognized arguments from the array
+		if(!array_key_exists($key, $defaults)) unset($args[$key]);
+	}
+	
+	// Set 'show_in_stats_graph' to the value of 'public' if not specified
+	if(is_null($args['show_in_stats_graph'])) $args['show_in_stats_graph'] = $args['public'];
+	
+	// Set 'show_in_admin_menu' to the value of 'public' if not specified
+	if(is_null($args['show_in_admin_menu'])) $args['show_in_admin_menu'] = $args['public'];
+	
+	// Set 'show_in_admin_bar' to the value of 'public' if not specified
+	if(is_null($args['show_in_admin_bar'])) $args['show_in_admin_bar'] = $args['public'];
+	
+	// Set 'show_in_nav_menus' to the value of 'public' if not specified
+	if(is_null($args['show_in_nav_menus'])) $args['show_in_nav_menus'] = $args['public'];
+	
+	// Add the taxonomy's name to the list of arguments
+	$args['name'] = $name;
+	
+	// Set the default labels
+	$args['labels'] = getTaxonomyLabels($name, $args['labels']);
+	
+	// Set the label
+	$args['label'] = $args['labels']['name'];
+	
+	// Assign the arguments to the global post types array
+	$taxonomies[$name] = $args;
+	
+	// Check whether privileges should be created for the taxonomy
+	if($args['create_privileges']) {
+		// Replace any spaces in the name with underscores
+		$name_lowercase = str_replace(' ', '_', $args['labels']['name_lowercase']);
+		
+		// Create an array of privileges for the taxonomy
+		$privileges = array('can_view_'.$name_lowercase, 'can_create_'.$name_lowercase, 'can_edit_'.$name_lowercase, 'can_delete_'.$name_lowercase);
+		
+		// Fetch any privileges that match the ones in the array
+		$db_privileges = $rs_query->select('user_privileges', '*', array('name'=>array('IN', $privileges[0], $privileges[1], $privileges[2], $privileges[3])));
+		
+		// Check whether the privileges exist in the database
+		if(empty($db_privileges)) {
+			// Create an empty array to hold the new privileges' ids
+			$insert_ids = array();
+			
+			// Loop through the privileges
+			for($i = 0; $i < count($privileges); $i++) {
+				// Insert the new privileges into the database
+				$insert_ids[] = $rs_query->insert('user_privileges', array('name'=>$privileges[$i]));
+				
+				// Determine which privileges should be assigned to which roles
+				if($privileges[$i] === 'can_view_'.$name_lowercase || $privileges[$i] === 'can_create_'.$name_lowercase || $privileges[$i] === 'can_edit_'.$name_lowercase) {
+					// Insert new user role relationships into the database
+					$rs_query->insert('user_relationships', array('role'=>2, 'privilege'=>$insert_ids[$i]));
+					$rs_query->insert('user_relationships', array('role'=>3, 'privilege'=>$insert_ids[$i]));
+					$rs_query->insert('user_relationships', array('role'=>4, 'privilege'=>$insert_ids[$i]));
+				} elseif($privileges[$i] === 'can_delete_'.$name_lowercase) {
+					// Insert new user role relationships into the database
+					$rs_query->insert('user_relationships', array('role'=>3, 'privilege'=>$insert_ids[$i]));
+					$rs_query->insert('user_relationships', array('role'=>4, 'privilege'=>$insert_ids[$i]));
+				}
+			}
+		}
+	}
+}
+
+/**
+ * Register default taxonomies.
+ * @since 1.0.4[b]
+ *
+ * @return null
+ */
+function registerDefaultTaxonomies() {
+	// Category
+	registerTaxonomy('category', array(
+		'menu_link'=>'categories.php'
+	));
+	
+	// Nav_menu
+	registerTaxonomy('nav_menu', array(
+		'labels'=>array(
+			'name'=>'Menus',
+			'name_lowercase'=>'menus',
+			'name_singular'=>'Menu',
+			'list_items'=>'List Menus',
+			'create_item'=>'Create Menu',
+			'edit_item'=>'Edit Menu'
+		),
+		'public'=>false,
+		'menu_link'=>'menus.php'
 	));
 }
 

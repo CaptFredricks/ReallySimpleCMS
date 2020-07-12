@@ -15,16 +15,22 @@ class Widget extends Post {
 	 * @return null
 	 */
 	public function listWidgets() {
-		// Extend the Query object
-		global $rs_query;
+		// Extend the Query object and the user's session data
+		global $rs_query, $session;
 		
 		// Set up pagination
 		$page = paginate((int)($_GET['paged'] ?? 1));
 		?>
 		<div class="heading-wrap">
 			<h1>Widgets</h1>
-			<a class="button" href="?action=create">Create New</a>
 			<?php
+			// Check whether the user has sufficient privileges to create widgets
+			if(userHasPrivilege($session['role'], 'can_create_widgets')) {
+				?>
+				<a class="button" href="?action=create">Create New</a>
+				<?php
+			}
+			
 			// Display any status messages
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
 				echo statusMessage('The widget was successfully deleted.', true);

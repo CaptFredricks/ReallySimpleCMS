@@ -140,8 +140,8 @@ class Post {
 	 * @return null
 	 */
 	public function listPosts() {
-		// Extend the Query object
-		global $rs_query;
+		// Extend the Query object and the user's session data
+		global $rs_query, $session;
 		
 		// Fetch the post's type
 		$type = $this->type_data['name'];
@@ -157,7 +157,14 @@ class Post {
 		?>
 		<div class="heading-wrap">
 			<h1><?php echo $this->type_data['label']; ?></h1>
-			<a class="button" href="?<?php echo $type === 'post' ? '' : 'type='.$type.'&'; ?>action=create">Create New</a>
+			<?php
+			// Check whether the user has sufficient privileges to create posts of the current type
+			if(userHasPrivilege($session['role'], 'can_create_'.str_replace(' ', '_', $this->type_data['labels']['name_lowercase']))) {
+				?>
+				<a class="button" href="?<?php echo $type === 'post' ? '' : 'type='.$type.'&'; ?>action=create">Create New</a>
+				<?php
+			}
+			?>
 			<hr>
 			<?php
 			// Display any status messages

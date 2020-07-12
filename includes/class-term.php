@@ -41,6 +41,12 @@ class Term {
 			// Filter out any empty array values
 			$uri = array_filter($uri);
 			
+			// Check whether the last element of the array is the slug
+			if(strpos(end($uri), '?') !== false) {
+				// Fetch the query string at the end of the array
+				$query_string = array_pop($uri);
+			}
+			
 			// Fetch the slug from the URI array
 			$this->slug = array_pop($uri);
 			
@@ -52,6 +58,9 @@ class Term {
 			
 			// Check whether the slug is valid and redirect to the 404 (Not Found) page if not
 			if(empty($id)) redirect('/404.php');
+			
+			// Check whether the query string is set and concatenate it to the permalink if so
+			if(isset($query_string)) $permalink .= $query_string;
 			
 			// Check whether the permalink is valid and redirect to the proper one if not
 			if($raw_uri !== $permalink) redirect($permalink);

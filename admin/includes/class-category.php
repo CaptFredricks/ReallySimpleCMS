@@ -15,16 +15,22 @@ class Category {
 	 * @return null
 	 */
 	public function listCategories() {
-		// Extend the Query object
-		global $rs_query;
+		// Extend the Query object and the user's session data
+		global $rs_query, $session;
 		
 		// Set up pagination
 		$page = paginate((int)($_GET['paged'] ?? 1));
 		?>
 		<div class="heading-wrap">
 			<h1>Categories</h1>
-			<a class="button" href="?action=create">Create New</a>
 			<?php
+			// Check whether the user has sufficient privileges to create categories
+			if(userHasPrivilege($session['role'], 'can_create_categories')) {
+				?>
+				<a class="button" href="?action=create">Create New</a>
+				<?php
+			}
+			
 			// Display any status messages
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
 				echo statusMessage('The category was successfully deleted.', true);

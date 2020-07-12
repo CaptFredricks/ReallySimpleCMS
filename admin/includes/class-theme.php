@@ -15,13 +15,19 @@ class Theme {
 	 * @return null
 	 */
 	public function listThemes() {
-		// Extend the Query object
-		global $rs_query;
+		// Extend the Query object and the user's session data
+		global $rs_query, $session;
 		?>
 		<div class="heading-wrap">
 			<h1>Themes</h1>
-			<a class="button" href="?action=create">Create New</a>
 			<?php
+			// Check whether the user has sufficient privileges to create themes
+			if(userHasPrivilege($session['role'], 'can_create_themes')) {
+				?>
+				<a class="button" href="?action=create">Create New</a>
+				<?php
+			}
+			
 			// Display any status messages
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
 				echo statusMessage('The theme was successfully deleted.', true);

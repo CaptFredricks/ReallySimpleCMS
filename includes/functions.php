@@ -307,30 +307,6 @@ function registerWidget($title, $slug) {
 }
 
 /**
- * Register a custom taxonomy.
- * @since 1.0.1[b]
- *
- * @param string $name
- * @return null
- */
-function registerTaxonomy($name) {
-	// Extend the Query object
-	global $rs_query;
-	
-	// Sanitize the name
-	$name = sanitize($name);
-	
-	// Fetch any taxonomies that have the same name as the newly registered one
-	$taxonomy = $rs_query->selectRow('taxonomies', '*', array('name'=>$name));
-	
-	// Check whether the taxonomy already exists
-	if(empty($taxonomy)) {
-		// Insert the new taxonomy into the database
-		$rs_query->insert('taxonomies', array('name'=>$name));
-	}
-}
-
-/**
  * Load all header scripts and stylesheets.
  * @since 2.4.2[a]
  *
@@ -466,8 +442,8 @@ function bodyClasses($addtl_classes = array()) {
  * @return null
  */
 function adminBar() {
-	// Extend the Post object, the user's session data, and the post types array
-	global $rs_post, $session, $post_types;
+	// Extend the Post object, the user's session data, and the post types and taxonomies arrays
+	global $rs_post, $session, $post_types, $taxonomies;
 	?>
 	<div id="admin-bar">
 		<ul class="menu">
@@ -476,19 +452,21 @@ function adminBar() {
 				<ul class="sub-menu">
 					<li><a href="/admin/">Dashboard</a></li>
 					<?php
-					// Loop through the post types (default)
+					// Loop through the post types
 					foreach($post_types as $post_type) {
-						// Skip any post type that is not a default post type or has 'show_in_admin_bar' set to false
-						if(!$post_type['default'] || !$post_type['show_in_admin_bar']) continue;
+						// Skip any post type that the user doesn't have sufficient privileges to view or that has 'show_in_admin_bar' set to false
+						if(!userHasPrivilege($session['role'], 'can_view_'.str_replace(' ', '_', $post_type['labels']['name_lowercase'])) || !$post_type['show_in_admin_bar']) continue;
 						?>
 						<li>
 							<a href="/admin/<?php echo $post_type['menu_link']; ?>"><?php echo $post_type['label']; ?></a>
 							<?php
-							// Check whether the post type has a taxonomy
-							if(!empty($post_type['taxonomy'])) {
+							// Check whether the post type has a taxonomy and whether it has 'show_in_admin_bar' set to true
+							if(!empty($post_type['taxonomy']) && $taxonomies[$post_type['taxonomy']]['show_in_admin_bar']) {
 								?>
 								<ul class="sub-menu">
-									<li><a href="/admin/categories.php"><?php echo $post_type['labels']['taxonomy']; ?></a></li>
+									<li>
+										<a href="/admin/<?php echo $taxonomies[$post_type['taxonomy']]['menu_link']; ?>"><?php echo $taxonomies[$post_type['taxonomy']]['label']; ?></a>
+									</li>
 								</ul>
 								<?php
 							}
@@ -497,63 +475,66 @@ function adminBar() {
 						<?php
 					}
 					
-					// Loop through the post types (custom)
-					foreach($post_types as $post_type) {
-						// Skip any post type that is not a custom post type or has 'show_in_admin_bar' set to false
-						if($post_type['default'] || !$post_type['show_in_admin_bar']) continue;
-						?>
+					// Check whether the user has sufficient privileges to view customization options
+					if(userHasPrivilege($session['role'], 'can_view_themes') || userHasPrivilege($session['role'], 'can_view_menus') || userHasPrivilege($session['role'], 'can_view_widgets')): ?>
 						<li>
-							<a href="/admin/<?php echo $post_type['menu_link']; ?>"><?php echo $post_type['label']; ?></a>
-							<?php
-							// Check whether the post type has a taxonomy
-							if(!empty($post_type['taxonomy'])) {
-								?>
-								<ul class="sub-menu">
-									<li><a href="/admin/categories.php"><?php echo $post_type['labels']['taxonomy']; ?></a></li>
-								</ul>
-								<?php
-							}
-							?>
+							<a href="javascript:void(0)">Customization</a>
+							<ul class="sub-menu">
+								<?php if(userHasPrivilege($session['role'], 'can_view_themes')): ?>
+									<li><a href="/admin/themes.php">Themes</a></li>
+								<?php endif; ?>
+								<?php if(userHasPrivilege($session['role'], 'can_view_menus')): ?>
+									<li><a href="/admin/menus.php">Menus</a></li>
+								<?php endif; ?>
+								<?php if(userHasPrivilege($session['role'], 'can_view_widgets')): ?>
+									<li><a href="/admin/widgets.php">Widgets</a></li>
+								<?php endif; ?>
+							</ul>
 						</li>
-						<?php
-					}
-					?>
-					<li>
-						<a href="javascript:void(0)">Customization</a>
-						<ul class="sub-menu">
-							<li><a href="/admin/themes.php">Themes</a></li>
-							<li><a href="/admin/menus.php">Menus</a></li>
-							<li><a href="/admin/widgets.php">Widgets</a></li>
-						</ul>
-					</li>
-					<li><a href="/admin/users.php">Users</a></li>
-					<li>
-						<a href="javascript:void(0)">Settings</a>
-						<ul class="sub-menu">
-							<li><a href="/admin/settings.php">General</a></li>
-							<li><a href="/admin/settings.php?page=design">Design</a></li>
-							<li><a href="/admin/settings.php?page=user_roles">User Roles</a></li>
-						</ul>
-					</li>
+					<?php endif; ?>
+					<?php if(userHasPrivilege($session['role'], 'can_view_users')): ?>
+						<li><a href="/admin/users.php">Users</a></li>
+					<?php endif; ?>
+					<?php if(userHasPrivilege($session['role'], 'can_edit_settings')): ?>
+						<li>
+							<a href="javascript:void(0)">Settings</a>
+							<ul class="sub-menu">
+								<li><a href="/admin/settings.php">General</a></li>
+								<li><a href="/admin/settings.php?page=design">Design</a></li>
+								<?php if(userHasPrivilege($session['role'], 'can_view_user_roles')): ?>
+									<li><a href="/admin/settings.php?page=user_roles">User Roles</a></li>
+								<?php endif; ?>
+							</ul>
+						</li>
+					<?php elseif(!userHasPrivilege($session['role'], 'can_edit_settings') && userHasPrivilege($session['role'], 'can_view_user_roles')): ?>
+						<li>
+							<a href="javascript:void(0)">Settings</a>
+							<ul class="sub-menu">
+								<li><a href="/admin/settings.php?page=user_roles">User Roles</a></li>
+							</ul>
+						</li>
+					<?php endif; ?>
 				</ul>
 			</li>
 			<li>
 				<a href="javascript:void(0)"><i class="fas fa-plus"></i> <span>New</span></a>
 				<ul class="sub-menu">
 					<?php
-					// Loop through the post types (default)
+					// Loop through the post types
 					foreach($post_types as $post_type) {
-						// Skip any post type that is not a default post type or has 'show_in_admin_bar' set to false
-						if(!$post_type['default'] || !$post_type['show_in_admin_bar']) continue;
+						// Skip any post type that the user doesn't have sufficient privileges to create or that has 'show_in_admin_bar' set to false
+						if(!userHasPrivilege($session['role'], 'can_create_'.str_replace(' ', '_', $post_type['labels']['name_lowercase'])) || !$post_type['show_in_admin_bar']) continue;
 						?>
 						<li>
 							<a href="/admin/<?php echo $post_type['menu_link'].($post_type['name'] === 'media' ? '?action=upload' : ($post_type['name'] === 'post' ? '?action=create' : '&action=create')); ?>"><?php echo $post_type['labels']['name_singular']; ?></a>
 							<?php
-							// Check whether the post type has a taxonomy
-							if(!empty($post_type['taxonomy'])) {
+							// Check whether the post type has a taxonomy and whether it has 'show_in_admin_bar' set to true
+							if(!empty($post_type['taxonomy']) && $taxonomies[$post_type['taxonomy']]['show_in_admin_bar']) {
 								?>
 								<ul class="sub-menu">
-									<li><a href="/admin/categories.php?action=create"><?php echo $post_type['labels']['taxonomy_singular']; ?></a></li>
+									<li>
+										<a href="/admin/<?php echo $taxonomies[$post_type['taxonomy']]['menu_link'].($post_type['taxonomy'] === 'category' ? '?action=create' : '&action=create'); ?>"><?php echo $taxonomies[$post_type['taxonomy']]['labels']['name_singular']; ?></a>
+									</li>
 								</ul>
 								<?php
 							}
@@ -562,35 +543,34 @@ function adminBar() {
 						<?php
 					}
 					
-					// Loop through the post types (custom)
-					foreach($post_types as $post_type) {
-						// Skip any post type that is not a custom post type or has 'show_in_admin_bar' set to false
-						if($post_type['default'] || !$post_type['show_in_admin_bar']) continue;
-						?>
+					// Check whether the user has sufficient privileges to view customization options
+					if(userHasPrivilege($session['role'], 'can_create_themes') || userHasPrivilege($session['role'], 'can_create_menus') || userHasPrivilege($session['role'], 'can_create_widgets')): ?>
 						<li>
-							<a href="/admin/<?php echo $post_type['menu_link'].'&action=create'; ?>"><?php echo $post_type['labels']['name_singular']; ?></a>
-							<?php
-							// Check whether the post type has a taxonomy
-							if(!empty($post_type['taxonomy'])) {
-								?>
-								<ul class="sub-menu">
-									<li><a href="/admin/categories.php"><?php echo $post_type['labels']['taxonomy_singular']; ?></a></li>
-								</ul>
-								<?php
-							}
-							?>
+							<a href="javascript:void(0)">Customization</a>
+							<ul class="sub-menu">
+								<?php if(userHasPrivilege($session['role'], 'can_create_themes')): ?>
+									<li><a href="/admin/themes.php?action=create">Theme</a></li>
+								<?php endif; ?>
+								<?php if(userHasPrivilege($session['role'], 'can_create_menus')): ?>
+									<li><a href="/admin/menus.php?action=create">Menu</a></li>
+								<?php endif; ?>
+								<?php if(userHasPrivilege($session['role'], 'can_create_widgets')): ?>
+									<li><a href="/admin/widgets.php?action=create">Widget</a></li>
+								<?php endif; ?>
+							</ul>
 						</li>
-						<?php
-					}
-					?>
-					<li>
-						<a href="javascript:void(0)">Customization</a>
-						<ul class="sub-menu">
-							<li><a href="/admin/menus.php?action=create">Menu</a></li>
-							<li><a href="/admin/widgets.php?action=create">Widget</a></li>
-						</ul>
-					</li>
-					<li><a href="/admin/users.php?action=create">User</a></li>
+					<?php endif; ?>
+					<?php if(userHasPrivilege($session['role'], 'can_create_users')): ?>
+						<li><a href="/admin/users.php?action=create">User</a></li>
+					<?php endif; ?>
+					<?php if(userHasPrivilege($session['role'], 'can_create_user_roles')): ?>
+						<li>
+							<a href="javascript:void(0)">Settings</a>
+							<ul class="sub-menu">
+								<li><a href="/admin/settings.php?page=user_roles&action=create">User Roles</a></li>
+							</ul>
+						</li>
+					<?php endif; ?>
 				</ul>
 			</li>
 			<?php if(!is_null($rs_post)): ?>

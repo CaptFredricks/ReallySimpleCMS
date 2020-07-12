@@ -15,11 +15,8 @@ if(isset($_GET['type'])) {
 		// Set the type to 'post'
 		$type = 'post';
 	} else {
-		// Fetch the post's type from the database
-		$post = $rs_query->selectRow('posts', 'type', array('id'=>$id));
-		
-		// Set the post's type if the post exists
-		if($post) $type = $post['type'];
+		// Fetch the post's type from the database and set the type if it exists
+		$type = $rs_query->selectField('posts', 'type', array('id'=>$id)) ?? 'post';
 	}
 }
 
@@ -29,7 +26,7 @@ $rs_post = new Post($id, $post_types[$type] ?? array());
 <div class="wrapper clear">
 	<?php
 	// Create an id from the post type's label
-	$type_id = strtolower($post_types[$type]['label']);
+	$type_id = str_replace(' ', '_', $post_types[$type]['labels']['name_lowercase']);
 	
 	// Fetch the current action
 	$action = $_GET['action'] ?? '';

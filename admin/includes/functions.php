@@ -504,22 +504,25 @@ function adminNavMenuItem($item = array(), $submenu = array(), $icon = null) {
 				<?php
 				// Loop through the submenu items
 				foreach($submenu as $sub_item) {
-					// Break out of the loop if the menu item is empty or is not an array
-					if(empty($sub_item) || !empty($sub_item) && !is_array($sub_item)) break;
+					// Break out of the loop if the menu item is not an array
+					if(!empty($sub_item) && !is_array($sub_item)) break;
 					
-					// Fetch the submenu item id
-					$sub_item_id = $sub_item['id'] ?? $item_id;
-					
-					// Fetch the submenu item link
-					$sub_item_link = isset($sub_item['link']) ? trailingSlash(ADMIN).$sub_item['link'] : 'javascript:void(0)';
-					
-					// Fetch the submenu item caption
-					$sub_item_caption = $sub_item['caption'] ?? ucwords(str_replace('-', ' ', $sub_item_id));
-					?>
-					<li<?php echo $sub_item_id === $current ? ' class="current-submenu-item"' : ''; ?>>
-						<a href="<?php echo $sub_item_link; ?>"><?php echo $sub_item_caption; ?></a>
-					</li>
-					<?php
+					// Check whether the menu item is empty
+					if(!empty($sub_item)) {
+						// Fetch the submenu item id
+						$sub_item_id = $sub_item['id'] ?? $item_id;
+						
+						// Fetch the submenu item link
+						$sub_item_link = isset($sub_item['link']) ? trailingSlash(ADMIN).$sub_item['link'] : 'javascript:void(0)';
+						
+						// Fetch the submenu item caption
+						$sub_item_caption = $sub_item['caption'] ?? ucwords(str_replace('-', ' ', $sub_item_id));
+						?>
+						<li<?php echo $sub_item_id === $current ? ' class="current-submenu-item"' : ''; ?>>
+							<a href="<?php echo $sub_item_link; ?>"><?php echo $sub_item_caption; ?></a>
+						</li>
+						<?php
+					}
 				}
 				?>
 			</ul>
@@ -536,19 +539,25 @@ function adminNavMenuItem($item = array(), $submenu = array(), $icon = null) {
  *
  */
 function adminNavMenu() {
-	// Extend the user's session data and the post types array
-	global $session, $post_types;
+	// Extend the user's session data and the post types and taxonomies arrays
+	global $session, $post_types, $taxonomies;
 	
 	// Dashboard
 	adminNavMenuItem(array('id'=>'dashboard', 'link'=>'index.php'), array(), 'tachometer-alt');
 	
-	// Loop through the post types (default)
+	// Loop through the post types
 	foreach($post_types as $post_type) {
-		// Skip any post type that is not a default post type or has 'show_in_admin_menu' set to false
-		if(!$post_type['default'] || !$post_type['show_in_admin_menu']) continue;
+		// Skip any post type that has 'show_in_admin_menu' set to false
+		if(!$post_type['show_in_admin_menu']) continue;
 		
 		// Create an id from the post type's label
-		$id = strtolower($post_type['label']);
+		$id = str_replace(' ', '_', $post_type['labels']['name_lowercase']);
+		
+		// Check whether the post type has a taxonomy associated with it
+		if(!empty($post_type['taxonomy'])) {
+			// Create an id from the taxonomy's label
+			$tax_id = str_replace(' ', '_', $taxonomies[$post_type['taxonomy']]['labels']['name_lowercase']);
+		}
 		
 		// Make sure the user has the proper privileges to view the post type
 		if(userHasPrivilege($session['role'], 'can_view_'.$id)) {
@@ -557,60 +566,48 @@ function adminNavMenu() {
 					'link'=>$post_type['menu_link'],
 					'caption'=>$post_type['labels']['list_items']
 				),
-				array( // Create <post type>
+				(userHasPrivilege($session['role'], 'can_create_'.$id) ? array( // Create <post type>
 					'id'=>$id === 'media' ? $id.'-upload' : $id.'-create',
 					'link'=>$post_type['menu_link'].($post_type['name'] === 'media' ? '?action=upload' : ($post_type['name'] === 'post' ? '?action=create' : '&action=create')),
 					'caption'=>$post_type['labels']['create_item']
-				),
-				(!empty($post_type['taxonomy']) ? array( // Taxonomy
-					'id'=>strtolower($post_type['labels']['taxonomy']),
-					'link'=>'categories.php',
-					'caption'=>'List '.$post_type['labels']['taxonomy']
-				) : array())
+				) : null),
+				(!empty($post_type['taxonomy']) && userHasPrivilege($session['role'], 'can_view_'.$tax_id) && $taxonomies[$post_type['taxonomy']]['show_in_admin_menu'] ? array( // Taxonomy
+					'id'=>$tax_id,
+					'link'=>$taxonomies[$post_type['taxonomy']]['menu_link'],
+					'caption'=>$taxonomies[$post_type['taxonomy']]['labels']['list_items']
+				) : null)
 			), $post_type['menu_icon']);
 		}
 	}
 	
-	// Loop through the post types (custom)
-	foreach($post_types as $post_type) {
-		// Skip any post type that is a default post type or has 'show_in_admin_menu' set to false
-		if($post_type['default'] || !$post_type['show_in_admin_menu']) continue;
-		
-		// Create an id from the post type's label
-		$id = strtolower($post_type['label']);
-		
-		// Make sure the user has the proper privileges to view the post type
-		if(userHasPrivilege($session['role'], 'can_view_'.$id)) {
-			adminNavMenuItem(array('id'=>$id), array( // Submenu
-				array( // List <post type>
-					'link'=>$post_type['menu_link'],
-					'caption'=>$post_type['labels']['list_items']
-				),
-				array( // Create <post type>
-					'id'=>$id.'-create',
-					'link'=>$post_type['menu_link'].'&action=create',
-					'caption'=>$post_type['labels']['create_item']
-				),
-				(!empty($post_type['taxonomy']) ? array( // Taxonomy
-					'id'=>strtolower($post_type['labels']['taxonomy']),
-					'link'=>$post_type['name'] === 'post' ? 'categories.php' : '',
-					'caption'=>'List '.$post_type['labels']['taxonomy']
-				) : array())
-			), $post_type['menu_icon']);
-		}
+	// Check whether the user has sufficient privileges to view customization options
+	if(userHasPrivilege($session['role'], 'can_view_themes') || userHasPrivilege($session['role'], 'can_view_menus') || userHasPrivilege($session['role'], 'can_view_widgets')) {
+		adminNavMenuItem(array('id'=>'customization'), array( // Submenu
+			(userHasPrivilege($session['role'], 'can_view_themes') ? array('id'=>'themes', 'link'=>'themes.php', 'caption'=>'List Themes') : null),
+			(userHasPrivilege($session['role'], 'can_view_menus') ? array('id'=>'menus', 'link'=>'menus.php', 'caption'=>'List Menus') : null),
+			(userHasPrivilege($session['role'], 'can_view_widgets') ? array('id'=>'widgets', 'link'=>'widgets.php', 'caption'=>'List Widgets') : null)
+		), 'palette');
 	}
 	
-	// Customization
-	if(userHasPrivilege($session['role'], 'can_view_themes') || userHasPrivilege($session['role'], 'can_view_menus') || userHasPrivilege($session['role'], 'can_view_widgets'))
-		adminNavMenuItem(array('id'=>'customization'), array(array('id'=>'themes', 'link'=>'themes.php', 'caption'=>'List Themes'), array('id'=>'menus', 'link'=>'menus.php', 'caption'=>'List Menus'), array('id'=>'widgets', 'link'=>'widgets.php', 'caption'=>'List Widgets')), 'palette');
+	// Users/user profile
+	adminNavMenuItem(array('id'=>'users'), array( // Submenu
+		(userHasPrivilege($session['role'], 'can_view_users') ? array('link'=>'users.php', 'caption'=>'List Users') : null),
+		(userHasPrivilege($session['role'], 'can_create_users') ? array('id'=>'users-create', 'link'=>'users.php?action=create', 'caption'=>'Create User') : null),
+		array('id'=>'profile', 'link'=>'profile.php', 'caption'=>'Your Profile')
+	), 'users');
 	
-	// Users
-	if(userHasPrivilege($session['role'], 'can_view_users'))
-		adminNavMenuItem(array('id'=>'users'), array(array('link'=>'users.php', 'caption'=>'List Users'), array('id'=>'users-create', 'link'=>'users.php?action=create', 'caption'=>'Create User'), array('id'=>'profile', 'link'=>'profile.php', 'caption'=>'Your Profile')), 'users');
-	
-	// Settings
-	if(userHasPrivilege($session['role'], 'can_edit_settings'))
-		adminNavMenuItem(array('id'=>'settings'), array(array('link'=>'settings.php', 'caption'=>'General'), array('id'=>'design', 'link'=>'settings.php?page=design', 'caption'=>'Design'), array('id'=>'user-roles', 'link'=>'settings.php?page=user_roles', 'caption'=>'User Roles')), 'cogs');
+	// Check whether the user has sufficient privileges to view settings
+	if(userHasPrivilege($session['role'], 'can_edit_settings')) {
+		adminNavMenuItem(array('id'=>'settings'), array( // Submenu
+			array('link'=>'settings.php', 'caption'=>'General'),
+			array('id'=>'design', 'link'=>'settings.php?page=design', 'caption'=>'Design'),
+			(userHasPrivilege($session['role'], 'can_view_user_roles') ? array('id'=>'user-roles', 'link'=>'settings.php?page=user_roles', 'caption'=>'User Roles') : null)
+		), 'cogs');
+	} elseif(!userHasPrivilege($session['role'], 'can_edit_settings') && userHasPrivilege($session['role'], 'can_view_user_roles')) {
+		adminNavMenuItem(array('id'=>'settings'), array( // Submenu
+			array('id'=>'user-roles', 'link'=>'settings.php?page=user_roles', 'caption'=>'User Roles')
+		), 'cogs');
+	}
 }
 
 /**

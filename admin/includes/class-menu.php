@@ -24,16 +24,22 @@ class Menu {
 	 * @return null
 	 */
 	public function listMenus() {
-		// Extend the Query object
-		global $rs_query;
+		// Extend the Query object and the user's session data
+		global $rs_query, $session;
 		
 		// Set up pagination
 		$page = paginate((int)($_GET['paged'] ?? 1));
 		?>
 		<div class="heading-wrap">
 			<h1>Menus</h1>
-			<a class="button" href="?action=create">Create New</a>
 			<?php
+			// Check whether the user has sufficient privileges to create menus
+			if(userHasPrivilege($session['role'], 'can_create_menus')) {
+				?>
+				<a class="button" href="?action=create">Create New</a>
+				<?php
+			}
+			
 			// Display any status messages
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
 				echo statusMessage('The menu was successfully deleted.', true);

@@ -41,8 +41,14 @@ class User {
 		?>
 		<div class="heading-wrap">
 			<h1>Users</h1>
-			<a class="button" href="?action=create">Create New</a>
 			<?php
+			// Check whether the user has sufficient privileges to create users
+			if(userHasPrivilege($session['role'], 'can_create_users')) {
+				?>
+				<a class="button" href="?action=create">Create New</a>
+				<?php
+			}
+			
 			// Display any status messages
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
 				echo statusMessage('The user was successfully deleted.', true);

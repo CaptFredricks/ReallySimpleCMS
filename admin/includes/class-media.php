@@ -15,16 +15,22 @@ class Media extends Post {
 	 * @return null
 	 */
 	public function listMedia() {
-		// Extend the Query object
-		global $rs_query;
+		// Extend the Query object and the user's session data
+		global $rs_query, $session;
 		
 		// Set up pagination
 		$page = paginate((int)($_GET['paged'] ?? 1));
 		?>
 		<div class="heading-wrap">
 			<h1>Media</h1>
-			<a class="button" href="?action=upload">Upload New</a>
 			<?php
+			// Check whether the user has sufficient privileges to upload media
+			if(userHasPrivilege($session['role'], 'can_upload_media')) {
+				?>
+				<a class="button" href="?action=upload">Upload New</a>
+				<?php
+			}
+			
 			// Check whether any status messages have been returned
 			if(isset($_GET['exit_status'])) {
 				// Choose an appropriate status message based upon the exit status

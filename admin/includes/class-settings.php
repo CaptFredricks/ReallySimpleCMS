@@ -244,16 +244,22 @@ class Settings {
 	 * @return null
 	 */
 	public function listUserRoles() {
-		// Extend the Query object
-		global $rs_query;
+		// Extend the Query object and the user's session data
+		global $rs_query, $session;
 		
 		// Set up pagination
 		$page = paginate((int)($_GET['paged'] ?? 1));
 		?>
 		<div class="heading-wrap">
 			<h1>User Roles</h1>
-			<a class="button" href="?page=user_roles&action=create">Create New</a>
 			<?php
+			// Check whether the user has sufficient privileges to create user roles
+			if(userHasPrivilege($session['role'], 'can_create_user_roles')) {
+				?>
+				<a class="button" href="?page=user_roles&action=create">Create New</a>
+				<?php
+			}
+			
 			// Display any status messages
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
 				echo statusMessage('The user role was successfully deleted.', true);
@@ -571,7 +577,7 @@ class Settings {
 		$privileges = array();
 		
 		// Fetch the user relationships from the database
-		$relationships = $rs_query->select('user_relationships', 'privilege', array('role'=>$id));
+		$relationships = $rs_query->select('user_relationships', 'privilege', array('role'=>$id), 'privilege');
 		
 		// Loop through the user relationships
 		foreach($relationships as $relationship) {

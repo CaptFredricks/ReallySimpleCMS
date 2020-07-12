@@ -38,8 +38,11 @@ class Post {
 			// Check whether the post is published and redirect to the 404 (Not Found) page if not
 			if($status !== 'published') redirect('/404.php');
 		} else {
+			// Fetch the post's URI
+			$raw_uri = $_SERVER['REQUEST_URI'];
+			
 			// Check whether the current page is the home page
-			if($_SERVER['REQUEST_URI'] === '/') {
+			if($raw_uri === '/' || strpos($raw_uri, '/?') === 0) {
 				// Fetch the home page's id from the database
 				$home_page = $rs_query->selectField('settings', 'value', array('name'=>'home_page'));
 				
@@ -84,14 +87,17 @@ class Post {
 					// Check whether the user is logged in and redirect to the 404 (Not Found) page if not
 					if(!isset($_COOKIE['session'])) redirect('/404.php');
 				} else {
-					// Fetch the post's URI
-					$raw_uri = $_SERVER['REQUEST_URI'];
-					
 					// Create an array from the post's URI
 					$uri = explode('/', $raw_uri);
 					
 					// Filter out any empty array values
 					$uri = array_filter($uri);
+					
+					// Check whether the last element of the array is the slug
+					if(strpos(end($uri), '?') !== false) {
+						// Fetch the query string at the end of the array
+						$query_string = array_pop($uri);
+					}
 					
 					// Fetch the slug from the URI array
 					$this->slug = array_pop($uri);
@@ -120,6 +126,9 @@ class Post {
 						} else {
 							// Construct the post's permalink
 							$permalink = $this->getPostPermalink($this->getPostType(false), $this->getPostParent(false), $this->getPostSlug($id, false));
+							
+							// Check whether the query string is set and concatenate it to the permalink if so
+							if(isset($query_string)) $permalink .= $query_string;
 							
 							// Check whether the permalink is valid and redirect to the proper one if not
 							if($raw_uri !== $permalink) redirect($permalink);

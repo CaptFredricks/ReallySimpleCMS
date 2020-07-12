@@ -1970,185 +1970,185 @@
 ----------------------------------------------------------------------------------------------------
 ## Version 1.4.10[a] (2019-07-26)
 
-* Added terms, taxonomies, and term_relationships tables to the schema
-* Renamed 'rp_link' table to 'rp_relationships'
-* Added a line of documentation to the CMS install.php file
-* Added form validation to Post::editEntry function
-* Changed the link color on status messages
-* Added table column for categories on 'post' post type page
-* Published pages now have proper permalinks for the 'view' link
-* The site url is now set during installation
-* Required field labels now have a red asterisk next to them instead of '(required)'
-* Improved styling on form pages using the form table layout
-* Improved documentation for the User class
-* Improved validation in the User::editEntry function
-* Created a function to retrieve post metadata
+- Added `terms`, `taxonomies`, and `term_relationships` tables to the schema
+- Renamed the `rp_link` table to `rp_relationships`
+- Added a line of documentation to the `install.php` file
+- Added form validation to the `Post::editEntry` function
+- Changed the link color on status messages
+- Added a column for categories on the `post` post type's 'List Posts' page
+- Published pages now have proper permalinks for the 'view' link
+- The site url is now set during installation
+- Required field labels now have a red asterisk next to them instead of '(required)'
+- Improved styling on form pages using the form table layout
+- Improved documentation for the `User` class
+- Improved validation in the `User::editEntry` function
+- Created a function that retrieves post metadata
 
 **Modified files:**
-* admin/includes/class-post.php
-* admin/includes/class-user.php
-* admin/includes/css/style.css
-* admin/includes/functions.php
-* admin/install.php
-* includes/schema.php
+- admin/includes/class-post.php
+- admin/includes/class-user.php
+- admin/includes/css/style.css
+- admin/includes/functions.php
+- admin/install.php
+- includes/schema.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.4.9[a] (2019-07-23)
 
-* Improved styling on 'Create Post' form
-* Created a function that checks whether a post is in the trash
-* Created a function that constructs a post permalink
-* Created a function that checks whether the current post is a descendant of other posts
-* Built 'Edit Post' page (posts cannot be submitted yet)
+- Improved styling of the 'Create Post' form
+- Created a function that checks whether a post is in the trash
+- Created a function that constructs a post permalink
+- Created a function that checks whether the current post is a descendant of other posts
+- Built the 'Edit Post' page (posts cannot be submitted yet)
 
 **Modified files:**
-* admin/includes/class-post.php
-* admin/includes/css/style.css
+- admin/includes/class-post.php
+- admin/includes/css/style.css
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.4.8[a] (2019-07-22)
 
-* Added form validation to Post::createEntry function
-* Created a function to check whether a post slug already exists in the database
-* Added styling to 'Create Post' form
-* Tweaked styling on the admin footer
-* Trashed posts will no longer appear in post parent dropdowns
+- Added form validation to the `Post::createEntry` function
+- Created a function that checks whether a post slug already exists in the database
+- Added styling to the 'Create Post' form
+- Tweaked styling on the admin footer
+- Trashed posts will no longer appear in post parent dropdowns
 
 **Modified files:**
-* admin/footer.php (M)
-* admin/includes/class-post.php
-* admin/includes/css/style.css
+- admin/footer.php (M)
+- admin/includes/class-post.php
+- admin/includes/css/style.css
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.4.7[a] (2019-07-21)
 
-* Improved styling on list entries pages
-* Improved exception handling in the following Post class functions: trashEntry, restoreEntry, getParent
-* A post's status will now display next to the post title on the list posts page (unless the post is published)
-* Added a column to display the post's parent (if it has one) on the list posts page
-* Posts can now be deleted
-* Tweaked a previous entry in the changelog
-* Posts can now be created (no validation yet)
+- Improved styling on list entries pages
+- Improved exception handling in the following `Post` class functions: `trashEntry`, `restoreEntry`, and `getParent`
+- A post's status will now display next to the post title on the 'List Posts' page (unless the post is published)
+- Added a column to display the post's parent (if it has one) on the list posts page
+- Posts can now be deleted
+- Tweaked a previous entry in the changelog
+- Posts can now be created (no validation yet)
 
 **Modified files:**
-* admin/includes/class-post.php
-* admin/includes/css/style.css
+- admin/includes/class-post.php
+- admin/includes/css/style.css
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.4.6[a] (2019-06-20)
 
-* Buttons will no longer have underlined text on mouse hover
-* The 'All Posts' table now tells whether metadata has been provided
-* Posts can now be trashed and restored
-* A post slug postmeta entry will no longer be created during the CMS install
+- Buttons will no longer have underlined text on mouse hover
+- The 'List Posts' table now tells whether metadata has been provided
+- Posts can now be trashed and restored
+- A post slug postmeta entry will no longer be created during the CMS installation
 
 **Modified files:**
-* admin/includes/class-post.php
-* admin/includes/functions.php (M)
-* includes/css/buttons.css (M)
+- admin/includes/class-post.php
+- admin/includes/functions.php (M)
+- includes/css/buttons.css (M)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.4.5[a] (2019-05-29)
 
-* Finished building the 'Create Post' form
-* Styled list entries pages
-* Added an optional parameter to the tableCell function to allow a cell to span multiple columns
-* Added a notice to be shown if no posts can be retrieved from the database on the 'List Posts' page
+- Finished building the 'Create Post' form
+- Styled list entries pages
+- Added an optional parameter to the `tableCell` function to allow a cell to span multiple columns
+- Added a notice to be shown if no posts can be retrieved from the database on the 'List Posts' page
 
 **Modified files:**
-* admin/includes/class-post.php
-* admin/includes/css/style.css
-* admin/includes/functions.php
+- admin/includes/class-post.php
+- admin/includes/css/style.css
+- admin/includes/functions.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.4.4[a] (2019-05-03)
 
-* Continued building the 'Create Post' form
-* Added a new parameter to the formTag function and functionality for building a label tag
-* Fixed some issues in the formRow function caused by updates to the formTag function
-* Created a function that constructs a list of post authors
-* Created a function that constructs a list of parent posts
-* Created a function to fetch a post's parent
+- Continued building the 'Create Post' form
+- Added a new parameter to the `formTag` function and functionality for building a `label` tag
+- Fixed some issues in the `formRow` function caused by updates to the `formTag` function
+- Created a function that constructs a list of post authors
+- Created a function that constructs a list of parent posts
+- Created a function that fetches a post's parent
 
 **Modified files:**
-* admin/includes/class-post.php
-* admin/includes/functions.php
+- admin/includes/class-post.php
+- admin/includes/functions.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.4.3[a] (2019-04-22)
 
-* Added 'button' class to form submit buttons
-* Added more documentation
-* Added placeholder to input tag in formTag function
-* Fixed a minor bug in the formRow function
-* Continued building the 'Create Post' form
+- Added a `button` class to form submit buttons
+- Added more documentation
+- Added a placeholder to the `input` tag in the `formTag` function
+- Fixed a minor bug in the `formRow` function
+- Continued building the 'Create Post' form
 
 **Modified files:**
-* admin/includes/class-post.php
-* admin/includes/class-settings.php (M)
-* admin/includes/class-user.php
-* admin/includes/functions.php
+- admin/includes/class-post.php
+- admin/includes/class-settings.php (M)
+- admin/includes/class-user.php
+- admin/includes/functions.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.4.2[a] (2019-04-10)
 
-* Added more styling to the admin navigation
-* Cleaned up adminNavItem function
-* Added 'current' functionality to admin nav items (doesn't work for subnav items)
+- Added more styling to the admin nav menu
+- Cleaned up the `adminNavItem` function
+- Added current page functionality to admin nav items (doesn't work for subnav items)
 
 **Modified files:**
-* admin/includes/css/style.css
-* admin/includes/functions.php
+- admin/includes/css/style.css
+- admin/includes/functions.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.4.1[a] (2019-04-09)
 
-* Minor tweak to the changelog's formatting
-* Created a function to contstruct the 'Create Post' form (form is empty)
-* Cleaned up User::createEntry function
-* Added and styled the admin header
-* Styled the admin navigation
-* Put admin page heading inside a wrapper
-* Added more documentation
+- Minor tweak to the changelog's formatting
+- Created a function to contstruct the 'Create Post' form (form is empty)
+- Cleaned up the `User::createEntry` function
+- Added and styled the admin header
+- Styled the admin nav menu
+- Put the admin page heading inside a wrapper
+- Added more documentation
 
 **Modified files:**
-* admin/header.php
-* admin/includes/class-post.php
-* admin/includes/class-settings.php (M)
-* admin/includes/class-user.php
-* admin/includes/css/style.css
-* admin/index.php (M)
+- admin/header.php
+- admin/includes/class-post.php
+- admin/includes/class-settings.php (M)
+- admin/includes/class-user.php
+- admin/includes/css/style.css
+- admin/index.php (M)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.4.0[a] (2019-04-05)
 
-* Created admin 'List Posts' page and Post class
-* Replaced intval with int type cast on users page
-* Updated and added documentation to the user class
-* Included buttons stylesheet in admin dashboard
-* Moved getStylesheet and getScript functions to globals.php
-* Added links to post page on admin navigation
-* User::getPageList now only retrieves published pages from the database
-* Created a function to retrieve post count based on post status (Post class)
-* Created a function that constructs a table row
-* Updated and added more documentation
-* Created a function that constructs a list of all posts in the database by post type
-* Change.log has been renamed to changelog.md (it will henceforth be omitted from list of modified files)
-* Converted the change log to markdown format
-* Created a function to retrieve a post's author
-* Cleaned up User::listEntries function
+- Created admin 'List Posts' page and `Post` class
+- Replaced `intval` with `int` type casting on the users page
+- Updated and added documentation to the `User` class
+- The buttons stylesheet is now included in the admin dashboard
+- Moved the `getStylesheet` and `getScript` functions to the `globals.php` file
+- Added links to the post page in the admin nav menu
+- The `User::getPageList` function now only retrieves published pages from the database
+- Created a function that retrieves the post count based on post status (`Post` class)
+- Created a function that constructs a table row
+- Updated and added more documentation
+- Created a function that constructs a list of all posts in the database by post type
+- The `change.log` file has been renamed to `changelog.md` (it will henceforth be omitted from list of modified files)
+- Converted the change log to markdown format
+- Created a function that retrieve a post's author
+- Cleaned up the `User::listEntries` function
 
 **Modified files:**
-* admin/header.php
-* admin/includes/class-post.php (N)
-* admin/includes/class-settings.php (M)
-* admin/includes/class-user.php
-* admin/includes/functions.php
-* admin/posts.php (N)
-* admin/users.php
-* includes/functions.php
-* includes/globals.php
-* includes/logs/changelog.md (R)
+- admin/header.php
+- admin/includes/class-post.php (N)
+- admin/includes/class-settings.php (M)
+- admin/includes/class-user.php
+- admin/includes/functions.php
+- admin/posts.php (N)
+- admin/users.php
+- includes/functions.php
+- includes/globals.php
+- includes/logs/changelog.md (R)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.3.8[a] (2019-03-29)
