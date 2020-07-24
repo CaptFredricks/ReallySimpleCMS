@@ -175,17 +175,19 @@ jQuery(document).ready($ => {
 	 * @since 2.1.3[a]
 	 */
 	$('#media-select').on('click', function() {
+		// Create an object to hold the media item's data
+		let data = { id: 0, title: '', filename: '', mime_type: '', alt_text: '', width: 0 };
+		
 		// Check which tab is active
 		if($('#upload').hasClass('active')) {
 			// Check whether the hidden fields are in the result
 			if($('.upload-result .hidden[data-field="id"]').length && $('.upload-result .hidden[data-field="filename"]').length) {
-				// Create an object to hold the media item's data
-				let data = {
-					id: $('.upload-result .hidden[data-field="id"]').text(),
-					title: $('.upload-result .hidden[data-field="title"]').text(),
-					filename: $('.upload-result .hidden[data-field="filename"]').text(),
-					mime_type: $('.upload-result .hidden[data-field="mime_type"]').text()
-				};
+				// Populate the data object
+				data.id = $('.upload-result .hidden[data-field="id"]').text();
+				data.title = $('.upload-result .hidden[data-field="title"]').text();
+				data.filename = $('.upload-result .hidden[data-field="filename"]').text();
+				data.mime_type = $('.upload-result .hidden[data-field="mime_type"]').text();
+				data.width = $('.upload-result .hidden[data-field="width"]').text();
 				
 				// Check whether the uploaded media should be inserted into post content
 				if($(this).data('insert') === true) {
@@ -202,14 +204,13 @@ jQuery(document).ready($ => {
 		} else if($('#media').hasClass('active')) {
 			// Check whether a media item has been selected
 			if($('.media-item').hasClass('selected')) {
-				// Create an object to hold the media item's data
-				let data = {
-					id: $('.media-item.selected .hidden[data-field="id"]').text(),
-					title: $('.media-item.selected .hidden[data-field="title"]').text(),
-					filename: $('.media-item.selected .hidden[data-field="filename"] a').attr('href'),
-					mime_type: $('.media-item.selected .hidden[data-field="mime_type"]').text(),
-					alt_text: $('.media-item.selected .hidden[data-field="alt_text"]').text()
-				};
+				// Populate the data object
+				data.id = $('.media-item.selected .hidden[data-field="id"]').text();
+				data.title = $('.media-item.selected .hidden[data-field="title"]').text();
+				data.filename = $('.media-item.selected .hidden[data-field="filename"] a').attr('href');
+				data.mime_type = $('.media-item.selected .hidden[data-field="mime_type"]').text();
+				data.alt_text = $('.media-item.selected .hidden[data-field="alt_text"]').text();
+				data.width = $('.media-item.selected .hidden[data-field="width"]').text();
 				
 				// Check whether the selected media should be inserted into post content
 				if($(this).data('insert') === true) {
@@ -242,11 +243,8 @@ jQuery(document).ready($ => {
 			// Remove the greyed out effect from the media thumbnail
 			$(clicked_button).siblings('.image-wrap').children('img[data-field="thumb"]').removeClass('greyout');
 			
-			// Get the width of the image
-			let width = $(clicked_button).siblings('.image-wrap').children('img[data-field="thumb"]').width();
-			
 			// Set the image wrap's width based on the image's width
-			$(clicked_button).siblings('.image-wrap').width(width);
+			$(clicked_button).siblings('.image-wrap').width(data.width);
 			
 			// Set the image's max width to '100%'
 			$(clicked_button).siblings('.image-wrap').children('img[data-field="thumb"]').css({maxWidth: '100%'});

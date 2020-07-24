@@ -5,7 +5,7 @@
  */
 
 // Current CMS version
-const VERSION = '1.0.4';
+const VERSION = '1.0.5';
 
 // Post types
 $post_types = array();
@@ -174,7 +174,7 @@ function getPermalink($type, $parent, $slug = '') {
 			$table = 'terms';
 			
 			// Set the base slug for categories
-			$base = $type;
+			$base = str_replace('_', '-', $type);
 			break;
 		default:
 			// Check whether the case matches one of the defined custom post types
@@ -182,8 +182,8 @@ function getPermalink($type, $parent, $slug = '') {
 				// The posts table should be searched
 				$table = 'posts';
 				
-				// Set the base slug for categories
-				$base = $type;
+				// Set the base slug for the post type
+				$base = str_replace('_', '-', $type);
 			} else {
 				// Return false because the type is not recognized
 				return false;
@@ -225,11 +225,8 @@ function isValidSession($session) {
 	// Extend the Query object
 	global $rs_query;
 	
-	// Fetch the number of times the user appears in the database
-	$count = $rs_query->selectRow('users', 'COUNT(*)', array('session'=>$session));
-	
-	// Return true if the count is greater than zero
-	return $count > 0;
+	// Fetch the number of times the user appears in the database and return true if it does
+	return $rs_query->selectRow('users', 'COUNT(*)', array('session'=>$session)) > 0;
 }
 
 /**
@@ -271,11 +268,8 @@ function userHasPrivilege($role, $privilege) {
 	// Fetch the privilege's id from the database
 	$id = $rs_query->selectField('user_privileges', 'id', array('name'=>$privilege));
 	
-	// Fetch any relationships between the user's role and the specified privilege
-	$relationship = $rs_query->selectRow('user_relationships', 'COUNT(*)', array('role'=>$role, 'privilege'=>$id));
-	
-	// Return true if the relationship count is greater than zero
-	return $relationship > 0;
+	// Fetch any relationships between the user's role and the specified privilege and return true if there are
+	return $rs_query->selectRow('user_relationships', 'COUNT(*)', array('role'=>$role, 'privilege'=>$id)) > 0;
 }
 
 /**
@@ -356,11 +350,11 @@ function getTaxonomyId($name) {
 	// Extend the Query object
 	global $rs_query;
 	
-	// Fetch the taxonomy's id from the database
-	$id = (int)$rs_query->selectField('taxonomies', 'id', array('name'=>$name));
+	// Sanitize the taxonomy's name
+	$name = sanitize($name);
 	
-	// Return the taxonomy's id
-	return $id ?? 0;
+	// Fetch the taxonomy's id from the database and return it
+	return (int)$rs_query->selectField('taxonomies', 'id', array('name'=>$name)) ?? 0;
 }
 
 /**
@@ -373,8 +367,8 @@ function getTaxonomyId($name) {
  */
 function getPostTypeLabels($post_type, $labels = array()) {
 	// Set the default and singular names
-	$name = str_replace('_', ' ', $post_type === 'media' ? ucfirst($post_type) : ucfirst($post_type).'s');
-	$name_singular = str_replace('_', ' ', ucfirst($post_type));
+	$name = ucwords(str_replace(array('_', '-'), ' ', ($post_type === 'media' ? $post_type : $post_type.'s')));
+	$name_singular = ucwords(str_replace(array('_', '-'), ' ', $post_type));
 	
 	// Set the default labels
 	$defaults = array(
@@ -510,16 +504,52 @@ function registerPostType($name, $args = array()) {
 				// Determine which privileges should be assigned to which roles
 				if($privileges[$i] === 'can_view_'.$name_lowercase || $privileges[$i] === 'can_create_'.$name_lowercase || $privileges[$i] === 'can_edit_'.$name_lowercase) {
 					// Insert new user role relationships into the database
-					$rs_query->insert('user_relationships', array('role'=>2, 'privilege'=>$insert_ids[$i]));
-					$rs_query->insert('user_relationships', array('role'=>3, 'privilege'=>$insert_ids[$i]));
-					$rs_query->insert('user_relationships', array('role'=>4, 'privilege'=>$insert_ids[$i]));
+					$rs_query->insert('user_relationships', array('role'=>getUserRoleId('Editor'), 'privilege'=>$insert_ids[$i]));
+					$rs_query->insert('user_relationships', array('role'=>getUserRoleId('Moderator'), 'privilege'=>$insert_ids[$i]));
+					$rs_query->insert('user_relationships', array('role'=>getUserRoleId('Administrator'), 'privilege'=>$insert_ids[$i]));
 				} elseif($privileges[$i] === 'can_delete_'.$name_lowercase) {
 					// Insert new user role relationships into the database
-					$rs_query->insert('user_relationships', array('role'=>3, 'privilege'=>$insert_ids[$i]));
-					$rs_query->insert('user_relationships', array('role'=>4, 'privilege'=>$insert_ids[$i]));
+					$rs_query->insert('user_relationships', array('role'=>getUserRoleId('Moderator'), 'privilege'=>$insert_ids[$i]));
+					$rs_query->insert('user_relationships', array('role'=>getUserRoleId('Administrator'), 'privilege'=>$insert_ids[$i]));
 				}
 			}
 		}
+	}
+}
+
+/**
+ * Unregister a post type.
+ * @since 1.0.5[b]
+ *
+ * @param string $name
+ * @return null
+ */
+function unregisterPostType($name) {
+	// Extend the Query object and the post types array
+	global $rs_query, $post_types;
+	
+	// Sanitize the post type's name
+	$name = sanitize($name);
+	
+	// Check whether the post type is in the database or the name is in the post types array and isn't a default post type
+	if((postTypeExists($name) || array_key_exists($name, $post_types)) && !$post_types[$name]['default']) {
+		// Delete any posts of the type being unregistered
+		$rs_query->delete('posts', array('type'=>$name));
+		
+		// Create a type name from the post type's label
+		$type = str_replace(' ', '_', $post_types[$name]['labels']['name_lowercase']);
+		
+		// Create an array to hold privileges associated with the unregistered post type
+		$privileges = array('can_view_'.$type, 'can_create_'.$type, 'can_edit_'.$type, 'can_delete_'.$type);
+		
+		// Loop through the user privileges and delete any privileges or relationships associated with the unregistered post type
+		foreach($privileges as $privilege) {
+			$rs_query->delete('user_relationships', array('privilege'=>getUserPrivilegeId($privilege)));
+			$rs_query->delete('user_privileges', array('name'=>$privilege));
+		}
+		
+		// Remove the post type from the post types array if it exists
+		if(array_key_exists($name, $post_types)) unset($post_types[$name]);
 	}
 }
 
@@ -584,8 +614,8 @@ function registerDefaultPostTypes() {
  */
 function getTaxonomyLabels($taxonomy, $labels = array()) {
 	// Set the default and singular names
-	$name = str_replace('_', ' ', $taxonomy === 'category' ? 'Categories' : ucfirst($taxonomy).'s');
-	$name_singular = str_replace('_', ' ', ucfirst($taxonomy));
+	$name = ucwords(str_replace(array('_', '-'), ' ', ($taxonomy === 'category' ? 'Categories' : $taxonomy.'s')));
+	$name_singular = ucwords(str_replace(array('_', '-'), ' ', $taxonomy));
 	
 	// Set the default labels
 	$defaults = array(
@@ -670,6 +700,12 @@ function registerTaxonomy($name, $args = array()) {
 	// Set 'show_in_nav_menus' to the value of 'public' if not specified
 	if(is_null($args['show_in_nav_menus'])) $args['show_in_nav_menus'] = $args['public'];
 	
+	// Set the default taxonomies
+	$default_taxonomies = array('category', 'nav_menu');
+	
+	// Tag the taxonomy as default if its name is in the $default_taxonomies array
+	$args['default'] = in_array($name, $default_taxonomies, true) ? true : false;
+	
 	// Add the taxonomy's name to the list of arguments
 	$args['name'] = $name;
 	
@@ -706,16 +742,61 @@ function registerTaxonomy($name, $args = array()) {
 				// Determine which privileges should be assigned to which roles
 				if($privileges[$i] === 'can_view_'.$name_lowercase || $privileges[$i] === 'can_create_'.$name_lowercase || $privileges[$i] === 'can_edit_'.$name_lowercase) {
 					// Insert new user role relationships into the database
-					$rs_query->insert('user_relationships', array('role'=>2, 'privilege'=>$insert_ids[$i]));
-					$rs_query->insert('user_relationships', array('role'=>3, 'privilege'=>$insert_ids[$i]));
-					$rs_query->insert('user_relationships', array('role'=>4, 'privilege'=>$insert_ids[$i]));
+					$rs_query->insert('user_relationships', array('role'=>getUserRoleId('Editor'), 'privilege'=>$insert_ids[$i]));
+					$rs_query->insert('user_relationships', array('role'=>getUserRoleId('Moderator'), 'privilege'=>$insert_ids[$i]));
+					$rs_query->insert('user_relationships', array('role'=>getUserRoleId('Administrator'), 'privilege'=>$insert_ids[$i]));
 				} elseif($privileges[$i] === 'can_delete_'.$name_lowercase) {
 					// Insert new user role relationships into the database
-					$rs_query->insert('user_relationships', array('role'=>3, 'privilege'=>$insert_ids[$i]));
-					$rs_query->insert('user_relationships', array('role'=>4, 'privilege'=>$insert_ids[$i]));
+					$rs_query->insert('user_relationships', array('role'=>getUserRoleId('Moderator'), 'privilege'=>$insert_ids[$i]));
+					$rs_query->insert('user_relationships', array('role'=>getUserRoleId('Administrator'), 'privilege'=>$insert_ids[$i]));
 				}
 			}
 		}
+	}
+}
+
+/**
+ * Unregister a taxonomy.
+ * @since 1.0.5[b]
+ *
+ * @param string $name
+ * @return null
+ */
+function unregisterTaxonomy($name) {
+	// Extend the Query object and the taxonomies array
+	global $rs_query, $taxonomies;
+	
+	// Sanitize the taxonomy's name
+	$name = sanitize($name);
+	
+	// Check whether the taxonomy is in the database or the name is in the taxonomies array and isn't a default taxonomy
+	if((taxonomyExists($name) || array_key_exists($name, $taxonomies)) && !$taxonomies[$name]['default']) {
+		// Select any terms associated with the taxonomy
+		$terms = $rs_query->select('terms', 'id', array('taxonomy'=>getTaxonomyId($name)));
+		
+		// Loop through the terms and delete them and any relationships associated with them
+		foreach($terms as $term) {
+			$rs_query->delete('term_relationships', array('term'=>$term));
+			$rs_query->delete('terms', array('id'=>$term));
+		}
+		
+		// Delete the taxonomy from the database
+		$rs_query->delete('taxonomies', array('name'=>$name));
+		
+		// Create a taxonomies name from the taxonomy's label
+		$taxonomy = str_replace(' ', '_', $taxonomies[$name]['labels']['name_lowercase']);
+		
+		// Create an array to hold privileges associated with the unregistered taxonomy
+		$privileges = array('can_view_'.$taxonomy, 'can_create_'.$taxonomy, 'can_edit_'.$taxonomy, 'can_delete_'.$taxonomy);
+		
+		// Loop through the user privileges and delete any privileges or relationships associated with the unregistered taxonomy
+		foreach($privileges as $privilege) {
+			$rs_query->delete('user_relationships', array('privilege'=>getUserPrivilegeId($privilege)));
+			$rs_query->delete('user_privileges', array('name'=>$privilege));
+		}
+		
+		// Remove the taxonomy from the taxonomies array if it exists
+		if(array_key_exists($name, $taxonomies)) unset($taxonomies[$name]);
 	}
 }
 

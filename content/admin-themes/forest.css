@@ -1,7 +1,7 @@
 /**
  * Admin dashboard Forest theme.
  * @since 2.0.7[a]
- * @version 1.2
+ * @version 1.3
  */
 
 html {
@@ -64,7 +64,6 @@ a {
 
 #admin-nav-menu {
 	background-color: #0f6f2f;
-	border-top-color: #2fdf6f;
 }
 
 #admin-nav-menu .menu > li:hover {

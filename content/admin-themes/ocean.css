@@ -1,7 +1,7 @@
 /**
  * Admin dashboard Ocean theme.
  * @since 2.0.7[a]
- * @version 1.5
+ * @version 1.6
  */
 
 html {
@@ -64,7 +64,6 @@ a {
 
 #admin-nav-menu {
 	background-color: #0f2f6f;
-	border-top-color: #2fbfdf;
 }
 
 #admin-nav-menu .menu > li:hover {

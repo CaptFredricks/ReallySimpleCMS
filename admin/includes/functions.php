@@ -25,8 +25,8 @@ spl_autoload_register(function($class_name) {
  * @return string
  */
 function getCurrentPage() {
-	// Extend the Query object
-	global $rs_query;
+	// Extend the Query object and the post types and taxonomies arrays
+	global $rs_query, $post_types, $taxonomies;
 	
 	// Extract the current page from the filename
 	$current = basename($_SERVER['PHP_SELF'], '.php');
@@ -41,7 +41,13 @@ function getCurrentPage() {
 			// Check whether the query parameter contains 'type'
 			if(strpos($query_param, 'type') !== false) {
 				// Set the current page
-				$current = substr($query_param, strpos($query_param, '=') + 1).'s';
+				$current = str_replace(' ', '_', $post_types[substr($query_param, strpos($query_param, '=') + 1)]['labels']['name_lowercase']);
+			}
+			
+			// Check whether the query parameter contains 'taxonomy'
+			if(strpos($query_param, 'taxonomy') !== false) {
+				// Set the current page
+				$current = str_replace(' ', '_', $taxonomies[substr($query_param, strpos($query_param, '=') + 1)]['labels']['name_lowercase']);
 			}
 			
 			// Check whether the query parameter contains 'action'
@@ -49,11 +55,20 @@ function getCurrentPage() {
 				// Fetch the current action
 				$action = substr($query_param, strpos($query_param, '=') + 1);
 				
+				// Create an array of pages to exclude
+				$exclude = array('menus', 'widgets');
+				
+				// Loop through the taxonomies array
+				foreach($taxonomies as $taxonomy) {
+					// Assign each taxonomy's name to the array
+					$exclude[] = str_replace(' ', '_', $taxonomy['labels']['name_lowercase']);
+				}
+				
 				switch($action) {
 					case 'create':
 					case 'upload':
-						// Check whether the current page is the 'Create Menu' page or the 'Create Widget' page
-						if($current === 'menus' || $current === 'widgets') {
+						// Check whether the current page should be excluded
+						if(in_array($current, $exclude, true)) {
 							// Break out of the switch statement
 							break;
 						} else {
@@ -75,7 +90,7 @@ function getCurrentPage() {
 			}
 		}
 		
-		// Check whether the current page is the 'Edit Post' or 'Edit Page' page
+		// Check whether the current page is the 'Edit Post' page
 		if($current === 'posts' && isset($_GET['id'])) {
 			// Fetch the number of times the post appears in the database
 			$count = $rs_query->selectRow('posts', 'COUNT(*)', array('id'=>$_GET['id']));
@@ -88,8 +103,27 @@ function getCurrentPage() {
 				// Fetch the post's type from the database
 				$type = $rs_query->selectField('posts', 'type', array('id'=>$_GET['id']));
 				
-				// Check whether the current post is of type 'post' and set the current page accordingly
-				if($type !== 'post') $current = $type.'s';
+				// Set the current page
+				$current = str_replace(' ', '_', $post_types[$type]['labels']['name_lowercase']);
+			}
+		} // Check whether the current page is the 'Edit Term' page
+		elseif($current === 'terms' && isset($_GET['id'])) {
+			// Fetch the number of times the term appears in the database
+			$count = $rs_query->selectRow('terms', 'COUNT(*)', array('id'=>$_GET['id']));
+			
+			// Check whether the count is zero
+			if($count === 0) {
+				// Redirect to the 'List Categories' page
+				redirect('categories.php');
+			} else {
+				// Fetch the term's taxonomy id from the database
+				$tax_id = $rs_query->selectField('terms', 'taxonomy', array('id'=>$_GET['id']));
+				
+				// Fetch the term's taxonomy from the database
+				$taxonomy = $rs_query->selectField('taxonomies', 'name', array('id'=>$tax_id));
+				
+				// Set the current page
+				$current = str_replace(' ', '_', $taxonomies[$taxonomy]['labels']['name_lowercase']);
 			}
 		}
 	}
@@ -105,21 +139,24 @@ function getCurrentPage() {
  * @return string
  */
 function getPageTitle() {
-	// Extend the Query object
-	global $rs_query;
+	// Extend the Query object and the post types and taxonomies arrays
+	global $rs_query, $post_types, $taxonomies;
 	
 	// Perform some checks based on what the current page is
 	if(basename($_SERVER['PHP_SELF']) === 'index.php')
 		$title = 'Dashboard';
 	elseif(isset($_GET['type'])) {
-		// Replace any underscores with spaces and capitalize each word
-		$title = ucwords(str_replace('_', ' ', $_GET['type'].'s'));
+		// Fetch the post type's label
+		$title = $post_types[$_GET['type']]['label'] ?? 'Posts';
 	} elseif(basename($_SERVER['PHP_SELF']) === 'posts.php' && isset($_GET['action']) && $_GET['action'] === 'edit') {
 		// Fetch the post's type from the database
 		$type = $rs_query->selectField('posts', 'type', array('id'=>$_GET['id']));
 		
-		// Replace any underscores with spaces and capitalize each word
-		$title = ucwords(str_replace('_', ' ', $type.'s'));
+		// Replace any underscores or hyphens with spaces and capitalize each word
+		$title = ucwords(str_replace(array('_', '-'), ' ', $type.'s'));
+	} elseif(isset($_GET['taxonomy'])) {
+		// Fetch the taxonomy's label
+		$title = $taxonomies[$_GET['taxonomy']]['label'] ?? 'Terms';
 	} elseif(isset($_GET['page']) && $_GET['page'] === 'user_roles') {
 		// Replace any underscores with spaces and capitalize each word
 		$title = ucwords(str_replace('_', ' ', $_GET['page']));
@@ -441,7 +478,7 @@ function adminNavMenuItem($item = array(), $submenu = array(), $icon = null) {
 	$item_link = isset($item['link']) ? trailingSlash(ADMIN).$item['link'] : 'javascript:void(0)';
 	
 	// Fetch the menu item caption
-	$item_caption = $item['caption'] ?? ucwords(str_replace('-', ' ', $item_id));
+	$item_caption = $item['caption'] ?? ucwords(str_replace(array('_', '-'), ' ', $item_id));
 	
 	// Check whether the item id matches the current page
 	if($item_id === $current) {
@@ -566,7 +603,7 @@ function adminNavMenu() {
 					'link'=>$post_type['menu_link'],
 					'caption'=>$post_type['labels']['list_items']
 				),
-				(userHasPrivilege($session['role'], 'can_create_'.$id) ? array( // Create <post type>
+				(userHasPrivilege($session['role'], 'can_create_'.$id) || userHasPrivilege($session['role'], 'can_upload_media') ? array( // Create <post type>
 					'id'=>$id === 'media' ? $id.'-upload' : $id.'-create',
 					'link'=>$post_type['menu_link'].($post_type['name'] === 'media' ? '?action=upload' : ($post_type['name'] === 'post' ? '?action=create' : '&action=create')),
 					'caption'=>$post_type['labels']['create_item']
@@ -1072,8 +1109,17 @@ function uploadMediaFile($data) {
 	foreach($mediameta as $key=>$value)
 		$rs_query->insert('postmeta', array('post'=>$insert_id, '_key'=>$key, 'value'=>$value));
 	
+	// Check whether the media is an image
+	if(in_array($data['type'], array('image/jpeg', 'image/png', 'image/gif', 'image/x-icon'), true)) {
+		// Fetch the media's dimensions
+		list($width, $height) = getimagesize(trailingSlash(PATH.UPLOADS).$filename);
+		
+		// Construct hidden fields for the status message
+		$status_msg = '<div class="hidden" data-field="id">'.$insert_id.'</div><div class="hidden" data-field="title">'.$title.'</div><div class="hidden" data-field="filename">'.trailingSlash(UPLOADS).$filename.'</div><div class="hidden" data-field="mime_type">'.$data['type'].'</div><dive class="hidden" data-field="width">'.$width.'</div>';
+	}
+	
 	// Return a success message and a hidden field with the media's id
-	return statusMessage('Upload successful!', true).(in_array($data['type'], array('image/jpeg', 'image/png', 'image/gif', 'image/x-icon'), true) ? '<div class="hidden" data-field="id">'.$insert_id.'</div><div class="hidden" data-field="title">'.$title.'</div><div class="hidden" data-field="filename">'.trailingSlash(UPLOADS).$filename.'</div><div class="hidden" data-field="mime_type">'.$data['type'].'</div>' : '');
+	return statusMessage('Upload successful!', true).($status_msg ?? '');
 }
 
 /**
@@ -1117,6 +1163,9 @@ function loadMedia($image_only = false) {
 			
 			// Check whether the current media item is an image and skip to the next item if not
 			if(!in_array($meta['mime_type'], $image_mime, true)) continue;
+			
+			// Fetch the image's dimensions
+			list($width, $height) = getimagesize(trailingSlash(PATH.UPLOADS).$meta['filename']);
 		}
 		?>
 		<div class="media-item-wrap">
@@ -1132,6 +1181,7 @@ function loadMedia($image_only = false) {
 					<div class="hidden" data-field="filename"><a href="<?php echo trailingSlash(UPLOADS).$meta['filename']; ?>" target="_blank" rel="noreferrer noopener"><?php echo $meta['filename']; ?></a></div>
 					<div class="hidden" data-field="mime_type"><?php echo $meta['mime_type']; ?></div>
 					<div class="hidden" data-field="alt_text"><?php echo $meta['alt_text']; ?></div>
+					<div class="hidden" data-field="width"><?php echo $width ?? 150; ?></div>
 				</div>
 			</div>
 		</div>
@@ -1147,7 +1197,23 @@ function loadMedia($image_only = false) {
 }
 
 /**
- * Check whether a filename already exists in the database.
+ * Check whether a post exists in the database.
+ * @since 1.0.5[b]
+ *
+ * @param int $id
+ * @return bool
+ */
+function postExists($id) {
+	// Extend the Query object
+	global $rs_query;
+	
+	// Fetch the number of times the id appears in the database and return true if it does
+	return $rs_query->selectRow('posts', 'COUNT(id)', array('id'=>$id)) > 0;
+}
+
+
+/**
+ * Check whether a filename exists in the database.
  * @since 2.1.0[a]
  *
  * @param string $filename

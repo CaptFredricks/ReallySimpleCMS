@@ -5,7 +5,7 @@ require_once __DIR__.'/header.php';
 // Create a Media object
 $rs_media = new Media;
 ?>
-<div class="wrapper clear">
+<div class="content">
 	<?php
 	// Fetch the current action
 	$action = $_GET['action'] ?? '';

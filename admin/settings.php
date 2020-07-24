@@ -5,7 +5,7 @@ require_once __DIR__.'/header.php';
 // Create a Settings object
 $rs_settings = new Settings;
 ?>
-<div class="wrapper clear">
+<div class="content">
 	<?php
 	// Fetch the current settings page
 	$page = $_GET['page'] ?? '';

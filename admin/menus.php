@@ -5,7 +5,7 @@ require_once __DIR__.'/header.php';
 // Create a Menu object
 $rs_menu = new Menu;
 ?>
-<div class="wrapper clear">
+<div class="content">
 	<?php
 	// Fetch the current action
 	$action = $_GET['action'] ?? '';

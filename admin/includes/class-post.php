@@ -169,7 +169,7 @@ class Post {
 			<?php
 			// Display any status messages
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
-				echo statusMessage('The '.$type.' was successfully deleted.', true);
+				echo statusMessage('The '.strtolower($this->type_data['labels']['name_singular']).' was successfully deleted.', true);
 			?>
 			<ul class="post-status-nav">
 				<?php
@@ -229,7 +229,7 @@ class Post {
 					$meta = $this->getPostMeta($post['id']);
 					
 					echo tableRow(
-						tableCell((isHomePage($post['id']) ? '<i class="fas fa-home" style="cursor: help;" title="Home Page"></i> ' : '').'<strong>'.$post['title'].'</strong>'.($post['status'] !== 'published' && $status === 'all' ? ' &ndash; <em>'.$post['status'].'</em>' : '').'<div class="actions">'.($status !== 'trash' ? '<a href="?id='.$post['id'].'&action=edit">Edit</a> &bull; <a href="?id='.$post['id'].'&action=trash">Trash</a> &bull; <a href="'.($post['status'] === 'published' ? (isHomePage($post['id']) ? '/' : getPermalink($post['type'], $post['parent'], $post['slug'])).'">View' : ('/?id='.$post['id'].'&preview=true').'">Preview').'</a>' : '<a href="?id='.$post['id'].'&action=restore">Restore</a> &bull; <a class="modal-launch delete-item" href="?id='.$post['id'].'&action=delete" data-item="'.$post['type'].'">Delete</a>').'</div>', 'title'),
+						tableCell((isHomePage($post['id']) ? '<i class="fas fa-home" style="cursor: help;" title="Home Page"></i> ' : '').'<strong>'.$post['title'].'</strong>'.($post['status'] !== 'published' && $status === 'all' ? ' &ndash; <em>'.$post['status'].'</em>' : '').'<div class="actions">'.($status !== 'trash' ? '<a href="?id='.$post['id'].'&action=edit">Edit</a> &bull; <a href="?id='.$post['id'].'&action=trash">Trash</a> &bull; <a href="'.($post['status'] === 'published' ? (isHomePage($post['id']) ? '/' : getPermalink($post['type'], $post['parent'], $post['slug'])).'">View' : ('/?id='.$post['id'].'&preview=true').'">Preview').'</a>' : '<a href="?id='.$post['id'].'&action=restore">Restore</a> &bull; <a class="modal-launch delete-item" href="?id='.$post['id'].'&action=delete" data-item="'.strtolower($this->type_data['labels']['name_singular']).'">Delete</a>').'</div>', 'title'),
 						tableCell($this->getAuthor($post['author']), 'author'),
 						$type === 'post' ? tableCell($this->getCategories($post['id']), 'categories') : '',
 						tableCell(is_null($post['date']) ? '&mdash;' : formatDate($post['date'], 'd M Y @ g:i A'), 'publish-date'),
@@ -241,7 +241,7 @@ class Post {
 				
 				// Display a notice if no posts are found
 				if(empty($posts))
-					echo tableRow(tableCell('There are no '.$type.'s to display.', '', count($table_header_cols)));
+					echo tableRow(tableCell('There are no '.$this->type_data['labels']['name_lowercase'].' to display.', '', count($table_header_cols)));
 				?>
 			</tbody>
 		</table>
@@ -279,7 +279,7 @@ class Post {
 					echo formTag('input', array('type'=>'hidden', 'name'=>'type', 'value'=>$type));
 					
 					// Construct a 'title' form tag
-					echo formTag('input', array('id'=>'title-field', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>($_POST['title'] ?? ''), 'placeholder'=>ucfirst($type).' title'));
+					echo formTag('input', array('id'=>'title-field', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>($_POST['title'] ?? ''), 'placeholder'=>$this->type_data['labels']['name_singular'].' title'));
 					?>
 					<div class="permalink">
 						<?php
@@ -463,7 +463,7 @@ class Post {
 							<div class="content">
 								<?php
 								// Construct a 'title' form tag
-								echo formTag('input', array('id'=>'title-field', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>$this->title, 'placeholder'=>ucfirst($this->type).' title'));
+								echo formTag('input', array('id'=>'title-field', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>$this->title, 'placeholder'=>$this->type_data['labels']['name_singular'].' title'));
 								?>
 								<div class="permalink">
 									<?php
@@ -744,7 +744,7 @@ class Post {
 			}
 			
 			// Set the parent to zero if the post's type is 'post' (non-hierarchical)
-			if($data['type'] === 'post') $data['parent'] = 0;
+			if(!$this->type_data['hierarchical']) $data['parent'] = 0;
 			
 			// Insert the new post into the database
 			$insert_id = $rs_query->insert('posts', array('title'=>$data['title'], 'author'=>$data['author'], 'date'=>$data['date'], 'content'=>$data['content'], 'status'=>$data['status'], 'slug'=>$slug, 'parent'=>$data['parent'], 'type'=>$data['type']));
@@ -854,15 +854,12 @@ class Post {
 		global $rs_query;
 		
 		if($id === 0) {
-			// Fetch the number of times the slug appears in the database
-			$count = $rs_query->selectRow('posts', 'COUNT(slug)', array('slug'=>$slug));
+			// Fetch the number of times the slug appears in the database and return true if it does
+			return $rs_query->selectRow('posts', 'COUNT(slug)', array('slug'=>$slug)) > 0;
 		} else {
-			// Fetch the number of times the slug appears in the database (minus the current post)
-			$count = $rs_query->selectRow('posts', 'COUNT(slug)', array('slug'=>$slug, 'id'=>array('<>', $id)));
+			// Fetch the number of times the slug appears in the database (minus the current post) and return true if it does
+			return $rs_query->selectRow('posts', 'COUNT(slug)', array('slug'=>$slug, 'id'=>array('<>', $id))) > 0;
 		}
-		
-		// Return true if the count is greater than zero
-		return $count > 0;
 	}
 	
 	/**
@@ -877,11 +874,8 @@ class Post {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Fetch the post's status from the database
-		$status = $rs_query->selectField('posts', 'status', array('id'=>$id));
-		
-		// Return true if the post is in the trash
-		return $status === 'trash';
+		// Fetch the post's status from the database and return true if it's in the trash
+		return $rs_query->selectField('posts', 'status', array('id'=>$id)) === 'trash';
 	}
 	
 	/**

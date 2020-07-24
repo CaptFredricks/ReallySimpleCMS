@@ -6,6 +6,63 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.0.5[b] (2020-07-23)
+
+- Added the `can_upload_media` permission to the admin nav menu
+- Fixed a permalink redirection bug that caused post previews not to load their contents
+- Created a function that unregisters a post type (default post types cannot be unregistered)
+- Created a function that fetches a user privilege's id
+- Admin menu item labels are now properly filtered to remove underscores
+- Tweaked how default post type and taxonomy labels are displayed in various locations
+- Fixed a bug that prevented non-hierarchical post types (aside from type `post`) from being submitted to the database
+- Underscores are now replaced with hyphens in post type and taxonomy base urls
+- Created a function that fetches a user role's id
+- Cleaned up the `getTaxonomyId` function
+- Created a function that checks whether a post exists in the database
+- Created a function that checks whether a post type exists in the database
+- Created a function that unregisters a taxonomy (default taxonomies cannot be unregistered)
+- Fixed an issue where the widths of newly uploaded images would not be calculated properly (image dimensions are now fetched via PHP and not JS)
+- Created class variables for the `Term` class
+- Created the 'List Terms', 'Create Term', and 'Edit Terms' pages
+- Moved all functions from the admin `Category` class to the `Term` class (only the `listCategories`, `createCategory`, `editCategory`, and `deleteCategory` functions remain as alias functions)
+- Created a function that fetches a taxonomy's name based on its id
+- Code cleanup in the `Post` class
+- Code cleanup in the `globals.php` file
+- The admin nav menu now scrolls if its content overflows the window
+- Added an inner content wrapper to all admin pages to fix a floating issue with page content
+- Current page functionality now works properly for custom post types and taxonomies
+- Tweaked the admin themes
+
+**Modified files:**
+- admin/categories.php
+- admin/footer.php (M)
+- admin/header.php (M)
+- admin/includes/class-category.php
+- admin/includes/class-post.php
+- admin/includes/class-term.php
+- admin/includes/css/style.css
+- admin/includes/css/style.min.css
+- admin/includes/functions.php
+- admin/includes/js/modal.js
+- admin/index.php (M)
+- admin/media.php (M)
+- admin/menus.php (M)
+- admin/posts.php
+- admin/profile.php (M)
+- admin/settings.php (M)
+- admin/terms.php (M)
+- admin/themes.php (M)
+- admin/users.php (M)
+- admin/widgets.php (M)
+- content/admin-themes/forest.css (M)
+- content/admin-themes/harvest.css (M)
+- content/admin-themes/ocean.css (M)
+- content/admin-themes/sunset.css (M)
+- includes/class-post.php (M)
+- includes/functions.php
+- includes/globals.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.0.4[b] (2020-07-12)
 
 - Tweaked the max width of select inputs in data form sidebars

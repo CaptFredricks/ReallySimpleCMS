@@ -2,16 +2,16 @@
 // Include the header
 require_once __DIR__.'/header.php';
 
+// Fetch the category's id
+$id = (int)($_GET['id'] ?? 0);
+
 // Create a Category object
-$rs_category = new Category;
+$rs_category = new Category($id, $taxonomies['category']);
 ?>
-<div class="wrapper clear">
+<div class="content">
 	<?php
 	// Fetch the current action
 	$action = $_GET['action'] ?? '';
-	
-	// Fetch the category's id
-	$id = (int)($_GET['id'] ?? 0);
 	
 	switch($action) {
 		case 'create':
@@ -20,11 +20,11 @@ $rs_category = new Category;
 			break;
 		case 'edit':
 			// Edit an existing category
-			userHasPrivilege($session['role'], 'can_edit_categories') ? $rs_category->editCategory($id) : redirect('categories.php');
+			userHasPrivilege($session['role'], 'can_edit_categories') ? $rs_category->editCategory() : redirect('categories.php');
 			break;
 		case 'delete':
 			// Delete an existing category
-			userHasPrivilege($session['role'], 'can_delete_categories') ? $rs_category->deleteCategory($id) : redirect('categories.php');
+			userHasPrivilege($session['role'], 'can_delete_categories') ? $rs_category->deleteCategory() : redirect('categories.php');
 			break;
 		default:
 			// List all categories

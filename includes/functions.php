@@ -13,6 +13,42 @@ spl_autoload_register(function($class_name) {
 define('COOKIE_HASH', md5(getSetting('site_url', false)));
 
 /**
+ * Check whether a post type exists in the database.
+ * @since 1.0.5[b]
+ *
+ * @param string $type
+ * @return bool
+ */
+function postTypeExists($type) {
+	// Extend the Query object
+	global $rs_query;
+	
+	// Sanitize the post type's name
+	$type = sanitize($type);
+	
+	// Fetch the number of times the type appears in the database and return true if it does
+	return $rs_query->selectRow('posts', 'COUNT(type)', array('type'=>$type)) > 0;
+}
+
+/**
+ * Check whether a taxonomy exists in the database.
+ * @since 1.0.5[b]
+ *
+ * @param string $taxonomy
+ * @return bool
+ */
+function taxonomyExists($taxonomy) {
+	// Extend the Query object
+	global $rs_query;
+	
+	// Sanitize the taxonomy's name
+	$taxonomy = sanitize($taxonomy);
+	
+	// Fetch the number of times the taxonomy appears in the database and return true if it does
+	return $rs_query->selectRow('taxonomies', 'COUNT(name)', array('name'=>$taxonomy)) > 0;
+}
+
+/**
  * Check whether a page template exists.
  * @since 2.3.3[a]
  *
@@ -254,6 +290,42 @@ function getPostsInCategory($category = null, $order_by = 'date', $order = 'DESC
 	
 	// Return the posts
 	return $posts;
+}
+
+/**
+ * Fetch a user role's id.
+ * @since 1.0.5[b]
+ *
+ * @param string $name
+ * @return int
+ */
+function getUserRoleId($name) {
+	// Extend the Query object
+	global $rs_query;
+	
+	// Sanitize the role's name
+	$name = sanitize($name);
+	
+	// Fetch the user role's id from the database and return it
+	return (int)$rs_query->selectField('user_roles', 'id', array('name'=>$name)) ?? 0;
+}
+
+/**
+ * Fetch a user privilege's id.
+ * @since 1.0.5[b]
+ *
+ * @param string $name
+ * @return int
+ */
+function getUserPrivilegeId($name) {
+	// Extend the Query object
+	global $rs_query;
+	
+	// Sanitize the privilege's name
+	$name = sanitize($name);
+	
+	// Fetch the user privilege's id from the database and return it
+	return (int)$rs_query->selectField('user_privileges', 'id', array('name'=>$name)) ?? 0;
 }
 
 /**

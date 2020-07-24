@@ -26,7 +26,7 @@ if(isset($_GET['taxonomy'])) {
 // Create a Term object
 $rs_term = new Term($id, $taxonomies[$taxonomy] ?? array());
 ?>
-<div class="wrapper clear">
+<div class="content">
 	<?php
 	// Create an id from the taxonomy's label
 	$tax_id = str_replace(' ', '_', $taxonomies[$taxonomy]['labels']['name_lowercase']);

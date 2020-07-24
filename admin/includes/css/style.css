@@ -176,10 +176,10 @@ h3 {
 
 #admin-nav-menu {
 	background-color: #4f4f4f;
-	border-top: 1px solid #7f7f7f;
+	float: left;
 	margin-bottom: 0.75em;
-	position: fixed;
-	  z-index: 999;
+	position: relative;
+	  z-index: 998;
 	transition: width 0.25s;
 	width: 2.25em;
 }
@@ -332,6 +332,11 @@ h3 {
 	margin-left: 2.25em;
 	min-height: 100%;
 	padding: 1em;
+}
+
+.content {
+	float: left;
+	width: 100%;
 }
 
 /* Headings */
@@ -1620,7 +1625,7 @@ h3 {
 	
 	#admin-nav-wrap,
 	#admin-nav-menu {
-		width: 160px;
+		width: 10em;
 	}
 	
 	#admin-nav-menu .menu > li.current-menu-item .submenu,
@@ -1643,16 +1648,16 @@ h3 {
 	}
 	
 	#admin-nav-menu .submenu {
-		left: 160px;
+		left: 10em;
 	}
 	
 	#admin-footer {
-		margin-left: 160px;
+		margin-left: 10em;
 		padding: 0 1.875em 0.75em;
 	}
 	
 	.wrapper {
-		margin-left: 160px;
+		margin-left: 10em;
 		padding: 1.25em 1.875em;
 	}
 	

@@ -42,7 +42,7 @@ class Post {
 			$raw_uri = $_SERVER['REQUEST_URI'];
 			
 			// Check whether the current page is the home page
-			if($raw_uri === '/' || strpos($raw_uri, '/?') === 0) {
+			if($raw_uri === '/' || (strpos($raw_uri, '/?') === 0 && !isset($_GET['preview']))) {
 				// Fetch the home page's id from the database
 				$home_page = $rs_query->selectField('settings', 'value', array('name'=>'home_page'));
 				

@@ -15,15 +15,22 @@ if(isset($_GET['type'])) {
 		// Set the type to 'post'
 		$type = 'post';
 	} else {
-		// Fetch the post's type from the database and set the type if it exists
-		$type = $rs_query->selectField('posts', 'type', array('id'=>$id)) ?? 'post';
+		// Check whether the post exists
+		if(!postExists($id)) {
+			// Redirect to the 'List Posts' page
+			redirect('posts.php');
+		} else {
+			// Fetch the post's type from the database and set the type if it exists
+			$type = $rs_query->selectField('posts', 'type', array('id'=>$id)) ?? 'post';
+		}
 	}
 }
 
 // Create a Post object
 $rs_post = new Post($id, $post_types[$type] ?? array());
 ?>
-<div class="wrapper clear">
+
+<div class="content">
 	<?php
 	// Create an id from the post type's label
 	$type_id = str_replace(' ', '_', $post_types[$type]['labels']['name_lowercase']);
