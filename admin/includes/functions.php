@@ -674,8 +674,8 @@ function getStatistics($table, $field = '', $value = '') {
  * @return null
  */
 function statsBarGraph() {
-	// Extend the post types array
-	global $post_types;
+	// Extend the post types and taxonomies arrays
+	global $post_types, $taxonomies;
 	
 	// Create empty arrays to hold the bar data and the stats data
 	$bars = $stats = array();
@@ -690,6 +690,21 @@ function statsBarGraph() {
 		
 		// Assign the post type's stats to its dataset
 		$bars[$key]['stats'] = getStatistics('posts', 'type', $bars[$key]['name']);
+		
+		// Assign the post type's stats to the stats array
+		$stats[] = $bars[$key]['stats'];
+	}
+	
+	// Loop through the taxonomies
+	foreach($taxonomies as $key=>$value) {
+		// Skip any taxonomy that has 'show_in_stats_graph' set to false
+		if(!$taxonomies[$key]['show_in_stats_graph']) continue;
+		
+		// Assign each post type to the bar data array
+		$bars[$key] = $value;
+		
+		// Assign the post type's stats to its dataset
+		$bars[$key]['stats'] = getStatistics('terms', 'taxonomy', getTaxonomyId($bars[$key]['name']));
 		
 		// Assign the post type's stats to the stats array
 		$stats[] = $bars[$key]['stats'];

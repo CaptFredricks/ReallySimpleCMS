@@ -38,13 +38,30 @@ if(isset($rs_post)) {
 			require_once $theme_path.'/index.php';
 		}
 	}
-} else {
-	// Check whether a generic 'category' template file exists
-	if(file_exists($theme_path.'/category.php')) {
-		// Include the template file
-		require_once $theme_path.'/category.php';
+} // Check whether the Term object is set
+elseif(isset($rs_term)) {
+	// Check whether the term is in the 'category' taxonomy
+	if($rs_term->getTermTaxonomy(false) === 'category') {
+		// Check whether a 'category' template file exists
+		if(file_exists($theme_path.'/category.php')) {
+			// Include the template file
+			require_once $theme_path.'/category.php';
+		}
 	} else {
-		// Include the theme's index file
-		require_once $theme_path.'/index.php';
+		// Check whether a taxonomy template file exists
+		if(file_exists($theme_path.'/term-'.$rs_term->getTermTaxonomy(false).'.php')) {
+			// Include the template file
+			require_once $theme_path.'/term-'.$rs_term->getTermTaxonomy(false).'.php';
+		} // Check whether a generic 'term' template file exists
+		elseif(file_exists($theme_path.'/term.php')) {
+			// Include the template file
+			require_once $theme_path.'/term.php';
+		} else {
+			// Include the theme's index file
+			require_once $theme_path.'/index.php';
+		}
 	}
+} else {
+	// Include the theme's index file
+	require_once $theme_path.'/index.php';
 }

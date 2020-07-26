@@ -511,7 +511,7 @@ class Menu {
 				if(isset($meta['post_link']))
 					$type = $rs_query->selectField('posts', 'type', array('id'=>$meta['post_link']));
 				elseif(isset($meta['term_link']))
-					$type = 'category';
+					$type = 'term';
 				elseif(isset($meta['custom_link']))
 					$type = 'custom';
 				?>
@@ -584,8 +584,8 @@ class Menu {
 	 * @return null
 	 */
 	private function getMenuItemsLists() {
-		// Extend the Query object and the post types array
-		global $rs_query, $post_types;
+		// Extend the Query object and the post types and taxonomies arrays
+		global $rs_query, $post_types, $taxonomies;
 		
 		// Loop through the post types
 		foreach($post_types as $post_type) {
@@ -610,23 +610,31 @@ class Menu {
 			</fieldset>
 			<?php
 		}
-		?>
-		<fieldset>
-			<legend>Categories</legend>
-			<ul class="checkbox-list">
-				<?php
-				// Fetch all categories from the database
-				$categories = $rs_query->select('terms', array('id', 'name'), array('taxonomy'=>getTaxonomyId('category')));
-				
-				// Loop through the categories
-				foreach($categories as $category) {
-					?>
-					<li><?php echo formTag('input', array('type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'menu_items[]', 'value'=>'cat-'.$category['id'], 'label'=>array('content'=>'<span title="'.$category['name'].'">'.trimWords($category['name'], 5).'</span>'))); ?></li>
+		
+		// Loop through the taxonomies
+		foreach($taxonomies as $taxonomy) {
+			// Skip any taxonomy that has 'show_in_nav_menus' set to false
+			if(!$taxonomy['show_in_nav_menus']) continue;
+			?>
+			<fieldset>
+				<legend><?php echo $taxonomy['label']; ?></legend>
+				<ul class="checkbox-list">
 					<?php
-				}
-				?>
-			</ul>
-		</fieldset>
+					// Fetch all of the taxonomy's terms from the database
+					$terms = $rs_query->select('terms', array('id', 'name'), array('taxonomy'=>getTaxonomyId($taxonomy['name'])));
+					
+					// Loop through the terms
+					foreach($terms as $term) {
+						?>
+						<li><?php echo formTag('input', array('type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'menu_items[]', 'value'=>'term-'.$term['id'], 'label'=>array('content'=>'<span title="'.$term['name'].'">'.trimWords($term['name'], 5).'</span>'))); ?></li>
+						<?php
+					}
+					?>
+				</ul>
+			</fieldset>
+			<?php
+		}
+		?>
 		<fieldset>
 			<legend>Custom</legend>
 			<?php
@@ -775,7 +783,7 @@ class Menu {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Check whether the type is 'post' or 'cat'
+		// Check whether the type is 'post' or 'term'
 		if($type === 'post') {
 			// Fetch the corresponding post from the database
 			$post = $rs_query->selectRow('posts', array('id', 'title'), array('id'=>$id));
@@ -788,18 +796,18 @@ class Menu {
 			
 			// Return the menu item's metadata
 			return array('id'=>$menu_item_id, 'post_link'=>$post['id'], 'menu_index'=>$index);
-		} elseif($type === 'cat') {
-			// Fetch the corresponding category from the database
-			$category = $rs_query->selectRow('terms', array('id', 'name'), array('id'=>$id, 'taxonomy'=>getTaxonomyId('category')));
+		} elseif($type === 'term') {
+			// Fetch the corresponding term from the database
+			$term = $rs_query->selectRow('terms', array('id', 'name'), array('id'=>$id));
 			
 			// Insert the new menu item into the database
-			$menu_item_id = $rs_query->insert('posts', array('title'=>$category['name'], 'date'=>'NOW()', 'slug'=>'', 'type'=>'nav_menu_item'));
+			$menu_item_id = $rs_query->insert('posts', array('title'=>$term['name'], 'date'=>'NOW()', 'slug'=>'', 'type'=>'nav_menu_item'));
 			
 			// Update the menu item's slug in the database
 			$rs_query->update('posts', array('slug'=>'menu-item-'.$menu_item_id), array('id'=>$menu_item_id));
 			
 			// Return the menu item's metadata
-			return array('id'=>$menu_item_id, 'term_link'=>$category['id'], 'menu_index'=>$index);
+			return array('id'=>$menu_item_id, 'term_link'=>$term['id'], 'menu_index'=>$index);
 		}
 	}
 	
@@ -1324,12 +1332,12 @@ class Menu {
 			foreach($posts as $post)
 				$list .= '<option value="'.$post['id'].'"'.($post['id'] === $id ? ' selected' : '').'>'.$post['title'].'</option>';
 		} elseif($type === 'term') {
-			// Fetch all categories from the database
-			$categories = $rs_query->select('terms', array('id', 'name'), array('taxonomy'=>getTaxonomyId('category')));
+			// Fetch all terms from the database (excluding nav menus)
+			$terms = $rs_query->select('terms', array('id', 'name'), array('taxonomy'=>array('NOT IN', getTaxonomyId('nav_menu'))));
 			
-			// Add each category to the list
-			foreach($categories as $category)
-				$list .= '<option value="'.$category['id'].'"'.($category['id'] === $id ? ' selected' : '').'>'.$category['name'].'</option>';
+			// Add each term to the list
+			foreach($terms as $term)
+				$list .= '<option value="'.$term['id'].'"'.($term['id'] === $id ? ' selected' : '').'>'.$term['name'].'</option>';
 		}
 		
 		// Return the list

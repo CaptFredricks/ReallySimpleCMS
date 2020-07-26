@@ -155,7 +155,7 @@ class Term {
 				// Loop through the terms
 				foreach($terms as $term) {
 					echo tableRow(
-						tableCell('<strong>'.$term['name'].'</strong><div class="actions"><a href="?id='.$term['id'].'&action=edit">Edit</a> &bull; <a class="modal-launch delete-item" href="?id='.$term['id'].'&action=delete" data-item="'.strtolower($this->taxonomy_data['labels']['name_singular']).'">Delete</a> &bull; <a href="'.getPermalink('term', $term['parent'], $term['slug']).'">View</a></div>', 'name'),
+						tableCell('<strong>'.$term['name'].'</strong><div class="actions"><a href="?id='.$term['id'].'&action=edit">Edit</a> &bull; <a class="modal-launch delete-item" href="?id='.$term['id'].'&action=delete" data-item="'.strtolower($this->taxonomy_data['labels']['name_singular']).'">Delete</a> &bull; <a href="'.getPermalink($this->taxonomy_data['name'], $term['parent'], $term['slug']).'">View</a></div>', 'name'),
 						tableCell($term['slug'], 'slug'),
 						tableCell($this->getParent($term['parent']), 'parent'),
 						tableCell($term['count'], 'count')

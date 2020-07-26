@@ -61,17 +61,6 @@ function templateExists($template, $dir) {
 }
 
 /**
- * Check whether the current 'page' is a category archive.
- * @since 2.4.0[a]
- *
- * @param string $base (optional; default: 'category')
- * @return bool
- */
-function isCategory($base = 'category') {
-	return strpos($_SERVER['REQUEST_URI'], $base) !== false;
-}
-
-/**
  * Fetch the theme's header template.
  * @since 1.5.5[a]
  *
@@ -79,8 +68,8 @@ function isCategory($base = 'category') {
  * @return null
  */
 function getHeader($template = '') {
-	// Extend the Post and Category objects and the user's session data
-	global $rs_post, $rs_category, $session;
+	// Extend the Post, Category, and Term objects and the user's session data
+	global $rs_post, $rs_category, $rs_term, $session;
 	
 	// Construct the file path for the current theme
 	$theme_path = trailingSlash(PATH.THEMES).getSetting('theme', false);
@@ -103,8 +92,8 @@ function getHeader($template = '') {
  * @return null
  */
 function getFooter($template = '') {
-	// Extend the Post and Category objects and the user's session data
-	global $rs_post, $rs_category, $session;
+	// Extend the Post, Category, and Term objects and the user's session data
+	global $rs_post, $rs_category, $rs_term, $session;
 	
 	// Construct the file path for the current theme
 	$theme_path = trailingSlash(PATH.THEMES).getSetting('theme', false);
@@ -166,6 +155,17 @@ function getThemeStylesheet($stylesheet, $version = VERSION, $echo = true) {
  */
 function getPost($slug) {
 	return new Post($slug);
+}
+
+/**
+ * Create a Term object based on a provided slug.
+ * @since 1.0.6[b]
+ *
+ * @param string $slug
+ * @return object
+ */
+function getTerm($slug) {
+	return new Term($slug);
 }
 
 /**
@@ -245,47 +245,47 @@ function getWidget($slug, $display_title = false) {
 }
 
 /**
- * Fetch all posts in the current category.
+ * Fetch all posts associated with the current term.
  * @since 2.4.1[a]
  *
- * @param int|string $category (optional; default: null)
+ * @param int|string $_term (optional; default: null)
  * @param string $order_by (optional; default: 'date')
  * @param string $order (optional; default: 'DESC')
  * @param int $limit (optional; default: 0)
  * @return array
  */
-function getPostsInCategory($category = null, $order_by = 'date', $order = 'DESC', $limit = 0) {
-	// Extend the Query object
-	global $rs_query;
+function getPostsWithTerm($_term = null, $order_by = 'date', $order = 'DESC', $limit = 0) {
+	// Extend the Query and Term objects
+	global $rs_query, $rs_term;
 	
 	// Create an empty array to hold the posts
 	$posts = array();
 	
-	// Check whether the category value is null
-	if(!is_null($category)) {
-		// Check whether the category value is an integer
-		if(is_int($category)) {
-			// Fetch the category
-			$cat = $category;
+	// Check whether the term value is null
+	if(!is_null($_term)) {
+		// Check whether the term value is an integer
+		if(is_int($_term)) {
+			// Fetch the term
+			$term = $_term;
 		} else {
-			// Fetch the category's id
-			$cat = getCategory($category)->getCategoryId(false);
+			// Fetch the term's id
+			$term = getTerm($_term)->getTermId(false);
 		}
 	} else {
-		// Create a Category object
-		$rs_category = new Category;
-		
-		// Fetch the category's id
-		$cat = $rs_category->getCategoryId(false);
+		// Fetch the term's id
+		$term = $rs_term->getTermId(false);
 	}
 	
 	// Fetch the term relationships from the database
-	$relationships = $rs_query->select('term_relationships', 'post', array('term'=>$cat));
+	$relationships = $rs_query->select('term_relationships', 'post', array('term'=>$term));
 	
 	// Loop through the term relationships
 	foreach($relationships as $relationship) {
+		// Skip the post if it isn't published
+		if(!$rs_query->selectRow('posts', 'id', array('id'=>$relationship['post'], 'status'=>'published'))) continue;
+		
 		// Fetch each post from the database and assign them to the posts array
-		$posts[] = $rs_query->selectRow('posts', '*', array('id'=>$relationship['post'], 'status'=>'published', 'type'=>'post'), $order_by, $order, $limit);
+		$posts[] = $rs_query->selectRow('posts', '*', array('id'=>$relationship['post']), $order_by, $order, $limit);
 	}
 	
 	// Return the posts

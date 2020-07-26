@@ -5,6 +5,18 @@
  */
 
 /**
+ * Check whether the current 'page' is a category archive.
+ * @since 2.4.0[a]
+ * @deprecated since 1.0.6[b]
+ *
+ * @param string $base (optional; default: 'category')
+ * @return bool
+ */
+function isCategory($base = 'category') {
+	return strpos($_SERVER['REQUEST_URI'], $base) !== false;
+}
+
+/**
  * Construct a post's permalink. (Admin Post class)
  * @since 1.4.9[a]
  * @deprecated since 1.0.0[b]

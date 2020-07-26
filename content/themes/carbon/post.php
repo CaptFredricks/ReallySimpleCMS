@@ -16,7 +16,7 @@ if($rs_post->postHasFeatImage()): ?>
 		<h1 class="post-title"><?php $rs_post->getPostTitle(); ?></h1>
 		<div class="post-meta"><span class="author">by <?php $rs_post->getPostAuthor(); ?></span><span class="date"><i class="far fa-clock"></i> <?php $rs_post->getPostDate(); ?></span></div>
 		<?php $rs_post->getPostContent(); ?>
-		<p class="post-categories">Categories: <?php $rs_post->getPostCategories(); ?></p>
+		<p class="post-categories">Categories: <?php $rs_post->getPostTerms(); ?></p>
 	</article>
 </section>
 <?php

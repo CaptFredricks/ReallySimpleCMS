@@ -16,6 +16,24 @@ class Post {
 	private $slug;
 	
 	/**
+	 * The currently queried post's type data.
+	 * @since 1.0.6[b]
+	 *
+	 * @access private
+	 * @var array
+	 */
+	private $type_data = array();
+	
+	/**
+	 * The currently queried post's taxonomy data.
+	 * @since 1.0.6[b]
+	 *
+	 * @access private
+	 * @var array
+	 */
+	private $taxonomy_data = array();
+	
+	/**
 	 * Class constructor. Sets the default queried post slug.
 	 * @since 2.2.3[a]
 	 *
@@ -24,8 +42,8 @@ class Post {
 	 * @return null
 	 */
 	public function __construct($slug = '') {
-		// Extend the Query object
-		global $rs_query;
+		// Extend the Query object and the post types and taxonomies arrays
+		global $rs_query, $post_types, $taxonomies;
 		
 		// Check whether a slug has been provided
 		if(!empty($slug)) {
@@ -136,6 +154,15 @@ class Post {
 					}
 				}
 			}
+		}
+		
+		// Fetch the type data
+		$this->type_data = $post_types[$this->getPostType(false)];
+		
+		// Check whether the current post type has a taxonomy associated with it and the taxonomy is valid
+		if(!empty($this->type_data['taxonomy']) && array_key_exists($this->type_data['taxonomy'], $taxonomies)) {
+			// Fetch the taxonomy data
+			$this->taxonomy_data = $taxonomies[$this->type_data['taxonomy']];
 		}
 	}
 	
@@ -397,38 +424,38 @@ class Post {
     }
 	
 	/**
-	 * Fetch a post's categories.
+	 * Fetch a post's terms.
 	 * @since 2.4.1[a]
 	 *
 	 * @param bool $echo (optional; default: true)
 	 * @return null|string (null on $echo == true; string on $echo == false)
 	 */
-	public function getPostCategories($echo = true) {
+	public function getPostTerms($echo = true) {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Create an empty array to hold the categories
-		$categories = array();
+		// Create an empty array to hold the terms
+		$terms = array();
 		
 		// Fetch the term relationships from the database
 		$relationships = $rs_query->select('term_relationships', 'term', array('post'=>$this->getPostId(false)));
 		
 		// Loop through the term relationships
 		foreach($relationships as $relationship) {
-			// Fetch the category's slug from the database
-			$slug = $rs_query->selectField('terms', 'slug', array('id'=>$relationship['term'], 'taxonomy'=>getTaxonomyId('category')));
+			// Fetch the term's slug from the database
+			$slug = $rs_query->selectField('terms', 'slug', array('id'=>$relationship['term'], 'taxonomy'=>getTaxonomyId($this->type_data['taxonomy'])));
 			
-			// Create a Category object
-			$rs_category = getCategory($slug);
+			// Create a Term object
+			$rs_term = getTerm($slug);
 			
-			// Fetch each term from the database and assign them to the categories array
-			$categories[] = $echo ? '<a href="'.$rs_category->getCategoryUrl(false).'">'.$rs_category->getCategoryName(false).'</a>' : $rs_category->getCategoryName(false);
+			// Fetch each term from the database and assign them to the terms array
+			$terms[] = $echo ? '<a href="'.$rs_term->getTermUrl(false).'">'.$rs_term->getTermName(false).'</a>' : $rs_term->getTermName(false);
 		}
 		
 		if($echo)
-			echo empty($categories) ? 'None' : implode(', ', $categories);
+			echo empty($terms) ? 'None' : implode(', ', $terms);
 		else
-			return $categories;
+			return $terms;
 	}
 	
 	/**

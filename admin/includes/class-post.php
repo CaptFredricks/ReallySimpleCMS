@@ -107,6 +107,15 @@ class Post {
 	private $type_data = array();
 	
 	/**
+	 * The currently queried post's taxonomy data.
+	 * @since 1.0.6[b]
+	 *
+	 * @access private
+	 * @var array
+	 */
+	private $taxonomy_data = array();
+	
+	/**
 	 * Class constructor.
 	 * @since 1.0.1[b]
 	 *
@@ -116,8 +125,8 @@ class Post {
 	 * @return null
 	 */
 	public function __construct($id = 0, $type_data = array()) {
-		// Extend the Query object
-		global $rs_query;
+		// Extend the Query object and the taxonomies array
+		global $rs_query, $taxonomies;
 		
 		// Check whether the id is '0'
 		if($id !== 0) {
@@ -128,8 +137,14 @@ class Post {
 			foreach($post as $key=>$value) $this->$key = $post[$key];
 		}
 		
-		// Set the $type_data class variable
+		// Fetch the type data
 		$this->type_data = $type_data;
+		
+		// Check whether the current post type has a taxonomy associated with it and the taxonomy is valid
+		if(!empty($this->type_data['taxonomy']) && array_key_exists($this->type_data['taxonomy'], $taxonomies)) {
+			// Fetch the taxonomy data
+			$this->taxonomy_data = $taxonomies[$this->type_data['taxonomy']];
+		}
 	}
 	
 	/**
@@ -200,10 +215,17 @@ class Post {
 			<thead>
 				<?php
 				// Fill an array with the table header columns
-				if($type === 'post')
-					$table_header_cols = array('Title', 'Author', 'Categories', 'Publish Date', 'Meta Title', 'Meta Desc.');
-				else
+				if($this->type_data['hierarchical']) {
 					$table_header_cols = array('Title', 'Author', 'Publish Date', 'Parent', 'Meta Title', 'Meta Desc.');
+				} else {
+					$table_header_cols = array('Title', 'Author', 'Publish Date', 'Meta Title', 'Meta Desc.');
+					
+					// Check whether the post type has a taxonomy associated with it
+					if(!empty($this->type_data['taxonomy'])) {
+						// Insert the taxonomy's label into the array
+						array_splice($table_header_cols, 2, 0, $this->taxonomy_data['label']);
+					}
+				}
 				
 				// Construct the table header
 				echo tableHeaderRow($table_header_cols);
@@ -231,9 +253,9 @@ class Post {
 					echo tableRow(
 						tableCell((isHomePage($post['id']) ? '<i class="fas fa-home" style="cursor: help;" title="Home Page"></i> ' : '').'<strong>'.$post['title'].'</strong>'.($post['status'] !== 'published' && $status === 'all' ? ' &ndash; <em>'.$post['status'].'</em>' : '').'<div class="actions">'.($status !== 'trash' ? '<a href="?id='.$post['id'].'&action=edit">Edit</a> &bull; <a href="?id='.$post['id'].'&action=trash">Trash</a> &bull; <a href="'.($post['status'] === 'published' ? (isHomePage($post['id']) ? '/' : getPermalink($post['type'], $post['parent'], $post['slug'])).'">View' : ('/?id='.$post['id'].'&preview=true').'">Preview').'</a>' : '<a href="?id='.$post['id'].'&action=restore">Restore</a> &bull; <a class="modal-launch delete-item" href="?id='.$post['id'].'&action=delete" data-item="'.strtolower($this->type_data['labels']['name_singular']).'">Delete</a>').'</div>', 'title'),
 						tableCell($this->getAuthor($post['author']), 'author'),
-						$type === 'post' ? tableCell($this->getCategories($post['id']), 'categories') : '',
+						!$this->type_data['hierarchical'] && !empty($this->type_data['taxonomy']) ? tableCell($this->getTerms($post['id']), 'terms') : '',
 						tableCell(is_null($post['date']) ? '&mdash;' : formatDate($post['date'], 'd M Y @ g:i A'), 'publish-date'),
-						$type !== 'post' ? tableCell($this->getParent($post['parent']), 'parent') : '',
+						$this->type_data['hierarchical'] ? tableCell($this->getParent($post['parent']), 'parent') : '',
 						tableCell(!empty($meta['title']) ? 'Yes' : 'No', 'meta_title'),
 						tableCell(!empty($meta['description']) ? 'Yes' : 'No', 'meta_description')
 					);
@@ -329,20 +351,11 @@ class Post {
 							?>
 						</div>
 					</div>
-					<div class="block">
-						<?php
-						if(!$this->type_data['hierarchical']) {
-							?>
-							<h2>Categories</h2>
-							<div class="row">
-								<?php
-								// Construct a 'categories' form checklist
-								echo $this->getCategoriesList();
-								?>
-							</div>
-							<?php
-						} else {
-							?>
+					<?php
+					// Check whether the post type is hierarchical
+					if($this->type_data['hierarchical']) {
+						?>
+						<div class="block">
 							<h2>Attributes</h2>
 							<div class="row">
 								<?php
@@ -358,10 +371,29 @@ class Post {
 								echo formTag('select', array('class'=>'select-input', 'name'=>'template', 'content'=>'<option value="default">Default</option>'.$this->getTemplateList()));
 								?>
 							</div>
-							<?php
-						}
+						</div>
+						<?php
+					} else {
 						?>
-					</div>
+						<div class="block">
+							<?php
+							// Check whether the post type has a taxonomy associated with it
+							if(!empty($this->type_data['taxonomy'])) {
+								?>
+								<h2><?php echo $this->taxonomy_data['label']; ?></h2>
+								<div class="row">
+									<?php
+									// Construct a 'terms' form checklist
+									echo $this->getTermsList();
+									?>
+								</div>
+								<?php
+							}
+							?>
+						</div>
+						<?php
+					}
+					?>
 					<div class="block">
 						<h2>Featured Image</h2>
 						<div class="row">
@@ -516,20 +548,11 @@ class Post {
 										?>
 									</div>
 								</div>
-								<div class="block">
-									<?php
-									if(!$this->type_data['hierarchical']) {
-										?>
-										<h2>Categories</h2>
-										<div class="row">
-											<?php
-											// Construct a 'categories' form checklist
-											echo $this->getCategoriesList($this->id);
-											?>
-										</div>
-										<?php
-									} else {
-										?>
+								<?php
+								// Check whether the post type is hierarchical
+								if($this->type_data['hierarchical']) {
+									?>
+									<div class="block">
 										<h2>Attributes</h2>
 										<div class="row">
 											<?php
@@ -545,10 +568,33 @@ class Post {
 											echo formTag('select', array('class'=>'select-input', 'name'=>'template', 'content'=>'<option value="default">Default</option>'.$this->getTemplateList($this->id)));
 											?>
 										</div>
-										<?php
-									}
+									</div>
+									<?php
+								} else {
 									?>
-								</div>
+									<div class="block">
+										<?php
+										// Check whether the post type has a taxonomy associated with it
+										if(!empty($this->type_data['taxonomy'])) {
+											?>
+											<h2><?php echo $this->taxonomy_data['label']; ?></h2>
+											<div class="row">
+												<?php
+												// Construct a 'terms' form checklist
+												echo $this->getTermsList($this->id);
+												?>
+											</div>
+											<?php
+										} else {
+											?>
+											
+											<?php
+										}
+										?>
+									</div>
+									<?php
+								}
+								?>
 								<div class="block">
 									<h2>Featured Image</h2>
 									<div class="row">
@@ -753,18 +799,18 @@ class Post {
 			foreach($postmeta as $key=>$value)
 				$rs_query->insert('postmeta', array('post'=>$insert_id, '_key'=>$key, 'value'=>$value));
 			
-			// Check whether any categories have been selected
-			if(!empty($data['categories'])) {
-				// Loop through the categories
-				foreach($data['categories'] as $category) {
+			// Check whether any terms have been selected
+			if(!empty($data['terms'])) {
+				// Loop through the terms
+				foreach($data['terms'] as $term) {
 					// Insert a new term relationship into the database
-					$rs_query->insert('term_relationships', array('term'=>$category, 'post'=>$insert_id));
+					$rs_query->insert('term_relationships', array('term'=>$term, 'post'=>$insert_id));
 					
-					// Fetch the number of shared relationships between the category and a post in the database
-					$count = $rs_query->selectRow('term_relationships', 'COUNT(*)', array('term'=>$category));
+					// Fetch the number of shared relationships between the term and a post in the database
+					$count = $rs_query->selectRow('term_relationships', 'COUNT(*)', array('term'=>$term));
 					
-					// Update the category's count (posts)
-					$rs_query->update('terms', array('count'=>$count), array('id'=>$category));
+					// Update the term's count (posts)
+					$rs_query->update('terms', array('count'=>$count), array('id'=>$term));
 				}
 			}
 			
@@ -796,38 +842,38 @@ class Post {
 			// Loop through the relationships
 			foreach($relationships as $relationship) {
 				// Check whether the relationship still exists
-				if(empty($data['categories']) || !in_array($relationship['term'], $data['categories'])) {
+				if(empty($data['terms']) || !in_array($relationship['term'], $data['terms'])) {
 					// Delete each unused relationship from the database
 					$rs_query->delete('term_relationships', array('id'=>$relationship['id']));
 					
-					// Fetch the number of shared relationships between the category and a post in the database
+					// Fetch the number of shared relationships between the term and a post in the database
 					$count = $rs_query->selectRow('term_relationships', 'COUNT(*)', array('term'=>$relationship['term']));
 					
-					// Update the category's count (posts)
+					// Update the term's count (posts)
 					$rs_query->update('terms', array('count'=>$count), array('id'=>$relationship['term']));
 				}
 			}
 			
-			// Check whether any categories have been selected
-			if(!empty($data['categories'])) {
-				// Loop through the categories
-				foreach($data['categories'] as $category) {
-					// Fetch any relationships between the current category and the post from the database
-					$relationship = $rs_query->selectRow('term_relationships', 'COUNT(*)', array('term'=>$category, 'post'=>$id));
+			// Check whether any terms have been selected
+			if(!empty($data['terms'])) {
+				// Loop through the terms
+				foreach($data['terms'] as $term) {
+					// Fetch any relationships between the current term and the post from the database
+					$relationship = $rs_query->selectRow('term_relationships', 'COUNT(*)', array('term'=>$term, 'post'=>$id));
 					
 					// Check whether the relationship already exists
 					if($relationship) {
-						// Skip to the next category
+						// Skip to the next term
 						continue;
 					} else {
 						// Insert a new term relationship into the database
-						$rs_query->insert('term_relationships', array('term'=>$category, 'post'=>$id));
+						$rs_query->insert('term_relationships', array('term'=>$term, 'post'=>$id));
 						
-						// Fetch the number of shared relationships between the category and a post in the database
-						$count = $rs_query->select('term_relationships', 'COUNT(*)', array('term'=>$category));
+						// Fetch the number of shared relationships between the term and a post in the database
+						$count = $rs_query->select('term_relationships', 'COUNT(*)', array('term'=>$term));
 						
-						// Update the category's count (posts)
-						$rs_query->update('terms', array('count'=>$count), array('id'=>$category));
+						// Update the term's count (posts)
+						$rs_query->update('terms', array('count'=>$count), array('id'=>$term));
 					}
 				}
 			}
@@ -983,58 +1029,58 @@ class Post {
 	}
 	
 	/**
-	 * Fetch a post's categories.
+	 * Fetch a post's terms.
 	 * @since 1.5.0[a]
 	 *
 	 * @access private
 	 * @param int $id
 	 * @return string
 	 */
-	private function getCategories($id) {
+	private function getTerms($id) {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Create an empty array to hold the categories
-		$categories = array();
+		// Create an empty array to hold the terms
+		$terms = array();
 		
 		// Fetch the term relationships from the database
 		$relationships = $rs_query->select('term_relationships', 'term', array('post'=>$id));
 		
 		// Loop through the term relationships
 		foreach($relationships as $relationship) {
-			// Fetch each term from the database and assign them to the categories array
-			$categories[] = $rs_query->selectField('terms', 'name', array('id'=>$relationship['term'], 'taxonomy'=>getTaxonomyId('category')));
+			// Fetch each term from the database and assign them to the terms array
+			$terms[] = $rs_query->selectField('terms', 'name', array('id'=>$relationship['term'], 'taxonomy'=>getTaxonomyId($this->taxonomy_data['name'])));
 		}
 		
-		// Return the categories
-		return empty($categories) ? '&mdash;' : implode(', ', $categories);
+		// Return the terms
+		return empty($terms) ? '&mdash;' : implode(', ', $terms);
 	}
 	
 	/**
-	 * Construct a list of categories.
+	 * Construct a list of terms.
 	 * @since 1.5.2[a]
 	 *
 	 * @access private
 	 * @param int $id (optional; default: 0)
 	 * @return string
 	 */
-	private function getCategoriesList($id = 0) {
+	private function getTermsList($id = 0) {
 		// Extend the Query object
 		global $rs_query;
 		
 		// Create a list with an opening unordered list tag
 		$list = '<ul id="categories-list">';
 		
-		// Fetch all categories from the database
-		$categories = $rs_query->select('terms', array('id', 'name'), array('taxonomy'=>getTaxonomyId('category')), 'name');
+		// Fetch all terms associated with the post type from the database
+		$terms = $rs_query->select('terms', array('id', 'name'), array('taxonomy'=>getTaxonomyId($this->taxonomy_data['name'])), 'name');
 		
-		// Loop through the categories
-		foreach($categories as $category) {
+		// Loop through the terms
+		foreach($terms as $term) {
 			// Fetch any existing term relationship from the database
-			$relationship = $rs_query->selectRow('term_relationships', 'COUNT(*)', array('term'=>$category['id'], 'post'=>$id));
+			$relationship = $rs_query->selectRow('term_relationships', 'COUNT(*)', array('term'=>$term['id'], 'post'=>$id));
 			
 			// Construct the list
-			$list .= '<li>'.formTag('input', array('type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'categories[]', 'value'=>$category['id'], '*'=>($relationship ? 'checked' : ''), 'label'=>array('content'=>'<span>'.$category['name'].'</span>'))).'</li>';
+			$list .= '<li>'.formTag('input', array('type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'terms[]', 'value'=>$term['id'], '*'=>($relationship ? 'checked' : ''), 'label'=>array('content'=>'<span>'.$term['name'].'</span>'))).'</li>';
 		}
 		
 		// Close the unordered list

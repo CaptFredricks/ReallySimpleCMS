@@ -6,6 +6,54 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.0.6[b] (2020-07-25)
+
+- Improved how permalinks are structured for custom post types and taxonomies (this fixed an issue with all taxonomies having `term` as their base url)
+- Tweaked a previous entry in the changelog
+- Created a new class variable in the `Post` class to hold taxonomy data
+- Renamed the `Post::getCategoriesList` function to `Post::getTermsList`
+- Custom taxonomies are now properly linked with their respective post types
+- Renamed the `Post::getCategories` function to `Post::getTerms`
+- The 'List Posts' page now properly shows the taxonomy related to the post type (and omits it if the post type doesn't have a taxonomy)
+- Removed taxonomy labels from the `getPostTypeLabels` function
+- Moved most of the root `index.php` file's contents to the `init.php` file
+- Improved the way the CMS determines whether the current page is a post or a term
+- Moved the `isCategory` function to the `deprecated.php` file as it is no longer used
+- Renamed the `Post::getPostCategories` function to `Post::getPostTerms`
+- Created a function that checks whether the user is currently viewing an admin page
+- Created a function that checks whether the user is currently viewing the login page
+- Created a function that checks whether the user is currently viewing the 404 not found page
+- Created a function that creates a `Term` object based on a slug
+- Changed the way the `load-template.php` file tries to load taxonomy templates
+- Added support for custom taxonomy templates
+- Renamed the `getPostsInCategory` function to `getPostsWithTerm`
+- Fixed a bug in the `getPostsWithTerm` function that allowed blank post entries to be added to the posts array if the posts are not published
+- Added a message to the `getRecentPosts` function if there are no posts that can be displayed
+- The `getRecentPosts` function can now be used to load posts associated with any taxonomy and of any post type
+- Taxonomies are now displayed on the admin statistics bar graph if they have `show_in_stats_graph` set to true
+- Custom taxonomies will now display in nav menus if `show_in_nav_menus` is set to true
+- Fixed several issues with menu items using custom taxonomies
+- Fixed an error with menu items that point to nonexistent posts or terms
+
+**Modified files:**
+- admin/includes/class-menu.php
+- admin/includes/class-post.php
+- admin/includes/class-term.php (M)
+- admin/includes/functions.php
+- content/themes/carbon/functions.php
+- content/themes/carbon/header-term.php (N)
+- content/themes/carbon/post.php
+- content/themes/carbon/term.php (N)
+- includes/class-menu.php
+- includes/class-post.php
+- includes/deprecated.php
+- includes/functions.php
+- includes/globals.php
+- includes/load-template.php
+- index.php
+- init.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.0.5[b] (2020-07-23)
 
 - Added the `can_upload_media` permission to the admin nav menu
@@ -23,13 +71,13 @@
 - Created a function that unregisters a taxonomy (default taxonomies cannot be unregistered)
 - Fixed an issue where the widths of newly uploaded images would not be calculated properly (image dimensions are now fetched via PHP and not JS)
 - Created class variables for the `Term` class
-- Created the 'List Terms', 'Create Term', and 'Edit Terms' pages
+- Created the 'List Terms', 'Create Term', and 'Edit Term' pages
 - Moved all functions from the admin `Category` class to the `Term` class (only the `listCategories`, `createCategory`, `editCategory`, and `deleteCategory` functions remain as alias functions)
 - Created a function that fetches a taxonomy's name based on its id
 - Code cleanup in the `Post` class
 - Code cleanup in the `globals.php` file
 - The admin nav menu now scrolls if its content overflows the window
-- Added an inner content wrapper to all admin pages to fix a floating issue with page content
+- Added an inner content wrapper to all admin pages to fix a floating issue with page content presented by the overflow fix
 - Current page functionality now works properly for custom post types and taxonomies
 - Tweaked the admin themes
 

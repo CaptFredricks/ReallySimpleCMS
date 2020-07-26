@@ -5,7 +5,7 @@
  */
 
 // Current CMS version
-const VERSION = '1.0.5';
+const VERSION = '1.0.6';
 
 // Post types
 $post_types = array();
@@ -99,6 +99,36 @@ function isHomePage($id) {
 }
 
 /**
+ * Check whether the user is viewing a page on the admin dashboard.
+ * @since 1.0.6[a]
+ *
+ * @return bool
+ */
+function isAdmin() {
+	return strpos($_SERVER['REQUEST_URI'], '/admin/') !== false;
+}
+
+/**
+ * Check whether the user is viewing the log in page.
+ * @since 1.0.6[a]
+ *
+ * @return bool
+ */
+function isLogin() {
+	return strpos($_SERVER['REQUEST_URI'], '/login.php') !== false;
+}
+
+/**
+ * Check whether the user is viewing the 404 not found page.
+ * @since 1.0.6[a]
+ *
+ * @return bool
+ */
+function is404() {
+	return strpos($_SERVER['REQUEST_URI'], '/404.php') !== false;
+}
+
+/**
  * Fetch a script file.
  * @since 1.3.3[a]
  *
@@ -161,33 +191,26 @@ function getSetting($name, $echo = true) {
  * @return string|bool (string on recognized type, bool on unrecognized type)
  */
 function getPermalink($type, $parent, $slug = '') {
-	// Extend the Query object and the post types array
-	global $rs_query, $post_types;
+	// Extend the Query object and the post types and taxonomies arrays
+	global $rs_query, $post_types, $taxonomies;
 	
-	switch($type) {
-		case 'post': case 'page':
-			// The posts table should be searched
-			$table = 'posts';
-			break;
-		case 'term': case 'category':
-			// The terms table should be searched
-			$table = 'terms';
-			
-			// Set the base slug for categories
+	// Check whether the type matches one of the defined post types
+	if(array_key_exists($type, $post_types)) {
+		// The posts table should be searched
+		$table = 'posts';
+		
+		// Check whether the post type is of type 'post' or 'page'
+		if($type !== 'post' && $type !== 'page') {
+			// Set the base slug for the post type
 			$base = str_replace('_', '-', $type);
-			break;
-		default:
-			// Check whether the case matches one of the defined custom post types
-			if(array_key_exists($type, $post_types)) {
-				// The posts table should be searched
-				$table = 'posts';
-				
-				// Set the base slug for the post type
-				$base = str_replace('_', '-', $type);
-			} else {
-				// Return false because the type is not recognized
-				return false;
-			}
+		}
+	} // Check whether the type matches one of the defined taxonomies
+	elseif(array_key_exists($type, $taxonomies)) {
+		// The terms table should be searched
+		$table = 'terms';
+		
+		// Set the base slug for the term
+		$base = str_replace('_', '-', $type);
 	}
 	
 	// Create an empty permalink array
@@ -377,9 +400,7 @@ function getPostTypeLabels($post_type, $labels = array()) {
 		'name_singular'=>$name_singular,
 		'list_items'=>'List '.$name,
 		'create_item'=>'Create '.$name_singular,
-		'edit_item'=>'Edit '.$name_singular,
-		'taxonomy'=>'',
-		'taxonomy_singular'=>''
+		'edit_item'=>'Edit '.$name_singular
 	);
 	
 	// Merge the defaults with the provided labels
@@ -569,10 +590,6 @@ function registerDefaultPostTypes() {
 	
 	// Post
 	registerPostType('post', array(
-		'labels'=>array(
-			'taxonomy'=>'Categories',
-			'taxonomy_singular'=>'Category'
-		),
 		'menu_icon'=>'newspaper',
 		'taxonomy'=>'category'
 	));

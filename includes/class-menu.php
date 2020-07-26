@@ -15,8 +15,8 @@ class Menu {
 	 * @return null
 	 */
 	public function getMenu($slug) {
-		// Extend the Query object and the post types array
-		global $rs_query, $post_types;
+		// Extend the Query object and the post types and taxonomies arrays
+		global $rs_query, $post_types, $taxonomies;
 		
 		// Fetch the menu's id from the database
 		$id = $rs_query->selectField('terms', 'id', array('slug'=>$slug));
@@ -70,13 +70,22 @@ class Menu {
 							$type = $rs_query->selectField('posts', 'type', array('id'=>$meta['post_link']));
 							
 							// Check whether the post type is set to display in nav menus
-							if($post_types[$type]['show_in_nav_menus']) {
+							if(!empty($type) && $post_types[$type]['show_in_nav_menus']) {
 								// Construct the permalink
 								$permalink = isHomePage((int)$meta['post_link']) ? '/' : getPermalink($type, $this->getMenuItemParent($meta['post_link']));
 							}
 						} elseif(isset($meta['term_link'])) {
-							// Construct the permalink
-							$permalink = getPermalink('category', $this->getMenuItemParent($meta['term_link']));
+							// Fetch the taxonomy's id of the term the menu item points to
+							$tax_id = $rs_query->selectField('terms', 'taxonomy', array('id'=>$meta['term_link']));
+							
+							// Fetch the taxonomy of the term the menu item points to
+							$taxonomy = $rs_query->selectField('taxonomies', 'name', array('id'=>$tax_id));
+							
+							// Check whether the taxonomy is set to display in nav menus
+							if(!empty($taxonomy) && $taxonomies[$taxonomy]['show_in_nav_menus']) {
+								// Construct the permalink
+								$permalink = getPermalink($taxonomy, $this->getMenuItemParent($meta['term_link']));
+							}
 						} elseif(isset($meta['custom_link'])) {
 							// Fetch the permalink
 							$permalink = $meta['custom_link'];

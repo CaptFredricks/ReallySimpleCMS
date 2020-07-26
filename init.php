@@ -52,6 +52,69 @@ if(file_exists(PATH.'/config.php')) {
 	
 	// Register the default taxonomies
 	registerDefaultTaxonomies();
+	
+	// Check whether the user is viewing the admin dashboard, the log in page, or the 404 not found page
+	if(!isAdmin() && !isLogin() && !is404()) {
+		// Include functions
+		require_once PATH.INC.'/functions.php';
+		
+		// Include the theme loader file
+		require_once PATH.INC.'/load-theme.php';
+		
+		// Check whether the current post is a preview and the id is valid
+		if(isset($_GET['preview']) && $_GET['preview'] === 'true' && isset($_GET['id']) && $_GET['id'] > 0) {
+			// Create a Post object
+			$rs_post = new Post;
+		} else {
+			// Fetch the URI
+			$raw_uri = $_SERVER['REQUEST_URI'];
+			
+			// Check whether the current page is the home page
+			if($raw_uri === '/') {
+				// Fetch the home page's id from the database
+				$home_page = $rs_query->selectField('settings', 'value', array('name'=>'home_page'));
+				
+				// Fetch the home page's slug from the database
+				$slug = $rs_query->selectField('posts', 'slug', array('id'=>$home_page));
+			} else {
+				// Create an array from the post's URI
+				$uri = explode('/', $raw_uri);
+				
+				// Filter out any empty array values
+				$uri = array_filter($uri);
+				
+				// Check whether the last element of the array is the slug
+				if(strpos(end($uri), '?') !== false) {
+					// Pop the query string off the end of the array
+					array_pop($uri);
+				}
+				
+				// Fetch the slug from the URI array
+				$slug = array_pop($uri);
+			}
+			
+			// Check whether the current page is a post or a term
+			if($rs_query->selectRow('posts', 'COUNT(slug)', array('slug'=>$slug)) > 0) {
+				// Create a Post object
+				$rs_post = new Post;
+			} elseif($rs_query->selectRow('terms', 'COUNT(slug)', array('slug'=>$slug, 'taxonomy'=>getTaxonomyId('category'))) > 0) {
+				// Create Category and Term objects
+				$rs_category = $rs_term = new Category;
+			} else {
+				// Create a Term object
+				$rs_term = new Term;
+			}
+		}
+
+		// Check whether the session cookie is set and the user's session is valid
+		if(isset($_COOKIE['session']) && isValidSession($_COOKIE['session'])) {
+			// Fetch the user's data
+			$session = getOnlineUser($_COOKIE['session']);
+		}
+
+		// Include the template loader file
+		require_once PATH.INC.'/load-template.php';
+	}
 } else {
 	// Redirect to the setup page
 	header('Location: '.ADMIN.'/setup.php');
