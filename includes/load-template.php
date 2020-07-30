@@ -29,8 +29,12 @@ if(isset($rs_post)) {
 			}
 		}
 	} else {
-		// Check whether a generic 'post' template file exists
-		if(file_exists($theme_path.'/post.php')) {
+		// Check whether a specific post type template file exists
+		if(file_exists($theme_path.'/posttype-'.$rs_post->getPostType(false).'.php')) {
+			// Include the template file
+			require_once $theme_path.'/posttype-'.$rs_post->getPostType(false).'.php';
+		} // Check whether a generic 'post' template file exists
+		elseif(file_exists($theme_path.'/post.php')) {
 			// Include the template file
 			require_once $theme_path.'/post.php';
 		} else {
@@ -46,16 +50,19 @@ elseif(isset($rs_term)) {
 		if(file_exists($theme_path.'/category.php')) {
 			// Include the template file
 			require_once $theme_path.'/category.php';
+		} else {
+			// Include the theme's index file
+			require_once $theme_path.'/index.php';
 		}
 	} else {
-		// Check whether a taxonomy template file exists
-		if(file_exists($theme_path.'/term-'.$rs_term->getTermTaxonomy(false).'.php')) {
+		// Check whether a specific taxonomy template file exists
+		if(file_exists($theme_path.'/taxonomy-'.$rs_term->getTermTaxonomy(false).'.php')) {
 			// Include the template file
-			require_once $theme_path.'/term-'.$rs_term->getTermTaxonomy(false).'.php';
-		} // Check whether a generic 'term' template file exists
-		elseif(file_exists($theme_path.'/term.php')) {
+			require_once $theme_path.'/taxonomy-'.$rs_term->getTermTaxonomy(false).'.php';
+		} // Check whether a generic 'taxonomy' template file exists
+		elseif(file_exists($theme_path.'/taxonomy.php')) {
 			// Include the template file
-			require_once $theme_path.'/term.php';
+			require_once $theme_path.'/taxonomy.php';
 		} else {
 			// Include the theme's index file
 			require_once $theme_path.'/index.php';

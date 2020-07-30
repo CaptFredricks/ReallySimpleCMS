@@ -532,8 +532,8 @@ function adminBar() {
 						<li>
 							<a href="/admin/<?php echo $post_type['menu_link']; ?>"><?php echo $post_type['label']; ?></a>
 							<?php
-							// Check whether the post type has a taxonomy and whether it has 'show_in_admin_bar' set to true
-							if(!empty($post_type['taxonomy']) && $taxonomies[$post_type['taxonomy']]['show_in_admin_bar']) {
+							// Check whether the post type has a valid taxonomy associated with it and has 'show_in_admin_bar' set to true
+							if(!empty($post_type['taxonomy']) && array_key_exists($post_type['taxonomy'], $taxonomies) && $taxonomies[$post_type['taxonomy']]['show_in_admin_bar']) {
 								?>
 								<ul class="sub-menu">
 									<li>
@@ -600,8 +600,8 @@ function adminBar() {
 						<li>
 							<a href="/admin/<?php echo $post_type['menu_link'].($post_type['name'] === 'media' ? '?action=upload' : ($post_type['name'] === 'post' ? '?action=create' : '&action=create')); ?>"><?php echo $post_type['labels']['name_singular']; ?></a>
 							<?php
-							// Check whether the post type has a taxonomy and whether it has 'show_in_admin_bar' set to true
-							if(!empty($post_type['taxonomy']) && $taxonomies[$post_type['taxonomy']]['show_in_admin_bar']) {
+							// Check whether the post type has a valid taxonomy associated with it and has 'show_in_admin_bar' set to true
+							if(!empty($post_type['taxonomy']) && array_key_exists($post_type['taxonomy'], $taxonomies) && $taxonomies[$post_type['taxonomy']]['show_in_admin_bar']) {
 								?>
 								<ul class="sub-menu">
 									<li>

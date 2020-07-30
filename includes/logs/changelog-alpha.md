@@ -1795,177 +1795,177 @@
 ----------------------------------------------------------------------------------------------------
 ## Version 1.5.7[a] (2019-08-15)
 
-* Improved styling of the statistics graph
-* Reordered the bars in the statistics graph
-* Rebuilt the admin submenu item functionality
-* Removed a closing PHP tag in the admin settings.php file
-* Tweaked some code in the setup.php file
-* Tweaked some code and fixed some documentation in the install.php file
-* The CMS version constant now only displays the version number (e.g., 1.5.7); the RSVersion function now includes the long form
-* Added the CMS version to the admin stylesheets and scripts
-* Fixed some documentation in the globals.php file
-* Removed a closing PHP tag in the admin index.php file
-* Tweaked some code in the Settings and User classes
+- Improved styling of the statistics graph
+- Reordered the bars in the statistics graph
+- Rebuilt the admin submenu item functionality
+- Removed a closing PHP tag in the `admin/settings.php` file
+- Tweaked some code in the `setup.php` file
+- Tweaked some code and fixed some documentation in the `install.php` file
+- The CMS version constant now only displays the version number (e.g., 1.5.7); the `RSVersion` function now includes the long form
+- Added the CMS version to the admin stylesheets and scripts
+- Fixed some documentation in the `globals.php` file
+- Removed a closing PHP tag in the `admin/index.php` file
+- Tweaked some code in the `Settings` and `User` classes
 
 **Modified files:**
-* admin/footer.php (M)
-* admin/header.php
-* admin/includes/class-settings.php (M)
-* admin/includes/class-user.php (M)
-* admin/includes/css/style.css
-* admin/includes/functions.php
-* admin/index.php (M)
-* admin/install.php
-* admin/settings.php (M)
-* admin/setup.php (M)
-* includes/globals.php
+- admin/footer.php (M)
+- admin/header.php
+- admin/includes/class-settings.php (M)
+- admin/includes/class-user.php (M)
+- admin/includes/css/style.css
+- admin/includes/functions.php
+- admin/index.php (M)
+- admin/install.php
+- admin/settings.php (M)
+- admin/setup.php (M)
+- includes/globals.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.5.6[a] (2019-08-14)
 
-* A notice will now be displayed on the List Categories page if there are no categories in the database
-* Minor code tweak in the Post class
-* Adjusted the margins for status messages
-* Removed some deprecated code from the admin functions.php file
-* Changed some class and id names for the statistics graph
-* Added styling to the statistics graph
-* Created a file for admin scripts
-* Created a file for the jquery library
-* Added admin scripts and jquery to the admin footer.php file
-* Added optional version parameter to stylesheet and script fetching functions
-* Created a script that generates the bars for the statistics graph
+- A notice will now be displayed on the 'List Categories' page if there are no categories in the database
+- Minor code tweak in the `Post` class
+- Adjusted the margins for status messages
+- Removed some deprecated code from the `admin/functions.php` file
+- Changed some class and id names for the statistics graph
+- Added styling to the statistics graph
+- Created a file for admin scripts
+- Created a file for the jquery library
+- Added admin scripts and jquery to the `admin/footer.php` file
+- Added an optional version parameter to stylesheet and script fetching functions
+- Created a script that generates the bars for the statistics graph
 
 **Modified files:**
-* admin/footer.php
-* admin/includes/class-category.php
-* admin/includes/class-post.php (M)
-* admin/includes/css/style.css
-* admin/includes/functions.php
-* admin/includes/js/script.js (N)
-* includes/globals.php
-* includes/js/jquery.min.js (N)
+- admin/footer.php
+- admin/includes/class-category.php
+- admin/includes/class-post.php (M)
+- admin/includes/css/style.css
+- admin/includes/functions.php
+- admin/includes/js/script.js (N)
+- includes/globals.php
+- includes/js/jquery.min.js (N)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.5.5[a] (2019-08-05)
 
-* Created an index page for the content directory
-* Created functions to include theme header and footer files
-* Moved the front end header and footer files to the content directory
-* The root index.php file now includes the content index.php file
-* Created a new defined constant for the content directory
-* Updated documentation in the deprecated.php file
+- Created an `index.php` file for the `content` directory
+- Created functions that include theme header and footer files
+- Moved the front end `header.php` and `footer.php` files to the `content` directory
+- The root `index.php` file now includes the `content/index.php` file
+- Created a new defined constant for the `content` directory
+- Updated documentation in the `deprecated.php` file
 
 **Modified files:**
-* content/footer.php (N)
-* content/header.php (N)
-* content/index.php (N)
-* footer.php (X)
-* header.php (X)
-* includes/deprecated.php
-* includes/functions.php
-* index.php
-* init.php (M)
+- content/footer.php (N)
+- content/header.php (N)
+- content/index.php (N)
+- footer.php (X)
+- header.php (X)
+- includes/deprecated.php
+- includes/functions.php
+- index.php
+- init.php (M)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.5.4[a] (2019-08-04)
 
-* When a post is deleted, its term relationships are also deleted and the category counts are updated
-* Added the 'button' class to the pager nav links
-* Styled the pager nav buttons
-* Tweaked styling to the entry count
-* Created a function to fetch the current admin page
-* The admin body tag is now assigned a class based on the current page
-* Changed some class names relating to the admin nav menu
-* Renamed the adminNavItem function to adminNavMenuItem
-* The admin nav menu now properly displays the current nav menu item
-* Submenus are now visible if they are children of the current nav menu item
+- When a post is deleted, its term relationships are also deleted and the category counts are updated
+- Added the `button` class to the pager nav links
+- Styled the pager nav buttons
+- Tweaked the styling of the entry count
+- Created a function that fetches the current admin page
+- The admin `body` tag is now assigned a class based on the current page
+- Changed some class names relating to the admin nav menu
+- Renamed the `adminNavItem` function to `adminNavMenuItem`
+- The admin nav menu now properly displays the current nav menu item
+- Submenus are now visible if they are children of the current nav menu item
 
 **Modified files:**
-* admin/header.php (M)
-* admin/includes/class-post.php
-* admin/includes/css/style.css
-* admin/includes/functions.php
+- admin/header.php (M)
+- admin/includes/class-post.php
+- admin/includes/css/style.css
+- admin/includes/functions.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.5.3[a] (2019-08-02)
 
-* Categories can now be removed from posts
-* The Settings form now has styling
-* Tweaked the documentation of the Settings class
-* Tweaked the styling of form tables
+- Categories can now be removed from posts
+- The 'General Settings' form now has styling
+- Tweaked the documentation of the `Settings` class
+- Tweaked the styling of form tables
 
 **Modified files:**
-* admin/includes/class-post.php
-* admin/includes/class-settings.php (M)
-* admin/includes/css/style.css
+- admin/includes/class-post.php
+- admin/includes/class-settings.php (M)
+- admin/includes/css/style.css
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.5.2[a] (2019-08-01)
 
-* Changed the default value for datetime columns in the schema to avoid major errors during installation in newer versions of MySQL
-* Tweaked some documentation in the Post class
-* Created a function that checks whether a category slug exists in the database
-* Categories can now be created
-* Added more documentation to the User class
-* Cleaned up the code in the User::validateData function
-* The $id param for the User::usernameExists function is no longer optional
-* Categories can now be edited
-* Added styling for the categories list
-* Removed parent list and added categories list to 'Create Post' page
-* Categories can now be added to posts (they cannot yet be removed)
+- Changed the default value for datetime columns in the schema to avoid major errors during installation in newer versions of MySQL
+- Tweaked some documentation in the `Post` class
+- Created a function that checks whether a category slug exists in the database
+- Categories can now be created
+- Added more documentation to the `User` class
+- Cleaned up the code in the `User::validateData` function
+- The `id` parameter for the `User::usernameExists` function is no longer optional
+- Categories can now be edited
+- Added styling to the categories list
+- Removed the parent list and added a categories list to the 'Create Post' page
+- Categories can now be added to posts (they cannot yet be removed)
 
 **Modified files:**
-* admin/includes/class-category.php
-* admin/includes/class-post.php
-* admin/includes/class-user.php
-* admin/includes/css/style.css
-* includes/schema.php
+- admin/includes/class-category.php
+- admin/includes/class-post.php
+- admin/includes/class-user.php
+- admin/includes/css/style.css
+- includes/schema.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.5.1[a] (2019-07-30)
 
-* Created a function that constructs the 'Edit Category' form
-* Created a function to delete categories from the database
-* Tweaked validation in Post::deleteEntry function
-* Added more documentation to the User class
-* The category's parent can now be set to 'none' on the 'Create Category' form
+- Created a function that constructs the 'Edit Category' form
+- Created a function that deletes categories from the database
+- Tweaked validation in the `Post::deleteEntry` function
+- Added more documentation to the `User` class
+- The category's parent can now be set to `none` on the 'Create Category' form
 
 **Modified files:**
-* admin/categories.php
-* admin/includes/class-category.php
-* admin/includes/class-post.php (M)
-* admin/includes/class-user.php (M)
+- admin/categories.php
+- admin/includes/class-category.php
+- admin/includes/class-post.php (M)
+- admin/includes/class-user.php (M)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.5.0[a] (2019-07-28)
 
-* Created admin 'List Categories' page
-* Added the categories page to the admin navigation
-* Created the Category class
-* The 'Create <classname>' buttons have been relabeled as 'Create New'
-* Modified the logic of the status message display on the list entries pages
-* Fixed some erroneous documentation in the functions.php file
-* Created a function to populate the taxonomies table
-* Created a function to fetch a taxonomy's id based on its name
-* Created a function to populate the terms table
-* Created a function that constructs a list of all categories in the database
-* A sample blog post is now created on CMS install in addition to the sample home page
-* Created a function to populate the term_relationships table
-* Created a function to fetch the post categories
-* Created a function to fetch a category's parent
-* Created a function that constructs the 'Create Category' form
-* Created a function that constructs a list of parent categories
-* Created a function that checks whether the current category is a descendant of other categories
-* Removed 'parent' column from 'List Posts' page (the 'post' post type is not meant to be hierarchical)
+- Created an admin 'List Categories' page
+- Added the 'List Categories' page to the admin navigation
+- Created a `Category` class
+- The 'Create <classname>' buttons have been relabeled as 'Create New'
+- Modified the logic of the status message display on the list entries pages
+- Fixed some erroneous documentation in the `includes/functions.php` file
+- Created a function that populates the taxonomies table
+- Created a function that fetches a taxonomy's id based on its name
+- Created a function that populates the terms table
+- Created a function that constructs a list of all categories in the database
+- A sample blog post is now created during the CMS installation in addition to the sample home page
+- Created a function that populates the `term_relationships` table
+- Created a function that fetches the post categories
+- Created a function that fetches a category's parent
+- Created a function that constructs the 'Create Category' form
+- Created a function that constructs a list of parent categories
+- Created a function that checks whether the current category is a descendant of other categories
+- Removed the `parent` column from the 'List Posts' page (the `post` post type is not meant to be hierarchical)
 
 **Modified files:**
-* admin/categories.php (N)
-* admin/header.php
-* admin/includes/class-category.php (N)
-* admin/includes/class-post.php
-* admin/includes/class-user.php (M)
-* admin/includes/functions.php
-* admin/install.php
+- admin/categories.php (N)
+- admin/header.php
+- admin/includes/class-category.php (N)
+- admin/includes/class-post.php
+- admin/includes/class-user.php (M)
+- admin/includes/functions.php
+- admin/install.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.4.10[a] (2019-07-26)

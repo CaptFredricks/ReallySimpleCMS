@@ -5,7 +5,7 @@
  */
 
 // Current CMS version
-const VERSION = '1.0.6';
+const VERSION = '1.0.7';
 
 // Post types
 $post_types = array();
@@ -186,11 +186,11 @@ function getSetting($name, $echo = true) {
  * @since 2.2.2[a]
  *
  * @param string $type
- * @param int $parent
+ * @param int $parent (optional; default: 0)
  * @param string $slug (optional; default: '')
  * @return string|bool (string on recognized type, bool on unrecognized type)
  */
-function getPermalink($type, $parent, $slug = '') {
+function getPermalink($type, $parent = 0, $slug = '') {
 	// Extend the Query object and the post types and taxonomies arrays
 	global $rs_query, $post_types, $taxonomies;
 	
@@ -419,8 +419,8 @@ function getPostTypeLabels($post_type, $labels = array()) {
  * @return null
  */
 function registerPostType($name, $args = array()) {
-	// Extend the Query object and the post types array
-	global $rs_query, $post_types;
+	// Extend the Query object and the post types and taxonomies arrays
+	global $rs_query, $post_types, $taxonomies;
 	
 	// Make sure the post types global is an array
 	if(!is_array($post_types)) $post_types = array();
@@ -431,6 +431,9 @@ function registerPostType($name, $args = array()) {
 	// Check whether the post type's name is valid
 	if(empty($name) || strlen($name) > 20)
 		exit('A post type\'s name must be between 1 and 20 characters long.');
+	
+	// Check whether the name is already registered and don't bother to proceed if it is
+	if(isset($post_types[$name]) || isset($taxonomies[$name])) return;
 	
 	// Set the default arguments
 	$defaults = array(
@@ -454,21 +457,6 @@ function registerPostType($name, $args = array()) {
 	foreach($args as $key=>$value) {
 		// Remove any unrecognized arguments from the array
 		if(!array_key_exists($key, $defaults)) unset($args[$key]);
-	}
-	
-	// Check whether the post type behaves like a post (hierarchical === false)
-	if($args['hierarchical'] === false) {
-		// Check whether a custom taxonomy has been specified
-		if(!empty($args['taxonomy'])) {
-			// Fetch any taxonomies that have the same name as the specified one
-			$taxonomy = $rs_query->selectRow('taxonomies', '*', array('name'=>$args['taxonomy']));
-			
-			// Check whether the taxonomy already exists
-			if(empty($taxonomy)) {
-				// Set the taxonomy to 'category'
-				$args['taxonomy'] = 'category';
-			}
-		}
 	}
 	
 	// Set 'show_in_stats_graph' to the value of 'public' if not specified
@@ -660,8 +648,8 @@ function getTaxonomyLabels($taxonomy, $labels = array()) {
  * @return null
  */
 function registerTaxonomy($name, $args = array()) {
-	// Extend the Query object and the taxonomies array
-	global $rs_query, $taxonomies;
+	// Extend the Query object and the taxonomies and post types arrays
+	global $rs_query, $taxonomies, $post_types;
 	
 	// Make sure the taxonomies global is an array
 	if(!is_array($taxonomies)) $taxonomies = array();
@@ -672,6 +660,9 @@ function registerTaxonomy($name, $args = array()) {
 	// Check whether the taxonomy's name is valid
 	if(empty($name) || strlen($name) > 20)
 		exit('A taxonomy\'s name must be between 1 and 20 characters long.');
+	
+	// Check whether the name is already registered and don't bother to proceed if it is
+	if(isset($taxonomies[$name]) || isset($post_types[$name])) return;
 	
 	// Fetch any taxonomies that have the same name as the newly registered one
 	$taxonomy = $rs_query->selectRow('taxonomies', '*', array('name'=>$name));

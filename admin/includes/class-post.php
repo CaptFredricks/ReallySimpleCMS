@@ -221,7 +221,7 @@ class Post {
 					$table_header_cols = array('Title', 'Author', 'Publish Date', 'Meta Title', 'Meta Desc.');
 					
 					// Check whether the post type has a taxonomy associated with it
-					if(!empty($this->type_data['taxonomy'])) {
+					if(!empty($this->taxonomy_data)) {
 						// Insert the taxonomy's label into the array
 						array_splice($table_header_cols, 2, 0, $this->taxonomy_data['label']);
 					}
@@ -306,7 +306,7 @@ class Post {
 					<div class="permalink">
 						<?php
 						// Construct a 'permalink' form tag
-						echo formTag('label', array('for'=>'slug', 'content'=>'<strong>Permalink:</strong> '.getSetting('site_url', false).'/'));
+						echo formTag('label', array('for'=>'slug', 'content'=>'<strong>Permalink:</strong> '.getSetting('site_url', false).getPermalink($this->type_data['name'])));
 						echo formTag('input', array('id'=>'slug-field', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>($_POST['slug'] ?? '')));
 						echo '<span>/</span>';
 						?>
@@ -377,8 +377,8 @@ class Post {
 						?>
 						<div class="block">
 							<?php
-							// Check whether the post type has a taxonomy associated with it
-							if(!empty($this->type_data['taxonomy'])) {
+							// Check whether the post type has a valid taxonomy associated with it
+							if(!empty($this->taxonomy_data)) {
 								?>
 								<h2><?php echo $this->taxonomy_data['label']; ?></h2>
 								<div class="row">
@@ -574,8 +574,8 @@ class Post {
 									?>
 									<div class="block">
 										<?php
-										// Check whether the post type has a taxonomy associated with it
-										if(!empty($this->type_data['taxonomy'])) {
+										// Check whether the post type has a valid taxonomy associated with it
+										if(!empty($this->taxonomy_data)) {
 											?>
 											<h2><?php echo $this->taxonomy_data['label']; ?></h2>
 											<div class="row">

@@ -590,8 +590,8 @@ function adminNavMenu() {
 		// Create an id from the post type's label
 		$id = str_replace(' ', '_', $post_type['labels']['name_lowercase']);
 		
-		// Check whether the post type has a taxonomy associated with it
-		if(!empty($post_type['taxonomy'])) {
+		// Check whether the post type has a valid taxonomy associated with it
+		if(!empty($post_type['taxonomy']) && array_key_exists($post_type['taxonomy'], $taxonomies)) {
 			// Create an id from the taxonomy's label
 			$tax_id = str_replace(' ', '_', $taxonomies[$post_type['taxonomy']]['labels']['name_lowercase']);
 		}
@@ -608,7 +608,7 @@ function adminNavMenu() {
 					'link'=>$post_type['menu_link'].($post_type['name'] === 'media' ? '?action=upload' : ($post_type['name'] === 'post' ? '?action=create' : '&action=create')),
 					'caption'=>$post_type['labels']['create_item']
 				) : null),
-				(!empty($post_type['taxonomy']) && userHasPrivilege($session['role'], 'can_view_'.$tax_id) && $taxonomies[$post_type['taxonomy']]['show_in_admin_menu'] ? array( // Taxonomy
+				(!empty($post_type['taxonomy']) && array_key_exists($post_type['taxonomy'], $taxonomies) && userHasPrivilege($session['role'], 'can_view_'.$tax_id) && $taxonomies[$post_type['taxonomy']]['show_in_admin_menu'] ? array( // Taxonomy
 					'id'=>$tax_id,
 					'link'=>$taxonomies[$post_type['taxonomy']]['menu_link'],
 					'caption'=>$taxonomies[$post_type['taxonomy']]['labels']['list_items']
