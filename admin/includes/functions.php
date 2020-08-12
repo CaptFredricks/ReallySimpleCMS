@@ -309,150 +309,29 @@ function statusMessage($text, $success = false) {
  * @return null
  */
 function populateTables($user_data, $settings_data) {
-	// Extend the Query object
-	global $rs_query;
+	// Populate the `user_roles` table
+	populateUserRoles();
 	
-	// Create an array of user roles
-	$roles = array('User', 'Editor', 'Moderator', 'Administrator');
+	// Populate the `user_privileges` and `user_relationships` tables
+	populateUserPrivileges();
 	
-	// Insert the user roles into the database
-	foreach($roles as $role) {
-		if($role === 'User')
-			$default_user_role = $rs_query->insert('user_roles', array('name'=>$role, '_default'=>'yes'));
-		elseif($role === 'Administrator')
-			$admin_user_role = $rs_query->insert('user_roles', array('name'=>$role, '_default'=>'yes'));
-		else
-			$rs_query->insert('user_roles', array('name'=>$role, '_default'=>'yes'));
-	}
+	// Populate the `users` table
+	$user = populateUsers($user_data);
 	
-	// Create an array of admin pages (for privileges)
-	$admin_pages = array('pages', 'posts', 'categories', 'comments', 'media', 'themes', 'menus', 'widgets', 'users', 'settings', 'user_roles');
+	// Populate the `posts` table
+	$post = populatePosts($user);
 	
-	// Create an array of user privileges
-	$privileges = array('can_view_', 'can_create_', 'can_edit_', 'can_delete_');
+	// Add the home page to the settings data array
+	$settings_data['home_page'] = $post['home_page'];
 	
-	// Loop through the admin pages
-	foreach($admin_pages as $admin_page) {
-		// Loop through the user privileges
-		foreach($privileges as $privilege) {
-			switch($admin_page) {
-				case 'comments':
-					// Skip comments for now (will be added later)
-					continue 2;
-				case 'media':
-					// Change the 'can_create_' privilege to 'can_upload_'
-					if($privilege === 'can_create_') $privilege = 'can_upload_';
-					
-					// Insert the user privilege into the database
-					$rs_query->insert('user_privileges', array('name'=>$privilege.$admin_page));
-					break;
-				case 'settings':
-					// Skip 'can_view_', 'can_create_', and 'can_delete_' for settings
-					if($privilege === 'can_view_' || $privilege === 'can_create_' || $privilege === 'can_delete_') continue 2;
-				default:
-					// Insert the user privilege into the database
-					$rs_query->insert('user_privileges', array('name'=>$privilege.$admin_page));
-			}
-		}
-	}
+	// Populate the `settings` table
+	populateSettings($settings_data);
 	
-	/**
-	 * List of privileges:
-	 * 1=>'can_view_pages', 2=>'can_create_pages', 3=>'can_edit_pages', 4=>'can_delete_pages',
-	 * 5=>'can_view_posts', 6=>'can_create_posts', 7=>'can_edit_posts', 8=>'can_delete_posts',
-	 * 9=>'can_view_categories', 10=>'can_create_categories', 11=>'can_edit_categories', 12=>'can_delete_categories',
-	 * 13=>'can_view_media', 14=>'can_upload_media', 15=>'can_edit_media', 16=>'can_delete_media',
-	 * 17=>'can_view_themes', 18=>'can_create_themes', 19=>'can_edit_themes', 20=>'can_delete_themes',
-	 * 21=>'can_view_menus', 22=>'can_create_menus', 23=>'can_edit_menus', 24=>'can_delete_menus',
-	 * 25=>'can_view_widgets', 26=>'can_create_widgets', 27=>'can_edit_widgets', 28=>'can_delete_widgets',
-	 * 29=>'can_view_users', 30=>'can_create_users', 31=>'can_edit_users', 32=>'can_delete_users',
-	 * 33=>'can_edit_settings',
-	 * 34=>'can_view_user_roles', 35=>'can_create_user_roles', 36=>'can_edit_user_roles', 37=>'can_delete_user_roles'
-	 */
+	// Populate the `taxonomies` table
+	populateTaxonomies();
 	
-	// Fetch all user roles from the database
-	$roles = $rs_query->select('user_roles', 'id', '', 'id');
-	
-	// Loop through the user roles
-	foreach($roles as $role) {
-		switch($role['id']) {
-			case 1:
-				// Set the privileges for the 'user' role
-				$privileges = array();
-				break;
-			case 2:
-				// Set the privileges for the 'editor' role
-				$privileges = array(1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19, 21, 22, 23, 25, 26, 27, 29);
-				break;
-			case 3:
-				// Set the privileges for the 'moderator' role
-				$privileges = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32);
-				break;
-			case 4:
-				// Set the privileges for the 'administrator' role
-				$privileges = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37);
-				break;
-		}
-		
-		// Insert the user relationships into the database
-		foreach($privileges as $privilege)
-			$rs_query->insert('user_relationships', array('role'=>$role['id'], 'privilege'=>$privilege));
-	}
-	
-	// Encrypt password
-	$hashed_password = password_hash($user_data['password'], PASSWORD_BCRYPT, array('cost'=>10));
-	
-	// Create an admin user
-	$user = $rs_query->insert('users', array('username'=>$user_data['username'], 'password'=>$hashed_password, 'email'=>$user_data['email'], 'registered'=>'NOW()', 'role'=>$admin_user_role));
-	
-	// User metadata
-	$usermeta = array('first_name'=>'', 'last_name'=>'', 'avatar'=>0, 'theme'=>'default');
-	
-	// Insert the user metadata into the database
-	foreach($usermeta as $key=>$value)
-		$rs_query->insert('usermeta', array('user'=>$user, '_key'=>$key, 'value'=>$value));
-	
-	// Create a sample page
-	$post['home_page'] = $rs_query->insert('posts', array('title'=>'Sample Page', 'author'=>$user, 'date'=>'NOW()', 'content'=>'This is just a sample page to get you started.', 'status'=>'published', 'slug'=>'sample-page', 'type'=>'page'));
-	
-	// Create a sample blog post
-	$post['blog_post'] = $rs_query->insert('posts', array('title'=>'Sample Blog Post', 'author'=>$user, 'date'=>'NOW()', 'content'=>'This is your first blog post. Feel free to remove this text and replace it with your own.', 'status'=>'published', 'slug'=>'sample-post'));
-	
-	// Post metadata
-	$postmeta = array(
-		'home_page'=>array('title'=>'Sample Page', 'description'=>'Just a simple meta description for your sample page.', 'feat_image'=>0, 'template'=>'default'),
-		'blog_post'=>array('title'=>'Sample Blog Post', 'description'=>'Just a simple meta description for your first blog post.', 'feat_image'=>0)
-	);
-	
-	// Loop through the post metadata
-	foreach($postmeta as $metadata) {
-		// Insert the post metadata into the database
-		foreach($metadata as $key=>$value)
-			$rs_query->insert('postmeta', array('post'=>$post[key($postmeta)], '_key'=>$key, 'value'=>$value));
-		
-		// Move the array pointer to the next element
-		next($postmeta);
-	}
-	
-	// Settings
-	$settings = array('site_title'=>$settings_data['site_title'], 'description'=>'A new ReallySimpleCMS website!', 'site_url'=>$settings_data['site_url'], 'admin_email'=>$settings_data['admin_email'], 'default_user_role'=>$default_user_role, 'home_page'=>$post['home_page'], 'do_robots'=>$settings_data['do_robots'], 'site_logo'=>0, 'site_icon'=>0, 'theme'=>'carbon', 'theme_color'=>'#ededed');
-	
-	// Insert the settings into the database
-	foreach($settings as $name=>$value)
-		$rs_query->insert('settings', array('name'=>$name, 'value'=>$value));
-	
-	// Create an array of taxonomies
-	$taxonomies = array('category', 'nav_menu');
-	
-	// Insert the taxonomies into the database
-	foreach($taxonomies as $taxonomy)
-		$rs_query->insert('taxonomies', array('name'=>$taxonomy));
-	
-	// Insert the terms into the database
-	$term = $rs_query->insert('terms', array('name'=>'Uncategorized', 'slug'=>'uncategorized', 'taxonomy'=>getTaxonomyId('category'), 'count'=>1));
-	
-	// Insert the term relationships into the database
-	$rs_query->insert('term_relationships', array('term'=>$term, 'post'=>$post['blog_post']));
+	// Populate the `terms` table
+	populateTerms($post['blog_post']);
 }
 
 /**

@@ -293,42 +293,6 @@ function getPostsWithTerm($_term = null, $order_by = 'date', $order = 'DESC', $l
 }
 
 /**
- * Fetch a user role's id.
- * @since 1.0.5[b]
- *
- * @param string $name
- * @return int
- */
-function getUserRoleId($name) {
-	// Extend the Query object
-	global $rs_query;
-	
-	// Sanitize the role's name
-	$name = sanitize($name);
-	
-	// Fetch the user role's id from the database and return it
-	return (int)$rs_query->selectField('user_roles', 'id', array('name'=>$name)) ?? 0;
-}
-
-/**
- * Fetch a user privilege's id.
- * @since 1.0.5[b]
- *
- * @param string $name
- * @return int
- */
-function getUserPrivilegeId($name) {
-	// Extend the Query object
-	global $rs_query;
-	
-	// Sanitize the privilege's name
-	$name = sanitize($name);
-	
-	// Fetch the user privilege's id from the database and return it
-	return (int)$rs_query->selectField('user_privileges', 'id', array('name'=>$name)) ?? 0;
-}
-
-/**
  * Register a menu.
  * @since 1.0.0[b]
  *

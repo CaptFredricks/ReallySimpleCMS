@@ -510,15 +510,22 @@ class Query {
 	 * @since 1.3.3[a]
 	 *
 	 * @access public
+	 * @param string $table (optional; default: '')
 	 * @return array
 	 */
-	public function showTables() {
+	public function showTables($table = '') {
 		// Create an empty array to hold the table data
 		$data = array();
 		
+		// Construct the basic SQL statement
+		$sql = 'SHOW TABLES';
+		
+		// Check whether a table has been specified and add it to the SQL statement if so
+		if(!empty($table)) $sql .= ' LIKE \''.$table.'\'';
+		
 		try {
 			// Prepare and execute the query
-			$query = $this->conn->prepare("SHOW TABLES");
+			$query = $this->conn->prepare($sql);
 			$query->execute();
 			
 			// Loop through the query data and assign it to the array
@@ -530,6 +537,18 @@ class Query {
 			// Log any errors
 			logError($e);
 		}
+	}
+	
+	/**
+	 * Check whether a table already exists in the database.
+	 * @since 1.0.8[b]
+	 *
+	 * @access public
+	 * @param string $table
+	 * @return bool
+	 */
+	public function tableExists($table) {
+		return !empty($this->showTables($table));
 	}
 	
 	/**

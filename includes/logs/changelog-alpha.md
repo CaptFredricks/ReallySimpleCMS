@@ -1515,282 +1515,285 @@
 ----------------------------------------------------------------------------------------------------
 ## Version 1.7.5[a] (2019-09-07)
 
-* Tweaked documentation in the admin users.php file
-* The categories pages now check whether a logged in user has sufficient privileges to view the pages
-* The posts pages now check whether a logged in user has sufficient privileges to view the pages
-* The Category::getParent function now returns an em dash if a category has no parent
-* The default user roles now display in a separate list below user-created roles
-* Added styling for subheadings
-* Renamed the 'current' parameter in the pagerNav function to 'page'
-* Improved the functionality of the pagerNav function
+- Tweaked documentation in the `admin/users.php` file
+- The categories pages now check whether a logged in user has sufficient privileges to view the pages
+- The posts pages now check whether a logged in user has sufficient privileges to view the pages
+- The `Category::getParent` function now returns an em dash if a category has no parent
+- The default user roles now display in a separate list below user-created roles
+- Added styling for subheadings
+- Renamed the `current` parameter in the `pagerNav` function to `page`
+- Improved the functionality of the `pagerNav` function
 
 **Modified files:**
-* admin/categories.php
-* admin/includes/class-category.php
-* admin/includes/class-settings.php
-* admin/includes/css/style.css
-* admin/includes/functions.php
-* admin/posts.php
-* admin/users.php (M)
+- admin/categories.php
+- admin/includes/class-category.php
+- admin/includes/class-settings.php
+- admin/includes/css/style.css
+- admin/includes/functions.php
+- admin/posts.php
+- admin/users.php (M)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.7.4[a] (2019-09-03)
 
-* Tweaked documentation in the Post class
-* Adjusted the margins on list entries pages when a status message is displayed
-* Added a default value for the '\_default' column in the user_roles table
-* Added a full file path to the autoload class function
-* Fixed an issue with the getCurrentPage function that prevented the 'Create Widget' page from displaying as the current page
-* Added more documentation to the admin functions
-* Tweaked documentation in the User class
-* When creating a new user, the role dropdown now displays the default user role
-* Changed an HTML id to a class
-* Added the delete link for users on the 'List Users' page
-* Tweaked the default site description in the populateTables function
-* Tweaked the styling of form tables
-* The widgets pages now check whether a logged in user has sufficient privileges to view the pages
-* The users pages now check whether a logged in user has sufficient privileges to view the pages
+- Tweaked documentation in the `Post` class
+- Adjusted the margins on list entries pages when a status message is displayed
+- Added a default value for the `_default` column in the `user_roles` database table
+- Added a full file path to the `autoload` class function
+- Fixed an issue with the `getCurrentPage` function that prevented the 'Create Widget' page from displaying as the current page
+- Added more documentation to the admin functions
+- Tweaked documentation in the `User` class
+- When creating a new user, the role dropdown now displays the default user role
+- Changed an HTML id to a class
+- Added the delete link for users on the 'List Users' page
+- Tweaked the default site description in the `populateTables` function
+- Tweaked the styling of form tables
+- The widgets pages now check whether a logged in user has sufficient privileges to view the pages
+- The users pages now check whether a logged in user has sufficient privileges to view the pages
 
 **Modified files:**
-* admin/includes/class-post.php (M)
-* admin/includes/class-settings.php (M)
-* admin/includes/class-user.php
-* admin/includes/css/style.css
-* admin/includes/functions.php
-* admin/users.php
-* admin/widgets.php
-* includes/schema.php (M)
+- admin/includes/class-post.php (M)
+- admin/includes/class-settings.php (M)
+- admin/includes/class-user.php
+- admin/includes/css/style.css
+- admin/includes/functions.php
+- admin/users.php
+- admin/widgets.php
+- includes/schema.php (M)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.7.3[a] (2019-09-02)
 
-* Tweaked the deleted entry status message for all classes
-* Replaced all occurrences of the header function with the new redirect function in the User and Widget classes
-* Replaced a null comparison an empty with is_null in the User::listEntries function
-* The 'Full Name' column on the 'List Users' page now displays an em dash if the user has no first name or last name
-* The Post::getParent function now returns an em dash if a post has no parent
-* Fixed some issues with the getCurrentPage function that caused some pages not to show as the current nav menu item
-* Added a '\_default' column to the user_roles table (this will be used to protect default roles from tampering)
-* Removed edit and delete actions from default user roles on the 'List User Roles' page
-* Attempting to edit a default user role will now redirect the user to the 'List User Roles' page
+- Tweaked the deleted entry status message for all classes
+- Replaced all occurrences of the PHP `header` function with the new `redirect` function in the `User` and `Widget` classes
+- Replaced a `null` comparison and `empty` with `is_null` in the `User::listEntries` function
+- The 'Full Name' column on the 'List Users' page now displays an em dash if the user has no first name or last name
+- The `Post::getParent` function now returns an em dash if a post has no parent
+- Fixed some issues with the `getCurrentPage` function that caused some pages not to show as the current nav menu item
+- Added a `_default` column to the `user_roles` database table (this will be used to protect default roles from tampering)
+- Removed edit and delete actions from default user roles on the 'List User Roles' page
+- Attempting to edit a default user role will now redirect the user to the 'List User Roles' page
 
 **Modified files:**
-* admin/includes/class-category.php (M)
-* admin/includes/class-post.php
-* admin/includes/class-settings.php
-* admin/includes/class-user.php
-* admin/includes/class-widget.php
-* admin/includes/functions.php
-* includes/schema.php
+- admin/includes/class-category.php (M)
+- admin/includes/class-post.php
+- admin/includes/class-settings.php
+- admin/includes/class-user.php
+- admin/includes/class-widget.php
+- admin/includes/functions.php
+- includes/schema.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.7.2[a] (2019-09-01)
 
-* Changed the pagination 'page' GET varible to 'paged' to differentiate it from the settings 'page' GET variable
-* Added more documentation to the admin functions
-* The 'can_view_user_roles' privilege is now created on installation
-* Created a global function that checks whether a user has a specified privilege (to protect certain pages from users with limited privileges)
-* Created a global function for easy url redirection
-* Added a temporary $\_SESSION variable to the admin header (to test user roles/privileges)
-* The settings pages now check whether a logged in user has sufficient privileges to view the pages
-* Created a function to fetch the user privileges
-* Tweaked some documentation in the Post class
-* The Post::getCategories function now returns an em dash if a post has no categories
-* Renamed the Settings::userRolesSettings function to Settings::listUserRoles
-* Renamed the Settings::validateData function to Settings::validateSettingsData
-* Created a function that constructs the 'Create User Role' form
-* The formRow function now can accept string values in its 'args' parameters
-* Cleaned up the formRow function's code and added more documentation
-* Added styling for the user privilege list
-* Tweaked styling of the post category list
-* Created a function that constructs a list of user privileges
-* Created a function that constructs the 'Edit User Role' form
-* Created a function to validate the user role form data
-* Replaced all occurrences of the header function with the new redirect function in the Post and Category classes
-* Fixed an issue where categories would get deleted from a post unnecessarily
-* Created a function to delete user roles
+- Changed the pagination *page* `GET` varible to *paged* to differentiate it from the settings *page* `GET` variable
+- Added more documentation to the admin functions
+- The `can_view_user_roles` privilege is now created on installation
+- Created a global function that checks whether a user has a specified privilege (to protect certain pages from users with limited privileges)
+- Created a global function for easy url redirection
+- Added a temporary `$_SESSION` variable to the admin header (to test user roles/privileges)
+- The settings pages now check whether a logged in user has sufficient privileges to view the pages
+- Created a function that fetches user privileges
+- Tweaked some documentation in the `Post` class
+- The `Post::getCategories` function now returns an em dash if a post has no categories
+- Renamed the `Settings::userRolesSettings` function to `Settings::listUserRoles`
+- Renamed the `Settings::validateData` function to `Settings::validateSettingsData`
+- Created a function that constructs the 'Create User Role' form
+- The `formRow` function now can accept string values in its `args` parameters
+- Cleaned up the `formRow` function's code and added more documentation
+- Added styling for the user privilege list
+- Tweaked styling of the post category list
+- Created a function that constructs a list of user privileges
+- Created a function that constructs the 'Edit User Role' form
+- Created a function that validates the user role form data
+- Replaced all occurrences of the PHP `header` function with the new `redirect` function in the `Post` and `Category` classes
+- Fixed an issue where categories would get deleted from a post unnecessarily
+- Created a function that deletes user roles
 
 **Modified files:**
-* admin/header.php (M)
-* admin/includes/class-category.php
-* admin/includes/class-post.php
-* admin/includes/class-settings.php
-* admin/includes/class-user.php (M)
-* admin/includes/class-widget.php (M)
-* admin/includes/css/style.css
-* admin/includes/functions.php
-* admin/settings.php
-* includes/globals.php
+- admin/header.php (M)
+- admin/includes/class-category.php
+- admin/includes/class-post.php
+- admin/includes/class-settings.php
+- admin/includes/class-user.php (M)
+- admin/includes/class-widget.php (M)
+- admin/includes/css/style.css
+- admin/includes/functions.php
+- admin/settings.php
+- includes/globals.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.7.1[a] (2019-08-30)
 
-* Tweaked some documentation in the Post class
-* Tweaked how the category post count is calculated when a post is created
-* The user_privileges table is now populated during installation
-* The user_relationships table is now populated during installation
-* Added the 'clear' class to all admin page wrapper elements (prevents page content from overflowing into the footer)
-* Removed a line of documentation from the categories.php file
-* Renamed the Settings::listSettings function to Settings::generalSettings
-* Created the 'User Roles' settings page
-* Added a nav menu item for the user roles settings page
-* Added an extra check in the getCurrentPage function to look for the page GET parameter (for settings pages)
+- Tweaked some documentation in the `Post` class
+- Tweaked how the category post count is calculated when a post is created
+- The `user_privileges` database table is now populated during installation
+- The `user_relationships` database table is now populated during installation
+- Added the `clear` class to all admin page wrapper elements (prevents page content from overflowing into the footer)
+- Removed a line of documentation from the `categories.php` file
+- Renamed the `Settings::listSettings` function to `Settings::generalSettings`
+- Created the 'User Roles' settings page
+- Added a nav menu item for the user roles settings page
+- Added an extra check in the `getCurrentPage` function to look for the page `GET` parameter (for settings pages)
 
 **Modified files:**
-* admin/categories.php (M)
-* admin/header.php
-* admin/includes/class-post.php
-* admin/includes/class-settings.php
-* admin/includes/functions.php
-* admin/index.php (M)
-* admin/posts.php (M)
-* admin/settings.php
-* admin/users.php (M)
-* admin/widgets.php (M)
+- admin/categories.php (M)
+- admin/header.php
+- admin/includes/class-post.php
+- admin/includes/class-settings.php
+- admin/includes/functions.php
+- admin/index.php (M)
+- admin/posts.php (M)
+- admin/settings.php
+- admin/users.php (M)
+- admin/widgets.php (M)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.7.0[a] (2019-08-24)
 
-* Changed possible statuses for widgets from 'draft' and 'published' to 'active' and 'inactive'
-* Added a warning to all admin pages if the user has JavaScript disabled in their browser
-* Added a redirect from the 'List Posts' page to the 'List Widgets' page if the requested post's type is 'widget'
-* Added a redirect from the 'Edit Post' page to the 'Edit Widget' page if the requested id corresponds to a widget
-* Renamed the 'roles' table to 'user_roles', the 'privileges' table to 'user_privileges', and the 'rp_relationships' table to 'user_relationships'
-* The user_roles table is now populated during installation
-* Consolidated all database table populate functions into one and moved the old functions to the deprecated.php file
-* The user created on installation is now given the administrator user role
-* Replaced the UPL_DIR constant with UPLOADS in the User::getAvatar function (the former is no longer used)
-* Created a function that constructs a list of user roles (Settings class)
-* Tweaked the username column's styling on the 'List Users' page
-* Created a function that fetches a specified user's role (User class)
-* Created a function that constructs a list of user roles (User class)
-* The Post::getAuthorList function no longer calls the Post::getAuthor function
-* The Post::getParentList function no longer calls the Post::getParent function
-* User roles now appear on the 'Create User' and 'Edit User' forms
-* Added a missing class to a button on the 'Reset Password' form
-* Fixed the alignment of the pass_saved labels on the 'Create User' and 'Reset Password' forms
-* The Category::getParentList function no longer calls the Category::getParent function
+- Changed possible statuses for widgets from `draft` and `published` to `active` and `inactive`
+- Added a warning to all admin pages if the user has JavaScript disabled in their browser
+- Added a redirect from the 'List Posts' page to the 'List Widgets' page if the requested post's type is `widget`
+- Added a redirect from the 'Edit Post' page to the 'Edit Widget' page if the requested id corresponds to a widget
+- Renamed the following database tables:
+  - `roles` -> `user_roles`
+  - `privileges` -> `user_privileges`
+  - `rp_relationships` -> `user_relationships`
+- The `user_roles` database table is now populated during installation
+- Consolidated all database table populate functions into one and moved the old functions to the `deprecated.php` file
+- The user created on installation is now given the administrator user role
+- Replaced the `UPL_DIR` constant with `UPLOADS` in the `User::getAvatar` function (the former is no longer used)
+- Created a function that constructs a list of user roles (`Settings` class)
+- Tweaked the username column's styling on the 'List Users' page
+- Created a function that fetches a specified user's role (`User` class)
+- Created a function that constructs a list of user roles (`User` class)
+- The `Post::getAuthorList` function no longer calls the `Post::getAuthor` function
+- The `Post::getParentList` function no longer calls the `Post::getParent` function
+- User roles now appear on the 'Create User' and 'Edit User' forms
+- Added a missing class to a button on the 'Reset Password' form
+- Fixed the alignment of the `pass_saved` labels on the 'Create User' and 'Reset Password' forms
+- The `Category::getParentList` function no longer calls the `Category::getParent` function
 
 **Modified files:**
-* admin/header.php
-* admin/includes/class-category.php
-* admin/includes/class-post.php
-* admin/includes/class-settings.php
-* admin/includes/class-user.php
-* admin/includes/class-widget.php
-* admin/includes/css/style.css
-* admin/includes/functions.php
-* admin/install.php
-* admin/posts.php
-* includes/deprecated.php
-* includes/schema.php
+- admin/header.php
+- admin/includes/class-category.php
+- admin/includes/class-post.php
+- admin/includes/class-settings.php
+- admin/includes/class-user.php
+- admin/includes/class-widget.php
+- admin/includes/css/style.css
+- admin/includes/functions.php
+- admin/install.php
+- admin/posts.php
+- includes/deprecated.php
+- includes/schema.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.6.3[a] (2019-08-22)
 
-* Tweaked documentation in the Post class
-* Improved validation for the 'Edit Post' form
-* Widgets can no longer be edited via the 'Edit Post' form
-* Fixed some errors that would pop up if the post id was invalid
-* Tweaked the pagination code for the User class
-* A notice is now displayed on the 'List Users' page if no users exist in the database
-* Tweaked documentation in the User class
-* Improved some styling of elements on the installation form
-* Added and renamed some CSS classes on the installation page
-* Minor CSS cleanup in the admin stylesheet
-* The page.php file is now deprecated
-* Updated documentation in the config setup and captcha files
-* Updated documentation in the Query class
+- Tweaked documentation in the `Post` class
+- Improved validation for the 'Edit Post' form
+- Widgets can no longer be edited via the 'Edit Post' form
+- Fixed some errors that would pop up if a post's id was invalid
+- Tweaked the pagination code for the `User` class
+- A notice is now displayed on the 'List Users' page if no users exist in the database
+- Tweaked documentation in the `User` class
+- Improved some styling of elements on the installation form
+- Added and renamed some CSS classes on the installation page
+- Minor CSS cleanup in the admin `style.css` stylesheet
+- The `page.php` file is now deprecated
+- Updated documentation in the `config-setup.php` and `captcha.php` files
+- Updated documentation in the `Query` class
 
 **Modified files:**
-* admin/includes/class-post.php
-* admin/includes/class-user.php
-* admin/includes/css/install.css
-* admin/includes/css/style.css (M)
-* admin/includes/functions.php
-* admin/install.php
-* includes/captcha.php (M)
-* includes/class-query.php
-* includes/config-setup.php (M)
-* page.php (D)
+- admin/includes/class-post.php
+- admin/includes/class-user.php
+- admin/includes/css/install.css
+- admin/includes/css/style.css (M)
+- admin/includes/functions.php
+- admin/install.php
+- includes/captcha.php (M)
+- includes/class-query.php
+- includes/config-setup.php (M)
+- page.php (D)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.6.2[a] (2019-08-20)
 
-* Fixed an issue with the Search Engine Visibility checkbox label that prevented the checkbox from being checked
-* Removed the jQuery library and script from the installation page (no longer needed since clicking the checkbox now works)
-* Renamed a CSS class on the installation page
-* Changed the default value for the getStylesheet and getScript functions' version parameter to the VERSION constant
-* Added more documentation to the globals.php file
-* Cleaned up the trimWords function
-* Changed the default value for the getAdminStylesheet and getAdminScript functions' version parameter to the VERSION constant
-* Added more documentation to the admin functions
-* Tweaked the styling of data form tables
-* An error will no longer display if no content is specified for a select or textarea in the formTag function
-* Added a status field to the Widget class forms
-* Tweaked documentation in the Post class
-* Added form validation for widgets
-* Modified date is now set when a post is edited
-* Removed a line of documentation from the widgets.php file
-* Tweaked the pagination code for the Post class
-* Removed a few lines of documentation from the Category class
-* Tweaked the styling of some elements on the 'General Settings' page
+- Fixed an issue with the "Search Engine Visibility" checkbox label that prevented the checkbox from being checked
+- Removed the jQuery library and script from the installation page (no longer needed since clicking the checkbox now works)
+- Renamed a CSS class on the installation page
+- Changed the default value for the `getStylesheet` and `getScript` functions' version parameter to the `VERSION` constant
+- Added more documentation to the `globals.php` file
+- Cleaned up the `trimWords` function
+- Changed the default value for the `getAdminStylesheet` and `getAdminScript` functions' version parameter to the `VERSION` constant
+- Added more documentation to the admin functions
+- Tweaked the styling of data form tables
+- An error will no longer display if no content is specified for a `select` or `textarea` field in the `formTag` function
+- Added a status field to the `Widget` class forms
+- Tweaked documentation in the `Post` class
+- Added form validation for widgets
+- Modified date is now set when a post is edited
+- Removed a line of documentation from the `widgets.php` file
+- Tweaked the pagination code for the `Post` class
+- Removed a few lines of documentation from the `Category` class
+- Tweaked the styling of some elements on the 'General Settings' page
 
 **Modified files:**
-* admin/install.php
-* admin/includes/class-category.php (M)
-* admin/includes/class-post.php
-* admin/includes/class-settings.php
-* admin/includes/class-widget.php
-* admin/includes/css/install.css (M)
-* admin/includes/css/style.css
-* admin/includes/functions.php
-* admin/widgets.php (M)
-* includes/globals.php
+- admin/install.php
+- admin/includes/class-category.php (M)
+- admin/includes/class-post.php
+- admin/includes/class-settings.php
+- admin/includes/class-widget.php
+- admin/includes/css/install.css (M)
+- admin/includes/css/style.css
+- admin/includes/functions.php
+- admin/widgets.php (M)
+- includes/globals.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.6.1[a] (2019-08-18)
 
-* Fixed an issue with form submissions where old data would be fetched before the new data was submitted
-* The text for the Search Engine Visibility checkbox on the installation form can now be used to check the checkbox
-* Included the jQuery library on the installation page and added a custom script
-* Added more documentation to the Post class
-* Created a function that constructs the 'Edit Widget' form
+- Fixed an issue with form submissions where old data would be fetched before the new data was submitted
+- The text for the "Search Engine Visibility" checkbox on the installation form can now be used to check the checkbox
+- Included the jQuery library on the installation page and added a custom script
+- Added more documentation to the `Post` class
+- Created a function that constructs the 'Edit Widget' form
 
 **Modified files:**
-* admin/install.php
-* admin/includes/class-category.php
-* admin/includes/class-post.php
-* admin/includes/class-user.php
-* admin/includes/class-widget.php
-* admin/includes/css/install.css
-* admin/widgets.php
+- admin/install.php
+- admin/includes/class-category.php
+- admin/includes/class-post.php
+- admin/includes/class-user.php
+- admin/includes/class-widget.php
+- admin/includes/css/install.css
+- admin/widgets.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.6.0[a] (2019-08-16)
 
-* The admin nav menu now properly displays the current page, even if it's in a submenu
-* Reorganized the admin nav menu items
-* Improved styling of the admin nav menu
-* The getCurrentPage function now adds any action in the url to the end of the current page
-* Added more documentation to the User class and fixed the styling on the reset password form
-* Renamed the data form's hr class from 'divider' to 'separator' and added styling for it
-* Created the Widget class
-* Created admin 'List Widgets' page and added a link to the nav menu
-* Fixed some documentation in the Category class
-* Created a function that constructs the 'Create Widget' form
-* Tweaked the documentation in the installation stylesheet
+- The admin nav menu now properly displays the current page, even if it's in a submenu
+- Reorganized the admin nav menu items
+- Improved styling of the admin nav menu
+- The `getCurrentPage` function now adds any action in the url to the end of the current page
+- Added more documentation to the `User` class and fixed the styling on the reset password form
+- Renamed the data form's `hr` class from `divider` to `separator` and added styling to it
+- Created the `Widget` class
+- Created admin 'List Widgets' page and added a link to the nav menu
+- Fixed some documentation in the `Category` class
+- Created a function that constructs the 'Create Widget' form
+- Tweaked the documentation in the `install.css` stylesheet
 
 **Modified files:**
-* admin/header.php
-* admin/includes/class-category.php
-* admin/includes/class-settings.php (M)
-* admin/includes/class-user.php
-* admin/includes/class-widget.php (N)
-* admin/includes/css/install.css (M)
-* admin/includes/css/style.css
-* admin/includes/functions.php
-* admin/widgets.php (N)
+- admin/header.php
+- admin/includes/class-category.php
+- admin/includes/class-settings.php (M)
+- admin/includes/class-user.php
+- admin/includes/class-widget.php (N)
+- admin/includes/css/install.css (M)
+- admin/includes/css/style.css
+- admin/includes/functions.php
+- admin/widgets.php (N)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.5.7[a] (2019-08-15)

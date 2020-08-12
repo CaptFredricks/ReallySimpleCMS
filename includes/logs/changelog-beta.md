@@ -6,6 +6,30 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.0.8[b] (2020-08-11)
+
+- The `Query::showTables` function now has an optional `table` parameter
+- Created a function that checks whether a database table exists
+- Essential database tables are now recreated individually if they are accidentally deleted instead of prompting the user to reinstall the entire database
+- If one or more tables are missing from the database and `admin/install.php` is accessed, the whole database is not reinstalled (only the missing tables are reinstalled)
+- Created a function that populates the `user_roles` database table
+- Created a function that populates the `user_privileges` and `user_relationships` database tables
+- Privileges are now created for comments
+- Undeprecated the `populateUsers`, `populatePosts`, `populateSettings`, `populateTaxonomies`, and `populateTerms` functions
+- Moved the `getUserRoleId` and `getUserPrivilegeId` functions to the `globals.php` file
+- Created a function that populates any missing essential database tables
+- Cleaned up some entries in the Alpha changelog
+
+**Modified files:**
+- admin/includes/functions.php
+- admin/install.php
+- includes/class-query.php
+- includes/deprecated.php
+- includes/functions.php
+- includes/globals.php
+- init.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.0.7[b] (2020-07-30)
 
 - Tweaked a previous entry in the changelog

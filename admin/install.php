@@ -42,28 +42,25 @@ if($rs_query->conn_status) {
 	// Include the database schema
 	require_once PATH.INC.'/schema.php';
 	
-	// Fetch the database schema tables
-	$tables = dbSchema();
+	// Fetch the database schema
+	$schema = dbSchema();
 	
 	// Get a list of tables in the database
-	$data = $rs_query->showTables();
+	$tables = $rs_query->showTables();
 	
-	// Check whether there are tables in the database
-	if(!empty($data)) {
-		// Check whether the proper number of tables are in the database
-		if(count($data) >= count($tables)) {
-			// Warn the user that the database is already installed
-			exit('ReallySimpleCMS is already installed!');
-		} else {
-			// Loop through the schema tables
-			for($i = 0; $i < count($tables); $i++) {
-				// Drop each existing table from the database
-				$rs_query->doQuery("DROP TABLE `".key($tables)."`");
-				
-				// Move the array pointer to the next element
-				next($tables);
-			}
+	// Check whether the database is installed
+	if(!empty($tables)) {
+		// Create a flag for whether the database is installed
+		$installed = true;
+		
+		// Loop through the schema
+		foreach($schema as $key=>$value) {
+			// Check whether the table exists in the database and create it if not
+			if(!$rs_query->tableExists($key)) $rs_query->doQuery($schema[$key]);
 		}
+		
+		// Warn the user that the database is already installed
+		exit('ReallySimpleCMS is already installed!');
 	}
 }
 
@@ -81,11 +78,11 @@ function runInstall($data) {
 	// Extend the Query object
 	global $rs_query;
 	
-	// Fetch the database schema tables
-	$tables = dbSchema();
+	// Fetch the database schema
+	$schema = dbSchema();
 	
 	// Create the tables
-	foreach($tables as $table) $rs_query->doQuery($table);
+	foreach($schema as $table) $rs_query->doQuery($table);
 	
 	// Fetch the user data
 	$user_data = array('username'=>$data['username'], 'password'=>$data['password'], 'email'=>$data['admin_email']);

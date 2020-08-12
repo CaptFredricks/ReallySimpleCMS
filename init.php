@@ -13,7 +13,7 @@ if(phpversion() < PHP)
 
 // Try to initialize the CMS or run setup if the config file doesn't exist
 if(file_exists(PATH.'/config.php')) {
-	// Include debugging functions
+	// Include the debugging functions
 	require_once PATH.INC.'/debug.php';
 	
 	// Include the database configuration
@@ -21,6 +21,9 @@ if(file_exists(PATH.'/config.php')) {
 	
 	// Include the Query class
 	require_once PATH.INC.'/class-query.php';
+	
+	// Include the global functions
+	require_once PATH.INC.'/globals.php';
 	
 	// Create a Query object
 	$rs_query = new Query;
@@ -30,22 +33,31 @@ if(file_exists(PATH.'/config.php')) {
 		// Include the database schema
 		require_once PATH.INC.'/schema.php';
 		
-		// Fetch the database schema tables
-		$tables = dbSchema();
+		// Fetch the database schema
+		$schema = dbSchema();
 		
 		// Get a list of tables in the database
-		$data = $rs_query->showTables();
+		$tables = $rs_query->showTables();
 		
-		// Check whether there are the proper number of tables in the database
-		if(empty($data) || count($data) < count($tables)) {
+		// Check whether the database is installed
+		if(empty($tables)) {
 			// Redirect to the installation page
 			header('Location: '.ADMIN.'/install.php');
 			exit;
 		}
+		
+		// Loop through the schema
+		foreach($schema as $key=>$value) {
+			// Check whether the table exists in the database
+			if(!$rs_query->tableExists($key)) {
+				// Create the table
+				$rs_query->doQuery($schema[$key]);
+				
+				// Populate the table
+				populateTable($key);
+			}
+		}
 	}
-	
-	// Include global functions
-	require_once PATH.INC.'/globals.php';
 	
 	// Register the default post types
 	registerDefaultPostTypes();
