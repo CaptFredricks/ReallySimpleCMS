@@ -5,6 +5,22 @@
  */
 
 /**
+ * Check whether a filename exists in the database.
+ * @since 2.1.0[a]
+ * @deprecated since 1.0.9[b]
+ *
+ * @param string $filename
+ * @return bool
+ */
+function filenameExists($filename) {
+	// Extend the Query object
+	global $rs_query;
+	
+	// Return true if the filename appears in the database
+	return $rs_query->select('postmeta', 'COUNT(*)', array('_key'=>'filename', 'value'=>array('LIKE', $filename.'%'))) > 0;
+}
+
+/**
  * Check whether the current 'page' is a category archive.
  * @since 2.4.0[a]
  * @deprecated since 1.0.6[b]

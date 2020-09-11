@@ -306,9 +306,9 @@ class Term {
 		// Sanitize the slug (strip off HTML and/or PHP tags and replace any characters not specified in the filter)
 		$slug = preg_replace('/[^a-z0-9\-]/', '', strip_tags(strtolower($data['slug'])));
 		
-		// Make sure the slug is not already being used
+		// Make sure the slug is unique
 		if($this->slugExists($slug, $id))
-			return statusMessage('That slug is already in use. Please choose another one.');
+			$slug = getUniqueTermSlug($slug);
 		
 		if($id === 0) {
 			// Insert the new term into the database

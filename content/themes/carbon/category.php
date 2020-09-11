@@ -2,12 +2,12 @@
 // Include the header
 getHeader('header-cat');
 ?>
-<section class="wrapper">
+<div class="wrapper">
 	<article class="article-content">
 		<h1>Category: <?php $rs_category->getCategoryName(); ?></h1>
 		<?php getRecentPosts(10, null); ?>
 	</article>
-</section>
+</div>
 <?php
 // Include the footer
 getFooter();

@@ -325,12 +325,14 @@ class Media extends Post {
 			// Convert the filename to all lowercase, replace spaces with hyphens, and remove all special characters
 			$filename = preg_replace('/[^\w.\-]/i', '', str_replace(' ', '-', strtolower($data['file']['name'])));
 			
-			// Check whether the filename is already in the database and make it unique if so
-			if(filenameExists($filename))
-				$filename = getUniqueFilename($filename);
+			// Get a unique filename
+			$filename = getUniqueFilename($filename);
 			
 			// Strip off the filename's extension for the post's slug
 			$slug = pathinfo($filename, PATHINFO_FILENAME);
+			
+			// Get a unique slug
+			$slug = getUniquePostSlug($slug);
 			
 			// Move the uploaded file to the uploads directory
 			move_uploaded_file($data['file']['tmp_name'], trailingSlash(PATH.UPLOADS).$filename);

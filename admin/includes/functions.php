@@ -977,12 +977,14 @@ function uploadMediaFile($data) {
 	// Convert the filename to all lowercase, replace spaces with hyphens, and remove all special characters
 	$filename = preg_replace('/[^\w.-]/i', '', str_replace(' ', '-', strtolower($data['name'])));
 	
-	// Check whether the filename is already in the database and make it unique if so
-	if(filenameExists($filename))
-		$filename = getUniqueFilename($filename);
+	// Get a unique filename
+	$filename = getUniqueFilename($filename);
 	
 	// Strip off the filename's extension for the post's slug
 	$slug = pathinfo($filename, PATHINFO_FILENAME);
+	
+	// Get a unique slug
+	$slug = getUniquePostSlug($slug);
 	
 	// Move the uploaded file to the uploads directory
 	move_uploaded_file($data['tmp_name'], trailingSlash(PATH.UPLOADS).$filename);
@@ -1105,22 +1107,6 @@ function postExists($id) {
 	return $rs_query->selectRow('posts', 'COUNT(id)', array('id'=>$id)) > 0;
 }
 
-
-/**
- * Check whether a filename exists in the database.
- * @since 2.1.0[a]
- *
- * @param string $filename
- * @return bool
- */
-function filenameExists($filename) {
-	// Extend the Query object
-	global $rs_query;
-	
-	// Return true if the filename appears in the database
-	return $rs_query->select('postmeta', 'COUNT(*)', array('_key'=>'filename', 'value'=>array('LIKE', $filename.'%'))) > 0;
-}
-
 /**
  * Make a filename unique by adding a number to the end of it.
  * @since 2.1.0[a]
@@ -1135,19 +1121,80 @@ function getUniqueFilename($filename) {
 	// Fetch the number of conflicting filenames in the database
 	$count = $rs_query->select('postmeta', 'COUNT(*)', array('_key'=>'filename', 'value'=>array('LIKE', $filename.'%')));
 	
-	// Split the filename into separate parts
-	$file_parts = pathinfo($filename);
-	
-	do {
-		// Construct a unique filename
-		$unique_filename = $file_parts['filename'].'-'.($count + 1).'.'.$file_parts['extension'];
+	// Check whether the count is greater than zero
+	if($count > 0) {
+		// Split the filename into separate parts
+		$file_parts = pathinfo($filename);
 		
-		// Increment the count
-		$count++;
-	} while($rs_query->selectRow('postmeta', 'COUNT(*)', array('_key'=>'filename', 'value'=>$unique_filename)) > 0);
+		do {
+			// Construct a unique filename
+			$unique_filename = $file_parts['filename'].'-'.($count + 1).'.'.$file_parts['extension'];
+			
+			// Increment the count
+			$count++;
+		} while($rs_query->selectRow('postmeta', 'COUNT(*)', array('_key'=>'filename', 'value'=>$unique_filename)) > 0);
+		
+		// Return the unique filename
+		return $unique_filename;
+	} else {
+		// Return the original filename
+		return $filename;
+	}
+}
+
+/**
+ * Construct a unique slug.
+ * @since 1.0.9[b]
+ *
+ * @param string $slug
+ * @param string $table
+ * @return string
+ */
+function getUniqueSlug($slug, $table) {
+	// Extend the Query object
+	global $rs_query;
 	
-	// Return the unique filename
-	return $unique_filename;
+	// Fetch the number of conflicting slugs in the database
+	$count = $rs_query->selectRow($table, 'COUNT(slug)', array('slug'=>$slug));
+	
+	// Check whether the count is greater than zero
+	if($count > 0) {
+		do {
+			// Try to construct a unique slug
+			$unique_slug = $slug.'-'.($count + 1);
+			
+			// Increment the count
+			$count++;
+		} while($rs_query->selectRow($table, 'COUNT(slug)', array('slug'=>$unique_slug)) > 0);
+		
+		// Return the unique slug
+		return $unique_slug;
+	} else {
+		// Return the original slug
+		return $slug;
+	}
+}
+
+/**
+ * Construct a unique post slug.
+ * @since 1.0.9[b]
+ *
+ * @param string $slug
+ * @return string
+ */
+function getUniquePostSlug($slug) {
+	return getUniqueSlug($slug, 'posts');
+}
+
+/**
+ * Construct a unique term slug.
+ * @since 1.0.9[b]
+ *
+ * @param string $slug
+ * @return string
+ */
+function getUniqueTermSlug($slug) {
+	return getUniqueSlug($slug, 'terms');
 }
 
 /**

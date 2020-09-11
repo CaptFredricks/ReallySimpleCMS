@@ -765,9 +765,9 @@ class Post {
 		// Sanitize the slug (strip off HTML and/or PHP tags and replace any characters not specified in the filter)
 		$slug = preg_replace('/[^a-zA-Z0-9\-]/i', '', strip_tags($data['slug']));
 		
-		// Make sure the slug is not already being used
+		// Make sure the slug is unique
 		if($this->slugExists($slug, $id))
-			return statusMessage('That slug is already in use. Please choose another one.');
+			$slug = getUniquePostSlug($slug);
 		
 		// Make sure the post has a valid status
 		if($data['status'] !== 'draft' && $data['status'] !== 'published')
@@ -892,10 +892,10 @@ class Post {
 	 *
 	 * @access protected
 	 * @param string $slug
-	 * @param int $id
+	 * @param int $id (optional; default: 0)
 	 * @return bool
 	 */
-	protected function slugExists($slug, $id) {
+	protected function slugExists($slug, $id = 0) {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -1022,7 +1022,7 @@ class Post {
 		
 		// Add each author to the list
 		foreach($authors as $author)
-			$list .= '<option value="'.$author['id'].'"'.($author['id'] === $id ? ' selected' : '').'>'.$author['username'].'</option>';
+			$list .= '<option value="'.$author['id'].'"'.($author['id'] === (int)$id ? ' selected' : '').'>'.$author['username'].'</option>';
 		
 		// Return the list
 		return $list;

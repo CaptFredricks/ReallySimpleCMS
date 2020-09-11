@@ -11,12 +11,12 @@ if($rs_post->postHasFeatImage()): ?>
 		<?php $rs_post->getPostFeatImage(); ?>
 	</div>
 <?php endif; ?>
-<section class="wrapper">
+<div class="wrapper">
 	<article class="article-content">
 		<h1><?php $rs_post->getPostTitle(); ?></h1>
 		<?php $rs_post->getPostContent(); ?>
 	</article>
-</section>
+</div>
 <?php
 // Include the footer
 getFooter();

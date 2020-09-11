@@ -1239,278 +1239,278 @@
 ----------------------------------------------------------------------------------------------------
 ## Version 1.8.12[a] (2019-10-13)
 
-* Changed the default values of some columns in the database schema to avoid issues when using phpMyAdmin's strict mode
-* Created a function that fetches a menu item's parent
-* Created a function that checks whether a menu item has siblings
-* Created a function that checks whether a menu item is the first of its siblings
-* Created a function that checks whether a menu item is the last of its siblings
-* Created a function that checks whether a menu item is the previous sibling of another menu item
-* Created a function that checks whether a menu item is the next sibling of another menu item
-* Created a function that fetches the previous sibling of a menu item
-* Menu items are properly reordered when a menu item is moved up
-* The Menu::isSibling function is now deprecated
-* Created a function that fetches the next sibling of a menu item
-* Menu items are properly reordered when a menu item is moved down
-* Tweaked styling for form textarea fields
+- Changed the default values of some columns in the database schema to avoid issues when using phpMyAdmin's strict mode
+- Created a function that fetches a menu item's parent
+- Created a function that checks whether a menu item has siblings
+- Created a function that checks whether a menu item is the first of its siblings
+- Created a function that checks whether a menu item is the last of its siblings
+- Created a function that checks whether a menu item is the previous sibling of another menu item
+- Created a function that checks whether a menu item is the next sibling of another menu item
+- Created a function that fetches the previous sibling of a menu item
+- Menu items are properly reordered when a menu item is moved up
+- The `Menu::isSibling` function is now deprecated
+- Created a function that fetches the next sibling of a menu item
+- Menu items are properly reordered when a menu item is moved down
+- Tweaked styling for form `textarea` fields
 
 **Modified files:**
-* admin/includes/class-menu.php
-* admin/includes/css/style.css
-* includes/deprecated.php
-* includes/schema.php
+- admin/includes/class-menu.php
+- admin/includes/css/style.css
+- includes/deprecated.php
+- includes/schema.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.8.11[a] (2019-10-10)
 
-* Updated various functions in the Post and User classes to make use of the new Query::selectField function
-* Changed the access for the Post::getAuthor and Post::getAuthorList functions from protected to private
-* Updated a function in the admin functions.php file to make use of the new Query::selectField function
-* Added more documentation to the admin functions.php file
-* Added full file path for autoloaded classes in the includes functions.php file
-* Updated some functions in the globals.php file to make use of the new Query::selectField function
-* A menu item's children will now have their parent updated when that menu item is deleted
+- Updated various functions in the `Post` and `User` classes to make use of the new `Query::selectField` function
+- Changed the access for the `Post::getAuthor` and `Post::getAuthorList` functions from `protected` to `private`
+- Updated a function in the `admin/functions.php` file to make use of the new `Query::selectField` function
+- Added more documentation to the `admin/functions.php` file
+- Added a full filepath for autoloaded classes in the `includes/functions.php` file
+- Updated some functions in the `globals.php` file to make use of the new `Query::selectField` function
+- A menu item's children will now have their parent updated when that menu item is deleted
 
 **Modified files:**
-* admin/includes/class-menu.php
-* admin/includes/class-post.php
-* admin/includes/class-user.php
-* admin/includes/functions.php
-* includes/functions.php (M)
-* includes/globals.php
+- admin/includes/class-menu.php
+- admin/includes/class-post.php
+- admin/includes/class-user.php
+- admin/includes/functions.php
+- includes/functions.php (M)
+- includes/globals.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.8.10[a] (2019-10-08)
 
-* Created a function that selects only a single field from the database and returns it
-* Added more documentation to the Query class
-* Changed the default value for the where parameter from '' to array() in all Query functions that use it
-* Updated various functions in the Category, Menu, and Settings classes to make use of the new Query::selectField function
-* Cleaned up some code in the Menu class
+- Created a function that selects only a single field from the database and returns it
+- Added more documentation to the `Query` class
+- Changed the default value for the `where` parameter from `''` to `array()` in all `Query` functions that use it
+- Updated various functions in the `Category`, `Menu`, and `Settings` classes to make use of the new `Query::selectField` function
+- Cleaned up some code in the `Menu` class
 
 **Modified files:**
-* admin/includes/class-category.php
-* admin/includes/class-menu.php
-* admin/includes/class-settings.php
-* includes/class-query.php
+- admin/includes/class-category.php
+- admin/includes/class-menu.php
+- admin/includes/class-settings.php
+- includes/class-query.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.8.9[a] (2019-10-07)
 
-* Fixed a styling issue with the custom menu link inputs
-* Menu items are now properly reordered when a menu item's parent is set (now works in all cases)
-* Fixed the menu item parents dropdown to only display menu items from the current menu
-* Created a function that checks whether a menu item is a sibling of another menu item
-* Menu items now cannot be reordered beyond the range of their siblings (i.e., a child cannot be given a lower index than its parent)
+- Fixed a styling issue with the custom menu link inputs
+- Menu items are now properly reordered when a menu item's parent is set (now works in all cases)
+- Fixed the menu item parents dropdown to only display menu items from the current menu
+- Created a function that checks whether a menu item is a sibling of another menu item
+- Menu items now cannot be reordered beyond the range of their siblings (i.e., a child cannot be given a lower index than its parent)
 
 **Modified files:**
-* admin/includes/class-menu.php
-* admin/includes/css/style.css
+- admin/includes/class-menu.php
+- admin/includes/css/style.css
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.8.8[a] (2019-10-02)
 
-* Added the "menu-item" class to the list item that displays if the menu is empty
-* Menu items are now properly reordered when a menu item's parent is set or unset (in most cases)
-* Added more documentation to the Query class
-* Widened text inputs
-* Changed padding for buttons from pixels to ems
+- Added the "menu-item" class to the list item that displays if the menu is empty
+- Menu items are now properly reordered when a menu item's parent is set or unset (in most cases)
+- Added more documentation to the `Query` class
+- Widened text inputs
+- Changed padding for buttons from pixels to ems
 
 **Modified files:**
-* admin/includes/class-menu.php
-* admin/includes/css/style.css (M)
-* includes/class-query.php
-* includes/css/buttons.css (M)
+- admin/includes/class-menu.php
+- admin/includes/css/style.css (M)
+- includes/class-query.php
+- includes/css/buttons.css (M)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.8.7[a] (2019-09-29)
 
-* Child menu items are now indented on the 'Edit Menu' page (up to 3 levels deep)
-* Created a function that fetches the whole "family tree" of a menu item and returns the number of members
-* Added a global variable to the Menu class to hold the member count of a menu item's "family tree"
-* Created a function that fetches all descendants of a menu item
-* Replaced an occurence of intval() with a casted integer in the install.php file
-* Added more documentation to the Query class
+- Child menu items are now indented on the 'Edit Menu' page (up to 3 levels deep)
+- Created a function that fetches the whole "family tree" of a menu item and returns the number of members
+- Added a global variable to the `Menu` class to hold the member count of a menu item's "family tree"
+- Created a function that fetches all descendants of a menu item
+- Replaced an occurence of `intval()` with a casted integer in the `install.php` file
+- Added more documentation to the `Query` class
 
 **Modified files:**
-* admin/includes/class-menu.php
-* admin/includes/css/style.css
-* admin/install.php (M)
-* includes/class-query.php
+- admin/includes/class-menu.php
+- admin/includes/css/style.css
+- admin/install.php (M)
+- includes/class-query.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.8.6[a] (2019-09-28)
 
-* Tweaked a line of documentation in the adminNavMenuItem function
-* Created a function that constructs a list of parent menu items
-* Created a function that checks whether the current menu item is a descendant of other menu items
-* Menu items can now be nested
-* Created a function that determines the nested depth of a menu item
+- Tweaked a line of documentation in the `adminNavMenuItem` function
+- Created a function that constructs a list of parent menu items
+- Created a function that checks whether the current menu item is a descendant of other menu items
+- Menu items can now be nested
+- Created a function that determines the nested depth of a menu item
 
 **Modified files:**
-* admin/includes/class-menu.php
-* admin/includes/functions.php (M)
+- admin/includes/class-menu.php
+- admin/includes/functions.php (M)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.8.5[a] (2019-09-20)
 
-* Tweaked a previous entry in the changelog
-* Added a line of documentation to the schema.php file
-* Tweaked documentation and updated a constant in the init.php file
-* A notice will now display if the content directory's index.php file is accessed directly
-* Added more documentation to the content index.php file
-* Added Font Awesome icons
-* Tweaked documentation in the includes CSS stylesheet
-* Included the Font Awesome stylesheet in the admin header.php file
-* Added a parameter to the adminNavMenuItem function to include an icon
-* Added styling for the icons
-* Adjusted the width, font size, and margins of the admin nav menu and menu items
-* Made the admin nav menu mobile responsive
-* Made several other elements mobile responsive
+- Tweaked a previous entry in the changelog
+- Added a line of documentation to the `schema.php` file
+- Tweaked documentation and updated a constant in the `init.php` file
+- A notice will now be displayed if the content directory's `index.php` file is accessed directly
+- Added more documentation to the content `index.php` file
+- Added Font Awesome icons
+- Tweaked documentation in the `includes/css/style.css` stylesheet
+- Included the Font Awesome stylesheet in the `admin/header.php` file
+- Added a parameter to the `adminNavMenuItem` function to include an icon
+- Added styling for the icons
+- Adjusted the width, font size, and margins of the admin nav menu and menu items
+- Made the admin nav menu mobile responsive
+- Made several other elements mobile responsive
 
 **Modified files:**
-* admin/header.php
-* admin/includes/css/style.css
-* admin/includes/functions.php
-* content/index.php
-* includes/css/fa-icons.css (N)
-* includes/css/style.css (M)
-* includes/fonts/fa-brands.ttf (N)
-* includes/fonts/fa-regular.ttf (N)
-* includes/fonts/fa-solid.ttf (N)
-* includes/schema.php (M)
-* init.php
+- admin/header.php
+- admin/includes/css/style.css
+- admin/includes/functions.php
+- content/index.php
+- includes/css/fa-icons.css (N)
+- includes/css/style.css (M)
+- includes/fonts/fa-brands.ttf (N)
+- includes/fonts/fa-regular.ttf (N)
+- includes/fonts/fa-solid.ttf (N)
+- includes/schema.php (M)
+- init.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.8.4[a] (2019-09-15)
 
-* Added more documentation to the root index.php file and removed a closing PHP tag
-* Minor tweak to the content index.php file
-* Added an extra parameter to the Menu::deleteMenuItem function
-* When a menu item is deleted, the indexes of any other menu items are now reordered properly
-* Added some documentation to the Query class
-* The CMS now checks whether all database tables are accounted for on initialization
-* Existing tables are now dropped during installation if there are tables missing (they will not be deleted in a proper installation)
-* Tweaked the text on the installation form
-* Tweaked some previous entries in the changelog
+- Added more documentation to the root `index.php` file and removed a closing PHP tag
+- Minor tweak to the content `index.php` file
+- Added an extra parameter to the `Menu::deleteMenuItem` function
+- When a menu item is deleted, the indexes of any other menu items are now reordered properly
+- Added some documentation to the `Query` class
+- The CMS now checks whether all database tables are accounted for on initialization
+- Existing tables are now dropped during installation if there are tables missing (they will not be deleted in a proper installation)
+- Tweaked the text on the installation form
+- Tweaked some previous entries in the changelog
 
 **Modified files:**
-* admin/includes/class-menu.php
-* admin/install.php
-* content/index.php (M)
-* includes/class-query.php
-* index.php
-* init.php
+- admin/includes/class-menu.php
+- admin/install.php
+- content/index.php (M)
+- includes/class-query.php
+- index.php
+- init.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.8.3[a] (2019-09-14)
 
-* Added a disabled input field that displays the menu item's type (post/page, category, or custom)
-* Added styling for disabled input fields
-* Renamed the Menu::getPostsList function to Menu::getMenuItemsList
-* Category menu items can now be edited
-* Custom links can now be added to menus
-* Custom menu items can now be edited
-* Menu items can now be sorted up (to a lower index) and down (to a higher index)
-* Removed an old, unused test function from the includes functions.php file
-* Added an exit function after a redirect in the init.php file
-* Updated some documentation in the login.php file
-* Tweaked some previous entries in the changelog
+- Added a disabled input field that displays the menu item's type (post/page, category, or custom)
+- Added styling for disabled input fields
+- Renamed the `Menu::getPostsList` function to `Menu::getMenuItemsList`
+- Category menu items can now be edited
+- Custom links can now be added to menus
+- Custom menu items can now be edited
+- Menu items can now be sorted up (to a lower index) and down (to a higher index)
+- Removed an old, unused test function from the `includes/functions.php` file
+- Added an exit function after a redirect in the `init.php` file
+- Updated some documentation in the `login.php` file
+- Tweaked some previous entries in the changelog
 
 **Modified files:**
-* admin/includes/class-menu.php
-* admin/includes/css/style.css
-* includes/functions.php
-* init.php (M)
-* login.php (M)
+- admin/includes/class-menu.php
+- admin/includes/css/style.css
+- includes/functions.php
+- init.php (M)
+- login.php (M)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.8.2[a] (2019-09-13)
 
-* Fixed a typo and escaped some special characters in the changelog
-* Tweaked the documentation in all the admin files
-* Renamed all public functions with 'entry' or 'entries' in their name to the name of their class (e.g., User::listEntries -> User::listUsers)
-* Added a redirect from the 'List Posts' page to the 'List Menus' page if the requested post's type is 'nav_menu_item'
-* Renamed the Menu::getMenuItemsList function to Menu::getMenuItemsLists and removed its optional parameter
-* Cleaned up the Menu::getMenuItemsLists function and split pages and posts into separate fieldset lists
-* Added styling to the menu items fieldsets
-* Added a checkbox list for categories and fields for adding custom menu items
-* Categories can now be added to menus
+- Fixed a typo and escaped some special characters in the changelog
+- Tweaked the documentation in all the admin files
+- Renamed all public functions with 'entry' or 'entries' in their name to the name of their class (e.g., `User::listEntries` -> `User::listUsers`)
+- Added a redirect from the 'List Posts' page to the 'List Menus' page if the requested post's type is `nav_menu_item`
+- Renamed the `Menu::getMenuItemsList` function to `Menu::getMenuItemsLists` and removed its optional parameter
+- Cleaned up the `Menu::getMenuItemsLists` function and split pages and posts into separate fieldset lists
+- Added styling to the menu items fieldsets
+- Added a checkbox list for categories and fields for adding custom menu items
+- Categories can now be added to menus
 
 **Modified files:**
-* admin/categories.php
-* admin/includes/class-category.php
-* admin/includes/class-menu.php (M)
-* admin/includes/class-post.php
-* admin/includes/class-user.php
-* admin/includes/class-widget.php
-* admin/includes/css/style.css
-* admin/index.php (M)
-* admin/menus.php (M)
-* admin/posts.php
-* admin/settings.php (M)
-* admin/users.php
-* admin/widgets.php
+- admin/categories.php
+- admin/includes/class-category.php
+- admin/includes/class-menu.php (M)
+- admin/includes/class-post.php
+- admin/includes/class-user.php
+- admin/includes/class-widget.php
+- admin/includes/css/style.css
+- admin/index.php (M)
+- admin/menus.php (M)
+- admin/posts.php
+- admin/settings.php (M)
+- admin/users.php
+- admin/widgets.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.8.1[a] (2019-09-09)
 
-* Tweaked some documentation in the Post class
-* The count value now increments when a new menu is created with menu items
-* Switched a margin from the data form content block to the metadata block
-* Fixed an issue where the 'Categories' block in the post editor still was captioned 'Attributes' (type: 'post' only)
-* Added styling for new a 'item-list' class
-* Updated the menu forms to more closely resemble the post forms (their functionality still remains different)
-* Rebuilt the Menu::getMenuItems function for use on the menu forms pages
-* Added extra validation to the Category::deleteEntry function
-* Menus can now be edited and deleted
-* Added a wrapper element for data forms (allows for floating blocks outside of the main form)
-* Replaced occurrences of count() === 0 with empty() when checking if no entries exist on the list entries pages
-* Set all form elements to use the Segoe UI font (including the installation forms)
-* Styled the reset password button on the 'Edit User' form
-* Added the admin footer to the menus page
-* Renamed all public menu functions (e.g., Menu::createEntry -> Menu::createMenu)
-* Renamed the Menu::validateData function to Menu::validateMenuData
-* Created a function that constructs the 'Edit Menu Item' form
-* Created a function that constructs a list of posts (Menu class)
-* Created a function to fetch a menu item's metadata
-* Menu items can now be edited and deleted
-* A cancel button will now appear when a menu item is being edited
+- Tweaked some documentation in the `Post` class
+- The count value now increments when a new menu is created with menu items
+- Switched a margin from the data form content block to the metadata block
+- Fixed an issue where the 'Categories' block in the post editor still was captioned 'Attributes' (type `post` only)
+- Added styling for new a `item-list` class
+- Updated the menu forms to more closely resemble the post forms (their functionality still remains different)
+- Rebuilt the `Menu::getMenuItems` function for use on the menu forms pages
+- Added extra validation to the `Category::deleteEntry` function
+- Menus can now be edited and deleted
+- Added a wrapper element for data forms (allows for floating blocks outside of the main form)
+- Replaced occurrences of `count() === 0` with `empty()` when checking if no entries exist on the list entries pages
+- Set all form elements to use the `Segoe UI` font (including the installation forms)
+- Styled the reset password button on the 'Edit User' form
+- Added the admin footer to the menus page
+- Renamed all public menu functions (e.g., `Menu::createEntry` -> `Menu::createMenu`)
+- Renamed the `Menu::validateData` function to `Menu::validateMenuData`
+- Created a function that constructs the 'Edit Menu Item' form
+- Created a function that constructs a list of posts (`Menu` class)
+- Created a function to fetch a menu item's metadata
+- Menu items can now be edited and deleted
+- A cancel button will now appear when a menu item is being edited
 
 **Modified files:**
-* admin/includes/class-category.php
-* admin/includes/class-menu.php
-* admin/includes/class-post.php
-* admin/includes/class-settings.php
-* admin/includes/class-user.php
-* admin/includes/class-widget.php
-* admin/includes/css/install.css (M)
-* admin/includes/css/style.css
-* admin/menus.php
+- admin/includes/class-category.php
+- admin/includes/class-menu.php
+- admin/includes/class-post.php
+- admin/includes/class-settings.php
+- admin/includes/class-user.php
+- admin/includes/class-widget.php
+- admin/includes/css/install.css (M)
+- admin/includes/css/style.css
+- admin/menus.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.8.0[a] (2019-09-08)
 
-* Fixed a bug with the pagerNav function that added too many 'paged' params
-* Fixed the pagination on the 'List User Roles' page
-* Created the Menu class
-* Created admin 'List Menus' page and added a link to the nav menu
-* Fixed an issue with the getCurrentPage function that prevented the 'Create Menu' page from displaying as the current page
-* The 'nav_menu' taxonomy is now created during installation
-* Created a function that constructs the 'Create Menu' form
-* Created a function that constructs a list of nav menu items
-* Renamed the 'privileges-list' id to the 'checkbox-list' class
-* Created a function that checks whether the nav_menu slug already exists
-* Created a function that constructs the 'Edit Menu' form
-* Created a function to fetch the nav menu items
-* Menus can now be created
+- Fixed a bug with the `pagerNav` function that added too many `paged` parameters
+- Fixed the pagination on the 'List User Roles' page
+- Created the `Menu` class
+- Created an admin 'List Menus' page and added a link to the nav menu
+- Fixed an issue with the `getCurrentPage` function that prevented the 'Create Menu' page from displaying as the current page
+- The `nav_menu` taxonomy is now created during installation
+- Created a function that constructs the 'Create Menu' form
+- Created a function that constructs a list of nav menu items
+- Renamed the `privileges-list` id to the `checkbox-list` class
+- Created a function that checks whether the `nav_menu` slug already exists
+- Created a function that constructs the 'Edit Menu' form
+- Created a function to fetch the nav menu items
+- Menus can now be created
 
 **Modified files:**
-* admin/header.php (M)
-* admin/includes/class-menu.php (N)
-* admin/includes/class-settings.php
-* admin/includes/css/style.css
-* admin/includes/functions.php
-* admin/menus.php (N)
+- admin/header.php (M)
+- admin/includes/class-menu.php (N)
+- admin/includes/class-settings.php
+- admin/includes/css/style.css
+- admin/includes/functions.php
+- admin/menus.php (N)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.7.5[a] (2019-09-07)

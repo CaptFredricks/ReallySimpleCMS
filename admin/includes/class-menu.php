@@ -305,9 +305,9 @@ class Menu {
 		// Sanitize the slug (strip off HTML and/or PHP tags and replace any characters not specified in the filter)
 		$slug = preg_replace('/[^a-z0-9\-]/', '', strip_tags(strtolower($data['slug'])));
 		
-		// Make sure the slug is not already being used
+		// Make sure the slug is unique
 		if($this->slugExists($slug, $id))
-			return statusMessage('That slug is already in use. Please choose another one.');
+			$slug = getUniqueTermSlug($slug);
 		
 		if($id === 0) {
 			// Insert the new menu into the database
@@ -1325,15 +1325,21 @@ class Menu {
 		$list = '';
 		
 		if($type === 'post') {
-			// Fetch all posts from the database (excluding media, menu items, and widgets)
-			$posts = $rs_query->select('posts', array('id', 'title'), array('status'=>array('<>', 'trash'), 'type'=>array('NOT IN', 'media', 'nav_menu_item', 'widget')));
+			// Fetch the post's type
+			$post_type = $rs_query->selectField('posts', 'type', array('id'=>$id));
+			
+			// Fetch all posts of the same type from the database
+			$posts = $rs_query->select('posts', array('id', 'title'), array('status'=>array('<>', 'trash'), 'type'=>$post_type));
 			
 			// Add each post to the list
 			foreach($posts as $post)
 				$list .= '<option value="'.$post['id'].'"'.($post['id'] === $id ? ' selected' : '').'>'.$post['title'].'</option>';
 		} elseif($type === 'term') {
-			// Fetch all terms from the database (excluding nav menus)
-			$terms = $rs_query->select('terms', array('id', 'name'), array('taxonomy'=>array('NOT IN', getTaxonomyId('nav_menu'))));
+			// Fetch the term's taxonomy
+			$taxonomy = $rs_query->selectField('terms', 'taxonomy', array('id'=>$id));
+			
+			// Fetch all terms of the same taxonomy from the database
+			$terms = $rs_query->select('terms', array('id', 'name'), array('taxonomy'=>$taxonomy));
 			
 			// Add each term to the list
 			foreach($terms as $term)

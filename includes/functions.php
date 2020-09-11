@@ -434,8 +434,8 @@ function footerScripts($exclude = '', $include_styles = array(), $include_script
  * @return string
  */
 function bodyClasses($addtl_classes = array()) {
-	// Extend the Post object and the user's session data
-	global $rs_post, $session;
+	// Extend the Post and Term objects and the user's session data
+	global $rs_post, $rs_term, $session;
 	
 	// Create an empty array to hold the classes
 	$classes = array();
@@ -448,17 +448,39 @@ function bodyClasses($addtl_classes = array()) {
 		// Fetch the post's parent from the database
 		$parent = $rs_post->getPostParent(false);
 		
+		// Fetch the post's type from the database
+		$type = $rs_post->getPostType(false);
+		
 		// Fetch the post's slug from the database and add an appropriate class
 		$classes[] = $rs_post->getPostSlug($id, false);
 		
-		// Fetch the post's type from the database and add an appropriate class (along with the id)
-		$classes[] = $rs_post->getPostType(false).'-id-'.$id;
+		// Add an appropriate class with the post's type
+		$classes[] = $type;
+		
+		// Add an appropriate class with the post's type and id
+		$classes[] = $type.'-id-'.$id;
 		
 		// Check whether the current page is a child of another page and add an appropriate class if so
 		if($parent !== 0) $classes[] = $rs_post->getPostSlug($parent, false).'-child';
 		
 		// Check whether the current page is the home page and add an appropriate class if so
 		if(isHomePage($id)) $classes[] = 'home-page';
+	} // Check whether the Term object has data
+	elseif($rs_term) {
+		// Fetch the term's id from the database
+		$id = $rs_term->getTermId(false);
+		
+		// Fetch the term's taxonomy from the database
+		$taxonomy = $rs_term->getTermTaxonomy(false);
+		
+		// Fetch the term's slug from the database and add an appropriate class
+		$classes[] = $rs_term->getTermSlug($id, false);
+		
+		// Add an appropriate class with the term's taxonomy
+		$classes[] = $taxonomy;
+		
+		// Add an appropriate class with the term's taxonomy and id
+		$classes[] = $taxonomy.'-id-'.$id;
 	}
 	
 	// Merge any additional classes with the classes array

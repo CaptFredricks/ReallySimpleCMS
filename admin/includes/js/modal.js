@@ -192,7 +192,7 @@ jQuery(document).ready($ => {
 				// Check whether the uploaded media should be inserted into post content
 				if($(this).data('insert') === true) {
 					// Insert the media
-					insertMedia($('.content .textarea-input'), data);
+					insertMedia($('.content .textarea-input[name="content"]'), data);
 				} else {
 					// Insert the media's id onto the form
 					$(clicked_button).siblings('input[data-field="id"]').val(data.id);
@@ -215,7 +215,7 @@ jQuery(document).ready($ => {
 				// Check whether the selected media should be inserted into post content
 				if($(this).data('insert') === true) {
 					// Insert the media
-					insertMedia($('.content .textarea-input'), data);
+					insertMedia($('.content .textarea-input[name="content"]'), data);
 				} else {
 					// Insert the media's id on the form
 					$(clicked_button).siblings('input[data-field="id"]').val(data.id);

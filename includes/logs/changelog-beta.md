@@ -6,6 +6,46 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.0.9[b] (2020-09-10)
+
+- The current post's `type` is now added to the `body` tag as a CSS class
+- Replaced `section` tags with `div` tags in several Carbon theme files
+- Fixed a minor visual issue with the blank user avatar on the admin bar
+- The `id` parameter in the `Post::slugExists` function is now optional (default value is `0`)
+- Created a function that constructs a unique slug
+- Improved the logic in the `getUniqueFilename` function
+- The media upload system now checks whether the media's slug is unique before uploading it
+- Deprecated the `filenameExists` function (merged its functionality with the `getUniqueFilename` function)
+- Users will no longer see an error message if the chosen slug is not unique (instead, the CMS will append a number at the end of the slug to make it unique)
+- Created `getUniquePostSlug` and `getUniqueTermSlug` alias functions
+- The menu item link dropdowns now only include posts and terms of the same post type or taxonomy as their menu item
+- Added multiple CSS classes to the `body` tag on term pages (e.g., `class="<slug> <taxonomy> <taxonomy>-id-<id>"`)
+- Fixed a bug that caused the "Insert Media" button to populate both the content and meta description fields
+- Fixed a minor bug with the `Post::getAuthorList` function where the author's- id would sometimes be passed as a string
+- Post objects initialized with a slug no longer redirect to the 404 not found page if the post is not published (this resolves issues with redirection when using the `getPost` function to pull data on posts that are drafts)
+- Cleaned up some entries in the Alpha changelog
+
+**Modified files:**
+- admin/includes/class-media.php
+- admin/includes/class-menu.php
+- admin/includes/class-post.php
+- admin/includes/class-term.php (M)
+- admin/includes/class-widget.php (M)
+- admin/includes/css/style.css (M)
+- admin/includes/css/style.min.css (M)
+- admin/includes/functions.php
+- admin/includes/js/modal.js
+- content/themes/carbon/category.php (M)
+- content/themes/carbon/index.php (M)
+- content/themes/carbon/post.php (M)
+- content/themes/carbon/taxonomy.php (M)
+- includes/class-post.php (M)
+- includes/css/style.css (M)
+- includes/css/style.min.css (M)
+- includes/deprecated.php
+- includes/functions.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.0.8[b] (2020-08-11)
 
 - The `Query::showTables` function now has an optional `table` parameter

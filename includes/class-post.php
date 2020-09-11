@@ -52,9 +52,6 @@ class Post {
 			
 			// Fetch the post's status from the database
 			$status = $this->getPostStatus(false);
-			
-			// Check whether the post is published and redirect to the 404 (Not Found) page if not
-			if($status !== 'published') redirect('/404.php');
 		} else {
 			// Fetch the post's URI
 			$raw_uri = $_SERVER['REQUEST_URI'];
