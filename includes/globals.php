@@ -5,7 +5,7 @@
  */
 
 // Current CMS version
-const VERSION = '1.0.9';
+const VERSION = '1.1.0.1';
 
 // Post types
 $post_types = array();
@@ -185,7 +185,7 @@ function populateTable($table) {
 				// Check whether the table still exists
 				if($rs_query->tableExists($name)) {
 					// Delete the table
-					$rs_query->doQuery("DROP TABLE `".$name."`");
+					$rs_query->doQuery("DROP TABLE `".$name."`;");
 					
 					// Recreate the table
 					$rs_query->doQuery($schema[$name]);
@@ -219,7 +219,7 @@ function populateTable($table) {
 				// Check whether the table still exists
 				if($rs_query->tableExists($name)) {
 					// Delete the table
-					$rs_query->doQuery("DROP TABLE `".$name."`");
+					$rs_query->doQuery("DROP TABLE `".$name."`;");
 					
 					// Recreate the table
 					$rs_query->doQuery($schema[$name]);
@@ -242,7 +242,7 @@ function populateTable($table) {
 				// Check whether the table still exists
 				if($rs_query->tableExists($name)) {
 					// Delete the table
-					$rs_query->doQuery("DROP TABLE `".$name."`");
+					$rs_query->doQuery("DROP TABLE `".$name."`;");
 					
 					// Recreate the table
 					$rs_query->doQuery($schema[$name]);
@@ -263,7 +263,7 @@ function populateTable($table) {
 				// Check whether the table still exists
 				if($rs_query->tableExists($name)) {
 					// Delete the table
-					$rs_query->doQuery("DROP TABLE `".$name."`");
+					$rs_query->doQuery("DROP TABLE `".$name."`;");
 					
 					// Recreate the table
 					$rs_query->doQuery($schema[$name]);
@@ -363,12 +363,12 @@ function populateUserPrivileges() {
 					// Insert the user privilege into the database
 					$rs_query->insert('user_privileges', array('name'=>$privilege.$admin_page));
 					break;
-				case 'comments':
-					// Skip 'can_create_' for comments
-					if($privilege === 'can_create_') continue 2;
 				case 'settings':
 					// Skip 'can_view_', 'can_create_', and 'can_delete_' for settings
 					if($privilege === 'can_view_' || $privilege === 'can_create_' || $privilege === 'can_delete_') continue 2;
+				case 'comments':
+					// Skip 'can_create_' for comments
+					if($privilege === 'can_create_') continue 2;
 				default:
 					// Insert the user privilege into the database
 					$rs_query->insert('user_privileges', array('name'=>$privilege.$admin_page));
@@ -382,12 +382,13 @@ function populateUserPrivileges() {
 	 * 5=>'can_view_posts', 6=>'can_create_posts', 7=>'can_edit_posts', 8=>'can_delete_posts',
 	 * 9=>'can_view_categories', 10=>'can_create_categories', 11=>'can_edit_categories', 12=>'can_delete_categories',
 	 * 13=>'can_view_media', 14=>'can_upload_media', 15=>'can_edit_media', 16=>'can_delete_media',
-	 * 17=>'can_view_themes', 18=>'can_create_themes', 19=>'can_edit_themes', 20=>'can_delete_themes',
-	 * 21=>'can_view_menus', 22=>'can_create_menus', 23=>'can_edit_menus', 24=>'can_delete_menus',
-	 * 25=>'can_view_widgets', 26=>'can_create_widgets', 27=>'can_edit_widgets', 28=>'can_delete_widgets',
-	 * 29=>'can_view_users', 30=>'can_create_users', 31=>'can_edit_users', 32=>'can_delete_users',
-	 * 33=>'can_edit_settings',
-	 * 34=>'can_view_user_roles', 35=>'can_create_user_roles', 36=>'can_edit_user_roles', 37=>'can_delete_user_roles'
+	 * 17=>'can_view_comments', 18=>'can_edit_comments', 19=>'can_delete_comments',
+	 * 20=>'can_view_themes', 21=>'can_create_themes', 22=>'can_edit_themes', 23=>'can_delete_themes',
+	 * 24=>'can_view_menus', 25=>'can_create_menus', 26=>'can_edit_menus', 27=>'can_delete_menus',
+	 * 28=>'can_view_widgets', 29=>'can_create_widgets', 30=>'can_edit_widgets', 31=>'can_delete_widgets',
+	 * 32=>'can_view_users', 33=>'can_create_users', 34=>'can_edit_users', 35=>'can_delete_users',
+	 * 36=>'can_edit_settings',
+	 * 37=>'can_view_user_roles', 38=>'can_create_user_roles', 39=>'can_edit_user_roles', 40=>'can_delete_user_roles'
 	 */
 	
 	// Fetch all user roles from the database
@@ -402,15 +403,15 @@ function populateUserPrivileges() {
 				break;
 			case 2:
 				// Set the privileges for the 'editor' role
-				$privileges = array(1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19, 21, 22, 23, 25, 26, 27, 29);
+				$privileges = array(1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 32, 37);
 				break;
 			case 3:
 				// Set the privileges for the 'moderator' role
-				$privileges = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32);
+				$privileges = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 24, 25, 26, 28, 29, 30, 32, 33, 34, 37);
 				break;
 			case 4:
 				// Set the privileges for the 'administrator' role
-				$privileges = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37);
+				$privileges = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40);
 				break;
 		}
 		
@@ -856,6 +857,7 @@ function registerPostType($name, $args = array()) {
 		'show_in_nav_menus'=>null,
 		'menu_link'=>'posts.php',
 		'menu_icon'=>null,
+		'comments'=>false,
 		'taxonomy'=>''
 	);
 	
@@ -988,6 +990,7 @@ function registerDefaultPostTypes() {
 	// Post
 	registerPostType('post', array(
 		'menu_icon'=>'newspaper',
+		'comments'=>true,
 		'taxonomy'=>'category'
 	));
 	

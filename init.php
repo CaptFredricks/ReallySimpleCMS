@@ -65,6 +65,9 @@ if(file_exists(PATH.'/config.php')) {
 	// Register the default taxonomies
 	registerDefaultTaxonomies();
 	
+	// Check whether an 'update.php' file exists and include it if so
+	if(file_exists(PATH.INC.'/update.php')) require_once PATH.INC.'/update.php';
+	
 	// Check whether the user is viewing the admin dashboard, the log in page, or the 404 not found page
 	if(!isAdmin() && !isLogin() && !is404()) {
 		// Include functions

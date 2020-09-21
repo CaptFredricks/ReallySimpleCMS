@@ -475,7 +475,7 @@ function adminNavMenu() {
 			$tax_id = str_replace(' ', '_', $taxonomies[$post_type['taxonomy']]['labels']['name_lowercase']);
 		}
 		
-		// Make sure the user has the proper privileges to view the post type
+		// Check whether the user has sufficient privileges to view the post type
 		if(userHasPrivilege($session['role'], 'can_view_'.$id)) {
 			adminNavMenuItem(array('id'=>$id), array( // Submenu
 				array( // List <post type>
@@ -495,6 +495,10 @@ function adminNavMenu() {
 			), $post_type['menu_icon']);
 		}
 	}
+	
+	// Check whether the user has sufficient privileges to view comments
+	if(userHasPrivilege($session['role'], 'can_view_comments'))
+		adminNavMenuItem(array('id'=>'comments', 'link'=>'comments.php'), array(), array('comments', 'regular'));
 	
 	// Check whether the user has sufficient privileges to view customization options
 	if(userHasPrivilege($session['role'], 'can_view_themes') || userHasPrivilege($session['role'], 'can_view_menus') || userHasPrivilege($session['role'], 'can_view_widgets')) {
@@ -1108,7 +1112,7 @@ function postExists($id) {
 }
 
 /**
- * Make a filename unique by adding a number to the end of it.
+ * Construct a unique filename.
  * @since 2.1.0[a]
  *
  * @param string $filename

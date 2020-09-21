@@ -214,11 +214,25 @@ class Post {
 		<table class="data-table">
 			<thead>
 				<?php
-				// Fill an array with the table header columns
+				// Check whether the post type is hierarchical
 				if($this->type_data['hierarchical']) {
+					// Fill an array with the table header columns
 					$table_header_cols = array('Title', 'Author', 'Publish Date', 'Parent', 'Meta Title', 'Meta Desc.');
+					
+					// Check whether the post type has comments enabled
+					if($this->type_data['comments']) {
+						// Insert the comments label into the array
+						array_splice($table_header_cols, 4, 0, 'Comments');
+					}
 				} else {
+					// Fill an array with the table header columns
 					$table_header_cols = array('Title', 'Author', 'Publish Date', 'Meta Title', 'Meta Desc.');
+					
+					// Check whether the post type has comments enabled
+					if($this->type_data['comments']) {
+						// Insert the comments label into the array
+						array_splice($table_header_cols, 3, 0, 'Comments');
+					}
 					
 					// Check whether the post type has a taxonomy associated with it
 					if(!empty($this->taxonomy_data)) {
@@ -256,6 +270,7 @@ class Post {
 						!$this->type_data['hierarchical'] && !empty($this->type_data['taxonomy']) ? tableCell($this->getTerms($post['id']), 'terms') : '',
 						tableCell(is_null($post['date']) ? '&mdash;' : formatDate($post['date'], 'd M Y @ g:i A'), 'publish-date'),
 						$this->type_data['hierarchical'] ? tableCell($this->getParent($post['parent']), 'parent') : '',
+						$this->type_data['comments'] ? tableCell(($meta['comment_status'] ? $meta['comment_count'] : '&mdash;'), 'comments') : '',
 						tableCell(!empty($meta['title']) ? 'Yes' : 'No', 'meta_title'),
 						tableCell(!empty($meta['description']) ? 'Yes' : 'No', 'meta_description')
 					);
@@ -390,6 +405,24 @@ class Post {
 								<?php
 							}
 							?>
+						</div>
+						<?php
+					}
+					
+					// Check whether the post type has comments enabled
+					if($this->type_data['comments']) {
+						?>
+						<div class="block">
+							<h2>Comments</h2>
+							<div class="row">
+								<?php
+								// Check whether comments are enabled for this post
+								$comments = isset($_POST['comments']) || (!isset($_POST['comments']) && $this->type_data['comments']) ? 'checked' : '';
+								
+								// Construct a checkbox tag
+								echo formTag('input', array('type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'comments', 'value'=>(!empty($comments) ? 1 : 0), '*'=>$comments, 'label'=>array('content'=>'<span>Enable comments</span>')));
+								?>
+							</div>
 						</div>
 						<?php
 					}
@@ -594,6 +627,21 @@ class Post {
 									</div>
 									<?php
 								}
+								
+								// Check whether the post type has comments enabled
+								if($this->type_data['comments']) {
+									?>
+									<div class="block">
+										<h2>Comments</h2>
+										<div class="row">
+											<?php
+											// Construct a checkbox tag
+											echo formTag('input', array('type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'comments', 'value'=>(int)$meta['comment_status'], '*'=>($meta['comment_status'] ? 'checked' : ''), 'label'=>array('content'=>'<span>Enable comments</span>')));
+											?>
+										</div>
+									</div>
+									<?php
+								}
 								?>
 								<div class="block">
 									<h2>Featured Image</h2>
@@ -731,6 +779,9 @@ class Post {
 				$rs_query->update('terms', array('count'=>$count), array('id'=>$relationship['term']));
 			}
 			
+			// Delete all comments associated with the post from the database
+			$rs_query->delete('comments', array('post'=>$this->id));
+			
 			// Fetch any menu items associated with the post from the database
 			$menu_items = $rs_query->select('postmeta', 'post', array('_key'=>'post_link', 'value'=>$this->id));
 			
@@ -779,6 +830,12 @@ class Post {
 		// Check whether a page template has been submitted and add it to the postmeta array if so
 		if(isset($data['template'])) $postmeta['template'] = $data['template'];
 		
+		// Check whether comments are enabled for the post type
+		if($this->type_data['comments']) {
+			// Check whether comments are enabled for the specified post and add the status to the postmeta array if so
+			$postmeta['comment_status'] = isset($data['comments']) ? 1 : 0;
+		}
+		
 		if($id === 0) {
 			// Check whether a date has been provided and is valid
 			if(!empty($data['date'][0]) && !empty($data['date'][1]) && $data['date'][0] >= '1000-01-01') {
@@ -794,6 +851,9 @@ class Post {
 			
 			// Insert the new post into the database
 			$insert_id = $rs_query->insert('posts', array('title'=>$data['title'], 'author'=>$data['author'], 'date'=>$data['date'], 'content'=>$data['content'], 'status'=>$data['status'], 'slug'=>$slug, 'parent'=>$data['parent'], 'type'=>$data['type']));
+			
+			// Check whether comments data has been submitted and set the comment count to zero if so
+			if(isset($postmeta['comment_status'])) $postmeta['comment_count'] = 0;
 			
 			// Insert the post's metadata into the database
 			foreach($postmeta as $key=>$value)

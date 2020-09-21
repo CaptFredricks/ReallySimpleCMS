@@ -6,6 +6,19 @@
  * @return array
  */
 function dbSchema() {
+	// Comments table
+	$tables['comments'] = "CREATE TABLE comments (
+		id bigint(20) unsigned PRIMARY KEY auto_increment,
+		post bigint(20) unsigned NOT NULL default '0',
+		author bigint(20) unsigned NOT NULL default '0',
+		date datetime default NULL,
+		content longtext NOT NULL default '',
+		upvotes bigint(20) NOT NULL default '0',
+		downvotes bigint(20) NOT NULL default '0',
+		approved varchar(20),
+		parent bigint(20) unsigned NOT NULL default '0'
+	);";
+	
 	// Postmeta table
 	$tables['postmeta'] = "CREATE TABLE postmeta (
 		id bigint(20) unsigned PRIMARY KEY auto_increment,

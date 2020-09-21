@@ -21,7 +21,7 @@
 - The menu item link dropdowns now only include posts and terms of the same post type or taxonomy as their menu item
 - Added multiple CSS classes to the `body` tag on term pages (e.g., `class="<slug> <taxonomy> <taxonomy>-id-<id>"`)
 - Fixed a bug that caused the "Insert Media" button to populate both the content and meta description fields
-- Fixed a minor bug with the `Post::getAuthorList` function where the author's- id would sometimes be passed as a string
+- Fixed a minor bug with the `Post::getAuthorList` function where the author's id would sometimes be passed as a string
 - Post objects initialized with a slug no longer redirect to the 404 not found page if the post is not published (this resolves issues with redirection when using the `getPost` function to pull data on posts that are drafts)
 - Cleaned up some entries in the Alpha changelog
 
