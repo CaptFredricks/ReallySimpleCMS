@@ -133,7 +133,7 @@ class Post {
 			// Fetch the post from the database
 			$post = $rs_query->selectRow('posts', '*', array('id'=>$id));
 			
-			// Loop through the post array and set the class variables
+			// Loop through the array and set the class variables
 			foreach($post as $key=>$value) $this->$key = $post[$key];
 		}
 		
@@ -389,12 +389,10 @@ class Post {
 						</div>
 						<?php
 					} else {
-						?>
-						<div class="block">
-							<?php
-							// Check whether the post type has a valid taxonomy associated with it
-							if(!empty($this->taxonomy_data)) {
-								?>
+						// Check whether the post type has a valid taxonomy associated with it
+						if(!empty($this->taxonomy_data)) {
+							?>
+							<div class="block">
 								<h2><?php echo $this->taxonomy_data['label']; ?></h2>
 								<div class="row">
 									<?php
@@ -402,11 +400,9 @@ class Post {
 									echo $this->getTermsList();
 									?>
 								</div>
-								<?php
-							}
-							?>
-						</div>
-						<?php
+							</div>
+							<?php
+						}
 					}
 					
 					// Check whether the post type has comments enabled
@@ -604,12 +600,10 @@ class Post {
 									</div>
 									<?php
 								} else {
-									?>
-									<div class="block">
-										<?php
-										// Check whether the post type has a valid taxonomy associated with it
-										if(!empty($this->taxonomy_data)) {
-											?>
+									// Check whether the post type has a valid taxonomy associated with it
+									if(!empty($this->taxonomy_data)) {
+										?>
+										<div class="block">
 											<h2><?php echo $this->taxonomy_data['label']; ?></h2>
 											<div class="row">
 												<?php
@@ -617,15 +611,9 @@ class Post {
 												echo $this->getTermsList($this->id);
 												?>
 											</div>
-											<?php
-										} else {
-											?>
-											
-											<?php
-										}
-										?>
-									</div>
-									<?php
+										</div>
+										<?php
+									}
 								}
 								
 								// Check whether the post type has comments enabled

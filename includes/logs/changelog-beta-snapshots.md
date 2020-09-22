@@ -6,7 +6,38 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
-## Version 1.1.0[b][ss-01] (2020-09-21)
+## Version 1.1.0[b]{ss-02} (2020-09-22)
+
+- Tweaked a previous entry in the changelog
+- Tweaked documentation in the `update.php` file
+- Created a function that constructs and displays all comments in the database
+- Tweaked the styling of data tables on the admin dashboard
+- Tweaked documentation in the `Post` and `Term` classes
+- Created a function that fetches a comment's post from the database
+- Created a function that fetches a comment's author from the database
+- Added an additional CSS class to data table columns to ensure that they don't conflict with other page elements
+- Tweaked the schema for the `comments` database table
+- Created a function that approves a comment
+- Created a function that unapproves a comment
+- Created a function that deletes a comment
+- Cleaned up code in the `Post` class
+- Created a function that constructs the "Edit Comment" form
+- Created a function that validates form data for the `Comment` class
+- Created a function that fetches a post's permalink (`Comment` class)
+
+**Modified files:**
+- admin/comments.php
+- admin/includes/class-comment.php
+- admin/includes/class-post.php
+- admin/includes/class-term.php (M)
+- admin/includes/css/style.css
+- admin/includes/css/style.min.css
+- admin/includes/functions.php (M)
+- includes/schema.php (M)
+- includes/update.php (M)
+
+----------------------------------------------------------------------------------------------------
+## Version 1.1.0[b]{ss-01} (2020-09-21)
 
 - Created a database schema for the `comments` table
 - Created a file that will handle safely updating things such as the database schema

@@ -769,7 +769,7 @@ function tableRow(...$cells) {
  * @return string
  */
 function tableCell($data, $class = '', $colspan = 1) {
-	return '<td'.(!empty($class) ? ' class="'.$class.'"' : '').($colspan > 1 ? ' colspan="'.$colspan.'"' : '').'>'.$data.'</td>';
+	return '<td'.(!empty($class) ? ' class="column '.$class.'"' : '').($colspan > 1 ? ' colspan="'.$colspan.'"' : '').'>'.$data.'</td>';
 }
 
 /**

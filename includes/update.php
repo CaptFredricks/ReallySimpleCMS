@@ -1,7 +1,7 @@
 <?php
 /**
  * Update the CMS.
- * @since 1.1.0[b][ss-01]
+ * @since 1.1.0[b]{ss-01}
  */
 
 // Check whether the version is higher than 1.0.9[b]

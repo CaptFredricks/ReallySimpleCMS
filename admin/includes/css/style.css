@@ -581,27 +581,36 @@ h3 {
 	font-size: 0.85em;
 }
 
-.data-table .thumbnail {
+.media .data-table .column.thumbnail {
 	text-align: center;
 }
 
-.data-table .thumbnail img {
+.media .data-table .column.thumbnail img {
 	max-width: 100px;
 	vertical-align: middle;
 }
 
-.data-table .username strong {
+.comments .data-table th:first-child {
+	width: 55%;
+}
+
+.comments .data-table .column.content {
+	float: none;
+	width: 55%;
+}
+
+.users .data-table .column.username strong {
 	line-height: 1;
 	vertical-align: top;
 }
 
-.data-table .username .avatar {
+.users .data-table .column.username .avatar {
 	float: left;
 	margin-right: 0.5em;
 	position: relative;
 }
 
-.data-table .username .avatar::before {
+.users .data-table .column.username .avatar::before {
 	background-image: url('/includes/img/blank.png');
 	background-size: 100%;
 	content: '';
@@ -610,7 +619,7 @@ h3 {
 	width: 100%;
 }
 
-.data-table .username .actions {
+.users .data-table .column.username .actions {
 	line-height: 1;
 }
 

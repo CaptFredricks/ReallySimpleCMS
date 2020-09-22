@@ -15,7 +15,7 @@ function dbSchema() {
 		content longtext NOT NULL default '',
 		upvotes bigint(20) NOT NULL default '0',
 		downvotes bigint(20) NOT NULL default '0',
-		approved varchar(20),
+		status varchar(20) NOT NULL default 'unapproved',
 		parent bigint(20) unsigned NOT NULL default '0'
 	);";
 	

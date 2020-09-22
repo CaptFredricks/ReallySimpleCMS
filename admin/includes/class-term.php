@@ -88,7 +88,7 @@ class Term {
 			// Fetch the term from the database
 			$term = $rs_query->selectRow('terms', '*', array('id'=>$id));
 			
-			// Loop through the term array and set the class variables
+			// Loop through the array and set the class variables
 			foreach($term as $key=>$value) $this->$key = $term[$key];
 		}
 		
