@@ -18,6 +18,10 @@ if($rs_post->postHasFeatImage()): ?>
 		<?php $rs_post->getPostContent(); ?>
 		<p class="post-categories">Categories: <?php $rs_post->getPostTerms(); ?></p>
 	</article>
+	<section class="comments">
+		<h2>Comments</h2>
+		<?php $rs_post->getPostComments(); ?>
+	</section>
 </div>
 <?php
 // Include the footer

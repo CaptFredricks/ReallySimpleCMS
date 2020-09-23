@@ -27,6 +27,106 @@ jQuery(document).ready($ => {
 	});
 	
 	/*------------------------------*\
+		COMMENTS
+	\*------------------------------*/
+	
+	/**
+	 * Upvote a comment.
+	 * @since 1.1.0[b]{ss-03}
+	 */
+	$('.upvote a').on('click', function(e) {
+		// Prevent the default action
+		e.preventDefault();
+		
+		// Create an object to hold the data passed to the server
+		let data = {
+			'id': $(this).data('id'),
+			'vote': $(this).data('vote'),
+			'type': 'upvotes'
+		};
+		
+		// Submit the data
+		submitVote(data, $(this));
+		
+		// Check whether the user has already upvoted
+		if($(this).data('vote')) {
+			// Set the vote status to 'unvoted'
+			$(this).data('vote', 0);
+		} else {
+			// Set the vote status to 'voted'
+			$(this).data('vote', 1);
+			
+			// Fetch the downvote link
+			let downvote = $(this).parent().siblings('.downvote').children('a');
+			
+			// Check whether the user has already downvoted
+			if($(downvote).data('vote')) {
+				// Submit the data
+				submitVote({'id': $(downvote).data('id'), 'vote': $(downvote).data('vote'), 'type': 'downvotes'}, downvote);
+				
+				// Reset the downvote
+				$(downvote).data('vote', 0);
+			}
+		}
+	});
+	
+	/**
+	 * Downvote a comment.
+	 * @since 1.1.0[b]{ss-03}
+	 */
+	$('.downvote a').on('click', function(e) {
+		// Prevent the default action
+		e.preventDefault();
+		
+		// Create an object to hold the data passed to the server
+		let data = {
+			'id': $(this).data('id'),
+			'vote': $(this).data('vote'),
+			'type': 'downvotes'
+		};
+		
+		// Submit the data
+		submitVote(data, $(this));
+		
+		// Check whether the user has already downvoted
+		if($(this).data('vote')) {
+			// Set the vote status to 'unvoted'
+			$(this).data('vote', 0);
+		} else {
+			// Set the vote status to 'voted'
+			$(this).data('vote', 1);
+			
+			// Fetch the upvote link
+			let upvote = $(this).parent().siblings('.upvote').children('a');
+			
+			// Check whether the user has already downvoted
+			if($(upvote).data('vote')) {
+				// Submit the data
+				submitVote({'id': $(upvote).data('id'), 'vote': $(upvote).data('vote'), 'type': 'upvotes'}, upvote);
+				
+				// Reset the upvote
+				$(upvote).data('vote', 0);
+			}
+		}
+	});
+	
+	/**
+	 * Submit the vote via Ajax.
+	 * @since 1.1.0[b]{ss-03}
+	 */
+	function submitVote(data, elem) {
+		$.ajax({
+			data: data,
+			method: 'POST',
+			success: result => {
+				// Update the vote count on the page
+				$(elem).siblings('span').text(result);
+			},
+			url: '/includes/ajax.php'
+		});
+	}
+	
+	/*------------------------------*\
 		LOG IN FORM
 	\*------------------------------*/
 	

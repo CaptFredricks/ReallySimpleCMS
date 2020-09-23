@@ -51,4 +51,16 @@ if(VERSION > '1.0.9') {
 		// Populate the tables
 		populateUserPrivileges();
 	}
+	
+	// Check whether the 'comment_status' setting exists
+	if(!$rs_query->selectRow('settings', 'COUNT(*)', array('name'=>'comment_status')) > 0) {
+		// Insert the new setting into the database
+		$rs_query->insert('settings', array('name'=>'comment_status', 'value'=>1));
+	}
+	
+	// Check whether the 'comment_approval' setting exists
+	if(!$rs_query->selectRow('settings', 'COUNT(*)', array('name'=>'comment_approval')) > 0) {
+		// Insert the new setting into the database
+		$rs_query->insert('settings', array('name'=>'comment_approval', 'value'=>0));
+	}
 }

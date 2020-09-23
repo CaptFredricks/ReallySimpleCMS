@@ -358,7 +358,10 @@ class Comment {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Fetch the author's username from the database and return it
-		return $rs_query->selectField('users', 'username', array('id'=>$id));
+		// Fetch the author's username from the database
+		$author = $rs_query->selectField('users', 'username', array('id'=>$id));
+		
+		// Return the username
+		return empty($author) ? '&mdash;' : $author;
 	}
 }

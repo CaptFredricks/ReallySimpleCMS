@@ -6,7 +6,42 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
-## Version 1.1.0[b]{ss-02} (2020-09-22)
+## Version 1.1.0[b]{ss-03} (2020-09-22)
+
+- Added two new settings:
+  - `comment_status` (whether comments are enabled)
+  - `comment_approval` (whether comments are automatically approved)
+- The new settings are added to the database automatically for sites updating from `1.0.9[b]`
+- Comments are now hidden if the global `comment_status` setting is turned off, including on post types that have them enabled
+- Created a comment class for the front end
+- Created a function that fetches a post's comments
+- Tweaked the styling of the Carbon theme
+- Added styling for comment threads
+- Created functions that fetch comment data from the database
+- Created a function that constructs a comment's permalink
+- Created a function that constructs a comment thread
+- Created upvote and downvote functionality for comments
+- Created a file to handle Ajax requests
+- An em dash now displays if a comment has no author (anonymous) on the dashboard
+- Added `includes/error_log` to the `.gitignore` file
+- The content for the default page and post created on installation are now wrapped in paragraph tags
+
+**Modified files:**
+- .gitignore (M)
+- admin/includes/class-comment.php (M)
+- admin/includes/class-post.php
+- admin/includes/class-settings.php
+- content/themes/carbon/post.php
+- content/themes/carbon/style.css
+- includes/ajax.php (N)
+- includes/class-comment.php (N)
+- includes/class-post.php
+- includes/globals.php
+- includes/js/script.js
+- includes/update.php
+
+----------------------------------------------------------------------------------------------------
+## Version 1.1.0[b]{ss-02} (2020-09-21)
 
 - Tweaked a previous entry in the changelog
 - Tweaked documentation in the `update.php` file
@@ -37,7 +72,7 @@
 - includes/update.php (M)
 
 ----------------------------------------------------------------------------------------------------
-## Version 1.1.0[b]{ss-01} (2020-09-21)
+## Version 1.1.0[b]{ss-01} (2020-09-20)
 
 - Created a database schema for the `comments` table
 - Created a file that will handle safely updating things such as the database schema

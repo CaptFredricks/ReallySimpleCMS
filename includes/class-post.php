@@ -241,7 +241,7 @@ class Post {
 		// Extend the Query object
         global $rs_query;
 		
-		// Fetch the post's title from the database
+		// Fetch the post's date from the database
         $date = $rs_query->selectField('posts', 'date', array('slug'=>$this->slug));
 		
         if($echo)
@@ -262,7 +262,7 @@ class Post {
 		// Extend the Query object
         global $rs_query;
 		
-		// Fetch the post's title from the database
+		// Fetch the post's modified date from the database
         $modified = $rs_query->selectField('posts', 'modified', array('slug'=>$this->slug));
 		
         if($echo)
@@ -453,6 +453,21 @@ class Post {
 			echo empty($terms) ? 'None' : implode(', ', $terms);
 		else
 			return $terms;
+	}
+	
+	/**
+	 * Fetch a post's comments.
+	 * @since 1.1.0[b]{ss-03}
+	 *
+	 * @access public
+	 * @return null
+	 */
+	public function getPostComments() {
+		// Create a Comment object
+		$rs_comment = new Comment($this->getPostId(false));
+		
+		// Display the comments
+		$rs_comment->getCommentThread();
 	}
 	
 	/**

@@ -2,6 +2,7 @@ admin/error_log
 config.php
 content/uploads/
 error_log
+includes/error_log
 misc.txt
 robots.txt
 todo.txt

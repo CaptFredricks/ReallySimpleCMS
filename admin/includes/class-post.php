@@ -219,8 +219,8 @@ class Post {
 					// Fill an array with the table header columns
 					$table_header_cols = array('Title', 'Author', 'Publish Date', 'Parent', 'Meta Title', 'Meta Desc.');
 					
-					// Check whether the post type has comments enabled
-					if($this->type_data['comments']) {
+					// Check whether comments are enabled sitewide and for the current post type
+					if(getSetting('comment_status', false) && $this->type_data['comments']) {
 						// Insert the comments label into the array
 						array_splice($table_header_cols, 4, 0, 'Comments');
 					}
@@ -228,8 +228,8 @@ class Post {
 					// Fill an array with the table header columns
 					$table_header_cols = array('Title', 'Author', 'Publish Date', 'Meta Title', 'Meta Desc.');
 					
-					// Check whether the post type has comments enabled
-					if($this->type_data['comments']) {
+					// Check whether comments are enabled sitewide and for the current post type
+					if(getSetting('comment_status', false) && $this->type_data['comments']) {
 						// Insert the comments label into the array
 						array_splice($table_header_cols, 3, 0, 'Comments');
 					}
@@ -270,7 +270,7 @@ class Post {
 						!$this->type_data['hierarchical'] && !empty($this->type_data['taxonomy']) ? tableCell($this->getTerms($post['id']), 'terms') : '',
 						tableCell(is_null($post['date']) ? '&mdash;' : formatDate($post['date'], 'd M Y @ g:i A'), 'publish-date'),
 						$this->type_data['hierarchical'] ? tableCell($this->getParent($post['parent']), 'parent') : '',
-						$this->type_data['comments'] ? tableCell(($meta['comment_status'] ? $meta['comment_count'] : '&mdash;'), 'comments') : '',
+						getSetting('comment_status', false) && $this->type_data['comments'] ? tableCell(($meta['comment_status'] ? $meta['comment_count'] : '&mdash;'), 'comments') : '',
 						tableCell(!empty($meta['title']) ? 'Yes' : 'No', 'meta_title'),
 						tableCell(!empty($meta['description']) ? 'Yes' : 'No', 'meta_description')
 					);
@@ -405,8 +405,8 @@ class Post {
 						}
 					}
 					
-					// Check whether the post type has comments enabled
-					if($this->type_data['comments']) {
+					// Check whether comments are enabled sitewide and for the current post type
+					if(getSetting('comment_status', false) && $this->type_data['comments']) {
 						?>
 						<div class="block">
 							<h2>Comments</h2>
@@ -616,8 +616,8 @@ class Post {
 									}
 								}
 								
-								// Check whether the post type has comments enabled
-								if($this->type_data['comments']) {
+								// Check whether comments are enabled sitewide and for the current post type
+								if(getSetting('comment_status', false) && $this->type_data['comments']) {
 									?>
 									<div class="block">
 										<h2>Comments</h2>

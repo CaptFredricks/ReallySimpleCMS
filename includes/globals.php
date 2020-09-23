@@ -5,7 +5,7 @@
  */
 
 // Current CMS version
-const VERSION = '1.1.0.2';
+const VERSION = '1.1.0.3';
 
 // Post types
 $post_types = array();
@@ -290,10 +290,10 @@ function populatePosts($author) {
 	global $rs_query;
 	
 	// Create a sample page
-	$post['home_page'] = $rs_query->insert('posts', array('title'=>'Sample Page', 'author'=>$author, 'date'=>'NOW()', 'content'=>'This is just a sample page to get you started.', 'status'=>'published', 'slug'=>'sample-page', 'type'=>'page'));
+	$post['home_page'] = $rs_query->insert('posts', array('title'=>'Sample Page', 'author'=>$author, 'date'=>'NOW()', 'content'=>'<p>This is just a sample page to get you started.</p>', 'status'=>'published', 'slug'=>'sample-page', 'type'=>'page'));
 	
 	// Create a sample blog post
-	$post['blog_post'] = $rs_query->insert('posts', array('title'=>'Sample Blog Post', 'author'=>$author, 'date'=>'NOW()', 'content'=>'This is your first blog post. Feel free to remove this text and replace it with your own.', 'status'=>'published', 'slug'=>'sample-post'));
+	$post['blog_post'] = $rs_query->insert('posts', array('title'=>'Sample Blog Post', 'author'=>$author, 'date'=>'NOW()', 'content'=>'<p>This is your first blog post. Feel free to remove this text and replace it with your own.</p>', 'status'=>'published', 'slug'=>'sample-post'));
 	
 	// Post metadata
 	$postmeta = array(
@@ -482,6 +482,8 @@ function populateSettings($args = array()) {
 		'default_user_role'=>getUserRoleId('User'),
 		'home_page'=>$rs_query->selectField('posts', 'id', array('status'=>'published', 'type'=>'page'), 'id', 'ASC', '1'),
 		'do_robots'=>1,
+		'comment_status'=>1,
+		'comment_approval'=>0,
 		'site_logo'=>0,
 		'site_icon'=>0,
 		'theme'=>'carbon',

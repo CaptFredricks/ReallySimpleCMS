@@ -9,6 +9,10 @@ h1 {
 	margin-bottom: 1.5rem;
 }
 
+a {
+	color: #46708a;
+}
+
 /*------------------------------------*\
     STRUCTURE
 \*------------------------------------*/
@@ -200,11 +204,11 @@ h1 {
 
 /* Main content */
 
-.content {
+main.content {
 	margin-top: 3.75em;
 }
 
-.logged-in .content {
+.logged-in main.content {
 	margin-top: 5.625em;
 }
 
@@ -342,6 +346,50 @@ h1 {
 	font-size: 0.875em;
 }
 
+.comments {
+	background-color: #efefef;
+	margin: 0 1em 2em;
+	padding: 1em 1.5em;
+}
+
+.comments h2 {
+	margin-top: 0;
+}
+
+.comments .comment:not(:last-child) {
+	border-bottom: 1px solid #cfcfcf;
+	padding-bottom: 0.5em;
+}
+
+.comments .comment .author {
+	font-weight: 700;
+}
+
+.comments .comment .date {
+	font-size: 0.875em;
+}
+
+.comments .comment .actions {
+	font-size: 0.875em;
+}
+
+.comments .comment .actions a {
+	display: inline-block;
+	text-decoration: none;
+}
+
+.comments .comment .actions a:active {
+	animation: bounce 0.5s;
+}
+
+.comments .comment .actions .upvote i {
+	color: #2c0;
+}
+
+.comments .comment .actions .downvote i {
+	color: #f00;
+}
+
 /* Archive pages */
 
 .article-content .recent-posts {
@@ -380,6 +428,18 @@ h1 {
 
 #admin-bar {
 	box-shadow: none;
+}
+
+/*------------------------------------*\
+    ANIMATIONS
+\*------------------------------------*/
+
+@keyframes bounce {
+	0% { transform: translateY(0); }
+	50% { transform: translateY(-0.5rem); }
+	/* 50% { transform: translateY(0); }
+	75% { transform: translateY(0.125rem); } */
+	100% { transform: translateY(0); }
 }
 
 /*------------------------------------*\
@@ -555,11 +615,11 @@ h1 {
 		right: 100%;
 	}
 	
-	.content {
+	main.content {
 		margin-top: 7em;
 	}
 	
-	.logged-in .content {
+	.logged-in main.content {
 		margin-top: 8.875em;
 	}
 }

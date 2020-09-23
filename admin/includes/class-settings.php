@@ -36,16 +36,14 @@ class Settings {
 			<form class="data-form" action="" method="post" autocomplete="off">
 				<table class="form-table">
 					<?php
-					// Check whether 'do_robots' has been set
-					$do_robots = !$setting['do_robots'] ? 'checked' : '';
-					
 					echo formRow(array('Site Title', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'site_title', 'value'=>$setting['site_title']));
 					echo formRow('Description', array('tag'=>'input', 'class'=>'text-input', 'name'=>'description', 'maxlength'=>155, 'value'=>$setting['description']));
 					echo formRow(array('Site URL', true), array('tag'=>'input', 'type'=>'url', 'class'=>'text-input required invalid init', 'name'=>'site_url', 'value'=>$setting['site_url']));
 					echo formRow(array('Admin Email', true), array('tag'=>'input', 'type'=>'email', 'class'=>'text-input required invalid init', 'name'=>'admin_email', 'value'=>$setting['admin_email']));
 					echo formRow('Default User Role', array('tag'=>'select', 'class'=>'select-input', 'name'=>'default_user_role', 'content'=>$this->getUserRoles((int)$setting['default_user_role'])));
 					echo formRow('Home Page', array('tag'=>'select', 'class'=>'select-input', 'name'=>'home_page', 'content'=>$this->getPageList((int)$setting['home_page'])));
-					echo formRow('Search Engine Visibility', array('tag'=>'input', 'type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'do_robots', 'value'=>(int)$setting['do_robots'], '*'=>$do_robots, 'label'=>array('class'=>'checkbox-label', 'content'=>'<span>Discourage search engines from indexing this site</span>')));
+					echo formRow('Search Engine Visibility', array('tag'=>'input', 'type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'do_robots', 'value'=>(int)$setting['do_robots'], '*'=>(!$setting['do_robots'] ? 'checked' : ''), 'label'=>array('class'=>'checkbox-label', 'content'=>'<span>Discourage search engines from indexing this site</span>')));
+					echo formRow('Comments', array('tag'=>'input', 'type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'comment_status', 'value'=>(int)$setting['comment_status'], '*'=>($setting['comment_status'] ? 'checked' : ''), 'label'=>array('class'=>'checkbox-label', 'content'=>'<span>Enable comments</span>')), array('tag'=>'br'), array('tag'=>'input', 'type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'comment_approval', 'value'=>(int)$setting['comment_approval'], '*'=>($setting['comment_approval'] ? 'checked' : ''), 'label'=>array('class'=>'checkbox-label', 'content'=>'<span>Approve comments automatically</span>')));
 					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
 					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Settings'));
 					?>
@@ -151,12 +149,18 @@ class Settings {
 			// Set the value of 'do_robots'
 			$data['do_robots'] = isset($data['do_robots']) ? 0 : 1;
 			
-			// Fetch current value of 'do_robots' in the database
-			$do_robots = $rs_query->selectField('settings', 'value', array('name'=>'do_robots'));
+			// Set the value of 'comment_status'
+			$data['comment_status'] = isset($data['comment_status']) ? 1 : 0;
+			
+			// Set the value of 'comment_approval'
+			$data['comment_approval'] = isset($data['comment_approval']) ? 1 : 0;
 			
 			// Update the settings in the database
 			foreach($data as $name=>$value)
 				$rs_query->update('settings', array('value'=>$value), array('name'=>$name));
+			
+			// Fetch current value of 'do_robots' in the database
+			$do_robots = $rs_query->selectField('settings', 'value', array('name'=>'do_robots'));
 			
 			// File path for robots.txt
 			$file_path = PATH.'/robots.txt';
