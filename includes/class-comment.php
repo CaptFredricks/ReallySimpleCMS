@@ -34,7 +34,7 @@ class Comment {
 	 * @access public
 	 * @param int $id
 	 * @param bool $echo (optional; default: true)
-	 * @return null|int (null on $echo == true; int on $echo == false)
+	 * @return null|string (null on $echo == true; string on $echo == false)
 	 */
 	public function getCommentAuthor($id, $echo = true) {
 		// Extend the Query object
@@ -56,6 +56,28 @@ class Comment {
 			echo $username;
 		else
 			return $username;
+	}
+	
+	/**
+	 * Fetch a comment's author id.
+	 * @since 1.1.0[b]{ss-04}
+	 *
+	 * @access public
+	 * @param int $id
+	 * @param bool $echo (optional; default: true)
+	 * @return null|int (null on $echo == true; int on $echo == false)
+	 */
+	public function getCommentAuthorId($id, $echo = true) {
+		// Extend the Query object
+		global $rs_query;
+		
+		// Fetch the comment's author from the database
+		$author = (int)$rs_query->selectField('comments', 'author', array('id'=>$id));
+		
+		if($echo)
+			echo $author;
+		else
+			return $author;
 	}
 	
 	/**
@@ -161,15 +183,24 @@ class Comment {
 	
 	/**
 	 * Fetch a comment's parent.
-	 * @since 1.1.0[b]{ss-03}
+	 * @since 1.1.0[b]{ss-04}
 	 *
 	 * @access public
+	 * @param int $id
 	 * @param bool $echo (optional; default: true)
 	 * @return null|int (null on $echo == true; int on $echo == false)
 	 */
-	public function getCommentParent($echo = true) {
+	public function getCommentParent($id, $echo = true) {
 		// Extend the Query object
 		global $rs_query;
+		
+		// Fetch the comment's parent from the database
+		$parent = (int)$rs_query->selectField('comments', 'parent', array('id'=>$id));
+		
+		if($echo)
+			echo $parent;
+		else
+			return $parent;
 	}
 	
 	/**
@@ -192,44 +223,170 @@ class Comment {
 	}
 	
 	/**
-	 * Construct a thread of comments.
+	 * Fetch the number of comments assigned to the current post.
+	 * @since 1.1.0[b]{ss-04}
+	 *
+	 * @access public
+	 * @param int $post
+	 * @param bool $echo (optional; default: true)
+	 * @return null|int (null on $echo == true; int on $echo == false)
+	 */
+	public function getCommentCount($post, $echo = true) {
+		// Extend the Query object
+		global $rs_query;
+		
+		// Fetch the comment count from the database
+		$count = $rs_query->select('comments', 'COUNT(*)', array('post'=>$post));
+		
+		if($echo)
+			echo $count;
+		else
+			return $count;
+	}
+	
+	/**
+	 * Construct a comment reply box.
+	 * @since 1.1.0[b]{ss-04}
+	 *
+	 * @access public
+	 * @return null
+	 */
+	public function getCommentReplyBox() {
+		// Extend the Post object and the post types array
+		global $rs_post, $post_types;
+		
+		// Check whether comments are enabled
+		if(getSetting('comment_status', false) && $post_types[$rs_post->getPostType(false)]['comments'] && $rs_post->getPostMeta('comment_status', false)) {
+			?>
+			<div id="comments-reply" class="reply-wrap">
+				<input type="hidden" name="post" value="<?php $rs_post->getPostId(); ?>">
+				<input type="hidden" name="replyto" value="0">
+				<textarea class="textarea-input" cols="60" rows="8" placeholder="Leave a comment"></textarea>
+				<button type="submit" class="submit-comment button" disabled>Submit</button>
+			</div>
+			<?php
+		}
+	}
+	
+	/**
+	 * Construct a feed of comments.
 	 * @since 1.1.0[b]{ss-03}
 	 *
 	 * @access public
 	 * @return null
 	 */
-	public function getCommentThread() {
+	public function getCommentFeed() {
+		// Extend the Query and Post objects, the user's session data, and the post types array
+		global $rs_query, $rs_post, $session, $post_types;
+		
+		// Fetch all comments attached to the post from the database
+		$comments = $rs_query->select('comments', 'id', array('post'=>$this->post, 'status'=>'approved'), 'date', 'DESC');
+		?>
+		<div class="comments-wrap">
+			<?php
+			// Check whether there are any comments
+			if(empty($comments)) {
+				?>
+				<p>No comments to display.</p>
+				<?php
+			} else {
+				// Loop through the comments
+				foreach($comments as $comment) {
+					// Fetch the comment's id
+					$id = $comment['id'];
+					
+					// Fetch the comment's parent
+					$parent = $this->getCommentParent($id, false);
+					?>
+					<div id="comment-<?php echo $id; ?>" class="comment">
+						<p class="meta">
+							<span class="permalink"><a href="<?php echo $this->getCommentPermalink($id); ?>">#<?php echo $id; ?></a></span>&ensp;<span class="author"><?php $this->getCommentAuthor($id); ?></span> <span class="date"><?php $this->getCommentDate($id); ?></span>
+							<?php
+							// Check whether the comment has a parent
+							if($parent !== 0) {
+								?>
+								<span class="replyto">replying to <a href="<?php echo $this->getCommentPermalink($parent); ?>">#<?php echo $parent; ?></a></span>
+								<?php
+							}
+							?>
+						</p>
+						<div class="content">
+							<?php nl2br($this->getCommentContent($id)); ?>
+						</div>
+						<p class="actions">
+							<span class="upvote"><span><?php $this->getCommentUpvotes($id); ?></span> <a href="#" data-id="<?php echo $id; ?>" data-vote="0" title="Upvote"><i class="fas fa-thumbs-up"></i></a></span>
+							&bull; <span class="downvote"><span><?php $this->getCommentDownvotes($id); ?></span> <a href="#" data-id="<?php echo $id; ?>" data-vote="0" title="Downvote"><i class="fas fa-thumbs-down"></i></a></span>
+							<?php
+							// Check whether comments are enabled
+							if(getSetting('comment_status', false) && $post_types[$rs_post->getPostType(false)]['comments'] && $rs_post->getPostMeta('comment_status', false)) {
+								?>
+								&bull; <span class="reply"><a href="#" data-replyto="<?php echo $id; ?>">Reply</a></span>
+								<?php
+							}
+							
+							// Check whether the user has permission to edit the comment
+							if(!is_null($session) && ($session['id'] === $this->getCommentAuthorId($id, false) || userHasPrivilege($session['role'], 'can_edit_comments'))) {
+								?>
+								&bull; <span class="edit"><a href="#" data-id="<?php echo $id; ?>">Edit</a></span>
+								<?php
+							}
+							
+							// Check whether the user has permission to delete the comment
+							if(!is_null($session) && ($session['id'] === $this->getCommentAuthorId($id, false) || userHasPrivilege($session['role'], 'can_delete_comments'))) {
+								?>
+								&bull; <span class="delete"><a href="#" data-id="<?php echo $id; ?>">Delete</a></span>
+								<?php
+							}
+							?>
+						</p>
+					</div>
+					<?php
+				}
+			}
+			?>
+		</div>
+		<?php
+	}
+	
+	/**
+	 * Submit a new comment to the database.
+	 * @since 1.1.0[b]{ss-04}
+	 *
+	 * @access public
+	 * @param array $data
+	 * @return string|null
+	 */
+	public function createComment($data) {
+		// Extend the Query object and the user's session data
+		global $rs_query, $session;
+		
+		// Check whether the comment's content is empty
+		if(!empty($data['content'])) {
+			// Set the comment status
+			$status = getSetting('comment_approval', false) ? 'approved' : 'unapproved';
+			
+			// Insert a new comment into the database
+			$rs_query->insert('comments', array('post'=>$data['post'], 'author'=>($session['id'] ?? 0), 'date'=>'NOW()', 'content'=>htmlspecialchars($data['content']), 'status'=>$status, 'parent'=>$data['replyto']));
+			
+			// Return a status message
+			return '<p style="margin-top: 0;">Your comment was submitted!</p>';
+		}
+	}
+	
+	/**
+	 * Delete a comment from the database.
+	 * @since 1.1.0[b]{ss-04}
+	 *
+	 * @access public
+	 * @param int $id
+	 * @return null
+	 */
+	public function deleteComment($id) {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Fetch all comments attached to the post from the database
-		$comments = $rs_query->select('comments', 'id', array('post'=>$this->post, 'status'=>'approved'));
-		
-		// Check whether there are any comments
-		if(empty($comments)) {
-			?>
-			<p>No comments to display.</p>
-			<?php
-		} else {
-			// Loop through the comments
-			foreach($comments as $comment) {
-				// Fetch the comment's id
-				$id = $comment['id'];
-				?>
-				<div id="comment-<?php echo $id; ?>" class="comment">
-					<p class="meta">
-						<span class="permalink"><a href="<?php echo $this->getCommentPermalink($id); ?>">#<?php echo $id; ?></a></span>&ensp;<span class="author"><?php $this->getCommentAuthor($id); ?></span> <span class="date"><?php $this->getCommentDate($id); ?></span>
-					</p>
-					<div class="content">
-						<?php nl2br($this->getCommentContent($id)); ?>
-					</div>
-					<p class="actions">
-						<span class="upvote"><span><?php $this->getCommentUpvotes($id); ?></span> <a href="#" data-id="<?php echo $id; ?>" data-vote="0" title="Upvote"><i class="fas fa-thumbs-up"></i></a></span> &bull; <span class="downvote"><span><?php $this->getCommentDownvotes($id); ?></span> <a href="#" data-id="<?php echo $id; ?>" data-vote="0" title="Downvote"><i class="fas fa-thumbs-down"></i></a></span> &bull; <span class="reply"><a href="#" data-replyto="<?php echo $id; ?>">Reply</a></span>
-					</p>
-				</div>
-				<?php
-			}
-		}
+		// Delete the comment from the database
+		$rs_query->delete('comments', array('id'=>$id));
 	}
 	
 	/**

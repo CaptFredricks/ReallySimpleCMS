@@ -533,6 +533,13 @@ function adminBar() {
 						<?php
 					}
 					
+					// Check whether the user has sufficient privileges to view comments
+					if(userHasPrivilege($session['role'], 'can_view_comments')) {
+						?>
+						<li><a href="/admin/comments.php">Comments</a></li>
+						<?php
+					}
+					
 					// Check whether the user has sufficient privileges to view customization options
 					if(userHasPrivilege($session['role'], 'can_view_themes') || userHasPrivilege($session['role'], 'can_view_menus') || userHasPrivilege($session['role'], 'can_view_widgets')): ?>
 						<li>
@@ -581,7 +588,7 @@ function adminBar() {
 					// Loop through the post types
 					foreach($post_types as $post_type) {
 						// Skip any post type that the user doesn't have sufficient privileges to create or that has 'show_in_admin_bar' set to false
-						if(!userHasPrivilege($session['role'], 'can_create_'.str_replace(' ', '_', $post_type['labels']['name_lowercase'])) || !$post_type['show_in_admin_bar']) continue;
+						if((!userHasPrivilege($session['role'], 'can_create_'.str_replace(' ', '_', $post_type['labels']['name_lowercase'])) && !userHasPrivilege($session['role'], 'can_upload_media')) || !$post_type['show_in_admin_bar']) continue;
 						?>
 						<li>
 							<a href="/admin/<?php echo $post_type['menu_link'].($post_type['name'] === 'media' ? '?action=upload' : ($post_type['name'] === 'post' ? '?action=create' : '&action=create')); ?>"><?php echo $post_type['labels']['name_singular']; ?></a>

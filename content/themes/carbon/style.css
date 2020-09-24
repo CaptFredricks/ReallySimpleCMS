@@ -356,6 +356,48 @@ main.content {
 	margin-top: 0;
 }
 
+.comments .reply-wrap {
+	display: inline-block;
+	position: relative;
+}
+
+.comments .reply-wrap .textarea-input {
+	font-family: Consolas, monospace;
+	font-size: 0.875em;
+	max-width: 100%;
+	padding: 0.375rem;
+	resize: none;
+}
+
+.comments .reply-wrap .button {
+	background-color: #6f6f6f;
+	border: none;
+	border-radius: 0.1875rem 0 0.1875rem 0;
+	color: #fff;
+	cursor: pointer;
+	font-size: 0.875em;
+	padding: 0.5rem 0.875rem;
+	position: absolute;
+	  right: 0;
+	  bottom: 0.25rem;
+	text-decoration: none;
+	transition: background-color 0.25s;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+.comments .reply-wrap .button[disabled] {
+	cursor: not-allowed;
+}
+
+.comments .reply-wrap .button:focus {
+	outline: none;
+}
+
+.comments .reply-wrap .button:hover {
+	background-color: #9f9f9f;
+}
+
 .comments .comment:not(:last-child) {
 	border-bottom: 1px solid #cfcfcf;
 	padding-bottom: 0.5em;
@@ -369,16 +411,21 @@ main.content {
 	font-size: 0.875em;
 }
 
+.comments .comment .replyto {
+	font-size: 0.875em;
+	font-style: italic;
+	margin-left: 0.75rem;
+}
+
 .comments .comment .actions {
 	font-size: 0.875em;
 }
 
-.comments .comment .actions a {
+.comments .comment .actions i {
 	display: inline-block;
-	text-decoration: none;
 }
 
-.comments .comment .actions a:active {
+.comments .comment .actions i:active {
 	animation: bounce 0.5s;
 }
 

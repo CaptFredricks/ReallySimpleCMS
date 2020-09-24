@@ -460,14 +460,21 @@ class Post {
 	 * @since 1.1.0[b]{ss-03}
 	 *
 	 * @access public
+	 * @param bool $feed_only (optional; default: false)
 	 * @return null
 	 */
-	public function getPostComments() {
+	public function getPostComments($feed_only = false) {
 		// Create a Comment object
 		$rs_comment = new Comment($this->getPostId(false));
 		
-		// Display the comments
-		$rs_comment->getCommentThread();
+		// Check whether only the feed should be displayed
+		if(!$feed_only) {
+			// Display the comment reply box
+			$rs_comment->getCommentReplyBox();
+		}
+		
+		// Display the comment feed
+		$rs_comment->getCommentFeed();
 	}
 	
 	/**

@@ -6,6 +6,31 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.1.0[b]{ss-04} (2020-09-23)
+
+- Added comments to the "Admin" admin bar dropdown
+- Fixed an issue where the `media` post type did not display on the "New" admin bar dropdown
+- Reply links are now hidden on existing comments if comments are disabled on the post, post type, or global level (existing comments are not hidden, however)
+- Styled and added a reply form to the comment feed
+- Created a function that submits comments to the database
+- Created a function that fetches a comment's parent
+- If a comment is a reply to another comment, the child comment now has a link to its parent
+- Created a function that deletes an existing comment
+- Renamed the `Comment::getCommentThread` function to `Comment::getCommentFeed`
+- Tweaked previous entries in the changelog
+- Added a container element to the comment feed
+- The comment feed will now refresh whenever a new reply is posted or a comment is deleted
+- Code cleanup in the front end `script.js` file
+
+**Modified files:**
+- content/themes/carbon/style.css
+- includes/ajax.php
+- includes/class-comment.php
+- includes/class-post.php
+- includes/functions.php
+- includes/js/script.js
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.1.0[b]{ss-03} (2020-09-22)
 
 - Added two new settings:
@@ -16,10 +41,10 @@
 - Created a comment class for the front end
 - Created a function that fetches a post's comments
 - Tweaked the styling of the Carbon theme
-- Added styling for comment threads
+- Added styling for comment feeds
 - Created functions that fetch comment data from the database
 - Created a function that constructs a comment's permalink
-- Created a function that constructs a comment thread
+- Created a function that constructs a comment feed
 - Created upvote and downvote functionality for comments
 - Created a file to handle Ajax requests
 - An em dash now displays if a comment has no author (anonymous) on the dashboard

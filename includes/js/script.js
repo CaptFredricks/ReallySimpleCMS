@@ -31,15 +31,111 @@ jQuery(document).ready($ => {
 	\*------------------------------*/
 	
 	/**
-	 * Upvote a comment.
-	 * @since 1.1.0[b]{ss-03}
+	 * Reply to a comment on a comment feed.
+	 * @since 1.1.0[b]{ss-04}
 	 */
-	$('.upvote a').on('click', function(e) {
+	$('body').on('click', '.comment .actions .reply', function(e) {
+		// Prevent the default action
+		e.preventDefault();
+		
+		// Show the reply box and submit button
+		$('.comments #comments-reply .textarea-input').show();
+		$('.comments #comments-reply .submit-comment').show();
+		
+		// Remove any status messages
+		$('.comments #comments-reply p').remove();
+		
+		// Scroll to the reply box
+		$('html, body').animate({scrollTop: $('.comments').offset().top}, 0);
+		
+		// Set the replyto value
+		$('.comments #comments-reply input[name="replyto"]').val($(this).children().data('replyto'));
+	});
+	
+	/**
+	 * Enable and disable the comment submit button.
+	 * @since 1.1.0[b]{ss-04}
+	 */
+	$('body').on('input', '.comments .textarea-input', function() {
+		// Check whether the field has any data in it
+		if($(this).val().length > 0)
+			$(this).siblings('.submit-comment').prop('disabled', false);
+		else
+			$(this).siblings('.submit-comment').prop('disabled', true);
+	});
+	
+	/**
+	 * Submit a reply to a comment feed.
+	 * @since 1.1.0[b]{ss-04}
+	 */
+	$('body').on('click', '.comments .submit-comment', function() {
+		// Create an object to hold the data passed to the server
+		let data = {
+			'data_submit': 'reply',
+			'post': $(this).siblings('input[name="post"]').val(),
+			'content': $(this).siblings('.textarea-input').val(),
+			'replyto': $(this).siblings('input[name="replyto"]').val()
+		};
+		
+		// Submit the data
+		$.ajax({
+			data: data,
+			method: 'POST',
+			success: result => {
+				// Display the result
+				$(this).parent().prepend(result);
+				
+				// Clear the reply box
+				$(this).siblings('.textarea-input').val('');
+				
+				// Hide the reply box and submit button
+				$(this).siblings('.textarea-input').hide();
+				$(this).hide();
+				
+				// Refresh the feed
+				refreshFeed();
+			},
+			url: '/includes/ajax.php'
+		});
+	});
+	
+	/**
+	 * Delete a comment.
+	 * @since 1.1.0[b]{ss-04}
+	 */
+	$('body').on('click', '.comment .actions .delete a', function(e) {
 		// Prevent the default action
 		e.preventDefault();
 		
 		// Create an object to hold the data passed to the server
 		let data = {
+			'data_submit': 'delete',
+			'id': $(this).data('id')
+		};
+		
+		// Submit the data
+		$.ajax({
+			data: data,
+			method: 'POST',
+			success: result => {
+				// Refresh the feed
+				refreshFeed();
+			},
+			url: '/includes/ajax.php'
+		});
+	});
+	
+	/**
+	 * Upvote a comment.
+	 * @since 1.1.0[b]{ss-03}
+	 */
+	$('body').on('click', '.comment .actions .upvote a', function(e) {
+		// Prevent the default action
+		e.preventDefault();
+		
+		// Create an object to hold the data passed to the server
+		let data = {
+			'data_submit': 'vote',
 			'id': $(this).data('id'),
 			'vote': $(this).data('vote'),
 			'type': 'upvotes'
@@ -62,7 +158,12 @@ jQuery(document).ready($ => {
 			// Check whether the user has already downvoted
 			if($(downvote).data('vote')) {
 				// Submit the data
-				submitVote({'id': $(downvote).data('id'), 'vote': $(downvote).data('vote'), 'type': 'downvotes'}, downvote);
+				submitVote({
+					'data_submit': 'vote',
+					'id': $(downvote).data('id'),
+					'vote': $(downvote).data('vote'),
+					'type': 'downvotes'
+				}, downvote);
 				
 				// Reset the downvote
 				$(downvote).data('vote', 0);
@@ -74,12 +175,13 @@ jQuery(document).ready($ => {
 	 * Downvote a comment.
 	 * @since 1.1.0[b]{ss-03}
 	 */
-	$('.downvote a').on('click', function(e) {
+	$('body').on('click', '.comment .actions .downvote a', function(e) {
 		// Prevent the default action
 		e.preventDefault();
 		
 		// Create an object to hold the data passed to the server
 		let data = {
+			'data_submit': 'vote',
 			'id': $(this).data('id'),
 			'vote': $(this).data('vote'),
 			'type': 'downvotes'
@@ -102,7 +204,12 @@ jQuery(document).ready($ => {
 			// Check whether the user has already downvoted
 			if($(upvote).data('vote')) {
 				// Submit the data
-				submitVote({'id': $(upvote).data('id'), 'vote': $(upvote).data('vote'), 'type': 'upvotes'}, upvote);
+				submitVote({
+					'data_submit': 'vote',
+					'id': $(upvote).data('id'),
+					'vote': $(upvote).data('vote'),
+					'type': 'upvotes'
+				}, upvote);
 				
 				// Reset the upvote
 				$(upvote).data('vote', 0);
@@ -115,6 +222,7 @@ jQuery(document).ready($ => {
 	 * @since 1.1.0[b]{ss-03}
 	 */
 	function submitVote(data, elem) {
+		// Submit the data
 		$.ajax({
 			data: data,
 			method: 'POST',
@@ -125,6 +233,66 @@ jQuery(document).ready($ => {
 			url: '/includes/ajax.php'
 		});
 	}
+	
+	/**
+	 * Refresh the comment feed.
+	 * @since 1.1.0[b]{ss-04}
+	 */
+	function refreshFeed() {
+		// Remove the comment feed
+		$('.comments-wrap').remove();
+		
+		// Create an object to hold the data passed to the server
+		let data = {
+			'data_submit': 'refresh',
+			'post_slug': $('body').attr('class').split(' ')[0]
+		};
+		
+		// Submit the data
+		$.ajax({
+			data: data,
+			method: 'POST',
+			success: result => {
+				// Append the updated feed to the wrapper
+				$(result).appendTo('.comments');
+			},
+			url: '/includes/ajax.php'
+		});
+	}
+	
+	/**
+	 * Check for feed updates every 120 seconds.
+	 * @since 1.1.0[b]{ss-04}
+	 */
+	let comment_count = 0;
+	
+	setInterval(function() {
+		// Create an object to hold the data passed to the server
+		let data = {
+			'data_submit': 'checkupdates',
+			'post_slug': $('body').attr('class').split(' ')[0]
+		};
+		
+		// Submit the data
+		$.ajax({
+			data: data,
+			method: 'POST',
+			success: result => {
+				// Update the comment count if the page has just been loaded
+				if(comment_count === 0) comment_count = result;
+				
+				// Check whether the result differs from the current comment count
+				if(result !== comment_count) {
+					// Refresh the feed
+					refreshFeed();
+					
+					// Update the comment count
+					comment_count = result;
+				}
+			},
+			url: '/includes/ajax.php'
+		});
+	}, 1000 * 60);
 	
 	/*------------------------------*\
 		LOG IN FORM
