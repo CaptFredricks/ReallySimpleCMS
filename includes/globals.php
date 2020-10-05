@@ -5,7 +5,7 @@
  */
 
 // Current CMS version
-const VERSION = '1.1.0.3';
+const VERSION = '1.1.0.4';
 
 // Post types
 $post_types = array();
