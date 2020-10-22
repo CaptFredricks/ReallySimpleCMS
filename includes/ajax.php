@@ -48,6 +48,15 @@ if(isset($_POST)) {
 		echo $rs_comment->createComment($_POST);
 	}
 	
+	// Check whether a request to edit a comment has been passed to the server
+	if(isset($_POST['data_submit']) && $_POST['data_submit'] === 'edit') {
+		// Create a Comment object
+		$rs_comment = new Comment;
+		
+		// Update the comment
+		$rs_comment->updateComment($_POST);
+	}
+	
 	// Check whether a request to delete a comment has been passed to the server
 	if(isset($_POST['data_submit']) && $_POST['data_submit'] === 'delete') {
 		// Create a Comment object

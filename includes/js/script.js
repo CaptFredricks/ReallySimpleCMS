@@ -58,10 +58,13 @@ jQuery(document).ready($ => {
 	 */
 	$('body').on('input', '.comments .textarea-input', function() {
 		// Check whether the field has any data in it
-		if($(this).val().length > 0)
+		if($(this).val().length > 0) {
 			$(this).siblings('.submit-comment').prop('disabled', false);
-		else
+			$(this).siblings('.update-comment').prop('disabled', false);
+		} else {
 			$(this).siblings('.submit-comment').prop('disabled', true);
+			$(this).siblings('.update-comment').prop('disabled', true);
+		}
 	});
 	
 	/**
@@ -92,6 +95,68 @@ jQuery(document).ready($ => {
 				$(this).siblings('.textarea-input').hide();
 				$(this).hide();
 				
+				// Refresh the feed
+				refreshFeed();
+			},
+			url: '/includes/ajax.php'
+		});
+	});
+	
+	/**
+	 * Edit a comment.
+	 * @since 1.1.0[b]{ss-05}
+	 */
+	$('body').on('click', '.comment .actions .edit a', function(e) {
+		// Prevent the default action
+		e.preventDefault();
+		
+		// Fetch the comment's content
+		let content = $(this).parents().siblings('.content');
+		
+		// Hide the comment
+		$(content).hide();
+		
+		// Insert a textarea for editing the comment's content
+		$(content).after('<div class="textarea-wrap">' +
+						 '<input type="hidden" name="id" value="' + $(this).data('id') + '">' +
+						 '<textarea class="textarea-input" cols="60" rows="8">' +
+						 $(content).text().trim() + '</textarea>' +
+						 '<button type="button" class="cancel button">Cancel</button>' +
+						 '<button type="submit" class="update-comment button">Submit</button></div>');
+	});
+	
+	/**
+	 * Cancel a comment update.
+	 * @since 1.1.0[b]{ss-05}
+	 */
+	$('body').on('click', '.comments .cancel', function() {
+		// Fetch the comment's content
+		let content = $(this).parent().siblings('.content');
+		
+		// Show the comment
+		$(content).show();
+		
+		// Remove the textarea
+		$(this).parent().remove();
+	});
+	
+	/**
+	 * Submit an updated comment.
+	 * @since 1.1.0[b]{ss-05}
+	 */
+	$('body').on('click', '.comments .update-comment', function() {
+		// Create an object to hold the data passed to the server
+		let data = {
+			'data_submit': 'edit',
+			'id': $(this).siblings('input[name="id"]').val(),
+			'content': $(this).siblings('.textarea-input').val().trim()
+		};
+		
+		// Submit the data
+		$.ajax({
+			data: data,
+			method: 'POST',
+			success: result => {
 				// Refresh the feed
 				refreshFeed();
 			},
@@ -261,7 +326,7 @@ jQuery(document).ready($ => {
 	}
 	
 	/**
-	 * Check for feed updates every 120 seconds.
+	 * Check for feed updates every 60 seconds.
 	 * @since 1.1.0[b]{ss-04}
 	 */
 	let comment_count = 0;

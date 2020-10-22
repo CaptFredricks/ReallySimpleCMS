@@ -21,7 +21,7 @@ if(isset($_COOKIE['session']) && isValidSession($_COOKIE['session'])) {
 	$session = getOnlineUser($_COOKIE['session']);
 } else {
 	// Redirect to the login page
-	redirect('../login.php');
+	redirect('../login.php'.($_SERVER['REQUEST_URI'] !== '/admin/' ? '?redirect='.urlencode($_SERVER['PHP_SELF']) : ''));
 }
 
 // Fetch the current page

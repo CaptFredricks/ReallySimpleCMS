@@ -86,8 +86,17 @@ class User {
 					// Fetch the user's metadata from the database
 					$meta = $this->getUserMeta($user['id']);
 					
+					// Set up the action links
+					$actions = array(
+						userHasPrivilege($session['role'], 'can_edit_users') || $user['id'] === $session['id'] ? ($user['id'] === $session['id'] ? '<a href="profile.php">Edit</a>' : '<a href="?id='.$user['id'].'&action=edit">Edit</a>') : '',
+						userHasPrivilege($session['role'], 'can_delete_users') && $user['id'] !== $session['id'] ? ($this->userHasContent($user['id']) ? '<a href="?id='.$user['id'].'&action=reassign_content">Delete</a>' : '<a class="modal-launch delete-item" href="?id='.$user['id'].'&action=delete" data-item="user">Delete</a>') : ''
+					);
+					
+					// Filter out any empty actions
+					$actions = array_filter($actions);
+					
 					echo tableRow(
-						tableCell('<img class="avatar" src="'.getMediaSrc($meta['avatar']).'" width="32" height="32"><strong>'.$user['username'].'</strong><div class="actions"><a href="?id='.$user['id'].'&action=edit">Edit</a>'.($user['id'] !== $session['id'] ? ' &bull; '.($this->userHasContent($user['id']) ? '<a href="?id='.$user['id'].'&action=reassign_content">Delete</a>' : '<a class="modal-launch delete-item" href="?id='.$user['id'].'&action=delete" data-item="user">Delete</a>') : '').'</div>', 'username'),
+						tableCell('<img class="avatar" src="'.getMediaSrc($meta['avatar']).'" width="32" height="32"><strong>'.$user['username'].'</strong><div class="actions">'.implode(' &bull; ', $actions).'</div>', 'username'),
 						tableCell(empty($meta['first_name']) && empty($meta['last_name']) ? '&mdash;' : $meta['first_name'].' '.$meta['last_name'], 'full-name'),
 						tableCell($user['email'], 'email'),
 						tableCell(formatDate($user['registered'], 'd M Y @ g:i A'), 'registered'),

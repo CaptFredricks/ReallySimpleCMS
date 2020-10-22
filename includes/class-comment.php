@@ -258,7 +258,7 @@ class Comment {
 		// Check whether comments are enabled
 		if(getSetting('comment_status', false) && $post_types[$rs_post->getPostType(false)]['comments'] && $rs_post->getPostMeta('comment_status', false)) {
 			?>
-			<div id="comments-reply" class="reply-wrap">
+			<div id="comments-reply" class="textarea-wrap">
 				<input type="hidden" name="post" value="<?php $rs_post->getPostId(); ?>">
 				<input type="hidden" name="replyto" value="0">
 				<textarea class="textarea-input" cols="60" rows="8" placeholder="Leave a comment"></textarea>
@@ -349,7 +349,7 @@ class Comment {
 	}
 	
 	/**
-	 * Submit a new comment to the database.
+	 * Submit a new comment.
 	 * @since 1.1.0[b]{ss-04}
 	 *
 	 * @access public
@@ -374,7 +374,23 @@ class Comment {
 	}
 	
 	/**
-	 * Delete a comment from the database.
+	 * Update an existing comment.
+	 * @since 1.1.0[b]{ss-05}
+	 *
+	 * @access public
+	 * @param array $data
+	 * @return null
+	 */
+	public function updateComment($data) {
+		// Extend the Query object
+		global $rs_query;
+		
+		// Update the comment in the database
+		$rs_query->update('comments', array('content'=>$data['content']), array('id'=>$data['id']));
+	}
+	
+	/**
+	 * Delete a comment.
 	 * @since 1.1.0[b]{ss-04}
 	 *
 	 * @access public

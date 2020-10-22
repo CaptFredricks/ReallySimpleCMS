@@ -1,5 +1,5 @@
 /**
- * Script file for the default front end theme.
+ * Script file for the Carbon theme.
  * @since 2.2.2[a]
  */
 jQuery(document).ready($ => {
@@ -168,4 +168,53 @@ jQuery(document).ready($ => {
 			$('.sub-menu').css('display', '');
 		}
 	})();
+	
+	/*------------------------------*\
+		COMMENTS
+	\*------------------------------*/
+	
+	/**
+	 * Reply to a comment on a comment feed.
+	 * @since 1.1.0[b]{ss-05}
+	 */
+	
+	// Remove the old event listener
+	$('body').off('click', '.comment .actions .reply');
+	
+	// Create a new event listener
+	$('body').on('click', '.comment .actions .reply', function(e) {
+		// Prevent the default action
+		e.preventDefault();
+		
+		// Show the reply box and submit button
+		$('.comments #comments-reply .textarea-input').show();
+		$('.comments #comments-reply .submit-comment').show();
+		
+		// Remove any status messages
+		$('.comments #comments-reply p').remove();
+		
+		// Scroll to the reply box
+		$('html, body').animate({scrollTop: $('.comments').offset().top - 50}, 0);
+		
+		// Set the replyto value
+		$('.comments #comments-reply input[name="replyto"]').val($(this).children().data('replyto'));
+	});
+	
+	/**
+	 * Scroll to a parent comment.
+	 * @since 1.1.0[b]{ss-05}
+	 */
+	$('body').on('click', '.comment .meta .replyto a', function(e) {
+		// Prevent the default action
+		e.preventDefault();
+		
+		// Fetch the link to the anchor
+		let anchor_link = $(this).attr('href');
+		
+		// Reduce the link to just the anchor
+		let anchor = anchor_link.substring(anchor_link.indexOf('#'));
+		
+		// Scroll to the comment's anchor
+		$('html, body').animate({scrollTop: $(anchor).offset().top - 100}, 0);
+	});
 });

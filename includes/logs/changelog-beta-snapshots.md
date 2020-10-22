@@ -6,6 +6,31 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.1.0[b]{ss-05} (2020-10-21)
+
+- Tweaked documentation in the Carbon theme's `script.js` file
+- Tweaked documentation in the front end `script.js` file
+- When using the Carbon theme, the sticky header no longer covers the reply box when a reply link is clicked
+- Fixed a bug that caused incoming links to the home page that add query strings to redirect to the 404 not found page
+- Users will now be redirected back to the admin page they were viewing upon logging back in if they are logged out unexpectedly
+- Renamed some selectors for the comment section and tweaked some styling
+- Created a function that updates an existing comment
+- Added the ability to cancel an update to a comment
+- Optimized and improved the action links functionality for the "List Users" page
+- Users who do not have the `can_edit_users` or `can_delete_users` privileges can no longer see the "Edit" or "Delete" action links
+- Fixed a bug that prevented users without sufficient privileges from being able to edit their profile via the "List Users" page
+
+**Modified files:**
+- admin/header.php
+- admin/includes/class-user.php
+- content/themes/carbon/script.js
+- content/themes/carbon/style.css
+- includes/ajax.php
+- includes/class-comment.php
+- includes/js/script.js
+- init.php (M)
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.1.0[b]{ss-04} (2020-09-23)
 
 - Added comments to the "Admin" admin bar dropdown

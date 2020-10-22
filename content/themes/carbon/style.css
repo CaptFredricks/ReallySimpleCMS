@@ -356,12 +356,13 @@ main.content {
 	margin-top: 0;
 }
 
-.comments .reply-wrap {
+.comments .textarea-wrap {
 	display: inline-block;
+	max-width: 100%;
 	position: relative;
 }
 
-.comments .reply-wrap .textarea-input {
+.comments .textarea-input {
 	font-family: Consolas, monospace;
 	font-size: 0.875em;
 	max-width: 100%;
@@ -369,7 +370,7 @@ main.content {
 	resize: none;
 }
 
-.comments .reply-wrap .button {
+.comments .button {
 	background-color: #6f6f6f;
 	border: none;
 	border-radius: 0.1875rem 0 0.1875rem 0;
@@ -386,16 +387,27 @@ main.content {
 	user-select: none;
 }
 
-.comments .reply-wrap .button[disabled] {
+.comments .button[disabled] {
 	cursor: not-allowed;
 }
 
-.comments .reply-wrap .button:focus {
+.comments .button:focus {
 	outline: none;
 }
 
-.comments .reply-wrap .button:hover {
+.comments .button:hover {
 	background-color: #9f9f9f;
+}
+
+.comments .cancel.button {
+	background-color: #c00;
+	border-radius: 0 0.1875rem 0 0.1875rem;
+	right: auto;
+	left: 0;
+}
+
+.comments .cancel.button:hover {
+	background-color: #f00;
 }
 
 .comments .comment:not(:last-child) {
