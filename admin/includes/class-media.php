@@ -90,6 +90,16 @@ class Media extends Post {
 					// Fetch the media's metadata from the database
 					$meta = $this->getPostMeta($media['id']);
 					
+					// Set up the action links
+					$actions = array(
+						userHasPrivilege($session['role'], 'can_edit_media') ? '<a href="?id='.$media['id'].'&action=edit">Edit</a>' : '',
+						userHasPrivilege($session['role'], 'can_delete_media') ? '<a class="modal-launch delete-item" href="?id='.$media['id'].'&action=delete" data-item="media">Delete</a>' : '',
+						'<a href="'.trailingSlash(UPLOADS).$meta['filename'].'" target="_blank" rel="noreferrer noopener">View</a>'
+					);
+					
+					// Filter out any empty actions
+					$actions = array_filter($actions);
+					
 					// Check whether the media exists
 					if(file_exists(trailingSlash(PATH.UPLOADS).$meta['filename'])) {
 						// Fetch the media's file size
@@ -113,7 +123,7 @@ class Media extends Post {
 					
 					echo tableRow(
 						tableCell('<img src="'.trailingSlash(UPLOADS).$meta['filename'].'">', 'thumbnail'),
-						tableCell('<strong>'.$media['title'].'</strong><br><em>'.$meta['filename'].'</em><div class="actions"><a href="?id='.$media['id'].'&action=edit">Edit</a> &bull; <a class="modal-launch delete-item" href="?id='.$media['id'].'&action=delete" data-item="media">Delete</a> &bull; <a href="'.trailingSlash(UPLOADS).$meta['filename'].'" target="_blank" rel="noreferrer noopener">View</a></div>', 'file'),
+						tableCell('<strong>'.$media['title'].'</strong><br><em>'.$meta['filename'].'</em><div class="actions">'.implode(' &bull; ', $actions).'</div>', 'file'),
 						tableCell($this->getAuthor($media['author']), 'author'),
 						tableCell(formatDate($media['date'], 'd M Y @ g:i A'), 'upload-date'),
 						tableCell($size ?? '0 B', 'size'),
@@ -216,7 +226,7 @@ class Media extends Post {
 					<form class="data-form" action="" method="post" autocomplete="off">
 						<table class="form-table">
 							<?php
-							echo formRow('Thumbnail', array('tag'=>'img', 'src'=>trailingSlash(UPLOADS).$meta['filename']));
+							echo formRow('Thumbnail', array('tag'=>'img', 'class'=>'media-thumb', 'src'=>trailingSlash(UPLOADS).$meta['filename']));
 							echo formRow(array('Title', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>$media['title']));
 							echo formRow('Alt Text', array('tag'=>'input', 'class'=>'text-input', 'name'=>'alt_text', 'value'=>$meta['alt_text']));
 							echo formRow('Description', array('tag'=>'textarea', 'class'=>'textarea-input', 'name'=>'description', 'cols'=>30, 'rows'=>10, 'content'=>htmlspecialchars($media['content'])));

@@ -882,6 +882,11 @@ h3 {
 	width: 24px;
 }
 
+.data-form .media-thumb {
+	max-width: 250px;
+	width: 100%;
+}
+
 .data-form .block {
 	background-color: #ededed;
 	color: #101010;

@@ -48,6 +48,15 @@ class Theme {
 				
 				// Check whether the theme has an index.php file and skip it if not
 				if(!file_exists($theme_path.'/index.php')) continue;
+				
+				// Set up the action links
+				$actions = array(
+					userHasPrivilege($session['role'], 'can_edit_themes') ? '<a href="?name='.$theme.'&action=activate">Activate</a>' : '',
+					userHasPrivilege($session['role'], 'can_delete_themes') ? '<a class="modal-launch delete-item" href="?name='.$theme.'&action=delete" data-item="theme">Delete</a>' : ''
+				);
+				
+				// Filter out any empty actions
+				$actions = array_filter($actions);
 				?>
 				<li>
 					<div class="theme-preview">
@@ -58,9 +67,11 @@ class Theme {
 					<h2 class="theme-name">
 						<?php echo ucwords(str_replace('-', ' ', $theme)).($this->isActiveTheme($theme) ? ' &mdash; <small><em>active</em></small>' : ''); ?>
 						<span class="actions">
-							<?php if(!$this->isActiveTheme($theme)): ?>
-								<a href="?name=<?php echo $theme; ?>&action=activate">Activate</a> &bull; <a class="modal-launch delete-item" href="?name=<?php echo $theme; ?>&action=delete" data-item="theme">Delete</a>
-							<?php endif; ?>
+							<?php
+							// Check whether the theme is active and display the action links if not
+							if(!$this->isActiveTheme($theme))
+								echo implode(' &bull; ', $actions);
+							?>
 						</span>
 					</h2>
 				</li>

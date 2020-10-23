@@ -980,261 +980,262 @@
 ----------------------------------------------------------------------------------------------------
 ## Version 2.0.8[a] (2019-11-08)
 
-* Tweaked documentation in the globals.php file
-* Tweaked documentation in the admin Profile class
-* Tweaked documentation in the admin User class
-* During installation, a usermeta entry is now created for the user's admin theme
-* When a new user is created, a usermeta entry is now created for the user's admin theme
-* The Profile::getThemesList function now checks whether a file has the css extension and only includes it in the list if so
-* The profile page now refreshes after 3 seconds instead of 4
-* Tweaked the color of the user dropdown menu text
-* Improved the design of the Ocean admin theme
-* Changed 'From' header field in the 'Forgot Password' email from the site's name to 'ReallySimpleCMS'
-* If the user does not check the 'Keep me logged in' checkbox when they log in, the session cookie is now set to expire at the end of the browsing session (previously was 30 minutes)
+- Tweaked documentation in the `globals.php` file
+- Tweaked documentation in the admin `Profile` class
+- Tweaked documentation in the admin `User` class
+- During installation, a usermeta entry is now created for the user's admin theme
+- When a new user is created, a usermeta entry is now created for the user's admin theme
+- The `Profile::getThemesList` function now checks whether a file has the `css` extension and only includes it in the list if so
+- The profile page now refreshes after 3 seconds instead of 4
+- Tweaked the color of the user dropdown menu text
+- Improved the design of the "Ocean" admin theme
+- Changed the "From" header field in the "Forgot Password" email from the site's name to "ReallySimpleCMS"
+- If the user does not check the "Keep me logged in" checkbox when they log in, the session cookie is now set to expire at the end of the browsing session (previously was 30 minutes)
 
 **Modified files:**
-* admin/includes/class-profile.php
-* admin/includes/class-user.php
-* admin/includes/css/style.css (M)
-* admin/includes/functions.php (M)
-* content/admin-themes/ocean.css
-* includes/class-login.php
-* includes/globals.php (M)
+- admin/includes/class-profile.php
+- admin/includes/class-user.php
+- admin/includes/css/style.css (M)
+- admin/includes/functions.php (M)
+- content/admin-themes/ocean.css
+- includes/class-login.php
+- includes/globals.php (M)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.0.7[a] (2019-11-03)
 
-* Shortened the version query string on static resources from 'version' to 'v' (this applies to both stylesheets and scripts)
-* Tweaked documentation in the functions.php file
-* Tweaked documentation in the Profile class
-* Created a function that constructs the 'Reset Password' form (Profile class)
-* Created a function that validates the 'Reset Password' form data (Profile class)
-* Cleaned up code in the User::validatePasswordData function
-* Changed the access for the User::verifyPassword function from private to protected
-* Replaced the 'session_data' parameter with 'id' in the User::verifyPassword function
-* Cleaned up code in the User::verifyPassword function
-* The User::PW_LENGTH constant's access is now protected (it was inadvertently set to private)
-* The User::validatePasswordData function's second parameter is no longer optional
-* If a redirect URL is provided on the Log In page, the user will be redirected upon logging in
-* Created a function that loads all admin header scripts
-* Created a function that constructs a list of all admin themes
-* Added a field to the user profile form to allow users to select their own admin theme
-* Created a function that fetches a theme-specific stylesheet (located in the content directory)
-* Created a function that fetches a theme-specific script file (located in the content directory)
-* Users can now load custom admin themes by placing stylesheets in the '/content/admin-themes' directory
-* Created a function that loads all admin footer scripts
-* Created three alternate admin themes, named Ocean, Forest, and Sunset
-* Tweaked styling of the user dropdown menu
-* Created a constant to hold the minimum password lenth (Login class)
+- Shortened the version query string on static resources from "version" to "v" (this applies to both stylesheets and scripts)
+- Tweaked documentation in the `includes/functions.php` file
+- Tweaked documentation in the `Profile` class
+- Created a function that constructs the "Reset Password" form (`Profile` class)
+- Created a function that validates the "Reset Password" form data (`Profile` class)
+- Cleaned up code in the `User::validatePasswordData` function
+- Changed the access for the `User::verifyPassword` function from `private` to `protected`
+- Replaced the `session_data` parameter with `id` in the `User::verifyPassword` function
+- Cleaned up code in the `User::verifyPassword` function
+- The `User::PW_LENGTH` constant's access is now `protected` (it was inadvertently set to `private`)
+- The `User::validatePasswordData` function's second parameter is no longer optional
+- If a redirect URL is provided on the "Log In" page, the user will be redirected upon logging in
+- Created a function that loads all admin header scripts
+- Created a function that constructs a list of all admin themes
+- Added a field to the user profile form to allow users to select their own admin theme
+- Created a function that fetches a theme-specific stylesheet (located in the `content` directory)
+- Created a function that fetches a theme-specific script file (located in the `content` directory)
+- Users can now load custom admin themes by placing stylesheets in the `content/admin-themes` directory
+- Created a function that loads all admin footer scripts
+- Created three alternate admin themes, named "Ocean", "Forest", and "Sunset"
+- Tweaked styling of the user dropdown menu
+- Created a constant to hold the minimum password lenth (`Login` class)
 
 **Modified files:**
-* admin/footer.php
-* admin/header.php
-* admin/includes/class-profile.php
-* admin/includes/class-user.php
-* admin/includes/css/style.css (M)
-* admin/includes/functions.php
-* content/admin-themes/forest.css (N)
-* content/admin-themes/ocean.css (N)
-* content/admin-themes/sunset.css (N)
-* includes/class-login.php
-* includes/functions.php (M)
-* includes/globals.php
+- admin/footer.php
+- admin/header.php
+- admin/includes/class-profile.php
+- admin/includes/class-user.php
+- admin/includes/css/style.css (M)
+- admin/includes/functions.php
+- content/admin-themes/forest.css (N)
+- content/admin-themes/ocean.css (N)
+- content/admin-themes/sunset.css (N)
+- includes/class-login.php
+- includes/functions.php (M)
+- includes/globals.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.0.6[a] (2019-10-30)
 
-* Removed the 'fetching cookie' code from the login.php file
-* Tweaked several previous entries in the changelog
-* Removed the 'cookie_data' parameter from the Login::resetPasswordForm function
-* Added a 'security_key' column to the 'users' table in the database schema
-* Added a new constant that stores a cookie hash based on the site's URL
-* Tweaked the styling for the formatted emails
-* Cleaned up code in the Login::validateLoginData function
-* The session value hash is now generated with the generateHash function
-* Added an error to the Login::forgotPasswordForm function that displays if a password reset security key is invalid
-* Cleaned up code in the Login::validateForgotPasswordData function
-* The reset password email's From address is now 'rscms@hostname' to prevent the possibility of an email being sent both from and to the same address
-* The reset password cookie is no longer created in the Login::validateForgotPasswordData function
-* Cleaned up code in the Login::resetPasswordForm function
-* The reset password cookie is now created in the Login::resetPasswordForm function
-* Cleaned up code in the Login::validateResetPasswordData function
-* Created a function that checks whether a reset password cookie is valid
-* Added an error to the Login::forgotPasswordForm function that displays if a password reset security key has expired
-* Tweaked documentation in the front end style.css file
-* Changed the access for the User::UN_LENGTH and User::PW_LENGTH constants from public to protected
-* Created a function that checks whether an email exists in the database (User class)
-* Cleaned up code in the User::usernameExists function
-* The delete action no longer displays on the 'List Users' page for the current user
-* Added output buffering to the admin header.php and footer.php files (this prevents errors with certain redirects)
-* Users can no longer delete themselves
-* The user's profile will now refresh after it's updated
-* Changed the access for the User::usernameExists function from private to protected
-* Created a function that validates the user profile form
+- Removed the "fetching cookie" code from the `login.php` file
+- Tweaked several previous entries in the changelog
+- Removed the `cookie_data` parameter from the `Login::resetPasswordForm` function
+- Added a `security_key` column to the `users` table in the database schema
+- Added a new constant that stores a cookie hash based on the site's URL
+- Tweaked the styling for the formatted emails
+- Cleaned up code in the `Login::validateLoginData` function
+- The session value hash is now generated with the `generateHash` function
+- Added an error to the `Login::forgotPasswordForm` function that displays if a password reset security key is invalid
+- Cleaned up code in the `Login::validateForgotPasswordData` function
+- The reset password email's "From" address is now `rscms@hostname` to prevent the possibility of an email being sent both from and to the same address
+- The reset password cookie is no longer created in the `Login::validateForgotPasswordData` function
+- Cleaned up code in the `Login::resetPasswordForm` function
+- The reset password cookie is now created in the `Login::resetPasswordForm` function
+- Cleaned up code in the `Login::validateResetPasswordData` function
+- Created a function that checks whether a reset password cookie is valid
+- Added an error to the `Login::forgotPasswordForm` function that displays if a password reset security key has expired
+- Tweaked documentation in the front end `style.css` file
+- Changed the access for the `User::UN_LENGTH` and `User::PW_LENGTH` constants from `public` to `protected`
+- Created a function that checks whether an email exists in the database (`User` class)
+- Cleaned up code in the `User::usernameExists` function
+- The delete action no longer displays on the "List Users" page for the current user
+- Added output buffering to the `admin/header.php` and `admin/footer.php` files (this prevents errors with certain redirects)
+- Users can no longer delete themselves
+- The user's profile will now refresh after it's updated
+- Changed the access for the `User::usernameExists` function from `private` to `protected`
+- Created a function that validates the user profile form
 
 **Modified files:**
-* admin/footer.php (M)
-* admin/header.php (M)
-* admin/includes/class-profile.php
-* admin/includes/class-user.php
-* includes/class-login.php
-* includes/css/style.css (M)
-* includes/functions.php
-* includes/schema.php (M)
-* login.php
+- admin/footer.php (M)
+- admin/header.php (M)
+- admin/includes/class-profile.php
+- admin/includes/class-user.php
+- includes/class-login.php
+- includes/css/style.css (M)
+- includes/functions.php
+- includes/schema.php (M)
+- login.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.0.5[a] (2019-10-28)
 
-* Created a function that validates the 'Forgot Password' form data and sends a reset password email
-* Created a function that formats an email with HTML and CSS
-* Created a function that generates a random hash
-* The user will now be redirected back to the 'Log In' form after they successfully submit the 'Forgot Password' form
-* A confirmation is now displayed over the 'Log In' form after the 'Forgot Password' form is submitted
-* Tweaked documentation in the login.php file
-* Renamed the Login::loginForm function to Login::logInForm
-* Moved the generatePassword function from the admin functions.php file to the globals.php file
-* Tweaked the generatePassword function's internal code
-* Created a function that constructs the 'Reset Password' form
-* Created a function that validates the 'Reset Password' form data
-* A confirmation is now displayed over the 'Log In' form after the 'Reset Password' form is submitted
+- Created a function that validates the "Forgot Password" form data and sends a reset password email
+- Created a function that formats an email with HTML and CSS
+- Created a function that generates a random hash
+- The user will now be redirected back to the "Log In" form after they successfully submit the "Forgot Password" form
+- A confirmation is now displayed over the "Log In" form after the "Forgot Password" form is submitted
+- Tweaked documentation in the `login.php` file
+- Renamed the `Login::loginForm` function to `Login::logInForm`
+- Moved the `generatePassword` function from the `admin/functions.php` file to the `globals.php` file
+- Tweaked the `generatePassword` function's internal code
+- Created a function that constructs the "Reset Password" form
+- Created a function that validates the "Reset Password" form data
+- A confirmation is now displayed over the "Log In" form after the "Reset Password" form is submitted
 
 **Modified files:**
-* admin/includes/functions.php
-* includes/class-login.php
-* includes/functions.php
-* includes/globals.php
-* login.php
+- admin/includes/functions.php
+- includes/class-login.php
+- includes/functions.php
+- includes/globals.php
+- login.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.0.4[a] (2019-10-27)
 
-* Tweaked documentation in the globals.php file
-* Added an optional parameter to the global redirect function to specify the HTTP status for a redirect
-* Renamed the Login::errorMessage function to Login::statusMessage and added an optional parameter to specify whether the message should show success or failure
-* Added styling for success status messages
-* Tweaked documentation in the front end stylesheet
-* Tweaked some styling on the Log In form
+- Tweaked documentation in the `globals.php` file
+- Added an optional parameter to the global redirect function to specify the HTTP status for a redirect
+- Renamed the `Login::errorMessage` function to `Login::statusMessage` and added an optional parameter to specify whether the message should show success or failure
+- Added styling for success status messages
+- Tweaked documentation in the front end stylesheet
+- Tweaked some styling on the "Log In" form
 
 **Modified files:**
-* includes/class-login.php
-* includes/css/style.css
-* includes/globals.php
+- includes/class-login.php
+- includes/css/style.css
+- includes/globals.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.0.3[a] (2019-10-24)
 
-* Added a switch statement to the login.php file for actions
-* The page title will now change based on the current action
-* Created a function that constructs the 'Log In' form
-* Renamed the Login::userLogin function to Login::validateLoginData
-* Rearranged some code in the Login::validateLoginData function
-* The Login::validateLoginData and Login::isValidPassword functions now only check for the '@' character to determine if the login is an email
-* The Login::sanitizeData function now strips off HTML and PHP tags from strings and it accepts integer values for filter_var
-* The email is now sanitized with the FILTER_SANITIZE_EMAIL filter
-* Added a 'Forgot your password?' link below the 'Log In' form
-* Created a function that constructs the 'Forgot Password' form
+- Added a switch statement to the `login.php` file for actions
+- The page title will now change based on the current action
+- Created a function that constructs the "Log In" form
+- Renamed the `Login::userLogin` function to `Login::validateLoginData`
+- Rearranged some code in the `Login::validateLoginData` function
+- The `Login::validateLoginData` and `Login::isValidPassword` functions now only check for the `@` character to determine if the login is an email
+- The `Login::sanitizeData` function now strips off HTML and PHP tags from strings and it accepts integer values for `filter_var`
+- The email is now sanitized with the `FILTER_SANITIZE_EMAIL` filter
+- Added a "Forgot your password?" link below the "Log In" form
+- Created a function that constructs the "Forgot Password" form
 
 **Modified files:**
-* includes/class-login.php
-* includes/css/style.css
-* login.php
+- includes/class-login.php
+- includes/css/style.css
+- login.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.0.2[a] (2019-10-18)
 
-* Added output buffering to the login page (prevents errors that may occur with cookie creation)
-* Tweaked documentation in the login.php file
-* Turned off autocompletion on the captcha field of the login form
-* Tweaked documentation in the globals.php file
-* Created a function that checks whether a specific session already exists in the database
-* Added an optional parameter to the Login::sanitizeData function that accepts regex patterns
-* Renamed the 'username_email' input on the login form to 'login'
-* Created a function that checks whether a specific email address already exists in the database
-* Renamed the 'username' parameter in the Login::isValidPassword function to 'login'
-* A user can now log in with their email in addition to their username
-* The 'keep me logged in' checkbox now works (cookie is saved for 30 days)
-* Tweaked documentation in the admin header.php file
-* Tweaked documentation in the admin menus.php file
-* Tweaked documentation in the admin users.php file
-* Tweaked documentation in the admin widgets.php file
+- Added output buffering to the login page (prevents errors that may occur with cookie creation)
+- Tweaked documentation in the `login.php` file
+- Turned off autocompletion on the captcha field of the login form
+- Tweaked documentation in the `globals.php` file
+- Created a function that checks whether a specific session already exists in the database
+- Added an optional parameter to the `Login::sanitizeData` function that accepts regex patterns
+- Renamed the `username_email` input on the login form to `login`
+- Created a function that checks whether a specific email address already exists in the database
+- Renamed the `username` parameter in the `Login::isValidPassword` function to `login`
+- A user can now log in with their email in addition to their username
+- The "keep me logged in" checkbox now works (cookie is saved for 30 days)
+- Tweaked documentation in the following files:
+  - `admin/header.php`
+  - `admin/menus.php`
+  - `admin/users.php`
+  - `admin/widgets.php`
 
 **Modified files:**
-* admin/header.php (M)
-* admin/menus.php (M)
-* admin/users.php (M)
-* admin/widgets.php (M)
-* includes/class-login.php
-* includes/globals.php (M)
-* login.php
+- admin/header.php (M)
+- admin/menus.php (M)
+- admin/users.php (M)
+- admin/widgets.php (M)
+- includes/class-login.php
+- includes/globals.php (M)
+- login.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.0.1[a] (2019-10-17)
 
-* Tweaked documentation in the captcha.php file
-* Created a function that sanitizes user input data from the login form
-* A session cookie is now created when the user logs in instead of a session array
-* Created a function that checks whether a user is properly logged in
-* Created a function that fetches an online user's data
-* The session data is now set based on the session cookie
-* Replaced all occurences of the $_SESSION superglobal with the session array
-* Created a function that logs the user out
-* The user is now redirected to the login page from the admin dashboard if they're logged out
+- Tweaked documentation in the `captcha.php` file
+- Created a function that sanitizes user input data from the login form
+- A session cookie is now created when the user logs in instead of a session array
+- Created a function that checks whether a user is properly logged in
+- Created a function that fetches an online user's data
+- The session data is now set based on the session cookie
+- Replaced all occurences of the `$_SESSION` superglobal with the session array
+- Created a function that logs the user out
+- The user is now redirected to the login page from the admin dashboard if they're logged out
 
 **Modified files:**
-* admin/categories.php
-* admin/header.php
-* admin/menus.php
-* admin/posts.php
-* admin/profile.php
-* admin/settings.php
-* admin/users.php
-* admin/widgets.php
-* includes/captcha.php (M)
-* includes/class-login.php
-* includes/globals.php
-* login.php
+- admin/categories.php
+- admin/header.php
+- admin/menus.php
+- admin/posts.php
+- admin/profile.php
+- admin/settings.php
+- admin/users.php
+- admin/widgets.php
+- includes/captcha.php (M)
+- includes/class-login.php
+- includes/globals.php
+- login.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.0.0[a] (2019-10-16)
 
-* When menu items are created, their slugs are now initially set to an empty string instead of null
-* Pages and posts that are in the trash can no longer be used as menu item links
-* Tweaked documentation in the Post class
-* Updated the Font Awesome CSS to version 5.11.2
-* Built and styled the user dropdown menu
-* Created the user profile page and the Profile class
-* Tweaked documentation in the Widget class
-* Created a function that constructs the 'Edit Profile' form
-* Changed the access for the User::getUserMeta function from private to protected
-* Tweaked documentation in the root index.php file
-* Tweaked the styling of the login form
-* Created the Login class
-* Created a function that constructs error messages for the login form
-* Increased the default value for the generatePassword function's 'lenth' parameter from 15 to 16
-* Removed the space character from the list of special characters in the generatePassword function
-* Created a function that checks whether a captcha value is valid
-* Created a function that checks whether a password is valid
-* Tweaked documentation in the User class
-* Added the start_session function to the captcha.php file and the admin header.php file
-* Created a function that validates the login data and logs the user in
+- When menu items are created, their slugs are now initially set to an empty string instead of null
+- Pages and posts that are in the trash can no longer be used as menu item links
+- Tweaked documentation in the `Post` class
+- Updated the Font Awesome CSS to version 5.11.2
+- Built and styled the user dropdown menu
+- Created the user profile page and the `Profile` class
+- Tweaked documentation in the `Widget` class
+- Created a function that constructs the "Edit Profile" form
+- Changed the access for the `User::getUserMeta` function from `private` to `protected`
+- Tweaked documentation in the root `index.php` file
+- Tweaked the styling of the login form
+- Created the `Login` class
+- Created a function that constructs error messages for the login form
+- Increased the default value for the `generatePassword` function's `lenth` parameter from 15 to 16
+- Removed the space character from the list of special characters in the `generatePassword` function
+- Created a function that checks whether a captcha value is valid
+- Created a function that checks whether a password is valid
+- Tweaked documentation in the `User` class
+- Added the `start_session` function to the `captcha.php` file and the `admin/header.php` file
+- Created a function that validates the login data and logs the user in
 
 **Modified files:**
-* admin/header.php
-* admin/includes/class-menu.php
-* admin/includes/class-post.php (M)
-* admin/includes/class-profile.php (N)
-* admin/includes/class-user.php (M)
-* admin/includes/class-widget.php (M)
-* admin/includes/css/style.css
-* admin/includes/functions.php (M)
-* admin/profile.php (N)
-* includes/captcha.php (M)
-* includes/class-login.php (N)
-* includes/css/fa-icons.css
-* includes/css/style.css
-* index.php (M)
-* login.php
+- admin/header.php
+- admin/includes/class-menu.php
+- admin/includes/class-post.php (M)
+- admin/includes/class-profile.php (N)
+- admin/includes/class-user.php (M)
+- admin/includes/class-widget.php (M)
+- admin/includes/css/style.css
+- admin/includes/functions.php (M)
+- admin/profile.php (N)
+- includes/captcha.php (M)
+- includes/class-login.php (N)
+- includes/css/fa-icons.css
+- includes/css/style.css
+- index.php (M)
+- login.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 1.8.12[a] (2019-10-13)
@@ -1324,7 +1325,7 @@
 ----------------------------------------------------------------------------------------------------
 ## Version 1.8.7[a] (2019-09-29)
 
-- Child menu items are now indented on the 'Edit Menu' page (up to 3 levels deep)
+- Child menu items are now indented on the "Edit Menu" page (up to 3 levels deep)
 - Created a function that fetches the whole "family tree" of a menu item and returns the number of members
 - Added a global variable to the `Menu` class to hold the member count of a menu item's "family tree"
 - Created a function that fetches all descendants of a menu item
@@ -1428,8 +1429,8 @@
 
 - Fixed a typo and escaped some special characters in the changelog
 - Tweaked the documentation in all the admin files
-- Renamed all public functions with 'entry' or 'entries' in their name to the name of their class (e.g., `User::listEntries` -> `User::listUsers`)
-- Added a redirect from the 'List Posts' page to the 'List Menus' page if the requested post's type is `nav_menu_item`
+- Renamed all public functions with "entry" or "entries" in their name to the name of their class (e.g., `User::listEntries` -> `User::listUsers`)
+- Added a redirect from the "List Posts" page to the "List Menus" page if the requested post's type is `nav_menu_item`
 - Renamed the `Menu::getMenuItemsList` function to `Menu::getMenuItemsLists` and removed its optional parameter
 - Cleaned up the `Menu::getMenuItemsLists` function and split pages and posts into separate fieldset lists
 - Added styling to the menu items fieldsets
@@ -1457,7 +1458,7 @@
 - Tweaked some documentation in the `Post` class
 - The count value now increments when a new menu is created with menu items
 - Switched a margin from the data form content block to the metadata block
-- Fixed an issue where the 'Categories' block in the post editor still was captioned 'Attributes' (type `post` only)
+- Fixed an issue where the "Categories" block in the post editor still was captioned "Attributes" (type `post` only)
 - Added styling for new a `item-list` class
 - Updated the menu forms to more closely resemble the post forms (their functionality still remains different)
 - Rebuilt the `Menu::getMenuItems` function for use on the menu forms pages
@@ -1493,14 +1494,14 @@
 - Fixed a bug with the `pagerNav` function that added too many `paged` parameters
 - Fixed the pagination on the 'List User Roles' page
 - Created the `Menu` class
-- Created an admin 'List Menus' page and added a link to the nav menu
-- Fixed an issue with the `getCurrentPage` function that prevented the 'Create Menu' page from displaying as the current page
+- Created an admin "List Menus" page and added a link to the nav menu
+- Fixed an issue with the `getCurrentPage` function that prevented the "Create Menu" page from displaying as the current page
 - The `nav_menu` taxonomy is now created during installation
 - Created a function that constructs the 'Create Menu' form
 - Created a function that constructs a list of nav menu items
 - Renamed the `privileges-list` id to the `checkbox-list` class
 - Created a function that checks whether the `nav_menu` slug already exists
-- Created a function that constructs the 'Edit Menu' form
+- Created a function that constructs the "Edit Menu" form
 - Created a function to fetch the nav menu items
 - Menus can now be created
 
@@ -1540,12 +1541,12 @@
 - Adjusted the margins on list entries pages when a status message is displayed
 - Added a default value for the `_default` column in the `user_roles` database table
 - Added a full file path to the `autoload` class function
-- Fixed an issue with the `getCurrentPage` function that prevented the 'Create Widget' page from displaying as the current page
+- Fixed an issue with the `getCurrentPage` function that prevented the "Create Widget" page from displaying as the current page
 - Added more documentation to the admin functions
 - Tweaked documentation in the `User` class
 - When creating a new user, the role dropdown now displays the default user role
 - Changed an HTML id to a class
-- Added the delete link for users on the 'List Users' page
+- Added the delete link for users on the "List Users" page
 - Tweaked the default site description in the `populateTables` function
 - Tweaked the styling of form tables
 - The widgets pages now check whether a logged in user has sufficient privileges to view the pages
@@ -1567,12 +1568,12 @@
 - Tweaked the deleted entry status message for all classes
 - Replaced all occurrences of the PHP `header` function with the new `redirect` function in the `User` and `Widget` classes
 - Replaced a `null` comparison and `empty` with `is_null` in the `User::listEntries` function
-- The 'Full Name' column on the 'List Users' page now displays an em dash if the user has no first name or last name
+- The "Full Name" column on the "List Users" page now displays an em dash if the user has no first name or last name
 - The `Post::getParent` function now returns an em dash if a post has no parent
 - Fixed some issues with the `getCurrentPage` function that caused some pages not to show as the current nav menu item
 - Added a `_default` column to the `user_roles` database table (this will be used to protect default roles from tampering)
-- Removed edit and delete actions from default user roles on the 'List User Roles' page
-- Attempting to edit a default user role will now redirect the user to the 'List User Roles' page
+- Removed edit and delete actions from default user roles on the "List User Roles" page
+- Attempting to edit a default user role will now redirect the user to the "List User Roles" page
 
 **Modified files:**
 - admin/includes/class-category.php (M)
@@ -1598,13 +1599,13 @@
 - The `Post::getCategories` function now returns an em dash if a post has no categories
 - Renamed the `Settings::userRolesSettings` function to `Settings::listUserRoles`
 - Renamed the `Settings::validateData` function to `Settings::validateSettingsData`
-- Created a function that constructs the 'Create User Role' form
+- Created a function that constructs the "Create User Role" form
 - The `formRow` function now can accept string values in its `args` parameters
 - Cleaned up the `formRow` function's code and added more documentation
 - Added styling for the user privilege list
 - Tweaked styling of the post category list
 - Created a function that constructs a list of user privileges
-- Created a function that constructs the 'Edit User Role' form
+- Created a function that constructs the "Edit User Role" form
 - Created a function that validates the user role form data
 - Replaced all occurrences of the PHP `header` function with the new `redirect` function in the `Post` and `Category` classes
 - Fixed an issue where categories would get deleted from a post unnecessarily
@@ -1632,7 +1633,7 @@
 - Added the `clear` class to all admin page wrapper elements (prevents page content from overflowing into the footer)
 - Removed a line of documentation from the `categories.php` file
 - Renamed the `Settings::listSettings` function to `Settings::generalSettings`
-- Created the 'User Roles' settings page
+- Created the "User Roles" settings page
 - Added a nav menu item for the user roles settings page
 - Added an extra check in the `getCurrentPage` function to look for the page `GET` parameter (for settings pages)
 
@@ -1653,8 +1654,8 @@
 
 - Changed possible statuses for widgets from `draft` and `published` to `active` and `inactive`
 - Added a warning to all admin pages if the user has JavaScript disabled in their browser
-- Added a redirect from the 'List Posts' page to the 'List Widgets' page if the requested post's type is `widget`
-- Added a redirect from the 'Edit Post' page to the 'Edit Widget' page if the requested id corresponds to a widget
+- Added a redirect from the "List Posts" page to the "List Widgets" page if the requested post's type is `widget`
+- Added a redirect from the "Edit Post" page to the "Edit Widget" page if the requested id corresponds to a widget
 - Renamed the following database tables:
   - `roles` -> `user_roles`
   - `privileges` -> `user_privileges`
@@ -1664,14 +1665,14 @@
 - The user created on installation is now given the administrator user role
 - Replaced the `UPL_DIR` constant with `UPLOADS` in the `User::getAvatar` function (the former is no longer used)
 - Created a function that constructs a list of user roles (`Settings` class)
-- Tweaked the username column's styling on the 'List Users' page
+- Tweaked the username column's styling on the "List Users" page
 - Created a function that fetches a specified user's role (`User` class)
 - Created a function that constructs a list of user roles (`User` class)
 - The `Post::getAuthorList` function no longer calls the `Post::getAuthor` function
 - The `Post::getParentList` function no longer calls the `Post::getParent` function
-- User roles now appear on the 'Create User' and 'Edit User' forms
-- Added a missing class to a button on the 'Reset Password' form
-- Fixed the alignment of the `pass_saved` labels on the 'Create User' and 'Reset Password' forms
+- User roles now appear on the "Create User" and "Edit User" forms
+- Added a missing class to a button on the "Reset Password" form
+- Fixed the alignment of the `pass_saved` labels on the "Create User" and "Reset Password" forms
 - The `Category::getParentList` function no longer calls the `Category::getParent` function
 
 **Modified files:**
@@ -1692,11 +1693,11 @@
 ## Version 1.6.3[a] (2019-08-22)
 
 - Tweaked documentation in the `Post` class
-- Improved validation for the 'Edit Post' form
-- Widgets can no longer be edited via the 'Edit Post' form
+- Improved validation for the "Edit Post" form
+- Widgets can no longer be edited via the "Edit Post" form
 - Fixed some errors that would pop up if a post's id was invalid
 - Tweaked the pagination code for the `User` class
-- A notice is now displayed on the 'List Users' page if no users exist in the database
+- A notice is now displayed on the "List Users" page if no users exist in the database
 - Tweaked documentation in the `User` class
 - Improved some styling of elements on the installation form
 - Added and renamed some CSS classes on the installation page
@@ -1737,7 +1738,7 @@
 - Removed a line of documentation from the `widgets.php` file
 - Tweaked the pagination code for the `Post` class
 - Removed a few lines of documentation from the `Category` class
-- Tweaked the styling of some elements on the 'General Settings' page
+- Tweaked the styling of some elements on the "General Settings" page
 
 **Modified files:**
 - admin/install.php
@@ -1758,7 +1759,7 @@
 - The text for the "Search Engine Visibility" checkbox on the installation form can now be used to check the checkbox
 - Included the jQuery library on the installation page and added a custom script
 - Added more documentation to the `Post` class
-- Created a function that constructs the 'Edit Widget' form
+- Created a function that constructs the "Edit Widget" form
 
 **Modified files:**
 - admin/install.php
@@ -1779,9 +1780,9 @@
 - Added more documentation to the `User` class and fixed the styling on the reset password form
 - Renamed the data form's `hr` class from `divider` to `separator` and added styling to it
 - Created the `Widget` class
-- Created admin 'List Widgets' page and added a link to the nav menu
+- Created admin "List Widgets" page and added a link to the nav menu
 - Fixed some documentation in the `Category` class
-- Created a function that constructs the 'Create Widget' form
+- Created a function that constructs the "Create Widget" form
 - Tweaked the documentation in the `install.css` stylesheet
 
 **Modified files:**
@@ -1826,7 +1827,7 @@
 ----------------------------------------------------------------------------------------------------
 ## Version 1.5.6[a] (2019-08-14)
 
-- A notice will now be displayed on the 'List Categories' page if there are no categories in the database
+- A notice will now be displayed on the "List Categories" page if there are no categories in the database
 - Minor code tweak in the `Post` class
 - Adjusted the margins for status messages
 - Removed some deprecated code from the `admin/functions.php` file
@@ -1893,7 +1894,7 @@
 ## Version 1.5.3[a] (2019-08-02)
 
 - Categories can now be removed from posts
-- The 'General Settings' form now has styling
+- The "General Settings" form now has styling
 - Tweaked the documentation of the `Settings` class
 - Tweaked the styling of form tables
 
@@ -1914,7 +1915,7 @@
 - The `id` parameter for the `User::usernameExists` function is no longer optional
 - Categories can now be edited
 - Added styling to the categories list
-- Removed the parent list and added a categories list to the 'Create Post' page
+- Removed the parent list and added a categories list to the "Create Post" page
 - Categories can now be added to posts (they cannot yet be removed)
 
 **Modified files:**
@@ -1927,11 +1928,11 @@
 ----------------------------------------------------------------------------------------------------
 ## Version 1.5.1[a] (2019-07-30)
 
-- Created a function that constructs the 'Edit Category' form
+- Created a function that constructs the "Edit Category" form
 - Created a function that deletes categories from the database
 - Tweaked validation in the `Post::deleteEntry` function
 - Added more documentation to the `User` class
-- The category's parent can now be set to `none` on the 'Create Category' form
+- The category's parent can now be set to `none` on the "Create Category" form
 
 **Modified files:**
 - admin/categories.php
@@ -1942,10 +1943,10 @@
 ----------------------------------------------------------------------------------------------------
 ## Version 1.5.0[a] (2019-07-28)
 
-- Created an admin 'List Categories' page
-- Added the 'List Categories' page to the admin navigation
+- Created an admin "List Categories" page
+- Added the "List Categories" page to the admin navigation
 - Created a `Category` class
-- The 'Create <classname>' buttons have been relabeled as 'Create New'
+- The "Create <classname>" buttons have been relabeled as "Create New"
 - Modified the logic of the status message display on the list entries pages
 - Fixed some erroneous documentation in the `includes/functions.php` file
 - Created a function that populates the taxonomies table
@@ -1956,10 +1957,10 @@
 - Created a function that populates the `term_relationships` table
 - Created a function that fetches the post categories
 - Created a function that fetches a category's parent
-- Created a function that constructs the 'Create Category' form
+- Created a function that constructs the "Create Category" form
 - Created a function that constructs a list of parent categories
 - Created a function that checks whether the current category is a descendant of other categories
-- Removed the `parent` column from the 'List Posts' page (the `post` post type is not meant to be hierarchical)
+- Removed the `parent` column from the "List Posts" page (the `post` post type is not meant to be hierarchical)
 
 **Modified files:**
 - admin/categories.php (N)
@@ -1978,10 +1979,10 @@
 - Added a line of documentation to the `install.php` file
 - Added form validation to the `Post::editEntry` function
 - Changed the link color on status messages
-- Added a column for categories on the `post` post type's 'List Posts' page
-- Published pages now have proper permalinks for the 'view' link
+- Added a column for categories on the `post` post type's "List Posts" page
+- Published pages now have proper permalinks for the "view" link
 - The site url is now set during installation
-- Required field labels now have a red asterisk next to them instead of '(required)'
+- Required field labels now have a red asterisk next to them instead of "(required)"
 - Improved styling on form pages using the form table layout
 - Improved documentation for the `User` class
 - Improved validation in the `User::editEntry` function
@@ -1998,11 +1999,11 @@
 ----------------------------------------------------------------------------------------------------
 ## Version 1.4.9[a] (2019-07-23)
 
-- Improved styling of the 'Create Post' form
+- Improved styling of the "Create Post" form
 - Created a function that checks whether a post is in the trash
 - Created a function that constructs a post permalink
 - Created a function that checks whether the current post is a descendant of other posts
-- Built the 'Edit Post' page (posts cannot be submitted yet)
+- Built the "Edit Post" page (posts cannot be submitted yet)
 
 **Modified files:**
 - admin/includes/class-post.php
@@ -2013,7 +2014,7 @@
 
 - Added form validation to the `Post::createEntry` function
 - Created a function that checks whether a post slug already exists in the database
-- Added styling to the 'Create Post' form
+- Added styling to the "Create Post" form
 - Tweaked styling on the admin footer
 - Trashed posts will no longer appear in post parent dropdowns
 
@@ -2027,7 +2028,7 @@
 
 - Improved styling on list entries pages
 - Improved exception handling in the following `Post` class functions: `trashEntry`, `restoreEntry`, and `getParent`
-- A post's status will now display next to the post title on the 'List Posts' page (unless the post is published)
+- A post's status will now display next to the post title on the "List Posts" page (unless the post is published)
 - Added a column to display the post's parent (if it has one) on the list posts page
 - Posts can now be deleted
 - Tweaked a previous entry in the changelog
@@ -2041,7 +2042,7 @@
 ## Version 1.4.6[a] (2019-06-20)
 
 - Buttons will no longer have underlined text on mouse hover
-- The 'List Posts' table now tells whether metadata has been provided
+- The "List Posts" table now tells whether metadata has been provided
 - Posts can now be trashed and restored
 - A post slug postmeta entry will no longer be created during the CMS installation
 
@@ -2053,10 +2054,10 @@
 ----------------------------------------------------------------------------------------------------
 ## Version 1.4.5[a] (2019-05-29)
 
-- Finished building the 'Create Post' form
+- Finished building the "Create Post" form
 - Styled list entries pages
 - Added an optional parameter to the `tableCell` function to allow a cell to span multiple columns
-- Added a notice to be shown if no posts can be retrieved from the database on the 'List Posts' page
+- Added a notice to be shown if no posts can be retrieved from the database on the "List Posts" page
 
 **Modified files:**
 - admin/includes/class-post.php
@@ -2066,7 +2067,7 @@
 ----------------------------------------------------------------------------------------------------
 ## Version 1.4.4[a] (2019-05-03)
 
-- Continued building the 'Create Post' form
+- Continued building the "Create Post" form
 - Added a new parameter to the `formTag` function and functionality for building a `label` tag
 - Fixed some issues in the `formRow` function caused by updates to the `formTag` function
 - Created a function that constructs a list of post authors
@@ -2084,7 +2085,7 @@
 - Added more documentation
 - Added a placeholder to the `input` tag in the `formTag` function
 - Fixed a minor bug in the `formRow` function
-- Continued building the 'Create Post' form
+- Continued building the "Create Post" form
 
 **Modified files:**
 - admin/includes/class-post.php
@@ -2107,7 +2108,7 @@
 ## Version 1.4.1[a] (2019-04-09)
 
 - Minor tweak to the changelog's formatting
-- Created a function to contstruct the 'Create Post' form (form is empty)
+- Created a function to contstruct the "Create Post" form (form is empty)
 - Cleaned up the `User::createEntry` function
 - Added and styled the admin header
 - Styled the admin nav menu
@@ -2125,7 +2126,7 @@
 ----------------------------------------------------------------------------------------------------
 ## Version 1.4.0[a] (2019-04-05)
 
-- Created admin 'List Posts' page and `Post` class
+- Created admin "List Posts" page and `Post` class
 - Replaced `intval` with `int` type casting on the users page
 - Updated and added documentation to the `User` class
 - The buttons stylesheet is now included in the admin dashboard
@@ -2340,7 +2341,7 @@
 ## Version 1.2.6[a] (2019-03-12)
 
 - Created a function that constructs the database schema
-- Created an admin 'General Settings' page
+- Created an admin "General Settings" page
 
 **Modified files:**
 - admin/settings.php (N)
@@ -2406,7 +2407,7 @@
 - Created functions that assemble admin tables
 - Created a function that formats date strings
 - Created a function that implements admin page navigation
-- Added 'Edit User' page and form
+- Added the "Edit User" page and form
 
 **Modified files:**
 - admin/includes/class-user.php
@@ -2420,7 +2421,7 @@
 - Added ReallySimpleCMS copyright and version to the admin footer
 - Created a file to hold global functions
 - Created a function that assembles form tags (works with the `formRow` function)
-- Finished the 'Create User' form and added validation
+- Finished the "Create User" form and added validation
 - Created functions for loading admin scripts and stylesheets
 - Added documentation for numerous functions
 
@@ -2435,7 +2436,7 @@
 ## Version 1.1.2[a] (2019-02-18)
 
 - Created a function that assembles form rows
-- Created a function that constructs the 'Create User' form
+- Created a function that constructs the "Create User" form
 
 **Modified files:**
 - admin/includes/class-user.php
@@ -2457,7 +2458,7 @@
 - Rebuilt the functions for the `SELECT`, `INSERT`, and `UPDATE` statements
 - Created a file to store deprecated functions (for potential future use)
 - Extended the `Query` class' scope so it works on the back end
-- Created admin 'List Users' page
+- Created admin "List Users" page
 
 **Modified files:**
 - admin/includes/class-user.php (N)

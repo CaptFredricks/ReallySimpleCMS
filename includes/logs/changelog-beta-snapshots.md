@@ -17,7 +17,7 @@
 - Created a function that updates an existing comment
 - Added the ability to cancel an update to a comment
 - Optimized and improved the action links functionality for the "List Users" page
-- Users who do not have the `can_edit_users` or `can_delete_users` privileges can no longer see the "Edit" or "Delete" action links
+- Users who don't have the `can_edit_users` or `can_delete_users` privileges can no longer see the "Edit" or "Delete" action links
 - Fixed a bug that prevented users without sufficient privileges from being able to edit their profile via the "List Users" page
 
 **Modified files:**

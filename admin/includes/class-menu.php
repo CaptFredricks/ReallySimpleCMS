@@ -74,8 +74,17 @@ class Menu {
 				
 				// Loop through the menus
 				foreach($menus as $menu) {
+					// Set up the action links
+					$actions = array(
+						userHasPrivilege($session['role'], 'can_edit_menus') ? '<a href="?id='.$menu['id'].'&action=edit">Edit</a>' : '',
+						userHasPrivilege($session['role'], 'can_delete_menus') ? '<a class="modal-launch delete-item" href="?id='.$menu['id'].'&action=delete" data-item="menu">Delete</a>' : ''
+					);
+					
+					// Filter out any empty actions
+					$actions = array_filter($actions);
+					
 					echo tableRow(
-						tableCell('<strong>'.$menu['name'].'</strong><div class="actions"><a href="?id='.$menu['id'].'&action=edit">Edit</a> &bull; <a class="modal-launch delete-item" href="?id='.$menu['id'].'&action=delete" data-item="menu">Delete</a></div>', 'name'),
+						tableCell('<strong>'.$menu['name'].'</strong><div class="actions">'.implode(' &bull; ', $actions).'</div>', 'name'),
 						tableCell($menu['count'], 'count')
 					);
 				}

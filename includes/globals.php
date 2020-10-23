@@ -5,7 +5,7 @@
  */
 
 // Current CMS version
-const VERSION = '1.1.0.5';
+const VERSION = '1.1.0';
 
 // Post types
 $post_types = array();
@@ -1097,8 +1097,7 @@ function registerTaxonomy($name, $args = array()) {
 		'show_in_admin_menu'=>null,
 		'show_in_admin_bar'=>null,
 		'show_in_nav_menus'=>null,
-		'menu_link'=>'terms.php',
-		'post_type'=>''
+		'menu_link'=>'terms.php'
 	);
 	
 	// Merge the defaults with the provided arguments

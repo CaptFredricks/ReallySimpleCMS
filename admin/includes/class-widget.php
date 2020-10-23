@@ -65,8 +65,17 @@ class Widget extends Post {
 				
 				// Loop through the widgets
 				foreach($widgets as $widget) {
+					// Set up the action links
+					$actions = array(
+						userHasPrivilege($session['role'], 'can_edit_widgets') ? '<a href="?id='.$widget['id'].'&action=edit">Edit</a>' : '',
+						userHasPrivilege($session['role'], 'can_delete_widgets') ? '<a class="modal-launch delete-item" href="?id='.$widget['id'].'&action=delete" data-item="widget">Delete</a>' : ''
+					);
+					
+					// Filter out any empty actions
+					$actions = array_filter($actions);
+					
 					echo tableRow(
-						tableCell('<strong>'.$widget['title'].'</strong><div class="actions"><a href="?id='.$widget['id'].'&action=edit">Edit</a> &bull; <a class="modal-launch delete-item" href="?id='.$widget['id'].'&action=delete" data-item="widget">Delete</a></div>', 'title'),
+						tableCell('<strong>'.$widget['title'].'</strong><div class="actions">'.implode(' &bull; ', $actions).'</div>', 'title'),
 						tableCell($widget['slug'], 'slug'),
 						tableCell(ucfirst($widget['status']), 'status')
 					);

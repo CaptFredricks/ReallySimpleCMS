@@ -217,4 +217,24 @@ jQuery(document).ready($ => {
 		// Scroll to the comment's anchor
 		$('html, body').animate({scrollTop: $(anchor).offset().top - 100}, 0);
 	});
+	
+	/**
+	 * Scroll to a linked comment.
+	 * @since 1.1.0[b]
+	 */
+	$(window).on('hashchange', function() {
+		// Fetch the anchor from the url
+		let anchor = window.location.hash;
+		
+		// Scroll to the comment's anchor
+		$('html, body').animate({scrollTop: $(anchor).offset().top - 100}, 0);
+	});
+	
+	if(window.location.hash) {
+		// Fetch the anchor from the url
+		let anchor = window.location.hash;
+		
+		// Scroll to the comment's anchor
+		$('html, body').animate({scrollTop: $(anchor).offset().top - 100}, 0);
+	}
 });

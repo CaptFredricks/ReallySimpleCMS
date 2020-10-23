@@ -100,8 +100,8 @@ class Comment {
 	 * @return null
 	 */
 	public function listComments() {
-		// Extend the Query object
-		global $rs_query;
+		// Extend the Query object and the user's session data
+		global $rs_query, $session;
 		
 		// Set up pagination
 		$page = paginate((int)($_GET['paged'] ?? 1));
@@ -143,8 +143,19 @@ class Comment {
 				
 				// Loop through the comments
 				foreach($comments as $comment) {
+					// Set up the action links
+					$actions = array(
+						userHasPrivilege($session['role'], 'can_edit_comments') ? ($comment['status'] === 'approved' ? '<a href="?id='.$comment['id'].'&action=unapprove">Unapprove</a>' : '<a href="?id='.$comment['id'].'&action=approve">Approve</a>') : '',
+						userHasPrivilege($session['role'], 'can_edit_comments') ? '<a href="?id='.$comment['id'].'&action=edit">Edit</a>' : '',
+						userHasPrivilege($session['role'], 'can_delete_comments') ? '<a class="modal-launch delete-item" href="?id='.$comment['id'].'&action=delete" data-item="comment">Delete</a>' : '',
+						'<a href="'.$this->getPostPermalink($comment['post']).'#comment-'.$comment['id'].'">View</a>'
+					);
+					
+					// Filter out any empty actions
+					$actions = array_filter($actions);
+					
 					echo tableRow(
-						tableCell(trimWords($comment['content']).'<div class="actions">'.($comment['status'] === 'approved' ? '<a href="?id='.$comment['id'].'&action=unapprove">Unapprove</a>' : '<a href="?id='.$comment['id'].'&action=approve">Approve</a>').' &bull; <a href="?id='.$comment['id'].'&action=edit">Edit</a> &bull; <a class="modal-launch delete-item" href="?id='.$comment['id'].'&action=delete" data-item="comment">Delete</a> &bull; <a href="'.$this->getPostPermalink($comment['post']).'#comment-'.$comment['id'].'">View</a></div>', 'content'),
+						tableCell(trimWords($comment['content']).'<div class="actions">'.implode(' &bull; ', $actions).'</div>', 'content'),
 						tableCell($this->getPost($comment['post']), 'post'),
 						tableCell($this->getAuthor($comment['author']), 'author'),
 						tableCell(formatDate($comment['date'], 'd M Y @ g:i A'), 'date')

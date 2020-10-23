@@ -298,8 +298,17 @@ class Settings {
 				
 				// Loop through the user roles
 				foreach($roles as $role) {
+					// Set up the action links
+					$actions = array(
+						userHasPrivilege($session['role'], 'can_edit_user_roles') ? '<a href="?page=user_roles&id='.$role['id'].'&action=edit">Edit</a>' : '',
+						userHasPrivilege($session['role'], 'can_delete_user_roles') ? '<a class="modal-launch delete-item" href="?page=user_roles&id='.$role['id'].'&action=delete" data-item="user role">Delete</a>' : ''
+					);
+					
+					// Filter out any empty actions
+					$actions = array_filter($actions);
+					
 					echo tableRow(
-						tableCell('<strong>'.$role['name'].'</strong><div class="actions"><a href="?page=user_roles&id='.$role['id'].'&action=edit">Edit</a> &bull; <a class="modal-launch delete-item" href="?page=user_roles&id='.$role['id'].'&action=delete" data-item="user role">Delete</a></div>', 'name'),
+						tableCell('<strong>'.$role['name'].'</strong><div class="actions">'.implode(' &bull; ', $actions).'</div>', 'name'),
 						tableCell($this->getPrivileges($role['id']), 'privileges')
 					);
 				}

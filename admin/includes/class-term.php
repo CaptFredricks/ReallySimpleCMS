@@ -154,8 +154,21 @@ class Term {
 				
 				// Loop through the terms
 				foreach($terms as $term) {
+					// Fetch the name of the term's taxonomy
+					$tax_name = str_replace(' ', '_', $this->taxonomy_data['labels']['name_lowercase']);
+					
+					// Set up the action links
+					$actions = array(
+						userHasPrivilege($session['role'], 'can_edit_'.$tax_name) ? '<a href="?id='.$term['id'].'&action=edit">Edit</a>' : '',
+						userHasPrivilege($session['role'], 'can_delete_'.$tax_name) ? '<a class="modal-launch delete-item" href="?id='.$term['id'].'&action=delete" data-item="'.strtolower($this->taxonomy_data['labels']['name_singular']).'">Delete</a>' : '',
+						'<a href="'.getPermalink($this->taxonomy_data['name'], $term['parent'], $term['slug']).'">View</a>'
+					);
+					
+					// Filter out any empty actions
+					$actions = array_filter($actions);
+					
 					echo tableRow(
-						tableCell('<strong>'.$term['name'].'</strong><div class="actions"><a href="?id='.$term['id'].'&action=edit">Edit</a> &bull; <a class="modal-launch delete-item" href="?id='.$term['id'].'&action=delete" data-item="'.strtolower($this->taxonomy_data['labels']['name_singular']).'">Delete</a> &bull; <a href="'.getPermalink($this->taxonomy_data['name'], $term['parent'], $term['slug']).'">View</a></div>', 'name'),
+						tableCell('<strong>'.$term['name'].'</strong><div class="actions">'.implode(' &bull; ', $actions).'</div>', 'name'),
 						tableCell($term['slug'], 'slug'),
 						tableCell($this->getParent($term['parent']), 'parent'),
 						tableCell($term['count'], 'count')

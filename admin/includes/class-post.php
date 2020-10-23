@@ -264,8 +264,21 @@ class Post {
 					// Fetch the post's metadata from the database
 					$meta = $this->getPostMeta($post['id']);
 					
+					// Fetch the name of the post's type
+					$type_name = str_replace(' ', '_', $this->type_data['labels']['name_lowercase']);
+					
+					// Set up the action links
+					$actions = array(
+						userHasPrivilege($session['role'], 'can_edit_'.$type_name) && $status !== 'trash' ? '<a href="?id='.$post['id'].'&action=edit">Edit</a>' : '',
+						userHasPrivilege($session['role'], 'can_edit_'.$type_name) ? ($status === 'trash' ? '<a href="?id='.$post['id'].'&action=restore">Restore</a>' : '<a href="?id='.$post['id'].'&action=trash">Trash</a>') : '',
+						$status === 'trash' ? (userHasPrivilege($session['role'], 'can_delete_'.$type_name) ? '<a class="modal-launch delete-item" href="?id='.$post['id'].'&action=delete" data-item="'.strtolower($this->type_data['labels']['name_singular']).'">Delete</a>' : '') : '<a href="'.($post['status'] === 'published' ? (isHomePage($post['id']) ? '/' : getPermalink($post['type'], $post['parent'], $post['slug'])).'">View' : ('/?id='.$post['id'].'&preview=true').'">Preview').'</a>'
+					);
+					
+					// Filter out any empty actions
+					$actions = array_filter($actions);
+					
 					echo tableRow(
-						tableCell((isHomePage($post['id']) ? '<i class="fas fa-home" style="cursor: help;" title="Home Page"></i> ' : '').'<strong>'.$post['title'].'</strong>'.($post['status'] !== 'published' && $status === 'all' ? ' &ndash; <em>'.$post['status'].'</em>' : '').'<div class="actions">'.($status !== 'trash' ? '<a href="?id='.$post['id'].'&action=edit">Edit</a> &bull; <a href="?id='.$post['id'].'&action=trash">Trash</a> &bull; <a href="'.($post['status'] === 'published' ? (isHomePage($post['id']) ? '/' : getPermalink($post['type'], $post['parent'], $post['slug'])).'">View' : ('/?id='.$post['id'].'&preview=true').'">Preview').'</a>' : '<a href="?id='.$post['id'].'&action=restore">Restore</a> &bull; <a class="modal-launch delete-item" href="?id='.$post['id'].'&action=delete" data-item="'.strtolower($this->type_data['labels']['name_singular']).'">Delete</a>').'</div>', 'title'),
+						tableCell((isHomePage($post['id']) ? '<i class="fas fa-home" style="cursor: help;" title="Home Page"></i> ' : '').'<strong>'.$post['title'].'</strong>'.($post['status'] !== 'published' && $status === 'all' ? ' &ndash; <em>'.$post['status'].'</em>' : '').'<div class="actions">'.implode(' &bull; ', $actions).'</div>', 'title'),
 						tableCell($this->getAuthor($post['author']), 'author'),
 						!$this->type_data['hierarchical'] && !empty($this->type_data['taxonomy']) ? tableCell($this->getTerms($post['id']), 'terms') : '',
 						tableCell(is_null($post['date']) ? '&mdash;' : formatDate($post['date'], 'd M Y @ g:i A'), 'publish-date'),
