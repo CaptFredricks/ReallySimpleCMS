@@ -11,21 +11,17 @@ class Profile extends User {
 	 * @since 2.0.0[a]
 	 *
 	 * @access public
-	 * @param int $id
 	 * @return null
 	 */
-	public function editProfile($id) {
+	public function editProfile() {
 		// Extend the Query object
 		global $rs_query;
 		
 		// Validate the form data and return any messages
 		$message = isset($_POST['submit']) ? $this->validateData($_POST) : '';
 		
-		// Fetch the user from the database
-		$user = $rs_query->selectRow('users', '*', array('id'=>$id));
-		
 		// Fetch the user's metadata from the database
-		$meta = $this->getUserMeta($id);
+		$meta = $this->getUserMeta($this->id);
 		
 		// Check whether the user has an avatar
 		if(!empty($meta['avatar'])) {
@@ -47,8 +43,8 @@ class Profile extends User {
 			<form class="data-form" action="" method="post" autocomplete="off">
 				<table class="form-table">
 					<?php
-					echo formRow(array('Username', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'username', 'value'=>$user['username']));
-					echo formRow(array('Email', true), array('tag'=>'input', 'type'=>'email', 'class'=>'text-input required invalid init', 'name'=>'email', 'value'=>$user['email']));
+					echo formRow(array('Username', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'username', 'value'=>$this->username));
+					echo formRow(array('Email', true), array('tag'=>'input', 'type'=>'email', 'class'=>'text-input required invalid init', 'name'=>'email', 'value'=>$this->email));
 					echo formRow('First Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'first_name', 'value'=>$meta['first_name']));
 					echo formRow('Last Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'last_name', 'value'=>$meta['last_name']));
 					echo formRow('Avatar', array('tag'=>'div', 'class'=>'image-wrap'.(!empty($meta['avatar']) ? ' visible' : ''), 'style'=>'width: '.($width ?? 0).'px;', 'content'=>formTag('img', array('src'=>getMediaSrc($meta['avatar']), 'data-field'=>'thumb')).formTag('span', array('class'=>'image-remove', 'title'=>'Remove', 'content'=>formTag('i', array('class'=>'fas fa-times'))))), array('tag'=>'input', 'type'=>'hidden', 'name'=>'avatar', 'value'=>$meta['avatar'], 'data-field'=>'id'), array('tag'=>'input', 'type'=>'button', 'class'=>'button-input button modal-launch', 'value'=>'Choose Image', 'data-type'=>'image'));
@@ -152,14 +148,13 @@ class Profile extends User {
 	 * @since 2.0.7[a]
 	 *
 	 * @access public
-	 * @param int $id
 	 * @return null
 	 */
-	public function resetPassword($id) {
+	public function resetPassword() {
 		// Check whether the form has been submitted
 		if(isset($_POST['submit'])) {
 			// Validate the form data and return any messages
-			$message = $this->validatePasswordData($_POST, $id);
+			$message = $this->validatePasswordData($_POST, $this->id);
 			
 			// Check whether the message contains 'success'
 			if(strpos($message, 'success') !== false) {

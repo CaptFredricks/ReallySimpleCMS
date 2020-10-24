@@ -2,16 +2,16 @@
 // Include the header
 require_once __DIR__.'/header.php';
 
+// Fetch the widget's id
+$id = (int)($_GET['id'] ?? 0);
+
 // Create a Widget object
-$rs_widget = new Widget;
+$rs_widget = new Widget($id);
 ?>
 <div class="content">
 	<?php
 	// Fetch the current action
 	$action = $_GET['action'] ?? '';
-	
-	// Fetch the widget's id
-	$id = (int)($_GET['id'] ?? 0);
 	
 	switch($action) {
 		case 'create':
@@ -20,11 +20,11 @@ $rs_widget = new Widget;
 			break;
 		case 'edit':
 			// Edit an existing widget
-			userHasPrivilege($session['role'], 'can_edit_widgets') ? $rs_widget->editWidget($id) : redirect('widgets.php');
+			userHasPrivilege($session['role'], 'can_edit_widgets') ? $rs_widget->editWidget() : redirect('widgets.php');
 			break;
 		case 'delete':
 			// Delete an existing widget
-			userHasPrivilege($session['role'], 'can_delete_widgets') ? $rs_widget->deleteWidget($id) : redirect('widgets.php');
+			userHasPrivilege($session['role'], 'can_delete_widgets') ? $rs_widget->deleteWidget() : redirect('widgets.php');
 			break;
 		default:
 			// List all widgets

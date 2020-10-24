@@ -17,33 +17,6 @@ class Comment {
 	private $id;
 	
 	/**
-	 * The currently queried comment's post.
-	 * @since 1.1.0[b]{ss-02}
-	 *
-	 * @access private
-	 * @var int
-	 */
-	private $post;
-	
-	/**
-	 * The currently queried comment's author.
-	 * @since 1.1.0[b]{ss-02}
-	 *
-	 * @access private
-	 * @var int
-	 */
-	private $author;
-	
-	/**
-	 * The currently queried comment's date.
-	 * @since 1.1.0[b]{ss-02}
-	 *
-	 * @access private
-	 * @var string
-	 */
-	private $date;
-	
-	/**
 	 * The currently queried comment's content.
 	 * @since 1.1.0[b]{ss-02}
 	 *
@@ -62,15 +35,6 @@ class Comment {
 	private $status;
 	
 	/**
-	 * The currently queried comment's parent.
-	 * @since 1.1.0[b]{ss-02}
-	 *
-	 * @access private
-	 * @var int
-	 */
-	private $parent;
-	
-	/**
 	 * Class constructor.
 	 * @since 1.1.0[b]{ss-02}
 	 *
@@ -82,10 +46,13 @@ class Comment {
 		// Extend the Query object
 		global $rs_query;
 		
+		// Create an array of columns to fetch from the database
+		$cols = array_keys(get_object_vars($this));
+		
 		// Check whether the id is '0'
 		if($id !== 0) {
 			// Fetch the comment from the database
-			$comment = $rs_query->selectRow('comments', '*', array('id'=>$id));
+			$comment = $rs_query->selectRow('comments', $cols, array('id'=>$id));
 			
 			// Loop through the array and set the class variables
 			foreach($comment as $key=>$value) $this->$key = $comment[$key];

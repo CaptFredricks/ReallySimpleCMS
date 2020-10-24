@@ -8,6 +8,31 @@
  */
 class Media extends Post {
 	/**
+	 * Class constructor.
+	 * @since 1.1.1[b]
+	 *
+	 * @access public
+	 * @param int $id (optional; default: 0)
+	 * @return null
+	 */
+	public function __construct($id = 0) {
+		// Extend the Query object
+		global $rs_query;
+		
+		// Create an array of columns to fetch from the database
+		$cols = array_keys(get_object_vars($this));
+		
+		// Check whether the id is '0'
+		if($id !== 0) {
+			// Fetch the media from the database
+			$media = $rs_query->selectRow('posts', $cols, array('id'=>$id, 'type'=>'media'));
+			
+			// Loop through the array and set the class variables
+			foreach($media as $key=>$value) $this->$key = $media[$key];
+		}
+	}
+	
+	/**
 	 * Construct a list of all media in the database.
 	 * @since 2.1.0[a]
 	 *
@@ -189,55 +214,42 @@ class Media extends Post {
 	 * @since 2.1.0[a]
 	 *
 	 * @access public
-	 * @param int $id
 	 * @return null
 	 */
-	public function editMedia($id) {
+	public function editMedia() {
 		// Extend the Query object
 		global $rs_query;
 		
 		// Check whether the media's id is valid
-		if(empty($id) || $id <= 0) {
+		if(empty($this->id) || $this->id <= 0) {
 			// Redirect to the 'List Media' page
 			redirect('media.php');
 		} else {
-			// Fetch the number of times the media appears in the database
-			$count = $rs_query->selectRow('posts', 'COUNT(*)', array('id'=>$id, 'type'=>'media'));
+			// Validate the form data and return any messages
+			$message = isset($_POST['submit']) ? $this->validateData($_POST, $this->id) : '';
 			
-			// Check whether the count is zero
-			if($count === 0) {
-				// Redirect to the 'List Media' page
-				redirect('media.php');
-			} else {
-				// Validate the form data and return any messages
-				$message = isset($_POST['submit']) ? $this->validateData($_POST, $id) : '';
-				
-				// Fetch the media from the database
-				$media = $rs_query->selectRow('posts', '*', array('id'=>$id, 'type'=>'media'));
-				
-				// Fetch the media's metadata from the database
-				$meta = $this->getPostMeta($id);
-				?>
-				<div class="heading-wrap">
-					<h1>Edit Media</h1>
-					<?php echo $message; ?>
-				</div>
-				<div class="data-form-wrap clear">
-					<form class="data-form" action="" method="post" autocomplete="off">
-						<table class="form-table">
-							<?php
-							echo formRow('Thumbnail', array('tag'=>'img', 'class'=>'media-thumb', 'src'=>trailingSlash(UPLOADS).$meta['filename']));
-							echo formRow(array('Title', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>$media['title']));
-							echo formRow('Alt Text', array('tag'=>'input', 'class'=>'text-input', 'name'=>'alt_text', 'value'=>$meta['alt_text']));
-							echo formRow('Description', array('tag'=>'textarea', 'class'=>'textarea-input', 'name'=>'description', 'cols'=>30, 'rows'=>10, 'content'=>htmlspecialchars($media['content'])));
-							echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-							echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Media'));
-							?>
-						</table>
-					</form>
-				</div>
-				<?php
-			}
+			// Fetch the media's metadata from the database
+			$meta = $this->getPostMeta($this->id);
+			?>
+			<div class="heading-wrap">
+				<h1>Edit Media</h1>
+				<?php echo $message; ?>
+			</div>
+			<div class="data-form-wrap clear">
+				<form class="data-form" action="" method="post" autocomplete="off">
+					<table class="form-table">
+						<?php
+						echo formRow('Thumbnail', array('tag'=>'div', 'class'=>'thumb-wrap', 'content'=>formTag('img', array('class'=>'media-thumb', 'src'=>trailingSlash(UPLOADS).$meta['filename']))));
+						echo formRow(array('Title', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>$this->title));
+						echo formRow('Alt Text', array('tag'=>'input', 'class'=>'text-input', 'name'=>'alt_text', 'value'=>$meta['alt_text']));
+						echo formRow('Description', array('tag'=>'textarea', 'class'=>'textarea-input', 'name'=>'description', 'cols'=>30, 'rows'=>10, 'content'=>htmlspecialchars($this->content)));
+						echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
+						echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Media'));
+						?>
+					</table>
+				</form>
+			</div>
+			<?php
 		}
 	}
 	
@@ -246,10 +258,9 @@ class Media extends Post {
 	 * @since 2.1.6[a]
 	 *
 	 * @access public
-	 * @param int $id
 	 * @return null
 	 */
-	public function deleteMedia($id) {
+	public function deleteMedia() {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -257,13 +268,13 @@ class Media extends Post {
 		$conflicts = array();
 		
 		// Fetch the number of times the media is used as an avatar from the database
-		$count = $rs_query->select('usermeta', 'COUNT(*)', array('_key'=>'avatar', 'value'=>$id));
+		$count = $rs_query->select('usermeta', 'COUNT(*)', array('_key'=>'avatar', 'value'=>$this->id));
 		
 		// Check whether the count is greater than zero
 		if($count > 0) $conflicts[] = 'users';
 		
 		// Fetch the number of times the media is used as a featured image from the database
-		$count = $rs_query->select('postmeta', 'COUNT(*)', array('_key'=>'feat_image', 'value'=>$id));
+		$count = $rs_query->select('postmeta', 'COUNT(*)', array('_key'=>'feat_image', 'value'=>$this->id));
 		
 		// Check whether the count is greater than zero
 		if($count > 0) $conflicts[] = 'posts';
@@ -273,7 +284,7 @@ class Media extends Post {
 			redirect('media.php?exit_status=failure&conflicts='.implode(':', $conflicts));
 		
 		// Fetch the filename from the database
-		$filename = $rs_query->selectField('postmeta', 'value', array('post'=>$id, '_key'=>'filename'));
+		$filename = $rs_query->selectField('postmeta', 'value', array('post'=>$this->id, '_key'=>'filename'));
 		
 		// Check whether the filename exists in the database
 		if($filename) {
@@ -286,10 +297,10 @@ class Media extends Post {
 				unlink($file_path);
 				
 				// Delete the media from the database
-				$rs_query->delete('posts', array('id'=>$id));
+				$rs_query->delete('posts', array('id'=>$this->id));
 				
 				// Delete the media's metadata from the database
-				$rs_query->delete('postmeta', array('post'=>$id));
+				$rs_query->delete('postmeta', array('post'=>$this->id));
 				
 				// Redirect to the 'List Media' page (with a success message)
 				redirect('media.php?exit_status=success');

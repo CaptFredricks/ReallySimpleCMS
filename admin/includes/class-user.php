@@ -26,6 +26,67 @@ class User {
 	protected const PW_LENGTH = 8;
 	
 	/**
+	 * The currently queried user's id.
+	 * @since 1.1.1[b]
+	 *
+	 * @access protected
+	 * @var int
+	 */
+	protected $id;
+	
+	/**
+	 * The currently queried user's username.
+	 * @since 1.1.1[b]
+	 *
+	 * @access protected
+	 * @var string
+	 */
+	protected $username;
+	
+	/**
+	 * The currently queried user's email.
+	 * @since 1.1.1[b]
+	 *
+	 * @access protected
+	 * @var string
+	 */
+	protected $email;
+	
+	/**
+	 * The currently queried user's role.
+	 * @since 1.1.1[b]
+	 *
+	 * @access protected
+	 * @var int
+	 */
+	protected $role;
+	
+	/**
+	 * Class constructor.
+	 * @since 1.1.1[b]
+	 *
+	 * @access public
+	 * @param int $id (optional; default: 0)
+	 * @return null
+	 */
+	public function __construct($id = 0) {
+		// Extend the Query object
+		global $rs_query;
+		
+		// Create an array of columns to fetch from the database
+		$cols = array_keys(get_object_vars($this));
+		
+		// Check whether the id is '0'
+		if($id !== 0) {
+			// Fetch the user from the database
+			$user = $rs_query->selectRow('users', $cols, array('id'=>$id));
+			
+			// Loop through the array and set the class variables
+			foreach($user as $key=>$value) $this->$key = $user[$key];
+		}
+	}
+	
+	/**
 	 * Construct a list of all users in the database.
 	 * @since 1.2.1[a]
 	 *
@@ -162,71 +223,58 @@ class User {
 	 * @since 1.2.1[a]
 	 *
 	 * @access public
-	 * @param int $id
 	 * @return null
 	 */
-	public function editUser($id) {
+	public function editUser() {
 		// Extend the Query object and the user's session data
 		global $rs_query, $session;
 		
 		// Check whether the user's id is valid
-		if(empty($id) || $id <= 0) {
+		if(empty($this->id) || $this->id <= 0) {
 			// Redirect to the 'List Users' page
 			redirect('users.php');
 		} else {
-			// Fetch the number of times the user appears in the database
-			$count = $rs_query->selectRow('users', 'COUNT(*)', array('id'=>$id));
-			
-			// Check whether the count is zero
-			if($count === 0) {
-				// Redirect to the 'List Users' page
-				redirect('users.php');
+			// Check whether the user is viewing their own page
+			if($this->id === $session['id']) {
+				// Redirect to the user's profile page
+				redirect('profile.php');
 			} else {
-				// Check whether the user is viewing their own page
-				if($id === $session['id']) {
-					// Redirect to the user's profile page
-					redirect('profile.php');
-				} else {
-					// Validate the form data and return any messages
-					$message = isset($_POST['submit']) ? $this->validateData($_POST, $id) : '';
-					
-					// Fetch the user from the database
-					$user = $rs_query->selectRow('users', '*', array('id'=>$id));
-					
-					// Fetch the user's metadata from the database
-					$meta = $this->getUserMeta($id);
-					
-					// Check whether the user has an avatar
-					if(!empty($meta['avatar'])) {
-						// Fetch the avatar's dimensions
-						list($width, $height) = getimagesize(PATH.getMediaSrc($meta['avatar']));
-					}
-					?>
-					<div class="heading-wrap">
-						<h1>Edit User</h1>
-						<?php echo $message; ?>
-					</div>
-					<div class="data-form-wrap clear">
-						<form class="data-form" action="" method="post" autocomplete="off">
-							<table class="form-table">
-								<?php
-								echo formRow(array('Username', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'username', 'value'=>$user['username']));
-								echo formRow(array('Email', true), array('tag'=>'input', 'type'=>'email', 'class'=>'text-input required invalid init', 'name'=>'email', 'value'=>$user['email']));
-								echo formRow('First Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'first_name', 'value'=>$meta['first_name']));
-								echo formRow('Last Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'last_name', 'value'=>$meta['last_name']));
-								echo formRow('Avatar', array('tag'=>'div', 'class'=>'image-wrap'.(!empty($meta['avatar']) ? ' visible' : ''), 'style'=>'width: '.($width ?? 0).'px;', 'content'=>formTag('img', array('src'=>getMediaSrc($meta['avatar']), 'data-field'=>'thumb')).formTag('span', array('class'=>'image-remove', 'title'=>'Remove', 'content'=>formTag('i', array('class'=>'fas fa-times'))))), array('tag'=>'input', 'type'=>'hidden', 'name'=>'avatar', 'value'=>$meta['avatar'], 'data-field'=>'id'), array('tag'=>'input', 'type'=>'button', 'class'=>'button-input button modal-launch', 'value'=>'Choose Image', 'data-type'=>'image'));
-								echo formRow('Role', array('tag'=>'select', 'class'=>'select-input', 'name'=>'role', 'content'=>$this->getRoleList($user['role'])));
-								echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-								echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update User'));
-								?>
-							</table>
-						</form>
-						<a class="reset-password button" href="?id=<?php echo $id; ?>&action=reset_password">Reset Password</a>
-					</div>
-					<?php
-					// Include the upload modal
-			        include_once PATH.ADMIN.INC.'/modal-upload.php';
+				// Validate the form data and return any messages
+				$message = isset($_POST['submit']) ? $this->validateData($_POST, $this->id) : '';
+				
+				// Fetch the user's metadata from the database
+				$meta = $this->getUserMeta($this->id);
+				
+				// Check whether the user has an avatar
+				if(!empty($meta['avatar'])) {
+					// Fetch the avatar's dimensions
+					list($width, $height) = getimagesize(PATH.getMediaSrc($meta['avatar']));
 				}
+				?>
+				<div class="heading-wrap">
+					<h1>Edit User</h1>
+					<?php echo $message; ?>
+				</div>
+				<div class="data-form-wrap clear">
+					<form class="data-form" action="" method="post" autocomplete="off">
+						<table class="form-table">
+							<?php
+							echo formRow(array('Username', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'username', 'value'=>$this->username));
+							echo formRow(array('Email', true), array('tag'=>'input', 'type'=>'email', 'class'=>'text-input required invalid init', 'name'=>'email', 'value'=>$this->email));
+							echo formRow('First Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'first_name', 'value'=>$meta['first_name']));
+							echo formRow('Last Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'last_name', 'value'=>$meta['last_name']));
+							echo formRow('Avatar', array('tag'=>'div', 'class'=>'image-wrap'.(!empty($meta['avatar']) ? ' visible' : ''), 'style'=>'width: '.($width ?? 0).'px;', 'content'=>formTag('img', array('src'=>getMediaSrc($meta['avatar']), 'data-field'=>'thumb')).formTag('span', array('class'=>'image-remove', 'title'=>'Remove', 'content'=>formTag('i', array('class'=>'fas fa-times'))))), array('tag'=>'input', 'type'=>'hidden', 'name'=>'avatar', 'value'=>$meta['avatar'], 'data-field'=>'id'), array('tag'=>'input', 'type'=>'button', 'class'=>'button-input button modal-launch', 'value'=>'Choose Image', 'data-type'=>'image'));
+							echo formRow('Role', array('tag'=>'select', 'class'=>'select-input', 'name'=>'role', 'content'=>$this->getRoleList($this->role)));
+							echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
+							echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update User'));
+							?>
+						</table>
+					</form>
+					<a class="reset-password button" href="?id=<?php echo $this->id; ?>&action=reset_password">Reset Password</a>
+				</div>
+				<?php
+				// Include the upload modal
+				include_once PATH.ADMIN.INC.'/modal-upload.php';
 			}
 		}
 	}
@@ -236,23 +284,22 @@ class User {
 	 * @since 1.2.3[a]
 	 *
 	 * @access public
-	 * @param int $id
 	 * @return null
 	 */
-	public function deleteUser($id) {
+	public function deleteUser() {
 		// Extend the Query object and the user's session data
 		global $rs_query, $session;
 		
 		// Check whether the user's id is valid
-		if(empty($id) || $id <= 0 || $id === $session['id']) {
+		if(empty($this->id) || $this->id <= 0 || $this->id === $session['id']) {
 			// Redirect to the 'List Users' page
 			redirect('users.php');
 		} else {
 			// Delete the user from the database
-			$rs_query->delete('users', array('id'=>$id));
+			$rs_query->delete('users', array('id'=>$this->id));
 			
 			// Delete the user's metadata from the database
-			$rs_query->delete('usermeta', array('user'=>$id));
+			$rs_query->delete('usermeta', array('user'=>$this->id));
 			
 			// Redirect to the 'List Users' page (with a success message)
 			redirect('users.php?exit_status=success');
@@ -473,17 +520,16 @@ class User {
 	 * @since 1.2.3[a]
 	 *
 	 * @access public
-	 * @param int $id
 	 * @return null
 	 */
-	public function resetPassword($id) {
+	public function resetPassword() {
 		// Check whether the user's id is valid
-		if(empty($id) || $id <= 0) {
+		if(empty($this->id) || $this->id <= 0) {
 			// Redirect to the 'List Users' page
 			redirect('users.php');
 		} else {
 			// Validate the form data and return any messages
-			$message = isset($_POST['submit']) ? $this->validatePasswordData($_POST, $id) : '';
+			$message = isset($_POST['submit']) ? $this->validatePasswordData($_POST, $this->id) : '';
 			?>
 			<div class="heading-wrap">
 				<h1>Reset Password</h1>
@@ -587,29 +633,28 @@ class User {
 	 * @since 2.4.3[a]
 	 *
 	 * @access public
-	 * @param int $id
 	 * @return null
 	 */
-	public function reassignContent($id) {
+	public function reassignContent() {
 		// Extend the user's session data
 		global $session;
 		
 		// Check whether the user's id is valid
-		if(empty($id) || $id <= 0 || $id === $session['id']) {
+		if(empty($this->id) || $this->id <= 0 || $this->id === $session['id']) {
 			// Redirect to the 'List Users' page
 			redirect('users.php');
 		} else {
 			// Validate the form data
-			if(isset($_POST['submit'])) $this->validateReassignContentData($_POST, $id);
+			if(isset($_POST['submit'])) $this->validateReassignContentData($_POST, $this->id);
 			?>
 			<div class="heading-wrap">
-				<h1>Reassign Content by <i><?php echo $this->getUsername($id); ?></i></h1>
+				<h1>Reassign Content by <i><?php echo $this->getUsername($this->id); ?></i></h1>
 			</div>
 			<div class="data-form-wrap clear">
 				<form class="data-form" action="" method="post" autocomplete="off">
 					<table class="form-table">
 						<?php
-						echo formRow('Reassign to User', array('tag'=>'select', 'class'=>'select-input', 'name'=>'reassign_to', 'content'=>$this->getUserList($id)));
+						echo formRow('Reassign to User', array('tag'=>'select', 'class'=>'select-input', 'name'=>'reassign_to', 'content'=>$this->getUserList($this->id)));
 						echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
 						echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Submit'));
 						?>

@@ -441,11 +441,16 @@ main.content {
 	animation: bounce 0.5s;
 }
 
-.comments .comment .actions .upvote i {
+.comments .comment .actions .upvote i,
+.comments .comment .actions .downvote i {
+	color: #6f6f6f;
+}
+
+.comments .comment .actions .upvote .active i {
 	color: #2c0;
 }
 
-.comments .comment .actions .downvote i {
+.comments .comment .actions .downvote .active i {
 	color: #f00;
 }
 

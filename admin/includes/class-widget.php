@@ -8,6 +8,31 @@
  */
 class Widget extends Post {
 	/**
+	 * Class constructor.
+	 * @since 1.1.1[b]
+	 *
+	 * @access public
+	 * @param int $id (optional; default: 0)
+	 * @return null
+	 */
+	public function __construct($id = 0) {
+		// Extend the Query object
+		global $rs_query;
+		
+		// Create an array of columns to fetch from the database
+		$cols = array_keys(get_object_vars($this));
+		
+		// Check whether the id is '0'
+		if($id !== 0) {
+			// Fetch the widget from the database
+			$widget = $rs_query->selectRow('posts', $cols, array('id'=>$id, 'type'=>'widget'));
+			
+			// Loop through the array and set the class variables
+			foreach($widget as $key=>$value) $this->$key = $widget[$key];
+		}
+	}
+	
+	/**
 	 * Construct a list of all widgets in the database.
 	 * @since 1.6.0[a]
 	 *
@@ -132,52 +157,39 @@ class Widget extends Post {
 	 * @since 1.6.1[a]
 	 *
 	 * @access public
-	 * @param int $id
 	 * @return null
 	 */
-	public function editWidget($id) {
+	public function editWidget() {
 		// Extend the Query object
 		global $rs_query;
 		
 		// Check whether the widget's id is valid
-		if(empty($id) || $id <= 0) {
+		if(empty($this->id) || $this->id <= 0) {
 			// Redirect to the 'List Widgets' page
 			redirect('widgets.php');
 		} else {
-			// Fetch the number of times the widget appears in the database
-			$count = $rs_query->selectRow('posts', 'COUNT(*)', array('id'=>$id, 'type'=>'widget'));
-			
-			// Check whether the count is zero
-			if($count === 0) {
-				// Redirect to the 'List Widgets' page
-				redirect('widgets.php');
-			} else {
-				// Validate the form data and return any messages
-				$message = isset($_POST['submit']) ? $this->validateData($_POST, $id) : '';
-				
-				// Fetch the widget from the database
-				$widget = $rs_query->selectRow('posts', '*', array('id'=>$id, 'type'=>'widget'));
-				?>
-				<div class="heading-wrap">
-					<h1>Edit Widget</h1>
-					<?php echo $message; ?>
-				</div>
-				<div class="data-form-wrap clear">
-					<form class="data-form" action="" method="post" autocomplete="off">
-						<table class="form-table">
-							<?php
-							echo formRow(array('Title', true), array('tag'=>'input', 'id'=>'title-field', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>$widget['title']));
-							echo formRow(array('Slug', true), array('tag'=>'input', 'id'=>'slug-field', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>$widget['slug']));
-							echo formRow('Content', array('tag'=>'textarea', 'class'=>'textarea-input', 'name'=>'content', 'cols'=>30, 'rows'=>10, 'content'=>htmlspecialchars($widget['content'])));
-							echo formRow('Status', array('tag'=>'select', 'class'=>'select-input', 'name'=>'status', 'content'=>'<option value="'.$widget['status'].'">'.ucfirst($widget['status']).'</option>'.($widget['status'] === 'active' ? '<option value="inactive">Inactive</option>' : '<option value="active">Active</option>')));
-							echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-							echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Widget'));
-							?>
-						</table>
-					</form>
-				</div>
-				<?php
-			}
+			// Validate the form data and return any messages
+			$message = isset($_POST['submit']) ? $this->validateData($_POST, $this->id) : '';
+			?>
+			<div class="heading-wrap">
+				<h1>Edit Widget</h1>
+				<?php echo $message; ?>
+			</div>
+			<div class="data-form-wrap clear">
+				<form class="data-form" action="" method="post" autocomplete="off">
+					<table class="form-table">
+						<?php
+						echo formRow(array('Title', true), array('tag'=>'input', 'id'=>'title-field', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>$this->title));
+						echo formRow(array('Slug', true), array('tag'=>'input', 'id'=>'slug-field', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>$this->slug));
+						echo formRow('Content', array('tag'=>'textarea', 'class'=>'textarea-input', 'name'=>'content', 'cols'=>30, 'rows'=>10, 'content'=>htmlspecialchars($this->content)));
+						echo formRow('Status', array('tag'=>'select', 'class'=>'select-input', 'name'=>'status', 'content'=>'<option value="'.$this->status.'">'.ucfirst($this->status).'</option>'.($this->status === 'active' ? '<option value="inactive">Inactive</option>' : '<option value="active">Active</option>')));
+						echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
+						echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Widget'));
+						?>
+					</table>
+				</form>
+			</div>
+			<?php
 		}
 	}
 	
@@ -186,22 +198,21 @@ class Widget extends Post {
 	 * @since 1.6.1[a]
 	 *
 	 * @access public
-	 * @param int $id
 	 * @return null
 	 */
-	public function deleteWidget($id) {
+	public function deleteWidget() {
 		// Extend the Query object
 		global $rs_query;
 		
 		// Check whether the widget's id is valid
-		if(empty($id) || $id <= 0) {
+		if(empty($this->id) || $this->id <= 0) {
 			// Redirect to the 'List Widgets' page
 			redirect('widgets.php');
 		} else {
 			// Delete the widget from the database
-			$rs_query->delete('posts', array('id'=>$id, 'type'=>'widget'));
+			$rs_query->delete('posts', array('id'=>$this->id, 'type'=>'widget'));
 			
-			// Redirect to the 'List Posts' page (with a success message)
+			// Redirect to the 'List Widgets' page (with a success message)
 			redirect('widgets.php?exit_status=success');
 		}
 	}

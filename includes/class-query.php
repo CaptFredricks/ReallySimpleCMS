@@ -171,7 +171,7 @@ class Query {
 			isset($values) ? $select_query->execute($values) : $select_query->execute();
 			
 			// Check whether the query is a row count
-			if(strpos(strtoupper($data), 'COUNT') !== false) {
+			if(strpos(strtoupper($data), 'COUNT(') !== false) {
 				// Return the query data
                 return $select_query->fetchColumn();
             } else {

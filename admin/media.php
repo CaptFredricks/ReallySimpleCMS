@@ -2,16 +2,16 @@
 // Include the header
 require_once __DIR__.'/header.php';
 
+// Fetch the media's id
+$id = (int)($_GET['id'] ?? 0);
+
 // Create a Media object
-$rs_media = new Media;
+$rs_media = new Media($id);
 ?>
 <div class="content">
 	<?php
 	// Fetch the current action
 	$action = $_GET['action'] ?? '';
-	
-	// Fetch the media's id
-	$id = (int)($_GET['id'] ?? 0);
 	
 	switch($action) {
 		case 'upload':
@@ -20,11 +20,11 @@ $rs_media = new Media;
 			break;
 		case 'edit':
 			// Edit existing media
-			userHasPrivilege($session['role'], 'can_edit_media') ? $rs_media->editMedia($id) : redirect('media.php');
+			userHasPrivilege($session['role'], 'can_edit_media') ? $rs_media->editMedia() : redirect('media.php');
 			break;
 		case 'delete':
 			// Delete existing media
-			userHasPrivilege($session['role'], 'can_delete_media') ? $rs_media->deleteMedia($id) : redirect('media.php');
+			userHasPrivilege($session['role'], 'can_delete_media') ? $rs_media->deleteMedia() : redirect('media.php');
 			break;
 		default:
 			// List all media

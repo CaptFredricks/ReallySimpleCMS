@@ -11,91 +11,82 @@ class Post {
 	 * The currently queried post's id.
 	 * @since 1.0.1[b]
 	 *
-	 * @access private
+	 * @access protected
 	 * @var int
 	 */
-	private $id;
+	protected $id;
 	
 	/**
 	 * The currently queried post's title.
 	 * @since 1.0.1[b]
 	 *
-	 * @access private
+	 * @access protected
 	 * @var string
 	 */
-	private $title;
+	protected $title;
 	
 	/**
 	 * The currently queried post's author.
 	 * @since 1.0.1[b]
 	 *
-	 * @access private
+	 * @access protected
 	 * @var int
 	 */
-	private $author;
+	protected $author;
 	
 	/**
 	 * The currently queried post's date.
 	 * @since 1.0.1[b]
 	 *
-	 * @access private
+	 * @access protected
 	 * @var string
 	 */
-	private $date;
-	
-	/**
-	 * The currently queried post's modified date.
-	 * @since 1.0.1[b]
-	 *
-	 * @access private
-	 * @var string
-	 */
-	private $modified;
+	protected $date;
 	
 	/**
 	 * The currently queried post's content.
 	 * @since 1.0.1[b]
 	 *
-	 * @access private
+	 * @access protected
 	 * @var string
 	 */
-	private $content;
+	protected $content;
 	
 	/**
 	 * The currently queried post's status.
 	 * @since 1.0.1[b]
 	 *
-	 * @access private
+	 * @access protected
 	 * @var string
 	 */
-	private $status;
+	protected $status;
 	
 	/**
 	 * The currently queried post's slug.
 	 * @since 1.0.1[b]
 	 *
-	 * @access private
+	 * @access protected
 	 * @var string
 	 */
-	private $slug;
+	protected $slug;
 	
 	/**
 	 * The currently queried post's parent.
 	 * @since 1.0.1[b]
 	 *
-	 * @access private
+	 * @access protected
 	 * @var int
 	 */
-	private $parent;
+	protected $parent;
 	
 	/**
 	 * The currently queried post's type.
 	 * @since 1.0.1[b]
 	 *
-	 * @access private
+	 * @access protected
 	 * @var string
 	 */
-	private $type;
+	protected $type;
 	
 	/**
 	 * The currently queried post's type data.
@@ -128,10 +119,19 @@ class Post {
 		// Extend the Query object and the taxonomies array
 		global $rs_query, $taxonomies;
 		
+		// Create an array of columns to fetch from the database
+		$cols = array_keys(get_object_vars($this));
+		
+		// Exclude 'type_data' and 'taxonomy_data'
+		$exclude = array('type_data', 'taxonomy_data');
+		
+		// Update the columns array
+		$cols = array_diff($cols, $exclude);
+		
 		// Check whether the id is '0'
 		if($id !== 0) {
 			// Fetch the post from the database
-			$post = $rs_query->selectRow('posts', '*', array('id'=>$id));
+			$post = $rs_query->selectRow('posts', $cols, array('id'=>$id));
 			
 			// Loop through the array and set the class variables
 			foreach($post as $key=>$value) $this->$key = $post[$key];

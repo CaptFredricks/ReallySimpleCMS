@@ -2,16 +2,16 @@
 // Include the header
 require_once __DIR__.'/header.php';
 
+// Fetch the menu's id
+$id = (int)($_GET['id'] ?? 0);
+
 // Create a Menu object
-$rs_menu = new Menu;
+$rs_menu = new Menu($id);
 ?>
 <div class="content">
 	<?php
 	// Fetch the current action
 	$action = $_GET['action'] ?? '';
-	
-	// Fetch the menu's id
-	$id = (int)($_GET['id'] ?? 0);
 	
 	switch($action) {
 		case 'create':
@@ -20,11 +20,11 @@ $rs_menu = new Menu;
 			break;
 		case 'edit':
 			// Edit an existing menu
-			userHasPrivilege($session['role'], 'can_edit_menus') ? $rs_menu->editMenu($id) : redirect('menus.php');
+			userHasPrivilege($session['role'], 'can_edit_menus') ? $rs_menu->editMenu() : redirect('menus.php');
 			break;
 		case 'delete':
 			// Delete an existing menu
-			userHasPrivilege($session['role'], 'can_delete_menus') ? $rs_menu->deleteMenu($id) : redirect('menus.php');
+			userHasPrivilege($session['role'], 'can_delete_menus') ? $rs_menu->deleteMenu() : redirect('menus.php');
 			break;
 		default:
 			// List all menus

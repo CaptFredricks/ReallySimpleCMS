@@ -6,6 +6,58 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.1.1[b] (2020-10-24)
+
+- Fixed the mobile sizing of media thumbnails on the "Edit Media" page
+- Updated Font Awesome to v5.15.1
+- Cleaned up some entries in the Alpha changelog
+- Created constructors for the `Media`, `Menu`, `User`, and `Widget` classes
+- Changed the access for the `Post` class variables from `private` to `protected`
+- The `Widget` class now makes use of class variables (inherited from `Post`)
+- Created class variables for the `User` class
+- The `Profile` class now makes use of class variables (inherited from `User`)
+- Code cleanup in the `Media`, `Menu`, `Profile`, and `User` classes
+- Fixed a bug in the `Query` class that caused any database field containing the string `count` to return an error
+- The `Comment`, `Menu`, `Post`, `Term`, `User`, and `Widget` class constructors now only fetch specific columns from the database
+- The `Menu` class now makes use of class variables (inherited from `Post`)
+- Removed the `Term::count` variable, as it was unused
+- Removed the `Post::modified` variable, as it was unused
+- Removed the `Comment::post`, `Comment::author`, `Comment::date`, and `Comment::parent` variables, as they were unused
+- Fixed a bug where classes with multi-worded names would cause an error and not autoload
+- Moved all user role functions from the `Settings` class to a new `UserRole` class and created class variables for it
+- Comment upvotes and downvotes are now grey when they are inactive and colored when they are active
+
+**Modified files:**
+- admin/includes/class-comment.php
+- admin/includes/class-media.php
+- admin/includes/class-menu.php
+- admin/includes/class-post.php
+- admin/includes/class-profile.php
+- admin/includes/class-settings.php
+- admin/includes/class-term.php
+- admin/includes/class-user-role.php (N)
+- admin/includes/class-user.php
+- admin/includes/class-widget.php
+- admin/includes/css/style.css (M)
+- admin/includes/css/style.min.css (M)
+- admin/includes/functions.php
+- admin/media.php
+- admin/menus.php
+- admin/profile.php
+- admin/settings.php
+- admin/users.php
+- admin/widgets.php
+- content/themes/carbon/style.css
+- includes/class-comment.php (M)
+- includes/class-query.php (M)
+- includes/css/font-awesome.min.css
+- includes/fonts/fa-brands.ttf
+- includes/fonts/fa-regular.ttf
+- includes/fonts/fa-solid.ttf
+- includes/functions.php
+- includes/js/script.js
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.1.0[b] (2020-10-22)
 
 - For a full list of changes, see: `changelog-beta-snapshots.md`

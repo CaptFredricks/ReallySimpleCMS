@@ -209,16 +209,25 @@ jQuery(document).ready($ => {
 		// Submit the data
 		submitVote(data, $(this));
 		
+		// Fetch the downvote link
+		let downvote = $(this).parent().siblings('.downvote').children('a');
+		
 		// Check whether the user has already upvoted
 		if($(this).data('vote')) {
 			// Set the vote status to 'unvoted'
 			$(this).data('vote', 0);
+			
+			// Add the downvote's 'active' class
+			$(downvote).addClass('active');
 		} else {
 			// Set the vote status to 'voted'
 			$(this).data('vote', 1);
 			
-			// Fetch the downvote link
-			let downvote = $(this).parent().siblings('.downvote').children('a');
+			// Add the 'active' class
+			$(this).addClass('active');
+			
+			// Remove the downvote's 'active' class
+			$(downvote).removeClass('active');
 			
 			// Check whether the user has already downvoted
 			if($(downvote).data('vote')) {
@@ -255,16 +264,25 @@ jQuery(document).ready($ => {
 		// Submit the data
 		submitVote(data, $(this));
 		
+		// Fetch the upvote link
+		let upvote = $(this).parent().siblings('.upvote').children('a');
+		
 		// Check whether the user has already downvoted
 		if($(this).data('vote')) {
 			// Set the vote status to 'unvoted'
 			$(this).data('vote', 0);
+			
+			// Add the upvote's 'active' class
+			$(upvote).addClass('active');
 		} else {
 			// Set the vote status to 'voted'
 			$(this).data('vote', 1);
 			
-			// Fetch the upvote link
-			let upvote = $(this).parent().siblings('.upvote').children('a');
+			// Add the 'active' class
+			$(this).addClass('active');
+			
+			// Remove the upvote's 'active' class
+			$(upvote).removeClass('active');
 			
 			// Check whether the user has already downvoted
 			if($(upvote).data('vote')) {

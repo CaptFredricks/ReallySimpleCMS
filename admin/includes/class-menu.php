@@ -1,12 +1,12 @@
 <?php
 /**
- * Admin class used to implement the Menu object.
+ * Admin class used to implement the Menu object. Inherits from the Term class.
  * @since 1.8.0[a]
  *
  * Menus are used for website navigation on the front end of the website.
  * Menus can be created, modified, and deleted. Menus are stored in the 'terms' table under the 'nav_menu' taxonomy. Menu items are stored in the 'posts' table as the 'nav_menu_item' post type.
  */
-class Menu {
+class Menu extends Term {
 	/**
 	 * The number of members in a menu item's family tree.
 	 * @since 1.8.7[a]
@@ -15,6 +15,37 @@ class Menu {
 	 * @var int
 	 */
 	private $members = 0;
+	
+	/**
+	 * Class constructor.
+	 * @since 1.1.1[b]
+	 *
+	 * @access public
+	 * @param int $id (optional; default: 0)
+	 * @return null
+	 */
+	public function __construct($id = 0) {
+		// Extend the Query object
+		global $rs_query;
+		
+		// Create an array of columns to fetch from the database
+		$cols = array_keys(get_object_vars($this));
+		
+		// Exclude 'members'
+		$exclude = array('members');
+		
+		// Update the columns array
+		$cols = array_diff($cols, $exclude);
+		
+		// Check whether the id is '0'
+		if($id !== 0) {
+			// Fetch the menu from the database
+			$menu = $rs_query->selectRow('terms', $cols, array('id'=>$id, 'taxonomy'=>getTaxonomyId('nav_menu')));
+			
+			// Loop through the array and set the class variables
+			foreach($menu as $key=>$value) $this->$key = $menu[$key];
+		}
+	}
 	
 	/**
 	 * Construct a list of all menus in the database.
@@ -162,95 +193,82 @@ class Menu {
 	 * @since 1.8.0[a]
 	 *
 	 * @access public
-	 * @param int $id
 	 * @return null
 	 */
-	public function editMenu($id) {
+	public function editMenu() {
 		// Extend the Query object
 		global $rs_query;
 		
 		// Check whether the menu's id is valid
-		if(empty($id) || $id <= 0) {
+		if(empty($this->id) || $this->id <= 0) {
 			// Redirect to the 'List Menus' page
 			redirect('menus.php');
 		} else {
-			// Fetch the number of times the menu appears in the database
-			$count = $rs_query->selectRow('terms', 'COUNT(*)', array('id'=>$id, 'taxonomy'=>getTaxonomyId('nav_menu')));
-			
-			// Check whether the count is zero
-			if($count === 0) {
-				// Redirect to the 'List Menus' page
-				redirect('menus.php');
-			} else {
-				// Check whether the menu item's id is set
-				if(isset($_GET['item_id'])) {
-					// Fetch the menu item's id
-					$item_id = (int)$_GET['item_id'];
+			// Check whether the menu item's id is set
+			if(isset($_GET['item_id'])) {
+				// Fetch the menu item's id
+				$item_id = (int)$_GET['item_id'];
+				
+				// Check whether the menu item's id is valid
+				if(empty($item_id) || $item_id <= 0) {
+					// Redirect to the 'Edit Menu' page
+					redirect('menus.php?id='.$this->id.'&action=edit');
+				} else {
+					// Fetch the number of times the menu item appears in the database
+					$count = $rs_query->selectRow('posts', 'COUNT(*)', array('id'=>$item_id, 'type'=>'nav_menu_item'));
 					
-					// Check whether the menu item's id is valid
-					if(empty($item_id) || $item_id <= 0) {
+					// Check whether the count is zero
+					if($count === 0) {
 						// Redirect to the 'Edit Menu' page
-						redirect('menus.php?id='.$id.'&action=edit');
-					} else {
-						// Fetch the number of times the menu item appears in the database
-						$count = $rs_query->selectRow('posts', 'COUNT(*)', array('id'=>$item_id, 'type'=>'nav_menu_item'));
-						
-						// Check whether the count is zero
-						if($count === 0) {
-							// Redirect to the 'Edit Menu' page
-							redirect('menus.php?id='.$id.'&action=edit');
-						}
+						redirect('menus.php?id='.$this->id.'&action=edit');
 					}
 				}
-				
-				// Validate the form data and return any messages
-				$message = isset($_POST['submit']) ? $this->validateMenuData($_POST, $id) : '';
-				
-				// Fetch the menu from the database
-				$menu = $rs_query->selectRow('terms', '*', array('id'=>$id, 'taxonomy'=>getTaxonomyId('nav_menu')));
-				?>
-				<div class="heading-wrap">
-					<h1>Edit Menu</h1>
-					<?php echo $message; ?>
-				</div>
-				<div class="data-form-wrap clear">
-					<form class="data-form" action="" method="post" autocomplete="off">
-						<div class="content">
-							<?php
-							// Construct a 'name' form tag
-							echo formTag('input', array('id'=>'name-field', 'class'=>'text-input required invalid init', 'name'=>'name', 'value'=>$menu['name'], 'placeholder'=>'Menu name'));
-							
-							// Construct a 'slug' form tag
-							echo formTag('input', array('id'=>'slug-field', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>$menu['slug'], 'placeholder'=>'Menu slug'));
-							?>
-						</div>
-						<div class="sidebar">
-							<div class="block">
-								<h2>Add Menu Items</h2>
-								<div class="row">
-									<?php
-									// Construct the 'menu items' lists
-									$this->getMenuItemsLists();
-									?>
-								</div>
-								<div id="submit" class="row">
-									<?php
-									// Construct the 'submit' button form tag
-									echo formTag('input', array('type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update'));
-									?>
-								</div>
-							</div>
-						</div>
-					</form>
-					<div class="item-list-wrap">
+			}
+			
+			// Validate the form data and return any messages
+			$message = isset($_POST['submit']) ? $this->validateMenuData($_POST, $this->id) : '';
+			?>
+			<div class="heading-wrap">
+				<h1>Edit Menu</h1>
+				<?php echo $message; ?>
+			</div>
+			<div class="data-form-wrap clear">
+				<form class="data-form" action="" method="post" autocomplete="off">
+					<div class="content">
 						<?php
-						// Construct a list of the items on the menu
-						echo $this->getMenuItems($menu['id']);
+						// Construct a 'name' form tag
+						echo formTag('input', array('id'=>'name-field', 'class'=>'text-input required invalid init', 'name'=>'name', 'value'=>$this->name, 'placeholder'=>'Menu name'));
+						
+						// Construct a 'slug' form tag
+						echo formTag('input', array('id'=>'slug-field', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>$this->slug, 'placeholder'=>'Menu slug'));
 						?>
 					</div>
+					<div class="sidebar">
+						<div class="block">
+							<h2>Add Menu Items</h2>
+							<div class="row">
+								<?php
+								// Construct the 'menu items' lists
+								$this->getMenuItemsLists();
+								?>
+							</div>
+							<div id="submit" class="row">
+								<?php
+								// Construct the 'submit' button form tag
+								echo formTag('input', array('type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update'));
+								?>
+							</div>
+						</div>
+					</div>
+				</form>
+				<div class="item-list-wrap">
+					<?php
+					// Construct a list of the items on the menu
+					echo $this->getMenuItems($this->id);
+					?>
 				</div>
-				<?php
-			}
+			</div>
+			<?php
 		}
 	}
 	
@@ -259,26 +277,25 @@ class Menu {
 	 * @since 1.8.1[a]
 	 *
 	 * @access public
-	 * @param int $id
 	 * @return null
 	 */
-	public function deleteMenu($id) {
+	public function deleteMenu() {
 		// Extend the Query object
 		global $rs_query;
 		
 		// Check whether the menu's id is valid
-		if(empty($id) || $id <= 0) {
+		if(empty($this->id) || $this->id <= 0) {
 			// Redirect to the 'List Menus' page
 			redirect('menus.php');
 		} else {
 			// Delete the menu from the database
-			$rs_query->delete('terms', array('id'=>$id, 'taxonomy'=>getTaxonomyId('nav_menu')));
+			$rs_query->delete('terms', array('id'=>$this->id, 'taxonomy'=>getTaxonomyId('nav_menu')));
 			
 			// Fetch all term relationships associated with the menu from the database
-			$relationships = $rs_query->select('term_relationships', 'post', array('term'=>$id));
+			$relationships = $rs_query->select('term_relationships', 'post', array('term'=>$this->id));
 			
 			// Delete all term relationships associated with the menu from the database
-			$rs_query->delete('term_relationships', array('term'=>$id));
+			$rs_query->delete('term_relationships', array('term'=>$this->id));
 			
 			// Loop through the relationships
 			foreach($relationships as $relationship) {

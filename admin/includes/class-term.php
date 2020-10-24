@@ -11,28 +11,28 @@ class Term {
 	 * The currently queried term's id.
 	 * @since 1.0.5[b]
 	 *
-	 * @access private
+	 * @access protected
 	 * @var int
 	 */
-	private $id;
+	protected $id;
 	
 	/**
 	 * The currently queried term's name.
 	 * @since 1.0.5[b]
 	 *
-	 * @access private
+	 * @access protected
 	 * @var string
 	 */
-	private $name;
+	protected $name;
 	
 	/**
 	 * The currently queried term's slug.
 	 * @since 1.0.5[b]
 	 *
-	 * @access private
+	 * @access protected
 	 * @var string
 	 */
-	private $slug;
+	protected $slug;
 	
 	/**
 	 * The currently queried term's taxonomy.
@@ -51,15 +51,6 @@ class Term {
 	 * @var int
 	 */
 	private $parent;
-	
-	/**
-	 * The currently queried term's count.
-	 * @since 1.0.5[b]
-	 *
-	 * @access private
-	 * @var int
-	 */
-	private $count;
 	
 	/**
 	 * The currently queried term's taxonomy data.
@@ -83,10 +74,19 @@ class Term {
 		// Extend the Query object
 		global $rs_query;
 		
+		// Create an array of columns to fetch from the database
+		$cols = array_keys(get_object_vars($this));
+		
+		// Exclude 'taxonomy_data'
+		$exclude = array('taxonomy_data');
+		
+		// Update the columns array
+		$cols = array_diff($cols, $exclude);
+		
 		// Check whether the id is '0'
 		if($id !== 0) {
 			// Fetch the term from the database
-			$term = $rs_query->selectRow('terms', '*', array('id'=>$id));
+			$term = $rs_query->selectRow('terms', $cols, array('id'=>$id));
 			
 			// Loop through the array and set the class variables
 			foreach($term as $key=>$value) $this->$key = $term[$key];

@@ -606,376 +606,376 @@
 ----------------------------------------------------------------------------------------------------
 ## Version 2.1.11[a] (2019-12-07)
 
-* Improved styling of the setup and installation forms
-* Created minified versions of several CSS files
-* Renamed buttons.css to button.css
-* The setup and installation pages now load minified resources
-* Renamed fa-icons.css to font-awesome.min.css
-* All admin pages now load some minified resources (the rest will be changed later)
-* The log in and reset password pages now load some minified resources (the rest will be changed later)
-* The log in and reset password page titles now display the page name before the site name
-* Created a function that fetches the title of an admin page
-* Tweaked documentation in the getCurrentPage function
-* Added a 'Design Settings' page link to the admin menu
-* Created the 'Design Settings' page
-* Renamed the 'feat-image-wrap' CSS class to 'image-wrap'
-* Cleaned up some code in the Profile::editProfile function
-* Settings entries for 'site_logo' and 'site_icon' are now created during installation
-* Cleaned up some code in the User::createUser and User::editUser functions
-* A notice is now displayed on the media library tab of the upload modal if the media library is empty
-* Files uploaded through the upload modal can now be inserted into a post's content
-* Updated the upload functionality to accomodate multiple image fields on the same page
-* The site logo is now displayed on the admin header bar
-* The site icon is now displayed on the page tab
-* Moved the getMedia function from the admin functions.php file to the globals.php file
-* The site icon and site logo are now both displayed on the log in and reset password pages
-* When a user's profile form is submitted, it now refreshes after only 2 seconds (reduced from 3)
+- Improved styling of the setup and installation forms
+- Created minified versions of several CSS files
+- Renamed `buttons.css` to `button.css`
+- The setup and installation pages now load minified resources
+- Renamed `fa-icons.css` to `font-awesome.min.css`
+- All admin pages now load some minified resources (the rest will be changed later)
+- The log in and reset password pages now load some minified resources (the rest will be changed later)
+- The log in and reset password page titles now display the page name before the site name
+- Created a function that fetches the title of an admin page
+- Tweaked documentation in the `getCurrentPage` function
+- Added a "Design Settings" page link to the admin menu
+- Created the "Design Settings" page
+- Renamed the `feat-image-wrap` CSS class to `image-wrap`
+- Cleaned up some code in the `Profile::editProfile` function
+- Settings entries for `site_logo` and `site_icon` are now created during installation
+- Cleaned up some code in the `User::createUser` and `User::editUser` functions
+- A notice is now displayed on the media library tab of the upload modal if the media library is empty
+- Files uploaded through the upload modal can now be inserted into a post's content
+- Updated the upload functionality to accomodate multiple image fields on the same page
+- The site logo is now displayed on the admin header bar
+- The site icon is now displayed on the page tab
+- Moved the `getMedia` function from the admin `functions.php` file to the `globals.php` file
+- The site icon and site logo are now both displayed on the log in and reset password pages
+- When a user's profile form is submitted, it now refreshes after only 2 seconds (reduced from 3)
 
 **Modified files:**
-* admin/header.php
-* admin/includes/class-post.php
-* admin/includes/class-profile.php
-* admin/includes/class-settings.php
-* admin/includes/class-user.php
-* admin/includes/css/install.css
-* admin/includes/css/install.min.css (N)
-* admin/includes/css/style.css
-* admin/includes/functions.php
-* admin/includes/js/modal.js
-* admin/includes/js/script.js
-* admin/install.php (M)
-* admin/settings.php
-* admin/setup.php (M)
-* includes/css/button.css (R)
-* includes/css/button.min.css (N)
-* includes/css/font-awesome.min.css (R)
-* includes/css/style.css
-* includes/globals.php
-* login.php
+- admin/header.php
+- admin/includes/class-post.php
+- admin/includes/class-profile.php
+- admin/includes/class-settings.php
+- admin/includes/class-user.php
+- admin/includes/css/install.css
+- admin/includes/css/install.min.css (N)
+- admin/includes/css/style.css
+- admin/includes/functions.php
+- admin/includes/js/modal.js
+- admin/includes/js/script.js
+- admin/install.php (M)
+- admin/settings.php
+- admin/setup.php (M)
+- includes/css/button.css (R)
+- includes/css/button.min.css (N)
+- includes/css/font-awesome.min.css (R)
+- includes/css/style.css
+- includes/globals.php
+- login.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.1.10[a] (2019-12-06)
 
-* The globals.php file is now included in the install.php file
-* Reordered properties on the header CSS file imports in the setup.php and install.php files (this is a cosmetic change only)
-* Tweaked documentation in the Query class
-* Tweaked styling of form elements
-* Rearranged some elements on the Profile::resetPassword form and added a new spacer class to the line break tag
-* Rearranged some elements on the User::createUser, User::editUser, and User::resetPassword forms and added a new spacer class to the line break tag
-* Whitelisted more properties in the formTag function
-* Data atrributes can now be used in the formTag function on input tags
-* Tweaked and rearranged some elements on the Post::createPost and Post::editPost forms
-* The content fields of the Post::createPost and Post::editPost forms are now slightly taller
-* Added a hidden 'media type' field to the media tab of the upload modal
-* Tweaked the way the upload modal handles set up (launch) and clean up (closing)
-* Added 'mime type' and 'alt text' data fields to the media items' info
-* Tweaked code in the uploadMediaFile function
-* When a media item is uploaded via the upload modal, its title will now be derived from the slug
-* Media in the media library can now be inserted into a post's content
-* Tweaked styling of the admin nav menu
-* Improved styling of the Ocean and Sunset admin themes
+- The `globals.php` file is now included in the `install.php` file
+- Reordered properties on the header CSS file imports in the `setup.php` and `install.php` files (this is a cosmetic change only)
+- Tweaked documentation in the `Query` class
+- Tweaked styling of form elements
+- Rearranged some elements on the `Profile::resetPassword` form and added a new spacer class to the line break tag
+- Rearranged some elements on the `User::createUser`, `User::editUser`, and `User::resetPassword` forms and added a new spacer class to the line break tag
+- Whitelisted more properties in the `formTag` function
+- Data atrributes can now be used in the `formTag` function on input tags
+- Tweaked and rearranged some elements on the `Post::createPost` and `Post::editPost` forms
+- The content fields of the `Post::createPost` and `Post::editPost` forms are now slightly taller
+- Added a hidden "media type" field to the media tab of the upload modal
+- Tweaked the way the upload modal handles set up (launch) and clean up (closing)
+- Added "mime type" and "alt text" data fields to the media items' info
+- Tweaked code in the `uploadMediaFile` function
+- When a media item is uploaded via the upload modal, its title will now be derived from the slug
+- Media in the media library can now be inserted into a post's content
+- Tweaked styling of the admin nav menu
+- Improved styling of the "Ocean" and "Sunset" admin themes
 
 **Modified files:**
-* admin/includes/class-post.php
-* admin/includes/class-profile.php
-* admin/includes/class-user.php
-* admin/includes/css/style.css
-* admin/includes/functions.php
-* admin/includes/js/modal.js
-* admin/includes/modal-upload.php (M)
-* admin/install.php
-* admin/setup.php (M)
-* content/admin-themes/ocean.css
-* content/admin-themes/sunset.css
-* includes/class-query.php (M)
+- admin/includes/class-post.php
+- admin/includes/class-profile.php
+- admin/includes/class-user.php
+- admin/includes/css/style.css
+- admin/includes/functions.php
+- admin/includes/js/modal.js
+- admin/includes/modal-upload.php (M)
+- admin/install.php
+- admin/setup.php (M)
+- content/admin-themes/ocean.css
+- content/admin-themes/sunset.css
+- includes/class-query.php (M)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.1.9[a] (2019-12-04)
 
-* Wrapped some null coalescing operations in parentheses in the Post class
-* Created a new admin theme named Harvest (it uses the old color scheme of the Sunset theme)
-* Updated color scheme for the Sunset theme
-* Updated some CSS classes and ids in all of the admin classes
-* Reordered a function in the Post class
-* Added JavaScript form validation
-* Tweaked the styling of checkboxes on forms
-* Changed the access for the Post::getAuthor function from private to protected
-* Replaced the 'Alt Text' column on the 'List Media' table with an 'Author' column and reordered the 'Upload Date' column
-* Added more documentation to the Query class
-* Tweaked a previous entry in the changelog
-* Created a global constant that holds the minimum required PHP version
-* Added a check to make sure the minimum PHP version or higher is being run on the web server RSCMS is installed on
+- Wrapped some null coalescing operations in parentheses in the `Post` class
+- Created a new admin theme named "Harvest" (it uses the old color scheme of the "Sunset" theme)
+- Updated color scheme for the "Sunset" theme
+- Updated some CSS classes and ids in all of the admin classes
+- Reordered a function in the `Post` class
+- Added JavaScript form validation
+- Tweaked the styling of checkboxes on forms
+- Changed the access for the `Post::getAuthor` function from `private` to `protected`
+- Replaced the "Alt Text" column on the "List Media" table with an "Author" column and reordered the "Upload Date" column
+- Added more documentation to the `Query` class
+- Tweaked a previous entry in the changelog
+- Created a global constant that holds the minimum required PHP version
+- Added a check to make sure the minimum PHP version or higher is being run on the web server RSCMS is installed on
 
 **Modified files:**
-* admin/includes/class-category.php
-* admin/includes/class-media.php
-* admin/includes/class-menu.php
-* admin/includes/class-post.php
-* admin/includes/class-profile.php
-* admin/includes/class-settings.php
-* admin/includes/class-user.php
-* admin/includes/class-widget.php
-* admin/includes/css/style.css
-* admin/includes/js/script.js
-* content/admin-themes/harvest.css (N)
-* content/admin-themes/sunset.css
-* includes/class-query.php
-* init.php
+- admin/includes/class-category.php
+- admin/includes/class-media.php
+- admin/includes/class-menu.php
+- admin/includes/class-post.php
+- admin/includes/class-profile.php
+- admin/includes/class-settings.php
+- admin/includes/class-user.php
+- admin/includes/class-widget.php
+- admin/includes/css/style.css
+- admin/includes/js/script.js
+- content/admin-themes/harvest.css (N)
+- content/admin-themes/sunset.css
+- includes/class-query.php
+- init.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.1.8[a] (2019-11-27)
 
-* Tweaked documentation in the modal.js file
-* Changed the 'modal-launch' id to a class to work with all modal windows
-* Constructed and styled the delete modal
-* Added the delete modal to the 'List Users' page
-* The upload modal's tabs are now only cleared if the non-active tab is clicked
-* Added extra checks in the modal.js file to determine which modal is being used (delete or upload)
-* Added the delete modal to the 'List Widgets' page
-* Tweaked documentation in the Profile class
-* Added the delete modal to the 'List Posts' page
-* Tweaked the styling of the upload modal's upload tab
-* Added the delete modal to the 'List Categories' page
-* Tweaked documentation in the Media class
-* Tweaked the status messages for the 'List Media' page
-* Added the delete modal to the 'List Media' page
-* Added the delete modal to the 'List Menus' page
-* Menu item types are now displayed next to their titles
-* A new menu item's author is now set to the currently logged in user when it is created
-* An empty string will now be returned by the formTag function if the tag name is not whitelisted
-* Added the 'a' tag to the list of whitelisted tags in the formTag function
-* Tweaked styling of the 'Edit Menu Item' form
-* Moved the menu item delete button to within the edit form
-* Removed a status message that displayed when a menu item was successfully edited (the page refreshes immediately so the message is not needed)
-* The menu item parents dropdown is now sorted by item index
+- Tweaked documentation in the `modal.js` file
+- Changed the `modal-launch` id to a class to work with all modal windows
+- Constructed and styled the delete modal
+- Added the delete modal to the "List Users" page
+- The upload modal's tabs are now only cleared if the non-active tab is clicked
+- Added extra checks in the `modal.js` file to determine which modal is being used (delete or upload)
+- Added the delete modal to the "List Widgets" page
+- Tweaked documentation in the `Profile` class
+- Added the delete modal to the "List Posts" page
+- Tweaked the styling of the upload modal's upload tab
+- Added the delete modal to the "List Categories" page
+- Tweaked documentation in the `Media` class
+- Tweaked the status messages for the "List Media" page
+- Added the delete modal to the "List Media" page
+- Added the delete modal to the "List Menus" page
+- Menu item types are now displayed next to their titles
+- A new menu item's author is now set to the currently logged in user when it is created
+- An empty string will now be returned by the `formTag` function if the tag name is not whitelisted
+- Added the `a` tag to the list of whitelisted tags in the `formTag` function
+- Tweaked styling of the "Edit Menu Item" form
+- Moved the menu item delete button to within the edit form
+- Removed a status message that displayed when a menu item was successfully edited (the page refreshes immediately so the message is not needed)
+- The menu item parents dropdown is now sorted by item index
 
 **Modified files:**
-* admin/includes/class-category.php
-* admin/includes/class-media.php
-* admin/includes/class-menu.php
-* admin/includes/class-post.php
-* admin/includes/class-profile.php
-* admin/includes/class-user.php
-* admin/includes/class-widget.php
-* admin/includes/css/style.css
-* admin/includes/functions.php
-* admin/includes/js/modal.js
-* admin/includes/modal-delete.php (N)
+- admin/includes/class-category.php
+- admin/includes/class-media.php
+- admin/includes/class-menu.php
+- admin/includes/class-post.php
+- admin/includes/class-profile.php
+- admin/includes/class-user.php
+- admin/includes/class-widget.php
+- admin/includes/css/style.css
+- admin/includes/functions.php
+- admin/includes/js/modal.js
+- admin/includes/modal-delete.php (N)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.1.7[a] (2019-11-25)
 
-* Rearranged code and tweaked documentation in the admin formTag function
-* Added styling for the upload modal to the admin Ocean theme
-* Tweaked styling of the upload modal in the default theme
-* Added styling for disabled buttons
-* The 'Select Media' button on the upload modal is now disabled by default (it is reenabled if a file is uploaded or if a file is selected from the media library
-* Active data is now cleared when switching between the modal tabs
-* Added failure conditions for deleting media: if the media is currently a user's avatar or a post's featured image
+- Rearranged code and tweaked documentation in the admin `formTag` function
+- Added styling for the upload modal to the admin "Ocean" theme
+- Tweaked styling of the upload modal in the default theme
+- Added styling for disabled buttons
+- The "Select Media" button on the upload modal is now disabled by default (it is reenabled if a file is uploaded or if a file is selected from the media library
+- Active data is now cleared when switching between the modal tabs
+- Added failure conditions for deleting media: if the media is currently a user's avatar or a post's featured image
 
 **Modified files:**
-* admin/includes/class-media.php
-* admin/includes/css/style.css (M)
-* admin/includes/functions.php
-* admin/includes/js/modal.js
-* admin/includes/modal-upload.php (M)
-* content/admin-themes/ocean.css
-* includes/css/buttons.css
+- admin/includes/class-media.php
+- admin/includes/css/style.css (M)
+- admin/includes/functions.php
+- admin/includes/js/modal.js
+- admin/includes/modal-upload.php (M)
+- content/admin-themes/ocean.css
+- includes/css/buttons.css
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.1.6[a] (2019-11-24)
 
-* Created a function to delete media from the database and the uploads folder
-* Tweaked an entry in the changelog
-* Tweaked styling of the upload tab of the upload modal
-* Moved the Media::filenameExists and Media::getUniqueFilename functions to the admin functions.php file
-* Tweaked the layout of the upload modal's upload form
-* Media can now be uploaded via the upload modal
-* Uploaded images can now be inserted as featured images and as avatars
+- Created a function to delete media from the database and the uploads folder
+- Tweaked an entry in the changelog
+- Tweaked styling of the upload tab of the upload modal
+- Moved the `Media::filenameExists` and `Media::getUniqueFilename` functions to the admin `functions.php` file
+- Tweaked the layout of the upload modal's upload form
+- Media can now be uploaded via the upload modal
+- Uploaded images can now be inserted as featured images and as avatars
 
 **Modified files:**
-* admin/includes/class-media.php
-* admin/includes/css/style.css
-* admin/includes/functions.php
-* admin/includes/js/modal.js
-* admin/includes/modal-upload.php
-* admin/media.php
-* admin/upload.php (N)
+- admin/includes/class-media.php
+- admin/includes/css/style.css
+- admin/includes/functions.php
+- admin/includes/js/modal.js
+- admin/includes/modal-upload.php
+- admin/media.php
+- admin/upload.php (N)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.1.5[a] (2019-11-23)
 
-* Added a metadata entry for the sample page and post's featured image in the populateTables function
-* The 'tag' argument is now removed from the args array after being assigned to its own variable in the formRow function
-* Completely rebuilt the formTag function to make the code cleaner and more efficient
-* Added the 'remove image' button to the user profile page
-* Tweaked styling for featured images and avatars
-* Tweaked mobile responsive styling of media item details on the modal
-* Avatars and featured images can now be removed
-* Added a missing space in the buttons.css file
-* If a new image is selected after the 'remove image' button has been clicked, the greyed out effect is removed from the thumbnail
-* Added the 'remove image' button to the 'Create User' and 'Edit User' pages
-* Moved the User::getAvatar function to the admin functions.php file and renamed it to getMedia
-* Tweaked documentation in the Post class
-* The 'remove image' button in the Post::createPost function is now constructed with the formTag function
-* Featured images can now be selected on the 'Edit Post' form
-* Tweaked documentation in the Category and Settings classes
-* Tweaked documentation in the admin functions.php file
-* Tweaked some entries in the changelog
+- Added a metadata entry for the sample page and post's featured image in the `populateTables` function
+- The "tag" argument is now removed from the args array after being assigned to its own variable in the `formRow` function
+- Completely rebuilt the `formTag` function to make the code cleaner and more efficient
+- Added the "remove image" button to the user profile page
+- Tweaked styling for featured images and avatars
+- Tweaked mobile responsive styling of media item details on the modal
+- Avatars and featured images can now be removed
+- Added a missing space in the `buttons.css` file
+- If a new image is selected after the "remove image" button has been clicked, the greyed out effect is removed from the thumbnail
+- Added the "remove image" button to the "Create User" and "Edit User" pages
+- Moved the `User::getAvatar` function to the admin `functions.php` file and renamed it to `getMedia`
+- Tweaked documentation in the `Post` class
+- The "remove image" button in the `Post::createPost` function is now constructed with the `formTag` function
+- Featured images can now be selected on the "Edit Post" form
+- Tweaked documentation in the `Category` and `Settings` classes
+- Tweaked documentation in the admin `functions.php` file
+- Tweaked some entries in the changelog
 
 **Modified files:**
-* admin/includes/class-category.php (M)
-* admin/includes/class-post.php
-* admin/includes/class-profile.php
-* admin/includes/class-settings.php (M)
-* admin/includes/class-user.php
-* admin/includes/css/style.css
-* admin/includes/functions.php
-* admin/includes/js/script.js
-* includes/css/buttons.css (M)
+- admin/includes/class-category.php (M)
+- admin/includes/class-post.php
+- admin/includes/class-profile.php
+- admin/includes/class-settings.php (M)
+- admin/includes/class-user.php
+- admin/includes/css/style.css
+- admin/includes/functions.php
+- admin/includes/js/script.js
+- includes/css/buttons.css (M)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.1.4[a] (2019-11-21)
 
-* Added a redirect for the media post type in the posts.php file (posts.php?type=media -> media.php)
-* Tweaked documentation in the load-media.php file
-* Removed an unnecessary set of parentheses in the Media::uploadMedia function
-* Tweaked some text on the upload modal
-* Tweaked documentation and changed an id name in the modal.js file
-* Tweaked documentation in the admin functions.php file
-* Media items are now loaded by date in descending order in the loadMedia function
-* Tweaked styling and improved mobile responsiveness of the upload modal's elements
-* Changed an id name in the Profile::editProfile function
-* A thumbnail for a selected image is now displayed in the details pane of the upload modal
-* Button text can no longer be selected
-* The getOnlineUser function now fetches the user's avatar
-* The user's avatar now displays on the admin menu bar and on the user dropdown menu
-* Users' avatars are now displayed on the 'List Users' page
-* Added the upload modal to the User::createUser and User::editUser functions
-* Tweaked documentation in the User class
-* The media form fields are now cleared if a user clicks the 'select' button without selecting an image on the modal
-* Added the upload modal to the Post::createPost function
-* Created and styled a 'remove image' button (not yet functional)
+- Added a redirect for the `media` post type in the `posts.php` file (`posts.php?type=media` -> `media.php`)
+- Tweaked documentation in the `load-media.php` file
+- Removed an unnecessary set of parentheses in the `Media::uploadMedia` function
+- Tweaked some text on the upload modal
+- Tweaked documentation and changed an id name in the `modal.js` file
+- Tweaked documentation in the admin `functions.php` file
+- Media items are now loaded by date in descending order in the `loadMedia` function
+- Tweaked styling and improved mobile responsiveness of the upload modal's elements
+- Changed an id name in the `Profile::editProfile` function
+- A thumbnail for a selected image is now displayed in the details pane of the upload modal
+- Button text can no longer be selected
+- The `getOnlineUser` function now fetches the user's avatar
+- The user's avatar now displays on the admin menu bar and on the user dropdown menu
+- Users' avatars are now displayed on the "List Users" page
+- Added the upload modal to the `User::createUser` and `User::editUser` functions
+- Tweaked documentation in the `User` class
+- The media form fields are now cleared if a user clicks the "select" button without selecting an image on the modal
+- Added the upload modal to the `Post::createPost` function
+- Created and styled a "remove image" button (not yet functional)
 
 **Modified files:**
-* admin/header.php
-* admin/includes/class-media.php (M)
-* admin/includes/class-post.php
-* admin/includes/class-profile.php (M)
-* admin/includes/class-user.php
-* admin/includes/css/style.css
-* admin/includes/functions.php
-* admin/includes/js/modal.js
-* admin/includes/js/script.js
-* admin/includes/modal-upload.php (M)
-* admin/load-media.php (M)
-* admin/posts.php
-* includes/css/buttons.css (M)
-* includes/globals.php
+- admin/header.php
+- admin/includes/class-media.php (M)
+- admin/includes/class-post.php
+- admin/includes/class-profile.php (M)
+- admin/includes/class-user.php
+- admin/includes/css/style.css
+- admin/includes/functions.php
+- admin/includes/js/modal.js
+- admin/includes/js/script.js
+- admin/includes/modal-upload.php (M)
+- admin/load-media.php (M)
+- admin/posts.php
+- includes/css/buttons.css (M)
+- includes/globals.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.1.3[a] (2019-11-20)
 
-* A media item's details are now displayed when it is selected
-* Tweaked styling on the modal
-* Selected media items are now cleared when the modal is closed
-* Moved the Media::getFileSize function to the admin functions.php file
-* Created a function that converts a string or file's size to bytes
-* Media items can now be selected and inserted on the user profile form
-* Changed the access for the User::getAvatar function from private to protected
-* Cleaned up code in the User::getAvatar function
-* A user can now set their avatar from their own profile (through the media library only)
+- A media item's details are now displayed when it is selected
+- Tweaked styling on the modal
+- Selected media items are now cleared when the modal is closed
+- Moved the `Media::getFileSize` function to the admin `functions.php` file
+- Created a function that converts a string or file's size to bytes
+- Media items can now be selected and inserted on the user profile form
+- Changed the access for the `User::getAvatar` function from `private` to `protected`
+- Cleaned up code in the `User::getAvatar` function
+- A user can now set their avatar from their own profile (through the media library only)
 
 **Modified files:**
-* admin/includes/class-media.php
-* admin/includes/class-profile.php
-* admin/includes/class-user.php
-* admin/includes/css/style.css
-* admin/includes/functions.php
-* admin/includes/js/modal.js
-* admin/includes/modal-upload.php
+- admin/includes/class-media.php
+- admin/includes/class-profile.php
+- admin/includes/class-user.php
+- admin/includes/css/style.css
+- admin/includes/functions.php
+- admin/includes/js/modal.js
+- admin/includes/modal-upload.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.1.2[a] (2019-11-18)
 
-* Renamed some element classes on the upload modal
-* Added a partially opaque backdrop to the modal when it's open
-* Increased the top margin above the modal
-* Improved transitioning effects for the modal
-* Created a function that loads the media library
-* Styled the media library tab of the upload modal
+- Renamed some element classes on the upload modal
+- Added a partially opaque backdrop to the modal when it's open
+- Increased the top margin above the modal
+- Improved transitioning effects for the modal
+- Created a function that loads the media library
+- Styled the media library tab of the upload modal
 
 **Modified files:**
-* admin/includes/class-profile.php
-* admin/includes/css/style.css
-* admin/includes/functions.php
-* admin/includes/js/modal.js
-* admin/includes/modal-upload.php
-* admin/load-media.php (N)
+- admin/includes/class-profile.php
+- admin/includes/css/style.css
+- admin/includes/functions.php
+- admin/includes/js/modal.js
+- admin/includes/modal-upload.php
+- admin/load-media.php (N)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.1.1[a] (2019-11-13)
 
-* An empty array is now created in the Profile::getThemesList if the admin-themes directory doesn't exist
-* Tweaked documentation in the Post class
-* Replaced a ternary operator with a null coalescing operator in the Post::createPost function
-* Removed an unnecessary set of parentheses in the Widget::createWidget function
-* Added the 'id' parameter to the 'img' tag in the formTag function
-* Created a file to hold the upload modal's content
-* The upload modal is now included on the user profile page
-* Constructed and styled the upload modal
-* Tweaked styling for buttons
-* Added a 'strict mode' declaration in the admin script.js file
-* Created a file to hold scripts for the admin modal windows
-* The jQuery library is now loaded in the admin head section instead of in the footer (prevents errors in script files included before the footer)
+- An empty array is now created in the `Profile::getThemesList` if the `admin-themes` directory doesn't exist
+- Tweaked documentation in the `Post` class
+- Replaced a ternary operator with a null coalescing operator in the `Post::createPost` function
+- Removed an unnecessary set of parentheses in the `Widget::createWidget` function
+- Added the `id` parameter to the `img` tag in the `formTag` function
+- Created a file to hold the upload modal's content
+- The upload modal is now included on the user profile page
+- Constructed and styled the upload modal
+- Tweaked styling for buttons
+- Added a "strict mode" declaration in the admin `script.js` file
+- Created a file to hold scripts for the admin modal windows
+- The jQuery library is now loaded in the admin head section instead of in the footer (prevents errors in script files included before the footer)
 
 **Modified files:**
-* admin/includes/class-post.php
-* admin/includes/class-profile.php
-* admin/includes/class-widget.php (M)
-* admin/includes/css/style.css
-* admin/includes/functions.php
-* admin/includes/js/modal.js (N)
-* admin/includes/js/script.js (M)
-* admin/includes/modal-upload.php (N)
-* includes/css/buttons.css (M)
+- admin/includes/class-post.php
+- admin/includes/class-profile.php
+- admin/includes/class-widget.php (M)
+- admin/includes/css/style.css
+- admin/includes/functions.php
+- admin/includes/js/modal.js (N)
+- admin/includes/js/script.js (M)
+- admin/includes/modal-upload.php (N)
+- includes/css/buttons.css (M)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.1.0[a] (2019-11-10)
 
-* Added a link to the 'List Media' page to the admin menu
-* Created the 'List Media' page and Media class
-* Created a function that constructs a list of all media
-* Created a function that constructs the 'Upload Media' form
-* Tweaked styling for file inputs
-* Increased the width of text inputs
-* Created a function that validates the media form data
-* Created a function that checks whether a filename exists in the database
-* Added 'LIKE' to the list of accepted operators for where clauses
-* Converted the operator if/elseif statment in the Query::select function to a switch statement
-* Created a function that makes a filename unique if a matching filename is found in the database
-* Replaced a ternary operator with a null coalescing operator in the Widget::createWidget function
-* Shortened a regular expression in the Login::validateLoginData function by using the '\w' metacharacter
-* Renamed a variable in the Profile::getThemesList function
-* Changed the access for the Post::getPostMeta function from private to protected
-* Created a function that converts a file size from bytes to a more manageable size (e.g., KB, MB, GB)
-* Created a function that constructs the 'Edit Media' form
-* Tweaked documentation in the Widget class
-* When a widget is created, its author is now set as the logged in user who created it
-* When a menu item is created, its author is now set as the logged in user who created it
-* Tweaked documentation in the Menu class
+- Added a link to the "List Media" page to the admin menu
+- Created the "List Media" page and `Media` class
+- Created a function that constructs a list of all media
+- Created a function that constructs the "Upload Media" form
+- Tweaked styling for file inputs
+- Increased the width of text inputs
+- Created a function that validates the media form data
+- Created a function that checks whether a filename exists in the database
+- Added `LIKE` to the list of accepted operators for where clauses
+- Converted the operator `if/elseif` statment in the `Query::select` function to a `switch` statement
+- Created a function that makes a filename unique if a matching filename is found in the database
+- Replaced a ternary operator with a null coalescing operator in the `Widget::createWidget` function
+- Shortened a regular expression in the `Login::validateLoginData` function by using the `\w` metacharacter
+- Renamed a variable in the `Profile::getThemesList` function
+- Changed the access for the `Post::getPostMeta` function from private to protected
+- Created a function that converts a file size from bytes to a more manageable size (e.g., KB, MB, GB)
+- Created a function that constructs the "Edit Media" form
+- Tweaked documentation in the `Widget` class
+- When a widget is created, its author is now set as the logged in user who created it
+- When a menu item is created, its author is now set as the logged in user who created it
+- Tweaked documentation in the `Menu` class
 
 **Modified files:**
-* admin/header.php (M)
-* admin/includes/class-media.php (N)
-* admin/includes/class-menu.php
-* admin/includes/class-post.php (M)
-* admin/includes/class-profile.php (M)
-* admin/includes/class-widget.php
-* admin/includes/css/style.css
-* admin/media.php (N)
-* includes/class-login.php (M)
-* includes/class-query.php
+- admin/header.php (M)
+- admin/includes/class-media.php (N)
+- admin/includes/class-menu.php
+- admin/includes/class-post.php (M)
+- admin/includes/class-profile.php (M)
+- admin/includes/class-widget.php
+- admin/includes/css/style.css
+- admin/media.php (N)
+- includes/class-login.php (M)
+- includes/class-query.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.0.8[a] (2019-11-08)
@@ -1124,7 +1124,7 @@
 ----------------------------------------------------------------------------------------------------
 ## Version 2.0.3[a] (2019-10-24)
 
-- Added a switch statement to the `login.php` file for actions
+- Added a `switch` statement to the `login.php` file for actions
 - The page title will now change based on the current action
 - Created a function that constructs the "Log In" form
 - Renamed the `Login::userLogin` function to `Login::validateLoginData`
