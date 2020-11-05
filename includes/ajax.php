@@ -4,29 +4,11 @@
  * @since 1.1.0[b]{ss-03}
  */
 
-// Include named constants
-require_once __DIR__.'/constants.php';
+// Tell the CMS that it should only initialize the base files and functions
+if(!defined('BASE_INIT')) define('BASE_INIT', true);
 
-// Include the debugging functions
-require_once PATH.INC.'/debug.php';
-
-// Include the database configuration
-require_once PATH.'/config.php';
-
-// Include the Query class
-require_once PATH.INC.'/class-query.php';
-
-// Include the global functions
-require_once PATH.INC.'/globals.php';
-
-// Create a Query object
-$rs_query = new Query;
-
-// Register the default post types
-registerDefaultPostTypes();
-
-// Register the default taxonomies
-registerDefaultTaxonomies();
+// Include the initialization file
+require_once dirname(__DIR__).'/init.php';
 
 // Include functions
 require_once PATH.INC.'/functions.php';

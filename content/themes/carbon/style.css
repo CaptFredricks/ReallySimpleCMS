@@ -446,10 +446,12 @@ main.content {
 	color: #6f6f6f;
 }
 
+.comments .comment .actions .upvote i:hover,
 .comments .comment .actions .upvote .active i {
 	color: #2c0;
 }
 
+.comments .comment .actions .downvote i:hover,
 .comments .comment .actions .downvote .active i {
 	color: #f00;
 }

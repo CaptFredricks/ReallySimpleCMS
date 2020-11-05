@@ -5,4 +5,5 @@ error_log
 includes/error_log
 misc.txt
 robots.txt
+sitemap.xml
 todo.txt

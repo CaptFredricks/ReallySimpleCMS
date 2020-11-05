@@ -101,7 +101,7 @@ function runInstall($data) {
 		// File path for robots.txt
 		$file_path = PATH.'/robots.txt';
 		
-		// Open file stream
+		// Open the file stream
 		$handle = fopen($file_path, 'w');
 		
 		// Address all user-agents (robots)

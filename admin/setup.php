@@ -136,7 +136,7 @@ $step = (int)($_GET['step'] ?? 0);
 						// File path for the config file
 						$config_file_path = PATH.'/config.php';
 						
-						// Open file stream
+						// Open the file stream
 						$handle = fopen($config_file_path, 'w');
 						
 						// Write to the file

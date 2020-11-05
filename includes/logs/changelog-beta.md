@@ -6,6 +6,34 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.1.2[b] (2020-11-04)
+
+- Added validation in the `init.php` file that checks whether the `BASE_INIT` constant has been defined (if so, it only loads the basic initialization files, otherwise it loads everything)
+- Cleaned up code in the `ajax.php` file
+- Cleaned up some entries in the Alpha changelog
+- Created sitemaps for posts and terms
+- Created a file that generates a sitemap index
+- Tweaked validation in the `init.php` file
+- Added `sitemap.xml` to the `.gitignore` file
+- Tweaked documentation in the `install.php` and `setup.php` files
+- Fixed a bug where the `robots.txt` file was not being updated when the `do_robots` setting was updated
+- Added additional validation for the `robots.txt` file to the `Settings::validateSettingsData` function
+- Tweaked the coloring of comment upvote and downvote buttons
+
+**Modified files:**
+- .gitignore (M)
+- admin/includes/class-settings.php
+- admin/install.php (M)
+- admin/setup.php (M)
+- content/themes/carbon/style.css (M)
+- includes/ajax.php
+- includes/class-comment.php (M)
+- includes/sitemap-index.php (N)
+- includes/sitemap-posts.php (N)
+- includes/sitemap-terms.php (N)
+- init.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.1.1[b] (2020-10-24)
 
 - Fixed the mobile sizing of media thumbnails on the "Edit Media" page

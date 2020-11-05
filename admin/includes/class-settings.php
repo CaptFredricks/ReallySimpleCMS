@@ -155,14 +155,14 @@ class Settings {
 			// Set the value of 'comment_approval'
 			$data['comment_approval'] = isset($data['comment_approval']) ? 1 : 0;
 			
+			// Fetch current value of 'do_robots' in the database
+			$do_robots = $rs_query->selectField('settings', 'value', array('name'=>'do_robots'));
+			
 			// Update the settings in the database
 			foreach($data as $name=>$value)
 				$rs_query->update('settings', array('value'=>$value), array('name'=>$name));
 			
-			// Fetch current value of 'do_robots' in the database
-			$do_robots = $rs_query->selectField('settings', 'value', array('name'=>'do_robots'));
-			
-			// File path for robots.txt
+			// File path for the robots.txt file
 			$file_path = PATH.'/robots.txt';
 			
 			// Fetch the robots.txt file
@@ -170,17 +170,20 @@ class Settings {
 			
 			// Check whether 'do_robots' has changed
 			if($data['do_robots'] !== (int)$do_robots) {
-				// Check whether 'do_robots' is set
-				if($data['do_robots'] === 0) {
-					// Block robots from crawling the site
-					$file[1] = 'Disallow: /';
-				} else {
-					// Allow crawling to all directories except for /admin/
-					$file[1] = 'Disallow: /admin/';
+				// Check whether the second line is what we want to change
+				if(strpos($file[1], 'Disallow:') !== false) {
+					// Check whether 'do_robots' is set
+					if($data['do_robots'] === 0) {
+						// Block robots from crawling the site
+						$file[1] = 'Disallow: /';
+					} else {
+						// Allow crawling to all directories except for /admin/
+						$file[1] = 'Disallow: /admin/';
+					}
+					
+					// Output changes to the file
+					file_put_contents($file_path, implode(chr(10), $file));
 				}
-				
-				// Output changes to the file
-				file_put_contents($file_path, implode(chr(10), $file));
 			}
 		}
 		

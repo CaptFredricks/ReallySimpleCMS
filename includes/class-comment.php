@@ -314,8 +314,8 @@ class Comment {
 							<?php nl2br($this->getCommentContent($id)); ?>
 						</div>
 						<p class="actions">
-							<span class="upvote"><span><?php $this->getCommentUpvotes($id); ?></span> <a class="active" href="#" data-id="<?php echo $id; ?>" data-vote="0" title="Upvote"><i class="fas fa-thumbs-up"></i></a></span>
-							&bull; <span class="downvote"><span><?php $this->getCommentDownvotes($id); ?></span> <a class="active" href="#" data-id="<?php echo $id; ?>" data-vote="0" title="Downvote"><i class="fas fa-thumbs-down"></i></a></span>
+							<span class="upvote"><span><?php $this->getCommentUpvotes($id); ?></span> <a href="#" data-id="<?php echo $id; ?>" data-vote="0" title="Upvote"><i class="fas fa-thumbs-up"></i></a></span>
+							&bull; <span class="downvote"><span><?php $this->getCommentDownvotes($id); ?></span> <a href="#" data-id="<?php echo $id; ?>" data-vote="0" title="Downvote"><i class="fas fa-thumbs-down"></i></a></span>
 							<?php
 							// Check whether comments are enabled
 							if(getSetting('comment_status', false) && $post_types[$rs_post->getPostType(false)]['comments'] && $rs_post->getPostMeta('comment_status', false)) {

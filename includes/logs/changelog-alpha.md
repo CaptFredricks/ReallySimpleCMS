@@ -317,291 +317,293 @@
 ----------------------------------------------------------------------------------------------------
 ## Version 2.2.7[a] (2020-01-14)
 
-* Added the 'theme color' meta tag to the login.php file
-* Tweaked documentation in the front end script.js file
-* Replaced some standard anonymous functions with arrow functions in the admin modal.js and script.js files
-* Tweaked a styling rule in the front end style.css file
-* The config.php file is now created in the root directory when the CMS is installed (it was previously created in the includes directory)
-* Added a settings database entry for storing the current front end theme
-* When the CMS is being initialized, it now looks for the config.php in the root directory
-* Constructed and styled the front end admin bar
-* The getOnlineUser function now only fetches the user's avatar id and not the whole file path
-* Replaced some hard coded img tags with the getMedia function in the admin header.php file
-* Made all remaining elements on the Carbon theme mobile responsive
+- Added the "theme color" meta tag to the `login.php` file
+- Tweaked documentation in the front end `script.js` file
+- Replaced some standard anonymous functions with arrow functions in the admin `modal.js` and `script.js` files
+- Tweaked a styling rule in the front end `style.css` file
+- The `config.php` file is now created in the root directory when the CMS is installed (it was previously created in the `includes` directory)
+- Added a settings database entry for storing the current front end theme
+- When the CMS is being initialized, it now looks for the `config.php` in the root directory
+- Constructed and styled the front end admin bar
+- The `getOnlineUser` function now only fetches the user's avatar id and not the whole file path
+- Replaced some hard coded img tags with the `getMedia` function in the admin `header.php` file
+- Made all remaining elements in the Carbon theme mobile responsive
 
 **Modified files:**
-* .gitignore (M)
-* admin/header.php
-* admin/includes/functions.php (M)
-* admin/includes/js/modal.js (M)
-* admin/includes/js/script.js (M)
-* admin/setup.php (M)
-* content/footer.php
-* content/style.css
-* includes/css/style.css
-* includes/functions.php
-* includes/globals.php
-* includes/js/script.js (M)
-* init.php
-* login.php (M)
+- .gitignore (M)
+- admin/header.php
+- admin/includes/functions.php (M)
+- admin/includes/js/modal.js (M)
+- admin/includes/js/script.js (M)
+- admin/setup.php (M)
+- content/footer.php
+- content/style.css
+- includes/css/style.css
+- includes/functions.php
+- includes/globals.php
+- includes/js/script.js (M)
+- init.php
+- login.php (M)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.2.6[a] (2020-01-08)
 
-* Tweaked styling of the setup and installation forms
-* Tweaked styling of the log in and forgot/reset password forms
-* Added a missing CSS class to the setup form
-* Tweaked documentation in numerous back end files
-* Added error checking to the Media::listMedia function that checks whether the media actually exists in the uploads directory
-* Created a footer for the front end theme
-* Created a functions.php file for the front end theme and included it in the root index.php file
-* Created a function that fetches the most recent blog posts from the database
-* Constructed and styled the front end footer
-* Fixed an issue with the sticky header functionality
-* Cleaned up code in the front end theme's script.js file
-* Merged the 'classes' and 'link_text' parameters on the getMedia function into a single parameter, 'props' that accepts an array of key/value pairs
-* Updated all instances where the above parameters were being used
-* Tweaked the .gitignore file
+- Tweaked styling of the setup and installation forms
+- Tweaked styling of the log in and forgot/reset password forms
+- Added a missing CSS class to the setup form
+- Tweaked documentation in numerous back end files
+- Added error checking to the `Media::listMedia` function that checks whether the media actually exists in the uploads directory
+- Created a footer for the front end theme
+- Created a `functions.php` file for the front end theme and included it in the root `index.php` file
+- Created a function that fetches the most recent blog posts from the database
+- Constructed and styled the front end footer
+- Fixed an issue with the sticky header functionality
+- Cleaned up code in the front end theme's `script.js` file
+- Merged the `classes` and `link_text` parameters on the `getMedia` function into a single parameter, `props` that accepts an array of key/value pairs
+- Updated all instances where the above parameters were being used
+- Tweaked the `.gitignore` file
 
 **Modified files:**
-* .gitignore
-* admin/includes/class-category.php (M)
-* admin/includes/class-media.php
-* admin/includes/class-menu.php (M)
-* admin/includes/class-post.php (M)
-* admin/includes/class-profile.php (M)
-* admin/includes/class-settings.php (M)
-* admin/includes/class-user.php (M)
-* admin/includes/class-widget.php (M)
-* admin/includes/css/install[.min].css (M)
-* admin/includes/functions.php (M)
-* admin/install.php (M)
-* admin/setup.php
-* content/footer.php
-* content/functions.php (N)
-* content/script.js
-* content/style.css
-* includes/class-post.php
-* includes/css/style.css
-* includes/globals.php
-* index.php
+- .gitignore
+- admin/includes/class-category.php (M)
+- admin/includes/class-media.php
+- admin/includes/class-menu.php (M)
+- admin/includes/class-post.php (M)
+- admin/includes/class-profile.php (M)
+- admin/includes/class-settings.php (M)
+- admin/includes/class-user.php (M)
+- admin/includes/class-widget.php (M)
+- admin/includes/css/install.css (M)
+- admin/includes/css/install.min.css (M)
+- admin/includes/functions.php (M)
+- admin/install.php (M)
+- admin/setup.php
+- content/footer.php
+- content/functions.php (N)
+- content/script.js
+- content/style.css
+- includes/class-post.php
+- includes/css/style.css
+- includes/globals.php
+- index.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.2.5[a] (2020-01-04)
 
-* Removed an unnecessary console log from the front end theme's script.js file
-* Deleted the page.php file (deprecated in a previous version)
-* Tweaked documentation in numerous front end files
-* Reorganized the changelog
-* Tweaked styling of the 'scroll to top' button
-* The current page's slug is now determined within the Post class' constructor
-* The Post::getPostParent function now correctly returns an integer
-* The getHeader and getFooter functions now include both the Post object and the user's session data as global variables
-* Deprecated the getPageSlug function (its functionality is now used directly by the Post class' constructor)
-* The getPost function's 'slug' parameter is now required, and it no longer makes use of the deprecated getPageSlug function
-* Cleaned up code in the bodyClasses function
-* A class is now added to the body if the post/page is a child of another post/page
-* Custom classes can now be added to the body tag by using the bodyClass function's optional 'addtl_classes' parameter
-* The global $session variable is now set in the root index.php file
-* Created a function that fetches a post's permalink (Post class)
-* Added a CSS class to the widget content wrapper div
-* The Font Awesome stylesheet is now included on the 'Log In' page
-* The jQuery library and the front end script.js file are now included on the 'Log In' page
-* Tweaked some styling of the log in form
-* The password field can now be set to plain text on the log in form
-* Set maximum a width and height for the delete and upload modals
+- Removed an unnecessary console log from the front end theme's `script.js` file
+- Deleted the `page.php` file (deprecated in a previous version)
+- Tweaked documentation in numerous front end files
+- Reorganized the changelog
+- Tweaked styling of the "scroll to top" button
+- The current page's slug is now determined within the `Post` class' constructor
+- The `Post::getPostParent` function now correctly returns an integer
+- The `getHeader` and `getFooter` functions now include both the `Post` object and the user's session data as global variables
+- Deprecated the `getPageSlug` function (its functionality is now used directly by the `Post` class' constructor)
+- The `getPost` function's `slug` parameter is now required, and it no longer makes use of the deprecated `getPageSlug` function
+- Cleaned up code in the `bodyClasses` function
+- A class is now added to the body if the post/page is a child of another post/page
+- Custom classes can now be added to the body tag by using the `bodyClass` function's optional `addtl_classes` parameter
+- The global `session` variable is now set in the root `index.php` file
+- Created a function that fetches a post's permalink (`Post` class)
+- Added a CSS class to the widget content wrapper div
+- The Font Awesome stylesheet is now included on the "Log In" page
+- The jQuery library and the front end `script.js` file are now included on the "Log In" page
+- Tweaked some styling of the log in form
+- The password field can now be set to plain text on the log in form
+- Set maximum a width and height for the delete and upload modals
 
 **Modified files:**
-* admin/includes/css/style.css (M)
-* content/script.js (M)
-* includes/class-login.php
-* includes/class-menu.php (M)
-* includes/class-post.php
-* includes/css/style.css
-* includes/deprecated.php
-* includes/functions.php
-* includes/globals.php (M)
-* includes/js/script.js
-* index.php
-* login.php (M)
-* page.php (X)
+- admin/includes/css/style.css (M)
+- content/script.js (M)
+- includes/class-login.php
+- includes/class-menu.php (M)
+- includes/class-post.php
+- includes/css/style.css
+- includes/deprecated.php
+- includes/functions.php
+- includes/globals.php (M)
+- includes/js/script.js
+- index.php
+- login.php (M)
+- page.php (X)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.2.4[a] (2019-12-30)
 
-* Tweaked styling of the front end theme
-* List pages for all post types other than 'page' now sort in descending order by date (pages sort in ascending order by title)
-* If a post's date has not been set, it will no longer display the current date on the 'List Post' page
-* Tweaked styling for certain inputs on admin forms
-* Added a publish date field to the 'Create Post' and 'Edit Post' forms
-* Menu items are now given an 'invalid' status if the post they are linked to is deleted
-* Invalid menu items are now denoted in light red on the 'Edit Menu' form
-* Invalid menu items no longer are displayed on the front end
-* If a new post is published without a date being set, its publish date will be set using the special 'NOW()' function
-* If an existing post is updated without a date being set, its publish date will be set to null
-* The front end Post object is now created in the root index.php file
-* Created a function that checks whether a post has a featured image
-* Updated Font Awesome to v5.12.0
-* Added a scroll to top button to the front end
+- Tweaked styling of the front end theme
+- List pages for all post types other than `page` now sort in descending order by date (pages sort in ascending order by title)
+- If a post's date has not been set, it will no longer display the current date on the "List Post" page
+- Tweaked styling for certain inputs on admin forms
+- Added a publish date field to the "Create Post" and "Edit Post" forms
+- Menu items are now given an `invalid` status if the post they are linked to is deleted
+- Invalid menu items are now denoted in light red on the "Edit Menu" form
+- Invalid menu items no longer are displayed on the front end
+- If a new post is published without a date being set, its publish date will be set using the special `NOW()` function
+- If an existing post is updated without a date being set, its publish date will be set to `null`
+- The front end `Post` object is now created in the root `index.php` file
+- Created a function that checks whether a post has a featured image
+- Updated Font Awesome to v5.12.0
+- Added a scroll to top button to the front end
 
 **Modified files:**
-* admin/includes/class-menu.php
-* admin/includes/class-post.php
-* admin/includes/css/style.css
-* admin/includes/functions.php (M)
-* content/footer.php
-* content/header.php
-* content/index.php
-* content/style.css (M)
-* includes/class-menu.php
-* includes/class-post.php
-* includes/css/font-awesome.min.css
-* includes/css/style.css
-* includes/functions.php
-* includes/js/script.js
-* index.php
+- admin/includes/class-menu.php
+- admin/includes/class-post.php
+- admin/includes/css/style.css
+- admin/includes/functions.php (M)
+- content/footer.php
+- content/header.php
+- content/index.php
+- content/style.css (M)
+- includes/class-menu.php
+- includes/class-post.php
+- includes/css/font-awesome.min.css
+- includes/css/style.css
+- includes/functions.php
+- includes/js/script.js
+- index.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.2.3[a] (2019-12-24)
 
-* Tweaked documentation in the globals.php file
-* Tweaked code in the getMedia function
-* Created a front end Menu class and moved all menu-related functions to it
-* Tweaked documentation in the includes functions.php file
-* Repurposed the getMenu function
-* Created a function that checks whether a menu item matches the current page
-* Improved conditional CSS class handling for menu items in the Menu::getMenu and Menu::getMenuItemDescendants functions
-* Restructured the content area of the front end
-* Created a function that fetches a page's slug
-* Created a function that constructs a list of body classes
-* Deprecated the getPost function and replaced it with a new function (named the same) that instantiates the Post object
-* A post's data can now be retrieved by calling getPost() and optionally supplying a slug
-* Fixed an issue in the Menu::getMenuItemDescendants function where sub menu items were not properly ordered
-* Tweaked styling of the content area
-* Created a function that fetches a post's metadata
-* Added meta tags to the front end header.php file
-* Created a function that constructs a post's full URL
-* Cleaned up code in the front end theme's script.js file
+- Tweaked documentation in the `globals.php` file
+- Tweaked code in the `getMedia` function
+- Created a front end `Menu` class and moved all menu-related functions to it
+- Tweaked documentation in the `includes/functions.php` file
+- Repurposed the `getMenu` function
+- Created a function that checks whether a menu item matches the current page
+- Improved conditional CSS class handling for menu items in the `Menu::getMenu` and `Menu::getMenuItemDescendants` functions
+- Restructured the content area of the front end
+- Created a function that fetches a page's slug
+- Created a function that constructs a list of body classes
+- Deprecated the `getPost` function and replaced it with a new function (named the same) that instantiates the `Post` object
+- A post's data can now be retrieved by calling the `getPost` function and optionally supplying a slug
+- Fixed an issue in the `Menu::getMenuItemDescendants` function where sub menu items were not properly ordered
+- Tweaked styling of the content area
+- Created a function that fetches a post's metadata
+- Added meta tags to the front end `header.php` file
+- Created a function that constructs a post's full URL
+- Cleaned up code in the front end theme's `script.js` file
 
 **Modified files:**
-* content/footer.php (M)
-* content/header.php
-* content/index.php
-* content/script.js
-* content/style.css
-* includes/class-menu.php (N)
-* includes/class-post.php
-* includes/deprecated.php
-* includes/functions.php
-* includes/globals.php
+- content/footer.php (M)
+- content/header.php
+- content/index.php
+- content/script.js
+- content/style.css
+- includes/class-menu.php (N)
+- includes/class-post.php
+- includes/deprecated.php
+- includes/functions.php
+- includes/globals.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.2.2[a] (2019-12-22)
 
-* The front end header now remains sticky when the page is scrolled
-* Fixed some visual issues with the header and tweaked its styling
-* Created a function that constructs a nav menu
-* Created a function that fetches a menu item's metadata
-* Created a function that checks whether a menu item has a parent
-* Created a function that checks whether a menu item has children
-* Created a function that fetches a menu item's descendants
-* Created a function that fetches a menu item's parent
-* Created a global function that constructs a permalink
-* Moved the Post::isHomePage function to the globals.php file and tweaked its code
-* A house icon now denotes the home page on the 'List Pages' admin page
-* Menus are now fully dynamic on the front end
-* Moved all theme-related styles to the theme stylesheet (content/style.css)
-* Moved all theme-related scripts to the theme script file (content/script.js)
-* Fixed some minor issues with the mobile header scripts
-* The Post::getPermalink function now makes use of the global getPermalink function
-* Tweaked documentation in multiple files
+- The front end header now remains sticky when the page is scrolled
+- Fixed some visual issues with the header and tweaked its styling
+- Created a function that constructs a nav menu
+- Created a function that fetches a menu item's metadata
+- Created a function that checks whether a menu item has a parent
+- Created a function that checks whether a menu item has children
+- Created a function that fetches a menu item's descendants
+- Created a function that fetches a menu item's parent
+- Created a global function that constructs a permalink
+- Moved the `Post::isHomePage` function to the `globals.php` file and tweaked its code
+- A house icon now denotes the home page on the "List Pages" admin page
+- Menus are now fully dynamic on the front end
+- Moved all theme-related styles to the theme stylesheet (`content/style.css`)
+- Moved all theme-related scripts to the theme script file (`content/script.js`)
+- Fixed some minor issues with the mobile header scripts
+- The `Post::getPermalink` function now makes use of the global `getPermalink` function
+- Tweaked documentation in multiple files
 
 **Modified files:**
-* admin/includes/class-post.php
-* content/footer.php (M)
-* content/header.php
-* content/script.js
-* content/style.css
-* includes/css/style.css
-* includes/functions.php
-* includes/globals.php
-* includes/js/script.js
+- admin/includes/class-post.php
+- content/footer.php (M)
+- content/header.php
+- content/script.js
+- content/style.css
+- includes/css/style.css
+- includes/functions.php
+- includes/globals.php
+- includes/js/script.js
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.2.1[a] (2019-12-17)
 
-* Tweaked a previous entry in the changelog
-* Corrected a typo on the 404 (Not Found) error page
-* Styled the 404 (Not Found) error page
-* Added optional 'classes' and 'link_text' parameters to the getMedia function
-* The getMedia function now properly outputs an image's alt text
-* Added a CSS class to the post's featured image
-* Constructed and styled the header for the front end
-* Created a function that fetches a widget from the database
-* Created a front end script.js file
-* Included jQuery in the theme header and the front end scripts in the theme footer
-* Tweaked documentation in the front end style.css file
-* The front end header and menu are functional and mobile responsive
+- Tweaked a previous entry in the changelog
+- Corrected a typo on the 404 (Not Found) error page
+- Styled the 404 (Not Found) error page
+- Added optional `classes` and `link_text` parameters to the `getMedia` function
+- The `getMedia` function now properly outputs an image's alt text
+- Added a CSS class to the post's featured image
+- Constructed and styled the header for the front end
+- Created a function that fetches a widget from the database
+- Created a front end `script.js` file
+- Included jQuery in the theme header and the front end scripts in the theme footer
+- Tweaked documentation in the front end `style.css` file
+- The front end header and menu are functional and mobile responsive
 
 **Modified files:**
-* 404.php (M)
-* content/footer.php (M)
-* content/header.php
-* includes/class-post.php (M)
-* includes/css/style.css
-* includes/functions.php
-* includes/globals.php
-* includes/js/script.js (N)
+- 404.php (M)
+- content/footer.php (M)
+- content/header.php
+- includes/class-post.php (M)
+- includes/css/style.css
+- includes/functions.php
+- includes/globals.php
+- includes/js/script.js (N)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.2.0[a] (2019-12-13)
 
-* Tweaked documentation in the Profile class
-* Reduced the refresh delay on the Profile::resetPassword form from 3 seconds to 2 seconds
-* The site logo and site icon image ids are now casted to integers in the Settings::designSettings function
-* The 'page' value is now removed from the submitted settings data after it is used in a conditional statement (it is not needed after this point)
-* Added the delete modal to the 'List User Roles' page
-* A home icon is now displayed next to the site title on the admin dashboard instead of the site logo
-* The global getOnlineUser function now makes use of the getMedia function to fetch the user's avatar
-* Tweaked styling of the admin dashboard header
-* Removed an unused styling rule from the setup/installation stylesheet
-* Tweaked documentation in the admin script.js and modal.js files
-* Replaced a standard anonymous function with an arrow function in the modal.js file
-* Cleaned up some unnecessary code in the modal.js file
-* Created a front-end function to fetch a post's id
-* Added a 'lang' attribute to the front end header.php file
-* The favicon now displays on the front end
-* Created a function that fetches post data via the Post class
-* Moved the formatDate function to the globals.php file
-* Created front-end functions to fetch data from each column of the posts table
-* Added more content to the front end header, index, and footer files
-* Renamed the getMedia function to getMediaSrc and created a new getMedia function that constructs an HTML tag for the media based on its type
-* Tweaked styling of the thumbnail column of the 'List Media' table
-* Replaced all old occurences of getMedia with getMediaSrc
-* Created the 404 (Not Found) error page
-* A settings entry for 'theme_color' is now created during installation
-* Added a 'theme color' setting to the 'Design Settings' page
-* Styled form color inputs
+- Tweaked documentation in the `Profile` class
+- Reduced the refresh delay on the `Profile::resetPassword` form from 3 seconds to 2 seconds
+- The site logo and site icon image ids are now cast to integers in the `Settings::designSettings` function
+- The `page` value is now removed from the submitted settings data after it is used in a conditional statement (it is not needed after this point)
+- Added the delete modal to the "List User Roles" page
+- A home icon is now displayed next to the site title on the admin dashboard instead of the site logo
+- The global `getOnlineUser` function now makes use of the `getMedia` function to fetch the user's avatar
+- Tweaked the styling of the admin dashboard header
+- Removed an unused styling rule from the setup/installation stylesheet
+- Tweaked documentation in the admin `script.js` and `modal.js` files
+- Replaced a standard anonymous function with an arrow function in the `modal.js` file
+- Cleaned up some unnecessary code in the `modal.js` file
+- Created a front-end function to fetch a post's id
+- Added a `lang` attribute to the front end `header.php` file
+- The favicon now displays on the front end
+- Created a function that fetches post data via the `Post` class
+- Moved the `formatDate` function to the `globals.php` file
+- Created front-end functions to fetch data from each column of the posts table
+- Added more content to the front end `header.php`, `index.php`, and `footer.php` files
+- Renamed the `getMedia` function to `getMediaSrc` and created a new `getMedia` function that constructs an HTML tag for the media based on its type
+- Tweaked styling of the thumbnail column of the "List Media" table
+- Replaced all old occurences of `getMedia` with `getMediaSrc`
+- Created the 404 (Not Found) error page
+- A settings entry for `theme_color` is now created during installation
+- Added a theme color setting to the "Design Settings" page
+- Styled form `color` inputs
 
 **Modified files:**
-* 404.php
-* admin/header.php
-* admin/includes/class-post.php (M)
-* admin/includes/class-profile.php (M)
-* admin/includes/class-settings.php
-* admin/includes/class-user.php (M)
-* admin/includes/css/install[.min].css (M)
-* admin/includes/css/style.css
-* admin/includes/functions.php (M)
-* admin/includes/js/modal.js
-* admin/includes/js/script.js (M)
-* content/footer.php
-* content/header.php
-* content/index.php
-* includes/class-post.php
-* includes/functions.php
-* includes/globals.php
-* login.php (M)
+- 404.php
+- admin/header.php
+- admin/includes/class-post.php (M)
+- admin/includes/class-profile.php (M)
+- admin/includes/class-settings.php
+- admin/includes/class-user.php (M)
+- admin/includes/css/install.css (M)
+- admin/includes/css/install.min.css (M)
+- admin/includes/css/style.css
+- admin/includes/functions.php (M)
+- admin/includes/js/modal.js
+- admin/includes/js/script.js (M)
+- content/footer.php
+- content/header.php
+- content/index.php
+- includes/class-post.php
+- includes/functions.php
+- includes/globals.php
+- login.php (M)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.1.11[a] (2019-12-07)
