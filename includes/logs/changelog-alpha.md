@@ -172,147 +172,147 @@
 ----------------------------------------------------------------------------------------------------
 ## Version 2.3.3[a] (2020-01-22)
 
-* Tweaked a previous entry in the changelog
-* Fixed a bug with the Menu::isFirstSibling, Menu::getPreviousSibling, and Menu::getNextSibling functions that allowed menu items to be confused with items on other menus (the functions now receive the menu id as a second parameter)
-* Fixed a bug with the Menu::isPreviousSibling and Menu::isNextSibling functions that allowed menu items to be confused with items on other menus (the functions now receive the menu id as a third parameter)
-* Tweaked styling of the header menu for the Carbon theme
-* Added a page template field to the 'Create Page' and 'Edit Page' forms
-* A page template metadata entry is now created for the sample page when the CMS is installed
-* Created a directory in the Carbon theme for page templates
-* Created a function that constructs a list of page templates
-* Created a function that fetches all siblings of a specified menu item
-* Cleaned up code in numerous functions in the Menu class
-* Fixed a bug in the Menu::isNextSibling function that prevented a menu item with children from being moved down
-* Page/post/category titles are trimmed down to a maximum of 5 words on the menu sidebar
-* Created a file that loads page templates
-* Created a function that checks whether a page template exists
-* Tweaked documentation and renamed a variable in the load-theme.php file
-* Added a regular expression to sanitize the category slug in the Category::validateData function
-* Added a regular expression to sanitize the post slug in the Post::validateData function
-* Added a regular expression to sanitize the widget slug in the Widget::validateData function
-* Improved mobile responsive design for admin forms
+- Tweaked a previous entry in the changelog
+- Fixed a bug with the `Menu::isFirstSibling`, `Menu::getPreviousSibling`, and `Menu::getNextSibling` functions that allowed menu items to be confused with items on other menus (the functions now receive the menu's id as a second parameter)
+- Fixed a bug with the `Menu::isPreviousSibling` and `Menu::isNextSibling` functions that allowed menu items to be confused with items on other menus (the functions now receive the menu's id as a third parameter)
+- Tweaked styling of the header menu for the Carbon theme
+- Added a page template field to the "Create Page" and "Edit Page" forms
+- A page template metadata entry is now created for the sample page when the CMS is installed
+- Created a directory in the Carbon theme for page templates
+- Created a function that constructs a list of page templates
+- Created a function that fetches all siblings of a specified menu item
+- Cleaned up code in numerous functions in the `Menu` class
+- Fixed a bug in the `Menu::isNextSibling` function that prevented a menu item with children from being moved down
+- Page/post/category titles are trimmed down to a maximum of 5 words on the menu sidebar
+- Created a file that loads page templates
+- Created a function that checks whether a page template exists
+- Tweaked documentation and renamed a variable in the `load-theme.php` file
+- Added a regular expression that sanitizes the category slug in the `Category::validateData` function
+- Added a regular expression that sanitizes the post slug in the `Post::validateData` function
+- Added a regular expression that sanitizes the widget slug in the `Widget::validateData` function
+- Improved mobile responsive design for admin forms
 
 **Modified files:**
-* admin/includes/class-category.php
-* admin/includes/class-menu.php
-* admin/includes/class-post.php
-* admin/includes/class-widget.php
-* admin/includes/css/style.css
-* admin/includes/functions.php (M)
-* content/themes/carbon/style.css
-* includes/functions.php
-* includes/load-template.php (N)
-* includes/load-theme.php
+- admin/includes/class-category.php
+- admin/includes/class-menu.php
+- admin/includes/class-post.php
+- admin/includes/class-widget.php
+- admin/includes/css/style.css
+- admin/includes/functions.php (M)
+- content/themes/carbon/style.css
+- includes/functions.php
+- includes/load-template.php (N)
+- includes/load-theme.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.3.2[a] (2020-01-20)
 
-* Corrected an erroneous entry in the changelog
-* Tweaked styling of the front end admin bar
-* Improved the internal logic of the bodyClasses function
-* Tweaked styling of the 404 (Not Found) page
-* The admin bar now displays on the 404 page if the user is logged in
-* Tweaked styling of the admin data lists
-* Cleaned up code in the Theme::listThemes function
-* Corrected a text error on the 'Create Theme' submit button
-* Added an extra logic check to the Theme::activateTheme function
-* Corrected a regular expression in the Theme::validateData function
-* Tweaked documentation in the Theme class
-* The select media button now remains disabled if the media upload form does not return a success
-* Tweaked a regular expression in the uploadMediaFile function
-* Added a regular expression to sanitize the menu slug in the Menu::validateMenuData function
-* Created a function that inserts a nav menu item into the database
-* Created a function that fetches all relationships for a menu
-* Fixed a bug with the Menu::hasSiblings and Menu::isLastSibling functions that allowed menu items to be confused with items on other menus (the functions now receive the menu id as a second parameter)
-* Tweaked code in the getPermalink function
+- Corrected an erroneous entry in the changelog
+- Tweaked styling of the front end admin bar
+- Improved the internal logic of the `bodyClasses` function
+- Tweaked the styling of the 404 (Not Found) page
+- The admin bar now displays on the 404 page if the user is logged in
+- Tweaked the styling of the admin data lists
+- Cleaned up code in the `Theme::listThemes` function
+- Corrected a text error on the "Create Theme" submit button
+- Added an extra logic check to the `Theme::activateTheme` function
+- Corrected a regular expression in the `Theme::validateData` function
+- Tweaked documentation in the `Theme` class
+- The select media button now remains disabled if the media upload form does not return a success
+- Tweaked a regular expression in the `uploadMediaFile` function
+- Added a regular expression to sanitize the menu slug in the `Menu::validateMenuData` function
+- Created a function that inserts a nav menu item into the database
+- Created a function that fetches all relationships for a menu
+- Fixed a bug with the `Menu::hasSiblings` and `Menu::isLastSibling` functions that allowed menu items to be confused with items on other menus (the functions now receive the menu's id as a second parameter)
+- Tweaked code in the `getPermalink` function
 
 **Modified files:**
-* 404.php
-* admin/includes/class-menu.php
-* admin/includes/class-theme.php
-* admin/includes/css/style.css (M)
-* admin/includes/functions.php (M)
-* admin/includes/js/modal.js
-* content/themes/carbon/style.css (M)
-* includes/css/style.css (M)
-* includes/functions.php
-* includes/globals.php (M)
+- 404.php
+- admin/includes/class-menu.php
+- admin/includes/class-theme.php
+- admin/includes/css/style.css (M)
+- admin/includes/functions.php (M)
+- admin/includes/js/modal.js
+- content/themes/carbon/style.css (M)
+- includes/css/style.css (M)
+- includes/functions.php
+- includes/globals.php (M)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.3.1[a] (2020-01-18)
 
-* Removed an unnecessary int cast in the getOnlineUser function
-* Optimized code in the getHeader and getFooter functions
-* Moved the getThemeScript and getThemeStylesheet functions to the front end functions.php file and optimized them
-* Fixed a minor issue with the HTML in the adminBar function
-* Optimized the isEmptyDir function
-* Tweaked styling of the front end admin bar
-* Created a function that fetches stylesheets for the admin themes
-* Added a preview image for the Carbon theme
-* Styled the admin 'List Themes' page
-* Created a function that checks whether a theme is the active theme
-* Created a function that activates an inactive theme
-* Created a function that checks whether a theme exists
-* Created a function that recursively deletes files and directories
-* Created a function that deletes a selected theme
-* Created a function that constructs the 'Create Theme' form
-* Created a function that validates data submitted on the 'Create Theme' form
+- Removed an unnecessary integer cast in the `getOnlineUser` function
+- Optimized code in the `getHeader` and `getFooter` functions
+- Moved the `getThemeScript` and `getThemeStylesheet` functions to the front end `functions.php` file and optimized them
+- Fixed a minor issue with the HTML in the `adminBar` function
+- Optimized the `isEmptyDir` function
+- Tweaked styling of the front end admin bar
+- Created a function that fetches stylesheets for the admin themes
+- Added a preview image for the Carbon theme
+- Styled the admin "List Themes" page
+- Created a function that checks whether a theme is the active theme
+- Created a function that activates an inactive theme
+- Created a function that checks whether a theme exists
+- Created a function that recursively deletes files and directories
+- Created a function that deletes a selected theme
+- Created a function that constructs the "Create Theme" form
+- Created a function that validates data submitted on the "Create Theme" form
 
 **Modified files:**
-* admin/includes/class-theme.php
-* admin/includes/css/style.css
-* admin/includes/functions.php
-* admin/themes.php
-* content/themes/carbon/preview.png (N)
-* includes/css/style.css
-* includes/functions.php
-* includes/globals.php
+- admin/includes/class-theme.php
+- admin/includes/css/style.css
+- admin/includes/functions.php
+- admin/themes.php
+- content/themes/carbon/preview.png (N)
+- includes/css/style.css
+- includes/functions.php
+- includes/globals.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.3.0[a] (2020-01-15)
 
-* Created a file to hold named constants used throughout the CMS
-* Moved all constant declarations to the new constants.php file
-* Created a new named constant for the themes directory
-* Updated the file path for the config.php file in the setup.php file
-* Created a global function that checks whether a directory is empty
-* Created a fallback theme file in case the themes directory is empty
-* Moved the front end theme files to the new Carbon theme folder
-* Added an optional parameter for the getHeader and getFooter functions to allow specifying alternate template files from header.php and footer.php
-* Added error checking to the getHeader and getFooter functions
-* Modified the getThemeScript and getThemeStylesheet functions to search in the proper file path
-* Created an admin page and a class for front end themes
-* Added the 'List Themes' page to the admin nav menu
-* Created user privileges for themes
-* Updated the file path for the config.php file in the install.php file
-* Created a function that displays a list of installed themes
+- Created a file to hold named constants used throughout the CMS
+- Moved all constant declarations to the new `constants.php` file
+- Created a new named constant for the `themes` directory
+- Updated the file path for the `config.php` file in the `setup.php` file
+- Created a global function that checks whether a directory is empty
+- Created a fallback theme file in case the `themes` directory is empty
+- Moved the front end theme files to the new Carbon theme's directory
+- Added an optional parameter for the `getHeader` and `getFooter` functions to allow specifying alternate template files from the `header.php` and `footer.php` files
+- Added error checking to the `getHeader` and `getFooter` functions
+- Modified the `getThemeScript` and `getThemeStylesheet` functions to search in the proper file path
+- Created an admin page and a class for front end themes
+- Added the "List Themes" page to the admin nav menu
+- Created user privileges for themes
+- Updated the file path for the `config.php` file in the `install.php` file
+- Created a function that displays a list of installed themes
 
 **Modified files:**
-* admin/header.php
-* admin/includes/class-theme.php (N)
-* admin/includes/functions.php
-* admin/install.php
-* admin/setup.php (M)
-* admin/themes.php (N)
-* content/footer.php (X)
-* content/functions.php (X)
-* content/header.php (X)
-* content/index.php (X)
-* content/script.js (X)
-* content/style.css (X)
-* content/themes/carbon/footer.php (N)
-* content/themes/carbon/functions.php (N)
-* content/themes/carbon/header.php (N)
-* content/themes/carbon/index.php (N)
-* content/themes/carbon/script.js (N)
-* content/themes/carbon/style.css (N)
-* includes/constants.php (N)
-* includes/fallback.php (N)
-* includes/functions.php
-* includes/globals.php
-* includes/load-theme.php (N)
-* index.php
-* init.php
+- admin/header.php
+- admin/includes/class-theme.php (N)
+- admin/includes/functions.php
+- admin/install.php
+- admin/setup.php (M)
+- admin/themes.php (N)
+- content/footer.php (X)
+- content/functions.php (X)
+- content/header.php (X)
+- content/index.php (X)
+- content/script.js (X)
+- content/style.css (X)
+- content/themes/carbon/footer.php (N)
+- content/themes/carbon/functions.php (N)
+- content/themes/carbon/header.php (N)
+- content/themes/carbon/index.php (N)
+- content/themes/carbon/script.js (N)
+- content/themes/carbon/style.css (N)
+- includes/constants.php (N)
+- includes/fallback.php (N)
+- includes/functions.php
+- includes/globals.php
+- includes/load-theme.php (N)
+- index.php
+- init.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.2.7[a] (2020-01-14)

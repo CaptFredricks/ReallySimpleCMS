@@ -23,7 +23,7 @@ if(is_writable(PATH) && !file_exists($sitemap_file_path)) {
 	
 	// Loop through the sitemaps and write them to the file
 	foreach($sitemaps as $sitemap)
-		fwrite($handle, '<sitemap>'.chr(10).'<loc>'.(!empty($_SERVER['HTTPS']) ? 'https://' : 'http://').trailingSlash($_SERVER['HTTP_HOST']).$sitemap.'</loc>'.chr(10).'</sitemap>');
+		fwrite($handle, '<sitemap>'.chr(10).'<loc>'.(!empty($_SERVER['HTTPS']) ? 'https://' : 'http://').$_SERVER['HTTP_HOST'].trailingSlash(INC).$sitemap.'</loc>'.chr(10).'</sitemap>');
 	
 	// Finish writing to the file
 	fwrite($handle, '</sitemapindex>');

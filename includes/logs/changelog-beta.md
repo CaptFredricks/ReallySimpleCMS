@@ -6,6 +6,31 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.1.3[b] (2020-11-07)
+
+- Fixed sitemap links in the `sitemap-index.php` file (they previously were missing the `includes` directory before the filename)
+- Created a function that compiles and includes all of the necessary meta tags for the `head` section
+- Added canonical tags to the list of meta tags included in the `head` section
+- Deleted the Carbon theme's `header-cat.php` and `header-tax.php` files
+- Created a function that constructs and displays the page title (applies to posts and terms)
+- Added checks in the Carbon theme's `index.php` file to prevent errors from occurring if the current page is a term (this is only relevant if a taxonomy template doesn't exist)
+- Moved a check for the theme `index.php` file from the `load-theme.php` file to the `load-template.php` file
+- Category pages fallback to the generic taxonomy template if a category template does not exist
+- Cleaned up some entries in the Alpha changelog
+
+**Modified files:**
+- content/themes/carbon/category.php (M)
+- content/themes/carbon/header-cat.php (X)
+- content/themes/carbon/header-tax.php (X)
+- content/themes/carbon/header.php
+- content/themes/carbon/index.php
+- content/themes/carbon/taxonomy.php (M)
+- includes/functions.php
+- includes/load-template.php
+- includes/load-theme.php
+- includes/sitemap-index.php (M)
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.1.2[b] (2020-11-04)
 
 - Added validation in the `init.php` file that checks whether the `BASE_INIT` constant has been defined (if so, it only loads the basic initialization files, otherwise it loads everything)

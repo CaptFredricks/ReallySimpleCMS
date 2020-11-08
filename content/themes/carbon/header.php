@@ -1,17 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title><?php !empty($rs_post->getPostMeta('title', false)) ? $rs_post->getPostMeta('title') : $rs_post->getPostTitle(); ?> &rtrif; <?php getSetting('site_title'); ?></title>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<meta name="theme-color" content="<?php getSetting('theme_color'); ?>">
-		<meta name="description" content="<?php echo !empty($rs_post->getPostMeta('description', false)) ? $rs_post->getPostMeta('description') : trimWords(str_replace(array("\n", "\r"), '', strip_tags($rs_post->getPostContent(false))), 25, '.'); ?>">
-		<meta property="og:title" content="<?php !empty($rs_post->getPostMeta('title', false)) ? $rs_post->getPostMeta('title') : $rs_post->getPostTitle(); ?>">
-		<meta property="og:type" content="website">
-		<meta property="og:url" content="<?php $rs_post->getPostUrl(); ?>">
-		<meta property="og:image" content="<?php echo getMediaSrc(getSetting('site_logo', false)); ?>">
-		<meta property="og:description" content="<?php echo !empty($rs_post->getPostMeta('description', false)) ? $rs_post->getPostMeta('description') : trimWords(str_replace(array("\n", "\r"), '', strip_tags($rs_post->getPostContent(false))), 25, '.'); ?>">
-		<link type="image/x-icon" href="<?php echo getMediaSrc(getSetting('site_icon', false)); ?>" rel="icon">
+		<title><?php pageTitle(); ?></title>
+		<?php metaTags(); ?>
 		<?php headerScripts('button', array(array('style'))); ?>
 	</head>
 	<body class="<?php echo bodyClasses(); ?>">

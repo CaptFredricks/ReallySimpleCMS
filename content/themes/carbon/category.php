@@ -1,6 +1,6 @@
 <?php
 // Include the header
-getHeader('header-cat');
+getHeader();
 ?>
 <div class="wrapper">
 	<article class="article-content">
