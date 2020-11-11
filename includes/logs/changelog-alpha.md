@@ -8,166 +8,166 @@
 ----------------------------------------------------------------------------------------------------
 ## Version 2.4.5[a] (2020-06-16)
 
-* Added a blank avatar for users with no avatar
-* Added styling for the blank avatar on the front end and back end
-* The getMedia function now creates a blank <img> tag instead of an <a> tag if the 'src' attribute is '//:0'
-* Removed an unnecessary if statement in the User::listUsers function
-* Improved styling of the admin themes
-* Tweaked previous entries in the changelog
-* Updated jQuery to v3.5.1
-* Updated Font Awesome to v5.13.0
-* Moved Font Awesome's font-face rules to a separate css file (for easier updating moving forward)
-* Improved mobile responsive design of the admin dashboard (should be fully responsive)
-* Tweaked how the post's permalink displays on mobile
-* Tweaked how the custom menu item fieldset displays on mobile
-* Posts can now be previewed
-* Added the "noreferrer" and "noopener" directives to all links using the target attribute
+- Added a blank avatar for users with no avatar
+- Added styling for the blank avatar on the front end and back end
+- The `getMedia` function now creates a blank `img` tag instead of an `a` tag if the `src` attribute is `//:0`
+- Removed an unnecessary `if` statement in the `User::listUsers` function
+- Improved styling of the admin themes
+- Tweaked previous entries in the changelog
+- Updated jQuery to v3.5.1
+- Updated Font Awesome to v5.13.0
+- Moved Font Awesome's font-face rules to a separate CSS file (for easier updating moving forward)
+- Improved the mobile responsive design of the admin dashboard (it should now be fully responsive)
+- Tweaked how the post's permalink displays on mobile
+- Tweaked how the custom menu item fieldset displays on mobile
+- Posts can now be previewed
+- Added the "noreferrer" and "noopener" directives to all links using the `target` attribute
 
 **Modified files:**
-* admin/header.php (M)
-* admin/includes/class-media.php (M)
-* admin/includes/class-menu.php (M)
-* admin/includes/class-post.php (M)
-* admin/includes/class-user.php (M)
-* admin/includes/css/style.css
-* admin/includes/functions.php
-* content/admin-themes/forest.css
-* content/admin-themes/harvest.css
-* content/admin-themes/ocean.css
-* content/admin-themes/sunset.css
-* includes/class-post.php
-* includes/css/font-awesome-rules.min.css (N)
-* includes/css/font-awesome.min.css
-* includes/css/style.css
-* includes/fonts/fa-brands.ttf
-* includes/fonts/fa-regular.ttf
-* includes/fonts/fa-solid.ttf
-* includes/functions.php
-* includes/globals.php (M)
-* includes/img/blank.png (N)
-* includes/js/jquery.min.js
+- admin/header.php (M)
+- admin/includes/class-media.php (M)
+- admin/includes/class-menu.php (M)
+- admin/includes/class-post.php (M)
+- admin/includes/class-user.php (M)
+- admin/includes/css/style.css
+- admin/includes/functions.php
+- content/admin-themes/forest.css
+- content/admin-themes/harvest.css
+- content/admin-themes/ocean.css
+- content/admin-themes/sunset.css
+- includes/class-post.php
+- includes/css/font-awesome-rules.min.css (N)
+- includes/css/font-awesome.min.css
+- includes/css/style.css
+- includes/fonts/fa-brands.ttf
+- includes/fonts/fa-regular.ttf
+- includes/fonts/fa-solid.ttf
+- includes/functions.php
+- includes/globals.php (M)
+- includes/img/blank.png (N)
+- includes/js/jquery.min.js
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.4.4[a] (2020-04-30)
 
-* Added more details to the previous log in the changelog
-* Tweaked the title in the Carbon theme's category archive
-* Tweaked styling of the Carbon theme's category archive
-* Added the author and date to single posts in the Carbon theme
-* Tweaked styling of the Carbon theme's single posts
-* Adjusted date formats for the Carbon theme
+- Added more details to the previous log in the changelog
+- Tweaked the title in the Carbon theme's category archive
+- Tweaked styling of the Carbon theme's category archive
+- Added the author and date to single posts in the Carbon theme
+- Tweaked styling of the Carbon theme's single posts
+- Adjusted date formats for the Carbon theme
 
 **Modified files:**
-* content/themes/carbon/category.php (M)
-* content/themes/carbon/functions.php (M)
-* content/themes/carbon/post.php
-* content/themes/carbon/style.css
-* includes/class-post.php (M)
+- content/themes/carbon/category.php (M)
+- content/themes/carbon/functions.php (M)
+- content/themes/carbon/post.php
+- content/themes/carbon/style.css
+- includes/class-post.php (M)
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.4.3[a] (2020-04-27)
 
-* The constants.php file is now included in the setup.php and install.php files (this fixes an error with an undefined constant)
-* Added a form for reassigning a user's content to another user when the former is deleted
-* Created a function that fetches a username based on a user id (User class)
-* Created a function that constructs a list of users (User class)
-* Created a function that checks whether a user has content assigned to them
-* If a user has no assigned content, deletion of their account will work as normal; if they do, however, the admin performing the deletion will be redirected to the new form
-* Improved mobile responsive design of the admin dashboard
+- The `constants.php` file is now included in the `setup.php` and `install.php` files (this fixes an error with an undefined constant)
+- Added a form for reassigning a user's content to another user when the former is deleted
+- Created a function that fetches a username based on a user id (`User` class)
+- Created a function that constructs a list of users (`User` class)
+- Created a function that checks whether a user has content assigned to them
+- If a user has no assigned content, deletion of their account will work as normal; if they do, however, the admin performing the deletion will be redirected to the new form
+- Improved mobile responsive design of the admin dashboard
 
 **Modified files:**
-* admin/includes/class-user.php
-* admin/includes/css/style.css
-* admin/install.php
-* admin/setup.php
-* admin/users.php
+- admin/includes/class-user.php
+- admin/includes/css/style.css
+- admin/install.php
+- admin/setup.php
+- admin/users.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.4.2[a] (2020-03-11)
 
-* Updated Font Awesome to v5.12.1
-* Created a function that loads header scripts and stylesheets
-* Created a function that loads footer scripts and stylesheets
-* Added internal version numbers for the admin themes
-* Improved styling of the admin themes
+- Updated Font Awesome to v5.12.1
+- Created a function that loads header scripts and stylesheets
+- Created a function that loads footer scripts and stylesheets
+- Added internal version numbers for the admin themes
+- Improved styling of the admin themes
 
 **Modified files:**
-* 404.php
-* admin/includes/functions.php (M)
-* content/admin-themes/forest.css
-* content/admin-themes/harvest.css
-* content/admin-themes/ocean.css
-* content/admin-themes/sunset.css
-* content/themes/carbon/footer.php
-* content/themes/carbon/header.php
-* content/themes/carbon/header-cat.php
-* includes/css/font-awesome.min.css
-* includes/functions.php
-* login.php
+- 404.php
+- admin/includes/functions.php (M)
+- content/admin-themes/forest.css
+- content/admin-themes/harvest.css
+- content/admin-themes/ocean.css
+- content/admin-themes/sunset.css
+- content/themes/carbon/footer.php
+- content/themes/carbon/header.php
+- content/themes/carbon/header-cat.php
+- includes/css/font-awesome.min.css
+- includes/functions.php
+- login.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.4.1[a] (2020-02-19)
 
-* Reordered the postmeta entries in the populateTables function
-* The Post::validateData function will no longer try to submit the 'template' postmeta entry if it is not included in the submitted data
-* Created a template file for blog posts in the Carbon theme
-* Moved the getTaxonomyId function to the globals.php file
-* Created a function that fetches a post's categories
-* Created a function that creates a Category object based on a provided slug
-* Modified the Carbon theme's getRecentPosts function to accept an optional 'categories' parameter (if populated, it will display posts from specified categories)
-* Created a function that returns the posts in a specific category
+- Reordered the postmeta entries in the `populateTables` function
+- The `Post::validateData` function will no longer try to submit the "template" postmeta entry if it is not included in the submitted data
+- Created a template file for blog posts in the Carbon theme
+- Moved the `getTaxonomyId` function to the `globals.php` file
+- Created a function that fetches a post's categories
+- Created a function that creates a Category object based on a provided slug
+- Modified the Carbon theme's `getRecentPosts` function to accept an optional `categories` parameter (if populated, it will display posts from specified categories)
+- Created a function that returns the posts in a specific category
 
 **Modified files:**
-* admin/includes/class-post.php
-* admin/includes/functions.php
-* content/themes/carbon/category.php (M)
-* content/themes/carbon/footer.php (M)
-* content/themes/carbon/functions.php
-* content/themes/carbon/post.php (N)
-* includes/class-post.php
-* includes/functions.php
-* includes/globals.php
+- admin/includes/class-post.php
+- admin/includes/functions.php
+- content/themes/carbon/category.php (M)
+- content/themes/carbon/footer.php (M)
+- content/themes/carbon/functions.php
+- content/themes/carbon/post.php (N)
+- includes/class-post.php
+- includes/functions.php
+- includes/globals.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.4.0[a] (2020-01-30)
 
-* Tweaked styling of certain title/name fields on the admin forms
-* The recent post titles now link to the proper blog posts in the Carbon theme's getRecentPosts function
-* Added redirect rules to the .htaccess file
-* Fixed a pass by reference error in the Post class constructor
-* Invalid post slugs and unpublished posts are now redirected to the 404 (Not Found) page
-* Invalid permalinks now redirect to the proper permalink
-* Tweaked a logic statement in the load-template.php file
-* The getPermalink function now adds /category/ as the base slug for category pages
-* Created a function that checks whether the current page is actually a category archive
-* Created a front end class to handle entries in the 'terms' table
-* Created a front end class to handle categories
-* Changed the CSS classes for the Carbon theme's index.php article content wrapper
-* Created a category template for the Carbon theme
-* Added a global call to the Category object in the getHeader and getFooter functions
-* Tweaked styling of the Carbon theme
-* Optimized code in the getRecentPosts function
-* Began styling the category template page
-* Added a 'view' link to the 'List Categories' admin table
-* Improved mobile responsive design of the admin modals and post forms
+- Tweaked styling of certain title/name fields on the admin forms
+- The recent post titles now link to the proper blog posts in the Carbon theme's `getRecentPosts` function
+- Added redirect rules to the `.htaccess` file
+- Fixed a pass by reference error in the `Post` class' constructor
+- Invalid post slugs and unpublished posts are now redirected to the 404 (Not Found) page
+- Invalid permalinks now redirect to the proper permalink
+- Tweaked a logic statement in the `load-template.php` file
+- The `getPermalink` function now adds `/category/` as the base slug for category pages
+- Created a function that checks whether the current page is actually a category archive
+- Created a front end class that handles entries in the `terms` database table
+- Created a front end class that handles categories
+- Changed the CSS classes for the Carbon theme's `index.php` article content wrapper
+- Created a category template for the Carbon theme
+- Added a global call to the `Category` object in the `getHeader` and `getFooter` functions
+- Tweaked styling of the Carbon theme
+- Optimized code in the `getRecentPosts` function
+- Began styling the category template page
+- Added a "view" link to the "List Categories" admin table
+- Improved mobile responsive design of the admin modals and post forms
 
 **Modified files:**
-* .htaccess
-* admin/includes/class-category.php
-* admin/includes/css/style.css
-* content/themes/carbon/category.php (N)
-* content/themes/carbon/footer.php (M)
-* content/themes/carbon/functions.php
-* content/themes/carbon/header-cat.php (N)
-* content/themes/carbon/index.php
-* content/themes/carbon/style.css
-* includes/class-category.php (N)
-* includes/class-post.php
-* includes/class-term.php (N)
-* includes/functions.php
-* includes/globals.php
-* includes/load-template.php (M)
-* index.php
+- .htaccess
+- admin/includes/class-category.php
+- admin/includes/css/style.css
+- content/themes/carbon/category.php (N)
+- content/themes/carbon/footer.php (M)
+- content/themes/carbon/functions.php
+- content/themes/carbon/header-cat.php (N)
+- content/themes/carbon/index.php
+- content/themes/carbon/style.css
+- includes/class-category.php (N)
+- includes/class-post.php
+- includes/class-term.php (N)
+- includes/functions.php
+- includes/globals.php
+- includes/load-template.php (M)
+- index.php
 
 ----------------------------------------------------------------------------------------------------
 ## Version 2.3.3[a] (2020-01-22)

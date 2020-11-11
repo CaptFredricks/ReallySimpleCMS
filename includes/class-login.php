@@ -7,6 +7,36 @@
  */
 class Login {
 	/**
+	 * Set the minimum password length.
+	 * @since 2.0.7[a]
+	 *
+	 * @access private
+	 * @var int
+	 */
+	private const PW_LENGTH = 8;
+	
+	/**
+	 * Whether HTTPS is enabled on the server.
+	 * @since 1.1.4[b]
+	 *
+	 * @access private
+	 * @var bool
+	 */
+	private $https;
+	
+	/**
+	 * Class constructor.
+	 * @since 1.1.4[b]
+	 *
+	 * @access public
+	 * @return null
+	 */
+	public function __construct() {
+		// Check whether HTTPS is enabled and set the class variable's value
+		$this->https = !empty($_SERVER['HTTPS']) ? true : false;
+	}
+	
+	/**
 	 * Construct the 'Log In' form.
 	 * @since 2.0.3[a]
 	 *
@@ -115,10 +145,10 @@ class Login {
 		// Check whether the 'keep me logged in' checkbox has been checked
 		if(isset($data['remember_login']) && $data['remember_login'] === 'checked') {
 			// Create a cookie with the session value that expires in 30 days
-			setcookie('session', $session, time() + 60 * 60 * 24 * 30, '/');
+			setcookie('session', $session, array('expires'=>time() + 60 * 60 * 24 * 30, 'path'=>'/', 'secure'=>$this->https, 'httponly'=>true, 'samesite'=>'Strict'));
 		} else {
 			// Create a cookie with the session value that expires when the browser is closed
-			setcookie('session', $session, 0, '/');
+			setcookie('session', $session, array('expires'=>0, 'path'=>'/', 'secure'=>$this->https, 'httponly'=>true, 'samesite'=>'Strict'));
 		}
 		
 		// Unset the secure login code
@@ -446,7 +476,7 @@ class Login {
 		// Check whether the login and key are in the query string
 		if(isset($_GET['login']) && isset($_GET['key'])) {
 			// Create a cookie that expires when the browser is closed
-			setcookie($cookie_name, $_GET['login'].':'.$_GET['key'], 0, '/login.php');
+			setcookie($cookie_name, $_GET['login'].':'.$_GET['key'], array('expires'=>0, 'path'=>'/login.php', 'secure'=>$this->https, 'httponly'=>true, 'samesite'=>'Strict'));
 			
 			// Redirect to remove the 'login' and 'key' values from the query string
 			redirect('login.php?action=reset_password');
@@ -481,15 +511,6 @@ class Login {
 		</form>
 		<?php
 	}
-	
-	/**
-	 * Set the minimum password length.
-	 * @since 2.0.7[a]
-	 *
-	 * @access private
-	 * @var int
-	 */
-	private const PW_LENGTH = 8;
 	
 	/**
 	 * Validate the reset password data.

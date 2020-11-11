@@ -38,6 +38,28 @@ spl_autoload_register(function($class_name) {
 });
 
 /**
+ * Display the copyright information on the admin dashboard.
+ * @since 1.2.0[a]
+ *
+ * @return null
+ */
+function RSCopyright() {
+	?>
+	&copy; <?php echo date('Y'); ?> <a href="/">ReallySimpleCMS</a> &bull; Created by <a href="https://jacefincham.com/" target="_blank" rel="noreferrer noopener">Jace Fincham</a>
+	<?php
+}
+
+/**
+ * Display the CMS version on the admin dashboard.
+ * @since 1.2.0[a]
+ *
+ * @return null
+ */
+function RSVersion() {
+	echo 'Version '.VERSION.' (&beta;)';
+}
+
+/**
  * Fetch the current admin page.
  * @since 1.5.4[a]
  *

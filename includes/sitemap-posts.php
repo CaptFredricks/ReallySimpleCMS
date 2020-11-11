@@ -12,8 +12,10 @@ if(!defined('BASE_INIT')) define('BASE_INIT', true);
 
 // Include the initialization file
 require_once dirname(__DIR__).'/init.php';
+
+// Display the XML header
+echo '<?xml version="1.0" encoding="UTF-8"?>'.chr(10);
 ?>
-<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">
 	<?php
 	// Fetch all published posts from the database

@@ -4,44 +4,11 @@
  * @since 1.2.0[a]
  */
 
-// Current CMS version
-const VERSION = '1.1.3';
-
-// Post types
+// Array to hold all existing post types
 $post_types = array();
 
-// Taxonomies
+// Array to hold all existing taxonomies
 $taxonomies = array();
-
-/**
- * Display the copyright information on the admin dashboard.
- * @since 1.2.0[a]
- *
- * @param bool $echo (optional; default: true)
- * @return null|string (null on $echo == true; string on $echo == false)
- */
-function RSCopyright($echo = true) {
-	$content = '&copy; '.date('Y').' <a href="/">ReallySimpleCMS</a> &bull; Created by <a href="https://jacefincham.com/" target="_blank" rel="noreferrer noopener">Jace Fincham</a>';
-	
-	if($echo)
-		echo $content;
-	else
-		return $content;
-}
-
-/**
- * Display the CMS version on the admin dashboard.
- * @since 1.2.0[a]
- *
- * @param bool $echo (optional; default: true)
- * @return null|string (null on $echo == true; string on $echo == false)
- */
-function RSVersion($echo = true) {
-	if($echo)
-		echo 'Version '.VERSION.' (&beta;)';
-	else
-		return 'Version '.VERSION.' (&beta;)';
-}
 
 /**
  * Redirect to a specified URL.

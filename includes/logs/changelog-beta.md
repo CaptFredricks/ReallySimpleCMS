@@ -6,6 +6,38 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.1.4[b] (2020-11-10)
+
+- Improved security for the `session` and `pw-reset` cookies
+- Created a variable for the `Login` class that stores whether HTTPS is enabled
+- Created a constructor for the `Login` class
+- Moved the `PW_LENGTH` constant to the top of the `Login` class
+- Fixed a bug where the sitemap would be appended multiple times to the `robots.txt` file if the `sitemap.xml` file was deleted and recreated
+- Added a new constant, `DEBUG_MODE`, which informs the CMS whether it should display or hide PHP errors (default is false)
+  - This constant can be defined in the `config.php` file to override the default value
+- Cleaned up some code in the `Query` class
+- Moved the `VERSION` constant from the `globals.php` file to the `constants.php` file
+- Cleaned up code in the `constants.php` file
+- Tweaked documentation in the `globals.php` file
+- Moved the `RSCopyright` and `RSVersion` functions from the `globals.php` file to the admin `functions.php` file
+- Cleaned up code in the `RSCopyright` and `RSVersion` functions and removed their `echo` parameter
+- Added an error message that displays if one of the required database constants is not defined in the `config.php` file
+- Tweaked documentation and cleaned up code in the `init.php` file
+- The XML headers in the `sitemap-posts.php` and `sitemap-terms.php` files are now displayed via PHP to prevent errors when the `short_open_tag` ini directive is turned on
+- Completed the Alpha changelog cleanup
+
+**Modified files:**
+- admin/includes/functions.php
+- includes/class-login.php
+- includes/class-query.php (M)
+- includes/constants.php
+- includes/globals.php
+- includes/sitemap-index.php
+- includes/sitemap-posts.php (M)
+- includes/sitemap-terms.php (M)
+- init.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.1.3[b] (2020-11-07)
 
 - Fixed sitemap links in the `sitemap-index.php` file (they previously were missing the `includes` directory before the filename)

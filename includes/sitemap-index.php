@@ -36,16 +36,28 @@ if(is_writable(PATH) && !file_exists($sitemap_file_path)) {
 	
 	// Check whether a robots.txt file exists
 	if(file_exists($robots_file_path)) {
-		// Open the file stream
-		$handle = fopen($robots_file_path, 'a');
+		// Open the file stream in read mode
+		$handle = fopen($robots_file_path, 'r');
 		
-		// Write to the file
-		fwrite($handle, chr(10).chr(10).'Sitemap: '.(!empty($_SERVER['HTTPS']) ? 'https://' : 'http://').$_SERVER['HTTP_HOST'].'/sitemap.xml');
+		// Fetch the contents of the file
+		$contents = fread($handle, filesize($robots_file_path));
 		
 		// Close the file
 		fclose($handle);
+		
+		// Check whether a sitemap is defined in robots.txt
+		if(strpos($contents, 'Sitemap:') === false) {
+			// Open the file stream in append mode
+			$handle = fopen($robots_file_path, 'a');
+			
+			// Write to the file
+			fwrite($handle, chr(10).chr(10).'Sitemap: '.(!empty($_SERVER['HTTPS']) ? 'https://' : 'http://').$_SERVER['HTTP_HOST'].'/sitemap.xml');
+			
+			// Close the file
+			fclose($handle);
+		}
 	} else {
-		// Open the file stream
+		// Open the file stream in write mode
 		$handle = fopen($robots_file_path, 'w');
 		
 		// Write to the file

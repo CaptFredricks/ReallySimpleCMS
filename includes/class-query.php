@@ -42,14 +42,11 @@ class Query {
 			// Turn on error reporting
 			$this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 			
-			// Check whether any of the database constants are empty
-			if(empty(DB_HOST) || empty(DB_NAME) || empty(DB_CHAR) || empty(DB_USER)) {
-				// Set the connection status to false
+			// Check whether any of the database constants are empty and update the connection status as necessary
+			if(empty(DB_HOST) || empty(DB_NAME) || empty(DB_CHAR) || empty(DB_USER))
 				$this->conn_status = false;
-			} else {
-				// Set the connection status to true
+			else
 				$this->conn_status = true;
-			}
 		} catch(PDOException $e) {
 			// Log any errors
 			logError($e);
