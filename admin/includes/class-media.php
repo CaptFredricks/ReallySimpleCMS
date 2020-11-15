@@ -381,6 +381,12 @@ class Media extends Post {
 			foreach($mediameta as $key=>$value)
 				$rs_query->update('postmeta', array('value'=>$value), array('post'=>$id, '_key'=>$key));
 			
+			// Update the class variables
+			foreach($data as $key=>$value) $this->$key = $value;
+			
+			// Update the content class variable
+			$this->content = $data['description'];
+			
 			// Return a status message
 			return statusMessage('Media updated! <a href="media.php">Return to list</a>?', true);
 		}

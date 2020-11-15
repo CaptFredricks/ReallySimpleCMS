@@ -6,6 +6,39 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.1.5[b] (2020-11-14)
+
+- Removed an unnecessary `if` statement from the `ajax.php` file
+- Fixed a bug in numerous classes where class variables were not updated when an admin "Edit <item>" form was submitted
+- Menu items can no longer be linked to unpublished posts
+- Menu items that link to external sites now open the link in a new tab
+- Sitemaps are now fully styled
+- Tweaked documentation in the `sitemap-index.php` file
+- The `sitemap-terms.php` file now generates sitemaps in the `root` directory for every public taxonomy
+- The `sitemap-index.php` file is now loaded after the default post types and taxonomies are registered
+- Added all sitemaps to the `.gitignore` file
+- The `sitemap-posts.php` file now generates sitemaps in the `root` directory for every public post type
+  - The `media` post type is public, but for the time being, it will be skipped (this may be changed at a later date)
+- The `sitemap-index.php` file now regenerates the `sitemap.xml` file if an existing sitemap is deleted or a new one is created
+
+**Modified files:**
+- .gitignore (M)
+- admin/includes/class-media.php (M)
+- admin/includes/class-menu.php (M)
+- admin/includes/class-profile.php (M)
+- admin/includes/class-term.php (M)
+- admin/includes/class-user-role.php (M)
+- admin/includes/class-user.php (M)
+- admin/includes/class-widget.php (M)
+- includes/ajax.php (M)
+- includes/class-menu.php
+- includes/sitemap-index.php
+- includes/sitemap-posts.php
+- includes/sitemap-terms.php
+- includes/sitemap.xsl (N)
+- init.php (M)
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.1.4[b] (2020-11-10)
 
 - Improved security for the `session` and `pw-reset` cookies

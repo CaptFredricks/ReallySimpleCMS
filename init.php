@@ -74,14 +74,14 @@ foreach($schema as $key=>$value) {
 	}
 }
 
-// Include the sitemap index generator
-include_once PATH.INC.'/sitemap-index.php';
-
 // Register the default post types
 registerDefaultPostTypes();
 
 // Register the default taxonomies
 registerDefaultTaxonomies();
+
+// Include the sitemap index generator
+include_once PATH.INC.'/sitemap-index.php';
 
 // Check whether only the base files and functions should be initialized
 if(!defined('BASE_INIT') || (defined('BASE_INIT') && !BASE_INIT)) {

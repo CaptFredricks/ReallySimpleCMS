@@ -99,6 +99,9 @@ class Profile extends User {
 		foreach($usermeta as $key=>$value)
 			$rs_query->update('usermeta', array('value'=>$value), array('user'=>$session['id'], '_key'=>$key));
 		
+		// Update the class variables
+		foreach($data as $key=>$value) $this->$key = $value;
+		
 		// Return a status message
 		return statusMessage('Profile updated! This page will automatically refresh for all changes to take effect.', true);
 	}

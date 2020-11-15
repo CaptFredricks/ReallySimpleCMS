@@ -255,6 +255,9 @@ class Widget extends Post {
 			// Update the widget in the database
 			$rs_query->update('posts', array('title'=>$data['title'], 'modified'=>'NOW()', 'content'=>$data['content'], 'status'=>$data['status'], 'slug'=>$slug), array('id'=>$id));
 			
+			// Update the class variables
+			foreach($data as $key=>$value) $this->$key = $value;
+			
 			// Return a status message
 			return statusMessage('Widget updated! <a href="widgets.php">Return to list</a>?', true);
 		}

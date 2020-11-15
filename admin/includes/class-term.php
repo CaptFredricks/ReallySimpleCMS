@@ -339,6 +339,9 @@ class Term {
 			// Update the category in the database
 			$rs_query->update('terms', array('name'=>$data['name'], 'slug'=>$slug, 'parent'=>$data['parent']), array('id'=>$id));
 			
+			// Update the class variables
+			foreach($data as $key=>$value) $this->$key = $value;
+			
 			// Return a status message
 			return statusMessage($this->taxonomy_data['labels']['name_singular'].' updated! <a href="'.$this->taxonomy_data['menu_link'].'">Return to list</a>?', true);
 		}

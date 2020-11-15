@@ -61,8 +61,14 @@ class Menu {
 					
 					// Check whether the menu item has a parent or is on the top level
 					if(!$this->menuItemHasParent($menu_item['id'])) {
+						// Fetch the site's domain
+						$domain = $_SERVER['HTTP_HOST'];
+						
 						// Create an empty variable to hold the menu item's permalink
 						$permalink = '';
+						
+						// Create an external link flag
+						$external = false;
 						
 						// Check what type of link is being used
 						if(isset($meta['post_link'])) {
@@ -89,6 +95,9 @@ class Menu {
 						} elseif(isset($meta['custom_link'])) {
 							// Fetch the permalink
 							$permalink = $meta['custom_link'];
+							
+							// Check whether the menu item links to an external site and set the flag to true if so
+							if(strpos($permalink, 'http') !== false && strpos($permalink, $domain) === false) $external = true;
 						}
 						
 						// Check whether a permalink has been constructed
@@ -106,7 +115,7 @@ class Menu {
 							asort($classes);
 							?>
 							<li<?php echo !empty($classes) ? ' class="'.implode(' ', $classes).'"' : ''; ?>>
-								<a href="<?php echo $permalink; ?>"><?php echo $menu_item['title']; ?></a>
+								<a href="<?php echo $permalink; ?>"<?php echo $external === true ? ' target="_blank" rel="noreferrer noopener"' : ''; ?>><?php echo $menu_item['title']; ?></a>
 								<?php
 								// Check whether the menu item has descendants and fetch any that exist
 								if($this->menuItemHasChildren($menu_item['id']))
@@ -267,8 +276,14 @@ class Menu {
 				// Fetch the menu item from the database
 				$menu_item = $rs_query->selectRow('posts', array('id', 'title'), array('id'=>$meta['post']));
 				
+				// Fetch the site's domain
+				$domain = $_SERVER['HTTP_HOST'];
+				
 				// Create an empty variable to hold the menu item's permalink
 				$permalink = '';
+				
+				// Create an external link flag
+				$external = false;
 				
 				// Check what type of link is being used
 				if(isset($meta['post_link'])) {
@@ -286,6 +301,9 @@ class Menu {
 				} elseif(isset($meta['custom_link'])) {
 					// Fetch the permalink
 					$permalink = $meta['custom_link'];
+					
+					// Check whether the menu item links to an external site and set the flag to true if so
+					if(strpos($permalink, 'http') !== false && strpos($permalink, $domain) === false) $external = true;
 				}
 				
 				// Check whether a permalink has been constructed
@@ -303,7 +321,7 @@ class Menu {
 					asort($classes);
 					?>
 					<li<?php echo !empty($classes) ? ' class="'.implode(' ', $classes).'"' : ''; ?>>
-						<a href="<?php echo $permalink; ?>"><?php echo $menu_item['title']; ?></a>
+						<a href="<?php echo $permalink; ?>"<?php echo $external === true ? ' target="_blank" rel="noreferrer noopener"' : ''; ?>><?php echo $menu_item['title']; ?></a>
 						<?php
 						// Check whether the menu item has descendants and fetch any that exist
 						if($this->menuItemHasChildren($menu_item['id']))

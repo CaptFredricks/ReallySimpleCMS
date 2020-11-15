@@ -352,6 +352,9 @@ class UserRole {
 				}
 			}
 			
+			// Update the class variables
+			foreach($data as $key=>$value) $this->$key = $value;
+			
 			// Return a status message
 			return statusMessage('User role updated! <a href="settings.php?page=user_roles">Return to list</a>?', true);
 		}

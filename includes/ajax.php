@@ -5,7 +5,7 @@
  */
 
 // Tell the CMS that it should only initialize the base files and functions
-if(!defined('BASE_INIT')) define('BASE_INIT', true);
+define('BASE_INIT', true);
 
 // Include the initialization file
 require_once dirname(__DIR__).'/init.php';

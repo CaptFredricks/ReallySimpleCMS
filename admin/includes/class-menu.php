@@ -457,6 +457,9 @@ class Menu extends Term {
 				$rs_query->update('terms', array('count'=>($count + 1)), array('id'=>$id));
 			}
 			
+			// Update the class variables
+			foreach($data as $key=>$value) $this->$key = $value;
+			
 			// Return a status message
 			return statusMessage('Menu updated! <a href="menus.php">Return to list</a>?', true);
 		}
@@ -1355,7 +1358,7 @@ class Menu extends Term {
 			$post_type = $rs_query->selectField('posts', 'type', array('id'=>$id));
 			
 			// Fetch all posts of the same type from the database
-			$posts = $rs_query->select('posts', array('id', 'title'), array('status'=>array('<>', 'trash'), 'type'=>$post_type));
+			$posts = $rs_query->select('posts', array('id', 'title'), array('status'=>'published', 'type'=>$post_type));
 			
 			// Add each post to the list
 			foreach($posts as $post)

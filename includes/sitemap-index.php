@@ -4,69 +4,99 @@
  * @since 1.1.2[b]
  */
 
-// File path for the sitemap index
-$sitemap_file_path = PATH.'/sitemap.xml';
+// Stop execution if the file is accessed directly
+if(!defined('PATH')) exit('You do not have permission to access this directory.');
 
-// File path for the robots.txt file
-$robots_file_path = PATH.'/robots.txt';
+// Create an array to hold the sitemaps
+$sitemaps = array();
 
 // Make sure that the home directory can be written to
-if(is_writable(PATH) && !file_exists($sitemap_file_path)) {
-	// The existing sitemaps to point to
-	$sitemaps = array('sitemap-posts.php', 'sitemap-terms.php');
+if(is_writable(PATH)) {
+	// File path for the sitemap index
+	$sitemap_file_path = PATH.'/sitemap.xml';
 	
-	// Open the file stream
-	$handle = fopen($sitemap_file_path, 'w');
+	// File path for the robots.txt file
+	$robots_file_path = PATH.'/robots.txt';
 	
-	// Begin writing to the file
-	fwrite($handle, '<?xml version="1.0" encoding="UTF-8"?>'.chr(10).'<sitemapindex xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">'.chr(10));
+	// Open the directory handle
+	$handle = opendir(PATH);
 	
-	// Loop through the sitemaps and write them to the file
-	foreach($sitemaps as $sitemap)
-		fwrite($handle, '<sitemap>'.chr(10).'<loc>'.(!empty($_SERVER['HTTPS']) ? 'https://' : 'http://').$_SERVER['HTTP_HOST'].trailingSlash(INC).$sitemap.'</loc>'.chr(10).'</sitemap>');
+	// Loop through the directory's contents
+	while(($entry = readdir($handle)) !== false) {
+		// Check whether the current entry is a sitemap and assign it to the sitemaps array if so
+		if(strpos($entry, 'sitemap-') !== false) $sitemaps[] = $entry;
+	}
 	
-	// Finish writing to the file
-	fwrite($handle, '</sitemapindex>');
-	
-	// Close the file
-	fclose($handle);
-	
-	// Set file permissions
-	chmod($sitemap_file_path, 0666);
-	
-	// Check whether a robots.txt file exists
-	if(file_exists($robots_file_path)) {
-		// Open the file stream in read mode
-		$handle = fopen($robots_file_path, 'r');
+	// Check whether the sitemap index already exists
+	if(file_exists($sitemap_file_path)) {
+		// Load the sitemap index
+		$file = simplexml_load_file($sitemap_file_path);
 		
-		// Fetch the contents of the file
-		$contents = fread($handle, filesize($robots_file_path));
-		
-		// Close the file
-		fclose($handle);
-		
-		// Check whether a sitemap is defined in robots.txt
-		if(strpos($contents, 'Sitemap:') === false) {
-			// Open the file stream in append mode
-			$handle = fopen($robots_file_path, 'a');
-			
-			// Write to the file
-			fwrite($handle, chr(10).chr(10).'Sitemap: '.(!empty($_SERVER['HTTPS']) ? 'https://' : 'http://').$_SERVER['HTTP_HOST'].'/sitemap.xml');
-			
-			// Close the file
-			fclose($handle);
-		}
-	} else {
+		// Fetch the number of sitemaps in the index
+		$count = count($file->sitemap);
+	}
+	
+	// Check whether the sitemap index already exists and whether the sitemap count matches the count in the root directory
+	if(!file_exists($sitemap_file_path) || file_exists($sitemap_file_path) && $count !== count($sitemaps)) {
 		// Open the file stream in write mode
-		$handle = fopen($robots_file_path, 'w');
+		$handle = fopen($sitemap_file_path, 'w');
 		
-		// Write to the file
-		fwrite($handle, 'Sitemap: '.(!empty($_SERVER['HTTPS']) ? 'https://' : 'http://').$_SERVER['HTTP_HOST'].'/sitemap.xml');
+		// Begin writing to the file
+		fwrite($handle, '<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet href="/includes/sitemap.xsl" type="text/xsl"?>'.chr(10).'<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'.chr(10));
+		
+		// Loop through the sitemaps and write them to the file
+		foreach($sitemaps as $sitemap)
+			fwrite($handle, '<sitemap>'.chr(10).'<loc>'.(!empty($_SERVER['HTTPS']) ? 'https://' : 'http://').trailingSlash($_SERVER['HTTP_HOST']).$sitemap.'</loc>'.chr(10).'</sitemap>');
+		
+		// Finish writing to the file
+		fwrite($handle, '</sitemapindex>');
 		
 		// Close the file
 		fclose($handle);
 		
 		// Set file permissions
-		chmod($robots_file_path, 0666);
+		chmod($sitemap_file_path, 0666);
+		
+		// Check whether a robots.txt file exists
+		if(file_exists($robots_file_path)) {
+			// Open the file stream in read mode
+			$handle = fopen($robots_file_path, 'r');
+			
+			// Fetch the contents of the file
+			$contents = fread($handle, filesize($robots_file_path));
+			
+			// Close the file
+			fclose($handle);
+			
+			// Check whether a sitemap is defined in robots.txt
+			if(strpos($contents, 'Sitemap:') === false) {
+				// Open the file stream in append mode
+				$handle = fopen($robots_file_path, 'a');
+				
+				// Write to the file
+				fwrite($handle, chr(10).chr(10).'Sitemap: '.(!empty($_SERVER['HTTPS']) ? 'https://' : 'http://').$_SERVER['HTTP_HOST'].'/sitemap.xml');
+				
+				// Close the file
+				fclose($handle);
+			}
+		} else {
+			// Open the file stream in write mode
+			$handle = fopen($robots_file_path, 'w');
+			
+			// Write to the file
+			fwrite($handle, 'Sitemap: '.(!empty($_SERVER['HTTPS']) ? 'https://' : 'http://').$_SERVER['HTTP_HOST'].'/sitemap.xml');
+			
+			// Close the file
+			fclose($handle);
+			
+			// Set file permissions
+			chmod($robots_file_path, 0666);
+		}
 	}
 }
+
+// Include the posts sitemap generator
+include_once PATH.INC.'/sitemap-posts.php';
+
+// Include the terms sitemap generator
+include_once PATH.INC.'/sitemap-terms.php';
