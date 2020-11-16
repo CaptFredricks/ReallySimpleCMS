@@ -282,14 +282,14 @@ h3 {
 }
 
 #admin-footer .copyright {
-	border-top: 1px dashed #4f4f4f;
+	/* border-top: 1px dashed #4f4f4f; */
 	font-size: 0.75em;
 	padding: 0.25rem 0;
 }
 
 #admin-footer .version {
-	border-top: 1px dashed #4f4f4f;
-	border-bottom: 1px dashed #4f4f4f;
+	/* border-top: 1px dashed #4f4f4f; */
+	/* border-bottom: 1px dashed #4f4f4f; */
 	font-size: 0.75em;
 	padding: 0.25rem 0;
 }
@@ -343,11 +343,12 @@ h3 {
 
 .heading-wrap {
 	margin-bottom: 0.625em;
+	text-align: center;
 }
 
 .heading-wrap h1 {
-	margin: 0 0 0.75rem;
-	text-align: center;
+	display: inline-block;
+	margin: 0 0.375rem 0.75rem 0;
 }
 
 .heading-wrap hr {
@@ -903,6 +904,7 @@ h3 {
 }
 
 .data-form .content {
+	float: none;
 	margin-bottom: 1.25em;
 }
 
@@ -1520,10 +1522,12 @@ h3 {
 		padding: 1em 1.375em;
 	}
 	
-	.heading-wrap h1 {
-		display: inline-block;
-		margin: 0 0.625rem 0 0;
+	.heading-wrap {
 		text-align: left;
+	}
+	
+	.heading-wrap h1 {
+		margin: 0 0.625rem 0 0;
 	}
 	
 	.heading-wrap .button {

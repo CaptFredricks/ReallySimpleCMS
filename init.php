@@ -80,9 +80,6 @@ registerDefaultPostTypes();
 // Register the default taxonomies
 registerDefaultTaxonomies();
 
-// Include the sitemap index generator
-include_once PATH.INC.'/sitemap-index.php';
-
 // Check whether only the base files and functions should be initialized
 if(!defined('BASE_INIT') || (defined('BASE_INIT') && !BASE_INIT)) {
 	// Check whether an 'update.php' file exists and include it if so
@@ -95,6 +92,9 @@ if(!defined('BASE_INIT') || (defined('BASE_INIT') && !BASE_INIT)) {
 		
 		// Include the theme loader file
 		require_once PATH.INC.'/load-theme.php';
+		
+		// Include the sitemap index generator
+		include_once PATH.INC.'/sitemap-index.php';
 		
 		// Check whether the current post is a preview and the id is valid
 		if(isset($_GET['preview']) && $_GET['preview'] === 'true' && isset($_GET['id']) && $_GET['id'] > 0) {

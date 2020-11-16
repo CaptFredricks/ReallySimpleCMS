@@ -7,6 +7,12 @@
 // Stop execution if the file is accessed directly
 if(!defined('PATH')) exit('You do not have permission to access this directory.');
 
+// Include the posts sitemap generator
+include_once PATH.INC.'/sitemap-posts.php';
+
+// Include the terms sitemap generator
+include_once PATH.INC.'/sitemap-terms.php';
+
 // Create an array to hold the sitemaps
 $sitemaps = array();
 
@@ -25,6 +31,15 @@ if(is_writable(PATH)) {
 	while(($entry = readdir($handle)) !== false) {
 		// Check whether the current entry is a sitemap and assign it to the sitemaps array if so
 		if(strpos($entry, 'sitemap-') !== false) $sitemaps[] = $entry;
+	}
+	
+	// Loop through the sitemaps
+	foreach($sitemaps as $sitemap) {
+		// Fetch the sitemap's name from the filename
+		$name = substr($sitemap, strpos($sitemap, '-') + 1, strpos($sitemap, '.') - strpos($sitemap, '-') - 1);
+		
+		// Check whether the current sitemap is of a registered post type or taxonomy and delete it if not
+		if(!in_array($name, $public_post_types, true) && !in_array($name, $public_taxonomies, true)) unlink(trailingSlash(PATH).$sitemap);
 	}
 	
 	// Check whether the sitemap index already exists
@@ -94,9 +109,3 @@ if(is_writable(PATH)) {
 		}
 	}
 }
-
-// Include the posts sitemap generator
-include_once PATH.INC.'/sitemap-posts.php';
-
-// Include the terms sitemap generator
-include_once PATH.INC.'/sitemap-terms.php';

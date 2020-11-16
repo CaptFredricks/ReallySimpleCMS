@@ -6,6 +6,23 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.1.6[b] (2020-11-15)
+
+- The `sitemap-index.php` file is now loaded after the theme (this allows for custom post type and taxonomy sitemaps to be generated)
+- The `sitemap-posts.php` and `sitemap-terms.php` files are now loaded at the top of the `sitemap-index.php` file
+- Sitemaps are now deleted if the post type or taxonomy they are associated with is unregistered
+- Tweaked mobile styling on the admin dashboard
+  - The "Create <item>" button is no longer placed below the page title
+  - Removed the dashed borders around the copyright and version in the footer
+  - Fixed a visual issue with the post data form's content area
+
+**Modified files:**
+- admin/includes/css/style.css
+- admin/includes/css/style.min.css
+- includes/sitemap-index.php
+- init.php (M)
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.1.5[b] (2020-11-14)
 
 - Removed an unnecessary `if` statement from the `ajax.php` file
