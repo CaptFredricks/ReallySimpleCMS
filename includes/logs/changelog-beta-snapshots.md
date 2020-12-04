@@ -131,8 +131,8 @@
 - Added a new `comments` argument to the `registerPostType` function (if set to true, comments will be allowed for that post type; default is false)
 - Set comments to display for the `post` post type
 - Two new metadata entries are now created for posts of any type that has comments enabled (`comment_status` and `comment_count`)
-- The comment count is now listed on the "List <post type>" page as its own column
-- Added a comments block to the "Create <post type>" and "Edit <post type>" pages
+- The comment count is now listed on the "List \<post type>" page as its own column
+- Added a comments block to the "Create \<post type>" and "Edit \<post type>" pages
 - Created a `Comment` admin class and admin `comments.php` file
 - Added comments to the admin nav menu (below the post types and above 'Customization')
 - Tweaked documentation in the admin `functions.php` file
@@ -140,7 +140,7 @@
 - Created a new changelog for Beta Snapshots
 - Fixed an issue with comment privileges not properly being assigned to default user roles
 - Adjusted privileges for the default user roles (the CMS will automatically reinstall the `user_privileges` and `user_relationships` tables)
-- Individual posts with comments disabled will now display an emdash on the "Comments" column of the "List <post_type>" page
+- Individual posts with comments disabled will now display an emdash on the "Comments" column of the "List \<post_type>" page
 - When a post with comments is deleted, its comments are now deleted along with it
 
 **Modified files:**

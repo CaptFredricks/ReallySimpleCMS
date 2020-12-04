@@ -43,7 +43,7 @@ class Settings {
 					echo formRow('Default User Role', array('tag'=>'select', 'class'=>'select-input', 'name'=>'default_user_role', 'content'=>$this->getUserRoles((int)$setting['default_user_role'])));
 					echo formRow('Home Page', array('tag'=>'select', 'class'=>'select-input', 'name'=>'home_page', 'content'=>$this->getPageList((int)$setting['home_page'])));
 					echo formRow('Search Engine Visibility', array('tag'=>'input', 'type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'do_robots', 'value'=>(int)$setting['do_robots'], '*'=>(!$setting['do_robots'] ? 'checked' : ''), 'label'=>array('class'=>'checkbox-label', 'content'=>'<span>Discourage search engines from indexing this site</span>')));
-					echo formRow('Comments', array('tag'=>'input', 'type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'comment_status', 'value'=>(int)$setting['comment_status'], '*'=>($setting['comment_status'] ? 'checked' : ''), 'label'=>array('class'=>'checkbox-label', 'content'=>'<span>Enable comments</span>')), array('tag'=>'br'), array('tag'=>'input', 'type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'comment_approval', 'value'=>(int)$setting['comment_approval'], '*'=>($setting['comment_approval'] ? 'checked' : ''), 'label'=>array('class'=>'checkbox-label', 'content'=>'<span>Approve comments automatically</span>')));
+					echo formRow('Comments', array('tag'=>'input', 'type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'enable_comments', 'value'=>(int)$setting['enable_comments'], '*'=>($setting['enable_comments'] ? 'checked' : ''), 'label'=>array('class'=>'checkbox-label', 'content'=>'<span>Enable comments</span>')), array('tag'=>'br'), array('tag'=>'input', 'type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'auto_approve_comments', 'value'=>(int)$setting['auto_approve_comments'], '*'=>($setting['auto_approve_comments'] ? 'checked' : ''), 'label'=>array('class'=>'checkbox-label', 'content'=>'<span>Approve comments automatically</span>')), array('tag'=>'br'), array('tag'=>'input', 'type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'allow_anon_comments', 'value'=>(int)$setting['allow_anon_comments'], '*'=>($setting['allow_anon_comments'] ? 'checked' : ''), 'label'=>array('class'=>'checkbox-label', 'content'=>'<span>Allow comments from anonymous (logged out) users</span>')));
 					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
 					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Settings'));
 					?>
@@ -149,11 +149,14 @@ class Settings {
 			// Set the value of 'do_robots'
 			$data['do_robots'] = isset($data['do_robots']) ? 0 : 1;
 			
-			// Set the value of 'comment_status'
-			$data['comment_status'] = isset($data['comment_status']) ? 1 : 0;
+			// Set the value of 'enable_comments'
+			$data['enable_comments'] = isset($data['enable_comments']) ? 1 : 0;
 			
-			// Set the value of 'comment_approval'
-			$data['comment_approval'] = isset($data['comment_approval']) ? 1 : 0;
+			// Set the value of 'auto_approve_comments'
+			$data['auto_approve_comments'] = isset($data['auto_approve_comments']) ? 1 : 0;
+			
+			// Set the value of 'allow_anon_comments'
+			$data['allow_anon_comments'] = isset($data['allow_anon_comments']) ? 1 : 0;
 			
 			// Fetch current value of 'do_robots' in the database
 			$do_robots = $rs_query->selectField('settings', 'value', array('name'=>'do_robots'));
@@ -234,6 +237,10 @@ class Settings {
 		
 		// Fetch all pages from the database
 		$pages = $rs_query->select('posts', array('id', 'title'), array('status'=>'published', 'type'=>'page'), 'title');
+		
+		// Check whether the home page exists and add a blank option if not
+		if(array_search($home_page, array_column($pages, 'id'), true) === false)
+			$list .= '<option value="0" selected>(none)</option>';
 		
 		// Add each page to the list
 		foreach($pages as $page)

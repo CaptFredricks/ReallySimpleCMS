@@ -391,10 +391,10 @@ function metaTags() {
 	<meta name="description" content="<?php echo !is_null($rs_post) ? (!empty($rs_post->getPostMeta('description', false)) ? $rs_post->getPostMeta('description') : trimWords(str_replace(array("\n", "\r"), '', strip_tags($rs_post->getPostContent(false))), 25, '.')) : ''; ?>">
 	<meta property="og:title" content="<?php !is_null($rs_post) ? (!empty($rs_post->getPostMeta('title', false)) ? $rs_post->getPostMeta('title') : $rs_post->getPostTitle()) : $rs_term->getTermName(); ?>">
 	<meta property="og:type" content="website">
-	<meta property="og:url" content="<?php !is_null($rs_post) ? $rs_post->getPostUrl() : $rs_term->getTermUrl(); ?>">
+	<meta property="og:url" content="<?php echo !is_null($rs_post) ? (isHomePage($rs_post->getPostId(false)) ? trailingSlash(getSetting('site_url', false)) : $rs_post->getPostUrl()) : $rs_term->getTermUrl(); ?>">
 	<meta property="og:image" content="<?php echo getMediaSrc(getSetting('site_logo', false)); ?>">
 	<meta property="og:description" content="<?php echo !is_null($rs_post) ? (!empty($rs_post->getPostMeta('description', false)) ? $rs_post->getPostMeta('description') : trimWords(str_replace(array("\n", "\r"), '', strip_tags($rs_post->getPostContent(false))), 25, '.')) : ''; ?>">
-	<link href="<?php !is_null($rs_post) ? $rs_post->getPostUrl() : $rs_term->getTermUrl(); ?>" rel="canonical">
+	<link href="<?php echo !is_null($rs_post) ? (isHomePage($rs_post->getPostId(false)) ? trailingSlash(getSetting('site_url', false)) : $rs_post->getPostUrl()) : $rs_term->getTermUrl(); ?>" rel="canonical">
 	<link type="image/x-icon" href="<?php echo getMediaSrc(getSetting('site_icon', false)); ?>" rel="icon">
 	<?php
 }

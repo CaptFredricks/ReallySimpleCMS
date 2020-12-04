@@ -17,6 +17,15 @@ class Comment {
 	private $id;
 	
 	/**
+	 * The post the currently queried comment is attached to.
+	 * @since 1.1.7[b]
+	 *
+	 * @access private
+	 * @var int
+	 */
+	private $post;
+	
+	/**
 	 * The currently queried comment's content.
 	 * @since 1.1.0[b]{ss-02}
 	 *
@@ -70,26 +79,45 @@ class Comment {
 		// Extend the Query object and the user's session data
 		global $rs_query, $session;
 		
+		// Fetch the status of the currently displayed comments
+		$status = $_GET['status'] ?? 'all';
+		
 		// Set up pagination
 		$page = paginate((int)($_GET['paged'] ?? 1));
 		?>
 		<div class="heading-wrap">
 			<h1>Comments</h1>
+			<hr>
 			<?php
 			// Display any status messages
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
 				echo statusMessage('The comment was successfully deleted.', true);
-			
-			// Fetch the comment entry count from the database
-			$count = $rs_query->select('comments', 'COUNT(*)');
-			
-			// Set the page count
-			$page['count'] = ceil($count / $page['per_page']);
 			?>
-			<div class="entry-count">
+			<ul class="status-nav">
 				<?php
-				// Display the entry count
-				echo $count.' '.($count === 1 ? 'entry' : 'entries');
+				// Fetch the comment entry count from the database (by status)
+				$count = array('all'=>$this->getCommentCount(), 'approved'=>$this->getCommentCount('approved'), 'unapproved'=>$this->getCommentCount('unapproved'));
+				
+				// Loop through the comment counts (by status)
+				foreach($count as $key=>$value) {
+					?>
+					<li><a href="<?php echo $_SERVER['PHP_SELF'].($key === 'all' ? '' : '?status='.$key); ?>"><?php echo ucfirst($key); ?> <span class="count">(<?php echo $value; ?>)</span></a></li>
+					<?php
+					// Add bullets in between
+					if($key !== array_key_last($count)) {
+						?> &bull; <?php
+					}
+				}
+				?>
+			</ul>
+			<?php
+			// Set the page count
+			$page['count'] = ceil($count[$status] / $page['per_page']);
+			?>
+			<div class="entry-count status">
+				<?php
+				// Display the entry count for the current status
+				echo $count[$status].' '.($count[$status] === 1 ? 'entry' : 'entries');
 				?>
 			</div>
 		</div>
@@ -105,8 +133,11 @@ class Comment {
 			</thead>
 			<tbody>
 				<?php
-				// Fetch all comments from the database
-				$comments = $rs_query->select('comments', '*', '', 'date', 'DESC', array($page['start'], $page['per_page']));
+				// Fetch all comments from the database (by status)
+				if($status === 'all')
+					$comments = $rs_query->select('comments', '*', '', 'date', 'DESC', array($page['start'], $page['per_page']));
+				else
+					$comments = $rs_query->select('comments', '*', array('status'=>$status), 'date', 'DESC', array($page['start'], $page['per_page']));
 				
 				// Loop through the comments
 				foreach($comments as $comment) {
@@ -122,7 +153,7 @@ class Comment {
 					$actions = array_filter($actions);
 					
 					echo tableRow(
-						tableCell(trimWords($comment['content']).'<div class="actions">'.implode(' &bull; ', $actions).'</div>', 'content'),
+						tableCell(trimWords($comment['content']).($comment['status'] === 'unapproved' && $status === 'all' ? ' &mdash; <em>pending approval</em>' : '').'<div class="actions">'.implode(' &bull; ', $actions).'</div>', 'content'),
 						tableCell($this->getPost($comment['post']), 'post'),
 						tableCell($this->getAuthor($comment['author']), 'author'),
 						tableCell(formatDate($comment['date'], 'd M Y @ g:i A'), 'date')
@@ -202,6 +233,12 @@ class Comment {
 			// Set the comment's status to 'approved'
 			$rs_query->update('comments', array('status'=>'approved'), array('id'=>$this->id));
 			
+			// Fetch the number of approved comments attached to the current comment's post
+			$count = $rs_query->select('comments', 'COUNT(*)', array('post'=>$this->post, 'status'=>'approved'));
+			
+			// Update the post's comment count in the database
+			$rs_query->update('postmeta', array('value'=>$count), array('post'=>$this->post, '_key'=>'comment_count'));
+			
 			// Redirect to the 'List Comments' page
 			redirect('comments.php');
 		}
@@ -226,6 +263,12 @@ class Comment {
 			// Set the comment's status to 'unapproved'
 			$rs_query->update('comments', array('status'=>'unapproved'), array('id'=>$this->id));
 			
+			// Fetch the number of approved comments attached to the current comment's post
+			$count = $rs_query->select('comments', 'COUNT(*)', array('post'=>$this->post, 'status'=>'approved'));
+			
+			// Update the post's comment count in the database
+			$rs_query->update('postmeta', array('value'=>$count), array('post'=>$this->post, '_key'=>'comment_count'));
+			
 			// Redirect to the 'List Comments' page
 			redirect('comments.php');
 		}
@@ -249,6 +292,12 @@ class Comment {
 		} else {
 			// Delete the comment from the database
 			$rs_query->delete('comments', array('id'=>$this->id));
+			
+			// Fetch the number of approved comments attached to the current comment's post
+			$count = $rs_query->select('comments', 'COUNT(*)', array('post'=>$this->post, 'status'=>'approved'));
+			
+			// Update the post's comment count in the database
+			$rs_query->update('postmeta', array('value'=>$count), array('post'=>$this->post, '_key'=>'comment_count'));
 			
 			// Redirect to the 'List Comments' page (with a success status)
 			redirect('comments.php?exit_status=success');
@@ -341,5 +390,27 @@ class Comment {
 		
 		// Return the username
 		return empty($author) ? '&mdash;' : $author;
+	}
+	
+	/**
+	 * Fetch the comment count based on a specific status.
+	 * @since 1.1.7[b]
+	 *
+	 * @access private
+	 * @param string $status (optional; default: '')
+	 * @return int
+	 */
+	private function getCommentCount($status = '') {
+		// Extend the Query object
+		global $rs_query;
+		
+		// Check whether a status has been provided
+		if(empty($status)) {
+			// Return the count of all comments
+			return $rs_query->select('comments', 'COUNT(*)');
+		} else {
+			// Return the count of all comments by the status
+			return $rs_query->select('comments', 'COUNT(*)', array('status'=>$status));
+		}
 	}
 }

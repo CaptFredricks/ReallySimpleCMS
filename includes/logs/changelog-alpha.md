@@ -1948,7 +1948,7 @@
 - Created an admin "List Categories" page
 - Added the "List Categories" page to the admin navigation
 - Created a `Category` class
-- The "Create <classname>" buttons have been relabeled as "Create New"
+- The "Create \<classname>" buttons have been relabeled as "Create New"
 - Modified the logic of the status message display on the list entries pages
 - Fixed some erroneous documentation in the `includes/functions.php` file
 - Created a function that populates the taxonomies table

@@ -6,13 +6,54 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.1.7[b] (2020-12-03)
+
+- Canonical links for the home page no longer include the page's slug and point to the actual home URL
+- Added a default error message for the `Query::errorMsg` function
+- Renamed two settings in the database to better clarify their usage (existing databases will have these settings updated automatically):
+  - `comment_status` -> `enable_comments`
+  - `comment_approval` -> `auto_approve_comments`
+- Added a new setting named `allow_anon_comments`, which allows anonymous users (users without accounts) to comment on posts
+- Updated all instances of the `comment_status` and `comment_approval` settings being used throughout the CMS to their new names
+- The `getCommentReplyBox` and `getCommentFeed` functions now check whether anonymous users can comment
+- Added a missing CSS class to the "Enable comments" checkbox's label on the admin post forms
+- The front end `Comment` class' `createComment` and `deleteComment` functions now update the comment count for the post their comment is attached to
+- The notice received when posting a new comment on the front end now says "Your comment was submitted for review!" if the `auto_approve_comments` setting is turned off
+- Added the `post` variable back to the admin `Comment` class
+- The admin `Comment` class' `approveComment`, `unapproveComment`, and `deleteComment` functions now update the comment count for the post their comment is attached to
+- On the "List Comments" page, unnapproved comments now have a note saying "pending approval" after the comment's text
+- Changed the "List \<post_type>" note separator appearing after unpublished posts from an en dash to an em dash
+- Tweaked documentation in the `Post` class
+- Renamed the admin `post-status-nav` CSS class to `status-nav`
+- Created a function that fetches the comment count from the database
+- Tweaked code in the `Post::listPosts` function
+- Added a status nav for the "List Comments" page to allow filtering comments by status (e.g., `approved` or `unapproved`)
+- The status nav links for the "List \<post_type>" and "List Comments" pages now use the full admin URL
+- Reduced the comment feed update timer from 60 seconds to 15 (note: this is how often the feed checks for updates, not how often it actually refreshes)
+- The `Settings::getPageList` function now checks whether the home page exists and displays a blank option in the dropdown if it doesn't
+- Tweaked various previous entries in the changelogs
+
+**Modified files:**
+- admin/includes/class-comment.php
+- admin/includes/class-post.php
+- admin/includes/class-settings.php
+- admin/includes/css/style.css (M)
+- admin/includes/css/style.min.css (M)
+- includes/class-comment.php
+- includes/class-query.php (M)
+- includes/functions.php
+- includes/globals.php
+- includes/js/script.js (M)
+- includes/update.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.1.6[b] (2020-11-15)
 
 - The `sitemap-index.php` file is now loaded after the theme (this allows for custom post type and taxonomy sitemaps to be generated)
 - The `sitemap-posts.php` and `sitemap-terms.php` files are now loaded at the top of the `sitemap-index.php` file
 - Sitemaps are now deleted if the post type or taxonomy they are associated with is unregistered
 - Tweaked mobile styling on the admin dashboard
-  - The "Create <item>" button is no longer placed below the page title
+  - The "Create \<item>" button is no longer placed below the page title
   - Removed the dashed borders around the copyright and version in the footer
   - Fixed a visual issue with the post data form's content area
 
@@ -26,7 +67,7 @@
 ## Version 1.1.5[b] (2020-11-14)
 
 - Removed an unnecessary `if` statement from the `ajax.php` file
-- Fixed a bug in numerous classes where class variables were not updated when an admin "Edit <item>" form was submitted
+- Fixed a bug in numerous classes where class variables were not updated when an admin "Edit \<item>" form was submitted
 - Menu items can no longer be linked to unpublished posts
 - Menu items that link to external sites now open the link in a new tab
 - Sitemaps are now fully styled
@@ -196,7 +237,7 @@
 ## Version 1.1.0[b] (2020-10-22)
 
 - For a full list of changes, see: `changelog-beta-snapshots.md`
-- Optimized and improved the action links functionality for all of the "List <item>" pages
+- Optimized and improved the action links functionality for all of the "List \<item>" pages
 - Users who don't have the `can_edit_comments` or `can_delete_comments` privileges can no longer see the "Approve/Unapprove", "Edit", or "Delete" action links
 - Users who don't have the `can_edit_media` or `can_delete_media` privileges can no longer see the "Edit" or "Delete" action links
 - Users who don't have the `can_edit_menus` or `can_delete_menus` privileges can no longer see the "Edit" or "Delete" action links
@@ -297,14 +338,14 @@
 
 - Tweaked a previous entry in the changelog
 - The `parent` parameter of the `getPermalink` function is now optional (default value is 0)
-- The permalink base is now added to permalinks on the "Create <post_type>" forms (this only affects custom post types)
+- The permalink base is now added to permalinks on the "Create \<post_type>" forms (this only affects custom post types)
 - Cleaned up some entries in the Alpha changelog
 - Minor text change in the Carbon theme's `term.php` file
 - Post types and taxonomies can no longer be registered multiple times (this allowed for default post types and taxonomies to be overrided in themes)
 - Post types can no longer be registered with the same name as an existing taxonomy and vice versa
 - Errors are no longer generated by the `adminNavMenu` and `adminBar` functions if a post type has a nonexistent taxonomy registered to it
 - Removed a block of code in the `registerPostType` function that caused the `category` taxonomy to function as a fallback if the post type had an invalid taxonomy registered
-- Fixed some errors on the "List <post_type>s", "Create <post_type>", and "Edit <post_type>" forms if the post type was non-hierarchical and had an invalid taxonomy
+- Fixed some errors on the "List \<post_type>s", "Create \<post_type>", and "Edit \<post_type>" forms if the post type was non-hierarchical and had an invalid taxonomy
 - Renamed the Carbon theme's `term.php` file to `taxonomy.php` and `header-term.php` file to `header-tax.php`
   - The new format for custom taxonomy theme template files is `taxonomy-<taxonomy>.php`
 - Added support for custom post type theme template files (format: `posttype-<type>.php`)
@@ -444,7 +485,7 @@
 - Added a link to the "Create Theme" page to the admin bar
 - Improved privilege checking for items on the admin nav menu
 - Added privilege checking for items on the admin bar
-- Improved privilege checking for the admin "List <item>" pages
+- Improved privilege checking for the admin "List \<item>" pages
 - The `getPrivileges` function now orders privileges by their ids
 
 **Modified files:**

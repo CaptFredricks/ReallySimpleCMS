@@ -356,7 +356,7 @@ h3 {
 	visibility: hidden;
 }
 
-.heading-wrap .post-status-nav {
+.heading-wrap .status-nav {
 	float: left;
 	font-size: 0.9em;
 	list-style: none;
@@ -364,11 +364,11 @@ h3 {
 	padding: 0;
 }
 
-.heading-wrap .post-status-nav li {
+.heading-wrap .status-nav li {
 	display: inline-block;
 }
 
-.heading-wrap .post-status-nav li a .count {
+.heading-wrap .status-nav li a .count {
 	color: #fff;
 }
 
@@ -378,11 +378,11 @@ h3 {
 	line-height: 2rem;
 }
 
-.heading-wrap .entry-count.post {
+.heading-wrap .entry-count.status {
 	margin: 0.375rem 0;
 }
 
-.heading-wrap .status-message ~ .post-status-nav,
+.heading-wrap .status-message ~ .status-nav,
 .heading-wrap .status-message ~ .entry-count {
 	margin-top: -0.75em;
 }

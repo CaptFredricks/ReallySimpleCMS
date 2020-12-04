@@ -161,14 +161,11 @@ class Post {
 		// Fetch the post's type
 		$type = $this->type_data['name'];
 		
-		// Fetch the post's status
+		// Fetch the status of the currently displayed posts
 		$status = $_GET['status'] ?? 'all';
 		
 		// Set up pagination
 		$page = paginate((int)($_GET['paged'] ?? 1));
-		
-		// Fetch the post entry count from the database (by type)
-		$count = array('all'=>$this->getPostCount($type), 'published'=>$this->getPostCount($type, 'published'), 'draft'=>$this->getPostCount($type, 'draft'), 'trash'=>$this->getPostCount($type, 'trash'));
 		?>
 		<div class="heading-wrap">
 			<h1><?php echo $this->type_data['label']; ?></h1>
@@ -186,12 +183,15 @@ class Post {
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
 				echo statusMessage('The '.strtolower($this->type_data['labels']['name_singular']).' was successfully deleted.', true);
 			?>
-			<ul class="post-status-nav">
+			<ul class="status-nav">
 				<?php
+				// Fetch the post entry count from the database (by status)
+				$count = array('all'=>$this->getPostCount($type), 'published'=>$this->getPostCount($type, 'published'), 'draft'=>$this->getPostCount($type, 'draft'), 'trash'=>$this->getPostCount($type, 'trash'));
+				
 				// Loop through the post counts (by status)
 				foreach($count as $key=>$value) {
 					?>
-					<li><a href="?type=<?php echo $type.($key === 'all' ? '' : '&status='.$key); ?>"><?php echo ucfirst($key); ?> <span class="count">(<?php echo $value; ?>)</span></a></li>
+					<li><a href="<?php echo $_SERVER['PHP_SELF']; ?>?type=<?php echo $type.($key === 'all' ? '' : '&status='.$key); ?>"><?php echo ucfirst($key); ?> <span class="count">(<?php echo $value; ?>)</span></a></li>
 					<?php
 					// Add bullets in between
 					if($key !== array_key_last($count)) {
@@ -204,9 +204,9 @@ class Post {
 			// Set the page count
 			$page['count'] = ceil($count[$status] / $page['per_page']);
 			?>
-			<div class="entry-count post">
+			<div class="entry-count status">
 				<?php
-				// Display the entry count
+				// Display the entry count for the current status
 				echo $count[$status].' '.($count[$status] === 1 ? 'entry' : 'entries');
 				?>
 			</div>
@@ -220,7 +220,7 @@ class Post {
 					$table_header_cols = array('Title', 'Author', 'Publish Date', 'Parent', 'Meta Title', 'Meta Desc.');
 					
 					// Check whether comments are enabled sitewide and for the current post type
-					if(getSetting('comment_status', false) && $this->type_data['comments']) {
+					if(getSetting('enable_comments', false) && $this->type_data['comments']) {
 						// Insert the comments label into the array
 						array_splice($table_header_cols, 4, 0, 'Comments');
 					}
@@ -229,7 +229,7 @@ class Post {
 					$table_header_cols = array('Title', 'Author', 'Publish Date', 'Meta Title', 'Meta Desc.');
 					
 					// Check whether comments are enabled sitewide and for the current post type
-					if(getSetting('comment_status', false) && $this->type_data['comments']) {
+					if(getSetting('enable_comments', false) && $this->type_data['comments']) {
 						// Insert the comments label into the array
 						array_splice($table_header_cols, 3, 0, 'Comments');
 					}
@@ -253,7 +253,7 @@ class Post {
 				// Set the default 'order' argument
 				$order = $type === 'page' ? 'ASC' : 'DESC';
 				
-				// Fetch all posts from the database
+				// Fetch all posts from the database (by status)
 				if($status === 'all')
 					$posts = $rs_query->select('posts', '*', array('status'=>array('<>', 'trash'), 'type'=>$type), $order_by, $order, array($page['start'], $page['per_page']));
 				else
@@ -278,12 +278,12 @@ class Post {
 					$actions = array_filter($actions);
 					
 					echo tableRow(
-						tableCell((isHomePage($post['id']) ? '<i class="fas fa-home" style="cursor: help;" title="Home Page"></i> ' : '').'<strong>'.$post['title'].'</strong>'.($post['status'] !== 'published' && $status === 'all' ? ' &ndash; <em>'.$post['status'].'</em>' : '').'<div class="actions">'.implode(' &bull; ', $actions).'</div>', 'title'),
+						tableCell((isHomePage($post['id']) ? '<i class="fas fa-home" style="cursor: help;" title="Home Page"></i> ' : '').'<strong>'.$post['title'].'</strong>'.($post['status'] !== 'published' && $status === 'all' ? ' &mdash; <em>'.$post['status'].'</em>' : '').'<div class="actions">'.implode(' &bull; ', $actions).'</div>', 'title'),
 						tableCell($this->getAuthor($post['author']), 'author'),
 						!$this->type_data['hierarchical'] && !empty($this->type_data['taxonomy']) ? tableCell($this->getTerms($post['id']), 'terms') : '',
 						tableCell(is_null($post['date']) ? '&mdash;' : formatDate($post['date'], 'd M Y @ g:i A'), 'publish-date'),
 						$this->type_data['hierarchical'] ? tableCell($this->getParent($post['parent']), 'parent') : '',
-						getSetting('comment_status', false) && $this->type_data['comments'] ? tableCell(($meta['comment_status'] ? $meta['comment_count'] : '&mdash;'), 'comments') : '',
+						getSetting('enable_comments', false) && $this->type_data['comments'] ? tableCell(($meta['comment_status'] ? $meta['comment_count'] : '&mdash;'), 'comments') : '',
 						tableCell(!empty($meta['title']) ? 'Yes' : 'No', 'meta_title'),
 						tableCell(!empty($meta['description']) ? 'Yes' : 'No', 'meta_description')
 					);
@@ -419,7 +419,7 @@ class Post {
 					}
 					
 					// Check whether comments are enabled sitewide and for the current post type
-					if(getSetting('comment_status', false) && $this->type_data['comments']) {
+					if(getSetting('enable_comments', false) && $this->type_data['comments']) {
 						?>
 						<div class="block">
 							<h2>Comments</h2>
@@ -429,7 +429,7 @@ class Post {
 								$comments = isset($_POST['comments']) || (!isset($_POST['comments']) && $this->type_data['comments']) ? 'checked' : '';
 								
 								// Construct a checkbox tag
-								echo formTag('input', array('type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'comments', 'value'=>(!empty($comments) ? 1 : 0), '*'=>$comments, 'label'=>array('content'=>'<span>Enable comments</span>')));
+								echo formTag('input', array('type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'comments', 'value'=>(!empty($comments) ? 1 : 0), '*'=>$comments, 'label'=>array('class'=>'checkbox-label', 'content'=>'<span>Enable comments</span>')));
 								?>
 							</div>
 						</div>
@@ -630,14 +630,14 @@ class Post {
 								}
 								
 								// Check whether comments are enabled sitewide and for the current post type
-								if(getSetting('comment_status', false) && $this->type_data['comments']) {
+								if(getSetting('enable_comments', false) && $this->type_data['comments']) {
 									?>
 									<div class="block">
 										<h2>Comments</h2>
 										<div class="row">
 											<?php
 											// Construct a checkbox tag
-											echo formTag('input', array('type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'comments', 'value'=>(int)$meta['comment_status'], '*'=>($meta['comment_status'] ? 'checked' : ''), 'label'=>array('content'=>'<span>Enable comments</span>')));
+											echo formTag('input', array('type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'comments', 'value'=>(int)$meta['comment_status'], '*'=>($meta['comment_status'] ? 'checked' : ''), 'label'=>array('class'=>'checkbox-label', 'content'=>'<span>Enable comments</span>')));
 											?>
 										</div>
 									</div>
@@ -1257,6 +1257,7 @@ class Post {
 		// Extend the Query object
 		global $rs_query;
 		
+		// Check whether a status has been provided
 		if(empty($status)) {
 			// Return the count of all posts (excluding ones that are in the trash)
 			return $rs_query->select('posts', 'COUNT(*)', array('status'=>array('<>', 'trash'), 'type'=>$type));

@@ -576,7 +576,7 @@ class Query {
 				$error .= 'data must be presented as an associative array.';
 				break;
 			default:
-				$error .= $type;
+				$error .= 'an error of type `'.$type.'` occurred.';
 		}
 		
 		// Display the appropriate error message

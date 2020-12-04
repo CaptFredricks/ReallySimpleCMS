@@ -252,19 +252,22 @@ class Comment {
 	 * @return null
 	 */
 	public function getCommentReplyBox() {
-		// Extend the Post object and the post types array
-		global $rs_post, $post_types;
+		// Extend the Post object, the user's session data, and the post types array
+		global $rs_post, $session, $post_types;
 		
 		// Check whether comments are enabled
-		if(getSetting('comment_status', false) && $post_types[$rs_post->getPostType(false)]['comments'] && $rs_post->getPostMeta('comment_status', false)) {
-			?>
-			<div id="comments-reply" class="textarea-wrap">
-				<input type="hidden" name="post" value="<?php $rs_post->getPostId(); ?>">
-				<input type="hidden" name="replyto" value="0">
-				<textarea class="textarea-input" cols="60" rows="8" placeholder="Leave a comment"></textarea>
-				<button type="submit" class="submit-comment button" disabled>Submit</button>
-			</div>
-			<?php
+		if(getSetting('enable_comments', false) && $post_types[$rs_post->getPostType(false)]['comments'] && $rs_post->getPostMeta('comment_status', false)) {
+			// Check whether the user is logged in, and if not, check whether anonymous users can comment
+			if(!is_null($session) || (is_null($session) && getSetting('allow_anon_comments', false))) {
+				?>
+				<div id="comments-reply" class="textarea-wrap">
+					<input type="hidden" name="post" value="<?php $rs_post->getPostId(); ?>">
+					<input type="hidden" name="replyto" value="0">
+					<textarea class="textarea-input" cols="60" rows="8" placeholder="Leave a comment"></textarea>
+					<button type="submit" class="submit-comment button" disabled>Submit</button>
+				</div>
+				<?php
+			}
 		}
 	}
 	
@@ -318,10 +321,13 @@ class Comment {
 							&bull; <span class="downvote"><span><?php $this->getCommentDownvotes($id); ?></span> <a href="#" data-id="<?php echo $id; ?>" data-vote="0" title="Downvote"><i class="fas fa-thumbs-down"></i></a></span>
 							<?php
 							// Check whether comments are enabled
-							if(getSetting('comment_status', false) && $post_types[$rs_post->getPostType(false)]['comments'] && $rs_post->getPostMeta('comment_status', false)) {
-								?>
-								&bull; <span class="reply"><a href="#" data-replyto="<?php echo $id; ?>">Reply</a></span>
-								<?php
+							if(getSetting('enable_comments', false) && $post_types[$rs_post->getPostType(false)]['comments'] && $rs_post->getPostMeta('comment_status', false)) {
+								// Check whether the user is logged in, and if not, check whether anonymous users can comment
+								if(!is_null($session) || (is_null($session) && getSetting('allow_anon_comments', false))) {
+									?>
+									&bull; <span class="reply"><a href="#" data-replyto="<?php echo $id; ?>">Reply</a></span>
+									<?php
+								}
 							}
 							
 							// Check whether the user has permission to edit the comment
@@ -362,14 +368,20 @@ class Comment {
 		
 		// Check whether the comment's content is empty
 		if(!empty($data['content'])) {
-			// Set the comment status
-			$status = getSetting('comment_approval', false) ? 'approved' : 'unapproved';
+			// Set the comment status based on whether comments are set to auto approve
+			$status = getSetting('auto_approve_comments', false) ? 'approved' : 'unapproved';
 			
 			// Insert a new comment into the database
 			$rs_query->insert('comments', array('post'=>$data['post'], 'author'=>($session['id'] ?? 0), 'date'=>'NOW()', 'content'=>htmlspecialchars($data['content']), 'status'=>$status, 'parent'=>$data['replyto']));
 			
+			// Fetch the number of approved comments attached to the current post
+			$count = $rs_query->select('comments', 'COUNT(*)', array('post'=>$data['post'], 'status'=>'approved'));
+			
+			// Update the post's comment count in the database
+			$rs_query->update('postmeta', array('value'=>$count), array('post'=>$data['post'], '_key'=>'comment_count'));
+			
 			// Return a status message
-			return '<p style="margin-top: 0;">Your comment was submitted!</p>';
+			return '<p style="margin-top: 0;">Your comment was submitted'.(!getSetting('auto_approve_comments', false) ? ' for review' : '').'!</p>';
 		}
 	}
 	
@@ -401,8 +413,17 @@ class Comment {
 		// Extend the Query object
 		global $rs_query;
 		
+		// Fetch the post the comment is attached to
+		$post = $rs_query->selectField('comments', 'post', array('id'=>$id));
+		
 		// Delete the comment from the database
 		$rs_query->delete('comments', array('id'=>$id));
+		
+		// Fetch the number of approved comments attached to the current post
+		$count = $rs_query->select('comments', 'COUNT(*)', array('post'=>$post, 'status'=>'approved'));
+		
+		// Update the post's comment count in the database
+		$rs_query->update('postmeta', array('value'=>$count), array('post'=>$post, '_key'=>'comment_count'));
 	}
 	
 	/**

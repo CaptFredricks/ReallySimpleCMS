@@ -344,7 +344,7 @@ jQuery(document).ready($ => {
 	}
 	
 	/**
-	 * Check for feed updates every 60 seconds.
+	 * Check for feed updates every 15 seconds.
 	 * @since 1.1.0[b]{ss-04}
 	 */
 	let comment_count = 0;
@@ -375,7 +375,7 @@ jQuery(document).ready($ => {
 			},
 			url: '/includes/ajax.php'
 		});
-	}, 1000 * 60);
+	}, 1000 * 15);
 	
 	/*------------------------------*\
 		LOG IN FORM
