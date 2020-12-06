@@ -25,6 +25,15 @@ class Login {
 	private $https;
 	
 	/**
+	 * The current user's IP address.
+	 * @since 1.2.0[b]{ss-01}
+	 *
+	 * @access private
+	 * @var bool
+	 */
+	private $ip_address;
+	
+	/**
 	 * Class constructor.
 	 * @since 1.1.4[b]
 	 *
@@ -34,6 +43,9 @@ class Login {
 	public function __construct() {
 		// Check whether HTTPS is enabled and set the class variable's value
 		$this->https = !empty($_SERVER['HTTPS']) ? true : false;
+		
+		// Fetch the current user's IP address
+		$this->ip_address = $_SERVER['REMOTE_ADDR'];
 	}
 	
 	/**
@@ -110,6 +122,28 @@ class Login {
 			$username = $this->sanitizeData($data['login'], '/[^\w.]/i');
 		}
 		
+		// Check whether the user's IP address is blacklisted
+		if($this->isBlacklisted($this->ip_address)) {
+			// Check whether the blacklist duration is zero (indefinite) and redirect off-site if so
+			if($this->getBlacklistDuration($this->ip_address) === 0) {
+				redirect('https://www.google.com/');
+			} // Otherwise, check whether the duration is greater than zero and return an error if so
+			elseif($this->getBlacklistDuration($this->ip_address) > 0) {
+				return $this->statusMessage('You\'re attempting to log in too fast! Try again later.');
+			}
+		}
+		
+		// Check whether the email or username is blacklisted
+		if($this->isBlacklisted($email ?? $username)) {
+			// Check whether the blacklist duration is zero (indefinite) and redirect off-site if so
+			if($this->getBlacklistDuration($email ?? $username) === 0) {
+				redirect('https://www.google.com/');
+			} // Otherwise, check whether the duration is greater than zero and return an error if so
+			elseif($this->getBlacklistDuration($email ?? $username) > 0) {
+				return $this->statusMessage('You\'re attempting to log in too fast! Try again later.');
+			}
+		}
+		
 		// Sanitize the password
 		$password = $this->sanitizeData($data['password']);
 		
@@ -124,6 +158,9 @@ class Login {
 			// Generate a random hash for the session value
 			$session = generateHash(12);
 		} while($this->sessionExists($session));
+		
+		// Insert the new login attempt into the database
+		$login_attempt = $rs_query->insert('login_attempts', array('login'=>($email ?? $username), 'ip_address'=>$this->ip_address, 'date'=>'NOW()'));
 		
 		// Check whether the email or username variable is set
 		if(isset($email)) {
@@ -142,6 +179,9 @@ class Login {
 			$rs_query->update('users', array('last_login'=>'NOW()', 'session'=>$session), array('username'=>$username));
 		}
 		
+		// Update the login attempt in the database
+		$rs_query->update('login_attempts', array('status'=>'success'), array('id'=>$login_attempt));
+		
 		// Check whether the 'keep me logged in' checkbox has been checked
 		if(isset($data['remember_login']) && $data['remember_login'] === 'checked') {
 			// Create a cookie with the session value that expires in 30 days
@@ -159,6 +199,22 @@ class Login {
 			redirect($data['redirect']);
 		else
 			redirect(trailingSlash(ADMIN));
+	}
+	
+	/**
+	 * Check whether the login or IP address is blacklisted.
+	 * @since 1.2.0[b]{ss-01}
+	 *
+	 * @access private
+	 * @param string $name
+	 * @return bool
+	 */
+	private function isBlacklisted($name) {
+		// Extend the Query object
+		global $rs_query;
+		
+		// Return true if the count is greater than zero
+		return $rs_query->select('login_blacklist', 'COUNT(name)', array('name'=>$name)) > 0;
 	}
 	
 	/**
@@ -254,6 +310,52 @@ class Login {
 		
 		// Return true if the count is greater than zero
 		return $count > 0;
+	}
+	
+	/**
+	 * Fetch a blacklist's duration.
+	 * @since 1.2.0[b]{ss-01}
+	 *
+	 * @access private
+	 * @param string $name
+	 * @return int
+	 */
+	private function getBlacklistDuration($name) {
+		// Extend the Query object
+		global $rs_query;
+		
+		// Fetch the blacklist's duration from the database
+		$login = $rs_query->selectRow('login_blacklist', array('blacklisted', 'duration'), array('name'=>$name));
+		
+		// Check whether any data has been retrieved
+		if(empty($login)) {
+			// Set the duration to -1 (expired)
+			$duration = -1;
+		} else {
+			// Create a DateTime object
+			$time = new DateTime($login['blacklisted']);
+			
+			// Add the blacklist's duration to the time to find the expiration
+			$time->add(new DateInterval('PT'.$login['duration'].'S'));
+			
+			// Format the expiration date
+			$expiration = $time->format('Y-m-d H:i:s');
+			
+			// Check whether the blacklist has expired
+			if(date('Y-m-d H:i:s') >= $expiration && $login['duration'] !== 0) {
+				// Set the duration to -1 (expired)
+				$duration = -1;
+				
+				// Delete the blacklisted login from the database
+				$rs_query->delete('login_blacklist', array('name'=>$name));
+			} else {
+				// Set the duration
+				$duration = (int)$login['duration'];
+			}
+		}
+		
+		// Return the duration
+		return $duration;
 	}
 	
 	/**

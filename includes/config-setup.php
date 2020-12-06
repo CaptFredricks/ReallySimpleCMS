@@ -4,6 +4,9 @@
  * @since 1.3.0[a]
  */
 
+// Set default timezone
+date_default_timezone_set('America/New_York');
+
 // Database name
 define('DB_NAME', 'database_name');
 

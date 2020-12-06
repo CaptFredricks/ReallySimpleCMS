@@ -9,11 +9,9 @@ if(VERSION > '1.0.9') {
 	// Fetch the database schema
 	$schema = dbSchema();
 	
-	// Check whether the 'comments' table exists
-	if(!$rs_query->tableExists('comments')) {
-		// Create the table
+	// Check whether the 'comments' table exists and create it if not
+	if(!$rs_query->tableExists('comments'))
 		$rs_query->doQuery($schema['comments']);
-	}
 	
 	// Loop through the post types array
 	foreach($post_types as $post_type) {
@@ -84,4 +82,22 @@ if(VERSION > '1.1.6') {
 		// Insert the new setting into the database
 		$rs_query->insert('settings', array('name'=>'allow_anon_comments', 'value'=>0));
 	}
+}
+
+// Check whether the version is higher than 1.1.7[b]
+if(VERSION > '1.1.7') {
+	// Fetch the database schema
+	$schema = dbSchema();
+	
+	// Check whether the 'login_attempts' table exists and create it if not
+	if(!$rs_query->tableExists('login_attempts'))
+		$rs_query->doQuery($schema['login_attempts']);
+	
+	// Check whether the 'login_blacklist' table exists and create it if not
+	if(!$rs_query->tableExists('login_blacklist'))
+		$rs_query->doQuery($schema['login_blacklist']);
+	
+	// Check whether the 'login_rules' table exists and create it if not
+	if(!$rs_query->tableExists('login_rules'))
+		$rs_query->doQuery($schema['login_rules']);
 }

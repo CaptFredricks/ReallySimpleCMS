@@ -19,6 +19,36 @@ function dbSchema() {
 		parent bigint(20) unsigned NOT NULL default '0'
 	);";
 	
+	// Login_attempts table
+	$tables['login_attempts'] = "CREATE TABLE login_attempts (
+		id bigint(20) unsigned PRIMARY KEY auto_increment,
+		login varchar(100) NOT NULL,
+		ip_address varchar(150) NOT NULL,
+		date datetime default NULL,
+		status varchar(20) NOT NULL default 'failure',
+		KEY login_ip (login, ip_address)
+	);";
+	
+	// Login_blacklist table
+	$tables['login_blacklist'] = "CREATE TABLE login_blacklist (
+		id bigint(20) unsigned PRIMARY KEY auto_increment,
+		name varchar(150) NOT NULL,
+		attempts int(20) unsigned NOT NULL default '0',
+		blacklisted datetime default NULL,
+		duration bigint(20) unsigned NOT NULL default '0',
+		reason text NOT NULL default '',
+		KEY name (name)
+	);";
+	
+	// Login_rules table
+	$tables['login_rules'] = "CREATE TABLE login_rules (
+		id bigint(20) unsigned PRIMARY KEY auto_increment,
+		name varchar(255) NOT NULL,
+		attempts int(20) unsigned NOT NULL default '0',
+		duration varchar(255) NOT NULL,
+		KEY name (name)
+	);";
+	
 	// Postmeta table
 	$tables['postmeta'] = "CREATE TABLE postmeta (
 		id bigint(20) unsigned PRIMARY KEY auto_increment,

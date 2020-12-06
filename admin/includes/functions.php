@@ -13,6 +13,9 @@ if(!defined('ADMIN_SCRIPTS')) define('ADMIN_SCRIPTS', ADMIN.INC.'/js');
 // Path to the admin themes directory
 if(!defined('ADMIN_THEMES')) define('ADMIN_THEMES', CONT.'/admin-themes');
 
+// Current admin page URI
+define('ADMIN_URI', $_SERVER['PHP_SELF']);
+
 // Autoload classes
 spl_autoload_register(function($class_name) {
 	// Find all uppercase characters in the class name
@@ -557,6 +560,13 @@ function adminNavMenu() {
 		array('id'=>'profile', 'link'=>'profile.php', 'caption'=>'Your Profile')
 	), 'users');
 	
+	// Logins
+	adminNavMenuItem(array('id'=>'logins'), array( // Submenu
+		array('link'=>'logins.php', 'caption'=>'Attempts'),
+		array('id'=>'blacklist', 'link'=>'logins.php?page=blacklist', 'caption'=>'Blacklist'),
+		array('id'=>'rules', 'link'=>'logins.php?page=rules', 'caption'=>'Rules')
+	));
+	
 	// Check whether the user has sufficient privileges to view settings
 	if(userHasPrivilege($session['role'], 'can_edit_settings')) {
 		adminNavMenuItem(array('id'=>'settings'), array( // Submenu
@@ -769,6 +779,38 @@ function pagerNav($page, $page_count) {
 		?>
 	</div>
 	<?php
+}
+
+/**
+ * Construct an action link.
+ * @since 1.2.0[b]{ss-01}
+ *
+ * @param string $action
+ * @param null|string|array $args (optional; default: null)
+ * @return string
+ */
+function actionLink($action, $args = null) {
+	// Check whether the args value is null
+	if(!is_null($args)) {
+		// Check whether the args value is an array and turn it into one if not
+		if(!is_array($args)) $args = (array)$args;
+		
+		// Set the caption
+		$caption = $args['caption'] ?? ($args[0] ?? 'Action Link');
+		
+		// Remove the caption from the array
+		unset($args['caption'], $args[0]);
+		
+		// Create a variable to hold a query string
+		$query_string = '';
+		
+		// Loop through the remaining args and assign them to a query string
+		foreach($args as $key=>$value)
+			$query_string .= $key.'='.$value.'&';
+		
+		// Return the action link
+		return '<a href="'.ADMIN_URI.'?'.($query_string ?? '').'action='.$action.'">'.$caption.'</a>';
+	}
 }
 
 /**

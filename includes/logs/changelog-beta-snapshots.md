@@ -6,6 +6,35 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.2.0[b]{ss-01} (2020-12-05)
+
+- Tweaked a previous entry in the changelog
+- Added three new tables to the database schema:
+  - `login_attempts` - tracks login attempts
+  - `login_blacklist` - holds all blacklisted logins and ip addresses
+  - `login_rules` - stores rules for what happens if a user attempts to log in too many times unsuccessfully
+- These tables are automatically installed upon updating to this version or higher
+- Created a new admin class to handle logins
+- The front end `Login::validateLoginData` function now records all login attempts
+- Created an admin nav item for the "Login Attempts", "Login Blacklist", and "Login Rules" pages
+- Created a function that lists all login attempts
+- Created a function that lists all blacklisted logins
+- Created a function that constructs an action link
+- Created functions that blacklist logins and IP addresses
+- Created a function that checks whether a login or IP address is blacklisted
+- Created a function that fetches a blacklist's duration and deletes it if it's expired
+- A default timezone is now set in the `config-setup.php` file (and likewise the `config.php` file)
+
+**Modified files:**
+- admin/includes/class-login.php (N)
+- admin/includes/functions.php
+- admin/logins.php (N)
+- includes/class-login.php
+- includes/config-setup.php (M)
+- includes/schema.php
+- includes/update.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.1.0[b]{ss-05} (2020-10-21)
 
 - Tweaked documentation in the Carbon theme's `script.js` file
@@ -131,8 +160,8 @@
 - Added a new `comments` argument to the `registerPostType` function (if set to true, comments will be allowed for that post type; default is false)
 - Set comments to display for the `post` post type
 - Two new metadata entries are now created for posts of any type that has comments enabled (`comment_status` and `comment_count`)
-- The comment count is now listed on the "List \<post type>" page as its own column
-- Added a comments block to the "Create \<post type>" and "Edit \<post type>" pages
+- The comment count is now listed on the "List \<post_type>" page as its own column
+- Added a comments block to the "Create \<post_type>" and "Edit \<post_type>" pages
 - Created a `Comment` admin class and admin `comments.php` file
 - Added comments to the admin nav menu (below the post types and above 'Customization')
 - Tweaked documentation in the admin `functions.php` file
