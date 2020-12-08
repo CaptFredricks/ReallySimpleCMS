@@ -35,27 +35,79 @@ class Login {
 	private $ip_address;
 	
 	/**
+	 * The currently queried blacklisted login's name.
+	 * @since 1.2.0[b]{ss-02}
+	 *
+	 * @access private
+	 * @var string
+	 */
+	private $name;
+	
+	/**
+	 * The currently queried blacklisted login's duration.
+	 * @since 1.2.0[b]{ss-02}
+	 *
+	 * @access private
+	 * @var int
+	 */
+	private $duration;
+	
+	/**
+	 * The currently queried blacklisted login's reason.
+	 * @since 1.2.0[b]{ss-02}
+	 *
+	 * @access private
+	 * @var string
+	 */
+	private $reason;
+	
+	/**
 	 * Class constructor.
 	 * @since 1.2.0[b]{ss-01}
 	 *
 	 * @access public
-	 * @param int $id (optional; default: 0)
+	 * @param string $page
+	 * @param int $id
 	 * @return null
 	 */
-	public function __construct($id = 0) {
+	public function __construct($page, $id) {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Create an array of columns to fetch from the database
-		$cols = array_keys(get_object_vars($this));
-		
 		// Check whether the id is '0'
 		if($id !== 0) {
-			// Fetch the login attempt from the database
-			$login_attempt = $rs_query->selectRow('login_attempts', $cols, array('id'=>$id));
-			
-			// Loop through the array and set the class variables
-			foreach($login_attempt as $key=>$value) $this->$key = $login_attempt[$key];
+			// Check whether the user is on the "List Blacklist" page
+			if($page === 'blacklist') {
+				// Create an array of columns to fetch from the database
+				$cols = array_keys(get_object_vars($this));
+				
+				// Exclude columns from the 'login_attempts' table
+				$exclude = array('login', 'ip_address');
+				
+				// Update the columns array
+				$cols = array_diff($cols, $exclude);
+				
+				// Fetch the blacklisted login from the database
+				$blacklisted_login = $rs_query->selectRow('login_blacklist', $cols, array('id'=>$id));
+				
+				// Loop through the array and set the class variables
+				foreach($blacklisted_login as $key=>$value) $this->$key = $blacklisted_login[$key];
+			} else {
+				// Create an array of columns to fetch from the database
+				$cols = array_keys(get_object_vars($this));
+				
+				// Exclude columns from the 'login_blacklist' table
+				$exclude = array('name', 'duration', 'reason');
+				
+				// Update the columns array
+				$cols = array_diff($cols, $exclude);
+				
+				// Fetch the login attempt from the database
+				$login_attempt = $rs_query->selectRow('login_attempts', $cols, array('id'=>$id));
+				
+				// Loop through the array and set the class variables
+				foreach($login_attempt as $key=>$value) $this->$key = $login_attempt[$key];
+			}
 		}
 	}
 	
@@ -67,8 +119,8 @@ class Login {
 	 * @return null
 	 */
 	public function loginAttempts() {
-		// Extend the Query object
-		global $rs_query;
+		// Extend the Query object and the user's session data
+		global $rs_query, $session;
 		
 		// Set up pagination
 		$page = paginate((int)($_GET['paged'] ?? 1));
@@ -120,8 +172,8 @@ class Login {
 					
 					// Set up the action links
 					$actions = array(
-						actionLink('blacklist_login', array('caption'=>'Blacklist Login', 'id'=>$login_attempt['id'])),
-						actionLink('blacklist_ip', array('caption'=>'Blacklist IP', 'id'=>$login_attempt['id']))
+						userHasPrivilege($session['role'], 'can_create_login_blacklist') ? actionLink('blacklist_login', array('caption'=>'Blacklist Login', 'id'=>$login_attempt['id'])) : null,
+						userHasPrivilege($session['role'], 'can_create_login_blacklist') ? actionLink('blacklist_ip', array('caption'=>'Blacklist IP', 'id'=>$login_attempt['id'])) : null
 					);
 					
 					// Filter out any empty actions
@@ -160,7 +212,7 @@ class Login {
 		// Check whether the login attempt's id is valid
 		if(empty($this->id) || $this->id <= 0) {
 			// Redirect to the "Login Attempts" page
-			redirect('logins.php');
+			redirect(ADMIN_URI);
 		} else {
 			// Validate the form data and return any messages
 			$message = isset($_POST['submit']) ? $this->validateBlacklistData($_POST, 'login') : '';
@@ -201,7 +253,7 @@ class Login {
 		// Check whether the login attempt's id is valid
 		if(empty($this->id) || $this->id <= 0) {
 			// Redirect to the "Login Attempts" page
-			redirect('logins.php');
+			redirect(ADMIN_URI);
 		} else {
 			// Validate the form data and return any messages
 			$message = isset($_POST['submit']) ? $this->validateBlacklistData($_POST, 'ip_address') : '';
@@ -229,47 +281,6 @@ class Login {
 	}
 	
 	/**
-	 * Validate the "Blacklist Login/Blacklist IP Address" form data.
-	 * @since 1.2.0[b]{ss-01}
-	 *
-	 * @access private
-	 * @param array $data
-	 * @param string $action
-	 * @return null
-	 */
-	private function validateBlacklistData($data, $action) {
-		// Extend the Query object
-		global $rs_query;
-		
-		// Make sure no required fields are empty
-		if((empty($data['duration']) && $data['duration'] != 0) || empty($data['reason']))
-			return statusMessage('R');
-		
-		// make sure no duplicates
-		
-		// Check which action has been submitted
-		if($action === 'login') {
-			// Fetch the number of login attempts associated with the blacklisted login in the database
-			$attempts = $rs_query->select('login_attempts', 'COUNT(*)', array('login'=>$data['name']));
-			
-			// Insert the new blacklisted login into the database
-			$rs_query->insert('login_blacklist', array('name'=>$data['name'], 'attempts'=>$attempts, 'blacklisted'=>'NOW()', 'duration'=>$data['duration'], 'reason'=>$data['reason']));
-			
-			// Redirect to the "Login Attempts" page with an appropriate exit status
-			redirect(ADMIN_URI.'?exit_status=success&blacklist=login');
-		} elseif($action === 'ip_address') {
-			// Fetch the number of login attempts associated with the blacklisted IP address in the database
-			$attempts = $rs_query->select('login_attempts', 'COUNT(*)', array('ip_address'=>$data['name']));
-			
-			// Insert the new blacklisted login into the database
-			$rs_query->insert('login_blacklist', array('name'=>$data['name'], 'attempts'=>$attempts, 'blacklisted'=>'NOW()', 'duration'=>$data['duration'], 'reason'=>$data['reason']));
-			
-			// Redirect to the "Login Attempts" page with an appropriate exit status
-			redirect(ADMIN_URI.'?exit_status=success&blacklist=ip_address');
-		}
-	}
-	
-	/**
 	 * Construct a list of all blacklisted logins in the database.
 	 * @since 1.2.0[b]{ss-01}
 	 *
@@ -277,8 +288,8 @@ class Login {
 	 * @return null
 	 */
 	public function loginBlacklist() {
-		// Extend the Query object
-		global $rs_query;
+		// Extend the Query object and the user's session data
+		global $rs_query, $session;
 		
 		// Set up pagination
 		$page = paginate((int)($_GET['paged'] ?? 1));
@@ -286,6 +297,10 @@ class Login {
 		<div class="heading-wrap">
 			<h1>Login Blacklist</h1>
 			<?php
+			// Display any status messages
+			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
+				echo statusMessage('The login or IP address was successfully whitelisted.', true);
+			
 			// Fetch the login blacklist entry count from the database
 			$count = $rs_query->select('login_blacklist', 'COUNT(*)');
 			
@@ -320,15 +335,24 @@ class Login {
 					$time = new DateTime($blacklisted_login['blacklisted']);
 					
 					// Add the blacklist duration to the time to find the expiration
-					$time->add(new DateInterval('PT'.($blacklisted_login['duration'] ?? 0).'S'));
+					$time->add(new DateInterval('PT'.$blacklisted_login['duration'].'S'));
 					
 					// Format the expiration date
 					$expiration = $time->format('Y-m-d H:i:s');
 					
+					// Check whether the blacklist has expired
+					if(date('Y-m-d H:i:s') >= $expiration && $blacklisted_login['duration'] !== 0) {
+						// Delete the blacklisted login from the database
+						$rs_query->delete('login_blacklist', array('name'=>$blacklisted_login['name']));
+						
+						// Continue to the next blacklisted login
+						continue;
+					}
+					
 					// Set up the action links
 					$actions = array(
-						actionLink('edit', array('caption'=>'Edit', 'id'=>$blacklisted_login['id'])),
-						actionLink('whitelist', array('caption'=>'Whitelist', 'id'=>$blacklisted_login['id']))
+						userHasPrivilege($session['role'], 'can_edit_login_blacklist') ? actionLink('edit', array('caption'=>'Edit', 'page'=>'blacklist', 'id'=>$blacklisted_login['id'])) : null,
+						userHasPrivilege($session['role'], 'can_delete_login_blacklist') ? actionLink('whitelist', array('caption'=>'Whitelist', 'page'=>'blacklist', 'id'=>$blacklisted_login['id'])) : null
 					);
 					
 					// Filter out any empty actions
@@ -352,5 +376,138 @@ class Login {
 		<?php
 		// Set up page navigation
 		echo pagerNav($page['current'], $page['count']);
+	}
+	
+	/**
+	 * Edit a blacklisted login.
+	 * @since 1.2.0[b]{ss-02}
+	 *
+	 * @access public
+	 * @return null
+	 */
+	public function editBlacklist() {
+		// Extend the Query object
+		global $rs_query;
+		
+		// Check whether the blacklisted login's id is valid
+		if(empty($this->id) || $this->id <= 0) {
+			// Redirect to the "Login Blacklist" page
+			redirect(ADMIN_URI.'?page=blacklist');
+		} else {
+			// Validate the form data and return any messages
+			$message = isset($_POST['submit']) ? $this->validateBlacklistData($_POST, 'edit') : '';
+			?>
+			<div class="heading-wrap">
+				<h1>Edit Blacklist</h1>
+				<?php echo $message; ?>
+			</div>
+			<div class="data-form-wrap clear">
+				<form class="data-form" action="" method="post" autocomplete="off">
+					<table class="form-table">
+						<?php
+						echo formRow('', array('tag'=>'input', 'type'=>'hidden', 'name'=>'name', 'value'=>$this->name));
+						echo formRow('Name', array('tag'=>'span', 'content'=>$this->name));
+						echo formRow(array('Duration (seconds)', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'duration', 'maxlength'=>15, 'value'=>$this->duration));
+						echo formRow(array('Reason', true), array('tag'=>'textarea', 'class'=>'textarea-input required invalid init', 'name'=>'reason', 'cols'=>30, 'rows'=>5, 'content'=>htmlspecialchars($this->reason)));
+						echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
+						echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Blacklist'));
+						?>
+					</table>
+				</form>
+			</div>
+			<?php
+		}
+	}
+	
+	/**
+	 * Validate the "Blacklist Login/Blacklist IP Address/Edit Blacklist" form data.
+	 * @since 1.2.0[b]{ss-01}
+	 *
+	 * @access private
+	 * @param array $data
+	 * @param string $action
+	 * @return null
+	 */
+	private function validateBlacklistData($data, $action) {
+		// Extend the Query object
+		global $rs_query;
+		
+		// Make sure no required fields are empty
+		if((empty($data['duration']) && $data['duration'] != 0) || empty($data['reason']))
+			return statusMessage('R');
+		
+		// Make sure the login or IP address is not already blacklisted
+		if($action !== 'edit' && $this->blacklistExits($data['name']))
+			return statusMessage('This '.($action === 'login' ? 'login ' : 'IP address').' is already blacklisted!');
+		
+		// Check which action has been submitted
+		if($action === 'login') {
+			// Fetch the number of login attempts associated with the blacklisted login in the database
+			$attempts = $rs_query->select('login_attempts', 'COUNT(*)', array('login'=>$data['name']));
+			
+			// Insert the new blacklisted login into the database
+			$rs_query->insert('login_blacklist', array('name'=>$data['name'], 'attempts'=>$attempts, 'blacklisted'=>'NOW()', 'duration'=>$data['duration'], 'reason'=>$data['reason']));
+			
+			// Redirect to the "Login Attempts" page with an appropriate exit status
+			redirect(ADMIN_URI.'?exit_status=success&blacklist=login');
+		} elseif($action === 'ip_address') {
+			// Fetch the number of login attempts associated with the blacklisted IP address in the database
+			$attempts = $rs_query->select('login_attempts', 'COUNT(*)', array('ip_address'=>$data['name']));
+			
+			// Insert the new blacklisted login into the database
+			$rs_query->insert('login_blacklist', array('name'=>$data['name'], 'attempts'=>$attempts, 'blacklisted'=>'NOW()', 'duration'=>$data['duration'], 'reason'=>$data['reason']));
+			
+			// Redirect to the "Login Attempts" page with an appropriate exit status
+			redirect(ADMIN_URI.'?exit_status=success&blacklist=ip_address');
+		} elseif($action === 'edit') {
+			// Update the blacklisted login in the database
+			$rs_query->update('login_blacklist', array('duration'=>$data['duration'], 'reason'=>$data['reason']), array('name'=>$data['name']));
+			
+			// Update the class variables
+			foreach($data as $key=>$value) $this->$key = $value;
+			
+			// Return a status message
+			return statusMessage('Blacklist updated! <a href="'.ADMIN_URI.'?page=blacklist">Return to list</a>?', true);
+		}
+	}
+	
+	/**
+	 * Whitelist a blacklisted login or IP address.
+	 * @since 1.2.0[b]{ss-02}
+	 *
+	 * @access public
+	 * @return null
+	 */
+	public function whitelistLoginIP() {
+		// Extend the Query object
+		global $rs_query;
+		
+		// Check whether the blacklisted login's id is valid
+		if(empty($this->id) || $this->id <= 0) {
+			// Redirect to the "Login Blacklist" page
+			redirect(ADMIN_URI.'?page=blacklist');
+		} else {
+			// Delete the blacklisted login from the database
+			$rs_query->delete('login_blacklist', array('id'=>$this->id));
+			
+			// Redirect to the "Login Blacklist" page with an appropriate exit status
+			redirect(ADMIN_URI.'?page=blacklist&exit_status=success');
+		}
+	}
+	
+	/**
+	 * Check whether a blacklist already exists in the database.
+	 * @since 1.2.0[b]{ss-02}
+	 *
+	 * @access private
+	 * @param string $name
+	 * @return bool
+	 */
+	private function blacklistExits($name) {
+		// Extend the Query object
+		global $rs_query;
+		
+		// Return true if the blacklist appears in the database
+		return $rs_query->selectRow('login_blacklist', 'COUNT(name)', array('name'=>$name)) > 0;
 	}
 }

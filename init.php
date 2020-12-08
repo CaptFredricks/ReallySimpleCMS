@@ -140,13 +140,13 @@ if(!defined('BASE_INIT') || (defined('BASE_INIT') && !BASE_INIT)) {
 				$rs_term = new Term;
 			}
 		}
-
+		
 		// Check whether the session cookie is set and the user's session is valid
 		if(isset($_COOKIE['session']) && isValidSession($_COOKIE['session'])) {
 			// Fetch the user's data
 			$session = getOnlineUser($_COOKIE['session']);
 		}
-
+		
 		// Include the template loader file
 		require_once PATH.INC.'/load-template.php';
 	}

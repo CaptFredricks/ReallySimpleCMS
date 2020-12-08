@@ -522,11 +522,11 @@ function adminNavMenu() {
 		// Check whether the user has sufficient privileges to view the post type
 		if(userHasPrivilege($session['role'], 'can_view_'.$id)) {
 			adminNavMenuItem(array('id'=>$id), array( // Submenu
-				array( // List <post type>
+				array( // List <post_type>
 					'link'=>$post_type['menu_link'],
 					'caption'=>$post_type['labels']['list_items']
 				),
-				(userHasPrivilege($session['role'], 'can_create_'.$id) || userHasPrivilege($session['role'], 'can_upload_media') ? array( // Create <post type>
+				(userHasPrivilege($session['role'], ($post_type['name'] === 'media' ? 'can_upload_media' : 'can_create_'.$id)) ? array( // Create <post_type>
 					'id'=>$id === 'media' ? $id.'-upload' : $id.'-create',
 					'link'=>$post_type['menu_link'].($post_type['name'] === 'media' ? '?action=upload' : ($post_type['name'] === 'post' ? '?action=create' : '&action=create')),
 					'caption'=>$post_type['labels']['create_item']
@@ -545,7 +545,7 @@ function adminNavMenu() {
 		adminNavMenuItem(array('id'=>'comments', 'link'=>'comments.php'), array(), array('comments', 'regular'));
 	
 	// Check whether the user has sufficient privileges to view customization options
-	if(userHasPrivilege($session['role'], 'can_view_themes') || userHasPrivilege($session['role'], 'can_view_menus') || userHasPrivilege($session['role'], 'can_view_widgets')) {
+	if(userHasPrivileges($session['role'], array('can_view_themes', 'can_view_menus', 'can_view_widgets'), 'OR')) {
 		adminNavMenuItem(array('id'=>'customization'), array( // Submenu
 			(userHasPrivilege($session['role'], 'can_view_themes') ? array('id'=>'themes', 'link'=>'themes.php', 'caption'=>'List Themes') : null),
 			(userHasPrivilege($session['role'], 'can_view_menus') ? array('id'=>'menus', 'link'=>'menus.php', 'caption'=>'List Menus') : null),
@@ -560,23 +560,21 @@ function adminNavMenu() {
 		array('id'=>'profile', 'link'=>'profile.php', 'caption'=>'Your Profile')
 	), 'users');
 	
-	// Logins
-	adminNavMenuItem(array('id'=>'logins'), array( // Submenu
-		array('link'=>'logins.php', 'caption'=>'Attempts'),
-		array('id'=>'blacklist', 'link'=>'logins.php?page=blacklist', 'caption'=>'Blacklist'),
-		array('id'=>'rules', 'link'=>'logins.php?page=rules', 'caption'=>'Rules')
-	));
+	// Check whether the user has sufficient privileges to view login options
+	if(userHasPrivileges($session['role'], array('can_view_login_attempts', 'can_view_login_blacklist', 'can_view_login_rules'), 'OR')) {
+		adminNavMenuItem(array('id'=>'logins'), array( // Submenu
+			(userHasPrivilege($session['role'], 'can_view_login_attempts') ? array('link'=>'logins.php', 'caption'=>'Attempts') : null),
+			(userHasPrivilege($session['role'], 'can_view_login_blacklist') ? array('id'=>'blacklist', 'link'=>'logins.php?page=blacklist', 'caption'=>'Blacklist') : null),
+			(userHasPrivilege($session['role'], 'can_view_login_rules') ? array('id'=>'rules', 'link'=>'logins.php?page=rules', 'caption'=>'Rules') : null)
+		), 'sign-in-alt');
+	}
 	
 	// Check whether the user has sufficient privileges to view settings
-	if(userHasPrivilege($session['role'], 'can_edit_settings')) {
+	if(userHasPrivileges($session['role'], array('can_edit_settings', 'can_view_user_roles'), 'OR')) {
 		adminNavMenuItem(array('id'=>'settings'), array( // Submenu
-			array('link'=>'settings.php', 'caption'=>'General'),
-			array('id'=>'design', 'link'=>'settings.php?page=design', 'caption'=>'Design'),
+			(userHasPrivilege($session['role'], 'can_edit_settings') ? array('link'=>'settings.php', 'caption'=>'General') : null),
+			(userHasPrivilege($session['role'], 'can_edit_settings') ? array('id'=>'design', 'link'=>'settings.php?page=design', 'caption'=>'Design') : null),
 			(userHasPrivilege($session['role'], 'can_view_user_roles') ? array('id'=>'user-roles', 'link'=>'settings.php?page=user_roles', 'caption'=>'User Roles') : null)
-		), 'cogs');
-	} elseif(!userHasPrivilege($session['role'], 'can_edit_settings') && userHasPrivilege($session['role'], 'can_view_user_roles')) {
-		adminNavMenuItem(array('id'=>'settings'), array( // Submenu
-			array('id'=>'user-roles', 'link'=>'settings.php?page=user_roles', 'caption'=>'User Roles')
 		), 'cogs');
 	}
 }

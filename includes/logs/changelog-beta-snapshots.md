@@ -6,6 +6,36 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.2.0[b]{ss-02} (2020-12-07)
+
+- Created a function that allows for editing a blacklisted login
+- Created a function that checks whether a blacklisted login already exists in the database
+- Expired blacklisted logins are now deleted when a user views the "Login Blacklist" page
+- Created a function that whitelists a blacklisted login or IP address
+- Added an icon to the "Login" admin menu item
+- Added login-related nav items to the admin bar menu
+- Added privileges for the `login_attempts`, `login_blacklist`, and `login_rules` tables to the `populateUserPrivileges` function
+- The new privileges are automatically installed upon updating to this version or higher
+- Tweaked a previous entry in the changelog
+- The `populateUserPrivileges` function now only selects the default roles
+- Created a function that checks whether a user has a specified group of privileges as opposed to just one (can be configured to use `AND` or `OR` logic)
+- Added privilege checks for all logins admin pages and the admin bar
+- Cleaned up some logic in the `adminNavMenu` and `adminBar` functions
+- Fixed a bug in the `adminBar` function that allowed users to view actions for post types that they didn't have privileges for
+- Fixed a bug in the `adminBar` function that allowed users to view actions for taxonomies that they didn't have privileges for
+- Fixed a bug in the `adminNavMenu` function that allowed users to view actions for post types that they didn't have privileges for
+- Made minor formatting tweaks to the `init.php` file
+
+**Modified files:**
+- admin/includes/class-login.php
+- admin/includes/functions.php
+- admin/logins.php
+- includes/functions.php
+- includes/globals.php
+- includes/update.php
+- init.php (M)
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.2.0[b]{ss-01} (2020-12-05)
 
 - Tweaked a previous entry in the changelog
@@ -13,7 +43,7 @@
   - `login_attempts` - tracks login attempts
   - `login_blacklist` - holds all blacklisted logins and ip addresses
   - `login_rules` - stores rules for what happens if a user attempts to log in too many times unsuccessfully
-- These tables are automatically installed upon updating to this version or higher
+  - These tables are automatically installed upon updating to this version or higher
 - Created a new admin class to handle logins
 - The front end `Login::validateLoginData` function now records all login attempts
 - Created an admin nav item for the "Login Attempts", "Login Blacklist", and "Login Rules" pages

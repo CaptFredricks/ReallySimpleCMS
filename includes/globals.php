@@ -313,7 +313,7 @@ function populateUserPrivileges() {
 	global $rs_query;
 	
 	// Create an array of admin pages (for privileges)
-	$admin_pages = array('pages', 'posts', 'categories', 'media', 'comments', 'themes', 'menus', 'widgets', 'users', 'settings', 'user_roles');
+	$admin_pages = array('pages', 'posts', 'categories', 'media', 'comments', 'themes', 'menus', 'widgets', 'users', 'login_attempts', 'login_blacklist', 'login_rules', 'settings', 'user_roles');
 	
 	// Create an array of user privileges
 	$privileges = array('can_view_', 'can_create_', 'can_edit_', 'can_delete_');
@@ -330,12 +330,23 @@ function populateUserPrivileges() {
 					// Insert the user privilege into the database
 					$rs_query->insert('user_privileges', array('name'=>$privilege.$admin_page));
 					break;
-				case 'settings':
-					// Skip 'can_view_', 'can_create_', and 'can_delete_' for settings
-					if($privilege === 'can_view_' || $privilege === 'can_create_' || $privilege === 'can_delete_') continue 2;
 				case 'comments':
 					// Skip 'can_create_' for comments
 					if($privilege === 'can_create_') continue 2;
+					
+					// Insert the user privilege into the database
+					$rs_query->insert('user_privileges', array('name'=>$privilege.$admin_page));
+					break;
+				case 'login_attempts':
+					// Skip 'can_create_', 'can_edit_', and 'can_delete_' for settings
+					if($privilege === 'can_create_' || $privilege === 'can_edit_' || $privilege === 'can_delete_') continue 2;
+					
+					// Insert the user privilege into the database
+					$rs_query->insert('user_privileges', array('name'=>$privilege.$admin_page));
+					break;
+				case 'settings':
+					// Skip 'can_view_', 'can_create_', and 'can_delete_' for settings
+					if($privilege === 'can_view_' || $privilege === 'can_create_' || $privilege === 'can_delete_') continue 2;
 				default:
 					// Insert the user privilege into the database
 					$rs_query->insert('user_privileges', array('name'=>$privilege.$admin_page));
@@ -354,12 +365,15 @@ function populateUserPrivileges() {
 	 * 24=>'can_view_menus', 25=>'can_create_menus', 26=>'can_edit_menus', 27=>'can_delete_menus',
 	 * 28=>'can_view_widgets', 29=>'can_create_widgets', 30=>'can_edit_widgets', 31=>'can_delete_widgets',
 	 * 32=>'can_view_users', 33=>'can_create_users', 34=>'can_edit_users', 35=>'can_delete_users',
-	 * 36=>'can_edit_settings',
-	 * 37=>'can_view_user_roles', 38=>'can_create_user_roles', 39=>'can_edit_user_roles', 40=>'can_delete_user_roles'
+	 * 36=>'can_view_login_attempts',
+	 * 37=>'can_view_login_blacklist', 38=>'can_create_login_blacklist', 39=>'can_edit_login_blacklist', 40=>'can_delete_login_blacklist',
+	 * 41=>'can_view_login_rules', 42=>'can_create_login_rules', 43=>'can_edit_login_rules', 44=>'can_delete_login_rules',
+	 * 45=>'can_edit_settings',
+	 * 46=>'can_view_user_roles', 47=>'can_create_user_roles', 48=>'can_edit_user_roles', 49=>'can_delete_user_roles'
 	 */
 	
-	// Fetch all user roles from the database
-	$roles = $rs_query->select('user_roles', 'id', '', 'id');
+	// Fetch all default user roles from the database
+	$roles = $rs_query->select('user_roles', 'id', array('id'=>array('IN', 1, 2, 3, 4)), 'id');
 	
 	// Loop through the user roles
 	foreach($roles as $role) {
@@ -370,15 +384,15 @@ function populateUserPrivileges() {
 				break;
 			case 2:
 				// Set the privileges for the 'editor' role
-				$privileges = array(1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 32, 37);
+				$privileges = array(1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 32, 46);
 				break;
 			case 3:
 				// Set the privileges for the 'moderator' role
-				$privileges = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 24, 25, 26, 28, 29, 30, 32, 33, 34, 37);
+				$privileges = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 24, 25, 26, 28, 29, 30, 32, 33, 34, 36, 37, 38, 39, 40, 41, 42, 43, 46);
 				break;
 			case 4:
 				// Set the privileges for the 'administrator' role
-				$privileges = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40);
+				$privileges = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49);
 				break;
 		}
 		
@@ -637,6 +651,41 @@ function userHasPrivilege($role, $privilege) {
 	
 	// Fetch any relationships between the user's role and the specified privilege and return true if there are
 	return $rs_query->selectRow('user_relationships', 'COUNT(*)', array('role'=>$role, 'privilege'=>$id)) > 0;
+}
+
+/**
+ * Check whether a user has a specified group of privileges.
+ * @since 1.2.0[b]{ss-02}
+ *
+ * @param int $role
+ * @param array $privileges (optional; default: array())
+ * @param string $logic (optional; default: 'AND')
+ * @return bool
+ */
+function userHasPrivileges($role, $privileges = array(), $logic = 'AND') {
+	// Make sure the privileges are in an array
+	if(!is_array($privileges)) $privileges = (array)$privileges;
+	
+	// Loop through the privileges
+	foreach($privileges as $privilege) {
+		// Check which logic operator is being used
+		if(strtoupper($logic) === 'AND') {
+			// Return false if one of the privileges is not found
+			if(userHasPrivilege($role, $privilege) === false) return false;
+		} elseif(strtoupper($logic) === 'OR') {
+			// Return true if one of the privileges is found
+			if(userHasPrivilege($role, $privilege) === true) return true;
+		}
+	}
+	
+	// Check which logic operator is being used
+	if(strtoupper($logic) === 'AND') {
+		// Return true if all of the privileges are found
+		return true;
+	} elseif(strtoupper($logic) === 'OR') {
+		// Return false if none of the privileges are found
+		return false;
+	}
 }
 
 /**
