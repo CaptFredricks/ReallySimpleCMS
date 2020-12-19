@@ -73,11 +73,23 @@ class Query {
 		// Stop execution and throw an error if no table is specified
 		if(empty($table)) exit($this->errorMsg('table'));
 		
-		// Merge the data into a string if it's an array
-		if(is_array($data)) $data = implode(', ', $data);
+		// Check whether the data is in an array
+		if(is_array($data)) {
+			// Check whether 'DISTINCT' appears anywhere in the array
+			if(in_array('DISTINCT', $data, true)) {
+				// Set a flag
+				$distinct = true;
+				
+				// Remove 'DISTINCT' from the array
+				array_splice($data, array_search('DISTINCT', $data), 1);
+			}
+			
+			// Merge the data into a string
+			$data = implode(', ', $data);
+		}
 		
 		// Construct the basic SQL statement
-		$sql = 'SELECT '.$data.' FROM `'.$table.'`';
+		$sql = 'SELECT '.(isset($distinct) ? 'DISTINCT ' : '').$data.' FROM `'.$table.'`';
 		
 		// Check whether or not there is a where clause
 		if(!empty($where)) {
@@ -90,8 +102,18 @@ class Query {
 			// Set the initial operator value
 			$operator = '<>';
 			
+			// Set the default logic for the where clause
+			$logic = 'AND';
+			
 			// Loop through the where clause array
 			foreach($where as $field=>$value) {
+				// Check whether the field is a logic operator
+				if($field === 'logic') {
+					// Set the logic for the where clause and continue to the next element
+					$logic = strtoupper($value);
+					continue;
+				}
+				
 				// Check whether the value is an array
 				if(is_array($value)) {
 					// Loop through the values
@@ -141,7 +163,7 @@ class Query {
 			}
 			
 			// Merge the conditions array into a string
-			$conditions = implode(' AND ', $conditions);
+			$conditions = implode(' '.$logic.' ', $conditions);
 			
 			// Add the where clause to the SQL statement
 			$sql .= ' WHERE '.$conditions;
@@ -356,8 +378,18 @@ class Query {
 			// Set the initial operator value
 			$operator = 'IN';
 			
+			// Set the default logic for the where clause
+			$logic = 'AND';
+			
 			// Loop through the where clause array
 			foreach($where as $field=>$value) {
+				// Check whether the field is a logic operator
+				if($field === 'logic') {
+					// Set the logic for the where clause and continue to the next element
+					$logic = strtoupper($value);
+					continue;
+				}
+				
 				// Check whether the value is an array
 				if(is_array($value)) {
 					// Loop through the values
@@ -390,7 +422,7 @@ class Query {
 			}
 			
 			// Merge the conditions array into a string
-			$conditions = implode(' AND ', $conditions);
+			$conditions = implode(' '.$logic.' ', $conditions);
 			
 			// Add the where clause to the SQL statement
 			$sql .= ' WHERE '.$conditions;
@@ -433,8 +465,18 @@ class Query {
 			// Set the initial operator value
 			$operator = 'IN';
 			
+			// Set the default logic for the where clause
+			$logic = 'AND';
+			
 			// Loop through the where clause array
 			foreach($where as $field=>$value) {
+				// Check whether the field is a logic operator
+				if($field === 'logic') {
+					// Set the logic for the where clause and continue to the next element
+					$logic = strtoupper($value);
+					continue;
+				}
+				
 				// Check whether the value is an array
 				if(is_array($value)) {
 					// Loop through the values
@@ -467,7 +509,7 @@ class Query {
 			}
 			
 			// Merge the conditions array into a string
-			$conditions = implode(' AND ', $conditions);
+			$conditions = implode(' '.$logic.' ', $conditions);
 			
 			// Add the where clause to the SQL statement
 			$sql .= ' WHERE '.$conditions;

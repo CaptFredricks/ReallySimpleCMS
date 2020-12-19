@@ -793,6 +793,12 @@ function actionLink($action, $args = null) {
 		// Check whether the args value is an array and turn it into one if not
 		if(!is_array($args)) $args = (array)$args;
 		
+		// Set the CSS classes
+		$classes = $args['classes'] ?? '';
+		
+		// Remove the CSS classes from the array
+		unset($args['classes']);
+		
 		// Set the caption
 		$caption = $args['caption'] ?? ($args[0] ?? 'Action Link');
 		
@@ -807,7 +813,7 @@ function actionLink($action, $args = null) {
 			$query_string .= $key.'='.$value.'&';
 		
 		// Return the action link
-		return '<a href="'.ADMIN_URI.'?'.($query_string ?? '').'action='.$action.'">'.$caption.'</a>';
+		return '<a class="'.$classes.'" href="'.ADMIN_URI.'?'.($query_string ?? '').'action='.$action.'">'.$caption.'</a>';
 	}
 }
 

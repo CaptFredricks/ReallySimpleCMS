@@ -6,7 +6,24 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
-## Version 1.2.0[b]{ss-02} (2020-12-07)
+## Version 1.2.0[b]{ss-03} (2020-12-10)
+
+- Tweaked a previous entry in the changelog
+- All `select`, `update`, and `delete` queries can now use `OR` logic in their `where` clauses by supplying `'logic'=>'OR'` as an element of the `where` clause array
+- If a logged in user is added to the logins blacklist, they are now logged out
+- The `DISTINCT` keyword can now be added to `select` queries (it must be added to the `data` parameter's array)
+- The `actionLink` function can now accept `classes` as a valid argument (allows for the action link to receive CSS classes)
+- Tweaked documentation in the admin `Login` class
+- Created a function that creates a new user-input login blacklist (distinct from the "Login Attempts" blacklist options)
+
+**Modified files:**
+- admin/includes/class-login.php
+- admin/includes/functions.php
+- admin/logins.php
+- includes/class-query.php
+
+----------------------------------------------------------------------------------------------------
+## Version 1.2.0[b]{ss-02} (2020-12-08)
 
 - Created a function that allows for editing a blacklisted login
 - Created a function that checks whether a blacklisted login already exists in the database

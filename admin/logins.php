@@ -19,6 +19,10 @@ $rs_login = new Login($page, $id);
 	switch($page) {
 		case 'blacklist':
 			switch($action) {
+				case 'create':
+					// Create a new blacklisted login
+					userHasPrivilege($session['role'], 'can_create_login_blacklist') ? $rs_login->createBlacklist() : redirect(ADMIN_URI.'?page=blacklist');
+					break;
 				case 'edit':
 					// Edit a blacklisted login
 					userHasPrivilege($session['role'], 'can_edit_login_blacklist') ? $rs_login->editBlacklist() : redirect(ADMIN_URI.'?page=blacklist');
