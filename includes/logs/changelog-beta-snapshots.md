@@ -6,6 +6,27 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.2.0[b]{ss-04} (2020-12-20)
+
+- Added two new settings:
+  - `track_login_attempts` (whether login attempts should be logged in the database or not)
+  - `delete_old_login_attempts` (whether to delete login attempts more than 30 days old)
+- The new settings are added to the database automatically for sites updating from `1.1.7[b]`
+- Added support for conditionally hidden fields in admin forms
+  - The "Comments" and "Logins" settings groups are now conditionally hidden if the "Enable comments" or "Keep track of login attempts" settings are unchecked, respectively
+- Cleaned up code in the `Settings::validateSettingsData` function
+- The `Login` class now checks whether the `track_login_attempts` setting is turned on and only tracks new attempts if it is
+- The admin `Login` class now checks whether the `delete_old_login_attempts` setting is turned on and deletes old login attempts if it is
+
+**Modified files:**
+- admin/includes/class-login.php
+- admin/includes/class-settings.php
+- admin/includes/js/script.js
+- includes/class-login.php
+- includes/globals.php (M)
+- includes/update.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.2.0[b]{ss-03} (2020-12-10)
 
 - Tweaked a previous entry in the changelog

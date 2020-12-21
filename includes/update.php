@@ -177,4 +177,16 @@ if(VERSION > '1.1.7') {
 			$rs_query->doQuery("DROP TABLE `user_relationships_temp`;");
 		}
 	}
+	
+	// Check whether the 'track_login_attempts' setting exists
+	if(!$rs_query->selectRow('settings', 'COUNT(*)', array('name'=>'track_login_attempts')) > 0) {
+		// Insert the new setting into the database
+		$rs_query->insert('settings', array('name'=>'track_login_attempts', 'value'=>0));
+	}
+	
+	// Check whether the 'delete_old_login_attempts' setting exists
+	if(!$rs_query->selectRow('settings', 'COUNT(*)', array('name'=>'delete_old_login_attempts')) > 0) {
+		// Insert the new setting into the database
+		$rs_query->insert('settings', array('name'=>'delete_old_login_attempts', 'value'=>0));
+	}
 }

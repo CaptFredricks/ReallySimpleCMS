@@ -102,6 +102,29 @@ jQuery(document).ready($ => {
 		}
 	});
 	
+	/**
+	 * Show hidden conditional fields if appropriate.
+	 * @since 1.2.0[b]{ss-04}
+	 */
+	$('.checkbox-label.conditional-toggle').each(function() {
+		// Check whether the checkbox is checked and hide its conditional siblings if not
+		if(!$(this).children('input').prop('checked')) $(this).siblings('.conditional-field').addClass('hidden');
+	});
+	
+	$('.checkbox-label.conditional-toggle input').on('change', function() {
+		// Fetch the conditional checkbox label
+		let self = $(this).parent();
+		
+		// Check whether the checkbox is checked
+		if($(self).children('input').prop('checked')) {
+			// Display any hidden sibling fields
+			$(self).siblings('.conditional-field').removeClass('hidden');
+		} else {
+			// Hide any sibling fields
+			$(self).siblings('.conditional-field').addClass('hidden');
+		}
+	});
+	
 	/*------------------------------*\
 		IMAGES
 	\*------------------------------*/

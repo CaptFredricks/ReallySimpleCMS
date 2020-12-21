@@ -74,6 +74,30 @@ class Login {
 		// Extend the Query object
 		global $rs_query;
 		
+		// Check whether the 'delete_old_login_attempts' setting is turned on
+		if(getSetting('delete_old_login_attempts', false)) {
+			// Fetch all login attempts from the database
+			$login_attempts = $rs_query->select('login_attempts', array('id', 'date'));
+			
+			// Loop through the login attempts
+			foreach($login_attempts as $login_attempt) {
+				// Create a DateTime object
+				$time = new DateTime();
+				
+				// Subtract 30 days from the current date
+				$time->sub(new DateInterval('P30D'));
+				
+				// Format the threshold date
+				$threshold = $time->format('Y-m-d H:i:s');
+				
+				// Check whether the login attempt has expired
+				if($threshold > $login_attempt['date']) {
+					// Delete the login attempt from the database
+					$rs_query->delete('login_attempts', array('id'=>$login_attempt['id']));
+				}
+			}
+		}
+		
 		// Check whether the id is '0'
 		if($id !== 0) {
 			// Check whether the user is on the "List Blacklist" page

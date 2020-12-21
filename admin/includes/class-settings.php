@@ -43,7 +43,8 @@ class Settings {
 					echo formRow('Default User Role', array('tag'=>'select', 'class'=>'select-input', 'name'=>'default_user_role', 'content'=>$this->getUserRoles((int)$setting['default_user_role'])));
 					echo formRow('Home Page', array('tag'=>'select', 'class'=>'select-input', 'name'=>'home_page', 'content'=>$this->getPageList((int)$setting['home_page'])));
 					echo formRow('Search Engine Visibility', array('tag'=>'input', 'type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'do_robots', 'value'=>(int)$setting['do_robots'], '*'=>(!$setting['do_robots'] ? 'checked' : ''), 'label'=>array('class'=>'checkbox-label', 'content'=>'<span>Discourage search engines from indexing this site</span>')));
-					echo formRow('Comments', array('tag'=>'input', 'type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'enable_comments', 'value'=>(int)$setting['enable_comments'], '*'=>($setting['enable_comments'] ? 'checked' : ''), 'label'=>array('class'=>'checkbox-label', 'content'=>'<span>Enable comments</span>')), array('tag'=>'br'), array('tag'=>'input', 'type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'auto_approve_comments', 'value'=>(int)$setting['auto_approve_comments'], '*'=>($setting['auto_approve_comments'] ? 'checked' : ''), 'label'=>array('class'=>'checkbox-label', 'content'=>'<span>Approve comments automatically</span>')), array('tag'=>'br'), array('tag'=>'input', 'type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'allow_anon_comments', 'value'=>(int)$setting['allow_anon_comments'], '*'=>($setting['allow_anon_comments'] ? 'checked' : ''), 'label'=>array('class'=>'checkbox-label', 'content'=>'<span>Allow comments from anonymous (logged out) users</span>')));
+					echo formRow('Comments', array('tag'=>'input', 'type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'enable_comments', 'value'=>(int)$setting['enable_comments'], '*'=>($setting['enable_comments'] ? 'checked' : ''), 'label'=>array('class'=>'checkbox-label conditional-toggle', 'content'=>'<span>Enable comments</span>')), array('tag'=>'br'), array('tag'=>'input', 'type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'auto_approve_comments', 'value'=>(int)$setting['auto_approve_comments'], '*'=>($setting['auto_approve_comments'] ? 'checked' : ''), 'label'=>array('class'=>'checkbox-label conditional-field', 'content'=>'<span>Approve comments automatically</span>')), array('tag'=>'br', 'class'=>'conditional-field'), array('tag'=>'input', 'type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'allow_anon_comments', 'value'=>(int)$setting['allow_anon_comments'], '*'=>($setting['allow_anon_comments'] ? 'checked' : ''), 'label'=>array('class'=>'checkbox-label conditional-field', 'content'=>'<span>Allow comments from anonymous (logged out) users</span>')));
+					echo formRow('Logins', array('tag'=>'input', 'type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'track_login_attempts', 'value'=>(int)$setting['track_login_attempts'], '*'=>($setting['track_login_attempts'] ? 'checked' : ''), 'label'=>array('class'=>'checkbox-label conditional-toggle', 'content'=>'<span>Keep track of login attempts</span>')), array('tag'=>'br'), array('tag'=>'input', 'type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'delete_old_login_attempts', 'value'=>(int)$setting['delete_old_login_attempts'], '*'=>($setting['delete_old_login_attempts'] ? 'checked' : ''), 'label'=>array('class'=>'checkbox-label conditional-field', 'content'=>'<span>Delete login attempts from more than 30 days ago</span>')));
 					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
 					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Settings'));
 					?>
@@ -149,14 +150,12 @@ class Settings {
 			// Set the value of 'do_robots'
 			$data['do_robots'] = isset($data['do_robots']) ? 0 : 1;
 			
-			// Set the value of 'enable_comments'
-			$data['enable_comments'] = isset($data['enable_comments']) ? 1 : 0;
+			// Create an array of togglable settings
+			$settings = array('enable_comments', 'auto_approve_comments', 'allow_anon_comments', 'track_login_attempts', 'delete_old_login_attempts');
 			
-			// Set the value of 'auto_approve_comments'
-			$data['auto_approve_comments'] = isset($data['auto_approve_comments']) ? 1 : 0;
-			
-			// Set the value of 'allow_anon_comments'
-			$data['allow_anon_comments'] = isset($data['allow_anon_comments']) ? 1 : 0;
+			// Loop through the settings and assign them values
+			foreach($settings as $setting)
+				$data[$setting] = isset($data[$setting]) ? 1 : 0;
 			
 			// Fetch current value of 'do_robots' in the database
 			$do_robots = $rs_query->selectField('settings', 'value', array('name'=>'do_robots'));

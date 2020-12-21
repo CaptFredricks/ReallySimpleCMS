@@ -159,8 +159,11 @@ class Login {
 			$session = generateHash(12);
 		} while($this->sessionExists($session));
 		
-		// Insert the new login attempt into the database
-		$login_attempt = $rs_query->insert('login_attempts', array('login'=>($email ?? $username), 'ip_address'=>$this->ip_address, 'date'=>'NOW()'));
+		// Check whether login attempts should be tracked
+		if(getSetting('track_login_attempts', false)) {
+			// Insert the new login attempt into the database
+			$login_attempt = $rs_query->insert('login_attempts', array('login'=>($email ?? $username), 'ip_address'=>$this->ip_address, 'date'=>'NOW()'));
+		}
 		
 		// Check whether the email or username variable is set
 		if(isset($email)) {
@@ -179,8 +182,11 @@ class Login {
 			$rs_query->update('users', array('last_login'=>'NOW()', 'session'=>$session), array('username'=>$username));
 		}
 		
-		// Update the login attempt in the database
-		$rs_query->update('login_attempts', array('status'=>'success'), array('id'=>$login_attempt));
+		// Check whether the login attempt was tracked
+		if(isset($login_attempt)) {
+			// Update the login attempt in the database
+			$rs_query->update('login_attempts', array('status'=>'success'), array('id'=>$login_attempt));
+		}
 		
 		// Check whether the 'keep me logged in' checkbox has been checked
 		if(isset($data['remember_login']) && $data['remember_login'] === 'checked') {
