@@ -8,7 +8,7 @@
  */
 class Login {
 	/**
-	 * The currently queried login attempt or blacklisted login's id.
+	 * The currently queried login attempt, blacklisted login, or login rule's id.
 	 * @since 1.2.0[b]{ss-01}
 	 *
 	 * @access private
@@ -44,7 +44,7 @@ class Login {
 	private $name;
 	
 	/**
-	 * The currently queried blacklisted login's duration.
+	 * The currently queried blacklisted login or login rule's duration.
 	 * @since 1.2.0[b]{ss-02}
 	 *
 	 * @access private
@@ -60,6 +60,24 @@ class Login {
 	 * @var string
 	 */
 	private $reason;
+	
+	/**
+	 * The currently queried login rule's type.
+	 * @since 1.2.0[b]{ss-05}
+	 *
+	 * @access private
+	 * @var string
+	 */
+	private $type;
+	
+	/**
+	 * The currently queried login rule's attempts.
+	 * @since 1.2.0[b]{ss-05}
+	 *
+	 * @access private
+	 * @var int
+	 */
+	private $attempts;
 	
 	/**
 	 * Class constructor.
@@ -100,13 +118,13 @@ class Login {
 		
 		// Check whether the id is '0'
 		if($id !== 0) {
+			// Create an array of columns to fetch from the database
+			$cols = array_keys(get_object_vars($this));
+			
 			// Check whether the user is on the "List Blacklist" page
 			if($page === 'blacklist') {
-				// Create an array of columns to fetch from the database
-				$cols = array_keys(get_object_vars($this));
-				
-				// Exclude columns from the 'login_attempts' table
-				$exclude = array('login', 'ip_address');
+				// Exclude columns from the 'login_attempts' and 'login_rules' tables
+				$exclude = array('login', 'ip_address', 'type', 'attempts');
 				
 				// Update the columns array
 				$cols = array_diff($cols, $exclude);
@@ -116,12 +134,22 @@ class Login {
 				
 				// Loop through the array and set the class variables
 				foreach($blacklisted_login as $key=>$value) $this->$key = $blacklisted_login[$key];
-			} else {
-				// Create an array of columns to fetch from the database
-				$cols = array_keys(get_object_vars($this));
+			} // Check whether the user is on the "List Rules" page
+			elseif($page === 'rules') {
+				// Exclude columns from the 'login_attempts' and 'login_blacklist' tables
+				$exclude = array('login', 'ip_address', 'name', 'reason');
 				
-				// Exclude columns from the 'login_blacklist' table
-				$exclude = array('name', 'duration', 'reason');
+				// Update the columns array
+				$cols = array_diff($cols, $exclude);
+				
+				// Fetch the login rule from the database
+				$login_rule = $rs_query->selectRow('login_rules', $cols, array('id'=>$id));
+				
+				// Loop through the array and set the class variables
+				foreach($login_rule as $key=>$value) $this->$key = $login_rule[$key];
+			} else {
+				// Exclude columns from the 'login_blacklist' and 'login_rules' tables
+				$exclude = array('name', 'duration', 'reason', 'type', 'attempts');
 				
 				// Update the columns array
 				$cols = array_diff($cols, $exclude);
@@ -418,7 +446,7 @@ class Login {
 		$message = isset($_POST['submit']) ? $this->validateBlacklistData($_POST, 'create') : '';
 		?>
 		<div class="heading-wrap">
-			<h1>Create Blacklist</h1>
+			<h1>Create Login Blacklist</h1>
 			<?php echo $message; ?>
 		</div>
 		<div class="data-form-wrap clear">
@@ -457,7 +485,7 @@ class Login {
 			$message = isset($_POST['submit']) ? $this->validateBlacklistData($_POST, 'edit') : '';
 			?>
 			<div class="heading-wrap">
-				<h1>Edit Blacklist</h1>
+				<h1>Edit Login Blacklist</h1>
 				<?php echo $message; ?>
 			</div>
 			<div class="data-form-wrap clear">
@@ -509,15 +537,15 @@ class Login {
 				$rs_query->insert('login_blacklist', array('name'=>$data['name'], 'attempts'=>$attempts, 'blacklisted'=>'NOW()', 'duration'=>$data['duration'], 'reason'=>$data['reason']));
 				
 				// Fetch the blacklisted user from the database
-				$user = $rs_query->selectRow('users', array('id', 'session'), array('logic'=>'OR', 'username'=>$data['name'], 'email'=>$data['name']));
+				$session = $rs_query->selectField('users', 'session', array('logic'=>'OR', 'username'=>$data['name'], 'email'=>$data['name']));
 				
 				// Check whether the user's session is null
-				if(!is_null($user['session'])) {
+				if(!is_null($session)) {
 					// Set the user's session to null in the database
-					$rs_query->update('users', array('session'=>null), array('id'=>$user['id'], 'session'=>$user['session']));
+					$rs_query->update('users', array('session'=>null), array('session'=>$session));
 					
 					// Check whether the cookie's value matches the session value and delete it if so
-					if($_COOKIE['session'] === $user['session'])
+					if($_COOKIE['session'] === $session)
 						setcookie('session', '', 1, '/');
 				}
 				
@@ -537,15 +565,15 @@ class Login {
 				// Loop through the logins
 				foreach($logins as $login) {
 					// Fetch the blacklisted user from the database
-					$user = $rs_query->selectRow('users', array('id', 'session'), array('logic'=>'OR', 'username'=>$login['login'], 'email'=>$login['login']));
+					$session = $rs_query->selectRow('users', 'session', array('logic'=>'OR', 'username'=>$login['login'], 'email'=>$login['login']));
 				
 					// Check whether the user's session is null
-					if(!is_null($user['session'])) {
+					if(!is_null($session)) {
 						// Set the user's session to null in the database
-						$rs_query->update('users', array('session'=>null), array('id'=>$user['id'], 'session'=>$user['session']));
+						$rs_query->update('users', array('session'=>null), array('session'=>$session));
 						
 						// Check whether the cookie's value matches the session value and delete it if so
-						if($_COOKIE['session'] === $user['session'])
+						if($_COOKIE['session'] === $session)
 							setcookie('session', '', 1, '/');
 					}
 				}
@@ -614,5 +642,268 @@ class Login {
 		
 		// Return true if the blacklist appears in the database
 		return $rs_query->selectRow('login_blacklist', 'COUNT(name)', array('name'=>$name)) > 0;
+	}
+	
+	/**
+	 * Construct a list of all login rules in the database.
+	 * @since 1.2.0[b]{ss-05}
+	 *
+	 * @access public
+	 * @return null
+	 */
+	public function loginRules() {
+		// Extend the Query object and the user's session data
+		global $rs_query, $session;
+		
+		// Set up pagination
+		$page = paginate((int)($_GET['paged'] ?? 1));
+		?>
+		<div class="heading-wrap">
+			<h1>Login Rules</h1>
+			<?php
+			// Check whether the user has sufficient privileges to create a login rule and create an action link if so
+			if(userHasPrivilege($session['role'], 'can_create_login_rules'))
+				echo actionLink('create', array('classes'=>'button', 'caption'=>'Create New', 'page'=>'rules'));
+			
+			// Check whether any status messages have been returned and display them if so
+			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
+				echo statusMessage('The rule was successfully deleted.', true);
+			
+			// Fetch the login rules entry count from the database
+			$count = $rs_query->select('login_rules', 'COUNT(*)');
+			
+			// Set the page count
+			$page['count'] = ceil($count / $page['per_page']);
+			?>
+			<div class="entry-count">
+				<?php
+				// Display the entry count
+				echo $count.' '.($count === 1 ? 'entry' : 'entries');
+				?>
+			</div>
+		</div>
+		<table class="data-table">
+			<thead>
+				<?php
+				// Fill an array with the table header columns
+				$table_header_cols = array('Rule');
+				
+				// Construct the table header
+				echo tableHeaderRow($table_header_cols);
+				?>
+			</thead>
+			<tbody>
+				<?php
+				// Fetch all login rules from the database
+				$login_rules = $rs_query->select('login_rules', '*', '', 'attempts', 'ASC', array($page['start'], $page['per_page']));
+				
+				// Loop through the login rules
+				foreach($login_rules as $login_rule) {
+					// Check whether the login or IP address is blacklisted
+					$blacklisted = $rs_query->select('login_blacklist', 'COUNT(name)', array('name'=>array('IN', $login_rule['login'], $login_rule['ip_address']))) > 0;
+					
+					// Set up the action links
+					$actions = array(
+						userHasPrivilege($session['role'], 'can_edit_login_rules') ? actionLink('edit', array('caption'=>'Edit', 'page'=>'rules', 'id'=>$login_rule['id'])) : null,
+						userHasPrivilege($session['role'], 'can_delete_login_rules') ? actionLink('delete', array('classes'=>'modal-launch delete-item', 'data_item'=>'login rule', 'caption'=>'Delete', 'page'=>'rules', 'id'=>$login_rule['id'])) : null
+					);
+					
+					// Filter out any empty actions
+					$actions = array_filter($actions);
+					
+					echo tableRow(
+						tableCell('If failed login attempts exceed <strong>'.$login_rule['attempts'].'</strong>, blacklist the <strong>'.($login_rule['type'] === 'ip_address' ? 'IP address' : $login_rule['type']).'</strong> '.($login_rule['duration'] !== 0 ? 'for ' : '').'<strong>'.$this->formatDuration($login_rule['duration']).'</strong>.<div class="actions">'.implode(' &bull; ', $actions).'</div>')
+					);
+				}
+				
+				// Display a notice if no login rules are found
+				if(empty($login_rules))
+					echo tableRow(tableCell('There are no login rules to display.', '', count($table_header_cols)));
+				?>
+			</tbody>
+		</table>
+		<?php
+		// Set up page navigation
+		echo pagerNav($page['current'], $page['count']);
+		
+		// Include the delete modal
+        include_once PATH.ADMIN.INC.'/modal-delete.php';
+	}
+	
+	/**
+	 * Create a login rule.
+	 * @since 1.2.0[b]{ss-05}
+	 *
+	 * @access public
+	 * @return null
+	 */
+	public function createRule() {
+		// Validate the form data and return any messages
+		$message = isset($_POST['submit']) ? $this->validateRuleData($_POST) : '';
+		?>
+		<div class="heading-wrap">
+			<h1>Create Login Rule</h1>
+			<?php echo $message; ?>
+		</div>
+		<div class="data-form-wrap clear">
+			<form class="data-form" action="" method="post" autocomplete="off">
+				<table class="form-table">
+					<?php
+					echo formRow('Type', array('tag'=>'select', 'class'=>'select-input', 'name'=>'type', 'content'=>'<option value="login">Login</option><option value="ip_address">IP Address</option>'));
+					echo formRow(array('Attempts', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'attempts', 'maxlength'=>6, 'value'=>($_POST['attempts'] ?? '')));
+					echo formRow(array('Duration (seconds)', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'duration', 'maxlength'=>15, 'value'=>($_POST['duration'] ?? '')));
+					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
+					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Create Rule'));
+					?>
+				</table>
+			</form>
+		</div>
+		<?php
+	}
+	
+	/**
+	 * Edit a login rule.
+	 * @since 1.2.0[b]{ss-05}
+	 *
+	 * @access public
+	 * @return null
+	 */
+	public function editRule() {
+		// Extend the Query object
+		global $rs_query;
+		
+		// Check whether the login rule's id is valid
+		if(empty($this->id) || $this->id <= 0) {
+			// Redirect to the "Login Rules" page
+			redirect(ADMIN_URI.'?page=rules');
+		} else {
+			// Validate the form data and return any messages
+			$message = isset($_POST['submit']) ? $this->validateRuleData($_POST, $this->id) : '';
+			?>
+			<div class="heading-wrap">
+				<h1>Edit Login Rule</h1>
+				<?php echo $message; ?>
+			</div>
+			<div class="data-form-wrap clear">
+				<form class="data-form" action="" method="post" autocomplete="off">
+					<table class="form-table">
+						<?php
+						echo formRow('Type', array('tag'=>'select', 'class'=>'select-input', 'name'=>'type', 'content'=>'<option value="'.$this->type.'">'.($this->type === 'ip_address' ? 'IP Address' : ucfirst($this->type)).'</option>'.($this->type === 'login' ? '<option value="ip_address">IP Address</option>' : '<option value="login">Login</option>')));
+						echo formRow(array('Attempts', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'attempts', 'maxlength'=>6, 'value'=>$this->attempts));
+						echo formRow(array('Duration (seconds)', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'duration', 'maxlength'=>15, 'value'=>$this->duration));
+						echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
+						echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Rule'));
+						?>
+					</table>
+				</form>
+			</div>
+			<?php
+		}
+	}
+	
+	/**
+	 * Delete a login rule.
+	 * @since 1.2.0[b]{ss-05}
+	 *
+	 * @access public
+	 * @return null
+	 */
+	public function deleteRule() {
+		// Extend the Query object
+		global $rs_query;
+		
+		// Check whether the login rule's id is valid
+		if(empty($this->id) || $this->id <= 0) {
+			// Redirect to the "Login Rules" page
+			redirect(ADMIN_URI.'?page=rules');
+		} else {
+			// Delete the login rule from the database
+			$rs_query->delete('login_rules', array('id'=>$this->id));
+			
+			// Redirect to the "Login Rules" page with an appropriate exit status
+			redirect(ADMIN_URI.'?page=rules&exit_status=success');
+		}
+	}
+	
+	/**
+	 * Validate the login rules form data.
+	 * @since 1.2.0[b]{ss-05}
+	 *
+	 * @access private
+	 * @param array $data
+	 * @param int $id (optional; default: 0)
+	 * @return null|string (null on $id == 0; string on $id != 0)
+	 */
+	private function validateRuleData($data, $id = 0) {
+		// Extend the Query object
+		global $rs_query;
+		
+		// Make sure no required fields are empty
+		if(empty($data['attempts']) || (empty($data['duration']) && $data['duration'] != 0))
+			return statusMessage('R');
+		
+		// Make sure the rule has a valid type
+		if($data['type'] !== 'login' && $data['type'] !== 'ip_address')
+			$data['type'] = 'login';
+		
+		if($id === 0) {
+			// Insert the new login rule into the database
+			$insert_id = $rs_query->insert('login_rules', array('type'=>$data['type'], 'attempts'=>$data['attempts'], 'duration'=>$data['duration']));
+			
+			// Redirect to the appropriate "Edit Login Rule" page
+			redirect(ADMIN_URI.'?page=rules&id='.$insert_id.'&action=edit');
+		} else {
+			// Update the login rule in the database
+			$rs_query->update('login_rules', array('type'=>$data['type'], 'attempts'=>$data['attempts'], 'duration'=>$data['duration']), array('id'=>$id));
+			
+			// Update the class variables
+			foreach($data as $key=>$value) $this->$key = $value;
+			
+			// Return a status message
+			return statusMessage('Rule updated! <a href="'.ADMIN_URI.'?page=rules">Return to list</a>?', true);
+		}
+	}
+	
+	/**
+	 * Format a duration in seconds to something more readable.
+	 * @since 1.2.0[b]{ss-05}
+	 *
+	 * @access private
+	 * @param int $seconds
+	 * @return string
+	 */
+	private function formatDuration($seconds) {
+		// Check whether the seconds are equal to '0'
+		if((int)$seconds !== 0) {
+			// Create a DateTime object for the starting time
+			$time_start = new DateTime('@0');
+			
+			// Create a DateTime object for the ending time
+			$time_end = new DateTime('@'.$seconds);
+			
+			// Determine the duration
+			$duration = $time_start->diff($time_end);
+			
+			// Create an array of date format strings
+			$date_strings = array('y'=>'year', 'm'=>'month', 'd'=>'day', 'h'=>'hour', 'i'=>'minute', 's'=>'second');
+			
+			// Loop through the strings
+			foreach($date_strings as $key=>&$value) {
+				// Check whether the key is set in the duration
+				if($duration->$key) {
+					// Format the value
+					$value = $duration->$key.' '.$value.($duration->$key > 1 ? 's' : '');
+				} else {
+					// Remove the key and its value from the array
+					unset($date_strings[$key]);
+				}
+			}
+			
+			// Return the formatted duration
+			return implode(', ', $date_strings);
+		} else {
+			// Return 'indefinitely' as the duration
+			return 'indefinitely';
+		}
 	}
 }

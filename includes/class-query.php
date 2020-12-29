@@ -99,7 +99,10 @@ class Query {
 			// Create empty arrays to hold portions of the where clause
 			$conditions = $values = $vals = $placeholders = array();
 			
-			// Set the initial operator value
+			// Create an array of accepted operators
+			$operators = array('=', '>', '<', '>=', '<=', '<>', 'LIKE', 'IN', 'NOT IN');
+			
+			// Set the default operator value
 			$operator = '<>';
 			
 			// Set the default logic for the where clause
@@ -120,11 +123,8 @@ class Query {
 					foreach($value as $val) {
 						// Check whether the value is a string
 						if(is_string($val)) {
-							// Check whether the value is an inequality operator or another operator
-							if($val === '<>' || $val === '!') {
-								// Set the operator
-								$operator = '<>';
-							} elseif(strtoupper($val) === 'LIKE' || strtoupper($val) === 'IN' || strtoupper($val) === 'NOT IN') {
+							// Check whether the value is an operator
+							if(in_array(strtoupper($val), $operators, true)) {
 								// Set the operator
 								$operator = strtoupper($val);
 							}
@@ -141,14 +141,13 @@ class Query {
 					}
 					
 					switch($operator) {
-						case '<>': case 'LIKE':
-							// Add a condition to the conditions array
-							$conditions[] = $field.' '.$operator.' ?';
-							break;
 						case 'IN': case 'NOT IN':
 							// Add a condition to the conditions array
 							$conditions[] = $field.' '.$operator.' ('.implode(', ', $placeholders).')';
 							break;
+						default:
+							// Add a condition to the conditions array
+							$conditions[] = $field.' '.$operator.' ?';
 					}
 					
 					// Merge the two values arrays into one

@@ -26,6 +26,8 @@ function dbSchema() {
 		ip_address varchar(150) NOT NULL,
 		date datetime default NULL,
 		status varchar(20) NOT NULL default 'failure',
+		last_blacklisted_login datetime default NULL,
+		last_blacklisted_ip datetime default NULL,
 		KEY login_ip (login, ip_address)
 	);";
 	
@@ -43,10 +45,10 @@ function dbSchema() {
 	// Login_rules table
 	$tables['login_rules'] = "CREATE TABLE login_rules (
 		id bigint(20) unsigned PRIMARY KEY auto_increment,
-		name varchar(255) NOT NULL,
+		type varchar(255) NOT NULL default 'login',
 		attempts int(20) unsigned NOT NULL default '0',
-		duration varchar(255) NOT NULL,
-		KEY name (name)
+		duration bigint(20) unsigned NOT NULL default '0',
+		KEY type (type)
 	);";
 	
 	// Postmeta table

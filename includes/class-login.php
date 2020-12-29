@@ -122,6 +122,9 @@ class Login {
 			$username = $this->sanitizeData($data['login'], '/[^\w.]/i');
 		}
 		
+		// Check whether the IP address or login should be blacklisted
+		$this->shouldBlacklist($this->ip_address, ($email ?? $username));
+		
 		// Check whether the user's IP address is blacklisted
 		if($this->isBlacklisted($this->ip_address)) {
 			// Check whether the blacklist duration is zero (indefinite) and redirect off-site if so
@@ -150,6 +153,12 @@ class Login {
 		// Sanitize the captcha
 		$captcha = $this->sanitizeData($data['captcha'], '/[^a-zA-Z0-9]/i');
 		
+		// Check whether login attempts should be tracked
+		if(getSetting('track_login_attempts', false)) {
+			// Insert the new login attempt into the database
+			$login_attempt = $rs_query->insert('login_attempts', array('login'=>($email ?? $username), 'ip_address'=>$this->ip_address, 'date'=>'NOW()'));
+		}
+		
 		// Make sure the captcha value is valid
 		if(!$this->isValidCaptcha($captcha))
 			return $this->statusMessage('The captcha is not valid.');
@@ -158,12 +167,6 @@ class Login {
 			// Generate a random hash for the session value
 			$session = generateHash(12);
 		} while($this->sessionExists($session));
-		
-		// Check whether login attempts should be tracked
-		if(getSetting('track_login_attempts', false)) {
-			// Insert the new login attempt into the database
-			$login_attempt = $rs_query->insert('login_attempts', array('login'=>($email ?? $username), 'ip_address'=>$this->ip_address, 'date'=>'NOW()'));
-		}
 		
 		// Check whether the email or username variable is set
 		if(isset($email)) {
@@ -188,7 +191,7 @@ class Login {
 			$rs_query->update('login_attempts', array('status'=>'success'), array('id'=>$login_attempt));
 		}
 		
-		// Check whether the 'keep me logged in' checkbox has been checked
+		// Check whether the "Keep me logged in" checkbox has been checked
 		if(isset($data['remember_login']) && $data['remember_login'] === 'checked') {
 			// Create a cookie with the session value that expires in 30 days
 			setcookie('session', $session, array('expires'=>time() + 60 * 60 * 24 * 30, 'path'=>'/', 'secure'=>$this->https, 'httponly'=>true, 'samesite'=>'Strict'));
@@ -259,6 +262,110 @@ class Login {
 	 */
 	private function isValidCaptcha($captcha) {
 		return !empty($_SESSION['secure_login']) && $captcha === $_SESSION['secure_login'];
+	}
+	
+	/**
+	 * Check whether the login or IP address should be blacklisted.
+	 * @since 1.2.0[b]{ss-05}
+	 *
+	 * @access private
+	 * @param string $ip_address
+	 * @param string $login
+	 * @return null
+	 */
+	private function shouldBlacklist($ip_address, $login) {
+		// Extend the Query object
+		global $rs_query;
+		
+		// Fetch the last blacklisted IP from the database
+		$last_blacklisted_ip = $rs_query->selectField('login_attempts', 'last_blacklisted_ip', array('ip_address'=>$ip_address), 'id', 'ASC', '1');
+		
+		// Fetch the number of failed login attempts by the IP address
+		$failed_logins = $rs_query->select('login_attempts', 'COUNT(*)', array('ip_address'=>$ip_address, 'date'=>array('>', $last_blacklisted_ip), 'status'=>'failure'));
+		
+		// Fetch the rules for logins by type 'ip_address'
+		$login_rules = $rs_query->select('login_rules', '*', array('type'=>'ip_address'), 'attempts', 'DESC');
+		
+		// Loop through the login rules
+		foreach($login_rules as $login_rule) {
+			// Check whether the failed logins exceed the rule's threshold
+			if($failed_logins >= $login_rule['attempts']) {
+				// Check whether the IP address is already blacklisted
+				if(!$this->isBlacklisted($ip_address)) {
+					// Fetch the total number of login attempts from the database
+					$attempts = $rs_query->select('login_attempts', 'COUNT(*)', array('ip_address'=>$ip_address, 'status'=>'failure'));
+					
+					// Create a blacklist for the IP address
+					$rs_query->insert('login_blacklist', array('name'=>$ip_address, 'attempts'=>$attempts, 'blacklisted'=>'NOW()', 'duration'=>$login_rule['duration'], 'reason'=>'too many failed login attempts'));
+					
+					// Update the last blacklisted date of the IP address and return
+					$rs_query->update('login_attempts', array('last_blacklisted_ip'=>'NOW()'), array('ip_address'=>$ip_address));
+					
+					// Fetch all logins associated with the IP address from the database
+					$logins = $rs_query->select('login_attempts', array('DISTINCT', 'login'), array('ip_address'=>$ip_address));
+					
+					// Loop through the logins
+					foreach($logins as $login) {
+						// Fetch the user's session from the database
+						$session = $rs_query->selectField('users', 'session', array('logic'=>'OR', 'username'=>$login['login'], 'email'=>$login['login']));
+						
+						// Check whether the user's session is null
+						if(!is_null($session)) {
+							// Set the user's session to null in the database
+							$rs_query->update('users', array('session'=>null), array('session'=>$session));
+							
+							// Check whether the cookie's value matches the session value and delete it if so
+							if($_COOKIE['session'] === $session)
+								setcookie('session', '', 1, '/');
+						}
+					}
+				}
+				
+				return;
+			}
+		}
+		
+		// Fetch the last blacklisted login from the database
+		$last_blacklisted_login = $rs_query->selectField('login_attempts', 'last_blacklisted_login', array('login'=>$login), 'id', 'ASC', '1');
+		
+		// Fetch the number of failed login attempts by the login
+		$failed_logins = $rs_query->select('login_attempts', 'COUNT(*)', array('login'=>$login, 'date'=>array('>', $last_blacklisted_login), 'status'=>'failure'));
+		
+		// Fetch the rules for logins by type 'login'
+		$login_rules = $rs_query->select('login_rules', '*', array('type'=>'login'), 'attempts', 'DESC');
+		
+		// Loop through the login rules
+		foreach($login_rules as $login_rule) {
+			// Check whether the failed logins exceed the rule's threshold
+			if($failed_logins >= $login_rule['attempts']) {
+				// Check whether the login is already blacklisted
+				if(!$this->isBlacklisted($login)) {
+					// Fetch the total number of failed login attempts from the database
+					$attempts = $rs_query->select('login_attempts', 'COUNT(*)', array('login'=>$login, 'status'=>'failure'));
+					
+					// Create a blacklist for the login
+					$rs_query->insert('login_blacklist', array('name'=>$login, 'attempts'=>$attempts, 'blacklisted'=>'NOW()', 'duration'=>$login_rule['duration'], 'reason'=>'too many failed login attempts'));
+					
+					// Update the last blacklisted date of the login
+					$rs_query->update('login_attempts', array('last_blacklisted_login'=>'NOW()'), array('login'=>$login));
+					
+					// Fetch the user's session from the database
+					$session = $rs_query->selectField('users', 'session', array('logic'=>'OR', 'username'=>$login, 'email'=>$login));
+					
+					// Check whether the user's session is null
+					if(!is_null($session)) {
+						// Set the user's session to null in the database
+						$rs_query->update('users', array('session'=>null), array('session'=>$session));
+						
+						// Check whether the cookie's value matches the session value and delete it if so
+						if($_COOKIE['session'] === $session)
+							setcookie('session', '', 1, '/');
+					}
+				}
+				
+				return;
+			}
+		}
 	}
 	
 	/**

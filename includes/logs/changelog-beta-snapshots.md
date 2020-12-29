@@ -6,6 +6,32 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.2.0[b]{ss-05} (2020-12-28)
+
+- Created a function that lists all login rules in the database
+- Tweaked the schema for the `login_rules` database table
+- Created a function that converts a duration in seconds to a more readable format
+- Created a function that creates a login rule
+- Added class variables for the `login_rules` table and its functions
+- Tweaked documentation in the `Login` class
+- Created a function that updates a login rule
+- Created a function that handles login rules form validation
+- Created a function that deletes a login rule
+- The `actionLink` function can now accept `data_item` as a valid argument (allows for the action link to include a `data-item` parameter)
+- Created a function that checks whether a login or IP address should be blacklisted
+- Added two new columns to the `login_attempts` table, `last_blacklisted_login` and `last_blacklisted_ip`, which will track the most recent time the login (username or email) or IP address of a login attempt was blacklisted (if ever)
+- Cleaned up code in the `Query` class and added support for various comparison operators
+- Cleaned up code in the admin `Login` class
+
+**Modified files:**
+- admin/includes/class-login.php
+- admin/includes/functions.php
+- admin/logins.php
+- includes/class-login.php
+- includes/class-query.php
+- includes/schema.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.2.0[b]{ss-04} (2020-12-20)
 
 - Added two new settings:

@@ -799,6 +799,12 @@ function actionLink($action, $args = null) {
 		// Remove the CSS classes from the array
 		unset($args['classes']);
 		
+		// Set the data item, if provided
+		$data_item = $args['data_item'] ?? '';
+		
+		// Remove the data item from the array
+		unset($args['data_item']);
+		
 		// Set the caption
 		$caption = $args['caption'] ?? ($args[0] ?? 'Action Link');
 		
@@ -813,7 +819,7 @@ function actionLink($action, $args = null) {
 			$query_string .= $key.'='.$value.'&';
 		
 		// Return the action link
-		return '<a class="'.$classes.'" href="'.ADMIN_URI.'?'.($query_string ?? '').'action='.$action.'">'.$caption.'</a>';
+		return '<a'.(!empty($classes) ? ' class="'.$classes.'"' : '').' href="'.ADMIN_URI.'?'.($query_string ?? '').'action='.$action.'"'.(!empty($data_item) ? ' data-item="'.$data_item.'"' : '').'>'.$caption.'</a>';
 	}
 }
 

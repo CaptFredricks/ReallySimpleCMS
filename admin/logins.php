@@ -37,6 +37,23 @@ $rs_login = new Login($page, $id);
 			}
 			break;
 		case 'rules':
+			switch($action) {
+				case 'create':
+					// Create a new login rule
+					userHasPrivilege($session['role'], 'can_create_login_rules') ? $rs_login->createRule() : redirect(ADMIN_URI.'?page=rules');
+					break;
+				case 'edit':
+					// Edit an existing login rule
+					userHasPrivilege($session['role'], 'can_edit_login_rules') ? $rs_login->editRule() : redirect(ADMIN_URI.'?page=rules');
+					break;
+				case 'delete':
+					// Delete an existing login rule
+					userHasPrivilege($session['role'], 'can_delete_login_rules') ? $rs_login->deleteRule() : redirect(ADMIN_URI.'?page=rules');
+					break;
+				default:
+					// List all login rules
+					userHasPrivilege($session['role'], 'can_view_login_rules') ? $rs_login->loginRules() : redirect(ADMIN_URI);
+			}
 			break;
 		default:
 			switch($action) {
