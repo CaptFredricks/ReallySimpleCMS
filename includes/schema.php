@@ -16,7 +16,10 @@ function dbSchema() {
 		upvotes bigint(20) NOT NULL default '0',
 		downvotes bigint(20) NOT NULL default '0',
 		status varchar(20) NOT NULL default 'unapproved',
-		parent bigint(20) unsigned NOT NULL default '0'
+		parent bigint(20) unsigned NOT NULL default '0',
+		KEY post (post),
+		KEY author (author),
+		KEY parent (parent)
 	);";
 	
 	// Login_attempts table

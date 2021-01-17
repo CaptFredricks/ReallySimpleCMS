@@ -6,6 +6,46 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.2.0[b] (2021-01-16)
+
+### Dedicated to my grandmother, "Nam" (1940 - 2021)
+
+- For a full list of changes, see: `changelog-beta-snapshots.md`
+- Added the `actionLink` function to numerous admin classes
+- Added the `ADMIN_URI` constant to numerous admin classes
+- Tweaked documentation in numerous admin classes
+- Created a function that displays information for each admin page about their purpose
+- Fixed a bug with the themes admin menu link
+- Added indexes to the `comments` table's schema (backwards compatible)
+- Added a "select all" checkbox to the "Create User Roles" and "Edit User Roles" forms
+- Created a function that drops a single table from the database
+- Created a function that drops multiple tables from the database
+- Replaced all instances of the `DROP TABLE` statement with the new functions
+
+**Modified files:**
+- admin/includes/class-category.php (M)
+- admin/includes/class-comment.php
+- admin/includes/class-login.php (M)
+- admin/includes/class-media.php
+- admin/includes/class-menu.php
+- admin/includes/class-post.php
+- admin/includes/class-profile.php
+- admin/includes/class-settings.php (M)
+- admin/includes/class-term.php
+- admin/includes/class-theme.php
+- admin/includes/class-user-role.php
+- admin/includes/class-user.php
+- admin/includes/class-widget.php
+- admin/includes/css/style.css
+- admin/includes/css/style.min.css
+- admin/includes/functions.php
+- admin/includes/js/script.js
+- includes/class-query.php
+- includes/globals.php
+- includes/schema.php (M)
+- includes/update.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.1.7[b] (2020-12-03)
 
 - Canonical links for the home page no longer include the page's slug and point to the actual home URL

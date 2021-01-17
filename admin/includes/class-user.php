@@ -103,14 +103,16 @@ class User {
 		<div class="heading-wrap">
 			<h1>Users</h1>
 			<?php
-			// Check whether the user has sufficient privileges to create users
-			if(userHasPrivilege($session['role'], 'can_create_users')) {
-				?>
-				<a class="button" href="?action=create">Create New</a>
-				<?php
-			}
+			// Check whether the user has sufficient privileges to create users and create an action link if so
+			if(userHasPrivilege($session['role'], 'can_create_users'))
+				echo actionLink('create', array('classes'=>'button', 'caption'=>'Create New'));
 			
-			// Display any status messages
+			// Display the page's info
+			adminInfo();
+			?>
+			<hr>
+			<?php
+			// Check whether any status messages have been returned and display them if so
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
 				echo statusMessage('The user was successfully deleted.', true);
 			
@@ -149,8 +151,8 @@ class User {
 					
 					// Set up the action links
 					$actions = array(
-						userHasPrivilege($session['role'], 'can_edit_users') || $user['id'] === $session['id'] ? ($user['id'] === $session['id'] ? '<a href="profile.php">Edit</a>' : '<a href="?id='.$user['id'].'&action=edit">Edit</a>') : '',
-						userHasPrivilege($session['role'], 'can_delete_users') && $user['id'] !== $session['id'] ? ($this->userHasContent($user['id']) ? '<a href="?id='.$user['id'].'&action=reassign_content">Delete</a>' : '<a class="modal-launch delete-item" href="?id='.$user['id'].'&action=delete" data-item="user">Delete</a>') : ''
+						userHasPrivilege($session['role'], 'can_edit_users') || $user['id'] === $session['id'] ? ($user['id'] === $session['id'] ? '<a href="'.ADMIN.'/profile.php">Edit</a>' : actionLink('edit', array('caption'=>'Edit', 'id'=>$user['id']))) : null,
+						userHasPrivilege($session['role'], 'can_delete_users') && $user['id'] !== $session['id'] ? ($this->userHasContent($user['id']) ? actionLink('reassign_content', array('caption'=>'Delete', 'id'=>$user['id'])) : actionLink('delete', array('classes'=>'modal-launch delete-item', 'data_item'=>'user', 'caption'=>'Delete', 'id'=>$user['id']))) : null
 					);
 					
 					// Filter out any empty actions
@@ -182,7 +184,7 @@ class User {
 	}
 	
 	/**
-	 * Construct the 'Create User' form.
+	 * Create a user.
 	 * @since 1.1.2[a]
 	 *
 	 * @access public
@@ -219,7 +221,7 @@ class User {
 	}
 	
 	/**
-	 * Construct the 'Edit User' form.
+	 * Edit a user.
 	 * @since 1.2.1[a]
 	 *
 	 * @access public
@@ -231,8 +233,8 @@ class User {
 		
 		// Check whether the user's id is valid
 		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the 'List Users' page
-			redirect('users.php');
+			// Redirect to the "List Users" page
+			redirect(ADMIN_URI);
 		} else {
 			// Check whether the user is viewing their own page
 			if($this->id === $session['id']) {
@@ -245,11 +247,9 @@ class User {
 				// Fetch the user's metadata from the database
 				$meta = $this->getUserMeta($this->id);
 				
-				// Check whether the user has an avatar
-				if(!empty($meta['avatar'])) {
-					// Fetch the avatar's dimensions
+				// Check whether the user has an avatar and fetch its dimensions if so
+				if(!empty($meta['avatar']))
 					list($width, $height) = getimagesize(PATH.getMediaSrc($meta['avatar']));
-				}
 				?>
 				<div class="heading-wrap">
 					<h1>Edit User</h1>
@@ -270,7 +270,7 @@ class User {
 							?>
 						</table>
 					</form>
-					<a class="reset-password button" href="?id=<?php echo $this->id; ?>&action=reset_password">Reset Password</a>
+					<?php echo actionLink('reset_password', array('classes'=>'reset-password button', 'caption'=>'Reset Password', 'id'=>$this->id)); ?>
 				</div>
 				<?php
 				// Include the upload modal
@@ -280,7 +280,7 @@ class User {
 	}
 	
 	/**
-	 * Delete a user from the database.
+	 * Delete a user.
 	 * @since 1.2.3[a]
 	 *
 	 * @access public
@@ -292,8 +292,8 @@ class User {
 		
 		// Check whether the user's id is valid
 		if(empty($this->id) || $this->id <= 0 || $this->id === $session['id']) {
-			// Redirect to the 'List Users' page
-			redirect('users.php');
+			// Redirect to the "List Users" page
+			redirect(ADMIN_URI);
 		} else {
 			// Delete the user from the database
 			$rs_query->delete('users', array('id'=>$this->id));
@@ -301,8 +301,8 @@ class User {
 			// Delete the user's metadata from the database
 			$rs_query->delete('usermeta', array('user'=>$this->id));
 			
-			// Redirect to the 'List Users' page (with a success message)
-			redirect('users.php?exit_status=success');
+			// Redirect to the "List Users" page with an appropriate exit status
+			redirect(ADMIN_URI.'?exit_status=success');
 		}
 	}
 	
@@ -364,8 +364,8 @@ class User {
 			foreach($usermeta as $key=>$value)
 				$rs_query->insert('usermeta', array('user'=>$insert_id, '_key'=>$key, 'value'=>$value));
 			
-			// Redirect to the 'Edit User' page
-			redirect('users.php?id='.$insert_id.'&action=edit');
+			// Redirect to the appropriate "Edit User" page
+			redirect(ADMIN_URI.'?id='.$insert_id.'&action=edit');
 		} else {
 			// Update the user in the database
 			$rs_query->update('users', array('username'=>$data['username'], 'email'=>$data['email'], 'role'=>$data['role']), array('id'=>$id));
@@ -378,7 +378,7 @@ class User {
 			foreach($data as $key=>$value) $this->$key = $value;
 			
 			// Return a status message
-			return statusMessage('User updated! <a href="users.php">Return to list</a>?', true);
+			return statusMessage('User updated! <a href="'.ADMIN_URI.'">Return to list</a>?', true);
 		}
 	}
 	
@@ -528,8 +528,8 @@ class User {
 	public function resetPassword() {
 		// Check whether the user's id is valid
 		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the 'List Users' page
-			redirect('users.php');
+			// Redirect to the "List Users" page
+			redirect(ADMIN_URI);
 		} else {
 			// Validate the form data and return any messages
 			$message = isset($_POST['submit']) ? $this->validatePasswordData($_POST, $this->id) : '';
@@ -608,7 +608,7 @@ class User {
 		}
 		
 		// Return a status message
-		return statusMessage('Password updated! Return to <a href="users.php">Return to list</a>?', true);
+		return statusMessage('Password updated! Return to <a href="'.ADMIN_URI.'">Return to list</a>?', true);
 	}
 	
 	/**
@@ -644,8 +644,8 @@ class User {
 		
 		// Check whether the user's id is valid
 		if(empty($this->id) || $this->id <= 0 || $this->id === $session['id']) {
-			// Redirect to the 'List Users' page
-			redirect('users.php');
+			// Redirect to the "List Users" page
+			redirect(ADMIN_URI);
 		} else {
 			// Validate the form data
 			if(isset($_POST['submit'])) $this->validateReassignContentData($_POST, $this->id);
@@ -690,8 +690,8 @@ class User {
 		// Delete the user's metadata from the database
 		$rs_query->delete('usermeta', array('user'=>$id));
 		
-		// Redirect to the 'List Users' page (with a success message)
-		redirect('users.php?exit_status=success');
+		// Redirect to the "List Users" page with an appropriate exit status
+		redirect(ADMIN_URI.'?exit_status=success');
 	}
 	
 	/**

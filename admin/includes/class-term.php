@@ -113,14 +113,19 @@ class Term {
 		<div class="heading-wrap">
 			<h1><?php echo $this->taxonomy_data['label']; ?></h1>
 			<?php
-			// Check whether the user has sufficient privileges to create terms of the current taxonomy
+			// Check whether the user has sufficient privileges to create terms of the current taxonomy and create an action link if so
 			if(userHasPrivilege($session['role'], 'can_create_'.str_replace(' ', '_', $this->taxonomy_data['labels']['name_lowercase']))) {
 				?>
 				<a class="button" href="<?php echo $this->taxonomy_data['menu_link'].($this->taxonomy_data['name'] === 'category' ? '?' : '&'); ?>action=create">Create New</a>
 				<?php
 			}
 			
-			// Display any status messages
+			// Display the page's info
+			adminInfo();
+			?>
+			<hr>
+			<?php
+			// Check whether any status messages have been returned and display them if so
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
 				echo statusMessage('The '.strtolower($this->taxonomy_data['labels']['name_singular']).' was successfully deleted.', true);
 			
@@ -159,8 +164,8 @@ class Term {
 					
 					// Set up the action links
 					$actions = array(
-						userHasPrivilege($session['role'], 'can_edit_'.$tax_name) ? '<a href="?id='.$term['id'].'&action=edit">Edit</a>' : '',
-						userHasPrivilege($session['role'], 'can_delete_'.$tax_name) ? '<a class="modal-launch delete-item" href="?id='.$term['id'].'&action=delete" data-item="'.strtolower($this->taxonomy_data['labels']['name_singular']).'">Delete</a>' : '',
+						userHasPrivilege($session['role'], 'can_edit_'.$tax_name) ? actionLink('edit', array('caption'=>'Edit', 'id'=>$term['id'])) : null,
+						userHasPrivilege($session['role'], 'can_delete_'.$tax_name) ? actionLink('delete', array('classes'=>'modal-launch delete-item', 'data_item'=>strtolower($this->taxonomy_data['labels']['name_singular']), 'caption'=>'Delete', 'id'=>$term['id'])) : null,
 						'<a href="'.getPermalink($this->taxonomy_data['name'], $term['parent'], $term['slug']).'">View</a>'
 					);
 					
@@ -190,7 +195,7 @@ class Term {
 	}
 	
 	/**
-	 * Construct the 'Create Term' form.
+	 * Create a term.
 	 * @since 1.0.5[b]
 	 *
 	 * @access public
@@ -221,7 +226,7 @@ class Term {
 	}
 	
 	/**
-	 * Construct the 'Edit Term' form.
+	 * Edit a term.
 	 * @since 1.0.5[b]
 	 *
 	 * @access public
@@ -233,18 +238,18 @@ class Term {
 		
 		// Check whether the term's id is valid
 		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the 'List Categories' page
+			// Redirect to the "List Categories" page
 			redirect('categories.php');
 		} else {
 			// Check whether the term's taxonomy is valid
 			if(empty($this->taxonomy)) {
-				// Redirect to the 'List Categories' page
+				// Redirect to the "List Categories" page
 				redirect('categories.php');
 			} elseif($this->getTaxonomy($this->taxonomy) === 'category' && $this->taxonomy_data['menu_link'] !== 'categories.php') {
-				// Redirect to the appropriate 'Edit Category' form
+				// Redirect to the appropriate "Edit Category" form
 				redirect('categories.php?id='.$this->id.'&action=edit');
 			} elseif($this->getTaxonomy($this->taxonomy) === 'nav_menu') {
-				// Redirect to the appropriate 'Edit Menu' form
+				// Redirect to the appropriate "Edit Menu" form
 				redirect('menus.php?id='.$this->id.'&action=edit');
 			} else {
 				// Validate the form data and return any messages
@@ -273,7 +278,7 @@ class Term {
 	}
 	
 	/**
-	 * Delete a term from the database.
+	 * Delete a term.
 	 * @since 1.0.5[b]
 	 *
 	 * @access public
@@ -285,7 +290,7 @@ class Term {
 		
 		// Check whether the term's id is valid
 		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the 'List Categories' page
+			// Redirect to the "List Categories" page
 			redirect('categories.php');
 		} else {
 			// Delete the category from the database
@@ -294,7 +299,7 @@ class Term {
 			// Delete the term relationship(s) from the database
 			$rs_query->delete('term_relationships', array('term'=>$this->id));
 			
-			// Redirect to the 'List Terms' page (with a success message)
+			// Redirect to the "List Terms" page with an appropriate exit status
 			redirect($this->taxonomy_data['menu_link'].'?exit_status=success');
 		}
 	}
@@ -327,14 +332,8 @@ class Term {
 			// Insert the new term into the database
 			$insert_id = $rs_query->insert('terms', array('name'=>$data['name'], 'slug'=>$slug, 'taxonomy'=>getTaxonomyId($this->taxonomy_data['name']), 'parent'=>$data['parent']));
 			
-			// Check whether the term is in the category taxonomy
-			if($this->taxonomy_data['name'] === 'category') {
-				// Redirect to the 'Edit Category' page
-				redirect('categories.php?id='.$insert_id.'&action=edit');
-			} else {
-				// Redirect to the 'Edit Term' page
-				redirect('terms.php?id='.$insert_id.'&action=edit');
-			}
+			// Redirect to the appropriate "Edit Term" page
+			redirect(ADMIN_URI.'?id='.$insert_id.'&action=edit');
 		} else {
 			// Update the category in the database
 			$rs_query->update('terms', array('name'=>$data['name'], 'slug'=>$slug, 'parent'=>$data['parent']), array('id'=>$id));

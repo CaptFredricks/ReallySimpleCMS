@@ -64,14 +64,16 @@ class Menu extends Term {
 		<div class="heading-wrap">
 			<h1>Menus</h1>
 			<?php
-			// Check whether the user has sufficient privileges to create menus
-			if(userHasPrivilege($session['role'], 'can_create_menus')) {
-				?>
-				<a class="button" href="?action=create">Create New</a>
-				<?php
-			}
+			// Check whether the user has sufficient privileges to create menus and create an action link if so
+			if(userHasPrivilege($session['role'], 'can_create_menus'))
+				echo actionLink('create', array('classes'=>'button', 'caption'=>'Create New'));
 			
-			// Display any status messages
+			// Display the page's info
+			adminInfo();
+			?>
+			<hr>
+			<?php
+			// Check whether any status messages have been returned and display them if so
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
 				echo statusMessage('The menu was successfully deleted.', true);
 			
@@ -107,8 +109,8 @@ class Menu extends Term {
 				foreach($menus as $menu) {
 					// Set up the action links
 					$actions = array(
-						userHasPrivilege($session['role'], 'can_edit_menus') ? '<a href="?id='.$menu['id'].'&action=edit">Edit</a>' : '',
-						userHasPrivilege($session['role'], 'can_delete_menus') ? '<a class="modal-launch delete-item" href="?id='.$menu['id'].'&action=delete" data-item="menu">Delete</a>' : ''
+						userHasPrivilege($session['role'], 'can_edit_menus') ? actionLink('edit', array('caption'=>'Edit', 'id'=>$menu['id'])) : null,
+						userHasPrivilege($session['role'], 'can_delete_menus') ? actionLink('delete', array('classes'=>'modal-launch delete-item', 'data_item'=>'menu', 'caption'=>'Delete', 'id'=>$menu['id'])) : null
 					);
 					
 					// Filter out any empty actions
@@ -135,7 +137,7 @@ class Menu extends Term {
 	}
 	
 	/**
-	 * Construct the 'Create Menu' form.
+	 * Create a menu.
 	 * @since 1.8.0[a]
 	 *
 	 * @access public
@@ -189,7 +191,7 @@ class Menu extends Term {
 	}
 	
 	/**
-	 * Construct the 'Edit Menu' form.
+	 * Edit a menu.
 	 * @since 1.8.0[a]
 	 *
 	 * @access public
@@ -201,8 +203,8 @@ class Menu extends Term {
 		
 		// Check whether the menu's id is valid
 		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the 'List Menus' page
-			redirect('menus.php');
+			// Redirect to the "List Menus" page
+			redirect(ADMIN_URI);
 		} else {
 			// Check whether the menu item's id is set
 			if(isset($_GET['item_id'])) {
@@ -211,17 +213,15 @@ class Menu extends Term {
 				
 				// Check whether the menu item's id is valid
 				if(empty($item_id) || $item_id <= 0) {
-					// Redirect to the 'Edit Menu' page
-					redirect('menus.php?id='.$this->id.'&action=edit');
+					// Redirect to the "Edit Menu" page
+					redirect(ADMIN_URI.'?id='.$this->id.'&action=edit');
 				} else {
 					// Fetch the number of times the menu item appears in the database
 					$count = $rs_query->selectRow('posts', 'COUNT(*)', array('id'=>$item_id, 'type'=>'nav_menu_item'));
 					
-					// Check whether the count is zero
-					if($count === 0) {
-						// Redirect to the 'Edit Menu' page
-						redirect('menus.php?id='.$this->id.'&action=edit');
-					}
+					// Check whether the count is zero and redirect to the "Edit Menu" page if so
+					if($count === 0)
+						redirect(ADMIN_URI.'?id='.$this->id.'&action=edit');
 				}
 			}
 			
@@ -273,7 +273,7 @@ class Menu extends Term {
 	}
 	
 	/**
-	 * Delete a menu from the database.
+	 * Delete a menu.
 	 * @since 1.8.1[a]
 	 *
 	 * @access public
@@ -285,8 +285,8 @@ class Menu extends Term {
 		
 		// Check whether the menu's id is valid
 		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the 'List Menus' page
-			redirect('menus.php');
+			// Redirect to the "List Menus" page
+			redirect(ADMIN_URI);
 		} else {
 			// Delete the menu from the database
 			$rs_query->delete('terms', array('id'=>$this->id, 'taxonomy'=>getTaxonomyId('nav_menu')));
@@ -307,8 +307,8 @@ class Menu extends Term {
 			}
 		}
 		
-		// Redirect to the 'List Menus' page (with a success status)
-		redirect('menus.php?exit_status=success');
+		// Redirect to the "List Menus" page with an appropriate exit status
+		redirect(ADMIN_URI.'?exit_status=success');
 	}
 	
 	/**
@@ -392,8 +392,8 @@ class Menu extends Term {
 				$rs_query->update('terms', array('count'=>($count + 1)), array('id'=>$menu_id));
 			}
 			
-			// Redirect to the 'Edit Menu' page
-			redirect('menus.php?id='.$menu_id.'&action=edit');
+			// Redirect to the appropriate "Edit Menu" page
+			redirect(ADMIN_URI.'?id='.$menu_id.'&action=edit');
 		} else {
 			// Update the menu in the database
 			$rs_query->update('terms', array('name'=>$data['name'], 'slug'=>$data['slug']), array('id'=>$id));
@@ -461,7 +461,7 @@ class Menu extends Term {
 			foreach($data as $key=>$value) $this->$key = $value;
 			
 			// Return a status message
-			return statusMessage('Menu updated! <a href="menus.php">Return to list</a>?', true);
+			return statusMessage('Menu updated! <a href="'.ADMIN_URI.'">Return to list</a>?', true);
 		}
 	}
 	
@@ -556,19 +556,19 @@ class Menu extends Term {
 									// Move the menu item up one position
 									$this->moveUpMenuItem($menu_item['id'], $id);
 									?>
-									<meta http-equiv="refresh" content="0; url='?id=<?php echo $id; ?>&action=edit'">
+									<meta http-equiv="refresh" content="0; url='<?php echo ADMIN_URI; ?>?id=<?php echo $id; ?>&action=edit'">
 									<?php
 									break;
 								case 'move_down':
 									// Move the menu item down one position
 									$this->moveDownMenuItem($menu_item['id'], $id);
 									?>
-									<meta http-equiv="refresh" content="0; url='?id=<?php echo $id; ?>&action=edit'">
+									<meta http-equiv="refresh" content="0; url='<?php echo ADMIN_URI; ?>?id=<?php echo $id; ?>&action=edit'">
 									<?php
 									break;
 								case 'edit':
 									?>
-									<div class="actions"><a href="?id=<?php echo $id; ?>&action=edit">Cancel</a></div>
+									<div class="actions"><a href="<?php echo ADMIN_URI; ?>?id=<?php echo $id; ?>&action=edit">Cancel</a></div>
 									<?php
 									// Display the edit menu item form if the 'edit' action link has been clicked
 									$this->editMenuItem($menu_item['id']);
@@ -577,7 +577,7 @@ class Menu extends Term {
 									// Call the deleteMenuItem function if the 'delete' action link has been clicked
 									$this->deleteMenuItem($menu_item['id'], $id);
 									?>
-									<meta http-equiv="refresh" content="0; url='?id=<?php echo $id; ?>&action=edit'">
+									<meta http-equiv="refresh" content="0; url='<?php echo ADMIN_URI; ?>?id=<?php echo $id; ?>&action=edit'">
 									<?php
 									break;
 							}
@@ -585,7 +585,7 @@ class Menu extends Term {
 					} else {
 						?>
 						<div class="actions">
-							<a href="?id=<?php echo $id; ?>&action=edit&item_id=<?php echo $menu_item['id']; ?>&item_action=move_up">&uarr;</a> &bull; <a href="?id=<?php echo $id; ?>&action=edit&item_id=<?php echo $menu_item['id']; ?>&item_action=move_down">&darr;</a> &bull; <a href="?id=<?php echo $id; ?>&action=edit&item_id=<?php echo $menu_item['id']; ?>&item_action=edit">Edit</a>
+							<a href="<?php echo ADMIN_URI; ?>?id=<?php echo $id; ?>&action=edit&item_id=<?php echo $menu_item['id']; ?>&item_action=move_up">&uarr;</a> &bull; <a href="<?php echo ADMIN_URI; ?>?id=<?php echo $id; ?>&action=edit&item_id=<?php echo $menu_item['id']; ?>&item_action=move_down">&darr;</a> &bull; <a href="<?php echo ADMIN_URI; ?>?id=<?php echo $id; ?>&action=edit&item_id=<?php echo $menu_item['id']; ?>&item_action=edit">Edit</a>
 						</div>
 						<?php
 					}
@@ -799,7 +799,7 @@ class Menu extends Term {
 	}
 	
 	/**
-	 * Insert a new menu item into the database.
+	 * Create a menu item.
 	 * @since 2.3.2[a]
 	 *
 	 * @access private
@@ -841,7 +841,7 @@ class Menu extends Term {
 	}
 	
 	/**
-	 * Construct the 'Edit Menu Item' form.
+	 * Edit a menu item.
 	 * @since 1.8.1[a]
 	 *
 	 * @access private
@@ -889,7 +889,7 @@ class Menu extends Term {
 				
 				echo formRow('Parent', array('tag'=>'select', 'class'=>'select-input', 'name'=>'parent', 'content'=>'<option value="0">(none)</option>'.$this->getParentList($menu_item['parent'], $menu_item['id'])));
 				echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-				echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'item_submit', 'value'=>'Update'), array('tag'=>'div', 'class'=>'actions', 'content'=>formTag('a', array('class'=>'button', 'href'=>'?id='.$_GET['id'].'&action=edit&item_id='.$menu_item['id'].'&item_action=delete', 'content'=>'Delete'))));
+				echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'item_submit', 'value'=>'Update'), array('tag'=>'div', 'class'=>'actions', 'content'=>formTag('a', array('class'=>'button', 'href'=>ADMIN_URI.'?id='.$_GET['id'].'&action=edit&item_id='.$menu_item['id'].'&item_action=delete', 'content'=>'Delete'))));
 				?>
 			</table>
 		</form>
@@ -897,7 +897,7 @@ class Menu extends Term {
 	}
 	
 	/**
-	 * Delete a menu item from the database.
+	 * Delete a menu item.
 	 * @since 1.8.1[a]
 	 *
 	 * @access public

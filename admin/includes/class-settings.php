@@ -75,17 +75,13 @@ class Settings {
 		foreach($db_settings as $db_setting)
 			$setting[$db_setting['name']] = $db_setting['value'];
 		
-		// Check whether the site logo has been set
-		if(!empty($setting['site_logo'])) {
-			// Fetch the logo's dimensions
+		// Check whether the site logo has been set and fetch its dimensions if so
+		if(!empty($setting['site_logo']))
 			list($logo_width, $logo_height) = getimagesize(PATH.getMediaSrc($setting['site_logo']));
-		}
 		
-		// Check whether the site icon has been set
-		if(!empty($setting['site_icon'])) {
-			// Fetch the icon's dimensions
+		// Check whether the site icon has been set and fetch its dimensions if so
+		if(!empty($setting['site_icon']))
 			list($icon_width, $icon_height) = getimagesize(PATH.getMediaSrc($setting['site_icon']));
-		}
 		?>
 		<div class="heading-wrap">
 			<h1>Design Settings</h1>

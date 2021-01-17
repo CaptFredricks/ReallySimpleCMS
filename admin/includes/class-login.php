@@ -179,6 +179,8 @@ class Login {
 		?>
 		<div class="heading-wrap">
 			<h1>Login Attempts</h1>
+			<?php adminInfo(); ?>
+			<hr>
 			<?php
 			// Check whether any status messages have been returned
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success' && isset($_GET['blacklist'])) {
@@ -353,6 +355,11 @@ class Login {
 			if(userHasPrivilege($session['role'], 'can_create_login_blacklist'))
 				echo actionLink('create', array('classes'=>'button', 'caption'=>'Create New', 'page'=>'blacklist'));
 			
+			// Display the page's info
+			adminInfo();
+			?>
+			<hr>
+			<?php
 			// Check whether any status messages have been returned and display them if so
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
 				echo statusMessage('The login or IP address was successfully whitelisted.', true);
@@ -661,10 +668,15 @@ class Login {
 		<div class="heading-wrap">
 			<h1>Login Rules</h1>
 			<?php
-			// Check whether the user has sufficient privileges to create a login rule and create an action link if so
+			// Check whether the user has sufficient privileges to create login rules and create an action link if so
 			if(userHasPrivilege($session['role'], 'can_create_login_rules'))
 				echo actionLink('create', array('classes'=>'button', 'caption'=>'Create New', 'page'=>'rules'));
 			
+			// Display the page's info
+			adminInfo();
+			?>
+			<hr>
+			<?php
 			// Check whether any status messages have been returned and display them if so
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
 				echo statusMessage('The rule was successfully deleted.', true);

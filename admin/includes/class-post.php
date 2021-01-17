@@ -170,16 +170,19 @@ class Post {
 		<div class="heading-wrap">
 			<h1><?php echo $this->type_data['label']; ?></h1>
 			<?php
-			// Check whether the user has sufficient privileges to create posts of the current type
+			// Check whether the user has sufficient privileges to create posts of the current type and create an action link if so
 			if(userHasPrivilege($session['role'], 'can_create_'.str_replace(' ', '_', $this->type_data['labels']['name_lowercase']))) {
 				?>
 				<a class="button" href="?<?php echo $type === 'post' ? '' : 'type='.$type.'&'; ?>action=create">Create New</a>
 				<?php
 			}
+			
+			// Display the page's info
+			adminInfo();
 			?>
 			<hr>
 			<?php
-			// Display any status messages
+			// Check whether any status messages have been returned and display them if so
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
 				echo statusMessage('The '.strtolower($this->type_data['labels']['name_singular']).' was successfully deleted.', true);
 			?>
@@ -269,9 +272,9 @@ class Post {
 					
 					// Set up the action links
 					$actions = array(
-						userHasPrivilege($session['role'], 'can_edit_'.$type_name) && $status !== 'trash' ? '<a href="?id='.$post['id'].'&action=edit">Edit</a>' : '',
-						userHasPrivilege($session['role'], 'can_edit_'.$type_name) ? ($status === 'trash' ? '<a href="?id='.$post['id'].'&action=restore">Restore</a>' : '<a href="?id='.$post['id'].'&action=trash">Trash</a>') : '',
-						$status === 'trash' ? (userHasPrivilege($session['role'], 'can_delete_'.$type_name) ? '<a class="modal-launch delete-item" href="?id='.$post['id'].'&action=delete" data-item="'.strtolower($this->type_data['labels']['name_singular']).'">Delete</a>' : '') : '<a href="'.($post['status'] === 'published' ? (isHomePage($post['id']) ? '/' : getPermalink($post['type'], $post['parent'], $post['slug'])).'">View' : ('/?id='.$post['id'].'&preview=true').'">Preview').'</a>'
+						userHasPrivilege($session['role'], 'can_edit_'.$type_name) && $status !== 'trash' ? actionLink('edit', array('caption'=>'Edit', 'id'=>$post['id'])) : null,
+						userHasPrivilege($session['role'], 'can_edit_'.$type_name) ? ($status === 'trash' ? actionLink('restore', array('caption'=>'Restore', 'id'=>$post['id'])) : actionLink('trash', array('caption'=>'Trash', 'id'=>$post['id']))) : null,
+						$status === 'trash' ? (userHasPrivilege($session['role'], 'can_delete_'.$type_name) ? actionLink('delete', array('classes'=>'modal-launch delete-item', 'data_item'=>strtolower($this->type_data['labels']['name_singular']), 'caption'=>'Delete', 'id'=>$post['id'])) : null) : '<a href="'.($post['status'] === 'published' ? (isHomePage($post['id']) ? '/' : getPermalink($post['type'], $post['parent'], $post['slug'])).'">View' : ('/?id='.$post['id'].'&preview=true').'">Preview').'</a>'
 					);
 					
 					// Filter out any empty actions
@@ -304,7 +307,7 @@ class Post {
 	}
 	
 	/**
-	 * Construct the 'Create Post' form.
+	 * Create a post.
 	 * @since 1.4.1[a]
 	 *
 	 * @access public
@@ -485,7 +488,7 @@ class Post {
 	}
 	
 	/**
-	 * Construct the 'Edit Post' form.
+	 * Edit a post.
 	 * @since 1.4.9[a]
 	 *
 	 * @access public
@@ -497,24 +500,24 @@ class Post {
 		
 		// Check whether the post's id is valid
 		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the 'List Posts' page
-			redirect('posts.php');
+			// Redirect to the "List Posts" page
+			redirect(ADMIN_URI);
 		} else {
 			// Check whether the post's type is valid
 			if(empty($this->type)) {
-				// Redirect to the 'List Posts' page
-				redirect('posts.php');
+				// Redirect to the "List Posts" page
+				redirect(ADMIN_URI);
 			} elseif($this->type === 'media') {
-				// Redirect to the appropriate 'Edit Media' form
+				// Redirect to the appropriate "Edit Media" form
 				redirect('media.php?id='.$this->id.'&action=edit');
 			} elseif($this->type === 'widget') {
-				// Redirect to the appropriate 'Edit Widget' form
+				// Redirect to the appropriate "Edit Widget" form
 				redirect('widgets.php?id='.$this->id.'&action=edit');
 			} else {
 				// Check whether the post is in the trash
 				if($this->isTrash($this->id)) {
-					// Redirect to the 'List Posts' trash page
-					redirect('posts.php'.($this->type !== 'post' ? '?type='.$this->type.'&' : '?').'status=trash');
+					// Redirect to the "List Posts" trash page
+					redirect(ADMIN_URI.($this->type !== 'post' ? '?type='.$this->type.'&' : '?').'status=trash');
 				} else {
 					// Validate the form data and return any messages
 					$message = isset($_POST['submit']) ? $this->validateData($_POST, $this->id) : '';
@@ -522,11 +525,9 @@ class Post {
 					// Fetch the post's metadata from the database
 					$meta = $this->getPostMeta($this->id);
 					
-					// Check whether the post has a featured image
-					if(!empty($meta['feat_image'])) {
-						// Fetch the avatar's dimensions
+					// Check whether the post has a featured image and fetch its dimensions if so
+					if(!empty($meta['feat_image']))
 						list($width, $height) = getimagesize(PATH.getMediaSrc($meta['feat_image']));
-					}
 					?>
 					<div class="heading-wrap">
 						<h1><?php echo $this->type_data['labels']['edit_item']; ?></h1>
@@ -708,13 +709,13 @@ class Post {
 		
 		// Check whether the post's id is valid
 		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the 'List Posts' page
-			redirect('posts.php');
+			// Redirect to the "List Posts" page
+			redirect(ADMIN_URI);
 		} else {
 			// Set the post's status to 'trash'
 			$rs_query->update('posts', array('status'=>'trash'), array('id'=>$this->id));
 			
-			// Redirect to the 'List Posts' page
+			// Redirect to the "List Posts" page
 			redirect($this->type_data['menu_link']);
 		}
 	}
@@ -732,19 +733,19 @@ class Post {
 		
 		// Check whether the post's id is valid
 		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the 'List Posts' page
-			redirect('posts.php');
+			// Redirect to the "List Posts" page
+			redirect(ADMIN_URI);
 		} else {
 			// Set the post's status to 'draft'
 			$rs_query->update('posts', array('status'=>'draft'), array('id'=>$this->id));
 			
-			// Redirect to the 'List Posts' trash page
+			// Redirect to the "List Posts" trash page
 			redirect($this->type_data['menu_link'].($this->type !== 'post' ? '&' : '?').'status=trash');
 		}
 	}
 	
 	/**
-	 * Delete a post from the database.
+	 * Delete a post.
 	 * @since 1.4.7[a]
 	 *
 	 * @access public
@@ -756,8 +757,8 @@ class Post {
 		
 		// Check whether the post's id is valid
 		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the 'List Posts' page
-			redirect('posts.php');
+			// Redirect to the "List Posts" page
+			redirect(ADMIN_URI);
 		} else {
 			// Delete the post from the database
 			$rs_query->delete('posts', array('id'=>$this->id));
@@ -792,7 +793,7 @@ class Post {
 				$rs_query->update('posts', array('status'=>'invalid'), array('id'=>$menu_item['post']));
 			}
 			
-			// Redirect to the 'List Posts' page (with a success status)
+			// Redirect to the "List Posts" page with an appropriate exit status
 			redirect($this->type_data['menu_link'].($this->type !== 'post' ? '&' : '?').'status=trash&exit_status=success');
 		}
 	}
@@ -875,8 +876,8 @@ class Post {
 				}
 			}
 			
-			// Redirect to the 'Edit Post' page
-			redirect('posts.php?id='.$insert_id.'&action=edit');
+			// Redirect to the appropriate "Edit Post" page
+			redirect(ADMIN_URI.'?id='.$insert_id.'&action=edit');
 		} else {
 			// Check whether a date has been provided and is valid
 			if(!empty($data['date'][0]) && !empty($data['date'][1]) && $data['date'][0] >= '1000-01-01') {
@@ -943,7 +944,7 @@ class Post {
 			foreach($data as $key=>$value) $this->$key = $value;
 			
 			// Return a status message
-			return statusMessage($this->type_data['labels']['name_singular'].' updated! <a href="posts.php'.($this->type === 'post' ? '' : '?type='.$this->type).'">Return to list</a>?', true);
+			return statusMessage($this->type_data['labels']['name_singular'].' updated! <a href="'.ADMIN_URI.($this->type === 'post' ? '' : '?type='.$this->type).'">Return to list</a>?', true);
 		}
 	}
 	

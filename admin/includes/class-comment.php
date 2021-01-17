@@ -87,9 +87,10 @@ class Comment {
 		?>
 		<div class="heading-wrap">
 			<h1>Comments</h1>
+			<?php adminInfo(); ?>
 			<hr>
 			<?php
-			// Display any status messages
+			// Check whether any status messages have been returned and display them if so
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
 				echo statusMessage('The comment was successfully deleted.', true);
 			?>
@@ -143,9 +144,9 @@ class Comment {
 				foreach($comments as $comment) {
 					// Set up the action links
 					$actions = array(
-						userHasPrivilege($session['role'], 'can_edit_comments') ? ($comment['status'] === 'approved' ? '<a href="?id='.$comment['id'].'&action=unapprove">Unapprove</a>' : '<a href="?id='.$comment['id'].'&action=approve">Approve</a>') : '',
-						userHasPrivilege($session['role'], 'can_edit_comments') ? '<a href="?id='.$comment['id'].'&action=edit">Edit</a>' : '',
-						userHasPrivilege($session['role'], 'can_delete_comments') ? '<a class="modal-launch delete-item" href="?id='.$comment['id'].'&action=delete" data-item="comment">Delete</a>' : '',
+						userHasPrivilege($session['role'], 'can_edit_comments') ? ($comment['status'] === 'approved' ? actionLink('unapprove', array('caption'=>'Unapprove', 'id'=>$comment['id'])) : actionLink('approve', array('caption'=>'Approve', 'id'=>$comment['id']))) : null,
+						userHasPrivilege($session['role'], 'can_edit_comments') ? actionLink('edit', array('caption'=>'Edit', 'id'=>$comment['id'])) : null,
+						userHasPrivilege($session['role'], 'can_delete_comments') ? actionLink('delete', array('classes'=>'modal-launch delete-item', 'data_item'=>'comment', 'caption'=>'Delete', 'id'=>$comment['id'])) : null,
 						'<a href="'.$this->getPostPermalink($comment['post']).'#comment-'.$comment['id'].'">View</a>'
 					);
 					
@@ -176,7 +177,7 @@ class Comment {
 	}
 	
 	/**
-	 * Construct the 'Edit Comment' form.
+	 * Edit a comment.
 	 * @since 1.1.0[b]{ss-02}
 	 *
 	 * @access public
@@ -188,8 +189,8 @@ class Comment {
 		
 		// Check whether the comment's id is valid
 		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the 'List Comments' page
-			redirect('comments.php');
+			// Redirect to the "List Comments" page
+			redirect(ADMIN_URI);
 		} else {
 			// Validate the form data and return any messages
 			$message = isset($_POST['submit']) ? $this->validateData($_POST, $this->id) : '';
@@ -227,8 +228,8 @@ class Comment {
 		
 		// Check whether the comment's id is valid
 		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the 'List Comments' page
-			redirect('comments.php');
+			// Redirect to the "List Comments" page
+			redirect(ADMIN_URI);
 		} else {
 			// Set the comment's status to 'approved'
 			$rs_query->update('comments', array('status'=>'approved'), array('id'=>$this->id));
@@ -239,8 +240,8 @@ class Comment {
 			// Update the post's comment count in the database
 			$rs_query->update('postmeta', array('value'=>$count), array('post'=>$this->post, '_key'=>'comment_count'));
 			
-			// Redirect to the 'List Comments' page
-			redirect('comments.php');
+			// Redirect to the "List Comments" page
+			redirect(ADMIN_URI);
 		}
 	}
 	
@@ -257,8 +258,8 @@ class Comment {
 		
 		// Check whether the comment's id is valid
 		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the 'List Comments' page
-			redirect('comments.php');
+			// Redirect to the "List Comments" page
+			redirect(ADMIN_URI);
 		} else {
 			// Set the comment's status to 'unapproved'
 			$rs_query->update('comments', array('status'=>'unapproved'), array('id'=>$this->id));
@@ -269,13 +270,13 @@ class Comment {
 			// Update the post's comment count in the database
 			$rs_query->update('postmeta', array('value'=>$count), array('post'=>$this->post, '_key'=>'comment_count'));
 			
-			// Redirect to the 'List Comments' page
-			redirect('comments.php');
+			// Redirect to the "List Comments" page
+			redirect(ADMIN_URI);
 		}
 	}
 	
 	/**
-	 * Delete a comment from the database.
+	 * Delete a comment.
 	 * @since 1.1.0[b]{ss-02}
 	 *
 	 * @access public
@@ -287,8 +288,8 @@ class Comment {
 		
 		// Check whether the comment's id is valid
 		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the 'List Comments' page
-			redirect('comments.php');
+			// Redirect to the "List Comments" page
+			redirect(ADMIN_URI);
 		} else {
 			// Delete the comment from the database
 			$rs_query->delete('comments', array('id'=>$this->id));
@@ -299,8 +300,8 @@ class Comment {
 			// Update the post's comment count in the database
 			$rs_query->update('postmeta', array('value'=>$count), array('post'=>$this->post, '_key'=>'comment_count'));
 			
-			// Redirect to the 'List Comments' page (with a success status)
-			redirect('comments.php?exit_status=success');
+			// Redirect to the "List Comments" page with an appropriate exit status
+			redirect(ADMIN_URI.'?exit_status=success');
 		}
 	}
 	
@@ -332,7 +333,7 @@ class Comment {
 		foreach($data as $key=>$value) $this->$key = $value;
 		
 		// Return a status message
-		return statusMessage('Comment updated! <a href="comments.php">Return to list</a>?', true);
+		return statusMessage('Comment updated! <a href="'.ADMIN_URI.'">Return to list</a>?', true);
 	}
 	
 	/**

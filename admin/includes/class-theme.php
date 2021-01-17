@@ -21,14 +21,16 @@ class Theme {
 		<div class="heading-wrap">
 			<h1>Themes</h1>
 			<?php
-			// Check whether the user has sufficient privileges to create themes
-			if(userHasPrivilege($session['role'], 'can_create_themes')) {
-				?>
-				<a class="button" href="?action=create">Create New</a>
-				<?php
-			}
+			// Check whether the user has sufficient privileges to create themes and create an action link if so
+			if(userHasPrivilege($session['role'], 'can_create_themes'))
+				echo actionLink('create', array('classes'=>'button', 'caption'=>'Create New'));
 			
-			// Display any status messages
+			// Display the page's info
+			adminInfo();
+			?>
+			<hr>
+			<?php
+			// Check whether any status messages have been returned and display them if so
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
 				echo statusMessage('The theme was successfully deleted.', true);
 			?>
@@ -51,8 +53,8 @@ class Theme {
 				
 				// Set up the action links
 				$actions = array(
-					userHasPrivilege($session['role'], 'can_edit_themes') ? '<a href="?name='.$theme.'&action=activate">Activate</a>' : '',
-					userHasPrivilege($session['role'], 'can_delete_themes') ? '<a class="modal-launch delete-item" href="?name='.$theme.'&action=delete" data-item="theme">Delete</a>' : ''
+					userHasPrivilege($session['role'], 'can_edit_themes') ? actionLink('activate', array('caption'=>'Activate', 'name'=>$theme)) : null,
+					userHasPrivilege($session['role'], 'can_delete_themes') ? actionLink('delete', array('classes'=>'modal-launch delete-item', 'data_item'=>'theme', 'caption'=>'Delete', 'name'=>$theme)) : null
 				);
 				
 				// Filter out any empty actions
@@ -85,7 +87,7 @@ class Theme {
 	}
 	
 	/**
-	 * Construct the 'Create Theme' form.
+	 * Create a theme.
 	 * @since 2.3.1[a]
 	 *
 	 * @access public
@@ -131,8 +133,8 @@ class Theme {
 			$rs_query->update('settings', array('value'=>$name), array('name'=>'theme'));
 		}
 		
-		// Redirect to the 'List Themes' page
-		redirect('themes.php');
+		// Redirect to the "List Themes" page
+		redirect(ADMIN_URI);
 	}
 	
 	/**
@@ -149,12 +151,12 @@ class Theme {
 			// Delete the theme's directory and all its contents
 			$this->recursiveDelete(trailingSlash(PATH.THEMES).$name);
 			
-			// Redirect to the 'List Themes' page (with a success status)
-			redirect('themes.php?exit_status=success');
+			// Redirect to the "List Themes" page with an appropriate exit status
+			redirect(ADMIN_URI.'?exit_status=success');
 		}
 		
-		// Redirect to the 'List Themes' page
-		redirect('themes.php');
+		// Redirect to the "List Themes" page
+		redirect(ADMIN_URI);
 	}
 	
 	/**
@@ -186,8 +188,8 @@ class Theme {
 		// Create an index.php file
 		file_put_contents($theme_path.'/index.php', array("<?php\r\n", '// Start building your new theme!'));
 		
-		// Redirect to the 'List Themes' page
-		redirect('themes.php');
+		// Redirect to the "List Themes" page
+		redirect(ADMIN_URI);
 	}
 	
 	/**

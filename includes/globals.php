@@ -152,7 +152,7 @@ function populateTable($table) {
 				// Check whether the table still exists
 				if($rs_query->tableExists($name)) {
 					// Delete the table
-					$rs_query->doQuery("DROP TABLE `".$name."`;");
+					$rs_query->dropTable($name);
 					
 					// Recreate the table
 					$rs_query->doQuery($schema[$name]);
@@ -186,7 +186,7 @@ function populateTable($table) {
 				// Check whether the table still exists
 				if($rs_query->tableExists($name)) {
 					// Delete the table
-					$rs_query->doQuery("DROP TABLE `".$name."`;");
+					$rs_query->dropTable($name);
 					
 					// Recreate the table
 					$rs_query->doQuery($schema[$name]);
@@ -209,7 +209,7 @@ function populateTable($table) {
 				// Check whether the table still exists
 				if($rs_query->tableExists($name)) {
 					// Delete the table
-					$rs_query->doQuery("DROP TABLE `".$name."`;");
+					$rs_query->dropTable($name);
 					
 					// Recreate the table
 					$rs_query->doQuery($schema[$name]);
@@ -230,7 +230,7 @@ function populateTable($table) {
 				// Check whether the table still exists
 				if($rs_query->tableExists($name)) {
 					// Delete the table
-					$rs_query->doQuery("DROP TABLE `".$name."`;");
+					$rs_query->dropTable($name);
 					
 					// Recreate the table
 					$rs_query->doQuery($schema[$name]);

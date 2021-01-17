@@ -100,7 +100,7 @@ function getCurrentPage() {
 				$action = substr($query_param, strpos($query_param, '=') + 1);
 				
 				// Create an array of pages to exclude
-				$exclude = array('menus', 'widgets');
+				$exclude = array('themes', 'menus', 'widgets');
 				
 				// Loop through the taxonomies array
 				foreach($taxonomies as $taxonomy) {
@@ -1187,6 +1187,83 @@ function loadMedia($image_only = false) {
 		<p style="margin: 1em;">The media library is empty!</p>
 		<?php
 	}
+}
+
+/**
+ * Display information about each admin page's function.
+ * @since 1.2.0[b]
+ *
+ */
+function adminInfo() {
+	?>
+	<div class="admin-info">
+		<span>
+			<?php
+			// Fetch the current page
+			$page = basename($_SERVER['PHP_SELF'], '.php');
+			
+			switch($page) {
+				case 'posts':
+					$type = substr($_SERVER['QUERY_STRING'], strpos($_SERVER['QUERY_STRING'], '=') + 1);
+					
+					switch($type) {
+						case 'page':
+							echo 'Pages are the basic building blocks of your website. They hold content such as text and images.';
+							break;
+						default:
+							if(empty($type))
+								echo 'Posts typically function as blog entries for your website.';
+							else
+								echo 'Custom post types can be used for a variety of purposes on your website.';
+					}
+					break;
+				case 'categories':
+					echo 'Categories are used to organize your blog posts to make it easier for readers to find a specific topic.';
+					break;
+				case 'media':
+					echo 'Media can be used in page or post content, as user avatars, and even as logos for your website.';
+					break;
+				case 'terms':
+					echo 'Taxonomies are used to organize your blog posts to make it easier for readers to find a specific topic.';
+					break;
+				case 'comments':
+					echo 'Comments appear below your blog posts. They allow readers to engage with your content.';
+					break;
+				case 'themes':
+					echo 'Themes allow you to customize the look of your website.';
+					break;
+				case 'menus':
+					echo 'Menus are used to present links to important pages on your website.';
+					break;
+				case 'widgets':
+					echo 'Widgets are helpful content blocks that can spruce up your web pages.';
+					break;
+				case 'users':
+					echo 'Users have specific permissions and can log in to the admin dashboard.';
+					break;
+				case 'logins':
+					$pagee = substr($_SERVER['QUERY_STRING'], strpos($_SERVER['QUERY_STRING'], '=') + 1);
+					
+					switch($pagee) {
+						case 'blacklist':
+							echo 'Logins and IP addresses can be blacklisted from being able to log in to your website.';
+							break;
+						case 'rules':
+							echo 'Login rules allow you to set thresholds for when a login or IP address should be blacklisted.';
+							break;
+						default:
+							echo 'Login attempts display all successful and failed logins to your website.';
+					}
+					break;
+				case 'settings':
+					echo 'User roles give users site-wide permissions and restrictions, and custom roles can also be made.';
+					break;
+			}
+			?>
+		</span>
+		<i class="fas fa-info-circle" title="Information"></i>
+	</div>
+	<?php
 }
 
 /**

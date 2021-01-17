@@ -49,13 +49,15 @@ class Media extends Post {
 		<div class="heading-wrap">
 			<h1>Media</h1>
 			<?php
-			// Check whether the user has sufficient privileges to upload media
-			if(userHasPrivilege($session['role'], 'can_upload_media')) {
-				?>
-				<a class="button" href="?action=upload">Upload New</a>
-				<?php
-			}
+			// Check whether the user has sufficient privileges to upload media and create an action link if so
+			if(userHasPrivilege($session['role'], 'can_upload_media'))
+				echo actionLink('upload', array('classes'=>'button', 'caption'=>'Upload New'));
 			
+			// Display the page's info
+			adminInfo();
+			?>
+			<hr>
+			<?php
 			// Check whether any status messages have been returned
 			if(isset($_GET['exit_status'])) {
 				// Choose an appropriate status message based upon the exit status
@@ -117,8 +119,8 @@ class Media extends Post {
 					
 					// Set up the action links
 					$actions = array(
-						userHasPrivilege($session['role'], 'can_edit_media') ? '<a href="?id='.$media['id'].'&action=edit">Edit</a>' : '',
-						userHasPrivilege($session['role'], 'can_delete_media') ? '<a class="modal-launch delete-item" href="?id='.$media['id'].'&action=delete" data-item="media">Delete</a>' : '',
+						userHasPrivilege($session['role'], 'can_edit_media') ? actionLink('edit', array('caption'=>'Edit', 'id'=>$media['id'])) : null,
+						userHasPrivilege($session['role'], 'can_delete_media') ? actionLink('delete', array('classes'=>'modal-launch delete-item', 'data_item'=>'media', 'caption'=>'Delete', 'id'=>$media['id'])) : null,
 						'<a href="'.trailingSlash(UPLOADS).$meta['filename'].'" target="_blank" rel="noreferrer noopener">View</a>'
 					);
 					
@@ -172,7 +174,7 @@ class Media extends Post {
 	}
 	
 	/**
-	 * Construct the 'Upload Media' form.
+	 * Upload some media.
 	 * @since 2.1.0[a]
 	 *
 	 * @access public
@@ -210,7 +212,7 @@ class Media extends Post {
 	}
 	
 	/**
-	 * Construct the 'Edit Media' form.
+	 * Edit some media.
 	 * @since 2.1.0[a]
 	 *
 	 * @access public
@@ -222,8 +224,8 @@ class Media extends Post {
 		
 		// Check whether the media's id is valid
 		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the 'List Media' page
-			redirect('media.php');
+			// Redirect to the "List Media" page
+			redirect(ADMIN_URI);
 		} else {
 			// Validate the form data and return any messages
 			$message = isset($_POST['submit']) ? $this->validateData($_POST, $this->id) : '';
@@ -254,7 +256,7 @@ class Media extends Post {
 	}
 	
 	/**
-	 * Delete media from the database.
+	 * Delete some media.
 	 * @since 2.1.6[a]
 	 *
 	 * @access public
@@ -279,9 +281,9 @@ class Media extends Post {
 		// Check whether the count is greater than zero
 		if($count > 0) $conflicts[] = 'posts';
 		
-		// Check whether there are any conflicts
+		// Check whether there are any conflicts and redirect to the "List Media" page with an appropriate exit status if so
 		if(!empty($conflicts))
-			redirect('media.php?exit_status=failure&conflicts='.implode(':', $conflicts));
+			redirect(ADMIN_URI.'?exit_status=failure&conflicts='.implode(':', $conflicts));
 		
 		// Fetch the filename from the database
 		$filename = $rs_query->selectField('postmeta', 'value', array('post'=>$this->id, '_key'=>'filename'));
@@ -302,8 +304,8 @@ class Media extends Post {
 				// Delete the media's metadata from the database
 				$rs_query->delete('postmeta', array('post'=>$this->id));
 				
-				// Redirect to the 'List Media' page (with a success message)
-				redirect('media.php?exit_status=success');
+				// Redirect to the "List Media" page with an appropriate exit status
+				redirect(ADMIN_URI.'?exit_status=success');
 			}
 		}
 	}
@@ -368,8 +370,8 @@ class Media extends Post {
 			foreach($mediameta as $key=>$value)
 				$rs_query->insert('postmeta', array('post'=>$insert_id, '_key'=>$key, 'value'=>$value));
 			
-			// Redirect to the 'Edit Media' page
-			redirect('media.php?id='.$insert_id.'&action=edit');
+			// Redirect to the appropriate "Edit Media" page
+			redirect(ADMIN_URI.'?id='.$insert_id.'&action=edit');
 		} else {
 			// Create an array to hold the media's metadata
 			$mediameta = array('alt_text'=>$data['alt_text']);
@@ -388,7 +390,7 @@ class Media extends Post {
 			$this->content = $data['description'];
 			
 			// Return a status message
-			return statusMessage('Media updated! <a href="media.php">Return to list</a>?', true);
+			return statusMessage('Media updated! <a href="'.ADMIN_URI.'">Return to list</a>?', true);
 		}
 	}
 }

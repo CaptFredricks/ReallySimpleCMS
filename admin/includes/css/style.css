@@ -356,6 +356,37 @@ h3 {
 	visibility: hidden;
 }
 
+.heading-wrap .admin-info {
+	float: right;
+	position: relative;
+}
+
+.heading-wrap .admin-info.open {
+	top: -2rem;
+}
+
+.heading-wrap .admin-info span {
+	display: none;
+	font-size: 0.875em;
+	position: relative;
+}
+
+.heading-wrap .admin-info.open span {
+	display: inline;
+	top: 2rem;
+}
+
+.heading-wrap .admin-info i {
+	cursor: pointer;
+	position: absolute;
+	  top: 0.5rem;
+	  right: 0;
+}
+
+.heading-wrap .admin-info.open i {
+	top: 0;
+}
+
 .heading-wrap .status-nav {
 	float: left;
 	font-size: 0.9em;
@@ -376,10 +407,6 @@ h3 {
 	float: right;
 	font-size: 0.9em;
 	line-height: 2rem;
-}
-
-.heading-wrap .entry-count.status {
-	margin: 0.375rem 0;
 }
 
 .heading-wrap .status-message ~ .status-nav,
@@ -1530,13 +1557,21 @@ h3 {
 		margin: 0 0.625rem 0 0;
 	}
 	
+	.heading-wrap .admin-info.open {
+		top: -1.25rem;
+	}
+	
+	.heading-wrap .admin-info.open span {
+		top: 1.25rem;
+	}
+	
 	.heading-wrap .button {
 		vertical-align: top;
 	}
 	
 	.heading-wrap .entry-count {
 		line-height: normal;
-		margin: 1rem 0 0.375rem;
+		margin: 0.375rem 0;
 	}
 	
 	.pager {
@@ -1583,6 +1618,16 @@ h3 {
 	
 	.modal-body .media-item-wrap {
 		width: 25%;
+	}
+}
+
+@media screen and (min-width: 756px and max-width: 1049px) {
+	.heading-wrap .admin-info.open ~ hr {
+		margin: 0.5em 0;
+	}
+	
+	.heading-wrap .admin-info.open {
+		top: 0.5rem;
 	}
 }
 
@@ -1680,6 +1725,20 @@ h3 {
 	
 	.heading-wrap h1 {
 		margin: 0 0.625rem 0 -0.625rem;
+	}
+	
+	.heading-wrap .admin-info {
+		line-height: 2em;
+		position: static;
+	}
+	
+	.heading-wrap .admin-info span {
+		margin-right: 0.5rem;
+		position: static;
+	}
+	
+	.heading-wrap .admin-info i {
+		position: static;
 	}
 	
 	.form-table th {

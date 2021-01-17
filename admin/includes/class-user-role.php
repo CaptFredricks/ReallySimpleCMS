@@ -60,7 +60,7 @@ class UserRole {
 	}
 	
 	/**
-	 * Construct a list of user roles.
+	 * Construct a list of all user roles in the database.
 	 * @since 1.7.1[a]
 	 *
 	 * @access public
@@ -76,14 +76,16 @@ class UserRole {
 		<div class="heading-wrap">
 			<h1>User Roles</h1>
 			<?php
-			// Check whether the user has sufficient privileges to create user roles
-			if(userHasPrivilege($session['role'], 'can_create_user_roles')) {
-				?>
-				<a class="button" href="?page=user_roles&action=create">Create New</a>
-				<?php
-			}
+			// Check whether the user has sufficient privileges to create user roles and create an action link if so
+			if(userHasPrivilege($session['role'], 'can_create_user_roles'))
+				echo actionLink('create', array('classes'=>'button', 'caption'=>'Create New', 'page'=>'user_roles'));
 			
-			// Display any status messages
+			// Display the page's info
+			adminInfo();
+			?>
+			<hr>
+			<?php
+			// Check whether any status messages have been returned and display them if so
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
 				echo statusMessage('The user role was successfully deleted.', true);
 			
@@ -119,8 +121,8 @@ class UserRole {
 				foreach($roles as $role) {
 					// Set up the action links
 					$actions = array(
-						userHasPrivilege($session['role'], 'can_edit_user_roles') ? '<a href="?page=user_roles&id='.$role['id'].'&action=edit">Edit</a>' : '',
-						userHasPrivilege($session['role'], 'can_delete_user_roles') ? '<a class="modal-launch delete-item" href="?page=user_roles&id='.$role['id'].'&action=delete" data-item="user role">Delete</a>' : ''
+						userHasPrivilege($session['role'], 'can_edit_user_roles') ? actionLink('edit', array('caption'=>'Edit', 'page'=>'user_roles', 'id'=>$role['id'])) : null,
+						userHasPrivilege($session['role'], 'can_delete_user_roles') ? actionLink('delete', array('classes'=>'modal-launch delete-item', 'data_item'=>'user role', 'caption'=>'Delete', 'page'=>'user_roles', 'id'=>$role['id'])) : null
 					);
 					
 					// Filter out any empty actions
@@ -175,7 +177,7 @@ class UserRole {
 	}
 	
 	/**
-	 * Construct the 'Create User Role' form.
+	 * Create a user role.
 	 * @since 1.7.2[a]
 	 *
 	 * @access public
@@ -205,7 +207,7 @@ class UserRole {
 	}
 	
 	/**
-	 * Construct the 'Edit User Role' form.
+	 * Edit a user role.
 	 * @since 1.7.2[a]
 	 *
 	 * @access public
@@ -217,13 +219,13 @@ class UserRole {
 		
 		// Check whether the user role's id is valid
 		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the 'List User Roles' page
-			redirect('settings.php?page=user_roles');
+			// Redirect to the "List User Roles" page
+			redirect(ADMIN_URI.'?page=user_roles');
 		} else {
 			// Check whether the role is a default user role
 			if($this->_default === 'yes') {
-				// Redirect to the 'List User Roles' page
-				redirect('settings.php?page=user_roles');
+				// Redirect to the "List User Roles" page
+				redirect(ADMIN_URI.'?page=user_roles');
 			} else {
 				// Validate the form data and return any messages
 				$message = isset($_POST['submit']) ? $this->validateUserRoleData($_POST, $this->id) : '';
@@ -250,7 +252,7 @@ class UserRole {
 	}
 	
 	/**
-	 * Delete a user role from the database.
+	 * Delete a user role.
 	 * @since 1.7.2[a]
 	 *
 	 * @access public
@@ -262,13 +264,13 @@ class UserRole {
 		
 		// Check whether the user role's id is valid
 		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the 'List User Roles' page
-			redirect('settings.php?page=user_roles');
+			// Redirect to the "List User Roles" page
+			redirect(ADMIN_URI.'?page=user_roles');
 		} else {
 			// Check whether the role is a default user role
 			if($this->_default === 'yes') {
-				// Redirect to the 'List User Roles' page
-				redirect('settings.php?page=user_roles');
+				// Redirect to the "List User Roles" page
+				redirect(ADMIN_URI.'?page=user_roles');
 			} else {
 				// Delete the user role from the database
 				$rs_query->delete('user_roles', array('id'=>$this->id));
@@ -276,8 +278,8 @@ class UserRole {
 				// Delete the user relationship(s) from the database
 				$rs_query->delete('user_relationships', array('role'=>$this->id));
 				
-				// Redirect to the 'List User Roles' page (with a success message)
-				redirect('settings.php?page=user_roles&exit_status=success');
+				// Redirect to the "List User Roles" page with an appropriate exit status
+				redirect(ADMIN_URI.'?page=user_roles&exit_status=success');
 			}
 		}
 	}
@@ -316,8 +318,8 @@ class UserRole {
 				}
 			}
 			
-			// Redirect to the 'Edit User Role' page
-			redirect('settings.php?page=user_roles&id='.$insert_id.'&action=edit');
+			// Redirect to the appropriate "Edit User Role" page
+			redirect(ADMIN_URI.'?page=user_roles&id='.$insert_id.'&action=edit');
 		} else {
 			// Update the user role in the database
 			$rs_query->update('user_roles', array('name'=>$data['name']), array('id'=>$id));
@@ -356,7 +358,7 @@ class UserRole {
 			foreach($data as $key=>$value) $this->$key = $value;
 			
 			// Return a status message
-			return statusMessage('User role updated! <a href="settings.php?page=user_roles">Return to list</a>?', true);
+			return statusMessage('User role updated! <a href="'.ADMIN_URI.'?page=user_roles">Return to list</a>?', true);
 		}
 	}
 	
@@ -433,6 +435,9 @@ class UserRole {
 		
 		// Fetch all privileges from the database
 		$privileges = $rs_query->select('user_privileges', '*', '', 'id');
+		
+		// Create a 'select all/select none' checkbox
+		$list .= '<li>'.formTag('input', array('type'=>'checkbox', 'id'=>'select-all', 'class'=>'checkbox-input', 'label'=>array('content'=>'<span>SELECT ALL</span>'))).'</li>';
 		
 		// Loop through the privileges
 		foreach($privileges as $privilege) {

@@ -19,7 +19,7 @@ class Category extends Term {
 	}
 	
 	/**
-	 * Construct the 'Create Category' form.
+	 * Create a category.
 	 * @since 1.5.0[a]
 	 *
 	 * @access public
@@ -30,7 +30,7 @@ class Category extends Term {
 	}
 	
 	/**
-	 * Construct the 'Edit Category' form.
+	 * Edit a category.
 	 * @since 1.5.1[a]
 	 *
 	 * @access public
@@ -41,7 +41,7 @@ class Category extends Term {
 	}
 	
 	/**
-	 * Delete a category from the database.
+	 * Delete a category.
 	 * @since 1.5.1[a]
 	 *
 	 * @access public

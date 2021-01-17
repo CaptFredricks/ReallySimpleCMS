@@ -7,7 +7,7 @@
  */
 class Profile extends User {
 	/**
-	 * Construct the 'Edit Profile' form.
+	 * Edit your user profile.
 	 * @since 2.0.0[a]
 	 *
 	 * @access public
@@ -23,11 +23,9 @@ class Profile extends User {
 		// Fetch the user's metadata from the database
 		$meta = $this->getUserMeta($this->id);
 		
-		// Check whether the user has an avatar
-		if(!empty($meta['avatar'])) {
-			// Fetch the avatar's dimensions
+		// Check whether the user has an avatar and fetch its dimensions if so
+		if(!empty($meta['avatar']))
 			list($width, $height) = getimagesize(PATH.getMediaSrc($meta['avatar']));
-		}
 		?>
 		<div class="heading-wrap">
 			<h1>Edit Profile</h1>
@@ -54,7 +52,7 @@ class Profile extends User {
 					?>
 				</table>
 			</form>
-			<a class="reset-password button" href="?action=reset_password">Reset Password</a>
+			<?php echo actionLink('reset_password', array('classes'=>'reset-password button', 'caption'=>'Reset Password')); ?>
 		</div>
 		<?php
 		// Include the upload modal
@@ -147,7 +145,7 @@ class Profile extends User {
 	}
 	
 	/**
-	 * Construct the 'Reset Password' form.
+	 * Reset your password.
 	 * @since 2.0.7[a]
 	 *
 	 * @access public

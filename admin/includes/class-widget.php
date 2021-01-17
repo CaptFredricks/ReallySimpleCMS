@@ -49,14 +49,16 @@ class Widget extends Post {
 		<div class="heading-wrap">
 			<h1>Widgets</h1>
 			<?php
-			// Check whether the user has sufficient privileges to create widgets
-			if(userHasPrivilege($session['role'], 'can_create_widgets')) {
-				?>
-				<a class="button" href="?action=create">Create New</a>
-				<?php
-			}
+			// Check whether the user has sufficient privileges to create widgets and create an action link if so
+			if(userHasPrivilege($session['role'], 'can_create_widgets'))
+				echo actionLink('create', array('classes'=>'button', 'caption'=>'Create New'));
 			
-			// Display any status messages
+			// Display the page's info
+			adminInfo();
+			?>
+			<hr>
+			<?php
+			// Check whether any status messages have been returned and display them if so
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
 				echo statusMessage('The widget was successfully deleted.', true);
 			
@@ -92,8 +94,8 @@ class Widget extends Post {
 				foreach($widgets as $widget) {
 					// Set up the action links
 					$actions = array(
-						userHasPrivilege($session['role'], 'can_edit_widgets') ? '<a href="?id='.$widget['id'].'&action=edit">Edit</a>' : '',
-						userHasPrivilege($session['role'], 'can_delete_widgets') ? '<a class="modal-launch delete-item" href="?id='.$widget['id'].'&action=delete" data-item="widget">Delete</a>' : ''
+						userHasPrivilege($session['role'], 'can_edit_widgets') ? actionLink('edit', array('caption'=>'Edit', 'id'=>$widget['id'])) : null,
+						userHasPrivilege($session['role'], 'can_delete_widgets') ? actionLink('delete', array('classes'=>'modal-launch delete-item', 'data_item'=>'widget', 'caption'=>'Delete', 'id'=>$widget['id'])) : null
 					);
 					
 					// Filter out any empty actions
@@ -121,7 +123,7 @@ class Widget extends Post {
 	}
 	
 	/**
-	 * Construct the 'Create Widget' form.
+	 * Create a widget.
 	 * @since 1.6.0[a]
 	 *
 	 * @access public
@@ -153,7 +155,7 @@ class Widget extends Post {
 	}
 	
 	/**
-	 * Construct the 'Edit Widget' form.
+	 * Edit a widget.
 	 * @since 1.6.1[a]
 	 *
 	 * @access public
@@ -165,8 +167,8 @@ class Widget extends Post {
 		
 		// Check whether the widget's id is valid
 		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the 'List Widgets' page
-			redirect('widgets.php');
+			// Redirect to the "List Widgets" page
+			redirect(ADMIN_URI);
 		} else {
 			// Validate the form data and return any messages
 			$message = isset($_POST['submit']) ? $this->validateData($_POST, $this->id) : '';
@@ -194,7 +196,7 @@ class Widget extends Post {
 	}
 	
 	/**
-	 * Delete a widget from the database.
+	 * Delete a widget.
 	 * @since 1.6.1[a]
 	 *
 	 * @access public
@@ -206,14 +208,14 @@ class Widget extends Post {
 		
 		// Check whether the widget's id is valid
 		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the 'List Widgets' page
-			redirect('widgets.php');
+			// Redirect to the "List Widgets" page
+			redirect(ADMIN_URI);
 		} else {
 			// Delete the widget from the database
 			$rs_query->delete('posts', array('id'=>$this->id, 'type'=>'widget'));
 			
-			// Redirect to the 'List Widgets' page (with a success message)
-			redirect('widgets.php?exit_status=success');
+			// Redirect to the "List Widgets" page with an appropriate exit status
+			redirect(ADMIN_URI.'?exit_status=success');
 		}
 	}
 	
@@ -249,8 +251,8 @@ class Widget extends Post {
 			// Insert the new widget into the database
 			$insert_id = $rs_query->insert('posts', array('title'=>$data['title'], 'date'=>'NOW()', 'content'=>$data['content'], 'status'=>$data['status'], 'slug'=>$slug, 'type'=>'widget'));
 			
-			// Redirect to the 'Edit Widget' page
-			redirect('widgets.php?id='.$insert_id.'&action=edit');
+			// Redirect to the appropriate "Edit Widget" page
+			redirect(ADMIN_URI.'?id='.$insert_id.'&action=edit');
 		} else {
 			// Update the widget in the database
 			$rs_query->update('posts', array('title'=>$data['title'], 'modified'=>'NOW()', 'content'=>$data['content'], 'status'=>$data['status'], 'slug'=>$slug), array('id'=>$id));
@@ -259,7 +261,7 @@ class Widget extends Post {
 			foreach($data as $key=>$value) $this->$key = $value;
 			
 			// Return a status message
-			return statusMessage('Widget updated! <a href="widgets.php">Return to list</a>?', true);
+			return statusMessage('Widget updated! <a href="'.ADMIN_URI.'">Return to list</a>?', true);
 		}
 	}
 }

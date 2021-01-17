@@ -167,6 +167,19 @@ jQuery(document).ready($ => {
 	})($('body').hasClass('dashboard'));
 	
 	/**
+	 * Display information about an admin page.
+	 * @since 1.2.0[b]
+	 */
+	$('.admin-info i').on('click', function() {
+		let wrap = $(this).parent();
+		
+		if($(wrap).hasClass('open'))
+			$(wrap).removeClass('open');
+		else
+			$(wrap).addClass('open');
+	});
+	
+	/**
 	 * Event handler to format a post slug.
 	 * @since 2.1.9[a]
 	 */
@@ -235,6 +248,60 @@ jQuery(document).ready($ => {
 			$('#slug-field').removeClass('invalid').addClass('valid');
 		}
 	}
+	
+	/**
+	 * Select all/none on a checkbox list.
+	 * @since 1.2.0[b]
+	 */
+	$('#select-all').on('click', function() {
+		// Fetch the checkbox list
+		let list = $(this).parents('.checkbox-list');
+		
+		// Check whether the checkbox is already checked
+		if($(this).prop('checked')) {
+			// Check all of the checkboxes in the list
+			$(list).find('.checkbox-input').prop('checked', true);
+			
+			// Set the checkbox's label to 'SELECT NONE'
+			$(this).siblings('span').text('SELECT NONE');
+		} else {
+			// Uncheck all of the checkboxes in the list
+			$(list).find('.checkbox-input').prop('checked', false);
+			
+			// Set the checkbox's label to 'SELECT ALL'
+			$(this).siblings('span').text('SELECT ALL');
+		}
+	});
+	
+	(function() {
+		// Fetch the checkbox list
+		let list = $('.checkbox-list');
+		
+		// Set a flag for whether all boxes are checked
+		let all_checked = false;
+		
+		// Loop through the checkboxes
+		$(list).find('.checkbox-input').each(function(i) {
+			// Check whether the index is zero
+			if(i !== 0) {
+				// Check whether the box is checked
+				if($(this).prop('checked')) {
+					// Set the flag to true and break out of the loop
+					all_checked = true;
+					return false;
+				}
+			}
+		});
+		
+		// Check whether all of the boxes are checked
+		if(all_checked) {
+			// Check the 'select all' checkbox
+			$('#select-all').prop('checked', true);
+			
+			// Set the 'select all' checkbox's label to 'SELECT NONE'
+			$('#select-all').siblings('span').text('SELECT NONE');
+		}
+	})();
 	
 	/**
 	 * Event handler to generate a random password.

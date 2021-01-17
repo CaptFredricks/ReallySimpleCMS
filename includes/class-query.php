@@ -590,6 +590,48 @@ class Query {
 	}
 	
 	/**
+	 * Drop a table from the database.
+	 * @since 1.2.0[b]
+	 *
+	 * @access public
+	 * @param string $table
+	 * @return null
+	 */
+	public function dropTable($table) {
+		// Stop execution and throw an error if no table is specified
+		if(empty($table)) exit($this->errorMsg('table'));
+		
+		// Run the query
+		$this->doQuery('DROP TABLE `'.$table.'`;');
+	}
+	
+	/**
+	 * Drop multiple tables from the database.
+	 * @since 1.2.0[b]
+	 *
+	 * @access public
+	 * @param array $tables
+	 * @return null
+	 */
+	public function dropTables($tables) {
+		// Stop execution and throw an error if no tables are specified
+		if(empty($tables)) exit($this->errorMsg('table'));
+		
+		// Make sure the tables are in an array
+		if(!is_array($tables)) $tables = (array)$tables;
+		
+		// Construct the basic SQL statement
+		$sql = 'DROP TABLE ';
+		
+		// Loop through the tables and add each one to the SQL statement
+		for($i = 0; $i < count($tables); $i++)
+			$sql .= '`'.$tables[$i].'`'.($i < count($tables) - 1 ? ', ' : ';');
+		
+		// Run the query
+		$this->doQuery($sql);
+	}
+	
+	/**
 	 * Return an error message for poorly executed queries.
 	 * @since 1.0.3[a]
 	 *
@@ -602,7 +644,7 @@ class Query {
 		
 		switch($type) {
 			case 'table':
-				$error .= 'a table must be specified!';
+				$error .= 'a table or tables must be specified!';
 				break;
 			case 'field':
 				$error .= 'a field must be specified!';
