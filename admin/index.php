@@ -7,6 +7,11 @@ require_once __DIR__.'/header.php';
 		<h1>Admin Dashboard</h1>
 	</div>
 	<?php statsBarGraph(); ?>
+	<div>
+		<?php getSetting('enable_comments', false) ? dashboardWidget('comments') : null; ?>
+		<?php dashboardWidget('users'); ?>
+		<?php getSetting('track_login_attempts', false) ? dashboardWidget('logins') : null; ?>
+	</div>
 </div>
 <?php
 // Include the footer

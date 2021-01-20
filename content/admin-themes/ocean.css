@@ -1,7 +1,7 @@
 /**
  * Admin dashboard Ocean theme.
  * @since 2.0.7[a]
- * @version 1.6
+ * @version 1.7
  */
 
 html {
@@ -104,17 +104,6 @@ a {
 	color: #26fa70;
 }
 
-/* Footer */
-
-#admin-footer .copyright {
-	border-top-color: #0f2f6f;
-}
-
-#admin-footer .version {
-	border-top-color: #0f2f6f;
-	border-bottom-color: #0f2f6f;
-}
-
 /*------------------------------------*\
     CONTENT
 \*------------------------------------*/
@@ -159,6 +148,16 @@ a {
 
 .graph-y {
 	border-right-color: #7dcdad;
+}
+
+/* Dashboard widgets */
+
+.dashboard-widget {
+	background-color: #9dedcd;
+}
+
+.dashboard-widget a {
+	color: #9a06b0;
 }
 
 /* Data tables */

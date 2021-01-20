@@ -6,6 +6,38 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.2.1[b] (2021-01-20)
+
+- The active theme is now listed first on the "List Themes" page
+- Fixed an issue where comment feed update script would run on every page (it now only runs if the page contains a comment feed)
+- Created a function that constructs admin dashboard widgets
+  - Added three dashboard widgets: "Comments", "Users", and "Logins", which display information about each
+- Tweaked styles for all admin themes
+- Created a function that fetches and returns all indexes in a specified database table
+- The `update.php` file now checks whether the `comments` table is missing one or more of its indexes before trying to reinstall it
+- The `in_array` function now uses strict mode in all occurrences
+- Removed an unnecessary comment from the admin `functions.php` file
+- Added the `themes` directory to the `.gitignore` file, excluding the Carbon theme
+- Cleaned up the `.gitignore` file
+
+**Modified files:**
+- .gitignore
+- admin/includes/class-post.php (M)
+- admin/includes/class-theme.php
+- admin/includes/class-user-role.php (M)
+- admin/includes/css/style.css
+- admin/includes/css/style.min.css
+- admin/includes/functions.php
+- admin/index.php
+- content/admin-themes/forest.css
+- content/admin-themes/harvest.css
+- content/admin-themes/ocean.css
+- content/admin-themes/sunset.css
+- includes/class-query.php
+- includes/js/script.js
+- includes/update.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.2.0[b] (2021-01-16)
 
 ### Dedicated to my grandmother, "Nam" (1940 - 2021)

@@ -43,9 +43,18 @@ class Theme {
 			else
 				$themes = array();
 			
+			// Find the active theme in the array
+			$active = array_search(getSetting('theme', false), $themes, true);
+			
+			// Remove the active theme from the array
+			unset($themes[$active]);
+			
+			// Place the active theme at the begining of the array
+			array_unshift($themes, getSetting('theme', false));
+			
 			// Loop through the themes
 			foreach($themes as $theme) {
-				// Construct the file path for the current theme
+				// Construct the file path for the active theme
 				$theme_path = trailingSlash(PATH.THEMES).$theme;
 				
 				// Check whether the theme has an index.php file and skip it if not

@@ -282,14 +282,11 @@ h3 {
 }
 
 #admin-footer .copyright {
-	/* border-top: 1px dashed #4f4f4f; */
 	font-size: 0.75em;
 	padding: 0.25rem 0;
 }
 
 #admin-footer .version {
-	/* border-top: 1px dashed #4f4f4f; */
-	/* border-bottom: 1px dashed #4f4f4f; */
 	font-size: 0.75em;
 	padding: 0.25rem 0;
 }
@@ -562,6 +559,46 @@ h3 {
 	  left: -0.25em;
 	-webkit-transform: rotate(-90deg) translateX(-50%);
 	transform: rotate(-90deg) translateX(-50%);
+}
+
+/* Dashboard widgets */
+
+.dashboard-widget {
+	background-color: #ededed;
+	color: #101010;
+	display: inline-block;
+	float: left;
+	margin-top: 1.5em;
+	padding: 1em;
+	width: 100%;
+}
+
+.dashboard-widget *:last-child {
+	margin-bottom: 0;
+}
+
+.dashboard-widget h2 {
+	font-size: 1.25em;
+	margin-top: 0;
+	text-align: center;
+}
+
+.dashboard-widget ul {
+	list-style: none;
+	padding: 0 1.25em;
+}
+
+.dashboard-widget ul li {
+	font-size: 0.9375em;
+	line-height: 1.5;
+}
+
+.dashboard-widget a {
+	color: #46708a;
+}
+
+.dashboard-widget .value {
+	float: right;
 }
 
 /* Data tables */
@@ -1574,6 +1611,14 @@ h3 {
 		margin: 0.375rem 0;
 	}
 	
+	.dashboard-widget {
+		width: 48%;
+	}
+	
+	.dashboard-widget:nth-child(2n+1) {
+		margin-right: 4%;
+	}
+	
 	.pager {
 		font-size: 1em;
 		margin-top: 0.75rem;
@@ -1757,6 +1802,18 @@ h3 {
 }
 
 @media screen and (min-width: 1350px) {
+	.dashboard-widget {
+		width: 32%;
+	}
+	
+	.dashboard-widget:nth-child(2n+1) {
+		margin-right: 0;
+	}
+	
+	.dashboard-widget:not(:nth-child(3n)) {
+		margin-right: 2%;
+	}
+	
 	.data-list li {
 		width: 32%;
 	}

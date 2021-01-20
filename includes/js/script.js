@@ -347,35 +347,38 @@ jQuery(document).ready($ => {
 	 * Check for feed updates every 15 seconds.
 	 * @since 1.1.0[b]{ss-04}
 	 */
-	let comment_count = 0;
-	
-	setInterval(function() {
-		// Create an object to hold the data passed to the server
-		let data = {
-			'data_submit': 'checkupdates',
-			'post_slug': $('body').attr('class').split(' ')[0]
-		};
+	if($('.comments').length) {
+		// Initialize the comment count to zero
+		let comment_count = 0;
 		
-		// Submit the data
-		$.ajax({
-			data: data,
-			method: 'POST',
-			success: result => {
-				// Update the comment count if the page has just been loaded
-				if(comment_count === 0) comment_count = result;
-				
-				// Check whether the result differs from the current comment count
-				if(result !== comment_count) {
-					// Refresh the feed
-					refreshFeed();
+		setInterval(function() {
+			// Create an object to hold the data passed to the server
+			let data = {
+				'data_submit': 'checkupdates',
+				'post_slug': $('body').attr('class').split(' ')[0]
+			};
+			
+			// Submit the data
+			$.ajax({
+				data: data,
+				method: 'POST',
+				success: result => {
+					// Update the comment count if the page has just been loaded
+					if(comment_count === 0) comment_count = result;
 					
-					// Update the comment count
-					comment_count = result;
-				}
-			},
-			url: '/includes/ajax.php'
-		});
-	}, 1000 * 15);
+					// Check whether the result differs from the current comment count
+					if(result !== comment_count) {
+						// Refresh the feed
+						refreshFeed();
+						
+						// Update the comment count
+						comment_count = result;
+					}
+				},
+				url: '/includes/ajax.php'
+			});
+		}, 1000 * 15);
+	}
 	
 	/*------------------------------*\
 		LOG IN FORM

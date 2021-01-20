@@ -904,7 +904,7 @@ class Post {
 			// Loop through the relationships
 			foreach($relationships as $relationship) {
 				// Check whether the relationship still exists
-				if(empty($data['terms']) || !in_array($relationship['term'], $data['terms'])) {
+				if(empty($data['terms']) || !in_array($relationship['term'], $data['terms'], true)) {
 					// Delete each unused relationship from the database
 					$rs_query->delete('term_relationships', array('id'=>$relationship['id']));
 					

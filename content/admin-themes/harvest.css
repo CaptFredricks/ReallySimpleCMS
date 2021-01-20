@@ -1,7 +1,7 @@
 /**
  * Admin dashboard Harvest theme.
  * @since 2.1.9[a]
- * @version 1.3
+ * @version 1.4
  */
 
 html {
@@ -104,17 +104,6 @@ a {
 	color: #f6ca30;
 }
 
-/* Footer */
-
-#admin-footer .copyright {
-	border-top-color: #8f4f0f;
-}
-
-#admin-footer .version {
-	border-top-color: #8f4f0f;
-	border-bottom-color: #8f4f0f;
-}
-
 /*------------------------------------*\
     CONTENT
 \*------------------------------------*/
@@ -159,6 +148,16 @@ a {
 
 .graph-y {
 	border-right-color: #cdbd6d;
+}
+
+/* Dashboard widgets */
+
+.dashboard-widget {
+	background-color: #eddd8d;
+}
+
+.dashboard-widget a {
+	color: #ba4016;
 }
 
 /* Data tables */

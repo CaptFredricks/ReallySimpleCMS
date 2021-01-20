@@ -704,6 +704,90 @@ function statsBarGraph() {
 }
 
 /**
+ * Construct a widget for the admin dashboard.
+ * @since 1.2.1[b]
+ *
+ * @param string $name
+ * @return null
+ */
+function dashboardWidget($name) {
+	// Extend the Query object
+	global $rs_query;
+	?>
+	<div class="dashboard-widget">
+		<?php
+		switch($name) {
+			case 'comments':
+				?>
+				<h2>Comments</h2>
+				<ul>
+					<?php
+					// Fetch the approved comment count from the database
+					$approved = $rs_query->select('comments', 'COUNT(*)', array('status'=>'approved'));
+					?>
+					<li><a href="/admin/comments.php?status=approved">Approved</a>: <strong class="value"><?php echo $approved; ?></strong></li>
+					<?php
+					// Fetch the pending comment count from the database
+					$pending = $rs_query->select('comments', 'COUNT(*)', array('status'=>'unapproved'));
+					?>
+					<li><a href="/admin/comments.php?status=unapproved">Pending</a>: <strong class="value"><?php echo $pending; ?></strong></li>
+				</ul>
+				<?php
+				break;
+			case 'users':
+				?>
+				<h2>Users</h2>
+				<ul>
+					<?php
+					// Fetch all users' sessions from the database
+					$users = $rs_query->select('users', 'session');
+					
+					// Initialize online and offline user counts to zero
+					$online = $offline = 0;
+					
+					// Loop through the users
+					foreach($users as $user) {
+						// Check whether the user's session is null and increment the appropriate value
+						if(is_null($user['session']))
+							$offline += 1;
+						else
+							$online += 1;
+					}
+					?>
+					<li><a href="/admin/users.php">Online</a>: <strong class="value"><?php echo $online; ?></strong></li>
+					<li><a href="/admin/users.php">Offline</a>: <strong class="value"><?php echo $offline; ?></strong></li>
+				</ul>
+				<?php
+				break;
+			case 'logins':
+				?>
+				<h2>Logins</h2>
+				<ul>
+					<?php
+					// Fetch the successful login attempt count from the database
+					$login_success = $rs_query->select('login_attempts', 'COUNT(*)', array('status'=>'success'));
+					?>
+					<li><a href="/admin/logins.php">Successful</a>: <strong class="value"><?php echo $login_success; ?></strong></li>
+					<?php
+					// Fetch the failed login attempt count from the database
+					$login_failure = $rs_query->select('login_attempts', 'COUNT(*)', array('status'=>'failure'));
+					?>
+					<li><a href="/admin/logins.php">Failed</a>: <strong class="value"><?php echo $login_failure; ?></strong></li>
+					<?php
+					// Fetch the blacklisted login count from the database
+					$blacklisted = $rs_query->select('login_blacklist', 'COUNT(*)');
+					?>
+					<li><a href="/admin/logins.php?page=blacklist">Blacklisted</a>: <strong class="value"><?php echo $blacklisted; ?></strong></li>
+				</ul>
+				<?php
+				break;
+		}
+		?>
+	</div>
+	<?php
+}
+
+/**
  * Enable pagination.
  * @since 1.2.1[a]
  *
@@ -905,8 +989,6 @@ function formTag($tag_name, $args = null) {
 			// Check whether the 'type' property has been provided and set it to 'text' if not
 			if(!in_array('type', $props, true)) $tag .= ' type="text"';
 		}
-		
-		// (!empty($args['value']) || (isset($args['value']) && $args['value'] == 0) ? ' value="'.$args['value'].'"' : '')
 		
 		// Check whether any args have been provided
 		if(!is_null($args)) {

@@ -190,34 +190,40 @@ if(VERSION > '1.1.7') {
 		$rs_query->insert('settings', array('name'=>'delete_old_login_attempts', 'value'=>0));
 	}
 	
-	// Create a temporary 'comments' table
-	$rs_query->doQuery("CREATE TABLE comments_temp (
-		id bigint(20) unsigned PRIMARY KEY auto_increment,
-		post bigint(20) unsigned NOT NULL default '0',
-		author bigint(20) unsigned NOT NULL default '0',
-		date datetime default NULL,
-		content longtext NOT NULL default '',
-		upvotes bigint(20) NOT NULL default '0',
-		downvotes bigint(20) NOT NULL default '0',
-		status varchar(20) NOT NULL default 'unapproved',
-		parent bigint(20) unsigned NOT NULL default '0',
-		KEY post (post),
-		KEY author (author),
-		KEY parent (parent)
-	);");
+	// Select all indexes for the 'comments' table
+	$indexes = $rs_query->showIndexes('comments');
 	
-	// Fetch all comments from the database
-	$comments = $rs_query->select('comments');
-	
-	// Loop through the comments
-	foreach($comments as $comment) {
-		// Insert the comments into the temporary table
-		$rs_query->insert('comments_temp', array('post'=>$comment['post'], 'author'=>$comment['author'], 'date'=>$comment['date'], 'content'=>$comment['content'], 'upvotes'=>$comment['upvotes'], 'downvotes'=>$comment['downvotes'], 'status'=>$comment['status'], 'parent'=>$comment['parent']));
+	// Check whether the number of indexes is 4 (the primary key plus the other 3 indexes)
+	if(count($indexes) !== 4) {
+		// Create a temporary 'comments' table
+		$rs_query->doQuery("CREATE TABLE comments_temp (
+			id bigint(20) unsigned PRIMARY KEY auto_increment,
+			post bigint(20) unsigned NOT NULL default '0',
+			author bigint(20) unsigned NOT NULL default '0',
+			date datetime default NULL,
+			content longtext NOT NULL default '',
+			upvotes bigint(20) NOT NULL default '0',
+			downvotes bigint(20) NOT NULL default '0',
+			status varchar(20) NOT NULL default 'unapproved',
+			parent bigint(20) unsigned NOT NULL default '0',
+			KEY post (post),
+			KEY author (author),
+			KEY parent (parent)
+		);");
+		
+		// Fetch all comments from the database
+		$comments = $rs_query->select('comments');
+		
+		// Loop through the comments
+		foreach($comments as $comment) {
+			// Insert the comments into the temporary table
+			$rs_query->insert('comments_temp', array('post'=>$comment['post'], 'author'=>$comment['author'], 'date'=>$comment['date'], 'content'=>$comment['content'], 'upvotes'=>$comment['upvotes'], 'downvotes'=>$comment['downvotes'], 'status'=>$comment['status'], 'parent'=>$comment['parent']));
+		}
+		
+		// Delete the 'comments' table
+		$rs_query->dropTable('comments');
+		
+		// Rename the temporary 'comments' table
+		$rs_query->doQuery("ALTER TABLE `comments_temp` RENAME TO `comments`");
 	}
-	
-	// Delete the 'comments' table
-	$rs_query->dropTable('comments');
-	
-	// Rename the temporary 'comments' table
-	$rs_query->doQuery("ALTER TABLE `comments_temp` RENAME TO `comments`");
 }

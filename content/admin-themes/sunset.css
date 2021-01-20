@@ -1,7 +1,7 @@
 /**
  * Admin dashboard Sunset theme.
  * @since 2.0.7[a]
- * @version 1.5
+ * @version 1.6
  */
 
 html {
@@ -104,17 +104,6 @@ a {
 	color: #fac016;
 }
 
-/* Footer */
-
-#admin-footer .copyright {
-	border-top-color: #8f3f6f;
-}
-
-#admin-footer .version {
-	border-top-color: #8f3f6f;
-	border-bottom-color: #8f3f6f;
-}
-
 /*------------------------------------*\
     CONTENT
 \*------------------------------------*/
@@ -159,6 +148,16 @@ a {
 
 .graph-y {
 	border-right-color: #dd8dad;
+}
+
+/* Dashboard widgets */
+
+.dashboard-widget {
+	background-color: #fdaddd;
+}
+
+.dashboard-widget a {
+	color: #ca4006;
 }
 
 /* Data tables */

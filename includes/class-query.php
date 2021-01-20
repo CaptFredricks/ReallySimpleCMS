@@ -578,6 +578,37 @@ class Query {
 	}
 	
 	/**
+	 * Show indexes in a table.
+	 * @since 1.2.1[b]
+	 *
+	 * @access public
+	 * @param string $table
+	 * @return array
+	 */
+	public function showIndexes($table) {
+		// Stop execution and throw an error if no table is specified
+		if(empty($table)) exit($this->errorMsg('table'));
+		
+		// Construct the basic SQL statement
+		$sql = 'SHOW INDEXES FROM `'.$table.'`';
+		
+		try {
+			// Prepare and execute the query
+			$query = $this->conn->prepare($sql);
+			$query->execute();
+			
+			// Loop through the query data and assign it to the array
+			while($row = $query->fetch()) $data[] = $row;
+			
+			// Return the data
+			return $data;
+		} catch(PDOException $e) {
+			// Log any errors
+			logError($e);
+		}
+	}
+	
+	/**
 	 * Check whether a table already exists in the database.
 	 * @since 1.0.8[b]
 	 *

@@ -330,7 +330,7 @@ class UserRole {
 			// Loop through the relationships
 			foreach($relationships as $relationship) {
 				// Check whether the relationship still exists
-				if(empty($data['privileges']) || !in_array($relationship['privilege'], $data['privileges'])) {
+				if(empty($data['privileges']) || !in_array($relationship['privilege'], $data['privileges'], true)) {
 					// Delete the unused relationship from the database
 					$rs_query->delete('user_relationships', array('id'=>$relationship['id']));
 				}
