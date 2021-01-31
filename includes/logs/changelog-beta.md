@@ -6,6 +6,28 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.2.2[b] (2021-01-31)
+
+- Added a box shadow to the admin widgets
+- Created a function that fetches a specified number of comments (front end)
+- Comment feeds now only load the ten most recent comments by default
+- Added a button to load more comments (loads ten at a time)
+- Comment feeds now remember how many comments are loaded when they refresh
+- Tweaked documentation in the front end `script.js` file
+- Cleaned up code in the `ajax.php` file
+- Tweaked front end styling
+
+**Modified files:**
+- admin/includes/css/style.css (M)
+- admin/includes/css/style.min.css (M)
+- content/themes/carbon/style.css
+- includes/ajax.php
+- includes/class-comment.php
+- includes/css/style.css (M)
+- includes/css/style.min.css (M)
+- includes/js/script.js
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.2.1[b] (2021-01-20)
 
 - The active theme is now listed first on the "List Themes" page

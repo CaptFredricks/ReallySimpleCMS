@@ -60,13 +60,16 @@ if(isset($_POST)) {
 			echo $rs_comment->decrementVotes($_POST['id'], $_POST['type']);
 	}
 	
-	// Check whether a request to refresh the comment feed has been passed to the server
-	if(isset($_POST['data_submit']) && $_POST['data_submit'] === 'refresh') {
+	// Check whether a request to load more comments or refresh the comment feed has been passed to the server
+	if(isset($_POST['data_submit']) && ($_POST['data_submit'] === 'load' || $_POST['data_submit'] === 'refresh')) {
 		// Create a Post object
 		$rs_post = new Post($_POST['post_slug']);
 		
-		// Reload the comment feed
-		$rs_post->getPostComments(true);
+		// Create a Comment object
+		$rs_comment = new Comment($rs_post->getPostId(false));
+		
+		// Load the comments
+		$rs_comment->loadComments($_POST['start'], $_POST['count']);
 	}
 	
 	// Check whether a request to refresh the comment feed has been passed to the server

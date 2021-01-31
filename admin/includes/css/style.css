@@ -565,6 +565,7 @@ h3 {
 
 .dashboard-widget {
 	background-color: #ededed;
+	box-shadow: 0 2px 4px #000;
 	color: #101010;
 	display: inline-block;
 	float: left;

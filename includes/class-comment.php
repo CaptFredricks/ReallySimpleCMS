@@ -279,79 +279,107 @@ class Comment {
 	 * @return null
 	 */
 	public function getCommentFeed() {
-		// Extend the Query and Post objects, the user's session data, and the post types array
-		global $rs_query, $rs_post, $session, $post_types;
-		
-		// Fetch all comments attached to the post from the database
-		$comments = $rs_query->select('comments', 'id', array('post'=>$this->post, 'status'=>'approved'), 'date', 'DESC');
 		?>
 		<div class="comments-wrap">
 			<?php
-			// Check whether there are any comments
-			if(empty($comments)) {
-				?>
-				<p>No comments to display.</p>
-				<?php
-			} else {
-				// Loop through the comments
-				foreach($comments as $comment) {
-					// Fetch the comment's id
-					$id = $comment['id'];
-					
-					// Fetch the comment's parent
-					$parent = $this->getCommentParent($id, false);
-					?>
-					<div id="comment-<?php echo $id; ?>" class="comment">
-						<p class="meta">
-							<span class="permalink"><a href="<?php echo $this->getCommentPermalink($id); ?>">#<?php echo $id; ?></a></span>&ensp;<span class="author"><?php $this->getCommentAuthor($id); ?></span> <span class="date"><?php $this->getCommentDate($id); ?></span>
-							<?php
-							// Check whether the comment has a parent
-							if($parent !== 0) {
-								?>
-								<span class="replyto">replying to <a href="<?php echo $this->getCommentPermalink($parent); ?>">#<?php echo $parent; ?></a></span>
-								<?php
-							}
-							?>
-						</p>
-						<div class="content">
-							<?php nl2br($this->getCommentContent($id)); ?>
-						</div>
-						<p class="actions">
-							<span class="upvote"><span><?php $this->getCommentUpvotes($id); ?></span> <a href="#" data-id="<?php echo $id; ?>" data-vote="0" title="Upvote"><i class="fas fa-thumbs-up"></i></a></span>
-							&bull; <span class="downvote"><span><?php $this->getCommentDownvotes($id); ?></span> <a href="#" data-id="<?php echo $id; ?>" data-vote="0" title="Downvote"><i class="fas fa-thumbs-down"></i></a></span>
-							<?php
-							// Check whether comments are enabled
-							if(getSetting('enable_comments', false) && $post_types[$rs_post->getPostType(false)]['comments'] && $rs_post->getPostMeta('comment_status', false)) {
-								// Check whether the user is logged in, and if not, check whether anonymous users can comment
-								if(!is_null($session) || (is_null($session) && getSetting('allow_anon_comments', false))) {
-									?>
-									&bull; <span class="reply"><a href="#" data-replyto="<?php echo $id; ?>">Reply</a></span>
-									<?php
-								}
-							}
-							
-							// Check whether the user has permission to edit the comment
-							if(!is_null($session) && ($session['id'] === $this->getCommentAuthorId($id, false) || userHasPrivilege($session['role'], 'can_edit_comments'))) {
-								?>
-								&bull; <span class="edit"><a href="#" data-id="<?php echo $id; ?>">Edit</a></span>
-								<?php
-							}
-							
-							// Check whether the user has permission to delete the comment
-							if(!is_null($session) && ($session['id'] === $this->getCommentAuthorId($id, false) || userHasPrivilege($session['role'], 'can_delete_comments'))) {
-								?>
-								&bull; <span class="delete"><a href="#" data-id="<?php echo $id; ?>">Delete</a></span>
-								<?php
-							}
-							?>
-						</p>
-					</div>
-					<?php
-				}
-			}
+			// Load the comments
+			$this->loadComments();
 			?>
 		</div>
 		<?php
+	}
+	
+	/**
+	 * Load a specified number of comments.
+	 * @since 1.2.2[b]
+	 *
+	 * @access public
+	 * @param int $start (optional; default: 0)
+	 * @param int $count (optional; default: 10)
+	 * @return array
+	 */
+	public function loadComments($start = 0, $count = 10) {
+		// Extend the Query and Post objects, the user's session data, and the post types array
+		global $rs_query, $rs_post, $session, $post_types;
+		
+		// Fetch the specified number of comments from the database
+		$comments = $rs_query->select('comments', 'id', array('post'=>$this->post, 'status'=>'approved'), 'date', 'DESC', array($start, $count));
+		
+		// Fetch the total number of comments attached to the post
+		$db_count = $rs_query->select('comments', 'COUNT(*)', array('post'=>$this->post, 'status'=>'approved'));
+		
+		// Check whether there are any comments
+		if(empty($comments)) {
+			?>
+			<p>No comments to display.</p>
+			<?php
+		} else {
+			?>
+			<span class="count hidden" data-comments="<?php echo $start + $count; ?>"></span>
+			<?php
+			// Loop through the comments
+			foreach($comments as $comment) {
+				// Fetch the comment's id
+				$id = $comment['id'];
+				
+				// Fetch the comment's parent
+				$parent = $this->getCommentParent($id, false);
+				?>
+				<div id="comment-<?php echo $id; ?>" class="comment">
+					<p class="meta">
+						<span class="permalink"><a href="<?php echo $this->getCommentPermalink($id); ?>">#<?php echo $id; ?></a></span>&ensp;<span class="author"><?php $this->getCommentAuthor($id); ?></span> <span class="date"><?php $this->getCommentDate($id); ?></span>
+						<?php
+						// Check whether the comment has a parent
+						if($parent !== 0) {
+							?>
+							<span class="replyto">replying to <a href="<?php echo $this->getCommentPermalink($parent); ?>">#<?php echo $parent; ?></a></span>
+							<?php
+						}
+						?>
+					</p>
+					<div class="content">
+						<?php nl2br($this->getCommentContent($id)); ?>
+					</div>
+					<p class="actions">
+						<span class="upvote"><span><?php $this->getCommentUpvotes($id); ?></span> <a href="#" data-id="<?php echo $id; ?>" data-vote="0" title="Upvote"><i class="fas fa-thumbs-up"></i></a></span>
+						&bull; <span class="downvote"><span><?php $this->getCommentDownvotes($id); ?></span> <a href="#" data-id="<?php echo $id; ?>" data-vote="0" title="Downvote"><i class="fas fa-thumbs-down"></i></a></span>
+						<?php
+						// Check whether comments are enabled
+						if(getSetting('enable_comments', false) && $post_types[$rs_post->getPostType(false)]['comments'] && $rs_post->getPostMeta('comment_status', false)) {
+							// Check whether the user is logged in, and if not, check whether anonymous users can comment
+							if(!is_null($session) || (is_null($session) && getSetting('allow_anon_comments', false))) {
+								?>
+								&bull; <span class="reply"><a href="#" data-replyto="<?php echo $id; ?>">Reply</a></span>
+								<?php
+							}
+						}
+						
+						// Check whether the user has permission to edit the comment
+						if(!is_null($session) && ($session['id'] === $this->getCommentAuthorId($id, false) || userHasPrivilege($session['role'], 'can_edit_comments'))) {
+							?>
+							&bull; <span class="edit"><a href="#" data-id="<?php echo $id; ?>">Edit</a></span>
+							<?php
+						}
+						
+						// Check whether the user has permission to delete the comment
+						if(!is_null($session) && ($session['id'] === $this->getCommentAuthorId($id, false) || userHasPrivilege($session['role'], 'can_delete_comments'))) {
+							?>
+							&bull; <span class="delete"><a href="#" data-id="<?php echo $id; ?>">Delete</a></span>
+							<?php
+						}
+						?>
+					</p>
+				</div>
+				<?php
+			}
+			
+			// Check whether the total comment count is greater than 10 and greater than the current number of loaded comments
+			if($db_count > 10 && $db_count > $start + $count) {
+				?>
+				<button type="button" class="load button">Load more</button>
+				<?php
+			}
+		}
 	}
 	
 	/**

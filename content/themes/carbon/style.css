@@ -370,17 +370,16 @@ main.content {
 	resize: none;
 }
 
+.comments .comments-wrap {
+	text-align: center;
+}
+
 .comments .button {
-	background-color: #6f6f6f;
 	border: none;
-	border-radius: 0.1875rem 0 0.1875rem 0;
 	color: #fff;
 	cursor: pointer;
 	font-size: 0.875em;
 	padding: 0.5rem 0.875rem;
-	position: absolute;
-	  right: 0;
-	  bottom: 0.25rem;
 	text-decoration: none;
 	transition: background-color 0.25s;
 	-webkit-user-select: none;
@@ -399,15 +398,39 @@ main.content {
 	background-color: #9f9f9f;
 }
 
+.comments .submit-comment.button,
+.comments .update-comment.button {
+	background-color: #6f6f6f;
+	border-radius: 0.1875rem 0 0.1875rem 0;
+	position: absolute;
+	  right: 0;
+	  bottom: 0.25rem;
+}
+
 .comments .cancel.button {
 	background-color: #c00;
 	border-radius: 0 0.1875rem 0 0.1875rem;
-	right: auto;
-	left: 0;
+	position: absolute;
+	  bottom: 0.25rem;
+	  left: 0;
 }
 
 .comments .cancel.button:hover {
 	background-color: #f00;
+}
+
+.comments .load.button {
+	background-color: #2ac;
+	border-radius: 0.1875rem;
+	margin-top: 0.75rem;
+}
+
+.comments .load.button:hover {
+	background-color: #4af;
+}
+
+.comments .comment {
+	text-align: left;
 }
 
 .comments .comment:not(:last-child) {

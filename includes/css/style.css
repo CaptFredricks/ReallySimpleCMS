@@ -59,6 +59,10 @@ small {
 	display: table;
 }
 
+.hidden {
+	display: none;
+}
+
 /* Log In and Forgot/Reset Password forms */
 
 .login {

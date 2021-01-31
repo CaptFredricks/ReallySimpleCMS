@@ -30,6 +30,12 @@ jQuery(document).ready($ => {
 		COMMENTS
 	\*------------------------------*/
 	
+	// Set the initial comment starting value
+	let feed_start = 10;
+	
+	// Set the initial comment count value
+	let feed_count = 10;
+	
 	/**
 	 * Reply to a comment on a comment feed.
 	 * @since 1.1.0[b]{ss-04}
@@ -72,6 +78,9 @@ jQuery(document).ready($ => {
 	 * @since 1.1.0[b]{ss-04}
 	 */
 	$('body').on('click', '.comments .submit-comment', function() {
+		// Fetch the number of comments in the feed
+		let comments = $('.comments .count').data('comments');
+		
 		// Create an object to hold the data passed to the server
 		let data = {
 			'data_submit': 'reply',
@@ -94,6 +103,12 @@ jQuery(document).ready($ => {
 				// Hide the reply box and submit button
 				$(this).siblings('.textarea-input').hide();
 				$(this).hide();
+				
+				// Update the number of comments in the feed
+				$('.comments .count').data('comments', comments + 1);
+				
+				// Update the comment starting value
+				feed_start++;
 				
 				// Refresh the feed
 				refreshFeed();
@@ -172,6 +187,9 @@ jQuery(document).ready($ => {
 		// Prevent the default action
 		e.preventDefault();
 		
+		// Fetch the number of comments in the feed
+		let comments = $('.comments .count').data('comments');
+		
 		// Create an object to hold the data passed to the server
 		let data = {
 			'data_submit': 'delete',
@@ -183,6 +201,12 @@ jQuery(document).ready($ => {
 			data: data,
 			method: 'POST',
 			success: result => {
+				// Update the number of comments in the feed
+				$('.comments .count').data('comments', comments - 1);
+				
+				// Update the comment starting value
+				feed_start--;
+				
 				// Refresh the feed
 				refreshFeed();
 			},
@@ -303,6 +327,10 @@ jQuery(document).ready($ => {
 	/**
 	 * Submit the vote via Ajax.
 	 * @since 1.1.0[b]{ss-03}
+	 *
+	 * @param object $data
+	 * @param object $elem
+	 * @return undefined
 	 */
 	function submitVote(data, elem) {
 		// Submit the data
@@ -318,17 +346,58 @@ jQuery(document).ready($ => {
 	}
 	
 	/**
+	 * Load more comments.
+	 * @since 1.2.2[b]
+	 */
+	$('body').on('click', '.comments .load.button', function() {
+		// Create an object to hold the data passed to the server
+		let data = {
+			'data_submit': 'load',
+			'post_slug': $('body').attr('class').split(' ')[0],
+			'start': feed_start,
+			'count': feed_count
+		};
+		
+		// Submit the data
+		$.ajax({
+			data: data,
+			method: 'POST',
+			success: result => {
+				// Remove the comments count
+				$('.comments .count').remove();
+				
+				// Remove the 'load more' button
+				$('.comments .load.button').remove();
+				
+				// Append the updated feed to the wrapper
+				$(result).appendTo('.comments-wrap');
+				
+				// Update the starting comment value
+				feed_start += 10;
+			},
+			url: '/includes/ajax.php'
+		});
+	});
+	
+	/**
 	 * Refresh the comment feed.
 	 * @since 1.1.0[b]{ss-04}
+	 *
+	 * @return undefined
 	 */
 	function refreshFeed() {
-		// Remove the comment feed
-		$('.comments-wrap').remove();
+		// Fetch the number of comments in the feed
+		let comments = $('.comments .count').data('comments');
+		
+		// Empty the comment feed
+		$('.comments-wrap').empty();
 		
 		// Create an object to hold the data passed to the server
 		let data = {
 			'data_submit': 'refresh',
-			'post_slug': $('body').attr('class').split(' ')[0]
+			'post_slug': $('body').attr('class').split(' ')[0],
+			'start': 0,
+			'count': comments
 		};
 		
 		// Submit the data
@@ -337,7 +406,7 @@ jQuery(document).ready($ => {
 			method: 'POST',
 			success: result => {
 				// Append the updated feed to the wrapper
-				$(result).appendTo('.comments');
+				$(result).appendTo('.comments-wrap');
 			},
 			url: '/includes/ajax.php'
 		});
@@ -352,6 +421,9 @@ jQuery(document).ready($ => {
 		let comment_count = 0;
 		
 		setInterval(function() {
+			// Fetch the number of comments in the feed
+			let comments = $('.comments .count').data('comments');
+			
 			// Create an object to hold the data passed to the server
 			let data = {
 				'data_submit': 'checkupdates',
@@ -368,6 +440,21 @@ jQuery(document).ready($ => {
 					
 					// Check whether the result differs from the current comment count
 					if(result !== comment_count) {
+						// Check whether the result is less than the current comment count
+						if(result < comment_count) {
+							// Update the number of comments in the feed
+							$('.comments .count').data('comments', comments - 1);
+							
+							// Update the comment starting value
+							feed_start--;
+						} else {
+							// Update the number of comments in the feed
+							$('.comments .count').data('comments', comments + 1);
+							
+							// Update the comment starting value
+							feed_start++;
+						}
+						
 						// Refresh the feed
 						refreshFeed();
 						
