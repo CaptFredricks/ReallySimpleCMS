@@ -206,7 +206,7 @@ class User {
 					echo formRow(array('Email', true), array('tag'=>'input', 'type'=>'email', 'class'=>'text-input required invalid init', 'name'=>'email', 'value'=>($_POST['email'] ?? '')));
 					echo formRow('First Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'first_name', 'value'=>($_POST['first_name'] ?? '')));
 					echo formRow('Last Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'last_name', 'value'=>($_POST['last_name'] ?? '')));
-					echo formRow(array('Password', true), array('tag'=>'input', 'id'=>'password-field', 'class'=>'text-input required invalid init', 'name'=>'password'), array('tag'=>'input', 'type'=>'button', 'id'=>'password-gen', 'class'=>'button-input button', 'value'=>'Generate Password'), array('tag'=>'label', 'class'=>'checkbox-label hidden required invalid init', 'content'=>formTag('br', array('class'=>'spacer')).formTag('input', array('type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'pass_saved', 'value'=>'checked')).formTag('span', array('content'=>'I have copied the password to a safe place.'))));
+					echo formRow(array('Password', true), array('tag'=>'input', 'id'=>'password-field', 'class'=>'text-input required invalid init', 'name'=>'password'), array('tag'=>'input', 'type'=>'button', 'id'=>'password-gen', 'class'=>'button-input button', 'value'=>'Generate Password'), array('tag'=>'label', 'class'=>'checkbox-label hidden required invalid init', 'content'=>formTag('br', array('class'=>'spacer')).formTag('input', array('type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'pass_saved', 'value'=>1)).formTag('span', array('content'=>'I have copied the password to a safe place.'))));
 					echo formRow('Avatar', array('tag'=>'div', 'class'=>'image-wrap', 'content'=>formTag('img', array('src'=>'//:0', 'data-field'=>'thumb')).formTag('span', array('class'=>'image-remove', 'title'=>'Remove', 'content'=>formTag('i', array('class'=>'fas fa-times'))))), array('tag'=>'input', 'type'=>'hidden', 'name'=>'avatar', 'value'=>($_POST['avatar'] ?? 0), 'data-field'=>'id'), array('tag'=>'input', 'type'=>'button', 'class'=>'button-input button modal-launch', 'value'=>'Choose Image', 'data-type'=>'image'));
 					echo formRow('Role', array('tag'=>'select', 'class'=>'select-input', 'name'=>'role', 'content'=>$this->getRoleList((int)getSetting('default_user_role', false))));
 					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
@@ -348,7 +348,7 @@ class User {
 				return statusMessage('Password must be at least '.self::PW_LENGTH.' characters long.');
 			
 			// Make sure the password saved checkbox has been checked
-			if(!isset($data['pass_saved']) || $data['pass_saved'] !== 'checked')
+			if(!isset($data['pass_saved']) || $data['pass_saved'] != 1)
 				return statusMessage('Please confirm that you\'ve saved your password to a safe location.');
 			
 			// Hash the password (encrypts the password for security purposes)
@@ -543,7 +543,7 @@ class User {
 					<table class="form-table">
 						<?php
 						echo formRow('Admin Password', array('tag'=>'input', 'type'=>'password', 'class'=>'text-input required invalid init', 'name'=>'admin_pass'));
-						echo formRow('New User Password', array('tag'=>'input', 'id'=>'password-field', 'class'=>'text-input required invalid init', 'name'=>'new_pass'), array('tag'=>'input', 'type'=>'button', 'id'=>'password-gen', 'class'=>'button-input button', 'value'=>'Generate Password'), array('tag'=>'label', 'class'=>'checkbox-label hidden required invalid init', 'content'=>formTag('br', array('class'=>'spacer')).formTag('input', array('type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'pass_saved', 'value'=>'checked')).formTag('span', array('content'=>'I have copied the password to a safe place.'))));
+						echo formRow('New User Password', array('tag'=>'input', 'id'=>'password-field', 'class'=>'text-input required invalid init', 'name'=>'new_pass'), array('tag'=>'input', 'type'=>'button', 'id'=>'password-gen', 'class'=>'button-input button', 'value'=>'Generate Password'), array('tag'=>'label', 'class'=>'checkbox-label hidden required invalid init', 'content'=>formTag('br', array('class'=>'spacer')).formTag('input', array('type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'pass_saved', 'value'=>1)).formTag('span', array('content'=>'I have copied the password to a safe place.'))));
 						echo formRow('New User Password (confirm)', array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'confirm_pass'));
 						echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
 						echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Password'));
@@ -585,7 +585,7 @@ class User {
 			return statusMessage('New password must be at least '.self::PW_LENGTH.' characters long.');
 		
 		// Make sure the password saved checkbox has been checked
-		if(!isset($data['pass_saved']) || $data['pass_saved'] !== 'checked')
+		if(!isset($data['pass_saved']) || $data['pass_saved'] != 1)
 			return statusMessage('Please confirm that you\'ve saved your password to a safe location.');
 		
 		// Hash the password (encrypts the password for security purposes)

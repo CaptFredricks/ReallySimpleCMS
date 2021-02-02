@@ -80,6 +80,9 @@ class Media extends Post {
 						
 						// Display the failure status message
 						echo statusMessage(implode('<br>', $message));
+					} else {
+						// Display a success status message
+						echo statusMessage('The media could not be deleted!');
 					}
 				}
 			}
@@ -187,7 +190,7 @@ class Media extends Post {
 			$data = array_merge($_POST, $_FILES);
 		
 			// Validate the form data and return any messages
-			$message = $this->validateData($data);
+			$message = $this->validateData($data, $_GET['action']);
 		}
 		?>
 		<div class="heading-wrap">
@@ -228,7 +231,7 @@ class Media extends Post {
 			redirect(ADMIN_URI);
 		} else {
 			// Validate the form data and return any messages
-			$message = isset($_POST['submit']) ? $this->validateData($_POST, $this->id) : '';
+			$message = isset($_POST['submit']) ? $this->validateData($_POST, $_GET['action'], $this->id) : '';
 			
 			// Fetch the media's metadata from the database
 			$meta = $this->getPostMeta($this->id);
@@ -247,6 +250,57 @@ class Media extends Post {
 						echo formRow('Description', array('tag'=>'textarea', 'class'=>'textarea-input', 'name'=>'description', 'cols'=>30, 'rows'=>10, 'content'=>htmlspecialchars($this->content)));
 						echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
 						echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Media'));
+						?>
+					</table>
+				</form>
+				<?php echo actionLink('replace', array('classes'=>'replace-media button', 'caption'=>'Replace Media', 'id'=>$this->id)); ?>
+			</div>
+			<?php
+		}
+	}
+	
+	/**
+	 * Replace some media.
+	 * @since 1.2.3[b]
+	 *
+	 * @access public
+	 * @return null
+	 */
+	public function replaceMedia() {
+		// Extend the Query object
+		global $rs_query;
+		
+		// Check whether the media's id is valid
+		if(empty($this->id) || $this->id <= 0) {
+			// Redirect to the "List Media" page
+			redirect(ADMIN_URI);
+		} else {
+			// Check whether the form has been submitted
+			if(isset($_POST['submit'])) {
+				// Merge the $_POST and $_FILES arrays
+				$data = array_merge($_POST, $_FILES);
+				
+				// Validate the form data and return any messages
+				$message = $this->validateData($data, $_GET['action'], $this->id);
+			}
+			
+			// Fetch the media's metadata from the database
+			$meta = $this->getPostMeta($this->id);
+			?>
+			<div class="heading-wrap">
+				<h1>Replace Media</h1>
+				<?php echo $message; ?>
+			</div>
+			<div class="data-form-wrap clear">
+				<form class="data-form" action="" method="post" autocomplete="off" enctype="multipart/form-data">
+					<table class="form-table">
+						<?php
+						echo formRow('Thumbnail', array('tag'=>'div', 'class'=>'thumb-wrap', 'content'=>formTag('img', array('class'=>'media-thumb', 'src'=>trailingSlash(UPLOADS).$meta['filename']))));
+						echo formRow(array('Title', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>$this->title));
+						echo formRow(array('File', true), array('tag'=>'input', 'type'=>'file', 'id'=>'file-upl', 'class'=>'file-input required invalid init', 'name'=>'file'));
+						echo formRow('Metadata', array('tag'=>'input', 'type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'update_filename_date', 'value'=>1, '*'=>($_POST['update_filename_date'] ? 'checked' : ''), 'label'=>array('class'=>'checkbox-label', 'content'=>'<span>Update filename and date</span>')));
+						echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
+						echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Replace Media'));
 						?>
 					</table>
 				</form>
@@ -293,20 +347,20 @@ class Media extends Post {
 			// File path for the file to be deleted
 			$file_path = trailingSlash(PATH.UPLOADS).$filename;
 			
-			// Check whether the file exists
-			if(file_exists($file_path)) {
-				// Delete the file
-				unlink($file_path);
-				
-				// Delete the media from the database
-				$rs_query->delete('posts', array('id'=>$this->id));
-				
-				// Delete the media's metadata from the database
-				$rs_query->delete('postmeta', array('post'=>$this->id));
-				
-				// Redirect to the "List Media" page with an appropriate exit status
-				redirect(ADMIN_URI.'?exit_status=success');
-			}
+			// Check whether the file exists and delete it if so
+			if(file_exists($file_path)) unlink($file_path);
+			
+			// Delete the media from the database
+			$rs_query->delete('posts', array('id'=>$this->id));
+			
+			// Delete the media's metadata from the database
+			$rs_query->delete('postmeta', array('post'=>$this->id));
+			
+			// Redirect to the "List Media" page with an appropriate exit status
+			redirect(ADMIN_URI.'?exit_status=success');
+		} else {
+			// Redirect to the "List Media" page with an appropriate exit status
+			redirect(ADMIN_URI.'?exit_status=failure');
 		}
 	}
 	
@@ -316,10 +370,11 @@ class Media extends Post {
 	 *
 	 * @access private
 	 * @param array $data
+	 * @param string $action
 	 * @param int $id (optional; default: 0)
 	 * @return null|string (null on $id == 0; string on $id != 0)
 	 */
-	private function validateData($data, $id = 0) {
+	private function validateData($data, $action, $id = 0) {
 		// Extend the Query object and the user's session data
 		global $rs_query, $session;
 		
@@ -327,70 +382,144 @@ class Media extends Post {
 		if(empty($data['title']))
 			return statusMessage('R');
 		
-		if($id === 0) {
-			// Make sure a file has been selected
-			if(empty($data['file']['name']))
-				return statusMessage('A file must be selected for upload!');
-			
-			// Create an array of accepted MIME types
-			$accepted_mime = array('image/jpeg', 'image/png', 'image/gif', 'image/x-icon', 'audio/mp3', 'audio/ogg', 'video/mp4', 'text/plain');
-			
-			// Check whether the uploaded file is among the accepted MIME types
-			if(!in_array($data['file']['type'], $accepted_mime, true))
-				return statusMessage('The file could not be uploaded.');
-			
-			// File path for the uploads directory
-			$file_path = PATH.UPLOADS;
-			
-			// Check whether the uploads directory exists, and create it if not
-			if(!file_exists($file_path)) mkdir($file_path);
-			
-			// Convert the filename to all lowercase, replace spaces with hyphens, and remove all special characters
-			$filename = preg_replace('/[^\w.\-]/i', '', str_replace(' ', '-', strtolower($data['file']['name'])));
-			
-			// Get a unique filename
-			$filename = getUniqueFilename($filename);
-			
-			// Strip off the filename's extension for the post's slug
-			$slug = pathinfo($filename, PATHINFO_FILENAME);
-			
-			// Get a unique slug
-			$slug = getUniquePostSlug($slug);
-			
-			// Move the uploaded file to the uploads directory
-			move_uploaded_file($data['file']['tmp_name'], trailingSlash(PATH.UPLOADS).$filename);
-			
-			// Create an array to hold the media's metadata
-			$mediameta = array('filename'=>$filename, 'mime_type'=>$data['file']['type'], 'alt_text'=>$data['alt_text']);
-			
-			// Insert the new media into the database
-			$insert_id = $rs_query->insert('posts', array('title'=>$data['title'], 'author'=>$session['id'], 'date'=>'NOW()', 'content'=>$data['description'], 'slug'=>$slug, 'type'=>'media'));
-			
-			// Insert the media's metadata into the database
-			foreach($mediameta as $key=>$value)
-				$rs_query->insert('postmeta', array('post'=>$insert_id, '_key'=>$key, 'value'=>$value));
-			
-			// Redirect to the appropriate "Edit Media" page
-			redirect(ADMIN_URI.'?id='.$insert_id.'&action=edit');
-		} else {
-			// Create an array to hold the media's metadata
-			$mediameta = array('alt_text'=>$data['alt_text']);
-			
-			// Update the media in the database
-			$rs_query->update('posts', array('title'=>$data['title'], 'modified'=>'NOW()', 'content'=>$data['description']), array('id'=>$id));
-			
-			// Update the media's metadata in the database
-			foreach($mediameta as $key=>$value)
-				$rs_query->update('postmeta', array('value'=>$value), array('post'=>$id, '_key'=>$key));
-			
-			// Update the class variables
-			foreach($data as $key=>$value) $this->$key = $value;
-			
-			// Update the content class variable
-			$this->content = $data['description'];
-			
-			// Return a status message
-			return statusMessage('Media updated! <a href="'.ADMIN_URI.'">Return to list</a>?', true);
+		// Check which action has been submitted
+		switch($action) {
+			case 'upload':
+				// Make sure a file has been selected
+				if(empty($data['file']['name']))
+					return statusMessage('A file must be selected for upload!');
+				
+				// Create an array of accepted MIME types
+				$accepted_mime = array('image/jpeg', 'image/png', 'image/gif', 'image/x-icon', 'audio/mp3', 'audio/ogg', 'video/mp4', 'text/plain');
+				
+				// Check whether the uploaded file is among the accepted MIME types
+				if(!in_array($data['file']['type'], $accepted_mime, true))
+					return statusMessage('The file could not be uploaded.');
+				
+				// File path for the uploads directory
+				$file_path = PATH.UPLOADS;
+				
+				// Check whether the uploads directory exists, and create it if not
+				if(!file_exists($file_path)) mkdir($file_path);
+				
+				// Split the filename into separate parts
+				$file = pathinfo($data['file']['name']);
+				
+				// Convert the filename to all lowercase, remove all special characters, and replace spaces with hyphens
+				$filename = str_replace(array('  ', ' '), '-', preg_replace('/[^\w\s\-]/i', '', strtolower($file['filename'])));
+				
+				// Get a unique slug
+				$slug = getUniquePostSlug($filename);
+				
+				// Get a unique filename
+				$filename = getUniqueFilename($filename.'.'.$file['extension']);
+				
+				// Move the uploaded file to the uploads directory
+				move_uploaded_file($data['file']['tmp_name'], trailingSlash(PATH.UPLOADS).$filename);
+				
+				// Insert the new media into the database
+				$insert_id = $rs_query->insert('posts', array('title'=>$data['title'], 'author'=>$session['id'], 'date'=>'NOW()', 'content'=>$data['description'], 'slug'=>$slug, 'type'=>'media'));
+				
+				// Create an array to hold the media's metadata
+				$mediameta = array('filename'=>$filename, 'mime_type'=>$data['file']['type'], 'alt_text'=>$data['alt_text']);
+				
+				// Insert the media's metadata into the database
+				foreach($mediameta as $key=>$value)
+					$rs_query->insert('postmeta', array('post'=>$insert_id, '_key'=>$key, 'value'=>$value));
+				
+				// Redirect to the appropriate "Edit Media" page
+				redirect(ADMIN_URI.'?id='.$insert_id.'&action=edit');
+				break;
+			case 'edit':
+				// Update the media in the database
+				$rs_query->update('posts', array('title'=>$data['title'], 'modified'=>'NOW()', 'content'=>$data['description']), array('id'=>$id));
+				
+				// Create an array to hold the media's metadata
+				$mediameta = array('alt_text'=>$data['alt_text']);
+				
+				// Update the media's metadata in the database
+				foreach($mediameta as $key=>$value)
+					$rs_query->update('postmeta', array('value'=>$value), array('post'=>$id, '_key'=>$key));
+				
+				// Update the class variables
+				foreach($data as $key=>$value) $this->$key = $value;
+				
+				// Update the content class variable
+				$this->content = $data['description'];
+				
+				// Return a status message
+				return statusMessage('Media updated! <a href="'.ADMIN_URI.'">Return to list</a>?', true);
+				break;
+			case 'replace':
+				// Make sure a file has been selected
+				if(empty($data['file']['name']))
+					return statusMessage('A file must be selected for upload!');
+				
+				// Create an array of accepted MIME types
+				$accepted_mime = array('image/jpeg', 'image/png', 'image/gif', 'image/x-icon', 'audio/mp3', 'audio/ogg', 'video/mp4', 'text/plain');
+				
+				// Check whether the uploaded file is among the accepted MIME types
+				if(!in_array($data['file']['type'], $accepted_mime, true))
+					return statusMessage('The file could not be uploaded.');
+				
+				// Fetch the media's metadata from the database
+				$meta = $this->getPostMeta($id);
+				
+				// Delete the old file from the uploads directory
+				unlink(trailingSlash(PATH.UPLOADS).$meta['filename']);
+				
+				// Check whether the filename and upload date should be updated
+				if(isset($data['update_filename_date']) && $data['update_filename_date'] == 1) {
+					// Split the filename into separate parts
+					$file = pathinfo($data['file']['name']);
+					
+					// Convert the filename to all lowercase, remove all special characters, and replace spaces with hyphens
+					$filename = str_replace(array('  ', ' '), '-', preg_replace('/[^\w\s\-]/i', '', strtolower($file['filename'])));
+					
+					// Get a unique slug
+					$slug = getUniquePostSlug($filename);
+					
+					// Get a unique filename
+					$filename = getUniqueFilename($filename.'.'.$file['extension']);
+					
+					// Move the uploaded file to the uploads directory
+					move_uploaded_file($data['file']['tmp_name'], trailingSlash(PATH.UPLOADS).$filename);
+					
+					// Update the media in the database
+					$rs_query->update('posts', array('title'=>$data['title'], 'date'=>'NOW()', 'modified'=>null, 'slug'=>$slug), array('id'=>$id));
+				} else {
+					// Split the old filename into separate parts
+					$db_file = pathinfo($meta['filename']);
+					
+					// Split the new filename into separate parts
+					$file = pathinfo($data['file']['name']);
+					
+					// Construct the new filename
+					$filename = $db_file['filename'].'.'.$file['extension'];
+					
+					// Get a unique filename
+					$filename = getUniqueFilename($filename);
+					
+					// Move the uploaded file to the uploads directory
+					move_uploaded_file($data['file']['tmp_name'], trailingSlash(PATH.UPLOADS).$filename);
+					
+					// Update the media in the database
+					$rs_query->update('posts', array('title'=>$data['title'], 'modified'=>'NOW()'), array('id'=>$id));
+				}
+				
+				// Create an array to hold the media's metadata
+				$mediameta = array('filename'=>$filename, 'mime_type'=>$data['file']['type']);
+				
+				// Update the media's metadata in the database
+				foreach($mediameta as $key=>$value)
+					$rs_query->update('postmeta', array('value'=>$value), array('post'=>$id, '_key'=>$key));
+				
+				// Update the class variables
+				foreach($data as $key=>$value) $this->$key = $value;
+				
+				// Return a status message
+				return statusMessage('Media replaced! <a href="'.ADMIN_URI.'">Return to list</a>?', true);
+				break;
 		}
 	}
 }

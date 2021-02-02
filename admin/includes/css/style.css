@@ -772,6 +772,7 @@ h3 {
 	border-color: #9d9d9d;
 }
 
+.data-form-wrap .replace-media,
 .data-form-wrap .reset-password {
 	margin-top: 0.5rem;
 }
@@ -1638,6 +1639,7 @@ h3 {
 		margin-top: 0;
 	}
 	
+	.data-form-wrap .replace-media,
 	.data-form-wrap .reset-password {
 		margin-top: 0;
 		position: absolute;

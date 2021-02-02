@@ -16,15 +16,19 @@ $rs_media = new Media($id);
 	switch($action) {
 		case 'upload':
 			// Upload new media
-			userHasPrivilege($session['role'], 'can_upload_media') ? $rs_media->uploadMedia() : redirect('media.php');
+			userHasPrivilege($session['role'], 'can_upload_media') ? $rs_media->uploadMedia() : redirect(ADMIN_URI);
 			break;
 		case 'edit':
 			// Edit existing media
-			userHasPrivilege($session['role'], 'can_edit_media') ? $rs_media->editMedia() : redirect('media.php');
+			userHasPrivilege($session['role'], 'can_edit_media') ? $rs_media->editMedia() : redirect(ADMIN_URI);
+			break;
+		case 'replace':
+			// Replace existing media
+			userHasPrivilege($session['role'], 'can_edit_media') ? $rs_media->replaceMedia() : redirect(ADMIN_URI);
 			break;
 		case 'delete':
 			// Delete existing media
-			userHasPrivilege($session['role'], 'can_delete_media') ? $rs_media->deleteMedia() : redirect('media.php');
+			userHasPrivilege($session['role'], 'can_delete_media') ? $rs_media->deleteMedia() : redirect(ADMIN_URI);
 			break;
 		default:
 			// List all media

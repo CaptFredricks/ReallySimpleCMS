@@ -6,6 +6,28 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.2.3[b] (2021-02-01)
+
+- Added a "Replace Media" button to the "Edit Media" form
+- Fixed a bug that put two hyphens side by side in media filenames in some instances
+- Cleaned up code in the `Media` class
+- Media can now be replaced
+- Added a default error message that will display for media that can't be deleted (this should only occur in catastrophic circumstances)
+- Media entries in the database can now be deleted even if the associated file can't be found in the `uploads` directory
+- Renamed the `Menu::getMenuItemsLists` function to `Menu::getMenuItemsSidebar`
+- The newest posts and terms are now ordered first in the menu items sidebar
+- Optimized code in the `User` and `Profile` classes for the `pass_saved` checkboxes
+
+**Modified files:**
+- admin/includes/class-media.php
+- admin/includes/class-menu.php
+- admin/includes/class-profile.php (M)
+- admin/includes/class-user.php
+- admin/includes/css/style.css (M)
+- admin/includes/css/style.min.css (M)
+- admin/media.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.2.2[b] (2021-01-31)
 
 - Added a box shadow to the admin widgets

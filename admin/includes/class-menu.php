@@ -173,8 +173,8 @@ class Menu extends Term {
 						<h2>Add Menu Items</h2>
 						<div class="row">
 							<?php
-							// Construct the 'menu items' lists
-							$this->getMenuItemsLists();
+							// Construct the 'menu items' sidebar
+							$this->getMenuItemsSidebar();
 							?>
 						</div>
 						<div id="submit" class="row">
@@ -248,8 +248,8 @@ class Menu extends Term {
 							<h2>Add Menu Items</h2>
 							<div class="row">
 								<?php
-								// Construct the 'menu items' lists
-								$this->getMenuItemsLists();
+								// Construct the 'menu items' sidebar
+								$this->getMenuItemsSidebar();
 								?>
 							</div>
 							<div id="submit" class="row">
@@ -606,13 +606,13 @@ class Menu extends Term {
 	}
 	
 	/**
-	 * Construct a list of menu items.
+	 * Construct a sidebar of menu items.
 	 * @since 1.8.0[a]
 	 *
 	 * @access private
 	 * @return null
 	 */
-	private function getMenuItemsLists() {
+	private function getMenuItemsSidebar() {
 		// Extend the Query object and the post types and taxonomies arrays
 		global $rs_query, $post_types, $taxonomies;
 		
@@ -626,7 +626,7 @@ class Menu extends Term {
 				<ul class="checkbox-list">
 					<?php
 					// Fetch all published posts from the database
-					$posts = $rs_query->select('posts', array('id', 'title'), array('status'=>'published', 'type'=>$post_type['name']));
+					$posts = $rs_query->select('posts', array('id', 'title'), array('status'=>'published', 'type'=>$post_type['name']), 'id', 'DESC');
 					
 					// Loop through the posts
 					foreach($posts as $post) {
@@ -650,7 +650,7 @@ class Menu extends Term {
 				<ul class="checkbox-list">
 					<?php
 					// Fetch all of the taxonomy's terms from the database
-					$terms = $rs_query->select('terms', array('id', 'name'), array('taxonomy'=>getTaxonomyId($taxonomy['name'])));
+					$terms = $rs_query->select('terms', array('id', 'name'), array('taxonomy'=>getTaxonomyId($taxonomy['name'])), 'id', 'DESC');
 					
 					// Loop through the terms
 					foreach($terms as $term) {

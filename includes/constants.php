@@ -8,7 +8,7 @@
 define('PHP', '7.3');
 
 // Current CMS version
-define('VERSION', '1.2.2');
+define('VERSION', '1.2.3');
 
 // Absolute path to the root directory
 define('PATH', dirname(__DIR__));

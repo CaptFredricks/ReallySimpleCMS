@@ -178,7 +178,7 @@ class Profile extends User {
 				<table class="form-table">
 					<?php
 					echo formRow('Current Password', array('tag'=>'input', 'type'=>'password', 'class'=>'text-input required invalid init', 'name'=>'current_pass'));
-					echo formRow('New Password', array('tag'=>'input', 'id'=>'password-field', 'class'=>'text-input required invalid init', 'name'=>'new_pass'), array('tag'=>'input', 'type'=>'button', 'id'=>'password-gen', 'class'=>'button-input button', 'value'=>'Generate Password'), array('tag'=>'label', 'class'=>'checkbox-label hidden required invalid init', 'content'=>formTag('br', array('class'=>'spacer')).formTag('input', array('type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'pass_saved', 'value'=>'checked')).formTag('span', array('content'=>'I have copied the password to a safe place.'))));
+					echo formRow('New Password', array('tag'=>'input', 'id'=>'password-field', 'class'=>'text-input required invalid init', 'name'=>'new_pass'), array('tag'=>'input', 'type'=>'button', 'id'=>'password-gen', 'class'=>'button-input button', 'value'=>'Generate Password'), array('tag'=>'label', 'class'=>'checkbox-label hidden required invalid init', 'content'=>formTag('br', array('class'=>'spacer')).formTag('input', array('type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'pass_saved', 'value'=>1)).formTag('span', array('content'=>'I have copied the password to a safe place.'))));
 					echo formRow('New Password (confirm)', array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'confirm_pass'));
 					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
 					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Password'));
@@ -219,7 +219,7 @@ class Profile extends User {
 			return statusMessage('New password must be at least '.self::PW_LENGTH.' characters long.');
 		
 		// Make sure the password saved checkbox has been checked
-		if(!isset($data['pass_saved']) || $data['pass_saved'] !== 'checked')
+		if(!isset($data['pass_saved']) || $data['pass_saved'] != 1)
 			return statusMessage('Please confirm that you\'ve saved your password to a safe location.');
 		
 		// Hash the password (encrypts the password for security purposes)
