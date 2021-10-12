@@ -8,8 +8,8 @@
 require_once __DIR__.'/includes/constants.php';
 
 // Check whether the server is running the required PHP version
-if(phpversion() < PHP)
-	exit('<p>The minimum version of PHP that is supported by ReallySimpleCMS is <code>'.PHP.'</code>; your server is running on <code>'.phpversion().'</code>. Please upgrade to the minimum required version or higher to use this CMS.</p>');
+if(version_compare(PHP_VERSION, PHP, '<'))
+	exit('<p>The minimum version of PHP that is supported by ReallySimpleCMS is '.PHP.'; your server is running on '.PHP_VERSION.'. Please upgrade to the minimum required version or higher to use this CMS.</p>');
 
 // Check whether the configuration file exists
 if(!file_exists(PATH.'/config.php')) {

@@ -163,7 +163,7 @@ class Login {
 		if(!$this->isValidCaptcha($captcha))
 			return $this->statusMessage('The captcha is not valid.');
 		
-		do {			
+		do {
 			// Generate a random hash for the session value
 			$session = generateHash(12);
 		} while($this->sessionExists($session));

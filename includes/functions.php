@@ -420,7 +420,7 @@ function headerScripts($exclude = '', $include_styles = array(), $include_script
 	
 	if(!in_array('fa', $exclude, true)) {
 		// Font Awesome icons stylesheet
-		getStylesheet('font-awesome.min.css', '5.15.1');
+		getStylesheet('font-awesome.min.css', '5.15.3');
 	
 		// Font Awesome font-face rules stylesheet
 		getStylesheet('font-awesome-rules.min.css');

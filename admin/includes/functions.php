@@ -275,7 +275,8 @@ function adminHeaderScripts() {
 	getStylesheet('button.min.css');
 	
 	// Admin stylesheet
-	getAdminStylesheet('style.min.css');
+	getAdminStylesheet('style.css');
+	//getAdminStylesheet('style.min.css');
 	
 	// Check whether the user has a custom admin theme selected
 	if($session['theme'] !== 'default') {
@@ -290,7 +291,7 @@ function adminHeaderScripts() {
 	}
 	
 	// Font Awesome icons stylesheet
-	getStylesheet('font-awesome.min.css', '5.15.1');
+	getStylesheet('font-awesome.min.css', '5.15.3');
 	
 	// Font Awesome font-face rules stylesheet
 	getStylesheet('font-awesome-rules.min.css');

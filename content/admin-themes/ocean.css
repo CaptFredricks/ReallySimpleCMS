@@ -1,126 +1,46 @@
 /**
  * Admin dashboard Ocean theme.
  * @since 2.0.7[a]
- * @version 1.7
+ * @version 1.8
  */
 
-html {
-	background-color: #090f2f;
-}
-
-body {
-	color: #fff;
-}
-
-a {
-	color: #fa96c0;
-}
-
-/*------------------------------------*\
-    STRUCTURE
-\*------------------------------------*/
-
-/* Header */
-
-#admin-header {
-	background-color: #0f2f6f;
-}
-
-/** Site title **/
-
-#site-title {
-	color: #fff;
-}
-
-#site-title:hover {
-	background-color: #090f2f;
-	color: #fa96c0;
-}
-
-/** User dropdown menu **/
-
-.user-dropdown:hover {
-	background-color: #090f2f;
-	color: #fa96c0;
-}
-
-.user-dropdown-menu {
-	background-color: #090f2f;
-}
-
-.user-dropdown-menu li a {
-	color: #fff;
-}
-
-.user-dropdown-menu li a:hover {
-	color: #fa96c0;
-}
-
-/* Navigation */
-
-#admin-nav-wrap {
-	background-color: #0f2f6f;
-}
-
-#admin-nav-menu {
-	background-color: #0f2f6f;
-}
-
-#admin-nav-menu .menu > li:hover {
-	background-color: #090f2f;
-}
-
-#admin-nav-menu .menu > li.current-menu-item,
-#admin-nav-menu .menu > li.child-is-current {
-	background-color: #090f2f;
-}
-
-#admin-nav-menu .menu > li.current-menu-item > a,
-#admin-nav-menu .menu > li.child-is-current > a {
-	color: #fa96c0;
-}
-
-#admin-nav-menu .submenu {
-	background-color: #0f2f6f;
-}
-
-#admin-nav-menu .submenu::before {
-	border-right-color: #0f2f6f;
-}
-
-#admin-nav-menu .submenu > li.current-submenu-item {
-	background-color: #090f2f;
-}
-
-#admin-nav-menu .submenu > li.current-submenu-item > a {
-	color: #fa96c0;
-}
-
-#admin-nav-menu .submenu > li > a {
-	color: #eee;
-}
-
-#admin-nav-menu .submenu > li:not(.current-submenu-item):hover > a {
-	color: #26fa70;
+:root {
+	/* Background colors */
+	
+	--global--bg-color: #090f2f;
+	--global--js-notice-bg-color: #00000f;
+	--global--menu-bg-color: #0f2f6f;
+	--global--submenu-bg-color: #0f3f7f;
+	--global--graph-overlay-bg-color: #1d5d9d;
+	--global--table-bg-color: #9dedcd;
+	--global--table-odd-bg-color: #8dddbd;
+	--global--form-bg-color: #090c1f;
+	--global--input-bg-color: #bdffed;
+	--global--modal-bg-color: #0c1f5f;
+	--global--active-tab-bg-color: #060f3f;
+	
+	/* Border colors */
+	
+	--global--graph-border-color: #7dcdad;
+	--global--table-border-color: #6dbd9d;
+	--global--form-border-color: #fdbd4d;
+	--global--input-border-color: #5dad8d;
+	--global--modal-border-color: var(--global--form-border-color);
+	
+	/* Text/link colors */
+	
+	--global--text-color: #fff;
+	--global--link-color: #fa96c0;
+	--global--secondary-link-color: #9a06b0;
+	--global--submenu-hover-link-color: #26fa70;
+	--global--table-color: #040a10;
 }
 
 /*------------------------------------*\
     CONTENT
 \*------------------------------------*/
 
-.notice-nojs {
-	background-color: #00000f;
-}
-
 /* Statistics graph */
-
-#stats-graph {
-	background-color: #9dedcd;
-}
-
-.graph-content {
-	background-color: #1d5d9d;
-}
 
 .graph-content > li .bar {
 	background-color: #fa96c0;
@@ -130,187 +50,6 @@ a {
 	background-color: #ffa6d0;
 }
 
-.graph-overlay {
-	background-color: #1d5d9d;
-}
-
 .graph-overlay li {
 	border-bottom-color: #5dbddd;
-}
-
-.graph-x {
-	border-top-color: #7dcdad;
-}
-
-.graph-x .value {
-	color: #9a06b0;
-}
-
-.graph-y {
-	border-right-color: #7dcdad;
-}
-
-/* Dashboard widgets */
-
-.dashboard-widget {
-	background-color: #9dedcd;
-}
-
-.dashboard-widget a {
-	color: #9a06b0;
-}
-
-/* Data tables */
-
-.data-table {
-	background-color: #9dedcd;
-}
-
-.data-table thead tr,
-.data-table tbody tr:not(:last-child) {
-	border-bottom-color: #6dbd9d;
-}
-
-.data-table tbody tr:nth-child(odd) {
-	background-color: #8dddbd;
-}
-
-.data-table tbody tr:hover {
-	background-color: #bdffed;
-}
-
-.data-table th:not(:last-child),
-.data-table td:not(:last-child) {
-	border-right-color: #6dbd9d;
-}
-
-.data-table a {
-	color: #9a06b0;
-}
-
-/* Data forms */
-
-.data-form-wrap {
-	background-color: #090c1f;
-	border-color: #fdbd4d;
-}
-
-.data-form-wrap .item-list {
-	background-color: #9dedcd;
-}
-
-.data-form-wrap .menu-item {
-	background-color: #bdffed;
-}
-
-.data-form-wrap .menu-item .actions a:not(.button) {
-	color: #9a06b0;
-}
-
-.data-form-wrap .menu-item .separator {
-	border-color: #8dddbd;
-}
-
-.data-form .block {
-	background-color: #9dedcd;
-}
-
-.data-form .block h2 {
-	border-bottom-color: #6dbd9d;
-}
-
-.data-form .sidebar .block a {
-	color: #9a06b0;
-}
-
-.data-form .sidebar .block fieldset {
-	border-color: #bdffed;
-}
-
-.data-form .sidebar #submit {
-	background-color: #8dddbd;
-	border-top-color: #6dbd9d;
-}
-
-/** Form tables **/
-
-.form-table .separator {
-	border-color: #0f3f7f;
-}
-
-/** Required fields **/
-
-.checkbox-label.init {
-	color: #fff;
-}
-
-/* Data lists */
-
-.data-list li {
-	background-color: #9dedcd;
-}
-
-.data-list .theme-name {
-	background-color: #9dedcd;
-	border-top-color: #7dcdad;
-}
-
-.data-list .theme-name .actions a {
-	color: #9a06b0;
-}
-
-/* Modal */
-
-.modal-wrap {
-	background-color: #0f2f6f;
-}
-
-.modal-header {
-	border-bottom-color: #fdbd4d;
-}
-
-.modal-header .tabber .tab {
-	border-color: #fdbd4d;
-}
-
-.modal-header .tabber .tab:hover {
-	background-color: #0c1f5f;
-	border-color: #fdbd4d;
-}
-
-.modal-header .tabber .tab.active {
-	background-color: #090f2f;
-	border-color: #fdbd4d;
-}
-
-.modal-header .tabber .tab a {
-	color: #fff;
-}
-
-.modal-header #modal-close {
-	color: #fff;
-}
-
-.modal-body {
-	background-color: #0c1f5f;
-}
-
-.modal-body .media-details {
-	background-color: #0f3f7f;
-	border-color: #fdbd4d;
-}
-
-.modal-footer {
-	border-top-color: #fdbd4d;
-}
-
-/*------------------------------------*\
-    RESPONSIVE
-\*------------------------------------*/
-
-@media screen and (min-width: 1050px) {
-	#admin-nav-menu .menu > li.current-menu-item .submenu,
-	#admin-nav-menu .menu > li.child-is-current .submenu {
-		background-color: #0f3f7f;
-	}
 }

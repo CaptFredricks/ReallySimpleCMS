@@ -1,0 +1,37 @@
+:root {
+	/* Background colors */
+	
+	--global--bg-color: #efe2d6;
+	/* --global--js-notice-bg-color: #0f0f0f; */
+	--global--menu-bg-color: #ddd;
+	--global--menu-hover-bg-color: #df6256;
+	--global--submenu-bg-color: #ededed;
+	--global--submenu-hover-bg-color: #ff8276;
+	/* --global--graph-overlay-bg-color: #cdcdcd; */
+	/* --global--table-bg-color: #ededed; */
+	/* --global--table-odd-bg-color: #ddd; */
+	--global--form-bg-color: #ededed;
+	/* --global--input-bg-color: #fdfdfd; */
+	/* --global--modal-bg-color: #3f3f3f; */
+	/* --global--modal-details-bg-color: var(--global--submenu-bg-color); */
+	/* --global--active-tab-bg-color: var(--global--bg-color); */
+	
+	/* Border colors */
+	
+	/* --global--graph-border-color: #cdcdcd; */
+	/* --global--table-border-color: var(--global--graph-border-color); */
+	/* --global--table-separator-color: var(--global--submenu-bg-color); */
+	/* --global--form-border-color: #7d7d7d; */
+	/* --global--input-border-color: #adadad; */
+	/* --global--modal-border-color: var(--global--input-border-color); */
+	
+	/* Text/link colors */
+	
+	--global--text-color: #222;
+	--global--link-color: #bf4236;
+	--global--secondary-link-color: #8f1206;
+	--global--menu-link-color: #000;
+	--global--active-menu-link-color: #fff;
+	--global--submenu-hover-link-color: var(--global--menu-link-color);
+	/* --global--table-color: #101010; */
+}

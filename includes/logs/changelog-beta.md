@@ -6,6 +6,33 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.2.4[b] (2021-04-26)
+
+- Improved the way the `init.php` file checks the current PHP version
+- Updated Font Awesome to v5.15.3
+- Added custom properties to the admin `style.css` file
+- Tweaked styles in the `install.css` file
+- Added custom properties to the admin themes CSS files and significantly reduced their file sizes
+- Added a new light admin theme (some colors may not be finalized)
+
+**Modified files:**
+- admin/includes/css/install.css (M)
+- admin/includes/css/style.css
+- admin/includes/functions.php (M)
+- content/admin-themes/forest.css
+- content/admin-themes/harvest.css
+- content/admin-themes/light.css (N)
+- content/admin-themes/ocean.css
+- content/admin-themes/sunset.css
+- includes/class-login.php (M)
+- includes/css/font-awesome.min.css
+- includes/fonts/fa-brands.ttf
+- includes/fonts/fa-regular.ttf
+- includes/fonts/fa-solid.ttf
+- includes/functions.php (M)
+- init.php
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.2.3[b] (2021-02-01)
 
 - Added a "Replace Media" button to the "Edit Media" form
