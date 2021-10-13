@@ -275,8 +275,7 @@ function adminHeaderScripts() {
 	getStylesheet('button.min.css');
 	
 	// Admin stylesheet
-	getAdminStylesheet('style.css');
-	//getAdminStylesheet('style.min.css');
+	getAdminStylesheet('style.min.css');
 	
 	// Check whether the user has a custom admin theme selected
 	if($session['theme'] !== 'default') {

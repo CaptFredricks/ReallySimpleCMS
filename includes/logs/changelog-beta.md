@@ -6,6 +6,16 @@
 *Other: [a] - alpha, [b] - beta*
 
 ----------------------------------------------------------------------------------------------------
+## Version 1.2.4.1[b] (2021-10-12)
+
+- Incremented the version from 1.2.3 to 1.2.4
+- Updated the minified stylesheet for the admin dashboard
+
+**Modified files:**
+- admin/includes/css/style.min.css
+- admin/includes/functions.php (M)
+
+----------------------------------------------------------------------------------------------------
 ## Version 1.2.4[b] (2021-04-26)
 
 - Improved the way the `init.php` file checks the current PHP version
