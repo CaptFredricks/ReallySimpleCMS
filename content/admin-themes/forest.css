@@ -1,14 +1,14 @@
 /**
  * Admin dashboard Forest theme.
  * @since 2.0.7[a]
- * @version 1.5
+ * @version 1.6
  */
 
 :root {
 	/* Background colors */
 	
 	--global--bg-color: #2f2f19;
-	--global--js-notice-bg-color: #0f0f00;
+	--global--header-notice-bg-color: #0f0f00;
 	--global--menu-bg-color: #0f6f2f;
 	--global--menu-hover-bg-color: #2f1f00;
 	--global--submenu-bg-color: #0f7f3f;

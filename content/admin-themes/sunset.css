@@ -1,14 +1,14 @@
 /**
  * Admin dashboard Sunset theme.
  * @since 2.0.7[a]
- * @version 1.7
+ * @version 1.8
  */
 
 :root {
 	/* Background colors */
 	
 	--global--bg-color: #2f001f;
-	--global--js-notice-bg-color: #0f0000;
+	--global--header-notice-bg-color: #0f0000;
 	--global--menu-bg-color: #8f3f6f;
 	--global--menu-hover-bg-color: #0f062f;
 	--global--submenu-bg-color: #bf1f4f;

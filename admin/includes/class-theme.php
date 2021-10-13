@@ -73,6 +73,8 @@ class Theme {
 					<div class="theme-preview">
 						<?php if(file_exists($theme_path.'/preview.png')): ?>
 							<img src="<?php echo trailingSlash(THEMES).$theme.'/preview.png'; ?>" alt="<?php echo ucwords(str_replace('-', ' ', $theme)); ?> preview">
+						<?php else: ?>
+							<span>No theme preview</span>
 						<?php endif; ?>
 					</div>
 					<h2 class="theme-name">

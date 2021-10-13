@@ -1,8 +1,14 @@
+/**
+ * Admin dashboard Light theme.
+ * @since 1.2.4[b]
+ * @version 1.1
+ */
+
 :root {
 	/* Background colors */
 	
 	--global--bg-color: #efe2d6;
-	/* --global--js-notice-bg-color: #0f0f0f; */
+	/* --global--header-notice-bg-color: #0f0f0f; */
 	--global--menu-bg-color: #ddd;
 	--global--menu-hover-bg-color: #df6256;
 	--global--submenu-bg-color: #ededed;

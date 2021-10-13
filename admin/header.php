@@ -60,5 +60,8 @@ $current_page = getCurrentPage();
 				<?php adminNavMenu(); ?>
 			</ul>
 		</nav>
-		<noscript class="notice-nojs">Warning! Your browser either does not support or is set to disable <a href="https://www.w3schools.com/js/default.asp" target="_blank" rel="noreferrer noopener">JavaScript</a>. Some features may not work as expected.</noscript>
-		<div class="wrapper clear">
+		<noscript id="no-js" class="header-notice">Warning! Your browser either does not support or is set to disable <a href="https://www.w3schools.com/js/default.asp" target="_blank" rel="noreferrer noopener">JavaScript</a>. Some features may not work as expected.</noscript>
+		<?php if(version_compare(PHP_VERSION, PHP_RECOMMENDED, '<')): ?>
+			<div id="php-deprecation" class="header-notice">Notice: Your server's PHP version, <?php echo PHP_VERSION; ?>, is below the recommended PHP version, <?php echo PHP_RECOMMENDED; ?>. Consider upgrading to the recommended version.</div>
+		<?php endif; ?>
+			<div class="wrapper clear">

@@ -1,14 +1,14 @@
 /**
  * Admin dashboard Harvest theme.
  * @since 2.1.9[a]
- * @version 1.5
+ * @version 1.6
  */
 
 :root {
 	/* Background colors */
 	
 	--global--bg-color: #2f0f06;
-	--global--js-notice-bg-color: #0f0400;
+	--global--header-notice-bg-color: #0f0400;
 	--global--menu-bg-color: #8f4f0f;
 	--global--menu-hover-bg-color: #2f0f06;
 	--global--submenu-bg-color: #7f3f0f;

@@ -1,11 +1,56 @@
 # ReallySimpleCMS Changelog (Beta)
 
-----------------------------------------------------------------------------------------------------
-*Legend: N - new file, D - deprecated file, R - renamed file, X - removed file, M - minor change*<br>
-*Versions: X.x.x (major releases), x.X.x (standard releases), x.x.X (minor releases/bug fixes)*<br>
-*Other: [a] - alpha, [b] - beta*
+Legend
+: N - new file
+: D - deprecated file
+: R - renamed file
+: X - removed file
+: M - minor change
 
-----------------------------------------------------------------------------------------------------
+Versions
+: X.x.x (major release)
+: x.X.x (standard release)
+: x.x.X (minor release/bug fix)
+: x.x.x{ss-xx} (snapshot release)
+
+Other
+: [a] - alpha
+: [b] - beta
+
+## Version 1.2.5[b] (2021-10-13)
+
+- Tweaked the Beta changelog formatting
+- Updated the copyright year in the README file
+- Updated Font Awesome to v5.15.4
+- Updated jQuery to v3.6.0
+- Created named constants for the jQuery and Font Awesome versions
+- Renamed the `PHP` named constant to `PHP_MINIMUM` and created a new constant called `PHP_RECOMMENDED`, which will be the version recommended for administrators to run their servers on
+- Tweaked styling for admin header notices
+- Added an admin header notice for PHP versions below the recommended version
+- Tweaked styling of the admin themes page
+- Added a message that displays if a theme does not have a preview image
+
+** Modified files:**
+- README.md (M)
+- admin/header.php
+- admin/includes/class-theme.php (M)
+- admin/includes/css/style.css
+- admin/includes/css/style.min.css
+- admin/includes/functions.php
+- content/admin-themes/forest.css (M)
+- content/admin-themes/harvest.css (M)
+- content/admin-themes/light.css (M)
+- content/admin-themes/ocean.css (M)
+- content/admin-themes/sunset.css (M)
+- includes/constants.php
+- includes/css/font-awesome.min.css
+- includes/fonts/fa-brands.ttf
+- includes/fonts/fa-regular.ttf
+- includes/fonts/fa-solid.ttf
+- includes/functions.php
+- includes/js/jquery.min.js
+- init.php (M)
+
 ## Version 1.2.4.1[b] (2021-10-12)
 
 - Incremented the version from 1.2.3 to 1.2.4
@@ -15,7 +60,6 @@
 - admin/includes/css/style.min.css
 - admin/includes/functions.php (M)
 
-----------------------------------------------------------------------------------------------------
 ## Version 1.2.4[b] (2021-04-26)
 
 - Improved the way the `init.php` file checks the current PHP version
@@ -42,7 +86,6 @@
 - includes/functions.php (M)
 - init.php
 
-----------------------------------------------------------------------------------------------------
 ## Version 1.2.3[b] (2021-02-01)
 
 - Added a "Replace Media" button to the "Edit Media" form
@@ -64,7 +107,6 @@
 - admin/includes/css/style.min.css (M)
 - admin/media.php
 
-----------------------------------------------------------------------------------------------------
 ## Version 1.2.2[b] (2021-01-31)
 
 - Added a box shadow to the admin widgets
@@ -86,7 +128,6 @@
 - includes/css/style.min.css (M)
 - includes/js/script.js
 
-----------------------------------------------------------------------------------------------------
 ## Version 1.2.1[b] (2021-01-20)
 
 - The active theme is now listed first on the "List Themes" page
@@ -118,7 +159,6 @@
 - includes/js/script.js
 - includes/update.php
 
-----------------------------------------------------------------------------------------------------
 ## Version 1.2.0[b] (2021-01-16)
 
 ### Dedicated to my grandmother, "Nam" (1940 - 2021)
@@ -158,7 +198,6 @@
 - includes/schema.php (M)
 - includes/update.php
 
-----------------------------------------------------------------------------------------------------
 ## Version 1.1.7[b] (2020-12-03)
 
 - Canonical links for the home page no longer include the page's slug and point to the actual home URL
@@ -199,7 +238,6 @@
 - includes/js/script.js (M)
 - includes/update.php
 
-----------------------------------------------------------------------------------------------------
 ## Version 1.1.6[b] (2020-11-15)
 
 - The `sitemap-index.php` file is now loaded after the theme (this allows for custom post type and taxonomy sitemaps to be generated)
@@ -216,7 +254,6 @@
 - includes/sitemap-index.php
 - init.php (M)
 
-----------------------------------------------------------------------------------------------------
 ## Version 1.1.5[b] (2020-11-14)
 
 - Removed an unnecessary `if` statement from the `ajax.php` file
@@ -249,7 +286,6 @@
 - includes/sitemap.xsl (N)
 - init.php (M)
 
-----------------------------------------------------------------------------------------------------
 ## Version 1.1.4[b] (2020-11-10)
 
 - Improved security for the `session` and `pw-reset` cookies
@@ -281,7 +317,6 @@
 - includes/sitemap-terms.php (M)
 - init.php
 
-----------------------------------------------------------------------------------------------------
 ## Version 1.1.3[b] (2020-11-07)
 
 - Fixed sitemap links in the `sitemap-index.php` file (they previously were missing the `includes` directory before the filename)
@@ -306,7 +341,6 @@
 - includes/load-theme.php
 - includes/sitemap-index.php (M)
 
-----------------------------------------------------------------------------------------------------
 ## Version 1.1.2[b] (2020-11-04)
 
 - Added validation in the `init.php` file that checks whether the `BASE_INIT` constant has been defined (if so, it only loads the basic initialization files, otherwise it loads everything)
@@ -334,7 +368,6 @@
 - includes/sitemap-terms.php (N)
 - init.php
 
-----------------------------------------------------------------------------------------------------
 ## Version 1.1.1[b] (2020-10-24)
 
 - Fixed the mobile sizing of media thumbnails on the "Edit Media" page
@@ -386,7 +419,6 @@
 - includes/functions.php
 - includes/js/script.js
 
-----------------------------------------------------------------------------------------------------
 ## Version 1.1.0[b] (2020-10-22)
 
 - For a full list of changes, see: `changelog-beta-snapshots.md`
@@ -422,7 +454,6 @@
 - content/themes/carbon/script.js
 - includes/globals.php (M)
 
-----------------------------------------------------------------------------------------------------
 ## Version 1.0.9[b] (2020-09-10)
 
 - The current post's `type` is now added to the `body` tag as a CSS class
@@ -462,7 +493,6 @@
 - includes/deprecated.php
 - includes/functions.php
 
-----------------------------------------------------------------------------------------------------
 ## Version 1.0.8[b] (2020-08-11)
 
 - The `Query::showTables` function now has an optional `table` parameter
@@ -486,7 +516,6 @@
 - includes/globals.php
 - init.php
 
-----------------------------------------------------------------------------------------------------
 ## Version 1.0.7[b] (2020-07-30)
 
 - Tweaked a previous entry in the changelog
@@ -512,7 +541,6 @@
 - includes/globals.php
 - includes/load-template.php
 
-----------------------------------------------------------------------------------------------------
 ## Version 1.0.6[b] (2020-07-25)
 
 - Improved how permalinks are structured for custom post types and taxonomies (this fixed an issue with all taxonomies having `term` as their base url)
@@ -560,7 +588,6 @@
 - index.php
 - init.php
 
-----------------------------------------------------------------------------------------------------
 ## Version 1.0.5[b] (2020-07-23)
 
 - Added the `can_upload_media` permission to the admin nav menu
@@ -617,7 +644,6 @@
 - includes/functions.php
 - includes/globals.php
 
-----------------------------------------------------------------------------------------------------
 ## Version 1.0.4[b] (2020-07-12)
 
 - Tweaked the max width of select inputs in data form sidebars
@@ -662,7 +688,6 @@
 - includes/globals.php
 - init.php (M)
 
-----------------------------------------------------------------------------------------------------
 ## Version 1.0.3[b] (2020-07-04)
 
 - Tweaked previous entries in the changelog
@@ -694,7 +719,6 @@
 - includes/class-menu.php
 - includes/globals.php
 
-----------------------------------------------------------------------------------------------------
 ## Version 1.0.2[b] (2020-07-02)
 
 - Code cleanup in the `Post` class
@@ -722,7 +746,6 @@
 - includes/functions.php
 - includes/globals.php
 
-----------------------------------------------------------------------------------------------------
 ## Version 1.0.1[b] (2020-06-25)
 
 - Tweaked the readme
@@ -766,7 +789,6 @@
 - includes/globals.php
 - init.php (M)
 
-----------------------------------------------------------------------------------------------------
 ## Version 1.0.0[b] (2020-06-21)
 
 - Created content for the readme

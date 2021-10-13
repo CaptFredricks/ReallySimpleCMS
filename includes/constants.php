@@ -5,10 +5,19 @@
  */
 
 // Minimum supported PHP version
-define('PHP', '7.3');
+define('PHP_MINIMUM', '7.3');
+
+// Recommended PHP version
+define('PHP_RECOMMENDED', '7.4');
 
 // Current CMS version
-define('VERSION', '1.2.4');
+define('VERSION', '1.2.5');
+
+// Current jQuery version
+define('JQUERY_VERSION', '3.6.0');
+
+// Current Font Awesome icons version
+define('ICONS_VERSION', '5.15.4');
 
 // Absolute path to the root directory
 define('PATH', dirname(__DIR__));

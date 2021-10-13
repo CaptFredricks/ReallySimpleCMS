@@ -290,13 +290,13 @@ function adminHeaderScripts() {
 	}
 	
 	// Font Awesome icons stylesheet
-	getStylesheet('font-awesome.min.css', '5.15.3');
+	getStylesheet('font-awesome.min.css', ICONS_VERSION);
 	
 	// Font Awesome font-face rules stylesheet
 	getStylesheet('font-awesome-rules.min.css');
 	
 	// JQuery library
-	getScript('jquery.min.js', '3.5.1');
+	getScript('jquery.min.js', JQUERY_VERSION);
 }
 
 /**

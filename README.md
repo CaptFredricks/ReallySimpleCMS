@@ -10,5 +10,5 @@ The project is currently transitioning into *Beta*, as most of the major functio
 Just upload the project files to an empty directory on your localhost or web host and migrate to the `/admin/setup.php` page to get started. This page will ask you for your database details, including the database name, your username, and password. If all goes well, a configuration file will be created and you'll move to the next step, at `/admin/install.php`. You will be asked to choose a name for your new website and create a username and password for your administrator account. Once that's done, you'll be taken to the login page (`/login.php`) where you can log in to the account you just created and get started building your website. It's that simple!
 
 ## License
-Copyright (c) 2019-2020 [Jace Fincham](https://jacefincham.com/)<br>
+Copyright (c) 2019-2021 [Jace Fincham](https://jacefincham.com/)<br>
 ReallySimpleCMS is released under the [GNU General Public License v3.0](http://www.gnu.org/licenses/gpl-3.0.html).

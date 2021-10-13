@@ -420,7 +420,7 @@ function headerScripts($exclude = '', $include_styles = array(), $include_script
 	
 	if(!in_array('fa', $exclude, true)) {
 		// Font Awesome icons stylesheet
-		getStylesheet('font-awesome.min.css', '5.15.3');
+		getStylesheet('font-awesome.min.css', ICONS_VERSION);
 	
 		// Font Awesome font-face rules stylesheet
 		getStylesheet('font-awesome-rules.min.css');
@@ -435,8 +435,8 @@ function headerScripts($exclude = '', $include_styles = array(), $include_script
 		}
 	}
 	
-	// JQuery library
-	if(!in_array('jquery', $exclude, true)) getScript('jquery.min.js', '3.5.1');
+	// jQuery library
+	if(!in_array('jquery', $exclude, true)) getScript('jquery.min.js', JQUERY_VERSION);
 	
 	// Check whether any custom scripts have been included
 	if(!empty($include_scripts)) {
