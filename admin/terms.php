@@ -16,10 +16,10 @@ if(isset($_GET['taxonomy'])) {
 		$taxonomy = 'category';
 	} else {
 		// Fetch the term's taxonomy id from the database
-		$db_tax = $rs_query->selectField('terms', 'taxonomy', array('id'=>$id));
+		$db_tax = $rs_query->selectField('terms', 'taxonomy', array('id' => $id));
 		
 		// Fetch the term's taxonomy from the database and set the taxonomy if it exists
-		$taxonomy = $rs_query->selectField('taxonomies', 'name', array('id'=>$db_tax)) ?? 'category';
+		$taxonomy = $rs_query->selectField('taxonomies', 'name', array('id' => $db_tax)) ?? 'category';
 	}
 }
 

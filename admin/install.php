@@ -10,15 +10,6 @@ require_once dirname(__DIR__).'/includes/constants.php';
 // Make sure config file has been created already (if not, redirect to the setup page)
 if(!file_exists(PATH.'/config.php')) header('Location: '.ADMIN.'/setup.php');
 
-// Path to the admin stylesheets directory
-if(!defined('ADMIN_STYLES')) define('ADMIN_STYLES', ADMIN.INC.'/css');
-
-// Minimum username length
-const UN_LENTH = 4;
-
-// Minimum password length
-const PW_LENGTH = 8;
-
 // Include debugging functions
 require_once PATH.INC.'/debug.php';
 
@@ -54,7 +45,7 @@ if($rs_query->conn_status) {
 		$installed = true;
 		
 		// Loop through the schema
-		foreach($schema as $key=>$value) {
+		foreach($schema as $key => $value) {
 			// Check whether the table exists in the database and create it if not
 			if(!$rs_query->tableExists($key)) $rs_query->doQuery($schema[$key]);
 		}
@@ -64,65 +55,11 @@ if($rs_query->conn_status) {
 	}
 }
 
+// Include the run install file
+require_once PATH.ADMIN.INC.'/run-install.php';
+
 // Set the current step of the installation process
 $step = (int)($_GET['step'] ?? 1);
-
-/**
- * Run the installation.
- * @since 1.3.0[a]
- *
- * @param array $data
- * @return null
- */
-function runInstall($data) {
-	// Extend the Query object
-	global $rs_query;
-	
-	// Fetch the database schema
-	$schema = dbSchema();
-	
-	// Create the tables
-	foreach($schema as $table) $rs_query->doQuery($table);
-	
-	// Fetch the user data
-	$user_data = array('username'=>$data['username'], 'password'=>$data['password'], 'email'=>$data['admin_email']);
-	
-	// Fetch the site's url
-	$site_url = (!empty($_SERVER['HTTPS']) ? 'https://' : 'http://').$_SERVER['HTTP_HOST'];
-	
-	// Fetch the settings data
-	$settings_data = array('site_title'=>$data['site_title'], 'site_url'=>$site_url, 'admin_email'=>$data['admin_email'], 'do_robots'=>$data['do_robots']);
-	
-	// Populate the database tables
-	populateTables($user_data, $settings_data);
-	
-	// Make sure that the home directory can be written to
-	if(is_writable(PATH)) {
-		// File path for robots.txt
-		$file_path = PATH.'/robots.txt';
-		
-		// Open the file stream
-		$handle = fopen($file_path, 'w');
-		
-		// Address all user-agents (robots)
-		fwrite($handle, 'User-agent: *'.chr(10));
-		
-		// Check whether robots are being blocked
-		if((int)$data['do_robots'] === 0) {
-			// Block robots from crawling the site
-			fwrite($handle, 'Disallow: /');
-		} else {
-			// Allow crawling to all directories except for /admin/
-			fwrite($handle, 'Disallow: /admin/');
-		}
-		
-		// Close the file
-		fclose($handle);
-		
-		// Set file permissions
-		chmod($file_path, 0666);
-	}
-}
 ?>
 <!DOCTYPE html>
 <html>
@@ -131,8 +68,13 @@ function runInstall($data) {
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="robots" content="noindex, nofollow">
-		<link href="<?php echo ADMIN_STYLES.'/install.min.css'; ?>" rel="stylesheet">
-		<link href="<?php echo STYLES.'/button.min.css'; ?>" rel="stylesheet">
+		<?php
+		// Include stylesheets
+		getStylesheet('button.min.css');
+		getAdminStylesheet('install.min.css');
+		getStylesheet('font-awesome.min.css', ICONS_VERSION);
+		getStylesheet('font-awesome-rules.min.css');
+		?>
 	</head>
 	<body>
 		<h1>ReallySimpleCMS</h1>
@@ -146,15 +88,19 @@ function runInstall($data) {
 			 * @return null
 			 */
 			function displayInstallForm($error = null) {
+				?>
+				<p>You're almost ready to begin using the ReallySimpleCMS. Fill in the form below to proceed with the installation.</p>
+				<p>All of the settings below can be changed at a later date. They're required in order to set up the CMS, though.</p>
+				<?php
 				// Validate site title
 				$site_title = isset($_POST['site_title']) ? trim(strip_tags($_POST['site_title'])) : '';
-
+				
 				// Validate username
 				$username = isset($_POST['username']) ? trim(strip_tags($_POST['username'])) : '';
-
+				
 				// Validate admin email
 				$admin_email = isset($_POST['admin_email']) ? trim(strip_tags($_POST['admin_email'])) : '';
-
+				
 				// Validate search engine visibility (visible by default)
 				$do_robots = isset($_POST['do_robots']) ? (int)$_POST['do_robots'] : 1;
 				
@@ -166,102 +112,58 @@ function runInstall($data) {
 					<table class="form-table">
 						<tr>
 							<th><label for="site_title">Site Title</label></th>
-							<td><input type="text" name="site_title" value="<?php echo $site_title; ?>" autofocus></td>
+							<td><input type="text" id="site-title" name="site_title" value="<?php echo $site_title; ?>" autofocus></td>
 						</tr>
 						<tr>
 							<th><label for="username">Username</label></th>
-							<td><input type="text" name="username" value="<?php echo $username; ?>"></td>
+							<td><input type="text" id="username" name="username" value="<?php echo $username; ?>"></td>
 						</tr>
 						<tr>
 							<th><label for="password">Password</label></th>
-							<td><input type="text" name="password" value="<?php echo generatePassword(); ?>" autocomplete="off"></td>
+							<td><input type="text" id="password" name="password" value="<?php echo generatePassword(); ?>" autocomplete="off"></td>
 						</tr>
 						<tr>
 							<th><label for="admin_email">Email</label></th>
-							<td><input type="email" name="admin_email" value="<?php echo $admin_email; ?>"></td>
+							<td><input type="email" id="admin-email" name="admin_email" value="<?php echo $admin_email; ?>"></td>
 						</tr>
 						<tr>
 							<th><label for="do_robots">Search Engine Visibility</label></th>
-							<td><label class="checkbox-label"><input type="checkbox" name="do_robots" value="0"> <span>Discourage search engines from indexing this site</span></label></td>
+							<td><label class="checkbox-label"><input type="checkbox" id="do-robots" name="do_robots" value="0"> <span>Discourage search engines from indexing this site</span></label></td>
 						</tr>
 					</table>
-					<input type="submit" class="button" name="submit" value="Install">
+					<input type="hidden" id="submit-ajax" name="submit_ajax" value="0">
+					<div class="button-wrap">
+						<input type="submit" class="button" name="submit" value="Install">
+					</div>
 				</form>
 				<?php
 			}
-
+			
 			switch($step) {
 				case 1:
-					?>
-					<p>You're almost ready to begin using the ReallySimpleCMS. Fill in the form below to proceed with the installation.</p>
-					<p>All of the settings below can be changed at a later date. They're required in order to set up the CMS, though.</p>
-					<?php
 					// Show the installation form
 					displayInstallForm();
 					break;
 				case 2:
-					// Get site title
-					$data['site_title'] = isset($_POST['site_title']) ? (!empty($_POST['site_title']) ? trim(strip_tags($_POST['site_title'])) : 'My Website') : '';
-
-					// Get username
-					$data['username'] = isset($_POST['username']) ? trim(strip_tags($_POST['username'])) : '';
+					// Run the installation
+					list($error, $message) = runInstall($_POST);
 					
-					// Get password
-					$data['password'] = isset($_POST['password']) ? strip_tags($_POST['password']) : '';
-
-					// Get admin email
-					$data['admin_email'] = isset($_POST['admin_email']) ? trim(strip_tags($_POST['admin_email'])) : '';
-
-					// Get search engine visibility (visible by default)
-					$data['do_robots'] = isset($_POST['do_robots']) ? (int)$_POST['do_robots'] : 1;
-					
-					// Set the error flag to false
-					$error = false;
-					
-					// Validate input data
-					if(empty($data['username'])) {
-						// Show the installation form with the appropriate error
-						displayInstallForm('You must provide a username.');
-						
-						// Set the error flag to true
-						$error = true;
-					} elseif(strlen($data['username']) < UN_LENTH) {
-						// Show the installation form with the appropriate error
-						displayInstallForm('Username must be at least '.UN_LENTH.' characters long.');
-						
-						// Set the error flag to true
-						$error = true;
-					} elseif(empty($data['password'])) {
-						// Show the installation form with the appropriate error
-						displayInstallForm('You must provide a password.');
-						
-						// Set the error flag to true
-						$error = true;
-					} elseif(strlen($data['password']) < PW_LENGTH) {
-						// Show the installation form with the appropriate error
-						displayInstallForm('Password must be at least '.PW_LENGTH.' characters long.');
-						
-						// Set the error flag to true
-						$error = true;
-					} elseif(empty($data['admin_email'])) {
-						// Show the installation form with the appropriate error
-						displayInstallForm('You must provide an email.');
-						
-						// Set the error flag to true
-						$error = true;
-					}
-					
-					// If no errors are present, install the CMS
-					if($error === false) {
-						runInstall($data);
-						?>
-						<p>The ReallySimpleCMS has successfully been installed! You are now ready to start using your website.</p>
-						<div class="button-wrap"><a class="button" href="/login.php">Log In</a></div>
-						<?php
+					// Check whether an error was returned
+					if($error) {
+						// Display the form with the appropriate error message
+						displayInstallForm($message);
+					} else {
+						// Display the success message
+						echo $message;
 					}
 					break;
 			}
 			?>
 		</div>
+		<?php
+		// Include scripts
+		getScript('jquery.min.js', JQUERY_VERSION);
+		getAdminScript('install.min.js');
+		?>
 	</body>
 </html>

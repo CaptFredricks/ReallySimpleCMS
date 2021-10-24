@@ -1,11 +1,23 @@
 # ReallySimpleCMS Changelog (Beta Snapshots)
 
-----------------------------------------------------------------------------------------------------
-*Legend: N - new file, D - deprecated file, R - renamed file, X - removed file, M - minor change*<br>
-*Versions: X.x.x (major releases), x.X.x (standard releases), x.x.X (minor releases/bug fixes)*<br>
-*Other: [a] - alpha, [b] - beta*
+**Legend**
+- N = new file
+- D = deprecated file
+- R = renamed file
+- X = removed file
+- M = minor change
 
-----------------------------------------------------------------------------------------------------
+**Versions**
+- X.x.x (major release)
+- x.X.x (standard release)
+- x.x.X (minor/bug fix release)
+- x.x.x.X (emergency patch release)
+- x.x.x{ss-xx} (snapshot release)
+
+**Other**
+- [a] = alpha
+- [b] = beta
+
 ## Version 1.2.0[b]{ss-05} (2020-12-28)
 
 - Created a function that lists all login rules in the database
@@ -31,7 +43,6 @@
 - includes/class-query.php
 - includes/schema.php
 
-----------------------------------------------------------------------------------------------------
 ## Version 1.2.0[b]{ss-04} (2020-12-20)
 
 - Added two new settings:
@@ -52,7 +63,6 @@
 - includes/globals.php (M)
 - includes/update.php
 
-----------------------------------------------------------------------------------------------------
 ## Version 1.2.0[b]{ss-03} (2020-12-10)
 
 - Tweaked a previous entry in the changelog
@@ -69,7 +79,6 @@
 - admin/logins.php
 - includes/class-query.php
 
-----------------------------------------------------------------------------------------------------
 ## Version 1.2.0[b]{ss-02} (2020-12-08)
 
 - Created a function that allows for editing a blacklisted login
@@ -99,7 +108,6 @@
 - includes/update.php
 - init.php (M)
 
-----------------------------------------------------------------------------------------------------
 ## Version 1.2.0[b]{ss-01} (2020-12-05)
 
 - Tweaked a previous entry in the changelog
@@ -128,7 +136,6 @@
 - includes/schema.php
 - includes/update.php
 
-----------------------------------------------------------------------------------------------------
 ## Version 1.1.0[b]{ss-05} (2020-10-21)
 
 - Tweaked documentation in the Carbon theme's `script.js` file
@@ -153,7 +160,6 @@
 - includes/js/script.js
 - init.php (M)
 
-----------------------------------------------------------------------------------------------------
 ## Version 1.1.0[b]{ss-04} (2020-09-23)
 
 - Added comments to the "Admin" admin bar dropdown
@@ -178,7 +184,6 @@
 - includes/functions.php
 - includes/js/script.js
 
-----------------------------------------------------------------------------------------------------
 ## Version 1.1.0[b]{ss-03} (2020-09-22)
 
 - Added two new settings:
@@ -213,7 +218,6 @@
 - includes/js/script.js
 - includes/update.php
 
-----------------------------------------------------------------------------------------------------
 ## Version 1.1.0[b]{ss-02} (2020-09-21)
 
 - Tweaked a previous entry in the changelog
@@ -244,7 +248,6 @@
 - includes/schema.php (M)
 - includes/update.php (M)
 
-----------------------------------------------------------------------------------------------------
 ## Version 1.1.0[b]{ss-01} (2020-09-20)
 
 - Created a database schema for the `comments` table

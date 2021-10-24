@@ -21,7 +21,7 @@ if(isset($_GET['type'])) {
 			redirect('posts.php');
 		} else {
 			// Fetch the post's type from the database and set the type if it exists
-			$type = $rs_query->selectField('posts', 'type', array('id'=>$id)) ?? 'post';
+			$type = $rs_query->selectField('posts', 'type', array('id' => $id)) ?? 'post';
 		}
 	}
 }

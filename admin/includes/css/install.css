@@ -3,6 +3,20 @@
  * @since 1.3.0[a]
  */
 
+@keyframes rotate {
+	from {
+		transform: rotate(0deg);
+	}
+	
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+/*------------------------------------*\
+    NORMALIZATION
+\*------------------------------------*/
+
 *,
 *::before,
 *::after {
@@ -44,6 +58,10 @@ code {
 	font-size: 1rem;
 }
 
+/*------------------------------------*\
+    CONTENT
+\*------------------------------------*/
+
 .wrapper {
 	background-color: #ededed;
 	border-radius: 0.375em;
@@ -51,6 +69,15 @@ code {
 	color: #101010;
 	margin: 0 1em;
 	padding: 1em;
+}
+
+.spinner {
+	margin: 1em 0;
+	text-align: center;
+}
+
+.spinner i {
+	animation: rotate 1s infinite;
 }
 
 /* Data form */
@@ -78,6 +105,10 @@ code {
 
 .data-form .checkbox-label span {
 	vertical-align: top;
+}
+
+.button-wrap.centered {
+	text-align: center;
 }
 
 /** Form table **/

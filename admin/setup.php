@@ -26,8 +26,8 @@ $step = (int)($_GET['step'] ?? 0);
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="robots" content="noindex, nofollow">
-		<link href="<?php echo ADMIN_STYLES.'/install.min.css'; ?>" rel="stylesheet">
 		<link href="<?php echo STYLES.'/button.min.css'; ?>" rel="stylesheet">
+		<link href="<?php echo ADMIN_STYLES.'/install.min.css'; ?>" rel="stylesheet">
 	</head>
 	<body>
 		<h1>ReallySimpleCMS</h1>
@@ -101,7 +101,7 @@ $step = (int)($_GET['step'] ?? 0);
 					}
 					
 					// Loop through the file
-					foreach($config_file as $line_num=>$line) {
+					foreach($config_file as $line_num => $line) {
 						// Skip over unmatched lines
 						if(!preg_match('/^define\(\s*\'([A-Z_]+)\'/', $line, $match)) continue;
 						
@@ -140,8 +140,7 @@ $step = (int)($_GET['step'] ?? 0);
 						$handle = fopen($config_file_path, 'w');
 						
 						// Write to the file
-						foreach($config_file as $line)
-							fwrite($handle, $line);
+						foreach($config_file as $line) fwrite($handle, $line);
 						
 						// Close the file
 						fclose($handle);

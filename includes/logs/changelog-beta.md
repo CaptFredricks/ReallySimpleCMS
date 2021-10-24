@@ -1,21 +1,45 @@
 # ReallySimpleCMS Changelog (Beta)
 
-Legend
-: N - new file
-: D - deprecated file
-: R - renamed file
-: X - removed file
-: M - minor change
+**Legend**
+- N = new file
+- D = deprecated file
+- R = renamed file
+- X = removed file
+- M = minor change
 
-Versions
-: X.x.x (major release)
-: x.X.x (standard release)
-: x.x.X (minor release/bug fix)
-: x.x.x{ss-xx} (snapshot release)
+**Versions**
+- X.x.x (major release)
+- x.X.x (standard release)
+- x.x.X (minor/bug fix release)
+- x.x.x.X (emergency patch release)
+- x.x.x{ss-xx} (snapshot release)
 
-Other
-: [a] - alpha
-: [b] - beta
+**Other**
+- [a] = alpha
+- [b] = beta
+
+## Version 1.2.6[b] (2021-10-24)
+
+- Tweaked a previous entry in the changelog
+- Completely overhauled the database installation code
+  - Added AJAX submission to the form, allowing for more dynamic database setup
+  - Code cleanup in the `admin/install.php` file (all validation has been moved to `admin/includes/run-install.php`)
+- Tweaked the Light admin theme
+- Tweaked the Beta Snapshots changelog formatting
+- Code cleanup in several admin files
+
+**Modified files:**
+- admin/header.php (M)
+- admin/includes/css/install.css
+- admin/includes/css/install.min.css
+- admin/includes/js/install.js (N)
+- admin/includes/js/install.min.js (N)
+- admin/includes/run-install.php (N)
+- admin/install.php
+- admin/posts.php (M)
+- admin/setup.php (M)
+- admin/terms.php (M)
+- content/admin-themes/light.css (M)
 
 ## Version 1.2.5[b] (2021-10-13)
 
@@ -25,18 +49,19 @@ Other
 - Updated jQuery to v3.6.0
 - Created named constants for the jQuery and Font Awesome versions
 - Renamed the `PHP` named constant to `PHP_MINIMUM` and created a new constant called `PHP_RECOMMENDED`, which will be the version recommended for administrators to run their servers on
+- Set the recommended PHP version to `7.4`
 - Tweaked styling for admin header notices
 - Added an admin header notice for PHP versions below the recommended version
 - Tweaked styling of the admin themes page
 - Added a message that displays if a theme does not have a preview image
 
-** Modified files:**
+**Modified files:**
 - README.md (M)
 - admin/header.php
 - admin/includes/class-theme.php (M)
 - admin/includes/css/style.css
 - admin/includes/css/style.min.css
-- admin/includes/functions.php
+- admin/includes/functions.php (M)
 - content/admin-themes/forest.css (M)
 - content/admin-themes/harvest.css (M)
 - content/admin-themes/light.css (M)
@@ -47,7 +72,7 @@ Other
 - includes/fonts/fa-brands.ttf
 - includes/fonts/fa-regular.ttf
 - includes/fonts/fa-solid.ttf
-- includes/functions.php
+- includes/functions.php (M)
 - includes/js/jquery.min.js
 - init.php (M)
 
