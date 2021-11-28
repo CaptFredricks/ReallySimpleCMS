@@ -52,10 +52,10 @@ class UserRole {
 		// Check whether the id is '0'
 		if($id !== 0) {
 			// Fetch the user role from the database
-			$role = $rs_query->selectRow('user_roles', $cols, array('id'=>$id));
+			$role = $rs_query->selectRow('user_roles', $cols, array('id' => $id));
 			
 			// Loop through the array and set the class variables
-			foreach($role as $key=>$value) $this->$key = $role[$key];
+			foreach($role as $key => $value) $this->$key = $role[$key];
 		}
 	}
 	
@@ -77,8 +77,13 @@ class UserRole {
 			<h1>User Roles</h1>
 			<?php
 			// Check whether the user has sufficient privileges to create user roles and create an action link if so
-			if(userHasPrivilege($session['role'], 'can_create_user_roles'))
-				echo actionLink('create', array('classes'=>'button', 'caption'=>'Create New', 'page'=>'user_roles'));
+			if(userHasPrivilege($session['role'], 'can_create_user_roles')) {
+				echo actionLink('create', array(
+					'classes' => 'button',
+					'caption' => 'Create New',
+					'page' => 'user_roles'
+				));
+			}
 			
 			// Display the page's info
 			adminInfo();
@@ -90,7 +95,7 @@ class UserRole {
 				echo statusMessage('The user role was successfully deleted.', true);
 			
 			// Fetch the user role entry count from the database
-			$count = $rs_query->select('user_roles', 'COUNT(*)', array('_default'=>'no'));
+			$count = $rs_query->select('user_roles', 'COUNT(*)', array('_default' => 'no'));
 			
 			// Set the page count
 			$page['count'] = ceil($count / $page['per_page']);
@@ -115,14 +120,19 @@ class UserRole {
 			<tbody>
 				<?php
 				// Fetch all user roles from the database
-				$roles = $rs_query->select('user_roles', '*', array('_default'=>'no'), 'id', 'ASC', array($page['start'], $page['per_page']));
+				$roles = $rs_query->select('user_roles', '*', array('_default' => 'no'), 'id', 'ASC', array(
+					$page['start'],
+					$page['per_page']
+				));
 				
 				// Loop through the user roles
 				foreach($roles as $role) {
 					// Set up the action links
 					$actions = array(
-						userHasPrivilege($session['role'], 'can_edit_user_roles') ? actionLink('edit', array('caption'=>'Edit', 'page'=>'user_roles', 'id'=>$role['id'])) : null,
-						userHasPrivilege($session['role'], 'can_delete_user_roles') ? actionLink('delete', array('classes'=>'modal-launch delete-item', 'data_item'=>'user role', 'caption'=>'Delete', 'page'=>'user_roles', 'id'=>$role['id'])) : null
+						// Edit
+						userHasPrivilege($session['role'], 'can_edit_user_roles') ? actionLink('edit', array('caption' => 'Edit', 'page' => 'user_roles', 'id' => $role['id'])) : null,
+						// Delete
+						userHasPrivilege($session['role'], 'can_delete_user_roles') ? actionLink('delete', array('classes' => 'modal-launch delete-item', 'data_item' => 'user role', 'caption' => 'Delete', 'page' => 'user_roles', 'id' => $role['id'])) : null
 					);
 					
 					// Filter out any empty actions
@@ -139,6 +149,9 @@ class UserRole {
 					echo tableRow(tableCell('There are no user roles to display.', '', count($table_header_cols)));
 				?>
 			</tbody>
+			<tfoot>
+				<?php echo tableHeaderRow($table_header_cols); ?>
+			</tfoot>
 		</table>
 		<?php
 		// Set up page navigation
@@ -155,7 +168,7 @@ class UserRole {
 			<tbody>
 				<?php
 				// Fetch all user roles from the database
-				$roles = $rs_query->select('user_roles', '*', array('_default'=>'yes'), 'id');
+				$roles = $rs_query->select('user_roles', '*', array('_default' => 'yes'), 'id');
 				
 				// Loop through the user roles
 				foreach($roles as $role) {
@@ -170,6 +183,9 @@ class UserRole {
 					echo tableRow(tableCell('There are no user roles to display.', '', count($table_header_cols)));
 				?>
 			</tbody>
+			<tfoot>
+				<?php echo tableHeaderRow($table_header_cols); ?>
+			</tfoot>
 		</table>
 		<?php
 		// Include the delete modal					 
@@ -195,10 +211,10 @@ class UserRole {
 			<form class="data-form" action="" method="post" autocomplete="off">
 				<table class="form-table">
 					<?php
-					echo formRow(array('Name', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'name', 'value'=>($_POST['name'] ?? '')));
+					echo formRow(array('Name', true), array('tag' => 'input', 'class' => 'text-input required invalid init', 'name' => 'name', 'value' => ($_POST['name'] ?? '')));
 					echo formRow('Privileges', $this->getPrivilegesList());
-					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Create User Role'));
+					echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
+					echo formRow('', array('tag' => 'input', 'type' => 'submit', 'class' => 'submit-input button', 'name' => 'submit', 'value' => 'Create User Role'));
 					?>
 				</table>
 			</form>
@@ -238,10 +254,10 @@ class UserRole {
 					<form class="data-form" action="" method="post" autocomplete="off">
 						<table class="form-table">
 							<?php
-							echo formRow(array('Name', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'name', 'value'=>$this->name));
+							echo formRow(array('Name', true), array('tag' => 'input', 'class' => 'text-input required invalid init', 'name' => 'name', 'value' => $this->name));
 							echo formRow('Privileges', $this->getPrivilegesList($this->id));
-							echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-							echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update User Role'));
+							echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
+							echo formRow('', array('tag' => 'input', 'type' => 'submit', 'class' => 'submit-input button', 'name' => 'submit', 'value' => 'Update User Role'));
 							?>
 						</table>
 					</form>
@@ -273,10 +289,10 @@ class UserRole {
 				redirect(ADMIN_URI.'?page=user_roles');
 			} else {
 				// Delete the user role from the database
-				$rs_query->delete('user_roles', array('id'=>$this->id));
+				$rs_query->delete('user_roles', array('id' => $this->id));
 				
 				// Delete the user relationship(s) from the database
-				$rs_query->delete('user_relationships', array('role'=>$this->id));
+				$rs_query->delete('user_relationships', array('role' => $this->id));
 				
 				// Redirect to the "List User Roles" page with an appropriate exit status
 				redirect(ADMIN_URI.'?page=user_roles&exit_status=success');
@@ -307,14 +323,14 @@ class UserRole {
 		
 		if($id === 0) {
 			// Insert the new user role into the database
-			$insert_id = $rs_query->insert('user_roles', array('name'=>$data['name']));
+			$insert_id = $rs_query->insert('user_roles', array('name' => $data['name']));
 			
 			// Check whether any privileges have been selected
 			if(!empty($data['privileges'])) {
 				// Loop through the privileges
 				foreach($data['privileges'] as $privilege) {
 					// Insert a new user relationship into the database
-					$rs_query->insert('user_relationships', array('role'=>$insert_id, 'privilege'=>$privilege));
+					$rs_query->insert('user_relationships', array('role' => $insert_id, 'privilege' => $privilege));
 				}
 			}
 			
@@ -322,17 +338,17 @@ class UserRole {
 			redirect(ADMIN_URI.'?page=user_roles&id='.$insert_id.'&action=edit');
 		} else {
 			// Update the user role in the database
-			$rs_query->update('user_roles', array('name'=>$data['name']), array('id'=>$id));
+			$rs_query->update('user_roles', array('name' => $data['name']), array('id' => $id));
 			
 			// Fetch all user relationships associated with the user role from the database
-			$relationships = $rs_query->select('user_relationships', '*', array('role'=>$id));
+			$relationships = $rs_query->select('user_relationships', '*', array('role' => $id));
 			
 			// Loop through the relationships
 			foreach($relationships as $relationship) {
 				// Check whether the relationship still exists
 				if(empty($data['privileges']) || !in_array($relationship['privilege'], $data['privileges'], true)) {
 					// Delete the unused relationship from the database
-					$rs_query->delete('user_relationships', array('id'=>$relationship['id']));
+					$rs_query->delete('user_relationships', array('id' => $relationship['id']));
 				}
 			}
 			
@@ -341,7 +357,7 @@ class UserRole {
 				// Loop through the privileges
 				foreach($data['privileges'] as $privilege) {
 					// Fetch any relationships between the current privilege and the role from the database
-					$relationship = $rs_query->selectRow('user_relationships', 'COUNT(*)', array('role'=>$id, 'privilege'=>$privilege));
+					$relationship = $rs_query->selectRow('user_relationships', 'COUNT(*)', array('role' => $id, 'privilege' => $privilege));
 					
 					// Check whether the relationship already exists
 					if($relationship) {
@@ -349,13 +365,13 @@ class UserRole {
 						continue;
 					} else {
 						// Insert a new user relationship into the database
-						$rs_query->insert('user_relationships', array('role'=>$id, 'privilege'=>$privilege));
+						$rs_query->insert('user_relationships', array('role' => $id, 'privilege' => $privilege));
 					}
 				}
 			}
 			
 			// Update the class variables
-			foreach($data as $key=>$value) $this->$key = $value;
+			foreach($data as $key => $value) $this->$key = $value;
 			
 			// Return a status message
 			return statusMessage('User role updated! <a href="'.ADMIN_URI.'?page=user_roles">Return to list</a>?', true);
@@ -377,10 +393,10 @@ class UserRole {
 		
 		if($id === 0) {
 			// Fetch the number of times the name appears in the database
-			$count = $rs_query->selectRow('user_roles', 'COUNT(name)', array('name'=>$name));
+			$count = $rs_query->selectRow('user_roles', 'COUNT(name)', array('name' => $name));
 		} else {
 			// Fetch the number of times the name appears in the database (minus the current role)
-			$count = $rs_query->selectRow('user_roles', 'COUNT(name)', array('name'=>$name, 'id'=>array('<>', $id)));
+			$count = $rs_query->selectRow('user_roles', 'COUNT(name)', array('name' => $name, 'id' => array('<>', $id)));
 		}
 		
 		// Return true if the count is greater than zero
@@ -403,12 +419,12 @@ class UserRole {
 		$privileges = array();
 		
 		// Fetch the user relationships from the database
-		$relationships = $rs_query->select('user_relationships', 'privilege', array('role'=>$id), 'privilege');
+		$relationships = $rs_query->select('user_relationships', 'privilege', array('role' => $id), 'privilege');
 		
 		// Loop through the user relationships
 		foreach($relationships as $relationship) {
 			// Fetch the privilege's name from the database
-			$privilege = $rs_query->selectField('user_privileges', 'name', array('id'=>$relationship['privilege']));
+			$privilege = $rs_query->selectField('user_privileges', 'name', array('id' => $relationship['privilege']));
 			
 			// Assign the privilege to the array
 			$privileges[] = $privilege;
@@ -437,15 +453,15 @@ class UserRole {
 		$privileges = $rs_query->select('user_privileges', '*', '', 'id');
 		
 		// Create a 'select all/select none' checkbox
-		$list .= '<li>'.formTag('input', array('type'=>'checkbox', 'id'=>'select-all', 'class'=>'checkbox-input', 'label'=>array('content'=>'<span>SELECT ALL</span>'))).'</li>';
+		$list .= '<li>'.formTag('input', array('type' => 'checkbox', 'id' => 'select-all', 'class' => 'checkbox-input', 'label' => array('content' => '<span>SELECT ALL</span>'))).'</li>';
 		
 		// Loop through the privileges
 		foreach($privileges as $privilege) {
 			// Fetch any existing user relationship from the database
-			$relationship = $rs_query->selectRow('user_relationships', 'COUNT(*)', array('role'=>$id, 'privilege'=>$privilege['id']));
+			$relationship = $rs_query->selectRow('user_relationships', 'COUNT(*)', array('role' => $id, 'privilege' => $privilege['id']));
 			
 			// Construct the list
-			$list .= '<li>'.formTag('input', array('type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'privileges[]', 'value'=>$privilege['id'], '*'=>($relationship ? 'checked' : ''), 'label'=>array('content'=>'<span>'.$privilege['name'].'</span>'))).'</li>';
+			$list .= '<li>'.formTag('input', array('type' => 'checkbox', 'class' => 'checkbox-input', 'name' => 'privileges[]', 'value' => $privilege['id'], '*' => ($relationship ? 'checked' : ''), 'label' => array('content' => '<span>'.$privilege['name'].'</span>'))).'</li>';
 		}
 		
 		// Close the unordered list

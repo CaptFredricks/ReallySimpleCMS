@@ -23,7 +23,7 @@ class Theme {
 			<?php
 			// Check whether the user has sufficient privileges to create themes and create an action link if so
 			if(userHasPrivilege($session['role'], 'can_create_themes'))
-				echo actionLink('create', array('classes'=>'button', 'caption'=>'Create New'));
+				echo actionLink('create', array('classes' => 'button', 'caption' => 'Create New'));
 			
 			// Display the page's info
 			adminInfo();
@@ -62,8 +62,18 @@ class Theme {
 				
 				// Set up the action links
 				$actions = array(
-					userHasPrivilege($session['role'], 'can_edit_themes') ? actionLink('activate', array('caption'=>'Activate', 'name'=>$theme)) : null,
-					userHasPrivilege($session['role'], 'can_delete_themes') ? actionLink('delete', array('classes'=>'modal-launch delete-item', 'data_item'=>'theme', 'caption'=>'Delete', 'name'=>$theme)) : null
+					// Activate
+					userHasPrivilege($session['role'], 'can_edit_themes') ? actionLink('activate', array(
+						'caption' => 'Activate',
+						'name' => $theme
+					)) : null,
+					// Delete
+					userHasPrivilege($session['role'], 'can_delete_themes') ? actionLink('delete', array(
+						'classes' => 'modal-launch delete-item',
+						'data_item' => 'theme',
+						'caption' => 'Delete',
+						'name' => $theme
+					)) : null
 				);
 				
 				// Filter out any empty actions
@@ -116,9 +126,21 @@ class Theme {
 			<form class="data-form" action="" method="post" autocomplete="off">
 				<table class="form-table">
 					<?php
-					echo formRow(array('Name', true), array('tag'=>'input', 'id'=>'slug-field', 'class'=>'text-input required invalid init', 'name'=>'name', 'value'=>($_POST['name'] ?? '')));
-					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Create Theme'));
+					echo formRow(array('Name', true), array(
+						'tag' => 'input',
+						'id' => 'slug-field',
+						'class' => 'text-input required invalid init',
+						'name' => 'name',
+						'value' => ($_POST['name'] ?? '')
+					));
+					echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
+					echo formRow('', array(
+						'tag' => 'input',
+						'type' => 'submit',
+						'class' => 'submit-input button',
+						'name' => 'submit',
+						'value' => 'Create Theme'
+					));
 					?>
 				</table>
 			</form>
@@ -141,7 +163,7 @@ class Theme {
 		// Check whether the theme's name is valid
 		if(!empty($name) && $this->themeExists($name) && !$this->isActiveTheme($name)) {
 			// Update the theme setting in the database
-			$rs_query->update('settings', array('value'=>$name), array('name'=>'theme'));
+			$rs_query->update('settings', array('value' => $name), array('name' => 'theme'));
 		}
 		
 		// Redirect to the "List Themes" page

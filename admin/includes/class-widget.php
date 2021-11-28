@@ -25,10 +25,10 @@ class Widget extends Post {
 		// Check whether the id is '0'
 		if($id !== 0) {
 			// Fetch the widget from the database
-			$widget = $rs_query->selectRow('posts', $cols, array('id'=>$id, 'type'=>'widget'));
+			$widget = $rs_query->selectRow('posts', $cols, array('id' => $id, 'type' => 'widget'));
 			
 			// Loop through the array and set the class variables
-			foreach($widget as $key=>$value) $this->$key = $widget[$key];
+			foreach($widget as $key => $value) $this->$key = $widget[$key];
 		}
 	}
 	
@@ -51,7 +51,7 @@ class Widget extends Post {
 			<?php
 			// Check whether the user has sufficient privileges to create widgets and create an action link if so
 			if(userHasPrivilege($session['role'], 'can_create_widgets'))
-				echo actionLink('create', array('classes'=>'button', 'caption'=>'Create New'));
+				echo actionLink('create', array('classes' => 'button', 'caption' => 'Create New'));
 			
 			// Display the page's info
 			adminInfo();
@@ -63,7 +63,7 @@ class Widget extends Post {
 				echo statusMessage('The widget was successfully deleted.', true);
 			
 			// Fetch the widget entry count from the database
-			$count = $rs_query->select('posts', 'COUNT(*)', array('type'=>'widget'));
+			$count = $rs_query->select('posts', 'COUNT(*)', array('type' => 'widget'));
 			
 			// Set the page count
 			$page['count'] = ceil($count / $page['per_page']);
@@ -88,22 +88,38 @@ class Widget extends Post {
 			<tbody>
 				<?php
 				// Fetch all widgets from the database
-				$widgets = $rs_query->select('posts', '*', array('type'=>'widget'), 'title', 'ASC', array($page['start'], $page['per_page']));
+				$widgets = $rs_query->select('posts', '*', array('type' => 'widget'), 'title', 'ASC', array(
+					$page['start'],
+					$page['per_page']
+				));
 				
 				// Loop through the widgets
 				foreach($widgets as $widget) {
 					// Set up the action links
 					$actions = array(
-						userHasPrivilege($session['role'], 'can_edit_widgets') ? actionLink('edit', array('caption'=>'Edit', 'id'=>$widget['id'])) : null,
-						userHasPrivilege($session['role'], 'can_delete_widgets') ? actionLink('delete', array('classes'=>'modal-launch delete-item', 'data_item'=>'widget', 'caption'=>'Delete', 'id'=>$widget['id'])) : null
+						// Edit
+						userHasPrivilege($session['role'], 'can_edit_widgets') ? actionLink('edit', array(
+							'caption' => 'Edit',
+							'id' => $widget['id']
+						)) : null,
+						// Delete
+						userHasPrivilege($session['role'], 'can_delete_widgets') ? actionLink('delete', array(
+							'classes' => 'modal-launch delete-item',
+							'data_item' => 'widget',
+							'caption' => 'Delete',
+							'id' => $widget['id']
+						)) : null
 					);
 					
 					// Filter out any empty actions
 					$actions = array_filter($actions);
 					
 					echo tableRow(
+						// Title
 						tableCell('<strong>'.$widget['title'].'</strong><div class="actions">'.implode(' &bull; ', $actions).'</div>', 'title'),
+						// Slug
 						tableCell($widget['slug'], 'slug'),
+						// Status
 						tableCell(ucfirst($widget['status']), 'status')
 					);
 				}
@@ -113,6 +129,9 @@ class Widget extends Post {
 					echo tableRow(tableCell('There are no widgets to display.', '', count($table_header_cols)));
 				?>
 			</tbody>
+			<tfoot>
+				<?php echo tableHeaderRow($table_header_cols); ?>
+			</tfoot>
 		</table>
 		<?php
 		// Set up page navigation
@@ -141,12 +160,52 @@ class Widget extends Post {
 			<form class="data-form" action="" method="post" autocomplete="off">
 				<table class="form-table">
 					<?php
-					echo formRow(array('Title', true), array('tag'=>'input', 'id'=>'title-field', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>($_POST['title'] ?? '')));
-					echo formRow(array('Slug', true), array('tag'=>'input', 'id'=>'slug-field', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>($_POST['slug'] ?? '')));
-					echo formRow('Content', array('tag'=>'textarea', 'class'=>'textarea-input', 'name'=>'content', 'cols'=>30, 'rows'=>10, 'content'=>htmlspecialchars(($_POST['content'] ?? ''))));
-					echo formRow('Status', array('tag'=>'select', 'class'=>'select-input', 'name'=>'status', 'content'=>'<option value="active">Active</option><option value="inactive">Inactive</option>'));
-					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Create Widget'));
+					// Title field
+					echo formRow(array('Title', true), array(
+						'tag' => 'input',
+						'id' => 'title-field',
+						'class' => 'text-input required invalid init',
+						'name' => 'title',
+						'value' => ($_POST['title'] ?? '')
+					));
+					
+					// Slug field
+					echo formRow(array('Slug', true), array(
+						'tag' => 'input',
+						'id' => 'slug-field',
+						'class' => 'text-input required invalid init',
+						'name' => 'slug',
+						'value' => ($_POST['slug'] ?? '')
+					));
+					
+					// Content field
+					echo formRow('Content', array(
+						'tag' => 'textarea',
+						'class' => 'textarea-input',
+						'name' => 'content',
+						'cols' => 30,
+						'rows' => 10,
+						'content' => htmlspecialchars(($_POST['content'] ?? ''))
+					));
+					
+					// Status dropdown
+					echo formRow('Status', array(
+						'tag' => 'select',
+						'class' => 'select-input',
+						'name' => 'status',
+						'content' => '<option value="active">Active</option><option value="inactive">Inactive</option>'
+					));
+					
+					echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
+					
+					// Submit button
+					echo formRow('', array(
+						'tag' => 'input',
+						'type' => 'submit',
+						'class' => 'submit-input button',
+						'name' => 'submit',
+						'value' => 'Create Widget'
+					));
 					?>
 				</table>
 			</form>
@@ -181,12 +240,52 @@ class Widget extends Post {
 				<form class="data-form" action="" method="post" autocomplete="off">
 					<table class="form-table">
 						<?php
-						echo formRow(array('Title', true), array('tag'=>'input', 'id'=>'title-field', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>$this->title));
-						echo formRow(array('Slug', true), array('tag'=>'input', 'id'=>'slug-field', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>$this->slug));
-						echo formRow('Content', array('tag'=>'textarea', 'class'=>'textarea-input', 'name'=>'content', 'cols'=>30, 'rows'=>10, 'content'=>htmlspecialchars($this->content)));
-						echo formRow('Status', array('tag'=>'select', 'class'=>'select-input', 'name'=>'status', 'content'=>'<option value="'.$this->status.'">'.ucfirst($this->status).'</option>'.($this->status === 'active' ? '<option value="inactive">Inactive</option>' : '<option value="active">Active</option>')));
-						echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-						echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Widget'));
+						// Title field
+						echo formRow(array('Title', true), array(
+							'tag' => 'input',
+							'id' => 'title-field',
+							'class' => 'text-input required invalid init',
+							'name' => 'title',
+							'value' => $this->title
+						));
+						
+						// Slug field
+						echo formRow(array('Slug', true), array(
+							'tag' => 'input',
+							'id' => 'slug-field',
+							'class' => 'text-input required invalid init',
+							'name' => 'slug',
+							'value' => $this->slug
+						));
+						
+						// Content field
+						echo formRow('Content', array(
+							'tag' => 'textarea',
+							'class' => 'textarea-input',
+							'name' => 'content',
+							'cols' => 30,
+							'rows' => 10,
+							'content' => htmlspecialchars($this->content)
+						));
+						
+						// Status dropdown
+						echo formRow('Status', array(
+							'tag' => 'select',
+							'class' => 'select-input',
+							'name' => 'status',
+							'content' => '<option value="'.$this->status.'">'.ucfirst($this->status).'</option>'.($this->status === 'active' ? '<option value="inactive">Inactive</option>' : '<option value="active">Active</option>')
+						));
+						
+						echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
+						
+						// Submit button
+						echo formRow('', array(
+							'tag' => 'input',
+							'type' => 'submit',
+							'class' => 'submit-input button',
+							'name' => 'submit',
+							'value' => 'Update Widget'
+						));
 						?>
 					</table>
 				</form>
@@ -212,7 +311,7 @@ class Widget extends Post {
 			redirect(ADMIN_URI);
 		} else {
 			// Delete the widget from the database
-			$rs_query->delete('posts', array('id'=>$this->id, 'type'=>'widget'));
+			$rs_query->delete('posts', array('id' => $this->id, 'type' => 'widget'));
 			
 			// Redirect to the "List Widgets" page with an appropriate exit status
 			redirect(ADMIN_URI.'?exit_status=success');
@@ -249,16 +348,29 @@ class Widget extends Post {
 		
 		if($id === 0) {
 			// Insert the new widget into the database
-			$insert_id = $rs_query->insert('posts', array('title'=>$data['title'], 'date'=>'NOW()', 'content'=>$data['content'], 'status'=>$data['status'], 'slug'=>$slug, 'type'=>'widget'));
+			$insert_id = $rs_query->insert('posts', array(
+				'title' => $data['title'],
+				'date' => 'NOW()',
+				'content' => $data['content'],
+				'status' => $data['status'],
+				'slug' => $slug,
+				'type' => 'widget'
+			));
 			
 			// Redirect to the appropriate "Edit Widget" page
 			redirect(ADMIN_URI.'?id='.$insert_id.'&action=edit');
 		} else {
 			// Update the widget in the database
-			$rs_query->update('posts', array('title'=>$data['title'], 'modified'=>'NOW()', 'content'=>$data['content'], 'status'=>$data['status'], 'slug'=>$slug), array('id'=>$id));
+			$rs_query->update('posts', array(
+				'title' => $data['title'],
+				'modified' => 'NOW()',
+				'content' => $data['content'],
+				'status' => $data['status'],
+				'slug' => $slug
+			), array('id' => $id));
 			
 			// Update the class variables
-			foreach($data as $key=>$value) $this->$key = $value;
+			foreach($data as $key => $value) $this->$key = $value;
 			
 			// Return a status message
 			return statusMessage('Widget updated! <a href="'.ADMIN_URI.'">Return to list</a>?', true);

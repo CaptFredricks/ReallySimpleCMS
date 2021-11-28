@@ -25,10 +25,10 @@ class Media extends Post {
 		// Check whether the id is '0'
 		if($id !== 0) {
 			// Fetch the media from the database
-			$media = $rs_query->selectRow('posts', $cols, array('id'=>$id, 'type'=>'media'));
+			$media = $rs_query->selectRow('posts', $cols, array('id' => $id, 'type' => 'media'));
 			
 			// Loop through the array and set the class variables
-			foreach($media as $key=>$value) $this->$key = $media[$key];
+			foreach($media as $key => $value) $this->$key = $media[$key];
 		}
 	}
 	
@@ -51,7 +51,7 @@ class Media extends Post {
 			<?php
 			// Check whether the user has sufficient privileges to upload media and create an action link if so
 			if(userHasPrivilege($session['role'], 'can_upload_media'))
-				echo actionLink('upload', array('classes'=>'button', 'caption'=>'Upload New'));
+				echo actionLink('upload', array('classes' => 'button', 'caption' => 'Upload New'));
 			
 			// Display the page's info
 			adminInfo();
@@ -88,7 +88,7 @@ class Media extends Post {
 			}
 			
 			// Fetch the media entry count from the database
-			$count = $rs_query->select('posts', 'COUNT(*)', array('type'=>'media'));
+			$count = $rs_query->select('posts', 'COUNT(*)', array('type' => 'media'));
 			
 			// Set the page count
 			$page['count'] = ceil($count / $page['per_page']);
@@ -104,7 +104,15 @@ class Media extends Post {
 			<thead>
 				<?php
 				// Fill an array with the table header columns
-				$table_header_cols = array('Thumbnail', 'File', 'Author', 'Upload Date', 'Size', 'Dimensions', 'MIME Type');
+				$table_header_cols = array(
+					'Thumbnail',
+					'File',
+					'Author',
+					'Upload Date',
+					'Size',
+					'Dimensions',
+					'MIME Type'
+				);
 				
 				// Construct the table header
 				echo tableHeaderRow($table_header_cols);
@@ -113,7 +121,10 @@ class Media extends Post {
 			<tbody>
 				<?php
 				// Fetch all media from the database
-				$mediaa = $rs_query->select('posts', '*', array('type'=>'media'), 'date', 'DESC', array($page['start'], $page['per_page']));
+				$mediaa = $rs_query->select('posts', '*', array('type' => 'media'), 'date', 'DESC', array(
+					$page['start'],
+					$page['per_page']
+				));
 				
 				// Loop through the media
 				foreach($mediaa as $media) {
@@ -122,8 +133,19 @@ class Media extends Post {
 					
 					// Set up the action links
 					$actions = array(
-						userHasPrivilege($session['role'], 'can_edit_media') ? actionLink('edit', array('caption'=>'Edit', 'id'=>$media['id'])) : null,
-						userHasPrivilege($session['role'], 'can_delete_media') ? actionLink('delete', array('classes'=>'modal-launch delete-item', 'data_item'=>'media', 'caption'=>'Delete', 'id'=>$media['id'])) : null,
+						// Edit
+						userHasPrivilege($session['role'], 'can_edit_media') ? actionLink('edit', array(
+							'caption' => 'Edit',
+							'id' => $media['id']
+						)) : null,
+						// Delete
+						userHasPrivilege($session['role'], 'can_delete_media') ? actionLink('delete', array(
+							'classes' => 'modal-launch delete-item',
+							'data_item' => 'media',
+							'caption' => 'Delete',
+							'id' => $media['id']
+						)) : null,
+						// View
 						'<a href="'.trailingSlash(UPLOADS).$meta['filename'].'" target="_blank" rel="noreferrer noopener">View</a>'
 					);
 					
@@ -152,12 +174,19 @@ class Media extends Post {
 					}
 					
 					echo tableRow(
+						// Thumbnail
 						tableCell('<img src="'.trailingSlash(UPLOADS).$meta['filename'].'">', 'thumbnail'),
+						// File
 						tableCell('<strong>'.$media['title'].'</strong><br><em>'.$meta['filename'].'</em><div class="actions">'.implode(' &bull; ', $actions).'</div>', 'file'),
+						// Author
 						tableCell($this->getAuthor($media['author']), 'author'),
+						// Upload date
 						tableCell(formatDate($media['date'], 'd M Y @ g:i A'), 'upload-date'),
+						// Size
 						tableCell($size ?? '0 B', 'size'),
+						// Dimensions
 						tableCell($dimensions ?? '&mdash;', 'dimensions'),
+						// MIME type
 						tableCell($meta['mime_type'], 'mime-type')
 					);
 				}
@@ -167,6 +196,9 @@ class Media extends Post {
 					echo tableRow(tableCell('There are no media to display.', '', count($table_header_cols)));
 				?>
 			</tbody>
+			<tfoot>
+				<?php echo tableHeaderRow($table_header_cols); ?>
+			</tfoot>
 		</table>
 		<?php
 		// Set up page navigation
@@ -201,12 +233,41 @@ class Media extends Post {
 			<form class="data-form" action="" method="post" autocomplete="off" enctype="multipart/form-data">
 				<table class="form-table">
 					<?php
-					echo formRow(array('Title', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>($_POST['title'] ?? '')));
-					echo formRow(array('File', true), array('tag'=>'input', 'type'=>'file', 'id'=>'file-upl', 'class'=>'file-input required invalid init', 'name'=>'file'));
-					echo formRow('Alt Text', array('tag'=>'input', 'class'=>'text-input', 'name'=>'alt_text', 'value'=>($_POST['alt_text'] ?? '')));
-					echo formRow('Description', array('tag'=>'textarea', 'class'=>'textarea-input', 'name'=>'description', 'cols'=>30, 'rows'=>10, 'content'=>htmlspecialchars(($_POST['description'] ?? ''))));
-					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Upload Media'));
+					echo formRow(array('Title', true), array(
+						'tag' => 'input',
+						'class' => 'text-input required invalid init',
+						'name' => 'title',
+						'value' => ($_POST['title'] ?? '')
+					));
+					echo formRow(array('File', true), array(
+						'tag' => 'input',
+						'type' => 'file',
+						'id' => 'file-upl',
+						'class' => 'file-input required invalid init',
+						'name' => 'file'
+					));
+					echo formRow('Alt Text', array(
+						'tag' => 'input',
+						'class' => 'text-input',
+						'name' => 'alt_text',
+						'value' => ($_POST['alt_text'] ?? '')
+					));
+					echo formRow('Description', array(
+						'tag' => 'textarea',
+						'class' => 'textarea-input',
+						'name' => 'description',
+						'cols' => 30,
+						'rows' => 10,
+						'content' => htmlspecialchars(($_POST['description'] ?? ''))
+					));
+					echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
+					echo formRow('', array(
+						'tag' => 'input',
+						'type' => 'submit',
+						'class' => 'submit-input button',
+						'name' => 'submit',
+						'value' => 'Upload Media'
+					));
 					?>
 				</table>
 			</form>
@@ -244,16 +305,50 @@ class Media extends Post {
 				<form class="data-form" action="" method="post" autocomplete="off">
 					<table class="form-table">
 						<?php
-						echo formRow('Thumbnail', array('tag'=>'div', 'class'=>'thumb-wrap', 'content'=>formTag('img', array('class'=>'media-thumb', 'src'=>trailingSlash(UPLOADS).$meta['filename']))));
-						echo formRow(array('Title', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>$this->title));
-						echo formRow('Alt Text', array('tag'=>'input', 'class'=>'text-input', 'name'=>'alt_text', 'value'=>$meta['alt_text']));
-						echo formRow('Description', array('tag'=>'textarea', 'class'=>'textarea-input', 'name'=>'description', 'cols'=>30, 'rows'=>10, 'content'=>htmlspecialchars($this->content)));
-						echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-						echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Media'));
+						echo formRow('Thumbnail', array(
+							'tag' => 'div',
+							'class' => 'thumb-wrap',
+							'content' => formTag('img', array(
+								'class' => 'media-thumb',
+								'src' => trailingSlash(UPLOADS).$meta['filename']
+							))
+						));
+						echo formRow(array('Title', true), array(
+							'tag' => 'input',
+							'class' => 'text-input required invalid init',
+							'name' => 'title',
+							'value' => $this->title
+						));
+						echo formRow('Alt Text', array(
+							'tag' => 'input',
+							'class' => 'text-input',
+							'name' => 'alt_text',
+							'value' => $meta['alt_text']
+						));
+						echo formRow('Description', array(
+							'tag' => 'textarea',
+							'class' => 'textarea-input',
+							'name' => 'description',
+							'cols' => 30,
+							'rows' => 10,
+							'content' => htmlspecialchars($this->content)
+						));
+						echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
+						echo formRow('', array(
+							'tag' => 'input',
+							'type' => 'submit',
+							'class' => 'submit-input button',
+							'name' => 'submit',
+							'value' => 'Update Media'
+						));
 						?>
 					</table>
 				</form>
-				<?php echo actionLink('replace', array('classes'=>'replace-media button', 'caption'=>'Replace Media', 'id'=>$this->id)); ?>
+				<?php echo actionLink('replace', array(
+					'classes' => 'replace-media button',
+					'caption' => 'Replace Media',
+					'id' => $this->id
+				)); ?>
 			</div>
 			<?php
 		}
@@ -295,12 +390,47 @@ class Media extends Post {
 				<form class="data-form" action="" method="post" autocomplete="off" enctype="multipart/form-data">
 					<table class="form-table">
 						<?php
-						echo formRow('Thumbnail', array('tag'=>'div', 'class'=>'thumb-wrap', 'content'=>formTag('img', array('class'=>'media-thumb', 'src'=>trailingSlash(UPLOADS).$meta['filename']))));
-						echo formRow(array('Title', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'title', 'value'=>$this->title));
-						echo formRow(array('File', true), array('tag'=>'input', 'type'=>'file', 'id'=>'file-upl', 'class'=>'file-input required invalid init', 'name'=>'file'));
-						echo formRow('Metadata', array('tag'=>'input', 'type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'update_filename_date', 'value'=>1, '*'=>($_POST['update_filename_date'] ? 'checked' : ''), 'label'=>array('class'=>'checkbox-label', 'content'=>'<span>Update filename and date</span>')));
-						echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-						echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Replace Media'));
+						echo formRow('Thumbnail', array(
+							'tag' => 'div',
+							'class' => 'thumb-wrap',
+							'content' => formTag('img', array(
+								'class' => 'media-thumb',
+								'src' => trailingSlash(UPLOADS).$meta['filename']
+							))
+						));
+						echo formRow(array('Title', true), array(
+							'tag' => 'input',
+							'class' => 'text-input required invalid init',
+							'name' => 'title',
+							'value' => $this->title
+						));
+						echo formRow(array('File', true), array(
+							'tag' => 'input',
+							'type' => 'file',
+							'id' => 'file-upl',
+							'class' => 'file-input required invalid init',
+							'name' => 'file'
+						));
+						echo formRow('Metadata', array(
+							'tag' => 'input',
+							'type' => 'checkbox',
+							'class' => 'checkbox-input',
+							'name' => 'update_filename_date',
+							'value' => 1,
+							'*' => ($_POST['update_filename_date'] ? 'checked' : ''),
+							'label' => array(
+								'class' => 'checkbox-label',
+								'content' => '<span>Update filename and date</span>'
+							)
+						));
+						echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
+						echo formRow('', array(
+							'tag' => 'input',
+							'type' => 'submit',
+							'class' => 'submit-input button',
+							'name' => 'submit',
+							'value' => 'Replace Media'
+						));
 						?>
 					</table>
 				</form>
@@ -324,13 +454,13 @@ class Media extends Post {
 		$conflicts = array();
 		
 		// Fetch the number of times the media is used as an avatar from the database
-		$count = $rs_query->select('usermeta', 'COUNT(*)', array('_key'=>'avatar', 'value'=>$this->id));
+		$count = $rs_query->select('usermeta', 'COUNT(*)', array('_key' => 'avatar', 'value' => $this->id));
 		
 		// Check whether the count is greater than zero
 		if($count > 0) $conflicts[] = 'users';
 		
 		// Fetch the number of times the media is used as a featured image from the database
-		$count = $rs_query->select('postmeta', 'COUNT(*)', array('_key'=>'feat_image', 'value'=>$this->id));
+		$count = $rs_query->select('postmeta', 'COUNT(*)', array('_key' => 'feat_image', 'value' => $this->id));
 		
 		// Check whether the count is greater than zero
 		if($count > 0) $conflicts[] = 'posts';
@@ -340,7 +470,7 @@ class Media extends Post {
 			redirect(ADMIN_URI.'?exit_status=failure&conflicts='.implode(':', $conflicts));
 		
 		// Fetch the filename from the database
-		$filename = $rs_query->selectField('postmeta', 'value', array('post'=>$this->id, '_key'=>'filename'));
+		$filename = $rs_query->selectField('postmeta', 'value', array('post' => $this->id, '_key' => 'filename'));
 		
 		// Check whether the filename exists in the database
 		if($filename) {
@@ -351,10 +481,10 @@ class Media extends Post {
 			if(file_exists($file_path)) unlink($file_path);
 			
 			// Delete the media from the database
-			$rs_query->delete('posts', array('id'=>$this->id));
+			$rs_query->delete('posts', array('id' => $this->id));
 			
 			// Delete the media's metadata from the database
-			$rs_query->delete('postmeta', array('post'=>$this->id));
+			$rs_query->delete('postmeta', array('post' => $this->id));
 			
 			// Redirect to the "List Media" page with an appropriate exit status
 			redirect(ADMIN_URI.'?exit_status=success');
@@ -390,7 +520,16 @@ class Media extends Post {
 					return statusMessage('A file must be selected for upload!');
 				
 				// Create an array of accepted MIME types
-				$accepted_mime = array('image/jpeg', 'image/png', 'image/gif', 'image/x-icon', 'audio/mp3', 'audio/ogg', 'video/mp4', 'text/plain');
+				$accepted_mime = array(
+					'image/jpeg',
+					'image/png',
+					'image/gif',
+					'image/x-icon',
+					'audio/mp3',
+					'audio/ogg',
+					'video/mp4',
+					'text/plain'
+				);
 				
 				// Check whether the uploaded file is among the accepted MIME types
 				if(!in_array($data['file']['type'], $accepted_mime, true))
@@ -418,31 +557,51 @@ class Media extends Post {
 				move_uploaded_file($data['file']['tmp_name'], trailingSlash(PATH.UPLOADS).$filename);
 				
 				// Insert the new media into the database
-				$insert_id = $rs_query->insert('posts', array('title'=>$data['title'], 'author'=>$session['id'], 'date'=>'NOW()', 'content'=>$data['description'], 'slug'=>$slug, 'type'=>'media'));
+				$insert_id = $rs_query->insert('posts', array(
+					'title' => $data['title'],
+					'author' => $session['id'],
+					'date' => 'NOW()',
+					'content' => $data['description'],
+					'slug' => $slug,
+					'type' => 'media'
+				));
 				
 				// Create an array to hold the media's metadata
-				$mediameta = array('filename'=>$filename, 'mime_type'=>$data['file']['type'], 'alt_text'=>$data['alt_text']);
+				$mediameta = array(
+					'filename' => $filename,
+					'mime_type' => $data['file']['type'],
+					'alt_text' => $data['alt_text']
+				);
 				
 				// Insert the media's metadata into the database
-				foreach($mediameta as $key=>$value)
-					$rs_query->insert('postmeta', array('post'=>$insert_id, '_key'=>$key, 'value'=>$value));
+				foreach($mediameta as $key => $value) {
+					$rs_query->insert('postmeta', array(
+						'post' => $insert_id,
+						'_key' => $key,
+						'value' => $value
+					));
+				}
 				
 				// Redirect to the appropriate "Edit Media" page
 				redirect(ADMIN_URI.'?id='.$insert_id.'&action=edit');
 				break;
 			case 'edit':
 				// Update the media in the database
-				$rs_query->update('posts', array('title'=>$data['title'], 'modified'=>'NOW()', 'content'=>$data['description']), array('id'=>$id));
+				$rs_query->update('posts', array(
+					'title' => $data['title'],
+					'modified' => 'NOW()',
+					'content' => $data['description']
+				), array('id' => $id));
 				
 				// Create an array to hold the media's metadata
-				$mediameta = array('alt_text'=>$data['alt_text']);
+				$mediameta = array('alt_text' => $data['alt_text']);
 				
 				// Update the media's metadata in the database
-				foreach($mediameta as $key=>$value)
-					$rs_query->update('postmeta', array('value'=>$value), array('post'=>$id, '_key'=>$key));
+				foreach($mediameta as $key => $value)
+					$rs_query->update('postmeta', array('value' => $value), array('post' => $id, '_key' => $key));
 				
 				// Update the class variables
-				foreach($data as $key=>$value) $this->$key = $value;
+				foreach($data as $key => $value) $this->$key = $value;
 				
 				// Update the content class variable
 				$this->content = $data['description'];
@@ -456,7 +615,16 @@ class Media extends Post {
 					return statusMessage('A file must be selected for upload!');
 				
 				// Create an array of accepted MIME types
-				$accepted_mime = array('image/jpeg', 'image/png', 'image/gif', 'image/x-icon', 'audio/mp3', 'audio/ogg', 'video/mp4', 'text/plain');
+				$accepted_mime = array(
+					'image/jpeg',
+					'image/png',
+					'image/gif',
+					'image/x-icon',
+					'audio/mp3',
+					'audio/ogg',
+					'video/mp4',
+					'text/plain'
+				);
 				
 				// Check whether the uploaded file is among the accepted MIME types
 				if(!in_array($data['file']['type'], $accepted_mime, true))
@@ -486,7 +654,12 @@ class Media extends Post {
 					move_uploaded_file($data['file']['tmp_name'], trailingSlash(PATH.UPLOADS).$filename);
 					
 					// Update the media in the database
-					$rs_query->update('posts', array('title'=>$data['title'], 'date'=>'NOW()', 'modified'=>null, 'slug'=>$slug), array('id'=>$id));
+					$rs_query->update('posts', array(
+						'title' => $data['title'],
+						'date' => 'NOW()',
+						'modified' => null,
+						'slug' => $slug
+					), array('id' => $id));
 				} else {
 					// Split the old filename into separate parts
 					$db_file = pathinfo($meta['filename']);
@@ -504,18 +677,21 @@ class Media extends Post {
 					move_uploaded_file($data['file']['tmp_name'], trailingSlash(PATH.UPLOADS).$filename);
 					
 					// Update the media in the database
-					$rs_query->update('posts', array('title'=>$data['title'], 'modified'=>'NOW()'), array('id'=>$id));
+					$rs_query->update('posts', array(
+						'title' => $data['title'],
+						'modified' => 'NOW()'
+					), array('id' => $id));
 				}
 				
 				// Create an array to hold the media's metadata
-				$mediameta = array('filename'=>$filename, 'mime_type'=>$data['file']['type']);
+				$mediameta = array('filename' => $filename, 'mime_type' => $data['file']['type']);
 				
 				// Update the media's metadata in the database
-				foreach($mediameta as $key=>$value)
-					$rs_query->update('postmeta', array('value'=>$value), array('post'=>$id, '_key'=>$key));
+				foreach($mediameta as $key => $value)
+					$rs_query->update('postmeta', array('value' => $value), array('post' => $id, '_key' => $key));
 				
 				// Update the class variables
-				foreach($data as $key=>$value) $this->$key = $value;
+				foreach($data as $key => $value) $this->$key = $value;
 				
 				// Return a status message
 				return statusMessage('Media replaced! <a href="'.ADMIN_URI.'">Return to list</a>?', true);

@@ -86,10 +86,10 @@ class Term {
 		// Check whether the id is '0'
 		if($id !== 0) {
 			// Fetch the term from the database
-			$term = $rs_query->selectRow('terms', $cols, array('id'=>$id));
+			$term = $rs_query->selectRow('terms', $cols, array('id' => $id));
 			
 			// Loop through the array and set the class variables
-			foreach($term as $key=>$value) $this->$key = $term[$key];
+			foreach($term as $key => $value) $this->$key = $term[$key];
 		}
 		
 		// Set the $taxonomy_data class variable
@@ -130,7 +130,7 @@ class Term {
 				echo statusMessage('The '.strtolower($this->taxonomy_data['labels']['name_singular']).' was successfully deleted.', true);
 			
 			// Fetch the term entry count from the database (by taxonomy)
-			$count = $rs_query->select('terms', 'COUNT(*)', array('taxonomy'=>getTaxonomyId($this->taxonomy_data['name'])));
+			$count = $rs_query->select('terms', 'COUNT(*)', array('taxonomy' => getTaxonomyId($this->taxonomy_data['name'])));
 			
 			// Set the page count
 			$page['count'] = ceil($count / $page['per_page']);
@@ -155,7 +155,7 @@ class Term {
 			<tbody>
 				<?php
 				// Fetch all terms from the database (by taxonomy)
-				$terms = $rs_query->select('terms', '*', array('taxonomy'=>getTaxonomyId($this->taxonomy_data['name'])), 'name', 'ASC', array($page['start'], $page['per_page']));
+				$terms = $rs_query->select('terms', '*', array('taxonomy' => getTaxonomyId($this->taxonomy_data['name'])), 'name', 'ASC', array($page['start'], $page['per_page']));
 				
 				// Loop through the terms
 				foreach($terms as $term) {
@@ -164,8 +164,21 @@ class Term {
 					
 					// Set up the action links
 					$actions = array(
-						userHasPrivilege($session['role'], 'can_edit_'.$tax_name) ? actionLink('edit', array('caption'=>'Edit', 'id'=>$term['id'])) : null,
-						userHasPrivilege($session['role'], 'can_delete_'.$tax_name) ? actionLink('delete', array('classes'=>'modal-launch delete-item', 'data_item'=>strtolower($this->taxonomy_data['labels']['name_singular']), 'caption'=>'Delete', 'id'=>$term['id'])) : null,
+						// Edit
+						userHasPrivilege($session['role'], 'can_edit_'.$tax_name
+						) ? actionLink('edit', array(
+							'caption' => 'Edit',
+							'id' => $term['id']
+						)) : null,
+						// Delete
+						userHasPrivilege($session['role'], 'can_delete_'.$tax_name
+						) ? actionLink('delete', array(
+							'classes' => 'modal-launch delete-item',
+							'data_item' => strtolower($this->taxonomy_data['labels']['name_singular']),
+							'caption' => 'Delete',
+							'id' => $term['id']
+						)) : null,
+						// View
 						'<a href="'.getPermalink($this->taxonomy_data['name'], $term['parent'], $term['slug']).'">View</a>'
 					);
 					
@@ -173,9 +186,13 @@ class Term {
 					$actions = array_filter($actions);
 					
 					echo tableRow(
+						// Name
 						tableCell('<strong>'.$term['name'].'</strong><div class="actions">'.implode(' &bull; ', $actions).'</div>', 'name'),
+						// Slug
 						tableCell($term['slug'], 'slug'),
+						// Parent
 						tableCell($this->getParent($term['parent']), 'parent'),
+						// Count
 						tableCell($term['count'], 'count')
 					);
 				}
@@ -185,6 +202,9 @@ class Term {
 					echo tableRow(tableCell('There are no '.$this->taxonomy_data['labels']['name_lowercase'].' to display.', '', count($table_header_cols)));
 				?>
 			</tbody>
+			<tfoot>
+				<?php echo tableHeaderRow($table_header_cols); ?>
+			</tfoot>
 		</table>
 		<?php
 		// Set up page navigation
@@ -213,11 +233,34 @@ class Term {
 			<form class="data-form" action="" method="post" autocomplete="off">
 				<table class="form-table">
 					<?php
-					echo formRow(array('Name', true), array('tag'=>'input', 'id'=>'name-field', 'class'=>'text-input required invalid init', 'name'=>'name', 'value'=>($_POST['name'] ?? '')));
-					echo formRow(array('Slug', true), array('tag'=>'input', 'id'=>'slug-field', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>($_POST['slug'] ?? '')));
-					echo formRow('Parent', array('tag'=>'select', 'class'=>'select-input', 'name'=>'parent', 'content'=>'<option value="0">(none)</option>'.$this->getParentList()));
-					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Create Category'));
+					echo formRow(array('Name', true), array(
+						'tag' => 'input',
+						'id' => 'name-field',
+						'class' => 'text-input required invalid init',
+						'name' => 'name',
+						'value' => ($_POST['name'] ?? '')
+					));
+					echo formRow(array('Slug', true), array(
+						'tag' => 'input',
+						'id' => 'slug-field',
+						'class' => 'text-input required invalid init',
+						'name' => 'slug',
+						'value' => ($_POST['slug'] ?? '')
+					));
+					echo formRow('Parent', array(
+						'tag' => 'select',
+						'class' => 'select-input',
+						'name' => 'parent',
+						'content' => '<option value="0">(none)</option>'.$this->getParentList()
+					));
+					echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
+					echo formRow('', array(
+						'tag' => 'input',
+						'type' => 'submit',
+						'class' => 'submit-input button',
+						'name' => 'submit',
+						'value' => 'Create Category'
+					));
 					?>
 				</table>
 			</form>
@@ -263,11 +306,34 @@ class Term {
 					<form class="data-form" action="" method="post" autocomplete="off">
 						<table class="form-table">
 							<?php
-							echo formRow(array('Name', true), array('tag'=>'input', 'id'=>'name-field', 'class'=>'text-input required invalid init', 'name'=>'name', 'value'=>$this->name));
-							echo formRow(array('Slug', true), array('tag'=>'input', 'id'=>'slug-field', 'class'=>'text-input required invalid init', 'name'=>'slug', 'value'=>$this->slug));
-							echo formRow('Parent', array('tag'=>'select', 'class'=>'select-input', 'name'=>'parent', 'content'=>'<option value="0">(none)</option>'.$this->getParentList($this->parent, $this->id)));
-							echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-							echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update '.$this->taxonomy_data['labels']['name_singular']));
+							echo formRow(array('Name', true), array(
+								'tag' => 'input',
+								'id' => 'name-field',
+								'class' => 'text-input required invalid init',
+								'name' => 'name',
+								'value' => $this->name
+							));
+							echo formRow(array('Slug', true), array(
+								'tag' => 'input',
+								'id' => 'slug-field',
+								'class' => 'text-input required invalid init',
+								'name' => 'slug',
+								'value' => $this->slug
+							));
+							echo formRow('Parent', array(
+								'tag' => 'select',
+								'class' => 'select-input',
+								'name' => 'parent',
+								'content' => '<option value="0">(none)</option>'.$this->getParentList($this->parent, $this->id)
+							));
+							echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
+							echo formRow('', array(
+								'tag' => 'input',
+								'type' => 'submit',
+								'class' => 'submit-input button',
+								'name' => 'submit',
+								'value' => 'Update '.$this->taxonomy_data['labels']['name_singular']
+							));
 							?>
 						</table>
 					</form>
@@ -294,10 +360,10 @@ class Term {
 			redirect('categories.php');
 		} else {
 			// Delete the category from the database
-			$rs_query->delete('terms', array('id'=>$this->id, 'taxonomy'=>$this->taxonomy));
+			$rs_query->delete('terms', array('id' => $this->id, 'taxonomy' => $this->taxonomy));
 			
 			// Delete the term relationship(s) from the database
-			$rs_query->delete('term_relationships', array('term'=>$this->id));
+			$rs_query->delete('term_relationships', array('term' => $this->id));
 			
 			// Redirect to the "List Terms" page with an appropriate exit status
 			redirect($this->taxonomy_data['menu_link'].'?exit_status=success');
@@ -330,16 +396,25 @@ class Term {
 		
 		if($id === 0) {
 			// Insert the new term into the database
-			$insert_id = $rs_query->insert('terms', array('name'=>$data['name'], 'slug'=>$slug, 'taxonomy'=>getTaxonomyId($this->taxonomy_data['name']), 'parent'=>$data['parent']));
+			$insert_id = $rs_query->insert('terms', array(
+				'name' => $data['name'],
+				'slug' => $slug,
+				'taxonomy' => getTaxonomyId($this->taxonomy_data['name']),
+				'parent' => $data['parent']
+			));
 			
 			// Redirect to the appropriate "Edit Term" page
 			redirect(ADMIN_URI.'?id='.$insert_id.'&action=edit');
 		} else {
 			// Update the category in the database
-			$rs_query->update('terms', array('name'=>$data['name'], 'slug'=>$slug, 'parent'=>$data['parent']), array('id'=>$id));
+			$rs_query->update('terms', array(
+				'name' => $data['name'],
+				'slug' => $slug,
+				'parent' => $data['parent']
+			), array('id' => $id));
 			
 			// Update the class variables
-			foreach($data as $key=>$value) $this->$key = $value;
+			foreach($data as $key => $value) $this->$key = $value;
 			
 			// Return a status message
 			return statusMessage($this->taxonomy_data['labels']['name_singular'].' updated! <a href="'.$this->taxonomy_data['menu_link'].'">Return to list</a>?', true);
@@ -361,10 +436,10 @@ class Term {
 		
 		if($id === 0) {
 			// Fetch the number of times the slug appears in the database and return true if it does
-			return $rs_query->selectRow('terms', 'COUNT(slug)', array('slug'=>$slug)) > 0;
+			return $rs_query->selectRow('terms', 'COUNT(slug)', array('slug' => $slug)) > 0;
 		} else {
 			// Fetch the number of times the slug appears in the database (minus the current term) and return true if it does
-			return $rs_query->selectRow('terms', 'COUNT(slug)', array('slug'=>$slug, 'id'=>array('<>', $id))) > 0;
+			return $rs_query->selectRow('terms', 'COUNT(slug)', array('slug' => $slug, 'id' => array('<>', $id))) > 0;
 		}
 	}
 	
@@ -383,7 +458,7 @@ class Term {
 		
 		do {
 			// Fetch the parent term from the database
-			$parent = $rs_query->selectField('terms', 'parent', array('id'=>$id));
+			$parent = $rs_query->selectField('terms', 'parent', array('id' => $id));
 			
 			// Set the new id
 			$id = (int)$parent;
@@ -409,7 +484,7 @@ class Term {
 		global $rs_query;
 		
 		// Fetch the taxonomy's name from the database and return it
-		return $rs_query->selectField('taxonomies', 'name', array('id'=>$id));
+		return $rs_query->selectField('taxonomies', 'name', array('id' => $id));
 	}
 	
 	/**
@@ -425,7 +500,7 @@ class Term {
 		global $rs_query;
 		
 		// Fetch the parent term from the database
-		$parent = $rs_query->selectField('terms', 'name', array('id'=>$id));
+		$parent = $rs_query->selectField('terms', 'name', array('id' => $id));
 		
 		// Return the parent's name
 		return empty($parent) ? '&mdash;' : $parent;
@@ -448,7 +523,7 @@ class Term {
 		$list = '';
 		
 		// Fetch all terms of the specified taxonomy from the database
-		$terms = $rs_query->select('terms', array('id', 'name'), array('taxonomy'=>getTaxonomyId($this->taxonomy_data['name'])));
+		$terms = $rs_query->select('terms', array('id', 'name'), array('taxonomy' => getTaxonomyId($this->taxonomy_data['name'])));
 		
 		// Loop through the terms
 		foreach($terms as $term) {

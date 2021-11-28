@@ -61,10 +61,10 @@ class Comment {
 		// Check whether the id is '0'
 		if($id !== 0) {
 			// Fetch the comment from the database
-			$comment = $rs_query->selectRow('comments', $cols, array('id'=>$id));
+			$comment = $rs_query->selectRow('comments', $cols, array('id' => $id));
 			
 			// Loop through the array and set the class variables
-			foreach($comment as $key=>$value) $this->$key = $comment[$key];
+			foreach($comment as $key => $value) $this->$key = $comment[$key];
 		}
 	}
 	
@@ -96,11 +96,20 @@ class Comment {
 			?>
 			<ul class="status-nav">
 				<?php
+				// Create keys for each of the possible statuses
+				$keys = array('all', 'approved', 'unapproved');
+				$count = array();
+				
 				// Fetch the comment entry count from the database (by status)
-				$count = array('all'=>$this->getCommentCount(), 'approved'=>$this->getCommentCount('approved'), 'unapproved'=>$this->getCommentCount('unapproved'));
+				foreach($keys as $key) {
+					if($key === 'all')
+						$count[$key] = $this->getCommentCount();
+					else
+						$count[$key] = $this->getCommentCount($key);
+				}
 				
 				// Loop through the comment counts (by status)
-				foreach($count as $key=>$value) {
+				foreach($count as $key => $value) {
 					?>
 					<li><a href="<?php echo $_SERVER['PHP_SELF'].($key === 'all' ? '' : '?status='.$key); ?>"><?php echo ucfirst($key); ?> <span class="count">(<?php echo $value; ?>)</span></a></li>
 					<?php
@@ -122,11 +131,20 @@ class Comment {
 				?>
 			</div>
 		</div>
-		<table class="data-table">
+		<table class="data-table has-bulk-select">
 			<thead>
 				<?php
 				// Fill an array with the table header columns
-				$table_header_cols = array('Comment', 'Post', 'Author', 'Date Posted');
+				$table_header_cols = array(
+					tag('input', array(
+						'type' => 'checkbox',
+						'class' => 'checkbox bulk-selector'
+					)),
+					'Comment',
+					'Post',
+					'Author',
+					'Date Posted'
+				);
 				
 				// Construct the table header
 				echo tableHeaderRow($table_header_cols);
@@ -135,18 +153,46 @@ class Comment {
 			<tbody>
 				<?php
 				// Fetch all comments from the database (by status)
-				if($status === 'all')
-					$comments = $rs_query->select('comments', '*', '', 'date', 'DESC', array($page['start'], $page['per_page']));
-				else
-					$comments = $rs_query->select('comments', '*', array('status'=>$status), 'date', 'DESC', array($page['start'], $page['per_page']));
+				if($status === 'all') {
+					$comments = $rs_query->select('comments', '*', '', 'date', 'DESC', array(
+						$page['start'],
+						$page['per_page']
+					));
+				} else {
+					$comments = $rs_query->select('comments', '*', array(
+						'status' => $status
+					), 'date', 'DESC', array(
+						$page['start'],
+						$page['per_page']
+					));
+				}
 				
 				// Loop through the comments
 				foreach($comments as $comment) {
 					// Set up the action links
 					$actions = array(
-						userHasPrivilege($session['role'], 'can_edit_comments') ? ($comment['status'] === 'approved' ? actionLink('unapprove', array('caption'=>'Unapprove', 'id'=>$comment['id'])) : actionLink('approve', array('caption'=>'Approve', 'id'=>$comment['id']))) : null,
-						userHasPrivilege($session['role'], 'can_edit_comments') ? actionLink('edit', array('caption'=>'Edit', 'id'=>$comment['id'])) : null,
-						userHasPrivilege($session['role'], 'can_delete_comments') ? actionLink('delete', array('classes'=>'modal-launch delete-item', 'data_item'=>'comment', 'caption'=>'Delete', 'id'=>$comment['id'])) : null,
+						// Approve/unapprove
+						userHasPrivilege($session['role'], 'can_edit_comments'
+						) ? ($comment['status'] === 'approved' ? actionLink('unapprove', array(
+							'caption' => 'Unapprove',
+							'id' => $comment['id']
+						)) : actionLink('approve', array(
+							'caption' => 'Approve',
+							'id' => $comment['id']
+						))) : null,
+						// Edit
+						userHasPrivilege($session['role'], 'can_edit_comments') ? actionLink('edit', array(
+							'caption' => 'Edit',
+							'id' => $comment['id']
+						)) : null,
+						// Delete
+						userHasPrivilege($session['role'], 'can_delete_comments') ? actionLink('delete', array(
+							'classes' => 'modal-launch delete-item',
+							'data_item' => 'comment',
+							'caption' => 'Delete',
+							'id' => $comment['id']
+						)) : null,
+						// View
 						'<a href="'.$this->getPostPermalink($comment['post']).'#comment-'.$comment['id'].'">View</a>'
 					);
 					
@@ -154,21 +200,36 @@ class Comment {
 					$actions = array_filter($actions);
 					
 					echo tableRow(
+						// Bulk select
+						tableCell(tag('input', array(
+							'type' => 'checkbox',
+							'class' => 'checkbox',
+							'value' => $comment['id']
+						)), 'bulk-select'),
+						// Comment
 						tableCell(trimWords($comment['content']).($comment['status'] === 'unapproved' && $status === 'all' ? ' &mdash; <em>pending approval</em>' : '').'<div class="actions">'.implode(' &bull; ', $actions).'</div>', 'content'),
+						// Post
 						tableCell($this->getPost($comment['post']), 'post'),
+						// Author
 						tableCell($this->getAuthor($comment['author']), 'author'),
+						// Date posted
 						tableCell(formatDate($comment['date'], 'd M Y @ g:i A'), 'date')
 					);
 				}
 				
 				// Display a notice if no comments are found
-				if(empty($comments)) {
+				if(empty($comments))
 					echo tableRow(tableCell('There are no comments to display.', '', count($table_header_cols)));
-				}
 				?>
 			</tbody>
+			<tfoot>
+				<?php echo tableHeaderRow($table_header_cols); ?>
+			</tfoot>
 		</table>
 		<?php
+		// Bulk actions
+		$this->bulkActions();
+		
 		// Set up page navigation
 		echo pagerNav($page['current'], $page['count']);
 		
@@ -203,10 +264,28 @@ class Comment {
 				<form class="data-form" action="" method="post" autocomplete="off">
 					<table class="form-table">
 						<?php
-						echo formRow(array('Content', true), array('tag'=>'textarea', 'class'=>'textarea-input', 'name'=>'content', 'cols'=>30, 'rows'=>10, 'content'=>htmlspecialchars($this->content)));
-						echo formRow('Status', array('tag'=>'select', 'class'=>'select-input', 'name'=>'status', 'content'=>'<option value="'.$this->status.'">'.ucfirst($this->status).'</option>'.($this->status === 'approved' ? '<option value="unapproved">Unapproved</option>' : '<option value="approved">Approved</option>')));
-						echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-						echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Comment'));
+						echo formRow(array('Content', true), array(
+							'tag' => 'textarea',
+							'class' => 'textarea-input',
+							'name' => 'content',
+							'cols' => 30,
+							'rows' => 10,
+							'content' => htmlspecialchars($this->content)
+						));
+						echo formRow('Status', array(
+							'tag' => 'select',
+							'class' => 'select-input',
+							'name' => 'status',
+							'content' => '<option value="'.$this->status.'">'.ucfirst($this->status).'</option>'.($this->status === 'approved' ? '<option value="unapproved">Unapproved</option>' : '<option value="approved">Approved</option>')
+						));
+						echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
+						echo formRow('', array(
+							'tag' => 'input',
+							'type' => 'submit',
+							'class' => 'submit-input button',
+							'name' => 'submit',
+							'value' => 'Update Comment'
+						));
 						?>
 					</table>
 				</form>
@@ -220,11 +299,14 @@ class Comment {
 	 * @since 1.1.0[b]{ss-02}
 	 *
 	 * @access public
-	 * @return null
+	 * @param int $id (optional; default: 0)
 	 */
-	public function approveComment() {
+	public function approveComment($id = 0) {
 		// Extend the Query object
 		global $rs_query;
+		
+		// Check whether the provided id is zero and update the class id to match if not
+		if($id !== 0) $this->id = $id;
 		
 		// Check whether the comment's id is valid
 		if(empty($this->id) || $this->id <= 0) {
@@ -232,16 +314,22 @@ class Comment {
 			redirect(ADMIN_URI);
 		} else {
 			// Set the comment's status to 'approved'
-			$rs_query->update('comments', array('status'=>'approved'), array('id'=>$this->id));
+			$rs_query->update('comments', array('status' => 'approved'), array('id' => $this->id));
 			
 			// Fetch the number of approved comments attached to the current comment's post
-			$count = $rs_query->select('comments', 'COUNT(*)', array('post'=>$this->post, 'status'=>'approved'));
+			$count = $rs_query->select('comments', 'COUNT(*)', array(
+				'post' => $this->post,
+				'status' => 'approved'
+			));
 			
 			// Update the post's comment count in the database
-			$rs_query->update('postmeta', array('value'=>$count), array('post'=>$this->post, '_key'=>'comment_count'));
+			$rs_query->update('postmeta', array('value' => $count), array(
+				'post' => $this->post,
+				'_key' => 'comment_count'
+			));
 			
-			// Redirect to the "List Comments" page
-			redirect(ADMIN_URI);
+			// Check whether the provided id is zero and redirect to the "List Comments" page if so
+			if($id === 0) redirect(ADMIN_URI);
 		}
 	}
 	
@@ -250,11 +338,14 @@ class Comment {
 	 * @since 1.1.0[b]{ss-02}
 	 *
 	 * @access public
-	 * @return null
+	 * @param int $id (optional; default: 0)
 	 */
-	public function unapproveComment() {
+	public function unapproveComment($id = 0) {
 		// Extend the Query object
 		global $rs_query;
+		
+		// Check whether the provided id is zero and update the class id to match if not
+		if($id !== 0) $this->id = $id;
 		
 		// Check whether the comment's id is valid
 		if(empty($this->id) || $this->id <= 0) {
@@ -262,16 +353,22 @@ class Comment {
 			redirect(ADMIN_URI);
 		} else {
 			// Set the comment's status to 'unapproved'
-			$rs_query->update('comments', array('status'=>'unapproved'), array('id'=>$this->id));
+			$rs_query->update('comments', array('status' => 'unapproved'), array('id' => $this->id));
 			
 			// Fetch the number of approved comments attached to the current comment's post
-			$count = $rs_query->select('comments', 'COUNT(*)', array('post'=>$this->post, 'status'=>'approved'));
+			$count = $rs_query->select('comments', 'COUNT(*)', array(
+				'post' => $this->post,
+				'status' => 'approved'
+			));
 			
 			// Update the post's comment count in the database
-			$rs_query->update('postmeta', array('value'=>$count), array('post'=>$this->post, '_key'=>'comment_count'));
+			$rs_query->update('postmeta', array('value' => $count), array(
+				'post' => $this->post,
+				'_key' => 'comment_count'
+			));
 			
-			// Redirect to the "List Comments" page
-			redirect(ADMIN_URI);
+			// Check whether the provided id is zero and redirect to the "List Comments" page if so
+			if($id === 0) redirect(ADMIN_URI);
 		}
 	}
 	
@@ -292,13 +389,19 @@ class Comment {
 			redirect(ADMIN_URI);
 		} else {
 			// Delete the comment from the database
-			$rs_query->delete('comments', array('id'=>$this->id));
+			$rs_query->delete('comments', array('id' => $this->id));
 			
 			// Fetch the number of approved comments attached to the current comment's post
-			$count = $rs_query->select('comments', 'COUNT(*)', array('post'=>$this->post, 'status'=>'approved'));
+			$count = $rs_query->select('comments', 'COUNT(*)', array(
+				'post' => $this->post,
+				'status' => 'approved'
+			));
 			
 			// Update the post's comment count in the database
-			$rs_query->update('postmeta', array('value'=>$count), array('post'=>$this->post, '_key'=>'comment_count'));
+			$rs_query->update('postmeta', array('value' => $count), array(
+				'post' => $this->post,
+				'_key' => 'comment_count'
+			));
 			
 			// Redirect to the "List Comments" page with an appropriate exit status
 			redirect(ADMIN_URI.'?exit_status=success');
@@ -327,10 +430,13 @@ class Comment {
 			$data['status'] = 'unapproved';
 		
 		// Update the comment in the database
-		$rs_query->update('comments', array('content'=>$data['content'], 'status'=>$data['status']), array('id'=>$id));
+		$rs_query->update('comments', array(
+			'content' => $data['content'],
+			'status' => $data['status']
+		), array('id' => $id));
 		
 		// Update the class variables
-		foreach($data as $key=>$value) $this->$key = $value;
+		foreach($data as $key => $value) $this->$key = $value;
 		
 		// Return a status message
 		return statusMessage('Comment updated! <a href="'.ADMIN_URI.'">Return to list</a>?', true);
@@ -349,7 +455,7 @@ class Comment {
 		global $rs_query;
 		
 		// Fetch the post's title from the database
-		$title = $rs_query->selectField('posts', array('title'), array('id'=>$id));
+		$title = $rs_query->selectField('posts', array('title'), array('id' => $id));
 		
 		// Return the post's title
 		return '<a href="'.$this->getPostPermalink($id).'">'.$title.'</a>';
@@ -368,7 +474,11 @@ class Comment {
 		global $rs_query;
 		
 		// Fetch the post from the database
-		$post = $rs_query->selectRow('posts', array('slug', 'parent', 'type'), array('id'=>$id));
+		$post = $rs_query->selectRow('posts', array(
+			'slug',
+			'parent',
+			'type'
+		), array('id' => $id));
 		
 		// Return the permalink
 		return getPermalink($post['type'], $post['parent'], $post['slug']);
@@ -387,7 +497,7 @@ class Comment {
 		global $rs_query;
 		
 		// Fetch the author's username from the database
-		$author = $rs_query->selectField('users', 'username', array('id'=>$id));
+		$author = $rs_query->selectField('users', 'username', array('id' => $id));
 		
 		// Return the username
 		return empty($author) ? '&mdash;' : $author;
@@ -411,7 +521,48 @@ class Comment {
 			return $rs_query->select('comments', 'COUNT(*)');
 		} else {
 			// Return the count of all comments by the status
-			return $rs_query->select('comments', 'COUNT(*)', array('status'=>$status));
+			return $rs_query->select('comments', 'COUNT(*)', array('status' => $status));
 		}
+	}
+	
+	/**
+	 * Construct bulk actions.
+	 * @since 1.2.7[b]
+	 *
+	 */
+	private function bulkActions() {
+		// Extend the user's session data
+		global $session;
+		?>
+		<div class="bulk-actions">
+			<?php
+			// Make sure the user has the required permissions
+			if(userHasPrivilege($session['role'], 'can_edit_comments')) {
+				?>
+				<select class="actions">
+					<option value="approve">Approve</option>
+					<option value="unapprove">Unapprove</option>
+				</select>
+				<?php
+				// Update status
+				button(array(
+					'class' => 'bulk-update',
+					'title' => 'Bulk approve/unapprove',
+					'label' => 'Update'
+				));
+			}
+			
+			// Make sure the user has the required permissions
+			if(userHasPrivilege($session['role'], 'can_delete_comments')) {
+				// Delete
+				button(array(
+					'class' => 'bulk-delete',
+					'title' => 'Bulk delete',
+					'label' => 'Delete'
+				));
+			}
+			?>
+		</div>
+		<?php
 	}
 }

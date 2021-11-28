@@ -79,10 +79,10 @@ class User {
 		// Check whether the id is '0'
 		if($id !== 0) {
 			// Fetch the user from the database
-			$user = $rs_query->selectRow('users', $cols, array('id'=>$id));
+			$user = $rs_query->selectRow('users', $cols, array('id' => $id));
 			
 			// Loop through the array and set the class variables
-			foreach($user as $key=>$value) $this->$key = $user[$key];
+			foreach($user as $key => $value) $this->$key = $user[$key];
 		}
 	}
 	
@@ -105,7 +105,7 @@ class User {
 			<?php
 			// Check whether the user has sufficient privileges to create users and create an action link if so
 			if(userHasPrivilege($session['role'], 'can_create_users'))
-				echo actionLink('create', array('classes'=>'button', 'caption'=>'Create New'));
+				echo actionLink('create', array('classes' => 'button', 'caption' => 'Create New'));
 			
 			// Display the page's info
 			adminInfo();
@@ -151,8 +151,8 @@ class User {
 					
 					// Set up the action links
 					$actions = array(
-						userHasPrivilege($session['role'], 'can_edit_users') || $user['id'] === $session['id'] ? ($user['id'] === $session['id'] ? '<a href="'.ADMIN.'/profile.php">Edit</a>' : actionLink('edit', array('caption'=>'Edit', 'id'=>$user['id']))) : null,
-						userHasPrivilege($session['role'], 'can_delete_users') && $user['id'] !== $session['id'] ? ($this->userHasContent($user['id']) ? actionLink('reassign_content', array('caption'=>'Delete', 'id'=>$user['id'])) : actionLink('delete', array('classes'=>'modal-launch delete-item', 'data_item'=>'user', 'caption'=>'Delete', 'id'=>$user['id']))) : null
+						userHasPrivilege($session['role'], 'can_edit_users') || $user['id'] === $session['id'] ? ($user['id'] === $session['id'] ? '<a href="'.ADMIN.'/profile.php">Edit</a>' : actionLink('edit', array('caption' => 'Edit', 'id' => $user['id']))) : null,
+						userHasPrivilege($session['role'], 'can_delete_users') && $user['id'] !== $session['id'] ? ($this->userHasContent($user['id']) ? actionLink('reassign_content', array('caption' => 'Delete', 'id' => $user['id'])) : actionLink('delete', array('classes' => 'modal-launch delete-item', 'data_item' => 'user', 'caption' => 'Delete', 'id' => $user['id']))) : null
 					);
 					
 					// Filter out any empty actions
@@ -174,6 +174,9 @@ class User {
 					echo tableRow(tableCell('There are no users to display.', '', count($table_header_cols)));
 				?>
 			</tbody>
+			<tfoot>
+				<?php echo tableHeaderRow($table_header_cols); ?>
+			</tfoot>
 		</table>
 		<?php
 		// Set up page navigation
@@ -202,15 +205,15 @@ class User {
 			<form class="data-form" action="" method="post" autocomplete="off">
 				<table class="form-table">
 					<?php
-					echo formRow(array('Username', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'username', 'value'=>($_POST['username'] ?? '')));
-					echo formRow(array('Email', true), array('tag'=>'input', 'type'=>'email', 'class'=>'text-input required invalid init', 'name'=>'email', 'value'=>($_POST['email'] ?? '')));
-					echo formRow('First Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'first_name', 'value'=>($_POST['first_name'] ?? '')));
-					echo formRow('Last Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'last_name', 'value'=>($_POST['last_name'] ?? '')));
-					echo formRow(array('Password', true), array('tag'=>'input', 'id'=>'password-field', 'class'=>'text-input required invalid init', 'name'=>'password'), array('tag'=>'input', 'type'=>'button', 'id'=>'password-gen', 'class'=>'button-input button', 'value'=>'Generate Password'), array('tag'=>'label', 'class'=>'checkbox-label hidden required invalid init', 'content'=>formTag('br', array('class'=>'spacer')).formTag('input', array('type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'pass_saved', 'value'=>1)).formTag('span', array('content'=>'I have copied the password to a safe place.'))));
-					echo formRow('Avatar', array('tag'=>'div', 'class'=>'image-wrap', 'content'=>formTag('img', array('src'=>'//:0', 'data-field'=>'thumb')).formTag('span', array('class'=>'image-remove', 'title'=>'Remove', 'content'=>formTag('i', array('class'=>'fas fa-times'))))), array('tag'=>'input', 'type'=>'hidden', 'name'=>'avatar', 'value'=>($_POST['avatar'] ?? 0), 'data-field'=>'id'), array('tag'=>'input', 'type'=>'button', 'class'=>'button-input button modal-launch', 'value'=>'Choose Image', 'data-type'=>'image'));
-					echo formRow('Role', array('tag'=>'select', 'class'=>'select-input', 'name'=>'role', 'content'=>$this->getRoleList((int)getSetting('default_user_role', false))));
-					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Create User'));
+					echo formRow(array('Username', true), array('tag' => 'input', 'class' => 'text-input required invalid init', 'name' => 'username', 'value' => ($_POST['username'] ?? '')));
+					echo formRow(array('Email', true), array('tag' => 'input', 'type' => 'email', 'class' => 'text-input required invalid init', 'name' => 'email', 'value' => ($_POST['email'] ?? '')));
+					echo formRow('First Name', array('tag' => 'input', 'class' => 'text-input', 'name' => 'first_name', 'value' => ($_POST['first_name'] ?? '')));
+					echo formRow('Last Name', array('tag' => 'input', 'class' => 'text-input', 'name' => 'last_name', 'value' => ($_POST['last_name'] ?? '')));
+					echo formRow(array('Password', true), array('tag' => 'input', 'id' => 'password-field', 'class' => 'text-input required invalid init', 'name' => 'password'), array('tag' => 'input', 'type' => 'button', 'id' => 'password-gen', 'class' => 'button-input button', 'value' => 'Generate Password'), array('tag' => 'label', 'class' => 'checkbox-label hidden required invalid init', 'content' => formTag('br', array('class' => 'spacer')).formTag('input', array('type' => 'checkbox', 'class' => 'checkbox-input', 'name' => 'pass_saved', 'value' => 1)).formTag('span', array('content' => 'I have copied the password to a safe place.'))));
+					echo formRow('Avatar', array('tag' => 'div', 'class' => 'image-wrap', 'content' => formTag('img', array('src' => '//:0', 'data-field' => 'thumb')).formTag('span', array('class' => 'image-remove', 'title' => 'Remove', 'content' => formTag('i', array('class' => 'fas fa-times'))))), array('tag' => 'input', 'type' => 'hidden', 'name' => 'avatar', 'value' => ($_POST['avatar'] ?? 0), 'data-field' => 'id'), array('tag' => 'input', 'type' => 'button', 'class' => 'button-input button modal-launch', 'value' => 'Choose Image', 'data-type' => 'image'));
+					echo formRow('Role', array('tag' => 'select', 'class' => 'select-input', 'name' => 'role', 'content' => $this->getRoleList((int)getSetting('default_user_role', false))));
+					echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
+					echo formRow('', array('tag' => 'input', 'type' => 'submit', 'class' => 'submit-input button', 'name' => 'submit', 'value' => 'Create User'));
 					?>
 				</table>
 			</form>
@@ -259,18 +262,18 @@ class User {
 					<form class="data-form" action="" method="post" autocomplete="off">
 						<table class="form-table">
 							<?php
-							echo formRow(array('Username', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'username', 'value'=>$this->username));
-							echo formRow(array('Email', true), array('tag'=>'input', 'type'=>'email', 'class'=>'text-input required invalid init', 'name'=>'email', 'value'=>$this->email));
-							echo formRow('First Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'first_name', 'value'=>$meta['first_name']));
-							echo formRow('Last Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'last_name', 'value'=>$meta['last_name']));
-							echo formRow('Avatar', array('tag'=>'div', 'class'=>'image-wrap'.(!empty($meta['avatar']) ? ' visible' : ''), 'style'=>'width: '.($width ?? 0).'px;', 'content'=>formTag('img', array('src'=>getMediaSrc($meta['avatar']), 'data-field'=>'thumb')).formTag('span', array('class'=>'image-remove', 'title'=>'Remove', 'content'=>formTag('i', array('class'=>'fas fa-times'))))), array('tag'=>'input', 'type'=>'hidden', 'name'=>'avatar', 'value'=>$meta['avatar'], 'data-field'=>'id'), array('tag'=>'input', 'type'=>'button', 'class'=>'button-input button modal-launch', 'value'=>'Choose Image', 'data-type'=>'image'));
-							echo formRow('Role', array('tag'=>'select', 'class'=>'select-input', 'name'=>'role', 'content'=>$this->getRoleList($this->role)));
-							echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-							echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update User'));
+							echo formRow(array('Username', true), array('tag' => 'input', 'class' => 'text-input required invalid init', 'name' => 'username', 'value' => $this->username));
+							echo formRow(array('Email', true), array('tag' => 'input', 'type' => 'email', 'class' => 'text-input required invalid init', 'name' => 'email', 'value' => $this->email));
+							echo formRow('First Name', array('tag' => 'input', 'class' => 'text-input', 'name' => 'first_name', 'value' => $meta['first_name']));
+							echo formRow('Last Name', array('tag' => 'input', 'class' => 'text-input', 'name' => 'last_name', 'value' => $meta['last_name']));
+							echo formRow('Avatar', array('tag' => 'div', 'class' => 'image-wrap'.(!empty($meta['avatar']) ? ' visible' : ''), 'style' => 'width: '.($width ?? 0).'px;', 'content' => formTag('img', array('src' => getMediaSrc($meta['avatar']), 'data-field' => 'thumb')).formTag('span', array('class' => 'image-remove', 'title' => 'Remove', 'content' => formTag('i', array('class' => 'fas fa-times'))))), array('tag' => 'input', 'type' => 'hidden', 'name' => 'avatar', 'value' => $meta['avatar'], 'data-field' => 'id'), array('tag' => 'input', 'type' => 'button', 'class' => 'button-input button modal-launch', 'value' => 'Choose Image', 'data-type' => 'image'));
+							echo formRow('Role', array('tag' => 'select', 'class' => 'select-input', 'name' => 'role', 'content' => $this->getRoleList($this->role)));
+							echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
+							echo formRow('', array('tag' => 'input', 'type' => 'submit', 'class' => 'submit-input button', 'name' => 'submit', 'value' => 'Update User'));
 							?>
 						</table>
 					</form>
-					<?php echo actionLink('reset_password', array('classes'=>'reset-password button', 'caption'=>'Reset Password', 'id'=>$this->id)); ?>
+					<?php echo actionLink('reset_password', array('classes' => 'reset-password button', 'caption' => 'Reset Password', 'id' => $this->id)); ?>
 				</div>
 				<?php
 				// Include the upload modal
@@ -296,10 +299,10 @@ class User {
 			redirect(ADMIN_URI);
 		} else {
 			// Delete the user from the database
-			$rs_query->delete('users', array('id'=>$this->id));
+			$rs_query->delete('users', array('id' => $this->id));
 			
 			// Delete the user's metadata from the database
-			$rs_query->delete('usermeta', array('user'=>$this->id));
+			$rs_query->delete('usermeta', array('user' => $this->id));
 			
 			// Redirect to the "List Users" page with an appropriate exit status
 			redirect(ADMIN_URI.'?exit_status=success');
@@ -336,7 +339,7 @@ class User {
 			return statusMessage('That email is already taken by another user. Please choose another one.');
 		
 		// Create an array to hold the user's metadata
-		$usermeta = array('first_name'=>$data['first_name'], 'last_name'=>$data['last_name'], 'avatar'=>$data['avatar']);
+		$usermeta = array('first_name' => $data['first_name'], 'last_name' => $data['last_name'], 'avatar' => $data['avatar']);
 		
 		if($id === 0) {
 			// Make sure the password field is not empty
@@ -352,30 +355,30 @@ class User {
 				return statusMessage('Please confirm that you\'ve saved your password to a safe location.');
 			
 			// Hash the password (encrypts the password for security purposes)
-			$hashed_password = password_hash($data['password'], PASSWORD_BCRYPT, array('cost'=>10));
+			$hashed_password = password_hash($data['password'], PASSWORD_BCRYPT, array('cost' => 10));
 			
 			// Insert the new user into the database
-			$insert_id = $rs_query->insert('users', array('username'=>$data['username'], 'password'=>$hashed_password, 'email'=>$data['email'], 'registered'=>'NOW()', 'role'=>$data['role']));
+			$insert_id = $rs_query->insert('users', array('username' => $data['username'], 'password' => $hashed_password, 'email' => $data['email'], 'registered' => 'NOW()', 'role' => $data['role']));
 			
 			// Add a metadata entry for the user's admin theme to the usermeta array
 			$usermeta['theme'] = 'default';
 			
 			// Insert the user's metadata into the database
-			foreach($usermeta as $key=>$value)
-				$rs_query->insert('usermeta', array('user'=>$insert_id, '_key'=>$key, 'value'=>$value));
+			foreach($usermeta as $key => $value)
+				$rs_query->insert('usermeta', array('user' => $insert_id, '_key' => $key, 'value' => $value));
 			
 			// Redirect to the appropriate "Edit User" page
 			redirect(ADMIN_URI.'?id='.$insert_id.'&action=edit');
 		} else {
 			// Update the user in the database
-			$rs_query->update('users', array('username'=>$data['username'], 'email'=>$data['email'], 'role'=>$data['role']), array('id'=>$id));
+			$rs_query->update('users', array('username' => $data['username'], 'email' => $data['email'], 'role' => $data['role']), array('id' => $id));
 			
 			// Update the user's metadata in the database
-			foreach($usermeta as $key=>$value)
-				$rs_query->update('usermeta', array('value'=>$value), array('user'=>$id, '_key'=>$key));
+			foreach($usermeta as $key => $value)
+				$rs_query->update('usermeta', array('value' => $value), array('user' => $id, '_key' => $key));
 			
 			// Update the class variables
-			foreach($data as $key=>$value) $this->$key = $value;
+			foreach($data as $key => $value) $this->$key = $value;
 			
 			// Return a status message
 			return statusMessage('User updated! <a href="'.ADMIN_URI.'">Return to list</a>?', true);
@@ -397,10 +400,10 @@ class User {
 		
 		if($id === 0) {
 			// Return true if the username appears in the database
-			return $rs_query->selectRow('users', 'COUNT(username)', array('username'=>$username)) > 0;
+			return $rs_query->selectRow('users', 'COUNT(username)', array('username' => $username)) > 0;
 		} else {
 			// Return true if the username appears in the database (not counting the current user)
-			return $rs_query->selectRow('users', 'COUNT(username)', array('username'=>$username, 'id'=>array('<>', $id))) > 0;
+			return $rs_query->selectRow('users', 'COUNT(username)', array('username' => $username, 'id' => array('<>', $id))) > 0;
 		}
 	}
 	
@@ -419,10 +422,10 @@ class User {
 		
 		if($id === 0) {
 			// Return true if the email appears in the database
-			return $rs_query->selectRow('users', 'COUNT(email)', array('email'=>$email)) > 0;
+			return $rs_query->selectRow('users', 'COUNT(email)', array('email' => $email)) > 0;
 		} else {
 			// Return true if the email appears in the database (not counting the current user)
-			return $rs_query->selectRow('users', 'COUNT(email)', array('email'=>$email, 'id'=>array('<>', $id))) > 0;
+			return $rs_query->selectRow('users', 'COUNT(email)', array('email' => $email, 'id' => array('<>', $id))) > 0;
 		}
 	}
 	
@@ -439,7 +442,7 @@ class User {
 		global $rs_query;
 		
 		// Return true if the user has any content assigned to them
-		return $rs_query->selectRow('posts', 'COUNT(author)', array('author'=>$id)) > 0;
+		return $rs_query->selectRow('posts', 'COUNT(author)', array('author' => $id)) > 0;
 	}
 	
 	/**
@@ -455,7 +458,7 @@ class User {
 		global $rs_query;
 		
 		// Fetch the user's metadata from the database
-		$usermeta = $rs_query->select('usermeta', array('_key', 'value'), array('user'=>$id));
+		$usermeta = $rs_query->select('usermeta', array('_key', 'value'), array('user' => $id));
 		
 		// Create an empty array to hold the metadata
 		$meta = array();
@@ -489,7 +492,7 @@ class User {
 		global $rs_query;
 		
 		// Fetch the user's role from the database and return it
-		return $rs_query->selectField('user_roles', 'name', array('id'=>$id));
+		return $rs_query->selectField('user_roles', 'name', array('id' => $id));
 	}
 	
 	/**
@@ -542,11 +545,11 @@ class User {
 				<form class="data-form" action="" method="post" autocomplete="off">
 					<table class="form-table">
 						<?php
-						echo formRow('Admin Password', array('tag'=>'input', 'type'=>'password', 'class'=>'text-input required invalid init', 'name'=>'admin_pass'));
-						echo formRow('New User Password', array('tag'=>'input', 'id'=>'password-field', 'class'=>'text-input required invalid init', 'name'=>'new_pass'), array('tag'=>'input', 'type'=>'button', 'id'=>'password-gen', 'class'=>'button-input button', 'value'=>'Generate Password'), array('tag'=>'label', 'class'=>'checkbox-label hidden required invalid init', 'content'=>formTag('br', array('class'=>'spacer')).formTag('input', array('type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'pass_saved', 'value'=>1)).formTag('span', array('content'=>'I have copied the password to a safe place.'))));
-						echo formRow('New User Password (confirm)', array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'confirm_pass'));
-						echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-						echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Password'));
+						echo formRow('Admin Password', array('tag' => 'input', 'type' => 'password', 'class' => 'text-input required invalid init', 'name' => 'admin_pass'));
+						echo formRow('New User Password', array('tag' => 'input', 'id' => 'password-field', 'class' => 'text-input required invalid init', 'name' => 'new_pass'), array('tag' => 'input', 'type' => 'button', 'id' => 'password-gen', 'class' => 'button-input button', 'value' => 'Generate Password'), array('tag' => 'label', 'class' => 'checkbox-label hidden required invalid init', 'content' => formTag('br', array('class' => 'spacer')).formTag('input', array('type' => 'checkbox', 'class' => 'checkbox-input', 'name' => 'pass_saved', 'value' => 1)).formTag('span', array('content' => 'I have copied the password to a safe place.'))));
+						echo formRow('New User Password (confirm)', array('tag' => 'input', 'class' => 'text-input required invalid init', 'name' => 'confirm_pass'));
+						echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
+						echo formRow('', array('tag' => 'input', 'type' => 'submit', 'class' => 'submit-input button', 'name' => 'submit', 'value' => 'Update Password'));
 						?>
 					</table>
 				</form>
@@ -589,18 +592,18 @@ class User {
 			return statusMessage('Please confirm that you\'ve saved your password to a safe location.');
 		
 		// Hash the password (encrypts the password for security purposes)
-		$hashed_password = password_hash($data['new_pass'], PASSWORD_BCRYPT, array('cost'=>10));
+		$hashed_password = password_hash($data['new_pass'], PASSWORD_BCRYPT, array('cost' => 10));
 		
 		// Update the user's password in the database
-		$rs_query->update('users', array('password'=>$hashed_password), array('id'=>$id));
+		$rs_query->update('users', array('password' => $hashed_password), array('id' => $id));
 		
 		// Fetch the user's session from the database
-		$session = $rs_query->selectField('users', 'session', array('id'=>$id));
+		$session = $rs_query->selectField('users', 'session', array('id' => $id));
 		
 		// Check whether the user's session is null
 		if(!is_null($session)) {
 			// Set the user's session to null in the database
-			$rs_query->update('users', array('session'=>null), array('id'=>$id, 'session'=>$session));
+			$rs_query->update('users', array('session' => null), array('id' => $id, 'session' => $session));
 			
 			// Check whether the cookie's value matches the session value and delete it if so
 			if($_COOKIE['session'] === $session)
@@ -625,7 +628,7 @@ class User {
 		global $rs_query;
 		
 		// Fetch the user's password from the database
-		$db_password = $rs_query->selectField('users', 'password', array('id'=>$id));
+		$db_password = $rs_query->selectField('users', 'password', array('id' => $id));
 		
 		// Return true if the password is valid
 		return !empty($db_password) && password_verify($password, $db_password);
@@ -657,9 +660,9 @@ class User {
 				<form class="data-form" action="" method="post" autocomplete="off">
 					<table class="form-table">
 						<?php
-						echo formRow('Reassign to User', array('tag'=>'select', 'class'=>'select-input', 'name'=>'reassign_to', 'content'=>$this->getUserList($this->id)));
-						echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-						echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Submit'));
+						echo formRow('Reassign to User', array('tag' => 'select', 'class' => 'select-input', 'name' => 'reassign_to', 'content' => $this->getUserList($this->id)));
+						echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
+						echo formRow('', array('tag' => 'input', 'type' => 'submit', 'class' => 'submit-input button', 'name' => 'submit', 'value' => 'Submit'));
 						?>
 					</table>
 				</form>
@@ -682,13 +685,13 @@ class User {
 		global $rs_query;
 		
 		// Reassign all posts to the new author
-		$rs_query->update('posts', array('author'=>$data['reassign_to']), array('author'=>$id));
+		$rs_query->update('posts', array('author' => $data['reassign_to']), array('author' => $id));
 		
 		// Delete the user from the database
-		$rs_query->delete('users', array('id'=>$id));
+		$rs_query->delete('users', array('id' => $id));
 		
 		// Delete the user's metadata from the database
-		$rs_query->delete('usermeta', array('user'=>$id));
+		$rs_query->delete('usermeta', array('user' => $id));
 		
 		// Redirect to the "List Users" page with an appropriate exit status
 		redirect(ADMIN_URI.'?exit_status=success');
@@ -707,7 +710,7 @@ class User {
 		global $rs_query;
 		
 		// Return the username
-		return $rs_query->selectField('users', 'username', array('id'=>$id));
+		return $rs_query->selectField('users', 'username', array('id' => $id));
 	}
 	
 	/**
@@ -726,7 +729,7 @@ class User {
 		$list = '';
 		
 		// Fetch all users from the database
-		$users = $rs_query->select('users', array('id', 'username'), array('id'=>array('<>', $id)), 'username');
+		$users = $rs_query->select('users', array('id', 'username'), array('id' => array('<>', $id)), 'username');
 		
 		// Add each user to the list
 		foreach($users as $user)

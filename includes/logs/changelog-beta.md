@@ -18,6 +18,53 @@
 - [a] = alpha
 - [b] = beta
 
+## Version 1.2.7[b] (2021-11-27)
+
+- Optimized some code in the admin `Post` class
+- Improved code readability in several admin files
+- Tweaked the styling of admin data tables
+- Added headings to the bottom of data tables
+- Created a named constant for the CMS' name
+  - Replaced all instances of 'ReallySimpleCMS' throughout with the named constant
+- Tweaked the message that displays in the fallback theme (this only displays if no themes are installed)
+- Added some styling to the fallback theme page
+- The current theme is now included in the `bodyClasses` function's output
+- Created a function that constructs a button
+- Comments can now be approved/unapproved in bulk (bulk delete is not enabled yet)
+- Tweaked the Carbon theme's `script.js` code
+
+**Modified files:**
+- admin/header.php (M)
+- admin/includes/bulk-actions.php (N)
+- admin/includes/class-comment.php
+- admin/includes/class-login.php
+- admin/includes/class-media.php
+- admin/includes/class-menu.php
+- admin/includes/class-post.php
+- admin/includes/class-term.php
+- admin/includes/class-theme.php
+- admin/includes/class-user-role.php
+- admin/includes/class-user.php
+- admin/includes/class-widget.php
+- admin/includes/css/install.css (M)
+- admin/includes/css/install.min.css (M)
+- admin/includes/css/style.css
+- admin/includes/css/style.min.css
+- admin/includes/functions.php
+- admin/includes/js/script.js
+- admin/install.php
+- admin/setup.php
+- content/themes/carbon/script.js (M)
+- includes/class-login.php
+- includes/constants.php
+- includes/css/style.css
+- includes/css/style.min.css
+- includes/fallback.php
+- includes/functions.php
+- includes/globals.php
+- index.php (M)
+- init.php (M)
+
 ## Version 1.2.6[b] (2021-10-24)
 
 - Tweaked a previous entry in the changelog

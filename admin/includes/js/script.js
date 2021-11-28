@@ -7,6 +7,101 @@ jQuery(document).ready($ => {
 	'use strict';
 	
 	/*------------------------------*\
+		BULK ACTIONS
+	\*------------------------------*/
+	
+	/**
+	 * Bulk select/deselect all records.
+	 * @since 1.2.7[b]
+	 */
+	$('body').on('click', '.bulk-selector', function() {
+		// Fetch the checked prop
+		let is_checked = $(this).prop('checked');
+		
+		// Update the checkboxes
+		$('.bulk-selector').prop('checked', is_checked);
+		$('.bulk-select .checkbox').prop('checked', is_checked);
+	});
+	
+	/**
+	 * Handle checking/unchecking the other checkboxes.
+	 * @since 1.2.7[b]
+	 */
+	$('body').on('click', '.bulk-select .checkbox', function() {
+		// Create a flag to hold the checked state
+		let is_checked;
+		
+		// Loop through the checkboxes
+		$('.bulk-select .checkbox').each(function(idx, elem) {
+			// Check whether the checkbox is checked
+			if(!$(elem).prop('checked')) {
+				// If not, set the flag to false and return
+				is_checked = false;
+				return false;
+			}
+			
+			// Set the flag to true
+			is_checked = true;
+		});
+		
+		// Update the bulk selector checkboxes
+		$('.bulk-selector').prop('checked', is_checked);
+	});
+	
+	/**
+	 * Bulk update all selected records.
+	 * @since 1.2.7[b]
+	 */
+	$('body').on('click', '.bulk-update', function() {
+		// Fetch the current page
+		let page = $('body').attr('class');
+		// Fetch the current action
+		let action = $('.bulk-actions .actions').val();
+		// Create an array to hold the selected checkbox values
+		let selected = [];
+		// Create a counter
+		let i = 0;
+		
+		// Loop through the bulk select checkboxes
+		$('.bulk-select .checkbox').each(function() {
+			// Check whether the box has been checked
+			if($(this).prop('checked')) {
+				// Add the value to the selected array
+				selected[i] = $(this).val();
+				i++;
+			}
+		});
+		
+		// Check whether any boxes have been checked
+		if(selected.length > 0) {
+			// Clear the content area
+			$('.content').empty();
+			
+			// Display a loading message
+			$('.content').html('<div class="loading">Loading...</div>');
+			
+			$.ajax({
+				data: {
+					page: page,
+					uri: window.location.pathname,
+					action: action,
+					selected: selected
+				},
+				dataType: 'html',
+				method: 'POST',
+				success: result => {
+					// Suppress XMLHttpRequest warning
+					$.ajaxPrefilter(function(options, originalOptions, jqXHR) { options.async = true; });
+					
+					// Replace the content
+					$('.content').html(result);
+				},
+				url: '/admin/includes/bulk-actions.php'
+			});
+		}
+	});
+	
+	/*------------------------------*\
 		FORM VALIDATION
 	\*------------------------------*/
 	

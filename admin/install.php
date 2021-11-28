@@ -1,6 +1,6 @@
 <?php
 /**
- * Install the ReallySimpleCMS.
+ * Install the CMS.
  * @since 1.3.0[a]
  */
 
@@ -28,7 +28,7 @@ require_once PATH.INC.'/globals.php';
 // Include database configuration and functions
 require_once PATH.ADMIN.INC.'/functions.php';
 
-// Make sure ReallySimpleCMS isn't already installed
+// Make sure the CMS isn't already installed
 if($rs_query->conn_status) {
 	// Include the database schema
 	require_once PATH.INC.'/schema.php';
@@ -51,7 +51,7 @@ if($rs_query->conn_status) {
 		}
 		
 		// Warn the user that the database is already installed
-		exit('ReallySimpleCMS is already installed!');
+		exit(CMS_NAME.' is already installed!');
 	}
 }
 
@@ -64,7 +64,7 @@ $step = (int)($_GET['step'] ?? 1);
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>ReallySimpleCMS Installation</title>
+		<title><?php echo CMS_NAME; ?> Installation</title>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="robots" content="noindex, nofollow">
@@ -77,7 +77,7 @@ $step = (int)($_GET['step'] ?? 1);
 		?>
 	</head>
 	<body>
-		<h1>ReallySimpleCMS</h1>
+		<h1><?php echo CMS_NAME; ?></h1>
 		<div class="wrapper">
 			<?php
 			/**
@@ -89,7 +89,7 @@ $step = (int)($_GET['step'] ?? 1);
 			 */
 			function displayInstallForm($error = null) {
 				?>
-				<p>You're almost ready to begin using the ReallySimpleCMS. Fill in the form below to proceed with the installation.</p>
+				<p>You're almost ready to begin using the <?php echo CMS_NAME; ?>. Fill in the form below to proceed with the installation.</p>
 				<p>All of the settings below can be changed at a later date. They're required in order to set up the CMS, though.</p>
 				<?php
 				// Validate site title

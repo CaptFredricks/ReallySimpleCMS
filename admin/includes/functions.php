@@ -14,7 +14,7 @@ if(!defined('ADMIN_SCRIPTS')) define('ADMIN_SCRIPTS', ADMIN.INC.'/js');
 if(!defined('ADMIN_THEMES')) define('ADMIN_THEMES', CONT.'/admin-themes');
 
 // Current admin page URI
-define('ADMIN_URI', $_SERVER['PHP_SELF']);
+if(!defined('ADMIN_URI')) define('ADMIN_URI', $_SERVER['PHP_SELF']);
 
 // Autoload classes
 spl_autoload_register(function($class_name) {
@@ -48,7 +48,7 @@ spl_autoload_register(function($class_name) {
  */
 function RSCopyright() {
 	?>
-	&copy; <?php echo date('Y'); ?> <a href="/">ReallySimpleCMS</a> &bull; Created by <a href="https://jacefincham.com/" target="_blank" rel="noreferrer noopener">Jace Fincham</a>
+	&copy; <?php echo date('Y'); ?> <a href="/"><?php echo CMS_NAME; ?></a> &bull; Created by <a href="https://jacefincham.com/" target="_blank" rel="noreferrer noopener">Jace Fincham</a>
 	<?php
 }
 
@@ -137,7 +137,7 @@ function getCurrentPage() {
 		// Check whether the current page is the 'Edit Post' page
 		if($current === 'posts' && isset($_GET['id'])) {
 			// Fetch the number of times the post appears in the database
-			$count = $rs_query->selectRow('posts', 'COUNT(*)', array('id'=>$_GET['id']));
+			$count = $rs_query->selectRow('posts', 'COUNT(*)', array('id' => $_GET['id']));
 			
 			// Check whether the count is zero
 			if($count === 0) {
@@ -145,7 +145,7 @@ function getCurrentPage() {
 				redirect('posts.php');
 			} else {
 				// Fetch the post's type from the database
-				$type = $rs_query->selectField('posts', 'type', array('id'=>$_GET['id']));
+				$type = $rs_query->selectField('posts', 'type', array('id' => $_GET['id']));
 				
 				// Set the current page
 				$current = str_replace(' ', '_', $post_types[$type]['labels']['name_lowercase']);
@@ -153,7 +153,7 @@ function getCurrentPage() {
 		} // Check whether the current page is the 'Edit Term' page
 		elseif($current === 'terms' && isset($_GET['id'])) {
 			// Fetch the number of times the term appears in the database
-			$count = $rs_query->selectRow('terms', 'COUNT(*)', array('id'=>$_GET['id']));
+			$count = $rs_query->selectRow('terms', 'COUNT(*)', array('id' => $_GET['id']));
 			
 			// Check whether the count is zero
 			if($count === 0) {
@@ -161,10 +161,10 @@ function getCurrentPage() {
 				redirect('categories.php');
 			} else {
 				// Fetch the term's taxonomy id from the database
-				$tax_id = $rs_query->selectField('terms', 'taxonomy', array('id'=>$_GET['id']));
+				$tax_id = $rs_query->selectField('terms', 'taxonomy', array('id' => $_GET['id']));
 				
 				// Fetch the term's taxonomy from the database
-				$taxonomy = $rs_query->selectField('taxonomies', 'name', array('id'=>$tax_id));
+				$taxonomy = $rs_query->selectField('taxonomies', 'name', array('id' => $tax_id));
 				
 				// Set the current page
 				$current = str_replace(' ', '_', $taxonomies[$taxonomy]['labels']['name_lowercase']);
@@ -194,7 +194,7 @@ function getPageTitle() {
 		$title = $post_types[$_GET['type']]['label'] ?? 'Posts';
 	} elseif(basename($_SERVER['PHP_SELF']) === 'posts.php' && isset($_GET['action']) && $_GET['action'] === 'edit') {
 		// Fetch the post's type from the database
-		$type = $rs_query->selectField('posts', 'type', array('id'=>$_GET['id']));
+		$type = $rs_query->selectField('posts', 'type', array('id' => $_GET['id']));
 		
 		// Replace any underscores or hyphens with spaces and capitalize each word
 		$title = ucwords(str_replace(array('_', '-'), ' ', $type.'s'));
@@ -503,7 +503,7 @@ function adminNavMenu() {
 	global $session, $post_types, $taxonomies;
 	
 	// Dashboard
-	adminNavMenuItem(array('id'=>'dashboard', 'link'=>'index.php'), array(), 'tachometer-alt');
+	adminNavMenuItem(array('id' => 'dashboard', 'link' => 'index.php'), array(), 'tachometer-alt');
 	
 	// Loop through the post types
 	foreach($post_types as $post_type) {
@@ -521,20 +521,20 @@ function adminNavMenu() {
 		
 		// Check whether the user has sufficient privileges to view the post type
 		if(userHasPrivilege($session['role'], 'can_view_'.$id)) {
-			adminNavMenuItem(array('id'=>$id), array( // Submenu
+			adminNavMenuItem(array('id' => $id), array( // Submenu
 				array( // List <post_type>
-					'link'=>$post_type['menu_link'],
-					'caption'=>$post_type['labels']['list_items']
+					'link' => $post_type['menu_link'],
+					'caption' => $post_type['labels']['list_items']
 				),
 				(userHasPrivilege($session['role'], ($post_type['name'] === 'media' ? 'can_upload_media' : 'can_create_'.$id)) ? array( // Create <post_type>
-					'id'=>$id === 'media' ? $id.'-upload' : $id.'-create',
-					'link'=>$post_type['menu_link'].($post_type['name'] === 'media' ? '?action=upload' : ($post_type['name'] === 'post' ? '?action=create' : '&action=create')),
-					'caption'=>$post_type['labels']['create_item']
+					'id' => $id === 'media' ? $id.'-upload' : $id.'-create',
+					'link' => $post_type['menu_link'].($post_type['name'] === 'media' ? '?action=upload' : ($post_type['name'] === 'post' ? '?action=create' : '&action=create')),
+					'caption' => $post_type['labels']['create_item']
 				) : null),
 				(!empty($post_type['taxonomy']) && array_key_exists($post_type['taxonomy'], $taxonomies) && userHasPrivilege($session['role'], 'can_view_'.$tax_id) && $taxonomies[$post_type['taxonomy']]['show_in_admin_menu'] ? array( // Taxonomy
-					'id'=>$tax_id,
-					'link'=>$taxonomies[$post_type['taxonomy']]['menu_link'],
-					'caption'=>$taxonomies[$post_type['taxonomy']]['labels']['list_items']
+					'id' => $tax_id,
+					'link' => $taxonomies[$post_type['taxonomy']]['menu_link'],
+					'caption' => $taxonomies[$post_type['taxonomy']]['labels']['list_items']
 				) : null)
 			), $post_type['menu_icon']);
 		}
@@ -542,39 +542,39 @@ function adminNavMenu() {
 	
 	// Check whether the user has sufficient privileges to view comments
 	if(userHasPrivilege($session['role'], 'can_view_comments'))
-		adminNavMenuItem(array('id'=>'comments', 'link'=>'comments.php'), array(), array('comments', 'regular'));
+		adminNavMenuItem(array('id' => 'comments', 'link' => 'comments.php'), array(), array('comments', 'regular'));
 	
 	// Check whether the user has sufficient privileges to view customization options
 	if(userHasPrivileges($session['role'], array('can_view_themes', 'can_view_menus', 'can_view_widgets'), 'OR')) {
-		adminNavMenuItem(array('id'=>'customization'), array( // Submenu
-			(userHasPrivilege($session['role'], 'can_view_themes') ? array('id'=>'themes', 'link'=>'themes.php', 'caption'=>'List Themes') : null),
-			(userHasPrivilege($session['role'], 'can_view_menus') ? array('id'=>'menus', 'link'=>'menus.php', 'caption'=>'List Menus') : null),
-			(userHasPrivilege($session['role'], 'can_view_widgets') ? array('id'=>'widgets', 'link'=>'widgets.php', 'caption'=>'List Widgets') : null)
+		adminNavMenuItem(array('id' => 'customization'), array( // Submenu
+			(userHasPrivilege($session['role'], 'can_view_themes') ? array('id' => 'themes', 'link' => 'themes.php', 'caption' => 'List Themes') : null),
+			(userHasPrivilege($session['role'], 'can_view_menus') ? array('id' => 'menus', 'link' => 'menus.php', 'caption' => 'List Menus') : null),
+			(userHasPrivilege($session['role'], 'can_view_widgets') ? array('id' => 'widgets', 'link' => 'widgets.php', 'caption' => 'List Widgets') : null)
 		), 'palette');
 	}
 	
 	// Users/user profile
-	adminNavMenuItem(array('id'=>'users'), array( // Submenu
-		(userHasPrivilege($session['role'], 'can_view_users') ? array('link'=>'users.php', 'caption'=>'List Users') : null),
-		(userHasPrivilege($session['role'], 'can_create_users') ? array('id'=>'users-create', 'link'=>'users.php?action=create', 'caption'=>'Create User') : null),
-		array('id'=>'profile', 'link'=>'profile.php', 'caption'=>'Your Profile')
+	adminNavMenuItem(array('id' => 'users'), array( // Submenu
+		(userHasPrivilege($session['role'], 'can_view_users') ? array('link' => 'users.php', 'caption' => 'List Users') : null),
+		(userHasPrivilege($session['role'], 'can_create_users') ? array('id' => 'users-create', 'link' => 'users.php?action=create', 'caption' => 'Create User') : null),
+		array('id' => 'profile', 'link' => 'profile.php', 'caption' => 'Your Profile')
 	), 'users');
 	
 	// Check whether the user has sufficient privileges to view login options
 	if(userHasPrivileges($session['role'], array('can_view_login_attempts', 'can_view_login_blacklist', 'can_view_login_rules'), 'OR')) {
-		adminNavMenuItem(array('id'=>'logins'), array( // Submenu
-			(userHasPrivilege($session['role'], 'can_view_login_attempts') ? array('link'=>'logins.php', 'caption'=>'Attempts') : null),
-			(userHasPrivilege($session['role'], 'can_view_login_blacklist') ? array('id'=>'blacklist', 'link'=>'logins.php?page=blacklist', 'caption'=>'Blacklist') : null),
-			(userHasPrivilege($session['role'], 'can_view_login_rules') ? array('id'=>'rules', 'link'=>'logins.php?page=rules', 'caption'=>'Rules') : null)
+		adminNavMenuItem(array('id' => 'logins'), array( // Submenu
+			(userHasPrivilege($session['role'], 'can_view_login_attempts') ? array('link' => 'logins.php', 'caption' => 'Attempts') : null),
+			(userHasPrivilege($session['role'], 'can_view_login_blacklist') ? array('id' => 'blacklist', 'link' => 'logins.php?page=blacklist', 'caption' => 'Blacklist') : null),
+			(userHasPrivilege($session['role'], 'can_view_login_rules') ? array('id' => 'rules', 'link' => 'logins.php?page=rules', 'caption' => 'Rules') : null)
 		), 'sign-in-alt');
 	}
 	
 	// Check whether the user has sufficient privileges to view settings
 	if(userHasPrivileges($session['role'], array('can_edit_settings', 'can_view_user_roles'), 'OR')) {
-		adminNavMenuItem(array('id'=>'settings'), array( // Submenu
-			(userHasPrivilege($session['role'], 'can_edit_settings') ? array('link'=>'settings.php', 'caption'=>'General') : null),
-			(userHasPrivilege($session['role'], 'can_edit_settings') ? array('id'=>'design', 'link'=>'settings.php?page=design', 'caption'=>'Design') : null),
-			(userHasPrivilege($session['role'], 'can_view_user_roles') ? array('id'=>'user-roles', 'link'=>'settings.php?page=user_roles', 'caption'=>'User Roles') : null)
+		adminNavMenuItem(array('id' => 'settings'), array( // Submenu
+			(userHasPrivilege($session['role'], 'can_edit_settings') ? array('link' => 'settings.php', 'caption' => 'General') : null),
+			(userHasPrivilege($session['role'], 'can_edit_settings') ? array('id' => 'design', 'link' => 'settings.php?page=design', 'caption' => 'Design') : null),
+			(userHasPrivilege($session['role'], 'can_view_user_roles') ? array('id' => 'user-roles', 'link' => 'settings.php?page=user_roles', 'caption' => 'User Roles') : null)
 		), 'cogs');
 	}
 }
@@ -596,7 +596,7 @@ function getStatistics($table, $field = '', $value = '') {
 	if(empty($field) || empty($value))
 		return $rs_query->select($table, 'COUNT(*)');
 	else
-		return $rs_query->select($table, 'COUNT(*)', array($field=>$value));
+		return $rs_query->select($table, 'COUNT(*)', array($field => $value));
 }
 
 /**
@@ -613,7 +613,7 @@ function statsBarGraph() {
 	$bars = $stats = array();
 	
 	// Loop through the post types
-	foreach($post_types as $key=>$value) {
+	foreach($post_types as $key => $value) {
 		// Skip any post type that has 'show_in_stats_graph' set to false
 		if(!$post_types[$key]['show_in_stats_graph']) continue;
 		
@@ -628,7 +628,7 @@ function statsBarGraph() {
 	}
 	
 	// Loop through the taxonomies
-	foreach($taxonomies as $key=>$value) {
+	foreach($taxonomies as $key => $value) {
 		// Skip any taxonomy that has 'show_in_stats_graph' set to false
 		if(!$taxonomies[$key]['show_in_stats_graph']) continue;
 		
@@ -723,12 +723,12 @@ function dashboardWidget($name) {
 				<ul>
 					<?php
 					// Fetch the approved comment count from the database
-					$approved = $rs_query->select('comments', 'COUNT(*)', array('status'=>'approved'));
+					$approved = $rs_query->select('comments', 'COUNT(*)', array('status' => 'approved'));
 					?>
 					<li><a href="/admin/comments.php?status=approved">Approved</a>: <strong class="value"><?php echo $approved; ?></strong></li>
 					<?php
 					// Fetch the pending comment count from the database
-					$pending = $rs_query->select('comments', 'COUNT(*)', array('status'=>'unapproved'));
+					$pending = $rs_query->select('comments', 'COUNT(*)', array('status' => 'unapproved'));
 					?>
 					<li><a href="/admin/comments.php?status=unapproved">Pending</a>: <strong class="value"><?php echo $pending; ?></strong></li>
 				</ul>
@@ -765,12 +765,12 @@ function dashboardWidget($name) {
 				<ul>
 					<?php
 					// Fetch the successful login attempt count from the database
-					$login_success = $rs_query->select('login_attempts', 'COUNT(*)', array('status'=>'success'));
+					$login_success = $rs_query->select('login_attempts', 'COUNT(*)', array('status' => 'success'));
 					?>
 					<li><a href="/admin/logins.php">Successful</a>: <strong class="value"><?php echo $login_success; ?></strong></li>
 					<?php
 					// Fetch the failed login attempt count from the database
-					$login_failure = $rs_query->select('login_attempts', 'COUNT(*)', array('status'=>'failure'));
+					$login_failure = $rs_query->select('login_attempts', 'COUNT(*)', array('status' => 'failure'));
 					?>
 					<li><a href="/admin/logins.php">Failed</a>: <strong class="value"><?php echo $login_failure; ?></strong></li>
 					<?php
@@ -899,7 +899,7 @@ function actionLink($action, $args = null) {
 		$query_string = '';
 		
 		// Loop through the remaining args and assign them to a query string
-		foreach($args as $key=>$value)
+		foreach($args as $key => $value)
 			$query_string .= $key.'='.$value.'&';
 		
 		// Return the action link
@@ -963,17 +963,17 @@ function formTag($tag_name, $args = null) {
 	
 	// Create an array of whitelisted tags with their properties
 	$whitelisted_props = array(
-		'a'=>array('id', 'class', 'href', 'content'),
-		'br'=>array('id', 'class'),
-		'div'=>array('id', 'class', 'style', 'content'),
-		'hr'=>array('id', 'class'),
-		'i'=>array('id', 'class'),
-		'img'=>array('id', 'class', 'src', 'width'),
-		'input'=>array('type', 'id', 'class', 'name', 'maxlength', 'value', 'placeholder', '*'),
-		'label'=>array('id', 'class', 'for', 'content'),
-		'select'=>array('id', 'class', 'name', 'content'),
-		'span'=>array('id', 'class', 'style', 'title', 'content'),
-		'textarea'=>array('id', 'class', 'name', 'cols', 'rows', 'content')
+		'a' => array('id', 'class', 'href', 'content'),
+		'br' => array('id', 'class'),
+		'div' => array('id', 'class', 'style', 'content'),
+		'hr' => array('id', 'class'),
+		'i' => array('id', 'class'),
+		'img' => array('id', 'class', 'src', 'width'),
+		'input' => array('type', 'id', 'class', 'name', 'maxlength', 'value', 'placeholder', '*'),
+		'label' => array('id', 'class', 'for', 'content'),
+		'select' => array('id', 'class', 'name', 'content'),
+		'span' => array('id', 'class', 'style', 'title', 'content'),
+		'textarea' => array('id', 'class', 'name', 'cols', 'rows', 'content')
 	);
 	
 	// Create an array of whitelisted tags
@@ -993,7 +993,7 @@ function formTag($tag_name, $args = null) {
 		// Check whether any args have been provided
 		if(!is_null($args)) {
 			// Loop through the args
-			foreach($args as $key=>$value) {
+			foreach($args as $key => $value) {
 				// Check whether the property has been whitelisted and it does not equal 'content'
 				if(in_array($key, $whitelisted_props[$tag_name], true) && $key !== 'content' || strpos($key, 'data-') !== false) {
 					// Check whether the tag is an input and the property is valueless
@@ -1041,6 +1041,18 @@ function formTag($tag_name, $args = null) {
 	
 	// Return the constructed tag
 	return $tag;
+}
+
+/**
+ * Alias function for `formTag`.
+ * @since 1.2.7[b]
+ *
+ * @param string $tag_name
+ * @param array $args (optional; default: null)
+ * @return string
+ */
+function tag($tag_name, $args = null) {
+	return formTag($tag_name, $args);
 }
 
 /**
@@ -1169,7 +1181,7 @@ function uploadMediaFile($data) {
 	move_uploaded_file($data['tmp_name'], trailingSlash(PATH.UPLOADS).$filename);
 	
 	// Create an array to hold the media's metadata
-	$mediameta = array('filename'=>$filename, 'mime_type'=>$data['type'], 'alt_text'=>'');
+	$mediameta = array('filename' => $filename, 'mime_type' => $data['type'], 'alt_text' => '');
 	
 	// Set the media's title
 	$title = ucwords(str_replace('-', ' ', $slug));
@@ -1178,11 +1190,11 @@ function uploadMediaFile($data) {
 	$session = getOnlineUser($_COOKIE['session']);
 	
 	// Insert the new media into the database
-	$insert_id = $rs_query->insert('posts', array('title'=>$title, 'author'=>$session['id'], 'date'=>'NOW()', 'slug'=>$slug, 'type'=>'media'));
+	$insert_id = $rs_query->insert('posts', array('title' => $title, 'author' => $session['id'], 'date' => 'NOW()', 'slug' => $slug, 'type' => 'media'));
 	
 	// Insert the media's metadata into the database
-	foreach($mediameta as $key=>$value)
-		$rs_query->insert('postmeta', array('post'=>$insert_id, '_key'=>$key, 'value'=>$value));
+	foreach($mediameta as $key => $value)
+		$rs_query->insert('postmeta', array('post' => $insert_id, '_key' => $key, 'value' => $value));
 	
 	// Check whether the media is an image
 	if(in_array($data['type'], array('image/jpeg', 'image/png', 'image/gif', 'image/x-icon'), true)) {
@@ -1209,12 +1221,12 @@ function loadMedia($image_only = false) {
 	global $rs_query;
 	
 	// Fetch all media from the database
-	$mediaa = $rs_query->select('posts', '*', array('type'=>'media'), 'date', 'DESC');
+	$mediaa = $rs_query->select('posts', '*', array('type' => 'media'), 'date', 'DESC');
 	
 	// Loop through the media
 	foreach($mediaa as $media) {
 		// Fetch the media's metadata from the database
-		$mediameta = $rs_query->select('postmeta', array('_key', 'value'), array('post'=>$media['id']));
+		$mediameta = $rs_query->select('postmeta', array('_key', 'value'), array('post' => $media['id']));
 		
 		// Create an empty array to hold the metadata
 		$meta = array();
@@ -1360,7 +1372,7 @@ function postExists($id) {
 	global $rs_query;
 	
 	// Fetch the number of times the id appears in the database and return true if it does
-	return $rs_query->selectRow('posts', 'COUNT(id)', array('id'=>$id)) > 0;
+	return $rs_query->selectRow('posts', 'COUNT(id)', array('id' => $id)) > 0;
 }
 
 /**
@@ -1375,7 +1387,7 @@ function getUniqueFilename($filename) {
 	global $rs_query;
 	
 	// Fetch the number of conflicting filenames in the database
-	$count = $rs_query->select('postmeta', 'COUNT(*)', array('_key'=>'filename', 'value'=>array('LIKE', $filename.'%')));
+	$count = $rs_query->select('postmeta', 'COUNT(*)', array('_key' => 'filename', 'value' => array('LIKE', $filename.'%')));
 	
 	// Check whether the count is greater than zero
 	if($count > 0) {
@@ -1388,7 +1400,7 @@ function getUniqueFilename($filename) {
 			
 			// Increment the count
 			$count++;
-		} while($rs_query->selectRow('postmeta', 'COUNT(*)', array('_key'=>'filename', 'value'=>$unique_filename)) > 0);
+		} while($rs_query->selectRow('postmeta', 'COUNT(*)', array('_key' => 'filename', 'value' => $unique_filename)) > 0);
 		
 		// Return the unique filename
 		return $unique_filename;
@@ -1411,7 +1423,7 @@ function getUniqueSlug($slug, $table) {
 	global $rs_query;
 	
 	// Fetch the number of conflicting slugs in the database
-	$count = $rs_query->selectRow($table, 'COUNT(slug)', array('slug'=>$slug));
+	$count = $rs_query->selectRow($table, 'COUNT(slug)', array('slug' => $slug));
 	
 	// Check whether the count is greater than zero
 	if($count > 0) {
@@ -1421,7 +1433,7 @@ function getUniqueSlug($slug, $table) {
 			
 			// Increment the count
 			$count++;
-		} while($rs_query->selectRow($table, 'COUNT(slug)', array('slug'=>$unique_slug)) > 0);
+		} while($rs_query->selectRow($table, 'COUNT(slug)', array('slug' => $unique_slug)) > 0);
 		
 		// Return the unique slug
 		return $unique_slug;

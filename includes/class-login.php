@@ -622,7 +622,7 @@ class Login {
 			// Set the content headers (to allow for HTML-formatted emails)
 			$headers[] = "MIME-Version: 1.0";
 			$headers[] = "Content-type: text/html; charset=iso-8859-1";
-			$headers[] = "From: ReallySimpleCMS <rscms@".$_SERVER['HTTP_HOST'].">";
+			$headers[] = "From: ".CMS_NAME." <rscms@".$_SERVER['HTTP_HOST'].">";
 			
 			// Make sure the email can be sent
 			if(mail($email, $subject, $content, implode("\r\n", $headers))) {
@@ -633,7 +633,7 @@ class Login {
 				redirect('login.php?pw_forgot=confirm');
 			} else {
 				// Return a failure status message
-				return $this->statusMessage('ReallySimpleCMS encountered an error and could not send an email. Please contact this website\'s administrator or web host.');
+				return $this->statusMessage(CMS_NAME.' encountered an error and could not send an email. Please contact this website\'s administrator or web host.');
 			}
 		} else {
 			// Sanitize the username
@@ -661,7 +661,7 @@ class Login {
 			// Set the content headers (to allow for HTML-formatted emails)
 			$headers[] = "MIME-Version: 1.0";
 			$headers[] = "Content-type: text/html; charset=iso-8859-1";
-			$headers[] = "From: ReallySimpleCMS <rscms@".$_SERVER['HTTP_HOST'].">";
+			$headers[] = "From: ".CMS_NAME." <rscms@".$_SERVER['HTTP_HOST'].">";
 			
 			// Make sure the email can be sent
 			if(mail($email, $subject, $content, implode("\r\n", $headers))) {
@@ -672,7 +672,7 @@ class Login {
 				redirect('login.php?pw_forgot=confirm');
 			} else {
 				// Return a failure status message
-				return $this->statusMessage('ReallySimpleCMS encountered an error and could not send an email. Please contact this website\'s administrator or web host.');
+				return $this->statusMessage(CMS_NAME.' encountered an error and could not send an email. Please contact this website\'s administrator or web host.');
 			}
 		}
 	}

@@ -1,6 +1,6 @@
 <?php
 /**
- * The starting point of the ReallySimpleCMS.
+ * The starting point of the CMS.
  * @since 1.0.0[a]
  */
 

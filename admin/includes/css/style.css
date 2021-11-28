@@ -392,6 +392,14 @@ h3 {
 	width: 100%;
 }
 
+.content .loading {
+	display: flex;
+	  align-items: center;
+	  justify-content: center;
+	height: 50vh;
+	width: 100%;
+}
+
 /* Headings */
 
 .heading-wrap {
@@ -669,7 +677,7 @@ h3 {
 }
 
 .data-table thead tr,
-.data-table tbody tr:not(:last-child) {
+.data-table tbody tr {
 	border-bottom: 1px solid var(--global--table-border-color);
 }
 
@@ -699,6 +707,10 @@ h3 {
 	color: var(--global--secondary-link-color);
 }
 
+.data-table .checkbox {
+	cursor: pointer;
+}
+
 .data-table .actions {
 	font-size: 0.85em;
 }
@@ -712,8 +724,13 @@ h3 {
 	vertical-align: middle;
 }
 
-.comments .data-table th:first-child {
+.comments .data-table th:nth-child(2) {
 	width: 55%;
+}
+
+.comments .data-table .column.bulk-select {
+	text-align: center;
+	width: 5%;
 }
 
 .comments .data-table .column.content {
@@ -743,6 +760,23 @@ h3 {
 
 .users .data-table .column.username .actions {
 	line-height: 1;
+}
+
+/** Bulk actions **/
+
+.bulk-actions {
+	float: left;
+	margin-top: 1rem;
+}
+
+.bulk-actions select {
+	font-family: var(--global-font);
+	font-size: 0.875em;
+	padding: 0.125rem;
+}
+
+.bulk-actions .button:not(:last-child) {
+	margin-right: 0.25em;
 }
 
 /** Pager **/
@@ -1574,6 +1608,8 @@ h3 {
 		display: none;
 	}
 	
+	.data-table.has-bulk-select th:nth-child(2),
+	.data-table.has-bulk-select td:nth-child(2),
 	.media .data-table th:nth-child(2),
 	.media .data-table td:nth-child(2) {
 		display: table-cell;
@@ -1696,6 +1732,10 @@ h3 {
 	
 	.dashboard-widget:nth-child(2n+1) {
 		margin-right: 4%;
+	}
+	
+	.bulk-actions {
+		margin-top: 0.75rem;
 	}
 	
 	.pager {

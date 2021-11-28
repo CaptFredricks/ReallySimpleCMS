@@ -204,6 +204,19 @@ small {
 	margin-top: calc(5em + 1.875em);
 }
 
+/* Fallback theme page */
+
+.fallback-theme .wrapper {
+	margin: 0 auto;
+	max-width: 1200px;
+	width: 95%;
+}
+
+.fallback-theme code {
+	background-color: #dfdfdf;
+	padding: 3px;
+}
+
 /* Scroll to top button */
 
 #scroll-top {

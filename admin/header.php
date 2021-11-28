@@ -30,7 +30,7 @@ $current_page = getCurrentPage();
 <!DOCTYPE html>
 <html>
 	<head>
-		<title><?php echo getPageTitle(); ?> &rtrif; <?php getSetting('site_title'); ?> &mdash; ReallySimpleCMS</title>
+		<title><?php echo getPageTitle(); ?> &rtrif; <?php getSetting('site_title'); ?> &mdash; <?php echo CMS_NAME; ?></title>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="robots" content="noindex, nofollow">

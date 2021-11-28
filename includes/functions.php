@@ -508,6 +508,9 @@ function bodyClasses($addtl_classes = array()) {
 		// Fetch the post's type from the database
 		$type = $rs_post->getPostType(false);
 		
+		// Fetch the current theme from the database and add an appropriate class
+		$classes[] = getSetting('theme', false).'-theme';
+		
 		// Fetch the post's slug from the database and add an appropriate class
 		$classes[] = $rs_post->getPostSlug($id, false);
 		
@@ -529,6 +532,9 @@ function bodyClasses($addtl_classes = array()) {
 		
 		// Fetch the term's taxonomy from the database
 		$taxonomy = $rs_term->getTermTaxonomy(false);
+		
+		// Fetch the current theme from the database and add an appropriate class
+		$classes[] = getSetting('theme', false).'-theme';
 		
 		// Fetch the term's slug from the database and add an appropriate class
 		$classes[] = $rs_term->getTermSlug($id, false);

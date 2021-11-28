@@ -63,8 +63,11 @@ jQuery(document).ready($ => {
 		// Create a variable to hold the old window width
 		let old_width = window.innerWidth;
 		
+		// Set a breakpoint
+		let breakpoint = 1050;
+		
 		// Check whether the screen size is mobile
-		if(old_width < 1050) doMobile();
+		if(old_width < breakpoint) doMobile();
 		
 		// Execute changes on screen resize
 		$(window).on('resize', function() {
@@ -72,9 +75,9 @@ jQuery(document).ready($ => {
 			new_width = window.innerWidth;
 			
 			// Check whether the screen size is mobile or desktop
-			if(new_width < 1050 && old_width >= 1050)
+			if(new_width < breakpoint && old_width >= breakpoint)
 				doMobile();
-			else if(new_width >= 1050 && old_width < 1050)
+			else if(new_width >= breakpoint && old_width < breakpoint)
 				undoMobile();
 			
 			// Set the old window width

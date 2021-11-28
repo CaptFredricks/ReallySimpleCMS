@@ -1,6 +1,6 @@
 <?php
 /**
- * Set up the ReallySimpleCMS.
+ * Set up the CMS.
  * @since 1.3.0[a]
  */
 
@@ -22,7 +22,7 @@ $step = (int)($_GET['step'] ?? 0);
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>ReallySimpleCMS Setup</title>
+		<title><?php echo CMS_NAME; ?> Setup</title>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="robots" content="noindex, nofollow">
@@ -30,20 +30,20 @@ $step = (int)($_GET['step'] ?? 0);
 		<link href="<?php echo ADMIN_STYLES.'/install.min.css'; ?>" rel="stylesheet">
 	</head>
 	<body>
-		<h1>ReallySimpleCMS</h1>
+		<h1><?php echo CMS_NAME; ?></h1>
 		<div class="wrapper">
 			<?php
 			switch($step) {
 				case 0:
 					?>
-					<p>Welcome to the ReallySimpleCMS! To install the CMS and start building your site, you will need to provide the following information. All of this can be obtained from your hosting provider.</p>
+					<p>Welcome to the <?php echo CMS_NAME; ?>! To install the CMS and start building your site, you will need to provide the following information. All of this can be obtained from your hosting provider.</p>
 					<ol>
 						<li>Database name</li>
 						<li>Database username</li>
 						<li>Database password</li>
 						<li>Database host</li>
 					</ol>
-					<p>This data will be used to construct a configuration file so that ReallySimpleCMS can connect to your database. If you'd like to complete this task manually, copy the code in the <code>config-setup.php</code> (located in the <code>includes</code> directory) and create a new file called <code>config.php</code> (place it in the <code>root</code> directory). Then, replace all sample data with the appropriate information.</p>
+					<p>This data will be used to construct a configuration file so that <?php echo CMS_NAME; ?> can connect to your database. If you'd like to complete this task manually, copy the code in the <code>config-setup.php</code> (located in the <code>includes</code> directory) and create a new file called <code>config.php</code> (place it in the <code>root</code> directory). Then, replace all sample data with the appropriate information.</p>
 					<div class="button-wrap"><a class="button" href="?step=1">Begin setup</a></div>
 					<?php
 					break;
@@ -94,7 +94,7 @@ $step = (int)($_GET['step'] ?? 0);
 					// Stop execution if the database connection can't be established
 					if(!$rs_query->conn_status) {
 						?>
-						<p><strong>Error!</strong> ReallySimpleCMS could not connect to the database. Please return to the previous page and make sure all of the provided information is correct.</p>
+						<p><strong>Error!</strong> <?php echo CMS_NAME; ?> could not connect to the database. Please return to the previous page and make sure all of the provided information is correct.</p>
 						<div class="button-wrap"><a class="button" href="?step=1">Go Back</a></div>
 						<?php
 						exit;
@@ -119,7 +119,7 @@ $step = (int)($_GET['step'] ?? 0);
 					if(!is_writable(PATH)) {
 						?>
 						<p><strong>Error!</strong> The <code>config.php</code> file cannot be created. Write permissions may be disabled on your server.</p>
-						<p>If that's the case, just copy the code below and create <code>config.php</code> in the <code>root</code> directory of ReallySimpleCMS.</p>
+						<p>If that's the case, just copy the code below and create <code>config.php</code> in the <code>root</code> directory of <?php echo CMS_NAME; ?>.</p>
 						<?php
 						// Create an empty text
 						$text = '';
