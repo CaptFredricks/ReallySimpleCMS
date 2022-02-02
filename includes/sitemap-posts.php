@@ -27,7 +27,10 @@ foreach($public_post_types as $type) {
 		$sitemap_file_path = PATH.'/sitemap-'.str_replace('_', '-', $type).'.xml';
 		
 		// Fetch the posts from the database
-		$posts = $rs_query->select('posts', array('id', 'date', 'modified', 'slug', 'parent', 'type'), array('status'=>'published', 'type'=>$type), 'date', 'DESC');
+		$posts = $rs_query->select('posts', array('id', 'date', 'modified', 'slug', 'parent', 'type'), array(
+			'status' => 'published',
+			'type' => $type
+		), 'date', 'DESC');
 		
 		// Check whether the sitemap already exists
 		if(file_exists($sitemap_file_path)) {

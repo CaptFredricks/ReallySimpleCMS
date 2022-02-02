@@ -66,7 +66,7 @@ function isHomePage($id) {
 
 /**
  * Check whether the user is viewing a page on the admin dashboard.
- * @since 1.0.6[a]
+ * @since 1.0.6[b]
  *
  * @return bool
  */
@@ -76,7 +76,7 @@ function isAdmin() {
 
 /**
  * Check whether the user is viewing the log in page.
- * @since 1.0.6[a]
+ * @since 1.0.6[b]
  *
  * @return bool
  */
@@ -86,7 +86,7 @@ function isLogin() {
 
 /**
  * Check whether the user is viewing the 404 not found page.
- * @since 1.0.6[a]
+ * @since 1.0.6[b]
  *
  * @return bool
  */
@@ -192,7 +192,10 @@ function populateTable($table) {
 			}
 			
 			// Fetch the first eligible post from the database
-			$post = $rs_query->selectField('posts', 'id', array('status' => 'published', 'type' => 'post'), 'id', 'ASC', '1');
+			$post = $rs_query->selectField('posts', 'id', array(
+				'status' => 'published',
+				'type' => 'post'
+			), 'id', 'ASC', '1');
 			
 			// Populate the tables
 			populateTerms($post);
@@ -245,7 +248,7 @@ function populateTable($table) {
 /**
  * Populate the `posts` database table.
  * @since 1.3.7[a]
- * @deprecated from 1.6.4[a] to 1.0.8[b]
+ * @deprecated from 1.7.0[a] to 1.0.8[b]
  *
  * @param int $author
  * @return array
@@ -255,22 +258,53 @@ function populatePosts($author) {
 	global $rs_query;
 	
 	// Create a sample page
-	$post['home_page'] = $rs_query->insert('posts', array('title' => 'Sample Page', 'author' => $author, 'date' => 'NOW()', 'content' => '<p>This is just a sample page to get you started.</p>', 'status' => 'published', 'slug' => 'sample-page', 'type' => 'page'));
+	$post['home_page'] = $rs_query->insert('posts', array(
+		'title' => 'Sample Page',
+		'author' => $author,
+		'date' => 'NOW()',
+		'content' => '<p>This is just a sample page to get you started.</p>',
+		'status' => 'published',
+		'slug' => 'sample-page',
+		'type' => 'page'
+	));
 	
 	// Create a sample blog post
-	$post['blog_post'] = $rs_query->insert('posts', array('title' => 'Sample Blog Post', 'author' => $author, 'date' => 'NOW()', 'content' => '<p>This is your first blog post. Feel free to remove this text and replace it with your own.</p>', 'status' => 'published', 'slug' => 'sample-post'));
+	$post['blog_post'] = $rs_query->insert('posts', array(
+		'title' => 'Sample Blog Post',
+		'author' => $author,
+		'date' => 'NOW()',
+		'content' => '<p>This is your first blog post. Feel free to remove this text and replace it with your own.</p>',
+		'status' => 'published',
+		'slug' => 'sample-post'
+	));
 	
 	// Post metadata
 	$postmeta = array(
-		'home_page' => array('title' => 'Sample Page', 'description' => 'Just a simple meta description for your sample page.', 'feat_image' => 0, 'template' => 'default'),
-		'blog_post' => array('title' => 'Sample Blog Post', 'description' => 'Just a simple meta description for your first blog post.', 'feat_image' => 0, 'comment_status' => 1, 'comment_count' => 0)
+		'home_page' => array(
+			'title' => 'Sample Page',
+			'description' => 'Just a simple meta description for your sample page.',
+			'feat_image' => 0,
+			'template' => 'default'
+		),
+		'blog_post' => array(
+			'title' => 'Sample Blog Post',
+			'description' => 'Just a simple meta description for your first blog post.',
+			'feat_image' => 0,
+			'comment_status' => 1,
+			'comment_count' => 0
+		)
 	);
 	
 	// Loop through the post metadata
 	foreach($postmeta as $metadata) {
-		// Insert the post metadata into the database
-		foreach($metadata as $key => $value)
-			$rs_query->insert('postmeta', array('post' => $post[key($postmeta)], '_key' => $key, 'value' => $value));
+		foreach($metadata as $key => $value) {
+			// Insert the post metadata into the database
+			$rs_query->insert('postmeta', array(
+				'post' => $post[key($postmeta)],
+				'_key' => $key,
+				'value' => $value
+			));
+		}
 		
 		// Move the array pointer to the next element
 		next($postmeta);
@@ -333,14 +367,16 @@ function populateUserPrivileges() {
 					break;
 				case 'login_attempts':
 					// Skip 'can_create_', 'can_edit_', and 'can_delete_' for settings
-					if($privilege === 'can_create_' || $privilege === 'can_edit_' || $privilege === 'can_delete_') continue 2;
+					if($privilege === 'can_create_' || $privilege === 'can_edit_' || $privilege === 'can_delete_')
+						continue 2;
 					
 					// Insert the user privilege into the database
 					$rs_query->insert('user_privileges', array('name' => $privilege.$admin_page));
 					break;
 				case 'settings':
 					// Skip 'can_view_', 'can_create_', and 'can_delete_' for settings
-					if($privilege === 'can_view_' || $privilege === 'can_create_' || $privilege === 'can_delete_') continue 2;
+					if($privilege === 'can_view_' || $privilege === 'can_create_' || $privilege === 'can_delete_')
+						continue 2;
 				default:
 					// Insert the user privilege into the database
 					$rs_query->insert('user_privileges', array('name' => $privilege.$admin_page));
@@ -399,7 +435,7 @@ function populateUserPrivileges() {
 /**
  * Populate the `users` database table.
  * @since 1.3.1[a]
- * @deprecated from 1.6.4[a] to 1.0.8[b]
+ * @deprecated from 1.7.0[a] to 1.0.8[b]
  *
  * @param array $args (optional; default: array())
  * @return int
@@ -423,7 +459,13 @@ function populateUsers($args = array()) {
 	$hashed_password = password_hash($args['password'], PASSWORD_BCRYPT, array('cost' => 10));
 	
 	// Create an admin user
-	$user = $rs_query->insert('users', array('username' => $args['username'], 'password' => $hashed_password, 'email' => $args['email'], 'registered' => 'NOW()', 'role' => $args['role']));
+	$user = $rs_query->insert('users', array(
+		'username' => $args['username'],
+		'password' => $hashed_password,
+		'email' => $args['email'],
+		'registered' => 'NOW()',
+		'role' => $args['role']
+	));
 	
 	// User metadata
 	$usermeta = array('first_name' => '', 'last_name' => '', 'avatar' => 0, 'theme' => 'default');
@@ -439,7 +481,7 @@ function populateUsers($args = array()) {
 /**
  * Populate the `settings` database table.
  * @since 1.3.0[a]
- * @deprecated from 1.6.4[a] to 1.0.8[b]
+ * @deprecated from 1.7.0[a] to 1.0.8[b]
  *
  * @param array $args (optional; default: array())
  */
@@ -449,39 +491,39 @@ function populateSettings($args = array()) {
 	
 	// Set the default arguments
 	$defaults = array(
-		'site_title'  =>  'My Website',
-		'description'  =>  'A new '.CMS_NAME.' website!',
-		'site_url'  =>  (!empty($_SERVER['HTTPS']) ? 'https://' : 'http://').$_SERVER['HTTP_HOST'],
-		'admin_email'  =>  'admin@rscmswebsite.com',
-		'default_user_role'  =>  getUserRoleId('User'),
-		'home_page'  =>  $rs_query->selectField('posts', 'id', array(
-			'status'  =>  'published',
-			'type'  =>  'page'
+		'site_title' => 'My Website',
+		'description' => 'A new '.CMS_NAME.' website!',
+		'site_url' => (!empty($_SERVER['HTTPS']) ? 'https://' : 'http://').$_SERVER['HTTP_HOST'],
+		'admin_email' => 'admin@rscmswebsite.com',
+		'default_user_role' => getUserRoleId('User'),
+		'home_page' => $rs_query->selectField('posts', 'id', array(
+			'status' => 'published',
+			'type' => 'page'
 		), 'id', 'ASC', '1'),
-		'do_robots'  =>  1,
-		'enable_comments'  =>  1,
-		'auto_approve_comments'  =>  0,
-		'allow_anon_comments'  =>  0,
-		'track_login_attempts'  =>  0,
-		'delete_old_login_attempts'  =>  0,
-		'site_logo'  =>  0,
-		'site_icon'  =>  0,
-		'theme'  =>  'carbon',
-		'theme_color'  =>  '#ededed'
+		'do_robots' => 1,
+		'enable_comments' => 1,
+		'auto_approve_comments' => 0,
+		'allow_anon_comments' => 0,
+		'track_login_attempts' => 0,
+		'delete_old_login_attempts' => 0,
+		'site_logo' => 0,
+		'site_icon' => 0,
+		'theme' => 'carbon',
+		'theme_color' => '#ededed'
 	);
 	
 	// Merge the defaults with the provided arguments
 	$args = array_merge($defaults, $args);
 	
 	// Insert the settings into the database
-	foreach($args as $name  =>  $value)
-		$rs_query->insert('settings', array('name'  =>  $name, 'value'  =>  $value));
+	foreach($args as $name => $value)
+		$rs_query->insert('settings', array('name' => $name, 'value' => $value));
 }
 
 /**
  * Populate the `taxonomies` database table.
  * @since 1.5.0[a]
- * @deprecated from 1.6.4[a] to 1.0.8[b]
+ * @deprecated from 1.7.0[a] to 1.0.8[b]
  */
 function populateTaxonomies() {
 	// Extend the Query class
@@ -498,7 +540,7 @@ function populateTaxonomies() {
 /**
  * Populate the `terms` database table.
  * @since 1.5.0[a]
- * @deprecated from 1.6.4[a] to 1.0.8[b]
+ * @deprecated from 1.7.0[a] to 1.0.8[b]
  *
  * @param int $post
  */
@@ -507,7 +549,12 @@ function populateTerms($post) {
 	global $rs_query;
 	
 	// Insert the terms into the database
-	$term = $rs_query->insert('terms', array('name' => 'Uncategorized', 'slug' => 'uncategorized', 'taxonomy' => getTaxonomyId('category'), 'count' => 1));
+	$term = $rs_query->insert('terms', array(
+		'name' => 'Uncategorized',
+		'slug' => 'uncategorized',
+		'taxonomy' => getTaxonomyId('category'),
+		'count' => 1
+	));
 	
 	// Insert the term relationships into the database
 	$rs_query->insert('term_relationships', array('term' => $term, 'post' => $post));
@@ -1155,7 +1202,9 @@ function registerTaxonomy($name, $args = array()) {
 		$privileges = array('can_view_'.$name_lowercase, 'can_create_'.$name_lowercase, 'can_edit_'.$name_lowercase, 'can_delete_'.$name_lowercase);
 		
 		// Fetch any privileges that match the ones in the array
-		$db_privileges = $rs_query->select('user_privileges', '*', array('name' => array('IN', $privileges[0], $privileges[1], $privileges[2], $privileges[3])));
+		$db_privileges = $rs_query->select('user_privileges', '*', array(
+			'name' => array('IN', $privileges[0], $privileges[1], $privileges[2], $privileges[3])
+		));
 		
 		// Check whether the privileges exist in the database
 		if(empty($db_privileges)) {

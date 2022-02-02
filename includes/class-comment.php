@@ -41,7 +41,7 @@ class Comment {
 		global $rs_query;
 		
 		// Fetch the comment's author from the database
-		$author = (int)$rs_query->selectField('comments', 'author', array('id'=>$id));
+		$author = (int)$rs_query->selectField('comments', 'author', array('id' => $id));
 		
 		// Check whether the author's id is zero
 		if($author === 0) {
@@ -49,7 +49,7 @@ class Comment {
 			$username = 'Anonymous';
 		} else {
 			// Fetch the author's username from the database
-			$username = $rs_query->selectField('users', 'username', array('id'=>$author));
+			$username = $rs_query->selectField('users', 'username', array('id' => $author));
 		}
 		
 		if($echo)
@@ -72,7 +72,7 @@ class Comment {
 		global $rs_query;
 		
 		// Fetch the comment's author from the database
-		$author = (int)$rs_query->selectField('comments', 'author', array('id'=>$id));
+		$author = (int)$rs_query->selectField('comments', 'author', array('id' => $id));
 		
 		if($echo)
 			echo $author;
@@ -94,7 +94,7 @@ class Comment {
 		global $rs_query;
 		
 		// Fetch the comment's date from the database
-        $date = $rs_query->selectField('comments', 'date', array('id'=>$id));
+        $date = $rs_query->selectField('comments', 'date', array('id' => $id));
 		
         if($echo)
             echo formatDate($date, 'j M Y @ g:i A');
@@ -116,7 +116,7 @@ class Comment {
 		global $rs_query;
 		
 		// Fetch the comment's content from the database
-		$content = $rs_query->selectField('comments', 'content', array('id'=>$id));
+		$content = $rs_query->selectField('comments', 'content', array('id' => $id));
 		
 		if($echo)
 			echo $content;
@@ -138,7 +138,7 @@ class Comment {
 		global $rs_query;
 		
 		// Fetch the comment's upvotes from the database
-		$upvotes = $rs_query->selectField('comments', 'upvotes', array('id'=>$id));
+		$upvotes = $rs_query->selectField('comments', 'upvotes', array('id' => $id));
 		
 		if($echo)
 			echo $upvotes;
@@ -160,7 +160,7 @@ class Comment {
 		global $rs_query;
 		
 		// Fetch the comment's downvotes from the database
-		$downvotes = $rs_query->selectField('comments', 'downvotes', array('id'=>$id));
+		$downvotes = $rs_query->selectField('comments', 'downvotes', array('id' => $id));
 		
 		if($echo)
 			echo $downvotes;
@@ -195,7 +195,7 @@ class Comment {
 		global $rs_query;
 		
 		// Fetch the comment's parent from the database
-		$parent = (int)$rs_query->selectField('comments', 'parent', array('id'=>$id));
+		$parent = (int)$rs_query->selectField('comments', 'parent', array('id' => $id));
 		
 		if($echo)
 			echo $parent;
@@ -216,7 +216,7 @@ class Comment {
 		global $rs_query;
 		
 		// Fetch the post from the database
-		$post = $rs_query->selectRow('posts', array('slug', 'parent', 'type'), array('id'=>$this->post));
+		$post = $rs_query->selectRow('posts', array('slug', 'parent', 'type'), array('id' => $this->post));
 		
 		// Return the permalink
 		return getPermalink($post['type'], $post['parent'], $post['slug']).'#comment-'.$id;
@@ -236,7 +236,7 @@ class Comment {
 		global $rs_query;
 		
 		// Fetch the comment count from the database
-		$count = $rs_query->select('comments', 'COUNT(*)', array('post'=>$post));
+		$count = $rs_query->select('comments', 'COUNT(*)', array('post' => $post));
 		
 		if($echo)
 			echo $count;
@@ -256,12 +256,12 @@ class Comment {
 		global $rs_post, $session, $post_types;
 		
 		// Check whether comments are enabled
-		if(getSetting('enable_comments', false) && $post_types[$rs_post->getPostType(false)]['comments'] && $rs_post->getPostMeta('comment_status', false)) {
+		if(getSetting('enable_comments', false) && $post_types[$rs_post->getPostType()]['comments'] && $rs_post->getPostMeta('comment_status')) {
 			// Check whether the user is logged in, and if not, check whether anonymous users can comment
 			if(!is_null($session) || (is_null($session) && getSetting('allow_anon_comments', false))) {
 				?>
 				<div id="comments-reply" class="textarea-wrap">
-					<input type="hidden" name="post" value="<?php $rs_post->getPostId(); ?>">
+					<input type="hidden" name="post" value="<?php echo $rs_post->getPostId(); ?>">
 					<input type="hidden" name="replyto" value="0">
 					<textarea class="textarea-input" cols="60" rows="8" placeholder="Leave a comment"></textarea>
 					<button type="submit" class="submit-comment button" disabled>Submit</button>
@@ -303,10 +303,16 @@ class Comment {
 		global $rs_query, $rs_post, $session, $post_types;
 		
 		// Fetch the specified number of comments from the database
-		$comments = $rs_query->select('comments', 'id', array('post'=>$this->post, 'status'=>'approved'), 'date', 'DESC', array($start, $count));
+		$comments = $rs_query->select('comments', 'id', array(
+			'post' => $this->post,
+			'status' => 'approved'
+		), 'date', 'DESC', array($start, $count));
 		
 		// Fetch the total number of comments attached to the post
-		$db_count = $rs_query->select('comments', 'COUNT(*)', array('post'=>$this->post, 'status'=>'approved'));
+		$db_count = $rs_query->select('comments', 'COUNT(*)', array(
+			'post' => $this->post,
+			'status' => 'approved'
+		));
 		
 		// Check whether there are any comments
 		if(empty($comments)) {
@@ -345,7 +351,7 @@ class Comment {
 						&bull; <span class="downvote"><span><?php $this->getCommentDownvotes($id); ?></span> <a href="#" data-id="<?php echo $id; ?>" data-vote="0" title="Downvote"><i class="fas fa-thumbs-down"></i></a></span>
 						<?php
 						// Check whether comments are enabled
-						if(getSetting('enable_comments', false) && $post_types[$rs_post->getPostType(false)]['comments'] && $rs_post->getPostMeta('comment_status', false)) {
+						if(getSetting('enable_comments', false) && $post_types[$rs_post->getPostType()]['comments'] && $rs_post->getPostMeta('comment_status')) {
 							// Check whether the user is logged in, and if not, check whether anonymous users can comment
 							if(!is_null($session) || (is_null($session) && getSetting('allow_anon_comments', false))) {
 								?>
@@ -400,13 +406,26 @@ class Comment {
 			$status = getSetting('auto_approve_comments', false) ? 'approved' : 'unapproved';
 			
 			// Insert a new comment into the database
-			$rs_query->insert('comments', array('post'=>$data['post'], 'author'=>($session['id'] ?? 0), 'date'=>'NOW()', 'content'=>htmlspecialchars($data['content']), 'status'=>$status, 'parent'=>$data['replyto']));
+			$rs_query->insert('comments', array(
+				'post' => $data['post'],
+				'author' => ($session['id'] ?? 0),
+				'date' => 'NOW()',
+				'content' => htmlspecialchars($data['content']),
+				'status' => $status,
+				'parent' => $data['replyto']
+			));
 			
 			// Fetch the number of approved comments attached to the current post
-			$count = $rs_query->select('comments', 'COUNT(*)', array('post'=>$data['post'], 'status'=>'approved'));
+			$count = $rs_query->select('comments', 'COUNT(*)', array(
+				'post' => $data['post'],
+				'status' => 'approved'
+			));
 			
 			// Update the post's comment count in the database
-			$rs_query->update('postmeta', array('value'=>$count), array('post'=>$data['post'], '_key'=>'comment_count'));
+			$rs_query->update('postmeta', array('value' => $count), array(
+				'post' => $data['post'],
+				'_key' => 'comment_count'
+			));
 			
 			// Return a status message
 			return '<p style="margin-top: 0;">Your comment was submitted'.(!getSetting('auto_approve_comments', false) ? ' for review' : '').'!</p>';
@@ -426,7 +445,7 @@ class Comment {
 		global $rs_query;
 		
 		// Update the comment in the database
-		$rs_query->update('comments', array('content'=>$data['content']), array('id'=>$data['id']));
+		$rs_query->update('comments', array('content' => $data['content']), array('id' => $data['id']));
 	}
 	
 	/**
@@ -442,16 +461,16 @@ class Comment {
 		global $rs_query;
 		
 		// Fetch the post the comment is attached to
-		$post = $rs_query->selectField('comments', 'post', array('id'=>$id));
+		$post = $rs_query->selectField('comments', 'post', array('id' => $id));
 		
 		// Delete the comment from the database
-		$rs_query->delete('comments', array('id'=>$id));
+		$rs_query->delete('comments', array('id' => $id));
 		
 		// Fetch the number of approved comments attached to the current post
-		$count = $rs_query->select('comments', 'COUNT(*)', array('post'=>$post, 'status'=>'approved'));
+		$count = $rs_query->select('comments', 'COUNT(*)', array('post' => $post, 'status' => 'approved'));
 		
 		// Update the post's comment count in the database
-		$rs_query->update('postmeta', array('value'=>$count), array('post'=>$post, '_key'=>'comment_count'));
+		$rs_query->update('postmeta', array('value' => $count), array('post' => $post, '_key' => 'comment_count'));
 	}
 	
 	/**
@@ -468,10 +487,10 @@ class Comment {
 		global $rs_query;
 		
 		// Fetch the current vote count from the database
-		$votes = $rs_query->selectField('comments', $type, array('id'=>$id));
+		$votes = $rs_query->selectField('comments', $type, array('id' => $id));
 		
 		// Update the vote count in the database
-		$rs_query->update('comments', array($type=>++$votes), array('id'=>$id));
+		$rs_query->update('comments', array($type => ++$votes), array('id' => $id));
 		
 		// Return the new vote count
 		return $votes;
@@ -491,10 +510,10 @@ class Comment {
 		global $rs_query;
 		
 		// Fetch the current vote count from the database
-		$votes = $rs_query->selectField('comments', $type, array('id'=>$id));
+		$votes = $rs_query->selectField('comments', $type, array('id' => $id));
 		
 		// Update the vote count in the database
-		$rs_query->update('comments', array($type=>--$votes), array('id'=>$id));
+		$rs_query->update('comments', array($type => --$votes), array('id' => $id));
 		
 		// Return the new vote count
 		return $votes;

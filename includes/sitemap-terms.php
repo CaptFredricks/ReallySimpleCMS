@@ -24,7 +24,9 @@ foreach($public_taxonomies as $tax) {
 		$sitemap_file_path = PATH.'/sitemap-'.str_replace('_', '-', $tax).'.xml';
 		
 		// Fetch the terms from the database
-		$terms = $rs_query->select('terms', array('id', 'slug', 'taxonomy', 'parent'), array('taxonomy'=>getTaxonomyId($tax)), 'slug');
+		$terms = $rs_query->select('terms', array('id', 'slug', 'taxonomy', 'parent'), array(
+			'taxonomy' => getTaxonomyId($tax)
+		), 'slug');
 		
 		// Check whether the sitemap already exists
 		if(file_exists($sitemap_file_path)) {

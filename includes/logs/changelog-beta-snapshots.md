@@ -9,9 +9,9 @@
 
 **Versions**
 - X.x.x (major release)
-- x.X.x (standard release)
-- x.x.X (minor/bug fix release)
-- x.x.x.X (emergency patch release)
+- x.X.x (feature update release)
+- x.x.X (standard/minor release)
+- x.x.x.X (bug fix/emergency patch release)
 - x.x.x{ss-xx} (snapshot release)
 
 **Other**
@@ -30,10 +30,12 @@
 - Created a function that handles login rules form validation
 - Created a function that deletes a login rule
 - The `actionLink` function can now accept `data_item` as a valid argument (allows for the action link to include a `data-item` parameter)
-- Created a function that checks whether a login or IP address should be blacklisted
+- The "Log In" form now checks whether a user/IP should be blacklisted based on predefined rules
 - Added two new columns to the `login_attempts` table, `last_blacklisted_login` and `last_blacklisted_ip`, which will track the most recent time the login (username or email) or IP address of a login attempt was blacklisted (if ever)
 - Cleaned up code in the `Query` class and added support for various comparison operators
 - Cleaned up code in the admin `Login` class
+- New functions:
+  - `Login` class (`shouldBlacklist`)
 
 **Modified files:**
 - admin/includes/class-login.php
@@ -91,13 +93,17 @@
 - The new privileges are automatically installed upon updating to this version or higher
 - Tweaked a previous entry in the changelog
 - The `populateUserPrivileges` function now only selects the default roles
-- Created a function that checks whether a user has a specified group of privileges as opposed to just one (can be configured to use `AND` or `OR` logic)
+- Users can now be checked for multiple privileges as opposed to just one (can be configured to use `AND` or `OR` logic)
 - Added privilege checks for all logins admin pages and the admin bar
 - Cleaned up some logic in the `adminNavMenu` and `adminBar` functions
-- Fixed a bug in the `adminBar` function that allowed users to view actions for post types that they didn't have privileges for
-- Fixed a bug in the `adminBar` function that allowed users to view actions for taxonomies that they didn't have privileges for
-- Fixed a bug in the `adminNavMenu` function that allowed users to view actions for post types that they didn't have privileges for
 - Made minor formatting tweaks to the `init.php` file
+- New functions:
+  - `globals.php` (`userHasPrivileges`)
+
+**Bug fixes:**
+- Users can view actions for post types that they don't have privileges for on the admin bar
+- Users can view actions for taxonomies that they don't have privileges for on the admin bar
+- Users can view actions for post types that they don't have privileges for on the admin nav menu
 
 **Modified files:**
 - admin/includes/class-login.php
@@ -123,9 +129,10 @@
 - Created a function that lists all blacklisted logins
 - Created a function that constructs an action link
 - Created functions that blacklist logins and IP addresses
-- Created a function that checks whether a login or IP address is blacklisted
-- Created a function that fetches a blacklist's duration and deletes it if it's expired
+- Added user/IP blacklist checks to the login form
 - A default timezone is now set in the `config-setup.php` file (and likewise the `config.php` file)
+- New functions:
+  - `Login` class (`isBlacklisted`, `getBlacklistDuration`)
 
 **Modified files:**
 - admin/includes/class-login.php (N)
@@ -141,14 +148,17 @@
 - Tweaked documentation in the Carbon theme's `script.js` file
 - Tweaked documentation in the front end `script.js` file
 - When using the Carbon theme, the sticky header no longer covers the reply box when a reply link is clicked
-- Fixed a bug that caused incoming links to the home page that add query strings to redirect to the 404 not found page
 - Users will now be redirected back to the admin page they were viewing upon logging back in if they are logged out unexpectedly
 - Renamed some selectors for the comment section and tweaked some styling
-- Created a function that updates an existing comment
-- Added the ability to cancel an update to a comment
+- Users can now edit and update their comments
 - Optimized and improved the action links functionality for the "List Users" page
-- Users who don't have the `can_edit_users` or `can_delete_users` privileges can no longer see the "Edit" or "Delete" action links
-- Fixed a bug that prevented users without sufficient privileges from being able to edit their profile via the "List Users" page
+  - Users who don't have the `can_edit_users` or `can_delete_users` privileges can no longer see the "Edit" or "Delete" action links
+- New functions:
+  - `Comment` class (`updateComment`)
+
+**Bug fixes:**
+- Links to the home page (typically `/`) that also have query strings attached to them redirect to the 404 "Not Found" page
+- Users without sufficient privileges can't edit their profile via the "List Users" page
 
 **Modified files:**
 - admin/header.php
@@ -163,18 +173,23 @@
 ## Version 1.1.0[b]{ss-04} (2020-09-23)
 
 - Added comments to the "Admin" admin bar dropdown
-- Fixed an issue where the `media` post type did not display on the "New" admin bar dropdown
 - Reply links are now hidden on existing comments if comments are disabled on the post, post type, or global level (existing comments are not hidden, however)
 - Styled and added a reply form to the comment feed
 - Created a function that submits comments to the database
 - Created a function that fetches a comment's parent
 - If a comment is a reply to another comment, the child comment now has a link to its parent
 - Created a function that deletes an existing comment
-- Renamed the `Comment::getCommentThread` function to `Comment::getCommentFeed`
 - Tweaked previous entries in the changelog
 - Added a container element to the comment feed
 - The comment feed will now refresh whenever a new reply is posted or a comment is deleted
 - Code cleanup in the front end `script.js` file
+- New functions:
+  - `Comment` class (`getCommentAuthorId`, `getCommentParent`, `getCommentCount`, `getCommentReplyBox`, `createComment`, `deleteComment`)
+- Renamed functions:
+  - `Comment` class (`getCommentThread` -> `getCommentFeed`)
+
+**Bug fixes:**
+- The `media` post type doesn't display on the "New" admin bar dropdown
 
 **Modified files:**
 - content/themes/carbon/style.css
@@ -191,18 +206,19 @@
   - `comment_approval` (whether comments are automatically approved)
 - The new settings are added to the database automatically for sites updating from `1.0.9[b]`
 - Comments are now hidden if the global `comment_status` setting is turned off, including on post types that have them enabled
-- Created a comment class for the front end
-- Created a function that fetches a post's comments
+- Created a front end class that handles comments
+  - Added comment feeds
+  - Added upvote and downvote functionality
+  - Posts will now fetch all comments associated with them and display them below the post content
 - Tweaked the styling of the Carbon theme
 - Added styling for comment feeds
-- Created functions that fetch comment data from the database
-- Created a function that constructs a comment's permalink
-- Created a function that constructs a comment feed
-- Created upvote and downvote functionality for comments
 - Created a file to handle Ajax requests
 - An em dash now displays if a comment has no author (anonymous) on the dashboard
 - Added `includes/error_log` to the `.gitignore` file
 - The content for the default page and post created on installation are now wrapped in paragraph tags
+- New functions:
+  - `Comment` class (`getCommentAuthor`, `getCommentDate`, `getCommentContent`, `getCommentUpvotes`, `getCommentDownvotes`, `getCommentStatus`, `getCommentPermalink`, `getCommentThread`, `incrementVotes`, `decrementVotes`)
+  - `Post` class (`getPostComments`)
 
 **Modified files:**
 - .gitignore (M)
@@ -264,10 +280,12 @@
 - Tweaked documentation in the admin `functions.php` file
 - Tweaked a previous entry in the Beta changelog
 - Created a new changelog for Beta Snapshots
-- Fixed an issue with comment privileges not properly being assigned to default user roles
 - Adjusted privileges for the default user roles (the CMS will automatically reinstall the `user_privileges` and `user_relationships` tables)
 - Individual posts with comments disabled will now display an emdash on the "Comments" column of the "List \<post_type>" page
 - When a post with comments is deleted, its comments are now deleted along with it
+
+**Bug fixes:**
+- Comment privileges aren't properly being assigned to default user roles
 
 **Modified files:**
 - admin/comments.php (N)

@@ -49,7 +49,6 @@ class Comment {
 	 *
 	 * @access public
 	 * @param int $id (optional; default: 0)
-	 * @return null
 	 */
 	public function __construct($id = 0) {
 		// Extend the Query object
@@ -73,7 +72,6 @@ class Comment {
 	 * @since 1.1.0[b]{ss-02}
 	 *
 	 * @access public
-	 * @return null
 	 */
 	public function listComments() {
 		// Extend the Query object and the user's session data
@@ -228,7 +226,7 @@ class Comment {
 		</table>
 		<?php
 		// Bulk actions
-		$this->bulkActions();
+		if(!empty($comments)) $this->bulkActions();
 		
 		// Set up page navigation
 		echo pagerNav($page['current'], $page['count']);
@@ -242,7 +240,6 @@ class Comment {
 	 * @since 1.1.0[b]{ss-02}
 	 *
 	 * @access public
-	 * @return null
 	 */
 	public function editComment() {
 		// Extend the Query object
@@ -377,7 +374,6 @@ class Comment {
 	 * @since 1.1.0[b]{ss-02}
 	 *
 	 * @access public
-	 * @return null
 	 */
 	public function deleteComment() {
 		// Extend the Query object
@@ -529,6 +525,7 @@ class Comment {
 	 * Construct bulk actions.
 	 * @since 1.2.7[b]
 	 *
+	 * @access private
 	 */
 	private function bulkActions() {
 		// Extend the user's session data

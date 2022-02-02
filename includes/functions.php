@@ -1,6 +1,6 @@
 <?php
 /**
- * Front end functions.
+ * Site-wide functions.
  * @since 1.0.0[a]
  */
 
@@ -46,7 +46,7 @@ function postTypeExists($type) {
 	$type = sanitize($type);
 	
 	// Fetch the number of times the type appears in the database and return true if it does
-	return $rs_query->selectRow('posts', 'COUNT(type)', array('type'=>$type)) > 0;
+	return $rs_query->selectRow('posts', 'COUNT(type)', array('type' => $type)) > 0;
 }
 
 /**
@@ -64,67 +64,7 @@ function taxonomyExists($taxonomy) {
 	$taxonomy = sanitize($taxonomy);
 	
 	// Fetch the number of times the taxonomy appears in the database and return true if it does
-	return $rs_query->selectRow('taxonomies', 'COUNT(name)', array('name'=>$taxonomy)) > 0;
-}
-
-/**
- * Check whether a page template exists.
- * @since 2.3.3[a]
- *
- * @param string $template
- * @param string $dir
- * @return bool
- */
-function templateExists($template, $dir) {
-    return file_exists(trailingSlash($dir).$template);
-}
-
-/**
- * Fetch the theme's header template.
- * @since 1.5.5[a]
- *
- * @param string $template (optional; default: '')
- * @return null
- */
-function getHeader($template = '') {
-	// Extend the Post, Category, and Term objects and the user's session data
-	global $rs_post, $rs_category, $rs_term, $session;
-	
-	// Construct the file path for the current theme
-	$theme_path = trailingSlash(PATH.THEMES).getSetting('theme', false);
-	
-	// Check whether the template file exists
-	if(!file_exists($theme_path.'/header.php') && !file_exists(trailingSlash($theme_path).$template.'.php')) {
-		// Don't load anything
-		return null;
-	} else {
-		// Include the header template
-		require_once trailingSlash($theme_path).(!empty($template) ? $template : 'header').'.php';
-	}
-}
-
-/**
- * Fetch the theme's footer template.
- * @since 1.5.5[a]
- *
- * @param string $template (optional; default: '')
- * @return null
- */
-function getFooter($template = '') {
-	// Extend the Post, Category, and Term objects and the user's session data
-	global $rs_post, $rs_category, $rs_term, $session;
-	
-	// Construct the file path for the current theme
-	$theme_path = trailingSlash(PATH.THEMES).getSetting('theme', false);
-	
-	// Check whether the template file exists
-	if(!file_exists($theme_path.'/footer.php') && !file_exists(trailingSlash($theme_path).$template.'.php')) {
-		// Don't load anything
-		return null;
-	} else {
-		// Include the footer template
-		require_once trailingSlash($theme_path).(!empty($template) ? $template : 'footer').'.php';
-	}
+	return $rs_query->selectRow('taxonomies', 'COUNT(name)', array('name' => $taxonomy)) > 0;
 }
 
 /**
@@ -188,14 +128,15 @@ function getTerm($slug) {
 }
 
 /**
- * Create a Category object based on a provided slug.
+ * Alias for the getTerm function.
  * @since 2.4.1[a]
  *
+ * @see getTerm()
  * @param string $slug
  * @return object
  */
 function getCategory($slug) {
-	return new Category($slug);
+	return getTerm($slug);
 }
 
 /**
@@ -226,7 +167,10 @@ function getWidget($slug, $display_title = false) {
 	global $rs_query;
 	
 	// Fetch the widget from the database
-	$widget = $rs_query->selectRow('posts', array('title', 'content', 'status'), array('type'=>'widget', 'slug'=>$slug));
+	$widget = $rs_query->selectRow('posts', array('title', 'content', 'status'), array(
+		'type' => 'widget',
+		'slug' => $slug
+	));
 	
 	// Check whether the widget exists and is active
 	if(empty($widget)) {
@@ -264,60 +208,11 @@ function getWidget($slug, $display_title = false) {
 }
 
 /**
- * Fetch all posts associated with the current term.
- * @since 2.4.1[a]
- *
- * @param int|string $_term (optional; default: null)
- * @param string $order_by (optional; default: 'date')
- * @param string $order (optional; default: 'DESC')
- * @param int $limit (optional; default: 0)
- * @return array
- */
-function getPostsWithTerm($_term = null, $order_by = 'date', $order = 'DESC', $limit = 0) {
-	// Extend the Query and Term objects
-	global $rs_query, $rs_term;
-	
-	// Create an empty array to hold the posts
-	$posts = array();
-	
-	// Check whether the term value is null
-	if(!is_null($_term)) {
-		// Check whether the term value is an integer
-		if(is_int($_term)) {
-			// Fetch the term
-			$term = $_term;
-		} else {
-			// Fetch the term's id
-			$term = getTerm($_term)->getTermId(false);
-		}
-	} else {
-		// Fetch the term's id
-		$term = $rs_term->getTermId(false);
-	}
-	
-	// Fetch the term relationships from the database
-	$relationships = $rs_query->select('term_relationships', 'post', array('term'=>$term));
-	
-	// Loop through the term relationships
-	foreach($relationships as $relationship) {
-		// Skip the post if it isn't published
-		if(!$rs_query->selectRow('posts', 'id', array('id'=>$relationship['post'], 'status'=>'published'))) continue;
-		
-		// Fetch each post from the database and assign them to the posts array
-		$posts[] = $rs_query->selectRow('posts', '*', array('id'=>$relationship['post']), $order_by, $order, $limit);
-	}
-	
-	// Return the posts
-	return $posts;
-}
-
-/**
  * Register a menu.
  * @since 1.0.0[b]
  *
  * @param string $name
  * @param string $slug
- * @return null
  */
 function registerMenu($name, $slug) {
 	// Extend the Query object
@@ -327,12 +222,16 @@ function registerMenu($name, $slug) {
 	$slug = sanitize($slug);
 	
 	// Fetch any menus that have the same slug as the newly registered one
-	$menu = $rs_query->selectRow('terms', '*', array('slug'=>$slug, 'taxonomy'=>getTaxonomyId('nav_menu')));
+	$menu = $rs_query->selectRow('terms', '*', array('slug' => $slug, 'taxonomy' => getTaxonomyId('nav_menu')));
 	
 	// Check whether the menu already exists
 	if(empty($menu)) {
 		// Insert the new menu into the database
-		$rs_query->insert('terms', array('name'=>$name, 'slug'=>$slug, 'taxonomy'=>getTaxonomyId('nav_menu')));
+		$rs_query->insert('terms', array(
+			'name' => $name,
+			'slug' => $slug,
+			'taxonomy' => getTaxonomyId('nav_menu')
+		));
 	}
 }
 
@@ -342,7 +241,6 @@ function registerMenu($name, $slug) {
  *
  * @param string $title
  * @param string $slug
- * @return null
  */
 function registerWidget($title, $slug) {
 	// Extend the Query object
@@ -352,51 +250,20 @@ function registerWidget($title, $slug) {
 	$slug = sanitize($slug);
 	
 	// Fetch any widgets that have the same slug as the newly registered one
-	$widget = $rs_query->selectRow('posts', '*', array('slug'=>$slug, 'type'=>'widget'));
+	$widget = $rs_query->selectRow('posts', '*', array('slug' => $slug, 'type' => 'widget'));
 	
 	// Check whether the widget already exists
 	if(empty($widget)) {
 		// Insert the new widget into the database
-		$rs_query->insert('posts', array('title'=>$title, 'date'=>'NOW()', 'content'=>'', 'status'=>'active', 'slug'=>$slug, 'type'=>'widget'));
+		$rs_query->insert('posts', array(
+			'title' => $title,
+			'date' => 'NOW()',
+			'content' => '',
+			'status' => 'active',
+			'slug' => $slug,
+			'type' => 'widget'
+		));
 	}
-}
-
-/**
- * Construct and display the page title.
- * @since 1.1.3[b]
- *
- * @return null
- */
-function pageTitle() {
-	// Extend the Post and Term objects
-	global $rs_post, $rs_term;
-	
-	// Display the title
-	echo !is_null($rs_post) ? (!empty($rs_post->getPostMeta('title', false)) ? $rs_post->getPostMeta('title') : $rs_post->getPostTitle()) : $rs_term->getTermName(); ?> &rtrif; <?php getSetting('site_title');
-}
-
-/**
- * Set up all of the meta tags for the <head> section.
- * @since 1.1.3[b]
- *
- * @return null
- */
-function metaTags() {
-	// Extend the Post and Term objects
-	global $rs_post, $rs_term;
-	?>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta name="theme-color" content="<?php getSetting('theme_color'); ?>">
-	<meta name="description" content="<?php echo !is_null($rs_post) ? (!empty($rs_post->getPostMeta('description', false)) ? $rs_post->getPostMeta('description') : trimWords(str_replace(array("\n", "\r"), '', strip_tags($rs_post->getPostContent(false))), 25, '.')) : ''; ?>">
-	<meta property="og:title" content="<?php !is_null($rs_post) ? (!empty($rs_post->getPostMeta('title', false)) ? $rs_post->getPostMeta('title') : $rs_post->getPostTitle()) : $rs_term->getTermName(); ?>">
-	<meta property="og:type" content="website">
-	<meta property="og:url" content="<?php echo !is_null($rs_post) ? (isHomePage($rs_post->getPostId(false)) ? trailingSlash(getSetting('site_url', false)) : $rs_post->getPostUrl()) : $rs_term->getTermUrl(); ?>">
-	<meta property="og:image" content="<?php echo getMediaSrc(getSetting('site_logo', false)); ?>">
-	<meta property="og:description" content="<?php echo !is_null($rs_post) ? (!empty($rs_post->getPostMeta('description', false)) ? $rs_post->getPostMeta('description') : trimWords(str_replace(array("\n", "\r"), '', strip_tags($rs_post->getPostContent(false))), 25, '.')) : ''; ?>">
-	<link href="<?php echo !is_null($rs_post) ? (isHomePage($rs_post->getPostId(false)) ? trailingSlash(getSetting('site_url', false)) : $rs_post->getPostUrl()) : $rs_term->getTermUrl(); ?>" rel="canonical">
-	<link type="image/x-icon" href="<?php echo getMediaSrc(getSetting('site_icon', false)); ?>" rel="icon">
-	<?php
 }
 
 /**
@@ -500,19 +367,19 @@ function bodyClasses($addtl_classes = array()) {
 	// Check whether the Post object has data
 	if($rs_post) {
 		// Fetch the post's id from the database
-		$id = $rs_post->getPostId(false);
+		$id = $rs_post->getPostId();
 		
 		// Fetch the post's parent from the database
-		$parent = $rs_post->getPostParent(false);
+		$parent = $rs_post->getPostParent();
 		
 		// Fetch the post's type from the database
-		$type = $rs_post->getPostType(false);
+		$type = $rs_post->getPostType();
 		
 		// Fetch the current theme from the database and add an appropriate class
 		$classes[] = getSetting('theme', false).'-theme';
 		
 		// Fetch the post's slug from the database and add an appropriate class
-		$classes[] = $rs_post->getPostSlug($id, false);
+		$classes[] = $rs_post->getPostSlug($id);
 		
 		// Add an appropriate class with the post's type
 		$classes[] = $type;
@@ -521,23 +388,23 @@ function bodyClasses($addtl_classes = array()) {
 		$classes[] = $type.'-id-'.$id;
 		
 		// Check whether the current page is a child of another page and add an appropriate class if so
-		if($parent !== 0) $classes[] = $rs_post->getPostSlug($parent, false).'-child';
+		if($parent !== 0) $classes[] = $rs_post->getPostSlug($parent).'-child';
 		
 		// Check whether the current page is the home page and add an appropriate class if so
 		if(isHomePage($id)) $classes[] = 'home-page';
 	} // Check whether the Term object has data
 	elseif($rs_term) {
 		// Fetch the term's id from the database
-		$id = $rs_term->getTermId(false);
+		$id = $rs_term->getTermId();
 		
 		// Fetch the term's taxonomy from the database
-		$taxonomy = $rs_term->getTermTaxonomy(false);
+		$taxonomy = $rs_term->getTermTaxonomy();
 		
 		// Fetch the current theme from the database and add an appropriate class
 		$classes[] = getSetting('theme', false).'-theme';
 		
 		// Fetch the term's slug from the database and add an appropriate class
-		$classes[] = $rs_term->getTermSlug($id, false);
+		$classes[] = $rs_term->getTermSlug($id);
 		
 		// Add an appropriate class with the term's taxonomy
 		$classes[] = $taxonomy;
@@ -724,15 +591,15 @@ function adminBar() {
 			</li>
 			<?php if(!is_null($rs_post)): ?>
 				<li>
-					<a href="/admin/posts.php?id=<?php $rs_post->getPostId(); ?>&action=edit"><i class="fas fa-feather-alt"></i> <span>Edit</span></a>
+					<a href="/admin/posts.php?id=<?php echo $rs_post->getPostId(); ?>&action=edit"><i class="fas fa-feather-alt"></i> <span>Edit</span></a>
 				</li>
 			<?php endif; ?>
 		</ul>
 		<div class="user-dropdown">
 			<span>Welcome, <?php echo $session['username']; ?></span>
-			<?php echo getMedia($session['avatar'], array('class'=>'avatar', 'width'=>20, 'height'=>20)); ?>
+			<?php echo getMedia($session['avatar'], array('class' => 'avatar', 'width' => 20, 'height' => 20)); ?>
 			<ul class="user-dropdown-menu">
-				<?php echo getMedia($session['avatar'], array('class'=>'avatar-large', 'width'=>100, 'height'=>100)); ?>
+				<?php echo getMedia($session['avatar'], array('class' => 'avatar-large', 'width' => 100, 'height' => 100)); ?>
 				<li><a href="/admin/profile.php">My Profile</a></li>
 				<li><a href="/login.php?action=logout">Log Out</a></li>
 			</ul>

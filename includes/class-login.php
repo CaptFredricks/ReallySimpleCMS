@@ -156,7 +156,7 @@ class Login {
 		// Check whether login attempts should be tracked
 		if(getSetting('track_login_attempts', false)) {
 			// Insert the new login attempt into the database
-			$login_attempt = $rs_query->insert('login_attempts', array('login'=>($email ?? $username), 'ip_address'=>$this->ip_address, 'date'=>'NOW()'));
+			$login_attempt = $rs_query->insert('login_attempts', array('login' => ($email ?? $username), 'ip_address' => $this->ip_address, 'date' => 'NOW()'));
 		}
 		
 		// Make sure the captcha value is valid
@@ -175,29 +175,47 @@ class Login {
 				return $this->statusMessage('The email and/or password is not valid.');
 			
 			// Update the user in the database
-			$rs_query->update('users', array('last_login'=>'NOW()', 'session'=>$session), array('email'=>$email));
+			$rs_query->update('users', array(
+				'last_login' => 'NOW()',
+				'session' => $session
+			), array('email' => $email));
 		} elseif(isset($username)) {
 			// Make sure the username and password are valid
 			if(!$this->usernameExists($username) || !$this->isValidPassword($username, $password))
 				return $this->statusMessage('The username and/or password is not valid.');
 			
 			// Update the user in the database
-			$rs_query->update('users', array('last_login'=>'NOW()', 'session'=>$session), array('username'=>$username));
+			$rs_query->update('users', array(
+				'last_login' => 'NOW()',
+				'session' => $session
+			), array('username' => $username));
 		}
 		
 		// Check whether the login attempt was tracked
 		if(isset($login_attempt)) {
 			// Update the login attempt in the database
-			$rs_query->update('login_attempts', array('status'=>'success'), array('id'=>$login_attempt));
+			$rs_query->update('login_attempts', array('status' => 'success'), array('id' => $login_attempt));
 		}
 		
 		// Check whether the "Keep me logged in" checkbox has been checked
 		if(isset($data['remember_login']) && $data['remember_login'] === 'checked') {
 			// Create a cookie with the session value that expires in 30 days
-			setcookie('session', $session, array('expires'=>time() + 60 * 60 * 24 * 30, 'path'=>'/', 'secure'=>$this->https, 'httponly'=>true, 'samesite'=>'Strict'));
+			setcookie('session', $session, array(
+				'expires' => time() + 60 * 60 * 24 * 30,
+				'path' => '/',
+				'secure' => $this->https,
+				'httponly' => true,
+				'samesite' => 'Strict'
+			));
 		} else {
 			// Create a cookie with the session value that expires when the browser is closed
-			setcookie('session', $session, array('expires'=>0, 'path'=>'/', 'secure'=>$this->https, 'httponly'=>true, 'samesite'=>'Strict'));
+			setcookie('session', $session, array(
+				'expires' => 0,
+				'path' => '/',
+				'secure' => $this->https,
+				'httponly' => true,
+				'samesite' => 'Strict'
+			));
 		}
 		
 		// Unset the secure login code
@@ -223,7 +241,7 @@ class Login {
 		global $rs_query;
 		
 		// Return true if the count is greater than zero
-		return $rs_query->select('login_blacklist', 'COUNT(name)', array('name'=>$name)) > 0;
+		return $rs_query->select('login_blacklist', 'COUNT(name)', array('name' => $name)) > 0;
 	}
 	
 	/**
@@ -242,10 +260,10 @@ class Login {
 		// Check whether the login used was an email
 		if(strpos($login, '@') !== false) {
 			// Fetch the user's email from the database
-			$db_password = $rs_query->selectField('users', 'password', array('email'=>$login));
+			$db_password = $rs_query->selectField('users', 'password', array('email' => $login));
 		} else {
 			// Fetch the user's password from the database
-			$db_password = $rs_query->selectField('users', 'password', array('username'=>$login));
+			$db_password = $rs_query->selectField('users', 'password', array('username' => $login));
 		}
 		
 		// Return true if the password is valid
@@ -278,13 +296,17 @@ class Login {
 		global $rs_query;
 		
 		// Fetch the last blacklisted IP from the database
-		$last_blacklisted_ip = $rs_query->selectField('login_attempts', 'last_blacklisted_ip', array('ip_address'=>$ip_address), 'id', 'ASC', '1');
+		$last_blacklisted_ip = $rs_query->selectField('login_attempts', 'last_blacklisted_ip', array('ip_address' => $ip_address), 'id', 'ASC', '1');
 		
 		// Fetch the number of failed login attempts by the IP address
-		$failed_logins = $rs_query->select('login_attempts', 'COUNT(*)', array('ip_address'=>$ip_address, 'date'=>array('>', $last_blacklisted_ip), 'status'=>'failure'));
+		$failed_logins = $rs_query->select('login_attempts', 'COUNT(*)', array(
+			'ip_address' => $ip_address,
+			'date' => array('>', $last_blacklisted_ip),
+			'status' => 'failure'
+		));
 		
 		// Fetch the rules for logins by type 'ip_address'
-		$login_rules = $rs_query->select('login_rules', '*', array('type'=>'ip_address'), 'attempts', 'DESC');
+		$login_rules = $rs_query->select('login_rules', '*', array('type' => 'ip_address'), 'attempts', 'DESC');
 		
 		// Loop through the login rules
 		foreach($login_rules as $login_rule) {
@@ -293,26 +315,36 @@ class Login {
 				// Check whether the IP address is already blacklisted
 				if(!$this->isBlacklisted($ip_address)) {
 					// Fetch the total number of login attempts from the database
-					$attempts = $rs_query->select('login_attempts', 'COUNT(*)', array('ip_address'=>$ip_address, 'status'=>'failure'));
+					$attempts = $rs_query->select('login_attempts', 'COUNT(*)', array('ip_address' => $ip_address, 'status' => 'failure'));
 					
 					// Create a blacklist for the IP address
-					$rs_query->insert('login_blacklist', array('name'=>$ip_address, 'attempts'=>$attempts, 'blacklisted'=>'NOW()', 'duration'=>$login_rule['duration'], 'reason'=>'too many failed login attempts'));
+					$rs_query->insert('login_blacklist', array(
+						'name' => $ip_address,
+						'attempts' => $attempts,
+						'blacklisted' => 'NOW()',
+						'duration' => $login_rule['duration'],
+						'reason' => 'too many failed login attempts'
+					));
 					
 					// Update the last blacklisted date of the IP address and return
-					$rs_query->update('login_attempts', array('last_blacklisted_ip'=>'NOW()'), array('ip_address'=>$ip_address));
+					$rs_query->update('login_attempts', array('last_blacklisted_ip' => 'NOW()'), array('ip_address' => $ip_address));
 					
 					// Fetch all logins associated with the IP address from the database
-					$logins = $rs_query->select('login_attempts', array('DISTINCT', 'login'), array('ip_address'=>$ip_address));
+					$logins = $rs_query->select('login_attempts', array('DISTINCT', 'login'), array('ip_address' => $ip_address));
 					
 					// Loop through the logins
 					foreach($logins as $login) {
 						// Fetch the user's session from the database
-						$session = $rs_query->selectField('users', 'session', array('logic'=>'OR', 'username'=>$login['login'], 'email'=>$login['login']));
+						$session = $rs_query->selectField('users', 'session', array(
+							'logic' => 'OR',
+							'username' => $login['login'],
+							'email' => $login['login']
+						));
 						
 						// Check whether the user's session is null
 						if(!is_null($session)) {
 							// Set the user's session to null in the database
-							$rs_query->update('users', array('session'=>null), array('session'=>$session));
+							$rs_query->update('users', array('session' => null), array('session' => $session));
 							
 							// Check whether the cookie's value matches the session value and delete it if so
 							if($_COOKIE['session'] === $session)
@@ -326,13 +358,17 @@ class Login {
 		}
 		
 		// Fetch the last blacklisted login from the database
-		$last_blacklisted_login = $rs_query->selectField('login_attempts', 'last_blacklisted_login', array('login'=>$login), 'id', 'ASC', '1');
+		$last_blacklisted_login = $rs_query->selectField('login_attempts', 'last_blacklisted_login', array('login' => $login), 'id', 'ASC', '1');
 		
 		// Fetch the number of failed login attempts by the login
-		$failed_logins = $rs_query->select('login_attempts', 'COUNT(*)', array('login'=>$login, 'date'=>array('>', $last_blacklisted_login), 'status'=>'failure'));
+		$failed_logins = $rs_query->select('login_attempts', 'COUNT(*)', array(
+			'login' => $login,
+			'date' => array('>', $last_blacklisted_login),
+			'status' => 'failure'
+		));
 		
 		// Fetch the rules for logins by type 'login'
-		$login_rules = $rs_query->select('login_rules', '*', array('type'=>'login'), 'attempts', 'DESC');
+		$login_rules = $rs_query->select('login_rules', '*', array('type' => 'login'), 'attempts', 'DESC');
 		
 		// Loop through the login rules
 		foreach($login_rules as $login_rule) {
@@ -341,21 +377,34 @@ class Login {
 				// Check whether the login is already blacklisted
 				if(!$this->isBlacklisted($login)) {
 					// Fetch the total number of failed login attempts from the database
-					$attempts = $rs_query->select('login_attempts', 'COUNT(*)', array('login'=>$login, 'status'=>'failure'));
+					$attempts = $rs_query->select('login_attempts', 'COUNT(*)', array(
+						'login' => $login,
+						'status' => 'failure'
+					));
 					
 					// Create a blacklist for the login
-					$rs_query->insert('login_blacklist', array('name'=>$login, 'attempts'=>$attempts, 'blacklisted'=>'NOW()', 'duration'=>$login_rule['duration'], 'reason'=>'too many failed login attempts'));
+					$rs_query->insert('login_blacklist', array(
+						'name' => $login,
+						'attempts' => $attempts,
+						'blacklisted' => 'NOW()',
+						'duration' => $login_rule['duration'],
+						'reason' => 'too many failed login attempts'
+					));
 					
 					// Update the last blacklisted date of the login
-					$rs_query->update('login_attempts', array('last_blacklisted_login'=>'NOW()'), array('login'=>$login));
+					$rs_query->update('login_attempts', array('last_blacklisted_login' => 'NOW()'), array('login' => $login));
 					
 					// Fetch the user's session from the database
-					$session = $rs_query->selectField('users', 'session', array('logic'=>'OR', 'username'=>$login, 'email'=>$login));
+					$session = $rs_query->selectField('users', 'session', array(
+						'logic' => 'OR',
+						'username' => $login,
+						'email' => $login
+					));
 					
 					// Check whether the user's session is null
 					if(!is_null($session)) {
 						// Set the user's session to null in the database
-						$rs_query->update('users', array('session'=>null), array('session'=>$session));
+						$rs_query->update('users', array('session' => null), array('session' => $session));
 						
 						// Check whether the cookie's value matches the session value and delete it if so
 						if($_COOKIE['session'] === $session)
@@ -381,7 +430,7 @@ class Login {
 		global $rs_query;
 		
 		// Fetch the number of times the session appears in the database
-		$count = $rs_query->selectRow('users', 'COUNT(session)', array('session'=>$session));
+		$count = $rs_query->selectRow('users', 'COUNT(session)', array('session' => $session));
 		
 		// Return true if the count is greater than zero
 		return $count > 0;
@@ -400,7 +449,7 @@ class Login {
 		global $rs_query;
 		
 		// Fetch the number of times the email appears in the database
-		$count = $rs_query->selectRow('users', 'COUNT(email)', array('email'=>$email));
+		$count = $rs_query->selectRow('users', 'COUNT(email)', array('email' => $email));
 		
 		// Return true if the count is greater than zero
 		return $count > 0;
@@ -419,7 +468,7 @@ class Login {
 		global $rs_query;
 		
 		// Fetch the number of times the username appears in the database
-		$count = $rs_query->selectRow('users', 'COUNT(username)', array('username'=>$username));
+		$count = $rs_query->selectRow('users', 'COUNT(username)', array('username' => $username));
 		
 		// Return true if the count is greater than zero
 		return $count > 0;
@@ -438,7 +487,7 @@ class Login {
 		global $rs_query;
 		
 		// Fetch the blacklist's duration from the database
-		$login = $rs_query->selectRow('login_blacklist', array('blacklisted', 'duration'), array('name'=>$name));
+		$login = $rs_query->selectRow('login_blacklist', array('blacklisted', 'duration'), array('name' => $name));
 		
 		// Check whether any data has been retrieved
 		if(empty($login)) {
@@ -460,7 +509,7 @@ class Login {
 				$duration = -1;
 				
 				// Delete the blacklisted login from the database
-				$rs_query->delete('login_blacklist', array('name'=>$name));
+				$rs_query->delete('login_blacklist', array('name' => $name));
 			} else {
 				// Set the duration
 				$duration = (int)$login['duration'];
@@ -538,7 +587,7 @@ class Login {
 		global $rs_query;
 		
 		// Update the user's session in the database
-		$rs_query->update('users', array('session'=>null), array('session'=>$session));
+		$rs_query->update('users', array('session' => null), array('session' => $session));
 		
 		// Delete the session cookie
 		setcookie('session', '', 1, '/');
@@ -605,7 +654,7 @@ class Login {
 				return $this->statusMessage('The email you provided is not registered on this website.');
 			
 			// Fetch the user's id and username from the database
-			list($id, $username) = array_values($rs_query->selectRow('users', array('id', 'username'), array('email'=>$email)));
+			list($id, $username) = array_values($rs_query->selectRow('users', array('id', 'username'), array('email' => $email)));
 			
 			// Construct the email's subject line
 			$subject = getSetting('site_title', false).' – Password Reset';
@@ -617,7 +666,7 @@ class Login {
 			$message = 'A request has been made to reset the password for the user <strong>'.$username.'</strong> on "'.getSetting('site_title', false).'".<br><br>If this was you, please click the link below to reset your password. If not, you may disregard this email.<br><br><a href="'.$pw_reset_link.'">Reset your password</a>';
 			
 			// Format the email's content
-			$content = formatEmail('Reset Password', array('message'=>$message));
+			$content = formatEmail('Reset Password', array('message' => $message));
 			
 			// Set the content headers (to allow for HTML-formatted emails)
 			$headers[] = "MIME-Version: 1.0";
@@ -627,7 +676,7 @@ class Login {
 			// Make sure the email can be sent
 			if(mail($email, $subject, $content, implode("\r\n", $headers))) {
 				// Update the user's security key in the database
-				$rs_query->update('users', array('security_key'=>$key), array('id'=>$id));
+				$rs_query->update('users', array('security_key' => $key), array('id' => $id));
 				
 				// Redirect to the 'Log In' form
 				redirect('login.php?pw_forgot=confirm');
@@ -644,7 +693,7 @@ class Login {
 				return $this->statusMessage('The username you provided is not registered on this website.');
 			
 			// Fetch the user's id and email from the database
-			list($id, $email) = array_values($rs_query->selectRow('users', array('id', 'email'), array('username'=>$username)));
+			list($id, $email) = array_values($rs_query->selectRow('users', array('id', 'email'), array('username' => $username)));
 			
 			// Construct the email's subject line
 			$subject = getSetting('site_title', false).' – Password Reset';
@@ -656,7 +705,7 @@ class Login {
 			$message = 'A request has been made to reset the password for the user <strong>'.$username.'</strong> on "'.getSetting('site_title', false).'".<br><br>If this was you, please click the link below to reset your password. If not, you may disregard this email.<br><br><a href="'.$pw_reset_link.'">Reset your password</a>';
 			
 			// Format the email's content
-			$content = formatEmail('Reset Password', array('message'=>$message));
+			$content = formatEmail('Reset Password', array('message' => $message));
 			
 			// Set the content headers (to allow for HTML-formatted emails)
 			$headers[] = "MIME-Version: 1.0";
@@ -666,7 +715,7 @@ class Login {
 			// Make sure the email can be sent
 			if(mail($email, $subject, $content, implode("\r\n", $headers))) {
 				// Update the user's security key in the database
-				$rs_query->update('users', array('security_key'=>$key), array('id'=>$id));
+				$rs_query->update('users', array('security_key' => $key), array('id' => $id));
 				
 				// Redirect to the 'Log In' form
 				redirect('login.php?pw_forgot=confirm');
@@ -691,7 +740,13 @@ class Login {
 		// Check whether the login and key are in the query string
 		if(isset($_GET['login']) && isset($_GET['key'])) {
 			// Create a cookie that expires when the browser is closed
-			setcookie($cookie_name, $_GET['login'].':'.$_GET['key'], array('expires'=>0, 'path'=>'/login.php', 'secure'=>$this->https, 'httponly'=>true, 'samesite'=>'Strict'));
+			setcookie($cookie_name, $_GET['login'].':'.$_GET['key'], array(
+				'expires' => 0,
+				'path' => '/login.php',
+				'secure' => $this->https,
+				'httponly' => true,
+				'samesite' => 'Strict'
+			));
 			
 			// Redirect to remove the 'login' and 'key' values from the query string
 			redirect('login.php?action=reset_password');
@@ -750,10 +805,13 @@ class Login {
 		// Check whether the reset password cookie is valid
 		if($this->isValidCookie($data['login'], $data['key'])) {
 			// Hash the password (encrypts the password for security purposes)
-			$hashed_password = password_hash($data['password'], PASSWORD_BCRYPT, array('cost'=>10));
+			$hashed_password = password_hash($data['password'], PASSWORD_BCRYPT, array('cost' => 10));
 			
 			// Update the user's password and security key in the database
-			$rs_query->update('users', array('password'=>$hashed_password, 'security_key'=>null), array('username'=>$data['login']));
+			$rs_query->update('users', array(
+				'password' => $hashed_password,
+				'security_key' => null
+			), array('username' => $data['login']));
 			
 			// Delete the cookie
 			setcookie('pw-reset-'.COOKIE_HASH, '', 1, '/login.php');
@@ -780,6 +838,6 @@ class Login {
 		global $rs_query;
 		
 		// Return true if the key is found for the user in the database
-		return $rs_query->selectRow('users', 'COUNT(*)', array('username'=>$login, 'security_key'=>$key)) > 0;
+		return $rs_query->selectRow('users', 'COUNT(*)', array('username' => $login, 'security_key' => $key)) > 0;
 	}
 }

@@ -9,12 +9,12 @@ $theme_path = trailingSlash(PATH.THEMES).getSetting('theme', false);
 
 // Check whether the theme has an index.php file
 if(file_exists($theme_path.'/index.php')) {
-	// Check whether the Post object is set
-	if(isset($rs_post)) {
+	// Check whether the current page is a post
+	if(isPost()) {
 		// Check whether the post is of type 'page'
-		if($rs_post->getPostType(false) === 'page') {
+		if(getPostType() === 'page') {
 			// Fetch the page's template
-			$template = $rs_post->getPostMeta('template', false);
+			$template = getPostMeta('template');
 			
 			// Check whether the template is valid
 			if(!empty($template) && templateExists($template, $theme_path.'/templates')) {
@@ -32,9 +32,9 @@ if(file_exists($theme_path.'/index.php')) {
 			}
 		} else {
 			// Check whether a specific post type template file exists
-			if(file_exists($theme_path.'/posttype-'.$rs_post->getPostType(false).'.php')) {
+			if(file_exists($theme_path.'/posttype-'.getPostType().'.php')) {
 				// Include the template file
-				require_once $theme_path.'/posttype-'.$rs_post->getPostType(false).'.php';
+				require_once $theme_path.'/posttype-'.getPostType().'.php';
 			} // Check whether a generic 'post' template file exists
 			elseif(file_exists($theme_path.'/post.php')) {
 				// Include the template file
@@ -45,9 +45,9 @@ if(file_exists($theme_path.'/index.php')) {
 			}
 		}
 	} // Check whether the Term object is set
-	elseif(isset($rs_term)) {
+	elseif(isTerm()) {
 		// Check whether the term is in the 'category' taxonomy
-		if($rs_term->getTermTaxonomy(false) === 'category') {
+		if(getTermTaxonomy() === 'category') {
 			// Check whether a 'category' template file exists
 			if(file_exists($theme_path.'/category.php')) {
 				// Include the template file
@@ -62,9 +62,9 @@ if(file_exists($theme_path.'/index.php')) {
 			}
 		} else {
 			// Check whether a specific taxonomy template file exists
-			if(file_exists($theme_path.'/taxonomy-'.$rs_term->getTermTaxonomy(false).'.php')) {
+			if(file_exists($theme_path.'/taxonomy-'.getTermTaxonomy().'.php')) {
 				// Include the template file
-				require_once $theme_path.'/taxonomy-'.$rs_term->getTermTaxonomy(false).'.php';
+				require_once $theme_path.'/taxonomy-'.getTermTaxonomy().'.php';
 			} // Check whether a generic 'taxonomy' template file exists
 			elseif(file_exists($theme_path.'/taxonomy.php')) {
 				// Include the template file
@@ -75,8 +75,8 @@ if(file_exists($theme_path.'/index.php')) {
 			}
 		}
 	} else {
-		// Include the theme's index file
-		require_once $theme_path.'/index.php';
+		// Load the fallback theme
+		require_once PATH.INC.'/fallback.php';
 	}
 } else {
 	// Load the fallback theme

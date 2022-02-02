@@ -12,20 +12,19 @@ class Menu {
 	 *
 	 * @access public
 	 * @param string $slug
-	 * @return null
 	 */
 	public function getMenu($slug) {
 		// Extend the Query object and the post types and taxonomies arrays
 		global $rs_query, $post_types, $taxonomies;
 		
 		// Fetch the menu's id from the database
-		$id = $rs_query->selectField('terms', 'id', array('slug'=>$slug));
+		$id = $rs_query->selectField('terms', 'id', array('slug' => $slug));
 		?>
 		<nav class="nav-menu menu-id-<?php echo $id; ?>">
 			<ul>
 				<?php
 				// Fetch the term relationships from the database
-				$relationships = $rs_query->select('term_relationships', 'post', array('term'=>$id));
+				$relationships = $rs_query->select('term_relationships', 'post', array('term' => $id));
 				
 				// Create an empty array to hold the menu items' metadata
 				$itemmeta = array();
@@ -54,7 +53,7 @@ class Menu {
 				// Loop through the menu items' metadata
 				foreach($itemmeta as $meta) {
 					// Fetch the menu item from the database
-					$menu_item = $rs_query->selectRow('posts', array('id', 'title', 'status'), array('id'=>$meta['post']));
+					$menu_item = $rs_query->selectRow('posts', array('id', 'title', 'status'), array('id' => $meta['post']));
 					
 					// Check whether the menu item is invalid
 					if($menu_item['status'] === 'invalid') continue;
@@ -73,7 +72,7 @@ class Menu {
 						// Check what type of link is being used
 						if(isset($meta['post_link'])) {
 							// Fetch the type of the post the menu item points to
-							$type = $rs_query->selectField('posts', 'type', array('id'=>$meta['post_link']));
+							$type = $rs_query->selectField('posts', 'type', array('id' => $meta['post_link']));
 							
 							// Check whether the post type is set to display in nav menus
 							if(!empty($type) && $post_types[$type]['show_in_nav_menus']) {
@@ -82,10 +81,10 @@ class Menu {
 							}
 						} elseif(isset($meta['term_link'])) {
 							// Fetch the taxonomy's id of the term the menu item points to
-							$tax_id = $rs_query->selectField('terms', 'taxonomy', array('id'=>$meta['term_link']));
+							$tax_id = $rs_query->selectField('terms', 'taxonomy', array('id' => $meta['term_link']));
 							
 							// Fetch the taxonomy of the term the menu item points to
-							$taxonomy = $rs_query->selectField('taxonomies', 'name', array('id'=>$tax_id));
+							$taxonomy = $rs_query->selectField('taxonomies', 'name', array('id' => $tax_id));
 							
 							// Check whether the taxonomy is set to display in nav menus
 							if(!empty($taxonomy) && $taxonomies[$taxonomy]['show_in_nav_menus']) {
@@ -161,7 +160,7 @@ class Menu {
 		global $rs_query;
 		
 		// Fetch the menu item's parent id from the database and return true if it's not equal to zero
-		return (int)$rs_query->selectField('posts', 'parent', array('id'=>$id)) !== 0;
+		return (int)$rs_query->selectField('posts', 'parent', array('id' => $id)) !== 0;
 	}
 
 	/**
@@ -177,7 +176,7 @@ class Menu {
 		global $rs_query;
 		
 		// Fetch the number of children the menu item has from the database and return true if it's greater than zero
-		return $rs_query->select('posts', 'COUNT(*)', array('parent'=>$id)) > 0;
+		return $rs_query->select('posts', 'COUNT(*)', array('parent' => $id)) > 0;
 	}
 
 	/**
@@ -193,7 +192,7 @@ class Menu {
 		global $rs_query;
 		
 		// Fetch the menu item's metadata from the database
-		$itemmeta = $rs_query->select('postmeta', array('_key', 'value'), array('post'=>$id));
+		$itemmeta = $rs_query->select('postmeta', array('_key', 'value'), array('post' => $id));
 		
 		// Create an empty array to hold the metadata
 		$meta = array();
@@ -227,7 +226,7 @@ class Menu {
 		global $rs_query;
 		
 		// Fetch the menu item's parent id from the database and return it
-		return $rs_query->selectField('posts', 'id', array('id'=>$id));
+		return $rs_query->selectField('posts', 'id', array('id' => $id));
 	}
 
 	/**
@@ -236,7 +235,6 @@ class Menu {
 	 *
 	 * @access private
 	 * @param int $id
-	 * @return null
 	 */
 	private function getMenuItemDescendants($id) {
 		// Extend the Query object and the post types array
@@ -245,7 +243,7 @@ class Menu {
 		<ul class="sub-menu">
 			<?php
 			// Select any existing children from the database
-			$children = $rs_query->select('posts', 'id', array('parent'=>$id));
+			$children = $rs_query->select('posts', 'id', array('parent' => $id));
 			
 			// Create an empty array to hold the menu items' metadata
 			$itemmeta = array();
@@ -274,7 +272,7 @@ class Menu {
 			// Loop through the menu items' metadata
 			foreach($itemmeta as $meta) {
 				// Fetch the menu item from the database
-				$menu_item = $rs_query->selectRow('posts', array('id', 'title'), array('id'=>$meta['post']));
+				$menu_item = $rs_query->selectRow('posts', array('id', 'title'), array('id' => $meta['post']));
 				
 				// Fetch the site's domain
 				$domain = $_SERVER['HTTP_HOST'];
@@ -288,7 +286,7 @@ class Menu {
 				// Check what type of link is being used
 				if(isset($meta['post_link'])) {
 					// Fetch the type of the post the menu item points to
-					$type = $rs_query->selectField('posts', 'type', array('id'=>$meta['post_link']));
+					$type = $rs_query->selectField('posts', 'type', array('id' => $meta['post_link']));
 					
 					// Check whether the post type is set to display in nav menus
 					if($post_types[$type]['show_in_nav_menus']) {

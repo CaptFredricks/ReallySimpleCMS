@@ -18,27 +18,41 @@ if(VERSION > '1.0.9') {
 		// Check whether the post type has comments enabled
 		if($post_type['comments']) {
 			// Fetch all posts of the specified post type from the database
-			$posts = $rs_query->select('posts', 'id', array('type'=>$post_type['name']));
+			$posts = $rs_query->select('posts', 'id', array('type' => $post_type['name']));
 			
 			// Loop through the posts
 			foreach($posts as $post) {
 				// Check whether the post's 'comment_status' metadata entry exists
-				if(!$rs_query->selectRow('postmeta', 'COUNT(*)', array('post'=>$post['id'], '_key'=>'comment_status')) > 0) {
+				if(!$rs_query->selectRow('postmeta', 'COUNT(*)', array(
+					'post' => $post['id'],
+					'_key' => 'comment_status'
+				)) > 0) {
 					// Insert a new metadata entry into the database
-					$rs_query->insert('postmeta', array('post'=>$post['id'], '_key'=>'comment_status', 'value'=>'1'));
+					$rs_query->insert('postmeta', array(
+						'post' => $post['id'],
+						'_key' => 'comment_status',
+						'value' => '1'
+					));
 				}
 				
 				// Check whether the post's 'comment_count' metadata entry exists
-				if(!$rs_query->selectRow('postmeta', 'COUNT(*)', array('post'=>$post['id'], '_key'=>'comment_count')) > 0) {
+				if(!$rs_query->selectRow('postmeta', 'COUNT(*)', array(
+					'post' => $post['id'],
+					'_key' => 'comment_count'
+				)) > 0) {
 					// Insert a new metadata entry into the database
-					$rs_query->insert('postmeta', array('post'=>$post['id'], '_key'=>'comment_count', 'value'=>'0'));
+					$rs_query->insert('postmeta', array(
+						'post' => $post['id'],
+						'_key' => 'comment_count',
+						'value' => '0'
+					));
 				}
 			}
 		}
 	}
 	
 	// Check whether the proper user privileges exist for comments
-	if($rs_query->select('user_privileges', 'COUNT(*)', array('name'=>array('LIKE', '%_comments'))) !== 3) {
+	if($rs_query->select('user_privileges', 'COUNT(*)', array('name' => array('LIKE', '%_comments'))) !== 3) {
 		// Delete the 'user_privileges' and 'user_relationships' tables
 		$rs_query->dropTables(array('user_privileges', 'user_relationships'));
 		
@@ -54,33 +68,33 @@ if(VERSION > '1.0.9') {
 // Check whether the version is higher than 1.1.6[b]
 if(VERSION > '1.1.6') {
 	// Check whether the 'comment_status' setting exists
-	if($rs_query->selectRow('settings', 'COUNT(*)', array('name'=>'comment_status')) > 0) {
+	if($rs_query->selectRow('settings', 'COUNT(*)', array('name' => 'comment_status')) > 0) {
 		// Rename the setting to 'enable_comments'
-		$rs_query->update('settings', array('name'=>'enable_comments'), array('name'=>'comment_status'));
+		$rs_query->update('settings', array('name' => 'enable_comments'), array('name' => 'comment_status'));
 	} else {
 		// Check whether the 'enable_comments' setting exists
-		if(!$rs_query->selectRow('settings', 'COUNT(*)', array('name'=>'enable_comments')) > 0) {
+		if(!$rs_query->selectRow('settings', 'COUNT(*)', array('name' => 'enable_comments')) > 0) {
 			// Insert a new setting named 'enable_comments' into the database
-			$rs_query->insert('settings', array('name'=>'enable_comments', 'value'=>1));
+			$rs_query->insert('settings', array('name' => 'enable_comments', 'value' => 1));
 		}
 	}
 	
 	// Check whether the 'comment_approval' setting exists
-	if($rs_query->selectRow('settings', 'COUNT(*)', array('name'=>'comment_approval')) > 0) {
+	if($rs_query->selectRow('settings', 'COUNT(*)', array('name' => 'comment_approval')) > 0) {
 		// Rename the setting to 'auto_approve_comments'
-		$rs_query->update('settings', array('name'=>'auto_approve_comments'), array('name'=>'comment_approval'));
+		$rs_query->update('settings', array('name' => 'auto_approve_comments'), array('name' => 'comment_approval'));
 	} else {
 		// Check whether the 'auto_approve_comments' setting exists
-		if(!$rs_query->selectRow('settings', 'COUNT(*)', array('name'=>'auto_approve_comments')) > 0) {
+		if(!$rs_query->selectRow('settings', 'COUNT(*)', array('name' => 'auto_approve_comments')) > 0) {
 			// Insert a new setting named 'auto_approve_comments' into the database
-			$rs_query->insert('settings', array('name'=>'auto_approve_comments', 'value'=>0));
+			$rs_query->insert('settings', array('name' => 'auto_approve_comments', 'value' => 0));
 		}
 	}
 	
 	// Check whether the 'allow_anon_comments' setting exists
-	if(!$rs_query->selectRow('settings', 'COUNT(*)', array('name'=>'allow_anon_comments')) > 0) {
+	if(!$rs_query->selectRow('settings', 'COUNT(*)', array('name' => 'allow_anon_comments')) > 0) {
 		// Insert the new setting into the database
-		$rs_query->insert('settings', array('name'=>'allow_anon_comments', 'value'=>0));
+		$rs_query->insert('settings', array('name' => 'allow_anon_comments', 'value' => 0));
 	}
 }
 
@@ -102,9 +116,9 @@ if(VERSION > '1.1.7') {
 		$rs_query->doQuery($schema['login_rules']);
 	
 	// Check whether the proper user privileges exist for logins
-	if($rs_query->select('user_privileges', 'COUNT(*)', array('name'=>array('LIKE', '%_login_%'))) !== 9) {
+	if($rs_query->select('user_privileges', 'COUNT(*)', array('name' => array('LIKE', '%_login_%'))) !== 9) {
 		// Check whether any non-default user roles exist
-		if($rs_query->select('user_roles', 'COUNT(*)', array('id'=>array('NOT IN', 1, 2, 3, 4))) > 0) {
+		if($rs_query->select('user_roles', 'COUNT(*)', array('id' => array('NOT IN', 1, 2, 3, 4))) > 0) {
 			// Create a temporary 'user_relationships' table
 			$rs_query->doQuery("CREATE TABLE user_relationships_temp (
 				id bigint(20) unsigned PRIMARY KEY auto_increment,
@@ -115,17 +129,17 @@ if(VERSION > '1.1.7') {
 			);");
 			
 			// Fetch the custom user roles' ids
-			$roles = $rs_query->select('user_roles', 'id', array('id'=>array('NOT IN', 1, 2, 3, 4)));
+			$roles = $rs_query->select('user_roles', 'id', array('id' => array('NOT IN', 1, 2, 3, 4)));
 			
 			// Loop through the custom user roles' ids
 			foreach($roles as $role) {
 				// Fetch all relationships related to the roles from the database
-				$relationships = $rs_query->select('user_relationships', '*', array('role'=>$role['id']));
+				$relationships = $rs_query->select('user_relationships', '*', array('role' => $role['id']));
 				
 				// Loop through the relationships
 				foreach($relationships as $relationship) {
 					// Insert the relationships into the temporary table
-					$rs_query->insert('user_relationships_temp', array('role'=>$relationship['role'], 'privilege'=>$relationship['privilege']));
+					$rs_query->insert('user_relationships_temp', array('role' => $relationship['role'], 'privilege' => $relationship['privilege']));
 				}
 			}
 		}
@@ -145,7 +159,7 @@ if(VERSION > '1.1.7') {
 			// Loop through the custom user roles' ids
 			foreach($roles as $role) {
 				// Fetch all relationships related to the roles from the database
-				$relationships = $rs_query->select('user_relationships_temp', '*', array('role'=>$role['id']));
+				$relationships = $rs_query->select('user_relationships_temp', '*', array('role' => $role['id']));
 				
 				// Loop through the relationships
 				foreach($relationships as $relationship) {
@@ -169,7 +183,10 @@ if(VERSION > '1.1.7') {
 					}
 					
 					// Insert the relationships into the database
-					$rs_query->insert('user_relationships', array('role'=>$relationship['role'], 'privilege'=>$relationship['privilege']));
+					$rs_query->insert('user_relationships', array(
+						'role' => $relationship['role'],
+						'privilege' => $relationship['privilege']
+					));
 				}
 			}
 			
@@ -179,15 +196,15 @@ if(VERSION > '1.1.7') {
 	}
 	
 	// Check whether the 'track_login_attempts' setting exists
-	if(!$rs_query->selectRow('settings', 'COUNT(*)', array('name'=>'track_login_attempts')) > 0) {
+	if(!$rs_query->selectRow('settings', 'COUNT(*)', array('name' => 'track_login_attempts')) > 0) {
 		// Insert the new setting into the database
-		$rs_query->insert('settings', array('name'=>'track_login_attempts', 'value'=>0));
+		$rs_query->insert('settings', array('name' => 'track_login_attempts', 'value' => 0));
 	}
 	
 	// Check whether the 'delete_old_login_attempts' setting exists
-	if(!$rs_query->selectRow('settings', 'COUNT(*)', array('name'=>'delete_old_login_attempts')) > 0) {
+	if(!$rs_query->selectRow('settings', 'COUNT(*)', array('name' => 'delete_old_login_attempts')) > 0) {
 		// Insert the new setting into the database
-		$rs_query->insert('settings', array('name'=>'delete_old_login_attempts', 'value'=>0));
+		$rs_query->insert('settings', array('name' => 'delete_old_login_attempts', 'value' => 0));
 	}
 	
 	// Select all indexes for the 'comments' table
@@ -217,7 +234,16 @@ if(VERSION > '1.1.7') {
 		// Loop through the comments
 		foreach($comments as $comment) {
 			// Insert the comments into the temporary table
-			$rs_query->insert('comments_temp', array('post'=>$comment['post'], 'author'=>$comment['author'], 'date'=>$comment['date'], 'content'=>$comment['content'], 'upvotes'=>$comment['upvotes'], 'downvotes'=>$comment['downvotes'], 'status'=>$comment['status'], 'parent'=>$comment['parent']));
+			$rs_query->insert('comments_temp', array(
+				'post' => $comment['post'],
+				'author' => $comment['author'],
+				'date' => $comment['date'],
+				'content' => $comment['content'],
+				'upvotes' => $comment['upvotes'],
+				'downvotes' => $comment['downvotes'],
+				'status' => $comment['status'],
+				'parent' => $comment['parent']
+			));
 		}
 		
 		// Delete the 'comments' table

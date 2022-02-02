@@ -109,7 +109,7 @@ class Query {
 			$logic = 'AND';
 			
 			// Loop through the where clause array
-			foreach($where as $field=>$value) {
+			foreach($where as $field => $value) {
 				// Check whether the field is a logic operator
 				if($field === 'logic') {
 					// Set the logic for the where clause and continue to the next element
@@ -280,7 +280,7 @@ class Query {
 		$fields = $values = $placeholders = array();
 		
 		// Loop through the data
-		foreach($data as $field=>$value) {
+		foreach($data as $field => $value) {
 			// Check whether the value is the NOW() function
 			if(strtoupper($value) === 'NOW()') {
 				// Add a field to the fields array
@@ -346,7 +346,7 @@ class Query {
 		$fields = $values = array();
 		
 		// Loop through the data
-		foreach($data as $field=>$value) {
+		foreach($data as $field => $value) {
 			// Check whether the value is the NOW() function
 			if(strtoupper($value) === 'NOW()') {
 				// Add a field and value to the fields array
@@ -381,7 +381,7 @@ class Query {
 			$logic = 'AND';
 			
 			// Loop through the where clause array
-			foreach($where as $field=>$value) {
+			foreach($where as $field => $value) {
 				// Check whether the field is a logic operator
 				if($field === 'logic') {
 					// Set the logic for the where clause and continue to the next element
@@ -468,7 +468,7 @@ class Query {
 			$logic = 'AND';
 			
 			// Loop through the where clause array
-			foreach($where as $field=>$value) {
+			foreach($where as $field => $value) {
 				// Check whether the field is a logic operator
 				if($field === 'logic') {
 					// Set the logic for the where clause and continue to the next element

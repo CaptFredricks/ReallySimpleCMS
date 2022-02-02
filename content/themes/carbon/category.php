@@ -4,7 +4,7 @@ getHeader();
 ?>
 <div class="wrapper">
 	<article class="article-content">
-		<h1>Category: <?php $rs_category->getCategoryName(); ?></h1>
+		<h1>Category: <?php putCategoryName(); ?></h1>
 		<?php getRecentPosts(10, null); ?>
 	</article>
 </div>

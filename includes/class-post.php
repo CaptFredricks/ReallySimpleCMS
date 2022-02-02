@@ -51,7 +51,7 @@ class Post {
 			$this->slug = $slug;
 			
 			// Fetch the post's status from the database
-			$status = $this->getPostStatus(false);
+			$status = $this->getPostStatus();
 		} else {
 			// Fetch the post's URI
 			$raw_uri = $_SERVER['REQUEST_URI'];
@@ -59,13 +59,13 @@ class Post {
 			// Check whether the current page is the home page
 			if($raw_uri === '/' || (strpos($raw_uri, '/?') === 0 && !isset($_GET['preview']))) {
 				// Fetch the home page's id from the database
-				$home_page = $rs_query->selectField('settings', 'value', array('name'=>'home_page'));
+				$home_page = $rs_query->selectField('settings', 'value', array('name' => 'home_page'));
 				
 				// Fetch the slug from the database
-				$this->slug = $this->getPostSlug($home_page, false);
+				$this->slug = $this->getPostSlug($home_page);
 				
 				// Fetch the post's status from the database
-				$status = $this->getPostStatus(false);
+				$status = $this->getPostStatus();
 				
 				// Check whether the post is published
 				if($status !== 'published') {
@@ -82,17 +82,17 @@ class Post {
 				// Check whether the current post is a preview and the id is valid
 				if(isset($_GET['preview']) && $_GET['preview'] === 'true' && isset($_GET['id']) && $_GET['id'] > 0) {
 					// Fetch the slug from the database
-					$this->slug = $this->getPostSlug($_GET['id'], false);
+					$this->slug = $this->getPostSlug($_GET['id']);
 					
 					// Fetch the post's status from the database
-					$status = $this->getPostStatus(false);
+					$status = $this->getPostStatus();
 					
 					// Check whether the post is a draft
 					if($status !== 'draft') {
 						// Check whether the post is published
 						if($status === 'published') {
 							// Redirect to the proper URL
-							redirect($this->getPostPermalink($this->getPostType(false), $this->getPostParent(false), $this->slug));
+							redirect($this->getPostPermalink($this->getPostType(), $this->getPostParent(), $this->slug));
 						} else {
 							// Redirect to the 404 (Not Found) page
 							redirect('/404.php');
@@ -118,10 +118,10 @@ class Post {
 					$this->slug = array_pop($uri);
 					
 					// Fetch the post's id from the database
-					$id = $this->getPostId(false);
+					$id = $this->getPostId();
 					
 					// Fetch the post's status from the database
-					$status = $this->getPostStatus(false);
+					$status = $this->getPostStatus();
 					
 					// Check whether the post is published
 					if($status !== 'published') {
@@ -140,7 +140,7 @@ class Post {
 							redirect('/');
 						} else {
 							// Construct the post's permalink
-							$permalink = $this->getPostPermalink($this->getPostType(false), $this->getPostParent(false), $this->getPostSlug($id, false));
+							$permalink = $this->getPostPermalink($this->getPostType(), $this->getPostParent(), $this->getPostSlug($id));
 							
 							// Check whether the query string is set and concatenate it to the permalink if so
 							if(isset($query_string)) $permalink .= $query_string;
@@ -154,7 +154,7 @@ class Post {
 		}
 		
 		// Fetch the type data
-		$this->type_data = $post_types[$this->getPostType(false)];
+		$this->type_data = $post_types[$this->getPostType()];
 		
 		// Check whether the current post type has a taxonomy associated with it and the taxonomy is valid
 		if(!empty($this->type_data['taxonomy']) && array_key_exists($this->type_data['taxonomy'], $taxonomies)) {
@@ -164,270 +164,221 @@ class Post {
 	}
 	
 	/**
-	 * Fetch a post's id.
+	 * Fetch the post's id.
 	 * @since 2.2.0[a]
 	 *
 	 * @access public
-	 * @param bool $echo (optional; default: true)
-	 * @return null|int (null on $echo == true; int on $echo == false)
+	 * @return int
 	 */
-	public function getPostId($echo = true) {
+	public function getPostId() {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Fetch the post's id from the database
-		$id = (int)$rs_query->selectField('posts', 'id', array('slug'=>$this->slug));
-		
-		if($echo)
-			echo $id;
-		else
-			return $id;
+		// Fetch the post's id from the database and return it
+		return (int)$rs_query->selectField('posts', 'id', array('slug' => $this->slug));
 	}
 	
 	/**
-	 * Fetch a post's title.
+	 * Fetch the post's title.
 	 * @since 2.2.0[a]
 	 *
 	 * @access public
-	 * @param bool $echo (optional; default: true)
-	 * @return null|string (null on $echo == true; string on $echo == false)
+	 * @return string
 	 */
-	public function getPostTitle($echo = true) {
+	public function getPostTitle() {
 		// Extend the Query object
-        global $rs_query;
+		global $rs_query;
 		
-		// Fetch the post's title from the database
-        $title = $rs_query->selectField('posts', 'title', array('slug'=>$this->slug));
-		
-        if($echo)
-            echo $title;
-        else
-            return $title;
+		// Fetch the post's title from the database and return it
+		return $rs_query->selectField('posts', 'title', array('slug' => $this->slug));
     }
 	
 	/**
-	 * Fetch a post's author.
+	 * Fetch the post's author.
 	 * @since 2.2.0[a]
 	 *
 	 * @access public
-	 * @param bool $echo (optional; default: true)
-	 * @return null|string (null on $echo == true; string on $echo == false)
+	 * @return string
 	 */
-	public function getPostAuthor($echo = true) {
+	public function getPostAuthor() {
 		// Extend the Query object
-        global $rs_query;
+		global $rs_query;
 		
 		// Fetch the post's author from the database
-        $author = $rs_query->selectField('posts', 'author', array('slug'=>$this->slug));
+		$author = $rs_query->selectField('posts', 'author', array('slug' => $this->slug));
 		
-		// Fetch the author's username from the database
-		$username = $rs_query->selectField('users', 'username', array('id'=>$author));
-		
-        if($echo)
-            echo $username;
-        else
-            return $username;
+		// Fetch the author's username from the database and return it
+		return $rs_query->selectField('users', 'username', array('id' => $author));
 	}
 	
 	/**
-	 * Fetch a post's publish date.
+	 * Fetch the post's publish date.
 	 * @since 2.2.0[a]
 	 *
 	 * @access public
-	 * @param bool $echo (optional; default: true)
-	 * @return null|string (null on $echo == true; string on $echo == false)
+	 * @return string
 	 */
-	public function getPostDate($echo = true) {
+	public function getPostDate() {
 		// Extend the Query object
-        global $rs_query;
+		global $rs_query;
 		
 		// Fetch the post's date from the database
-        $date = $rs_query->selectField('posts', 'date', array('slug'=>$this->slug));
+		$date = $rs_query->selectField('posts', 'date', array('slug' => $this->slug));
 		
-        if($echo)
-            echo formatDate($date, 'j M Y @ g:i A');
-        else
-            return formatDate($date, 'j M Y @ g:i A');
+		// Check whether the post has been published and fetch the modified date if not
+		if(empty($date))
+			$date = $rs_query->selectField('posts', 'modified', array('slug' => $this->slug));
+		
+		// Return a formatted date string
+		return formatDate($date, 'j M Y @ g:i A');
     }
 	
 	/**
-	 * Fetch a post's modified date.
+	 * Fetch the post's modified date.
 	 * @since 2.2.0[a]
 	 *
 	 * @access public
-	 * @param bool $echo (optional; default: true)
-	 * @return null|string (null on $echo == true; string on $echo == false)
+	 * @return string
 	 */
-	public function getPostModDate($echo = true) {
+	public function getPostModDate() {
 		// Extend the Query object
-        global $rs_query;
+		global $rs_query;
 		
 		// Fetch the post's modified date from the database
-        $modified = $rs_query->selectField('posts', 'modified', array('slug'=>$this->slug));
+		$modified = $rs_query->selectField('posts', 'modified', array('slug' => $this->slug));
 		
-        if($echo)
-            echo formatDate($modified, 'j M Y @ g:i A');
-        else
-            return formatDate($modified, 'j M Y @ g:i A');
+		// Return a formatted date string
+		return formatDate($modified, 'j M Y @ g:i A');
     }
 	
 	/**
-	 * Fetch a post's content.
+	 * Fetch the post's content.
 	 * @since 2.2.0[a]
 	 *
 	 * @access public
-	 * @param bool $echo (optional; default: true)
-	 * @return null|string (null on $echo == true; string on $echo == false)
+	 * @return string
 	 */
-	public function getPostContent($echo = true) {
+	public function getPostContent() {
 		// Extend the Query object
-        global $rs_query;
+		global $rs_query;
 		
-		// Fetch the post's content from the database
-        $content = $rs_query->selectField('posts', 'content', array('slug'=>$this->slug));
-		
-        if($echo)
-            echo $content;
-        else
-            return $content;
+		// Fetch the post's content from the database and return it
+		return $rs_query->selectField('posts', 'content', array('slug' => $this->slug));
     }
 	
 	/**
-	 * Fetch a post's status.
+	 * Fetch the post's status.
 	 * @since 2.2.0[a]
 	 *
 	 * @access public
-	 * @param bool $echo (optional; default: true)
-	 * @return null|string (null on $echo == true; string on $echo == false)
+	 * @return string
 	 */
-	public function getPostStatus($echo = true) {
+	public function getPostStatus() {
 		// Extend the Query object
-        global $rs_query;
+		global $rs_query;
 		
-		// Fetch the post's status from the database
-        $status = $rs_query->selectField('posts', 'status', array('slug'=>$this->slug));
-		
-        if($echo)
-            echo $status;
-        else
-            return $status;
+		// Fetch the post's status from the database and return it
+		return $rs_query->selectField('posts', 'status', array('slug' => $this->slug));
     }
 	
 	/**
-	 * Fetch a post's slug.
+	 * Fetch the post's slug.
 	 * @since 2.2.0[a]
 	 *
 	 * @access public
 	 * @param int $id
-	 * @param bool $echo (optional; default: true)
-	 * @return null|string (null on $echo == true; string on $echo == false)
+	 * @return string
 	 */
-    public function getPostSlug($id, $echo = true) {
-		// Extend the Query object
-        global $rs_query;
-		
-		// Fetch the post's slug from the database
-        $slug = $rs_query->selectField('posts', 'slug', array('id'=>$id));
-		
-        if($echo)
-            echo $slug;
-        else
-            return $slug;
-    }
-	
-	/**
-	 * Fetch a post's parent.
-	 * @since 2.2.0[a]
-	 *
-	 * @access public
-	 * @param bool $echo (optional; default: true)
-	 * @return null|int (null on $echo == true; int on $echo == false)
-	 */
-	public function getPostParent($echo = true) {
-		// Extend the Query object
-        global $rs_query;
-		
-		// Fetch the post's parent from the database
-        $parent = (int)$rs_query->selectField('posts', 'parent', array('slug'=>$this->slug));
-		
-        if($echo)
-            echo $parent;
-        else
-            return $parent;
-    }
-	
-	/**
-	 * Fetch a post's type.
-	 * @since 2.2.0[a]
-	 *
-	 * @access public
-	 * @param bool $echo (optional; default: true)
-	 * @return null|string (null on $echo == true; string on $echo == false)
-	 */
-	public function getPostType($echo = true) {
+    public function getPostSlug($id) {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Fetch the post's type from the database
-		$type = $rs_query->selectField('posts', 'type', array('slug'=>$this->slug));
-		
-		if($echo)
-			echo $type;
-		else
-			return $type;
-	}
+		// Fetch the post's slug from the database and return it
+		return $rs_query->selectField('posts', 'slug', array('id' => $id));
+    }
 	
 	/**
-	 * Fetch a post's featured image.
+	 * Fetch the post's parent.
 	 * @since 2.2.0[a]
 	 *
 	 * @access public
-	 * @param bool $echo (optional; default: true)
-	 * @return null|string (null on $echo == true; string on $echo == false)
+	 * @return int
 	 */
-	public function getPostFeatImage($echo = true) {
+	public function getPostParent() {
+		// Extend the Query object
+		global $rs_query;
+		
+		// Fetch the post's parent from the database and return it
+		return (int)$rs_query->selectField('posts', 'parent', array('slug' => $this->slug));
+    }
+	
+	/**
+	 * Fetch the post's type.
+	 * @since 2.2.0[a]
+	 *
+	 * @access public
+	 * @return string
+	 */
+	public function getPostType() {
+		// Extend the Query object
+		global $rs_query;
+		
+		// Fetch the post's type from the database and return it
+		return $rs_query->selectField('posts', 'type', array('slug' => $this->slug));
+	}
+	
+	/**
+	 * Fetch the post's featured image.
+	 * @since 2.2.0[a]
+	 *
+	 * @access public
+	 * @return string
+	 */
+	public function getPostFeaturedImage() {
 		// Extend the Query object
 		global $rs_query;
 		
 		// Fetch the featured image's id from the database
-		$feat_image = (int)$rs_query->selectField('postmeta', 'value', array('post'=>$this->getPostId(false), '_key'=>'feat_image'));
+		$featured_image = (int)$rs_query->selectField('postmeta', 'value', array(
+			'post' => $this->getPostId(),
+			'_key' => 'feat_image'
+		));
 		
-        if($echo)
-            echo getMedia($feat_image, array('class'=>'featured-image'));
-        else
-            return getMedia($feat_image, array('class'=>'featured-image'));
+		// Return the featured image
+		return getMedia($featured_image, array('class' => 'featured-image'));
     }
 	
 	/**
-	 * Fetch a post's metadata.
+	 * Fetch the post's metadata.
 	 * @since 2.2.3[a]
 	 *
 	 * @access public
 	 * @param string $key
-	 * @param bool $echo (optional; default: true)
-	 * @return null|string (null on $echo == true; string on $echo == false)
+	 * @return string
 	 */
-	public function getPostMeta($key, $echo = true) {
+	public function getPostMeta($key) {
 		// Extend the Query object
-        global $rs_query;
+		global $rs_query;
 		
 		// Fetch the post's metadata from the database
-        $meta = $rs_query->selectField('postmeta', 'value', array('post'=>$this->getPostId(false), '_key'=>$key));
-
-        if($echo)
-            echo $meta;
-        else
-            return $meta;
+		$meta = $rs_query->selectField('postmeta', 'value', array(
+			'post' => $this->getPostId(),
+			'_key' => $key
+		));
+		
+		// Return the metadata
+		return $meta;
     }
 	
 	/**
-	 * Fetch a post's terms.
+	 * Fetch the post's terms.
 	 * @since 2.4.1[a]
 	 *
-	 * @param bool $echo (optional; default: true)
-	 * @return null|string (null on $echo == true; string on $echo == false)
+	 * @access public
+	 * @param bool $linked (optional; default: true)
+	 * @return array
 	 */
-	public function getPostTerms($echo = true) {
+	public function getPostTerms($linked = true) {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -435,37 +386,37 @@ class Post {
 		$terms = array();
 		
 		// Fetch the term relationships from the database
-		$relationships = $rs_query->select('term_relationships', 'term', array('post'=>$this->getPostId(false)));
+		$relationships = $rs_query->select('term_relationships', 'term', array('post' => $this->getPostId()));
 		
 		// Loop through the term relationships
 		foreach($relationships as $relationship) {
 			// Fetch the term's slug from the database
-			$slug = $rs_query->selectField('terms', 'slug', array('id'=>$relationship['term'], 'taxonomy'=>getTaxonomyId($this->type_data['taxonomy'])));
+			$slug = $rs_query->selectField('terms', 'slug', array(
+				'id' => $relationship['term'],
+				'taxonomy' => getTaxonomyId($this->type_data['taxonomy'])
+			));
 			
 			// Create a Term object
 			$rs_term = getTerm($slug);
 			
 			// Fetch each term from the database and assign them to the terms array
-			$terms[] = $echo ? '<a href="'.$rs_term->getTermUrl(false).'">'.$rs_term->getTermName(false).'</a>' : $rs_term->getTermName(false);
+			$terms[] = $linked ? '<a href="'.$rs_term->getTermUrl().'">'.$rs_term->getTermName().'</a>' : $rs_term->getTermName();
 		}
 		
-		if($echo)
-			echo empty($terms) ? 'None' : implode(', ', $terms);
-		else
-			return $terms;
+		// Return the terms
+		return $terms;
 	}
 	
 	/**
-	 * Fetch a post's comments.
+	 * Fetch the post's comments.
 	 * @since 1.1.0[b]{ss-03}
 	 *
 	 * @access public
 	 * @param bool $feed_only (optional; default: false)
-	 * @return null
 	 */
 	public function getPostComments($feed_only = false) {
 		// Create a Comment object
-		$rs_comment = new Comment($this->getPostId(false));
+		$rs_comment = new Comment($this->getPostId());
 		
 		// Check whether only the feed should be displayed
 		if(!$feed_only) {
@@ -478,7 +429,7 @@ class Post {
 	}
 	
 	/**
-	 * Fetch a post's permalink.
+	 * Fetch the post's permalink.
 	 * @since 2.2.5[a]
 	 *
 	 * @access public
@@ -492,18 +443,18 @@ class Post {
 	}
 	
 	/**
-	 * Fetch a post's full URL.
+	 * Fetch the post's full URL.
 	 * @since 2.2.3[a]
 	 *
 	 * @access public
-	 * @param bool $echo (optional; default: true)
-	 * @return null|string (null on $echo == true; string on $echo == false)
+	 * @return string
 	 */
-	public function getPostUrl($echo = true) {
-        if($echo)
-            echo getSetting('site_url', false).$this->getPostPermalink($this->getPostType(false), $this->getPostParent(false), $this->slug);
-        else
-            return getSetting('site_url', false).$this->getPostPermalink($this->getPostType(false), $this->getPostParent(false), $this->slug);
+	public function getPostUrl() {
+		// Check whether the current page is the home page
+		if(isHomePage($this->getPostId()))
+			return trailingSlash(getSetting('site_url', false));
+		else
+			return getSetting('site_url', false).$this->getPostPermalink($this->getPostType(), $this->getPostParent(), $this->slug);
     }
 	
 	/**
@@ -513,11 +464,14 @@ class Post {
 	 * @access public
 	 * @return bool
 	 */
-	public function postHasFeatImage() {
+	public function postHasFeaturedImage() {
 		// Extend the Query object
 		global $rs_query;
 		
 		// Return true if the post has a featured image
-		return (int)$rs_query->selectField('postmeta', 'value', array('post'=>$this->getPostId(false), '_key'=>'feat_image')) !== 0;
+		return (int)$rs_query->selectField('postmeta', 'value', array(
+			'post' => $this->getPostId(),
+			'_key' => 'feat_image'
+		)) !== 0;
 	}
 }

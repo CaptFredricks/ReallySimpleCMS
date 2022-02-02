@@ -63,7 +63,7 @@ if(empty($tables)) {
 }
 
 // Loop through the schema
-foreach($schema as $key=>$value) {
+foreach($schema as $key => $value) {
 	// Check whether the table exists in the database
 	if(!$rs_query->tableExists($key)) {
 		// Create the table
@@ -90,6 +90,9 @@ if(!defined('BASE_INIT') || (defined('BASE_INIT') && !BASE_INIT)) {
 		// Include functions
 		require_once PATH.INC.'/functions.php';
 		
+		// Include theme-specific functions
+		require_once PATH.INC.'/theme-functions.php';
+		
 		// Include the theme loader file
 		require_once PATH.INC.'/load-theme.php';
 		
@@ -107,10 +110,10 @@ if(!defined('BASE_INIT') || (defined('BASE_INIT') && !BASE_INIT)) {
 			// Check whether the current page is the home page
 			if($raw_uri === '/' || strpos($raw_uri, '/?') === 0) {
 				// Fetch the home page's id from the database
-				$home_page = $rs_query->selectField('settings', 'value', array('name'=>'home_page'));
+				$home_page = $rs_query->selectField('settings', 'value', array('name' => 'home_page'));
 				
 				// Fetch the home page's slug from the database
-				$slug = $rs_query->selectField('posts', 'slug', array('id'=>$home_page));
+				$slug = $rs_query->selectField('posts', 'slug', array('id' => $home_page));
 			} else {
 				// Create an array from the post's URI
 				$uri = explode('/', $raw_uri);
@@ -129,15 +132,15 @@ if(!defined('BASE_INIT') || (defined('BASE_INIT') && !BASE_INIT)) {
 			}
 			
 			// Check whether the current page is a post or a term
-			if($rs_query->selectRow('posts', 'COUNT(slug)', array('slug'=>$slug)) > 0) {
+			if($rs_query->selectRow('posts', 'COUNT(slug)', array('slug' => $slug)) > 0) {
 				// Create a Post object
 				$rs_post = new Post;
-			} elseif($rs_query->selectRow('terms', 'COUNT(slug)', array('slug'=>$slug, 'taxonomy'=>getTaxonomyId('category'))) > 0) {
-				// Create Category and Term objects
-				$rs_category = $rs_term = new Category;
-			} else {
+			} elseif($rs_query->selectRow('terms', 'COUNT(slug)', array('slug' => $slug)) > 0) {
 				// Create a Term object
 				$rs_term = new Term;
+			} else {
+				// Catastrophic failure, abort
+				exit('The CMS has encountered a critical error. Please try again later.');
 			}
 		}
 		

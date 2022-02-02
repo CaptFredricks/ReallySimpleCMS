@@ -17,7 +17,7 @@ function filenameExists($filename) {
 	global $rs_query;
 	
 	// Return true if the filename appears in the database
-	return $rs_query->select('postmeta', 'COUNT(*)', array('_key'=>'filename', 'value'=>array('LIKE', $filename.'%'))) > 0;
+	return $rs_query->select('postmeta', 'COUNT(*)', array('_key' => 'filename', 'value' => array('LIKE', $filename.'%'))) > 0;
 }
 
 /**
@@ -60,7 +60,7 @@ function getPageSlug() {
 		global $rs_query;
 		
 		// Fetch the home page's id from the database
-		$home_page = $rs_query->selectField('settings', 'value', array('name'=>'home_page'));
+		$home_page = $rs_query->selectField('settings', 'value', array('name' => 'home_page'));
 		
 		// Create a Post object
 		$rs_post = new Post;
@@ -111,10 +111,10 @@ private function isSibling($id, $sibling) {
 	global $rs_query;
 	
 	// Fetch the parent of the menu item from the database
-	$parent = (int)$rs_query->selectField('posts', 'parent', array('id'=>$id));
+	$parent = (int)$rs_query->selectField('posts', 'parent', array('id' => $id));
 	
 	// Fetch the parent of the potential sibling from the database
-	$sibling_parent = (int)$rs_query->selectField('posts', 'parent', array('id'=>$sibling));
+	$sibling_parent = (int)$rs_query->selectField('posts', 'parent', array('id' => $sibling));
 	
 	// Return true if both menu items share the same parent
 	return $parent === $sibling_parent;
@@ -123,7 +123,7 @@ private function isSibling($id, $sibling) {
 /**
  * Populate the term_relationships table.
  * @since 1.5.0[a]
- * @deprecated since 1.6.4[a]
+ * @deprecated since 1.7.0[a]
  *
  * @param array $data
  * @return null
@@ -133,10 +133,10 @@ function populateTermRelationships($data) {
 	global $rs_query;
 	
 	// Insert the term relationships into the database
-	$rs_query->insert('term_relationships', array('term'=>$data['term'], 'post'=>$data['post']));
+	$rs_query->insert('term_relationships', array('term' => $data['term'], 'post' => $data['post']));
 	
 	// Update the term's count
-	$rs_query->update('terms', array('count'=>1), array('id'=>$data['term']));
+	$rs_query->update('terms', array('count' => 1), array('id' => $data['term']));
 }
 
 /**

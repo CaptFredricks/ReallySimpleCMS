@@ -66,7 +66,7 @@ if(isset($_POST)) {
 		$rs_post = new Post($_POST['post_slug']);
 		
 		// Create a Comment object
-		$rs_comment = new Comment($rs_post->getPostId(false));
+		$rs_comment = new Comment($rs_post->getPostId());
 		
 		// Load the comments
 		$rs_comment->loadComments($_POST['start'], $_POST['count']);
@@ -81,6 +81,6 @@ if(isset($_POST)) {
 		$rs_comment = new Comment;
 		
 		// Fetch the comment count
-		$rs_comment->getCommentCount($rs_post->getPostId(false));
+		$rs_comment->getCommentCount($rs_post->getPostId());
 	}
 }

@@ -6,15 +6,15 @@ if(!defined('PATH')) exit('You do not have permission to access this directory.'
 getHeader();
 
 // Check whether the post has a featured image
-if(!is_null($rs_post) && $rs_post->postHasFeatImage()): ?>
+if(isPost() && postHasFeaturedImage()): ?>
 	<div class="featured-image-wrap">
-		<?php $rs_post->getPostFeatImage(); ?>
+		<?php putPostFeaturedImage(); ?>
 	</div>
 <?php endif; ?>
 <div class="wrapper">
 	<article class="article-content">
-		<h1><?php !is_null($rs_post) ? $rs_post->getPostTitle() : $rs_term->getTermName(); ?></h1>
-		<?php !is_null($rs_post) ? $rs_post->getPostContent() : getRecentPosts(10, null); ?>
+		<h1><?php isPost() ? putPostTitle() : putTermName(); ?></h1>
+		<?php isPost() ? putPostContent() : getRecentPosts(10, null); ?>
 	</article>
 </div>
 <?php

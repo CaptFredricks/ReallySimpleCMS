@@ -51,10 +51,10 @@ class Term {
 			$this->slug = array_pop($uri);
 			
 			// Fetch the term's id from the database
-			$id = $this->getTermId(false);
+			$id = $this->getTermId();
 			
 			// Construct the term's permalink
-			$permalink = getPermalink($this->getTermTaxonomy(false), $this->getTermParent(false), $this->getTermSlug($id, false));
+			$permalink = getPermalink($this->getTermTaxonomy(), $this->getTermParent(), $this->getTermSlug($id));
 			
 			// Check whether the slug is valid and redirect to the 404 (Not Found) page if not
 			if(empty($id)) redirect('/404.php');
@@ -68,126 +68,92 @@ class Term {
 	}
 	
 	/**
-	 * Fetch a term's id.
+	 * Fetch the term's id.
 	 * @since 2.4.0[a]
 	 *
 	 * @access public
-	 * @param bool $echo (optional; default: true)
-	 * @return null|int (null on $echo == true; int on $echo == false)
+	 * @return int
 	 */
-	public function getTermId($echo = true) {
+	public function getTermId() {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Fetch the term's id from the database
-		$id = (int)$rs_query->selectField('terms', 'id', array('slug'=>$this->slug));
-		
-		if($echo)
-			echo $id;
-		else
-			return $id;
+		// Fetch the term's id from the database and return it
+		return (int)$rs_query->selectField('terms', 'id', array('slug' => $this->slug));
 	}
 	
 	/**
-	 * Fetch a term's name.
+	 * Fetch the term's name.
 	 * @since 2.4.0[a]
 	 *
 	 * @access public
-	 * @param bool $echo (optional; default: true)
-	 * @return null|string (null on $echo == true; string on $echo == false)
+	 * @return string
 	 */
-	public function getTermName($echo = true) {
+	public function getTermName() {
 		// Extend the Query object
-        global $rs_query;
+		global $rs_query;
 		
-		// Fetch the term's name from the database
-        $name = $rs_query->selectField('terms', 'name', array('slug'=>$this->slug));
-		
-        if($echo)
-            echo $name;
-        else
-            return $name;
+		// Fetch the term's name from the database and return it
+		return $rs_query->selectField('terms', 'name', array('slug' => $this->slug));
     }
 	
 	/**
-	 * Fetch a term's slug.
+	 * Fetch the term's slug.
 	 * @since 2.4.0[a]
 	 *
 	 * @access public
 	 * @param int $id
-	 * @param bool $echo (optional; default: true)
-	 * @return null|string (null on $echo == true; string on $echo == false)
+	 * @return string
 	 */
-    public function getTermSlug($id, $echo = true) {
+    public function getTermSlug($id) {
 		// Extend the Query object
-        global $rs_query;
+		global $rs_query;
 		
-		// Fetch the term's slug from the database
-        $slug = $rs_query->selectField('terms', 'slug', array('id'=>$id));
-		
-        if($echo)
-            echo $slug;
-        else
-            return $slug;
+		// Fetch the term's slug from the database and return it
+		return $rs_query->selectField('terms', 'slug', array('id' => $id));
     }
 	
 	/**
-	 * Fetch a term's taxonomy.
+	 * Fetch the term's taxonomy.
 	 * @since 2.4.0[a]
 	 *
 	 * @access public
-	 * @param bool $echo (optional; default: true)
-	 * @return null|int (null on $echo == true; int on $echo == false)
+	 * @return string
 	 */
-	public function getTermTaxonomy($echo = true) {
+	public function getTermTaxonomy() {
 		// Extend the Query object
-        global $rs_query;
+		global $rs_query;
 		
 		// Fetch the term's taxonomy from the database
-        $taxonomy = $rs_query->selectField('terms', 'taxonomy', array('slug'=>$this->slug));
+		$taxonomy = $rs_query->selectField('terms', 'taxonomy', array('slug' => $this->slug));
 		
-		// Fetch the taxonomy's name from the database
-		$tax_name = $rs_query->selectField('taxonomies', 'name', array('id'=>$taxonomy));
-		
-        if($echo)
-            echo $tax_name;
-        else
-            return $tax_name;
+		// Fetch the taxonomy's name from the database and return it
+		return $rs_query->selectField('taxonomies', 'name', array('id' => $taxonomy));
 	}
 	
 	/**
-	 * Fetch a term's parent.
+	 * Fetch the term's parent.
 	 * @since 2.4.0[a]
 	 *
 	 * @access public
-	 * @param bool $echo (optional; default: true)
-	 * @return null|int (null on $echo == true; int on $echo == false)
+	 * @return int
 	 */
-	public function getTermParent($echo = true) {
+	public function getTermParent() {
 		// Extend the Query object
-        global $rs_query;
+		global $rs_query;
 		
-		// Fetch the term's parent from the database
-        $parent = (int)$rs_query->selectField('terms', 'parent', array('slug'=>$this->slug));
-		
-        if($echo)
-            echo $parent;
-        else
-            return $parent;
+		// Fetch the term's parent from the database and return it
+		return (int)$rs_query->selectField('terms', 'parent', array('slug' => $this->slug));
     }
 	
 	/**
-	 * Fetch a term's full URL.
+	 * Fetch the term's full URL.
 	 * @since 2.4.0[a]
 	 *
 	 * @access public
-	 * @param bool $echo (optional; default: true)
-	 * @return null|string (null on $echo == true; string on $echo == false)
+	 * @return string
 	 */
-	public function getTermUrl($echo = true) {
-        if($echo)
-            echo getSetting('site_url', false).getPermalink($this->getTermTaxonomy(false), $this->getTermParent(false), $this->slug);
-        else
-            return getSetting('site_url', false).getPermalink($this->getTermTaxonomy(false), $this->getTermParent(false), $this->slug);
+	public function getTermUrl() {
+		return getSetting('site_url', false).getPermalink($this->getTermTaxonomy(), $this->getTermParent(), $this->slug);
     }
 }
