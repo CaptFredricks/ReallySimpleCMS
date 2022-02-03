@@ -18,6 +18,13 @@
 - [a] = alpha
 - [b] = beta
 
+## Version 1.2.8.1[b] (2022-02-02)
+
+- Incremented the version from 1.2.7 to 1.2.8
+
+**Modified files:**
+- n/a
+
 ## Version 1.2.8[b] (2022-02-02)
 
 - Significantly revised changelog formatting
@@ -44,7 +51,7 @@
   - `Post` class (`getPostFeatImage` -> `getPostFeaturedImage`, `postHasFeatImage` -> `postHasFeaturedImage`)
 
 **Modified files:**
-- admin/includes/class-comment.php
+- admin/includes/class-comment.php (M)
 - content/themes/carbon/category.php (M)
 - content/themes/carbon/index.php
 - content/themes/carbon/post.php
