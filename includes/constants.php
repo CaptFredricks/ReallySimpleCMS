@@ -15,7 +15,7 @@ define('PHP_MINIMUM', '7.3');
 define('PHP_RECOMMENDED', '7.4');
 
 // Current CMS version
-define('VERSION', '1.2.8');
+define('VERSION', '1.2.9');
 
 // Current jQuery version
 define('JQUERY_VERSION', '3.6.0');

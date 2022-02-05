@@ -18,6 +18,52 @@
 - [a] = alpha
 - [b] = beta
 
+## Version 1.2.9[b] (2022-02-04)
+
+- Added bulk actions to the `Post` class
+  - Post statuses can be changed between `published`, `draft`, and `trash`
+- Created a `modified` class variable to the `Post` class
+- A media item's filename is no longer updated when it's replaced and the 'update filename and date' checkbox is left unchecked
+- Media links can now be created in the admin dashboard
+- Added a caching param to all images so they refresh properly if the image is replaced
+- Improved code readability in several files
+- Post excerpts can now be dynamically created from post content (the default length is 25 words)
+- Added bulk actions to the `Widget` class
+  - Widget statuses can be changed between `active` and `inactive`
+- Cleaned up code in the `Comment` class
+- Improved type checking in the `Post` class
+- When a new post (of any type) is first submitted to the database, its modified date is now set
+- If a published post is set to a draft, its publish date is now set to `null`
+- The publish date and modified date values will be dynamically updated upon installation of this update (making a database backup is highly recommended!)
+- Improved the logic of the "Replace Media" functionality
+- New functions:
+  - Admin `Comment` class (`updateCommentStatus`)
+  - Admin `Post` class (`updatePostStatus`, `bulkActions`)
+  - Admin `Widget` class (`updateWidgetStatus`, `bulkActions`)
+  - Admin `functions.php` (`mediaLink`)
+  - `theme-functions.php` (`getPostExcerpt`, `putPostExcerpt`)
+
+**Bug fixes:**
+- There are two `undefined` errors in the `Media::replaceMedia` function when the "Replace Media" page is viewed
+
+**Modified files:**
+- admin/includes/bulk-actions.php
+- admin/includes/class-comment.php
+- admin/includes/class-media.php
+- admin/includes/class-menu.php (M)
+- admin/includes/class-post.php
+- admin/includes/class-profile.php
+- admin/includes/class-user.php
+- admin/includes/class-widget.php
+- admin/includes/css/style.css (M)
+- admin/includes/css/style.min.css (M)
+- admin/includes/functions.php
+- admin/posts.php
+- includes/ajax.php (M)
+- includes/globals.php
+- includes/theme-functions.php
+- includes/update.php
+
 ## Version 1.2.8.1[b] (2022-02-02)
 
 - Incremented the version from 1.2.7 to 1.2.8

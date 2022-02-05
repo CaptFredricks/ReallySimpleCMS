@@ -35,13 +35,22 @@ class Post {
 	protected $author;
 	
 	/**
-	 * The currently queried post's date.
+	 * The currently queried post's publish date.
 	 * @since 1.0.1[b]
 	 *
 	 * @access protected
 	 * @var string
 	 */
 	protected $date;
+	
+	/**
+	 * The currently queried post's modified date.
+	 * @since 1.2.9[b]
+	 *
+	 * @access protected
+	 * @var string
+	 */
+	protected $modified;
 	
 	/**
 	 * The currently queried post's content.
@@ -203,7 +212,11 @@ class Post {
 				// Loop through the post counts (by status)
 				foreach($count as $key => $value) {
 					?>
-					<li><a href="<?php echo $_SERVER['PHP_SELF']; ?>?type=<?php echo $type.($key === 'all' ? '' : '&status='.$key); ?>"><?php echo ucfirst($key); ?> <span class="count">(<?php echo $value; ?>)</span></a></li>
+					<li>
+						<a href="<?php
+							echo ADMIN_URI.'?type='.$type.($key === 'all' ? '' : '&status='.$key);
+							?>"><?php echo ucfirst($key); ?> <span class="count">(<?php echo $value; ?>)</span></a>
+					</li>
 					<?php
 					// Add bullets in between
 					if($key !== array_key_last($count)) {
@@ -223,13 +236,17 @@ class Post {
 				?>
 			</div>
 		</div>
-		<table class="data-table">
+		<table class="data-table has-bulk-select">
 			<thead>
 				<?php
 				// Check whether the post type is hierarchical
 				if($this->type_data['hierarchical']) {
 					// Fill an array with the table header columns
 					$table_header_cols = array(
+						tag('input', array(
+							'type' => 'checkbox',
+							'class' => 'checkbox bulk-selector'
+						)),
 						'Title',
 						'Author',
 						'Publish Date',
@@ -241,11 +258,15 @@ class Post {
 					// Check whether comments are enabled sitewide and for the current post type
 					if(getSetting('enable_comments', false) && $this->type_data['comments']) {
 						// Insert the comments label into the array
-						array_splice($table_header_cols, 4, 0, 'Comments');
+						array_splice($table_header_cols, 5, 0, 'Comments');
 					}
 				} else {
 					// Fill an array with the table header columns
 					$table_header_cols = array(
+						tag('input', array(
+							'type' => 'checkbox',
+							'class' => 'checkbox bulk-selector'
+						)),
 						'Title',
 						'Author',
 						'Publish Date',
@@ -256,13 +277,13 @@ class Post {
 					// Check whether comments are enabled sitewide and for the current post type
 					if(getSetting('enable_comments', false) && $this->type_data['comments']) {
 						// Insert the comments label into the array
-						array_splice($table_header_cols, 3, 0, 'Comments');
+						array_splice($table_header_cols, 4, 0, 'Comments');
 					}
 					
 					// Check whether the post type has a taxonomy associated with it
 					if(!empty($this->taxonomy_data)) {
 						// Insert the taxonomy's label into the array
-						array_splice($table_header_cols, 2, 0, $this->taxonomy_data['label']);
+						array_splice($table_header_cols, 3, 0, $this->taxonomy_data['label']);
 					}
 				}
 				
@@ -332,6 +353,12 @@ class Post {
 					$actions = array_filter($actions);
 					
 					echo tableRow(
+						// Bulk select
+						tableCell(tag('input', array(
+							'type' => 'checkbox',
+							'class' => 'checkbox',
+							'value' => $post['id']
+						)), 'bulk-select'),
 						// Title
 						tableCell((isHomePage($post['id']) ? '<i class="fas fa-home" style="cursor: help;" title="Home Page"></i> ' : '').'<strong>'.$post['title'].'</strong>'.($post['status'] !== 'published' && $status === 'all' ? ' &mdash; <em>'.$post['status'].'</em>' : '').'<div class="actions">'.implode(' &bull; ', $actions).'</div>', 'title'),
 						// Author
@@ -361,6 +388,9 @@ class Post {
 			</tfoot>
 		</table>
 		<?php
+		// Bulk actions
+		if(!empty($posts)) $this->bulkActions();
+		
 		// Set up page navigation
 		echo pagerNav($page['current'], $page['count']);
 		
@@ -765,13 +795,13 @@ class Post {
 											'type' => 'date',
 											'class' => 'date-input',
 											'name' => 'date[]',
-											'value' => (!is_null($this->date) ? formatDate($this->date, 'Y-m-d') : '')
+											'value' => (!is_null($this->date) ? formatDate($this->date, 'Y-m-d') : formatDate($this->modified, 'Y-m-d'))
 										));
 										echo formTag('input', array(
 											'type' => 'time',
 											'class' => 'date-input',
 											'name' => 'date[]',
-											'value' => (!is_null($this->date) ? formatDate($this->date, 'H:i') : '')
+											'value' => (!is_null($this->date) ? formatDate($this->date, 'H:i') : formatDate($this->modified, 'H:i'))
 										));
 										?>
 									</div>
@@ -868,8 +898,7 @@ class Post {
 										<div class="image-wrap<?php echo !empty($meta['feat_image']) ? ' visible' : ''; ?>" style="width: <?php echo $width ?? 0; ?>px;">
 											<?php
 											// Construct an image tag to display the featured image thumbnail
-											echo formTag('img', array(
-												'src' => getMediaSrc($meta['feat_image']),
+											echo getMedia($meta['feat_image'], array(
 												'data-field' => 'thumb'
 											));
 											
@@ -936,27 +965,69 @@ class Post {
 	}
 	
 	/**
-	 * Send a post to the trash.
-	 * @since 1.4.6[a]
+	 * Update a post's status.
+	 * @since 1.2.9[b]
 	 *
 	 * @access public
-	 * @return null
+	 * @param string $status
+	 * @param int $id (optional; default: 0)
 	 */
-	public function trashPost() {
+	public function updatePostStatus($status, $id = 0) {
 		// Extend the Query object
 		global $rs_query;
+		
+		// If the provided id is not zero, update the class id to match it
+		if($id !== 0) $this->id = $id;
 		
 		// Check whether the post's id is valid
 		if(empty($this->id) || $this->id <= 0) {
 			// Redirect to the "List Posts" page
 			redirect(ADMIN_URI);
 		} else {
-			// Set the post's status to 'trash'
-			$rs_query->update('posts', array('status' => 'trash'), array('id' => $this->id));
+			// Fetch the post's type from the database
+			$type = $rs_query->selectField('posts', 'type', array('id' => $this->id));
 			
-			// Redirect to the "List Posts" page
-			redirect($this->type_data['menu_link']);
+			// Make sure the post's type matches the active post type
+			if($type === $this->type_data['name']) {
+				// Check whether the post is being published
+				if($status === 'published') {
+					// Fetch the post's status from the database
+					$db_status = $rs_query->selectField('posts', 'status', array('id' => $this->id));
+					
+					// Check whether the current and new statuses match
+					if($db_status !== $status) {
+						// Update the post's status and publish date
+						$rs_query->update('posts', array(
+							'date' => 'NOW()',
+							'status' => $status
+						), array('id' => $this->id));
+					} else {
+						// Update the post's status only
+						$rs_query->update('posts', array('status' => $status), array('id' => $this->id));
+					}
+				} else {
+					// Update the post's status and set the publish date to 'null'
+					$rs_query->update('posts', array(
+						'date' => null,
+						'status' => $status
+					), array('id' => $this->id));
+				}
+			}
 		}
+	}
+	
+	/**
+	 * Send a post to the trash.
+	 * @since 1.4.6[a]
+	 *
+	 * @access public
+	 */
+	public function trashPost() {
+		// Set the post's status to 'trash'
+		$this->updatePostStatus('trash');
+		
+		// Redirect to the "List Posts" page
+		redirect($this->type_data['menu_link']);
 	}
 	
 	/**
@@ -964,23 +1035,13 @@ class Post {
 	 * @since 1.4.6[a]
 	 *
 	 * @access public
-	 * @return null
 	 */
 	public function restorePost() {
-		// Extend the Query object
-		global $rs_query;
+		// Set the post's status to 'draft'
+		$this->updatePostStatus('draft');
 		
-		// Check whether the post's id is valid
-		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the "List Posts" page
-			redirect(ADMIN_URI);
-		} else {
-			// Set the post's status to 'draft'
-			$rs_query->update('posts', array('status' => 'draft'), array('id' => $this->id));
-			
-			// Redirect to the "List Posts" trash page
-			redirect($this->type_data['menu_link'].($this->type !== 'post' ? '&' : '?').'status=trash');
-		}
+		// Redirect to the "List Posts" trash page
+		redirect($this->type_data['menu_link'].($this->type !== 'post' ? '&' : '?').'status=trash');
 	}
 	
 	/**
@@ -1098,7 +1159,8 @@ class Post {
 			$insert_id = $rs_query->insert('posts', array(
 				'title' => $data['title'],
 				'author' => $data['author'],
-				'date' => $data['date'],
+				'date' => $data['status'] === 'published' ? $data['date'] : null,
+				'modified' => $data['date'],
 				'content' => $data['content'],
 				'status' => $data['status'],
 				'slug' => $slug,
@@ -1147,7 +1209,7 @@ class Post {
 			$rs_query->update('posts', array(
 				'title' => $data['title'],
 				'author' => $data['author'],
-				'date' => $data['date'],
+				'date' => $data['status'] === 'published' ? $data['date'] : null,
 				'modified' => 'NOW()',
 				'content' => $data['content'],
 				'status' => $data['status'],
@@ -1537,5 +1599,51 @@ class Post {
 			// Return the count of all posts by the status
 			return $rs_query->select('posts', 'COUNT(*)', array('status' => $status, 'type' => $type));
 		}
+	}
+	
+	/**
+	 * Construct bulk actions.
+	 * @since 1.2.9[b]
+	 *
+	 * @access private
+	 */
+	private function bulkActions() {
+		// Extend the user's session data
+		global $session;
+		?>
+		<div class="bulk-actions">
+			<?php
+			// Fetch the name of the post's type
+			$type_name = str_replace(' ', '_', $this->type_data['labels']['name_lowercase']);
+			
+			// Make sure the user has the required permissions
+			if(userHasPrivilege($session['role'], 'can_edit_'.$type_name)) {
+				?>
+				<select class="actions">
+					<option value="published">Publish</option>
+					<option value="draft">Draft</option>
+					<option value="trash">Trash</option>
+				</select>
+				<?php
+				// Update status
+				button(array(
+					'class' => 'bulk-update',
+					'title' => 'Bulk status update',
+					'label' => 'Update'
+				));
+			}
+			
+			// Make sure the user has the required permissions
+			if(userHasPrivilege($session['role'], 'can_delete_'.$type_name)) {
+				// Delete
+				button(array(
+					'class' => 'bulk-delete',
+					'title' => 'Bulk delete',
+					'label' => 'Delete'
+				));
+			}
+			?>
+		</div>
+		<?php
 	}
 }

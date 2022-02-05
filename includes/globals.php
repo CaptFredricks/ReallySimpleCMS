@@ -759,17 +759,29 @@ function getMediaSrc($id) {
  * @since 2.2.0[a]
  *
  * @param int $id
- * @param array $props (optional; default: array())
+ * @param array $args (optional; default: array())
  * @return string
  */
-function getMedia($id, $props = array()) {
+function getMedia($id, $args = array()) {
 	// Extend the Query object
 	global $rs_query;
 	
 	// Fetch the media's source
 	$src = getMediaSrc($id);
 	
-	// Fetch the media's MIME type
+	// Set the cached prop to true by default
+	if(empty($args['cached'])) $args['cached'] = true;
+	
+	// Check whether the media should be cached
+	if($args['cached'] === true && $src !== '//:0') {
+		// Fetch the media's modified date from the database
+		$modified = $rs_query->selectField('posts', 'modified', array('id' => $id));
+		
+		// Add the modified date to the source
+		$src .= '?cached='.formatDate($modified, 'YmdHis');
+	}
+	
+	// Fetch the media's MIME type from the database
 	$mime_type = $rs_query->selectField('postmeta', 'value', array('post' => $id, '_key' => 'mime_type'));
 	
 	// Determine what kind of HTML tag to construct based on the media's MIME type
@@ -777,23 +789,42 @@ function getMedia($id, $props = array()) {
 		// Fetch the image's alt text
 		$alt_text = $rs_query->selectField('postmeta', 'value', array('post' => $id, '_key' => 'alt_text'));
 		
-		// Construct an image tag
-		return '<img'.(!empty($props['class']) ? ' class="'.$props['class'].'"' : '').' src="'.$src.'" alt="'.$alt_text.'"'.(!empty($props['width']) ? ' width="'.$props['width'].'"' : '').(!empty($props['height']) ? ' height="'.$props['height'].'"' : '').'>';
+		// Add the 'src' and 'alt' props to the args array
+		$props = array_merge(array('src' => $src, 'alt' => $alt_text), $args);
+		
+		// Start the opening portion of the tag
+		$tag = '<img';
+		
+		// Loop through the args
+		foreach($props as $key => $value) {
+			// Skip over the 'cached' arg
+			if($key === 'cached') continue;
+			
+			// Add the property and its value to the tag
+			$tag .= ' '.$key.'="'.$value.'"';
+		}
+		
+		// Return the constructed tag
+		return $tag.'>';
 	} elseif(strpos($mime_type, 'audio') !== false) {
 		// Construct an audio tag
-		return '<audio'.(!empty($props['class']) ? ' class="'.$props['class'].'"' : '').' src="'.$src.'"></audio>';
+		return '<audio'.(!empty($args['class']) ? ' class="'.$args['class'].'"' : '').' src="'.$src.'"></audio>';
 	} elseif(strpos($mime_type, 'video') !== false) {
 		// Construct a video tag
-		return '<video'.(!empty($props['class']) ? ' class="'.$props['class'].'"' : '').' src="'.$src.'"></video>';
+		return '<video'.(!empty($args['class']) ? ' class="'.$args['class'].'"' : '').' src="'.$src.'"></video>';
 	} else {
 		// Check whether any link text has been provided
-		if(empty($props['link_text'])) {
+		if(empty($args['link_text'])) {
 			// Fetch the media's title from the database
-			$props['link_text'] = $rs_query->selectField('posts', 'title', array('id' => $id));
+			$args['link_text'] = $rs_query->selectField('posts', 'title', array('id' => $id));
 		}
 		
 		// Construct an anchor tag
-		return '<a'.(!empty($props['class']) ? ' class="'.$props['class'].'"' : '').' href="'.$src.'">'.$props['link_text'].'</a>';
+		return '<a'.(
+				!empty($args['class']) ? ' class="'.$args['class'].'"' : ''
+			).' href="'.$src.'"'.(
+				!empty($args['newtab']) && $args['newtab'] === 1 ? ' target="_blank" rel="noreferrer noopener"' : ''
+			).'>'.$args['link_text'].'</a>';
 	}
 }
 

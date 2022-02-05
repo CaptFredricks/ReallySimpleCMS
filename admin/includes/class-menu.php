@@ -439,6 +439,7 @@ class Menu extends Term {
 				$menu_item_id = $rs_query->insert('posts', array(
 					'title' => $data['custom_title'],
 					'date' => 'NOW()',
+					'modified' => 'NOW()',
 					'slug' => '',
 					'type' => 'nav_menu_item'
 				));
@@ -522,6 +523,7 @@ class Menu extends Term {
 				$menu_item_id = $rs_query->insert('posts', array(
 					'title' => $data['custom_title'],
 					'date' => 'NOW()',
+					'modified' => 'NOW()',
 					'slug' => '',
 					'type' => 'nav_menu_item'
 				));
@@ -981,6 +983,7 @@ class Menu extends Term {
 			$menu_item_id = $rs_query->insert('posts', array(
 				'title' => $post['title'],
 				'date' => 'NOW()',
+				'modified' => 'NOW()',
 				'slug' => '',
 				'type' => 'nav_menu_item'
 			));
@@ -998,6 +1001,7 @@ class Menu extends Term {
 			$menu_item_id = $rs_query->insert('posts', array(
 				'title' => $term['name'],
 				'date' => 'NOW()',
+				'modified' => 'NOW()',
 				'slug' => '',
 				'type' => 'nav_menu_item'
 			));

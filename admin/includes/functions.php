@@ -908,6 +908,38 @@ function actionLink($action, $args = null) {
 }
 
 /**
+ * Construct a link to a media item.
+ * @since 1.2.9[b]
+ *
+ * @param int $id
+ * @param array $args (optional; default: array())
+ * @return string
+ */
+function mediaLink($id, $args = array()) {
+	// Extend the Query object
+	global $rs_query;
+	
+	// Fetch the media's modified date from the database
+	$modified = $rs_query->selectField('posts', 'modified', array('id' => $id));
+	
+	// Fetch the media's source
+	$src = getMediaSrc($id).'?cached='.formatDate($modified, 'YmdHis');
+	
+	// Check whether any link text has been provided
+	if(empty($args['link_text'])) {
+		// Fetch the media's title from the database
+		$args['link_text'] = $rs_query->selectField('posts', 'title', array('id' => $id));
+	}
+	
+	// Construct an anchor tag
+	return '<a'.(
+			!empty($args['class']) ? ' class="'.$args['class'].'"' : ''
+		).' href="'.$src.'"'.(
+			!empty($args['newtab']) && $args['newtab'] === 1 ? ' target="_blank" rel="noreferrer noopener"' : ''
+		).'>'.$args['link_text'].'</a>';
+}
+
+/**
  * Construct a table header row.
  * @since 1.2.1[a]
  *
@@ -1153,7 +1185,16 @@ function uploadMediaFile($data) {
 		return statusMessage('A file must be selected for upload!');
 	
 	// Create an array of accepted MIME types
-	$accepted_mime = array('image/jpeg', 'image/png', 'image/gif', 'image/x-icon', 'audio/mp3', 'audio/ogg', 'video/mp4', 'text/plain');
+	$accepted_mime = array(
+		'image/jpeg',
+		'image/png',
+		'image/gif',
+		'image/x-icon',
+		'audio/mp3',
+		'audio/ogg',
+		'video/mp4',
+		'text/plain'
+	);
 	
 	// Check whether the uploaded file is among the accepted MIME types
 	if(!in_array($data['type'], $accepted_mime, true))
@@ -1190,7 +1231,14 @@ function uploadMediaFile($data) {
 	$session = getOnlineUser($_COOKIE['session']);
 	
 	// Insert the new media into the database
-	$insert_id = $rs_query->insert('posts', array('title' => $title, 'author' => $session['id'], 'date' => 'NOW()', 'slug' => $slug, 'type' => 'media'));
+	$insert_id = $rs_query->insert('posts', array(
+		'title' => $title,
+		'author' => $session['id'],
+		'date' => 'NOW()',
+		'modified' => 'NOW()',
+		'slug' => $slug,
+		'type' => 'media'
+	));
 	
 	// Insert the media's metadata into the database
 	foreach($mediameta as $key => $value)
@@ -1258,14 +1306,14 @@ function loadMedia($image_only = false) {
 		<div class="media-item-wrap">
 			<div class="media-item">
 				<div class="thumb-wrap">
-					<img class="thumb" src="<?php echo trailingSlash(UPLOADS).$meta['filename']; ?>">
+					<?php echo getMedia($media['id'], array('class' => 'thumb')); ?>
 				</div>
 				<div>
 					<div class="hidden" data-field="id"><?php echo $media['id']; ?></div>
-					<div class="hidden" data-field="thumb"><img src="<?php echo trailingSlash(UPLOADS).$meta['filename']; ?>"></div>
+					<div class="hidden" data-field="thumb"><?php echo getMedia($media['id']); ?></div>
 					<div class="hidden" data-field="title"><?php echo $media['title']; ?></div>
 					<div class="hidden" data-field="date"><?php echo formatDate($media['date'], 'd M Y @ g:i A'); ?></div>
-					<div class="hidden" data-field="filename"><a href="<?php echo trailingSlash(UPLOADS).$meta['filename']; ?>" target="_blank" rel="noreferrer noopener"><?php echo $meta['filename']; ?></a></div>
+					<div class="hidden" data-field="filename"><?php echo mediaLink($media['id'], array('link_text' => $meta['filename'], 'newtab' => 1)); ?></div>
 					<div class="hidden" data-field="mime_type"><?php echo $meta['mime_type']; ?></div>
 					<div class="hidden" data-field="alt_text"><?php echo $meta['alt_text']; ?></div>
 					<div class="hidden" data-field="width"><?php echo $width ?? 150; ?></div>

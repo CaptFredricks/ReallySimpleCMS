@@ -109,7 +109,7 @@ class Comment {
 				// Loop through the comment counts (by status)
 				foreach($count as $key => $value) {
 					?>
-					<li><a href="<?php echo $_SERVER['PHP_SELF'].($key === 'all' ? '' : '?status='.$key); ?>"><?php echo ucfirst($key); ?> <span class="count">(<?php echo $value; ?>)</span></a></li>
+					<li><a href="<?php echo ADMIN_URI.($key === 'all' ? '' : '?status='.$key); ?>"><?php echo ucfirst($key); ?> <span class="count">(<?php echo $value; ?>)</span></a></li>
 					<?php
 					// Add bullets in between
 					if($key !== array_key_last($count)) {
@@ -171,25 +171,25 @@ class Comment {
 					$actions = array(
 						// Approve/unapprove
 						userHasPrivilege($session['role'], 'can_edit_comments'
-						) ? ($comment['status'] === 'approved' ? actionLink('unapprove', array(
-							'caption' => 'Unapprove',
-							'id' => $comment['id']
-						)) : actionLink('approve', array(
-							'caption' => 'Approve',
-							'id' => $comment['id']
-						))) : null,
+							) ? ($comment['status'] === 'approved' ? actionLink('unapprove', array(
+								'caption' => 'Unapprove',
+								'id' => $comment['id']
+							)) : actionLink('approve', array(
+								'caption' => 'Approve',
+								'id' => $comment['id']
+							))) : null,
 						// Edit
 						userHasPrivilege($session['role'], 'can_edit_comments') ? actionLink('edit', array(
-							'caption' => 'Edit',
-							'id' => $comment['id']
-						)) : null,
+								'caption' => 'Edit',
+								'id' => $comment['id']
+							)) : null,
 						// Delete
 						userHasPrivilege($session['role'], 'can_delete_comments') ? actionLink('delete', array(
-							'classes' => 'modal-launch delete-item',
-							'data_item' => 'comment',
-							'caption' => 'Delete',
-							'id' => $comment['id']
-						)) : null,
+								'classes' => 'modal-launch delete-item',
+								'data_item' => 'comment',
+								'caption' => 'Delete',
+								'id' => $comment['id']
+							)) : null,
 						// View
 						'<a href="'.$this->getPostPermalink($comment['post']).'#comment-'.$comment['id'].'">View</a>'
 					);
@@ -261,6 +261,7 @@ class Comment {
 				<form class="data-form" action="" method="post" autocomplete="off">
 					<table class="form-table">
 						<?php
+						// Content
 						echo formRow(array('Content', true), array(
 							'tag' => 'textarea',
 							'class' => 'textarea-input',
@@ -269,13 +270,19 @@ class Comment {
 							'rows' => 10,
 							'content' => htmlspecialchars($this->content)
 						));
+						
+						// Status
 						echo formRow('Status', array(
 							'tag' => 'select',
 							'class' => 'select-input',
 							'name' => 'status',
 							'content' => '<option value="'.$this->status.'">'.ucfirst($this->status).'</option>'.($this->status === 'approved' ? '<option value="unapproved">Unapproved</option>' : '<option value="approved">Approved</option>')
 						));
+						
+						// Separator
 						echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
+						
+						// Submit button
 						echo formRow('', array(
 							'tag' => 'input',
 							'type' => 'submit',
@@ -292,18 +299,51 @@ class Comment {
 	}
 	
 	/**
+	 * Update a comment's status.
+	 * @since 1.2.9[b]
+	 *
+	 * @access public
+	 * @param string $status
+	 * @param int $id (optional; default: 0)
+	 */
+	public function updateCommentStatus($status, $id = 0) {
+		// Extend the Query object
+		global $rs_query;
+		
+		// If the provided id is not zero, update the class id to match it
+		if($id !== 0) $this->id = $id;
+		
+		// Check whether the comment's id is valid
+		if(empty($this->id) || $this->id <= 0) {
+			// Redirect to the "List Comments" page
+			redirect(ADMIN_URI);
+		} else {
+			// Update the comment's status
+			$rs_query->update('comments', array('status' => $status), array('id' => $this->id));
+			
+			// Fetch the number of approved comments attached to the current comment's post
+			$count = $rs_query->select('comments', 'COUNT(*)', array(
+				'post' => $this->post,
+				'status' => 'approved'
+			));
+			
+			// Update the post's comment count in the database
+			$rs_query->update('postmeta', array('value' => $count), array(
+				'post' => $this->post,
+				'_key' => 'comment_count'
+			));
+		}
+	}
+	
+	/**
 	 * Approve a comment.
 	 * @since 1.1.0[b]{ss-02}
 	 *
 	 * @access public
-	 * @param int $id (optional; default: 0)
 	 */
-	public function approveComment($id = 0) {
+	public function approveComment() {
 		// Extend the Query object
 		global $rs_query;
-		
-		// Check whether the provided id is zero and update the class id to match if not
-		if($id !== 0) $this->id = $id;
 		
 		// Check whether the comment's id is valid
 		if(empty($this->id) || $this->id <= 0) {
@@ -325,8 +365,8 @@ class Comment {
 				'_key' => 'comment_count'
 			));
 			
-			// Check whether the provided id is zero and redirect to the "List Comments" page if so
-			if($id === 0) redirect(ADMIN_URI);
+			// Redirect to the "List Comments" page
+			redirect(ADMIN_URI);
 		}
 	}
 	
@@ -335,14 +375,10 @@ class Comment {
 	 * @since 1.1.0[b]{ss-02}
 	 *
 	 * @access public
-	 * @param int $id (optional; default: 0)
 	 */
-	public function unapproveComment($id = 0) {
+	public function unapproveComment() {
 		// Extend the Query object
 		global $rs_query;
-		
-		// Check whether the provided id is zero and update the class id to match if not
-		if($id !== 0) $this->id = $id;
 		
 		// Check whether the comment's id is valid
 		if(empty($this->id) || $this->id <= 0) {
@@ -364,8 +400,8 @@ class Comment {
 				'_key' => 'comment_count'
 			));
 			
-			// Check whether the provided id is zero and redirect to the "List Comments" page if so
-			if($id === 0) redirect(ADMIN_URI);
+			// Redirect to the "List Comments" page
+			redirect(ADMIN_URI);
 		}
 	}
 	
@@ -537,8 +573,8 @@ class Comment {
 			if(userHasPrivilege($session['role'], 'can_edit_comments')) {
 				?>
 				<select class="actions">
-					<option value="approve">Approve</option>
-					<option value="unapprove">Unapprove</option>
+					<option value="approved">Approve</option>
+					<option value="unapproved">Unapprove</option>
 				</select>
 				<?php
 				// Update status

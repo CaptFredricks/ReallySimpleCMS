@@ -133,7 +133,15 @@ class User {
 			<thead>
 				<?php
 				// Fill an array with the table header columns
-				$table_header_cols = array('Username', 'Full Name', 'Email', 'Registered', 'Role', 'Status', 'Last Login');
+				$table_header_cols = array(
+					'Username',
+					'Full Name',
+					'Email',
+					'Registered',
+					'Role',
+					'Status',
+					'Last Login'
+				);
 				
 				// Construct the table header
 				echo tableHeaderRow($table_header_cols);
@@ -151,20 +159,45 @@ class User {
 					
 					// Set up the action links
 					$actions = array(
-						userHasPrivilege($session['role'], 'can_edit_users') || $user['id'] === $session['id'] ? ($user['id'] === $session['id'] ? '<a href="'.ADMIN.'/profile.php">Edit</a>' : actionLink('edit', array('caption' => 'Edit', 'id' => $user['id']))) : null,
-						userHasPrivilege($session['role'], 'can_delete_users') && $user['id'] !== $session['id'] ? ($this->userHasContent($user['id']) ? actionLink('reassign_content', array('caption' => 'Delete', 'id' => $user['id'])) : actionLink('delete', array('classes' => 'modal-launch delete-item', 'data_item' => 'user', 'caption' => 'Delete', 'id' => $user['id']))) : null
+						// Edit
+						userHasPrivilege($session['role'], 'can_edit_users'
+							) || $user['id'] === $session['id'] ? ($user['id'] === $session['id'] ? '<a href="'.ADMIN.'/profile.php">Edit</a>' : actionLink('edit', array(
+								'caption' => 'Edit',
+								'id' => $user['id']
+							))) : null,
+						// Delete
+						userHasPrivilege($session['role'], 'can_delete_users'
+							) && $user['id'] !== $session['id'] ? ($this->userHasContent($user['id']) ? actionLink('reassign_content', array(
+								'caption' => 'Delete', 'id' => $user['id']
+							)) : actionLink('delete', array(
+								'classes' => 'modal-launch delete-item',
+								'data_item' => 'user',
+								'caption' => 'Delete',
+								'id' => $user['id']
+							))) : null
 					);
 					
 					// Filter out any empty actions
 					$actions = array_filter($actions);
 					
 					echo tableRow(
-						tableCell('<img class="avatar" src="'.getMediaSrc($meta['avatar']).'" width="32" height="32"><strong>'.$user['username'].'</strong><div class="actions">'.implode(' &bull; ', $actions).'</div>', 'username'),
+						// Username
+						tableCell(getMedia($meta['avatar'], array(
+							'class' => 'avatar',
+							'width' => 32,
+							'height' => 32
+						)).'<strong>'.$user['username'].'</strong><div class="actions">'.implode(' &bull; ', $actions).'</div>', 'username'),
+						// Full name
 						tableCell(empty($meta['first_name']) && empty($meta['last_name']) ? '&mdash;' : $meta['first_name'].' '.$meta['last_name'], 'full-name'),
+						// Email
 						tableCell($user['email'], 'email'),
+						// Registered
 						tableCell(formatDate($user['registered'], 'd M Y @ g:i A'), 'registered'),
+						// Role
 						tableCell($this->getRole($user['role']), 'role'),
+						// Status
 						tableCell(is_null($user['session']) ? 'Offline' : 'Online', 'status'),
+						// Last login
 						tableCell(is_null($user['last_login']) ? 'Never' : formatDate($user['last_login'], 'd M Y @ g:i A'), 'last-login')
 					);
 				}
@@ -205,15 +238,104 @@ class User {
 			<form class="data-form" action="" method="post" autocomplete="off">
 				<table class="form-table">
 					<?php
-					echo formRow(array('Username', true), array('tag' => 'input', 'class' => 'text-input required invalid init', 'name' => 'username', 'value' => ($_POST['username'] ?? '')));
-					echo formRow(array('Email', true), array('tag' => 'input', 'type' => 'email', 'class' => 'text-input required invalid init', 'name' => 'email', 'value' => ($_POST['email'] ?? '')));
-					echo formRow('First Name', array('tag' => 'input', 'class' => 'text-input', 'name' => 'first_name', 'value' => ($_POST['first_name'] ?? '')));
-					echo formRow('Last Name', array('tag' => 'input', 'class' => 'text-input', 'name' => 'last_name', 'value' => ($_POST['last_name'] ?? '')));
-					echo formRow(array('Password', true), array('tag' => 'input', 'id' => 'password-field', 'class' => 'text-input required invalid init', 'name' => 'password'), array('tag' => 'input', 'type' => 'button', 'id' => 'password-gen', 'class' => 'button-input button', 'value' => 'Generate Password'), array('tag' => 'label', 'class' => 'checkbox-label hidden required invalid init', 'content' => formTag('br', array('class' => 'spacer')).formTag('input', array('type' => 'checkbox', 'class' => 'checkbox-input', 'name' => 'pass_saved', 'value' => 1)).formTag('span', array('content' => 'I have copied the password to a safe place.'))));
-					echo formRow('Avatar', array('tag' => 'div', 'class' => 'image-wrap', 'content' => formTag('img', array('src' => '//:0', 'data-field' => 'thumb')).formTag('span', array('class' => 'image-remove', 'title' => 'Remove', 'content' => formTag('i', array('class' => 'fas fa-times'))))), array('tag' => 'input', 'type' => 'hidden', 'name' => 'avatar', 'value' => ($_POST['avatar'] ?? 0), 'data-field' => 'id'), array('tag' => 'input', 'type' => 'button', 'class' => 'button-input button modal-launch', 'value' => 'Choose Image', 'data-type' => 'image'));
-					echo formRow('Role', array('tag' => 'select', 'class' => 'select-input', 'name' => 'role', 'content' => $this->getRoleList((int)getSetting('default_user_role', false))));
+					// Username
+					echo formRow(array('Username', true), array(
+						'tag' => 'input',
+						'class' => 'text-input required invalid init',
+						'name' => 'username',
+						'value' => ($_POST['username'] ?? '')
+					));
+					
+					// Email
+					echo formRow(array('Email', true), array(
+						'tag' => 'input',
+						'type' => 'email',
+						'class' => 'text-input required invalid init',
+						'name' => 'email',
+						'value' => ($_POST['email'] ?? '')
+					));
+					
+					// First name
+					echo formRow('First Name', array(
+						'tag' => 'input',
+						'class' => 'text-input',
+						'name' => 'first_name',
+						'value' => ($_POST['first_name'] ?? '')
+					));
+					
+					// Last name
+					echo formRow('Last Name', array(
+						'tag' => 'input',
+						'class' => 'text-input',
+						'name' => 'last_name',
+						'value' => ($_POST['last_name'] ?? '')
+					));
+					
+					// Password
+					echo formRow(array('Password', true), array(
+						'tag' => 'input',
+						'id' => 'password-field',
+						'class' => 'text-input required invalid init',
+						'name' => 'password'
+					), array(
+						'tag' => 'input',
+						'type' => 'button',
+						'id' => 'password-gen',
+						'class' => 'button-input button',
+						'value' => 'Generate Password'
+					), array(
+						'tag' => 'label',
+						'class' => 'checkbox-label hidden required invalid init',
+						'content' => formTag('br', array('class' => 'spacer')).formTag('input', array(
+							'type' => 'checkbox',
+							'class' => 'checkbox-input',
+							'name' => 'pass_saved',
+							'value' => 1
+						)).formTag('span', array('content' => 'I have copied the password to a safe place.'))
+					));
+					
+					// Avatar
+					echo formRow('Avatar', array(
+						'tag' => 'div',
+						'class' => 'image-wrap',
+						'content' => formTag('img', array('src' => '//:0', 'data-field' => 'thumb')).formTag('span', array(
+							'class' => 'image-remove',
+							'title' => 'Remove',
+							'content' => formTag('i', array('class' => 'fas fa-times'))
+						))
+					), array(
+						'tag' => 'input',
+						'type' => 'hidden',
+						'name' => 'avatar',
+						'value' => ($_POST['avatar'] ?? 0),
+						'data-field' => 'id'
+					), array(
+						'tag' => 'input',
+						'type' => 'button',
+						'class' => 'button-input button modal-launch',
+						'value' => 'Choose Image',
+						'data-type' => 'image'
+					));
+					
+					// Role
+					echo formRow('Role', array(
+						'tag' => 'select',
+						'class' => 'select-input',
+						'name' => 'role',
+						'content' => $this->getRoleList((int)getSetting('default_user_role', false))
+					));
+					
+					// Separator
 					echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
-					echo formRow('', array('tag' => 'input', 'type' => 'submit', 'class' => 'submit-input button', 'name' => 'submit', 'value' => 'Create User'));
+					
+					// Submit button
+					echo formRow('', array(
+						'tag' => 'input',
+						'type' => 'submit',
+						'class' => 'submit-input button',
+						'name' => 'submit',
+						'value' => 'Create User'
+					));
 					?>
 				</table>
 			</form>
@@ -262,14 +384,84 @@ class User {
 					<form class="data-form" action="" method="post" autocomplete="off">
 						<table class="form-table">
 							<?php
-							echo formRow(array('Username', true), array('tag' => 'input', 'class' => 'text-input required invalid init', 'name' => 'username', 'value' => $this->username));
-							echo formRow(array('Email', true), array('tag' => 'input', 'type' => 'email', 'class' => 'text-input required invalid init', 'name' => 'email', 'value' => $this->email));
-							echo formRow('First Name', array('tag' => 'input', 'class' => 'text-input', 'name' => 'first_name', 'value' => $meta['first_name']));
-							echo formRow('Last Name', array('tag' => 'input', 'class' => 'text-input', 'name' => 'last_name', 'value' => $meta['last_name']));
-							echo formRow('Avatar', array('tag' => 'div', 'class' => 'image-wrap'.(!empty($meta['avatar']) ? ' visible' : ''), 'style' => 'width: '.($width ?? 0).'px;', 'content' => formTag('img', array('src' => getMediaSrc($meta['avatar']), 'data-field' => 'thumb')).formTag('span', array('class' => 'image-remove', 'title' => 'Remove', 'content' => formTag('i', array('class' => 'fas fa-times'))))), array('tag' => 'input', 'type' => 'hidden', 'name' => 'avatar', 'value' => $meta['avatar'], 'data-field' => 'id'), array('tag' => 'input', 'type' => 'button', 'class' => 'button-input button modal-launch', 'value' => 'Choose Image', 'data-type' => 'image'));
-							echo formRow('Role', array('tag' => 'select', 'class' => 'select-input', 'name' => 'role', 'content' => $this->getRoleList($this->role)));
+							// Username
+							echo formRow(array('Username', true), array(
+								'tag' => 'input',
+								'class' => 'text-input required invalid init',
+								'name' => 'username',
+								'value' => $this->username
+							));
+							
+							// Email
+							echo formRow(array('Email', true), array(
+								'tag' => 'input',
+								'type' => 'email',
+								'class' => 'text-input required invalid init',
+								'name' => 'email',
+								'value' => $this->email
+							));
+							
+							// First name
+							echo formRow('First Name', array(
+								'tag' => 'input',
+								'class' => 'text-input',
+								'name' => 'first_name',
+								'value' => $meta['first_name']
+							));
+							
+							// Last name
+							echo formRow('Last Name', array(
+								'tag' => 'input',
+								'class' => 'text-input',
+								'name' => 'last_name',
+								'value' => $meta['last_name']
+							));
+							
+							// Avatar
+							echo formRow('Avatar', array(
+								'tag' => 'div',
+								'class' => 'image-wrap'.(!empty($meta['avatar']) ? ' visible' : ''),
+								'style' => 'width: '.($width ?? 0).'px;',
+								'content' => getMedia($meta['avatar'], array(
+									'data-field' => 'thumb'
+								)).formTag('span', array(
+									'class' => 'image-remove',
+									'title' => 'Remove',
+									'content' => formTag('i', array('class' => 'fas fa-times'))
+								))
+							), array(
+								'tag' => 'input',
+								'type' => 'hidden',
+								'name' => 'avatar',
+								'value' => $meta['avatar'],
+								'data-field' => 'id'
+							), array(
+								'tag' => 'input',
+								'type' => 'button',
+								'class' => 'button-input button modal-launch',
+								'value' => 'Choose Image',
+								'data-type' => 'image'
+							));
+							
+							// Role
+							echo formRow('Role', array(
+								'tag' => 'select',
+								'class' => 'select-input',
+								'name' => 'role',
+								'content' => $this->getRoleList($this->role)
+							));
+							
+							// Separator
 							echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
-							echo formRow('', array('tag' => 'input', 'type' => 'submit', 'class' => 'submit-input button', 'name' => 'submit', 'value' => 'Update User'));
+							
+							// Submit button
+							echo formRow('', array(
+								'tag' => 'input',
+								'type' => 'submit',
+								'class' => 'submit-input button',
+								'name' => 'submit',
+								'value' => 'Update User'
+							));
 							?>
 						</table>
 					</form>
@@ -403,7 +595,10 @@ class User {
 			return $rs_query->selectRow('users', 'COUNT(username)', array('username' => $username)) > 0;
 		} else {
 			// Return true if the username appears in the database (not counting the current user)
-			return $rs_query->selectRow('users', 'COUNT(username)', array('username' => $username, 'id' => array('<>', $id))) > 0;
+			return $rs_query->selectRow('users', 'COUNT(username)', array(
+				'username' => $username,
+				'id' => array('<>', $id)
+			)) > 0;
 		}
 	}
 	
@@ -425,7 +620,10 @@ class User {
 			return $rs_query->selectRow('users', 'COUNT(email)', array('email' => $email)) > 0;
 		} else {
 			// Return true if the email appears in the database (not counting the current user)
-			return $rs_query->selectRow('users', 'COUNT(email)', array('email' => $email, 'id' => array('<>', $id))) > 0;
+			return $rs_query->selectRow('users', 'COUNT(email)', array(
+				'email' => $email,
+				'id' => array('<>', $id)
+			)) > 0;
 		}
 	}
 	
@@ -545,11 +743,55 @@ class User {
 				<form class="data-form" action="" method="post" autocomplete="off">
 					<table class="form-table">
 						<?php
-						echo formRow('Admin Password', array('tag' => 'input', 'type' => 'password', 'class' => 'text-input required invalid init', 'name' => 'admin_pass'));
-						echo formRow('New User Password', array('tag' => 'input', 'id' => 'password-field', 'class' => 'text-input required invalid init', 'name' => 'new_pass'), array('tag' => 'input', 'type' => 'button', 'id' => 'password-gen', 'class' => 'button-input button', 'value' => 'Generate Password'), array('tag' => 'label', 'class' => 'checkbox-label hidden required invalid init', 'content' => formTag('br', array('class' => 'spacer')).formTag('input', array('type' => 'checkbox', 'class' => 'checkbox-input', 'name' => 'pass_saved', 'value' => 1)).formTag('span', array('content' => 'I have copied the password to a safe place.'))));
-						echo formRow('New User Password (confirm)', array('tag' => 'input', 'class' => 'text-input required invalid init', 'name' => 'confirm_pass'));
+						// Admin password
+						echo formRow('Admin Password', array(
+							'tag' => 'input',
+							'type' => 'password',
+							'class' => 'text-input required invalid init',
+							'name' => 'admin_pass'
+						));
+						
+						// New user password
+						echo formRow('New User Password', array(
+							'tag' => 'input',
+							'id' => 'password-field',
+							'class' => 'text-input required invalid init',
+							'name' => 'new_pass'
+						), array(
+							'tag' => 'input',
+							'type' => 'button',
+							'id' => 'password-gen',
+							'class' => 'button-input button',
+							'value' => 'Generate Password'
+						), array(
+							'tag' => 'label',
+							'class' => 'checkbox-label hidden required invalid init',
+							'content' => formTag('br', array('class' => 'spacer')).formTag('input', array(
+								'type' => 'checkbox',
+								'class' => 'checkbox-input',
+								'name' => 'pass_saved',
+								'value' => 1
+							)).formTag('span', array('content' => 'I have copied the password to a safe place.'))
+						));
+						
+						// Confirm new user password
+						echo formRow('New User Password (confirm)', array(
+							'tag' => 'input',
+							'class' => 'text-input required invalid init',
+							'name' => 'confirm_pass'
+						));
+						
+						// Separator
 						echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
-						echo formRow('', array('tag' => 'input', 'type' => 'submit', 'class' => 'submit-input button', 'name' => 'submit', 'value' => 'Update Password'));
+						
+						// Submit button
+						echo formRow('', array(
+							'tag' => 'input',
+							'type' => 'submit',
+							'class' => 'submit-input button',
+							'name' => 'submit',
+							'value' => 'Update Password'
+						));
 						?>
 					</table>
 				</form>
@@ -660,9 +902,25 @@ class User {
 				<form class="data-form" action="" method="post" autocomplete="off">
 					<table class="form-table">
 						<?php
-						echo formRow('Reassign to User', array('tag' => 'select', 'class' => 'select-input', 'name' => 'reassign_to', 'content' => $this->getUserList($this->id)));
+						// Reassign to user
+						echo formRow('Reassign to User', array(
+							'tag' => 'select',
+							'class' => 'select-input',
+							'name' => 'reassign_to',
+							'content' => $this->getUserList($this->id)
+						));
+						
+						// Separator
 						echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
-						echo formRow('', array('tag' => 'input', 'type' => 'submit', 'class' => 'submit-input button', 'name' => 'submit', 'value' => 'Submit'));
+						
+						// Submit button
+						echo formRow('', array(
+							'tag' => 'input',
+							'type' => 'submit',
+							'class' => 'submit-input button',
+							'name' => 'submit',
+							'value' => 'Submit'
+						));
 						?>
 					</table>
 				</form>

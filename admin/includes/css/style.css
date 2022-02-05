@@ -715,6 +715,11 @@ h3 {
 	font-size: 0.85em;
 }
 
+.data-table .column.bulk-select {
+	text-align: center;
+	width: 5%;
+}
+
 .media .data-table .column.thumbnail {
 	text-align: center;
 }
@@ -726,11 +731,6 @@ h3 {
 
 .comments .data-table th:nth-child(2) {
 	width: 55%;
-}
-
-.comments .data-table .column.bulk-select {
-	text-align: center;
-	width: 5%;
 }
 
 .comments .data-table .column.content {

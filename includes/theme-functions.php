@@ -334,6 +334,25 @@ function postHasFeaturedImage() {
 	return $rs_post->postHasFeaturedImage();
 }
 
+/**
+ * Construct the post's excerpt text.
+ * @since 1.2.9[b]
+ *
+ * @param int $num_words (optional; default: 25)
+ * @return string
+ */
+function getPostExcerpt($num_words = 25) {
+	return trimWords(str_replace(array("\n", "\r", "  "), ' ', strip_tags(getPostContent())), $num_words, '...');
+}
+
+/**
+ * Display the post's excerpt text.
+ * @since 1.2.9[b]
+ *
+ * @param int $num_words (optional; default: 25)
+ */
+function putPostExcerpt($num_words = 25) { echo getPostExcerpt($num_words); }
+
 /*------------------------------------*\
     TERMS
 \*------------------------------------*/
@@ -696,7 +715,7 @@ function metaTags() {
 	<meta name="theme-color" content="<?php getSetting('theme_color'); ?>">
 	<meta name="description" content="<?php
 		if(isPost())
-			echo !empty(getPostMeta('description')) ? putPostMeta('description') : trimWords(str_replace(array("\n", "\r"), '', strip_tags(getPostContent())), 25, '.');
+			!empty(getPostMeta('description')) ? putPostMeta('description') : putPostExcerpt();
 		?>">
 	<meta property="og:title" content="<?php
 		if(isPost())
@@ -709,7 +728,7 @@ function metaTags() {
 	<meta property="og:image" content="<?php echo getMediaSrc(getSetting('site_logo', false)); ?>">
 	<meta property="og:description" content="<?php
 		if(isPost())
-			echo !empty(getPostMeta('description')) ? putPostMeta('description') : trimWords(str_replace(array("\n", "\r"), '', strip_tags(getPostContent())), 25, '.');
+			!empty(getPostMeta('description')) ? putPostMeta('description') : putPostExcerpt();
 		?>">
 	<link href="<?php isPost() ? putPostUrl() : putTermUrl(); ?>" rel="canonical">
 	<link type="image/x-icon" href="<?php echo getMediaSrc(getSetting('site_icon', false)); ?>" rel="icon">

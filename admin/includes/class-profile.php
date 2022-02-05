@@ -41,18 +41,88 @@ class Profile extends User {
 			<form class="data-form" action="" method="post" autocomplete="off">
 				<table class="form-table">
 					<?php
-					echo formRow(array('Username', true), array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'username', 'value'=>$this->username));
-					echo formRow(array('Email', true), array('tag'=>'input', 'type'=>'email', 'class'=>'text-input required invalid init', 'name'=>'email', 'value'=>$this->email));
-					echo formRow('First Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'first_name', 'value'=>$meta['first_name']));
-					echo formRow('Last Name', array('tag'=>'input', 'class'=>'text-input', 'name'=>'last_name', 'value'=>$meta['last_name']));
-					echo formRow('Avatar', array('tag'=>'div', 'class'=>'image-wrap'.(!empty($meta['avatar']) ? ' visible' : ''), 'style'=>'width: '.($width ?? 0).'px;', 'content'=>formTag('img', array('src'=>getMediaSrc($meta['avatar']), 'data-field'=>'thumb')).formTag('span', array('class'=>'image-remove', 'title'=>'Remove', 'content'=>formTag('i', array('class'=>'fas fa-times'))))), array('tag'=>'input', 'type'=>'hidden', 'name'=>'avatar', 'value'=>$meta['avatar'], 'data-field'=>'id'), array('tag'=>'input', 'type'=>'button', 'class'=>'button-input button modal-launch', 'value'=>'Choose Image', 'data-type'=>'image'));
-					echo formRow('Theme', array('tag'=>'select', 'class'=>'select-input', 'name'=>'theme', 'content'=>$this->getThemesList($meta['theme'])));
-					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Profile'));
+					// Username
+					echo formRow(array('Username', true), array(
+						'tag' => 'input',
+						'class' => 'text-input required invalid init',
+						'name' => 'username',
+						'value' => $this->username
+					));
+					
+					// Email
+					echo formRow(array('Email', true), array(
+						'tag' => 'input',
+						'type' => 'email',
+						'class' => 'text-input required invalid init',
+						'name' => 'email',
+						'value' => $this->email
+					));
+					
+					// First name
+					echo formRow('First Name', array(
+						'tag' => 'input',
+						'class' => 'text-input',
+						'name' => 'first_name',
+						'value' => $meta['first_name']
+					));
+					
+					// Last name
+					echo formRow('Last Name', array(
+						'tag' => 'input',
+						'class' => 'text-input',
+						'name' => 'last_name',
+						'value' => $meta['last_name']
+					));
+					
+					// Avatar
+					echo formRow('Avatar', array(
+						'tag' => 'div',
+						'class' => 'image-wrap'.(!empty($meta['avatar']) ? ' visible' : ''),
+						'style' => 'width: '.($width ?? 0).'px;',
+						'content' => getMedia($meta['avatar'], array(
+							'data-field' => 'thumb'
+						)).formTag('span', array(
+							'class' => 'image-remove',
+							'title' => 'Remove',
+							'content' => formTag('i', array('class' => 'fas fa-times'))
+						))
+					), array(
+						'tag' => 'input',
+						'type' => 'hidden',
+						'name' => 'avatar',
+						'value' => $meta['avatar'],
+						'data-field' => 'id'
+					), array(
+						'tag' => 'input',
+						'type' => 'button',
+						'class' => 'button-input button modal-launch',
+						'value' => 'Choose Image',
+						'data-type' => 'image'
+					));
+					
+					// Theme
+					echo formRow('Theme', array(
+						'tag' => 'select',
+						'class' => 'select-input',
+						'name' => 'theme',
+						'content' => $this->getThemesList($meta['theme'])
+					));
+					
+					// Separator
+					echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
+					
+					// Submit button
+					echo formRow('', array(
+						'tag' => 'input',
+						'type' => 'submit',
+						'class' => 'submit-input button',
+						'name' => 'submit',
+						'value' => 'Update Profile'
+					));
 					?>
 				</table>
 			</form>
-			<?php echo actionLink('reset_password', array('classes'=>'reset-password button', 'caption'=>'Reset Password')); ?>
+			<?php echo actionLink('reset_password', array('classes' => 'reset-password button', 'caption' => 'Reset Password')); ?>
 		</div>
 		<?php
 		// Include the upload modal
@@ -88,17 +158,17 @@ class Profile extends User {
 			return statusMessage('That email is already taken by another user. Please choose another one.');
 		
 		// Create an array to hold the user's metadata
-		$usermeta = array('first_name'=>$data['first_name'], 'last_name'=>$data['last_name'], 'avatar'=>$data['avatar'], 'theme'=>$data['theme']);
+		$usermeta = array('first_name' => $data['first_name'], 'last_name' => $data['last_name'], 'avatar' => $data['avatar'], 'theme' => $data['theme']);
 		
 		// Update the user in the database
-		$rs_query->update('users', array('username'=>$data['username'], 'email'=>$data['email']), array('id'=>$session['id']));
+		$rs_query->update('users', array('username' => $data['username'], 'email' => $data['email']), array('id' => $session['id']));
 		
 		// Update the user's metadata in the database
-		foreach($usermeta as $key=>$value)
-			$rs_query->update('usermeta', array('value'=>$value), array('user'=>$session['id'], '_key'=>$key));
+		foreach($usermeta as $key => $value)
+			$rs_query->update('usermeta', array('value' => $value), array('user' => $session['id'], '_key' => $key));
 		
 		// Update the class variables
-		foreach($data as $key=>$value) $this->$key = $value;
+		foreach($data as $key => $value) $this->$key = $value;
 		
 		// Return a status message
 		return statusMessage('Profile updated! This page will automatically refresh for all changes to take effect.', true);
@@ -177,11 +247,11 @@ class Profile extends User {
 			<form class="data-form" action="" method="post" autocomplete="off">
 				<table class="form-table">
 					<?php
-					echo formRow('Current Password', array('tag'=>'input', 'type'=>'password', 'class'=>'text-input required invalid init', 'name'=>'current_pass'));
-					echo formRow('New Password', array('tag'=>'input', 'id'=>'password-field', 'class'=>'text-input required invalid init', 'name'=>'new_pass'), array('tag'=>'input', 'type'=>'button', 'id'=>'password-gen', 'class'=>'button-input button', 'value'=>'Generate Password'), array('tag'=>'label', 'class'=>'checkbox-label hidden required invalid init', 'content'=>formTag('br', array('class'=>'spacer')).formTag('input', array('type'=>'checkbox', 'class'=>'checkbox-input', 'name'=>'pass_saved', 'value'=>1)).formTag('span', array('content'=>'I have copied the password to a safe place.'))));
-					echo formRow('New Password (confirm)', array('tag'=>'input', 'class'=>'text-input required invalid init', 'name'=>'confirm_pass'));
-					echo formRow('', array('tag'=>'hr', 'class'=>'separator'));
-					echo formRow('', array('tag'=>'input', 'type'=>'submit', 'class'=>'submit-input button', 'name'=>'submit', 'value'=>'Update Password'));
+					echo formRow('Current Password', array('tag' => 'input', 'type' => 'password', 'class' => 'text-input required invalid init', 'name' => 'current_pass'));
+					echo formRow('New Password', array('tag' => 'input', 'id' => 'password-field', 'class' => 'text-input required invalid init', 'name' => 'new_pass'), array('tag' => 'input', 'type' => 'button', 'id' => 'password-gen', 'class' => 'button-input button', 'value' => 'Generate Password'), array('tag' => 'label', 'class' => 'checkbox-label hidden required invalid init', 'content' => formTag('br', array('class' => 'spacer')).formTag('input', array('type' => 'checkbox', 'class' => 'checkbox-input', 'name' => 'pass_saved', 'value' => 1)).formTag('span', array('content' => 'I have copied the password to a safe place.'))));
+					echo formRow('New Password (confirm)', array('tag' => 'input', 'class' => 'text-input required invalid init', 'name' => 'confirm_pass'));
+					echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
+					echo formRow('', array('tag' => 'input', 'type' => 'submit', 'class' => 'submit-input button', 'name' => 'submit', 'value' => 'Update Password'));
 					?>
 				</table>
 			</form>
@@ -223,10 +293,10 @@ class Profile extends User {
 			return statusMessage('Please confirm that you\'ve saved your password to a safe location.');
 		
 		// Hash the password (encrypts the password for security purposes)
-		$hashed_password = password_hash($data['new_pass'], PASSWORD_BCRYPT, array('cost'=>10));
+		$hashed_password = password_hash($data['new_pass'], PASSWORD_BCRYPT, array('cost' => 10));
 		
 		// Update the current user's password and session in the database
-		$rs_query->update('users', array('password'=>$hashed_password, 'session'=>null), array('id'=>$id));
+		$rs_query->update('users', array('password' => $hashed_password, 'session' => null), array('id' => $id));
 		
 		// Delete the session cookie
 		setcookie('session', '', 1, '/');

@@ -146,7 +146,7 @@ class Media extends Post {
 							'id' => $media['id']
 						)) : null,
 						// View
-						'<a href="'.trailingSlash(UPLOADS).$meta['filename'].'" target="_blank" rel="noreferrer noopener">View</a>'
+						mediaLink($media['id'], array('link_text' => 'View', 'newtab' => 1))
 					);
 					
 					// Filter out any empty actions
@@ -175,7 +175,7 @@ class Media extends Post {
 					
 					echo tableRow(
 						// Thumbnail
-						tableCell('<img src="'.trailingSlash(UPLOADS).$meta['filename'].'">', 'thumbnail'),
+						tableCell(getMedia($media['id']), 'thumbnail'),
 						// File
 						tableCell('<strong>'.$media['title'].'</strong><br><em>'.$meta['filename'].'</em><div class="actions">'.implode(' &bull; ', $actions).'</div>', 'file'),
 						// Author
@@ -308,10 +308,7 @@ class Media extends Post {
 						echo formRow('Thumbnail', array(
 							'tag' => 'div',
 							'class' => 'thumb-wrap',
-							'content' => formTag('img', array(
-								'class' => 'media-thumb',
-								'src' => trailingSlash(UPLOADS).$meta['filename']
-							))
+							'content' => getMedia($this->id, array('class' => 'media-thumb'))
 						));
 						echo formRow(array('Title', true), array(
 							'tag' => 'input',
@@ -384,7 +381,7 @@ class Media extends Post {
 			?>
 			<div class="heading-wrap">
 				<h1>Replace Media</h1>
-				<?php echo $message; ?>
+				<?php echo $message ?? ''; ?>
 			</div>
 			<div class="data-form-wrap clear">
 				<form class="data-form" action="" method="post" autocomplete="off" enctype="multipart/form-data">
@@ -393,10 +390,7 @@ class Media extends Post {
 						echo formRow('Thumbnail', array(
 							'tag' => 'div',
 							'class' => 'thumb-wrap',
-							'content' => formTag('img', array(
-								'class' => 'media-thumb',
-								'src' => trailingSlash(UPLOADS).$meta['filename']
-							))
+							'content' => getMedia($this->id, array('class' => 'media-thumb'))
 						));
 						echo formRow(array('Title', true), array(
 							'tag' => 'input',
@@ -417,7 +411,7 @@ class Media extends Post {
 							'class' => 'checkbox-input',
 							'name' => 'update_filename_date',
 							'value' => 1,
-							'*' => ($_POST['update_filename_date'] ? 'checked' : ''),
+							'*' => (isset($_POST['update_filename_date']) && $_POST['update_filename_date'] ? 'checked' : ''),
 							'label' => array(
 								'class' => 'checkbox-label',
 								'content' => '<span>Update filename and date</span>'
@@ -561,6 +555,7 @@ class Media extends Post {
 					'title' => $data['title'],
 					'author' => $session['id'],
 					'date' => 'NOW()',
+					'modified' => 'NOW()',
 					'content' => $data['description'],
 					'slug' => $slug,
 					'type' => 'media'
@@ -644,11 +639,20 @@ class Media extends Post {
 					// Convert the filename to all lowercase, remove all special characters, and replace spaces with hyphens
 					$filename = str_replace(array('  ', ' '), '-', preg_replace('/[^\w\s\-]/i', '', strtolower($file['filename'])));
 					
-					// Get a unique slug
-					$slug = getUniquePostSlug($filename);
-					
-					// Get a unique filename
-					$filename = getUniqueFilename($filename.'.'.$file['extension']);
+					// Check whether the new filename is the same as the old one
+					if($filename.'.'.$file['extension'] === $meta['filename']) {
+						// Set the slug to match the filename
+						$slug = $filename;
+						
+						// Add the extension to the filename
+						$filename .= '.'.$file['extension'];
+					} else {
+						// Get a unique slug
+						$slug = getUniquePostSlug($filename);
+						
+						// Get a unique filename
+						$filename = getUniqueFilename($filename.'.'.$file['extension']);
+					}
 					
 					// Move the uploaded file to the uploads directory
 					move_uploaded_file($data['file']['tmp_name'], trailingSlash(PATH.UPLOADS).$filename);
@@ -661,17 +665,21 @@ class Media extends Post {
 						'slug' => $slug
 					), array('id' => $id));
 				} else {
-					// Split the old filename into separate parts
-					$db_file = pathinfo($meta['filename']);
-					
-					// Split the new filename into separate parts
+					// Split the filename into separate parts
 					$file = pathinfo($data['file']['name']);
 					
-					// Construct the new filename
-					$filename = $db_file['filename'].'.'.$file['extension'];
-					
-					// Get a unique filename
-					$filename = getUniqueFilename($filename);
+					// Check whether the extension of the new file matches the existing one
+					if(strpos($meta['filename'], $file['extension']) !== false) {
+						// If so, keep the filename and extension the same
+						$filename = $meta['filename'];
+					} else {
+						// Otherwise,
+						// Split the old filename into separate parts
+						$old_filename = pathinfo($meta['filename']);
+						
+						// Update the extension
+						$filename = $old_filename['filename'].'.'.$file['extension'];
+					}
 					
 					// Move the uploaded file to the uploads directory
 					move_uploaded_file($data['file']['tmp_name'], trailingSlash(PATH.UPLOADS).$filename);

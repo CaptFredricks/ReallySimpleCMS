@@ -75,11 +75,19 @@ class Widget extends Post {
 				?>
 			</div>
 		</div>
-		<table class="data-table">
+		<table class="data-table has-bulk-select">
 			<thead>
 				<?php
 				// Fill an array with the table header columns
-				$table_header_cols = array('Title', 'Slug', 'Status');
+				$table_header_cols = array(
+					tag('input', array(
+						'type' => 'checkbox',
+						'class' => 'checkbox bulk-selector'
+					)),
+					'Title',
+					'Slug',
+					'Status'
+				);
 				
 				// Construct the table header
 				echo tableHeaderRow($table_header_cols);
@@ -115,6 +123,12 @@ class Widget extends Post {
 					$actions = array_filter($actions);
 					
 					echo tableRow(
+						// Bulk select
+						tableCell(tag('input', array(
+							'type' => 'checkbox',
+							'class' => 'checkbox',
+							'value' => $widget['id']
+						)), 'bulk-select'),
 						// Title
 						tableCell('<strong>'.$widget['title'].'</strong><div class="actions">'.implode(' &bull; ', $actions).'</div>', 'title'),
 						// Slug
@@ -134,6 +148,9 @@ class Widget extends Post {
 			</tfoot>
 		</table>
 		<?php
+		// Bulk actions
+		if(!empty($widgets)) $this->bulkActions();
+		
 		// Set up page navigation
 		echo pagerNav($page['current'], $page['count']);
 		
@@ -295,6 +312,31 @@ class Widget extends Post {
 	}
 	
 	/**
+	 * Update a widget's status.
+	 * @since 1.2.9[b]
+	 *
+	 * @access public
+	 * @param string $status
+	 * @param int $id (optional; default: 0)
+	 */
+	public function updateWidgetStatus($status, $id = 0) {
+		// Extend the Query object
+		global $rs_query;
+		
+		// If the provided id is not zero, update the class id to match it
+		if($id !== 0) $this->id = $id;
+		
+		// Check whether the widget's id is valid
+		if(empty($this->id) || $this->id <= 0) {
+			// Redirect to the "List Widgets" page
+			redirect(ADMIN_URI);
+		} else {
+			// Update the widget's status
+			$rs_query->update('posts', array('status' => $status), array('id' => $this->id, 'type' => 'widget'));
+		}
+	}
+	
+	/**
 	 * Delete a widget.
 	 * @since 1.6.1[a]
 	 *
@@ -351,6 +393,7 @@ class Widget extends Post {
 			$insert_id = $rs_query->insert('posts', array(
 				'title' => $data['title'],
 				'date' => 'NOW()',
+				'modified' => 'NOW()',
 				'content' => $data['content'],
 				'status' => $data['status'],
 				'slug' => $slug,
@@ -375,5 +418,47 @@ class Widget extends Post {
 			// Return a status message
 			return statusMessage('Widget updated! <a href="'.ADMIN_URI.'">Return to list</a>?', true);
 		}
+	}
+	
+	/**
+	 * Construct bulk actions.
+	 * @since 1.2.9[b]
+	 *
+	 * @access private
+	 */
+	private function bulkActions() {
+		// Extend the user's session data
+		global $session;
+		?>
+		<div class="bulk-actions">
+			<?php
+			// Make sure the user has the required permissions
+			if(userHasPrivilege($session['role'], 'can_edit_widgets')) {
+				?>
+				<select class="actions">
+					<option value="active">Active</option>
+					<option value="inactive">Inactive</option>
+				</select>
+				<?php
+				// Update status
+				button(array(
+					'class' => 'bulk-update',
+					'title' => 'Bulk status update',
+					'label' => 'Update'
+				));
+			}
+			
+			// Make sure the user has the required permissions
+			if(userHasPrivilege($session['role'], 'can_delete_widgets')) {
+				// Delete
+				button(array(
+					'class' => 'bulk-delete',
+					'title' => 'Bulk delete',
+					'label' => 'Delete'
+				));
+			}
+			?>
+		</div>
+		<?php
 	}
 }

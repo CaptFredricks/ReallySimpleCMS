@@ -9,7 +9,7 @@ if(VERSION > '1.0.9') {
 	// Fetch the database schema
 	$schema = dbSchema();
 	
-	// Check whether the 'comments' table exists and create it if not
+	// Check whether the `comments` table exists and create it if not
 	if(!$rs_query->tableExists('comments'))
 		$rs_query->doQuery($schema['comments']);
 	
@@ -53,7 +53,7 @@ if(VERSION > '1.0.9') {
 	
 	// Check whether the proper user privileges exist for comments
 	if($rs_query->select('user_privileges', 'COUNT(*)', array('name' => array('LIKE', '%_comments'))) !== 3) {
-		// Delete the 'user_privileges' and 'user_relationships' tables
+		// Delete the `user_privileges` and `user_relationships` tables
 		$rs_query->dropTables(array('user_privileges', 'user_relationships'));
 		
 		// Recreate the tables
@@ -103,15 +103,15 @@ if(VERSION > '1.1.7') {
 	// Fetch the database schema
 	$schema = dbSchema();
 	
-	// Check whether the 'login_attempts' table exists and create it if not
+	// Check whether the `login_attempts` table exists and create it if not
 	if(!$rs_query->tableExists('login_attempts'))
 		$rs_query->doQuery($schema['login_attempts']);
 	
-	// Check whether the 'login_blacklist' table exists and create it if not
+	// Check whether the `login_blacklist` table exists and create it if not
 	if(!$rs_query->tableExists('login_blacklist'))
 		$rs_query->doQuery($schema['login_blacklist']);
 	
-	// Check whether the 'login_rules' table exists and create it if not
+	// Check whether the `login_rules` table exists and create it if not
 	if(!$rs_query->tableExists('login_rules'))
 		$rs_query->doQuery($schema['login_rules']);
 	
@@ -119,7 +119,7 @@ if(VERSION > '1.1.7') {
 	if($rs_query->select('user_privileges', 'COUNT(*)', array('name' => array('LIKE', '%_login_%'))) !== 9) {
 		// Check whether any non-default user roles exist
 		if($rs_query->select('user_roles', 'COUNT(*)', array('id' => array('NOT IN', 1, 2, 3, 4))) > 0) {
-			// Create a temporary 'user_relationships' table
+			// Create a temporary `user_relationships` table
 			$rs_query->doQuery("CREATE TABLE user_relationships_temp (
 				id bigint(20) unsigned PRIMARY KEY auto_increment,
 				role bigint(20) unsigned NOT NULL default '0',
@@ -144,7 +144,7 @@ if(VERSION > '1.1.7') {
 			}
 		}
 		
-		// Delete the 'user_privileges' and 'user_relationships' tables
+		// Delete the `user_privileges` and `user_relationships` tables
 		$rs_query->dropTables(array('user_privileges', 'user_relationships'));
 		
 		// Recreate the tables
@@ -154,7 +154,7 @@ if(VERSION > '1.1.7') {
 		// Populate the tables
 		populateUserPrivileges();
 		
-		// Check whether a temporary 'user_relationships' table exists
+		// Check whether a temporary `user_relationships` table exists
 		if($rs_query->tableExists('user_relationships_temp')) {
 			// Loop through the custom user roles' ids
 			foreach($roles as $role) {
@@ -190,7 +190,7 @@ if(VERSION > '1.1.7') {
 				}
 			}
 			
-			// Delete the temporary 'user_relationships' table
+			// Delete the temporary `user_relationships` table
 			$rs_query->dropTable('user_relationships_temp');
 		}
 	}
@@ -207,12 +207,12 @@ if(VERSION > '1.1.7') {
 		$rs_query->insert('settings', array('name' => 'delete_old_login_attempts', 'value' => 0));
 	}
 	
-	// Select all indexes for the 'comments' table
+	// Select all indexes for the `comments` table
 	$indexes = $rs_query->showIndexes('comments');
 	
 	// Check whether the number of indexes is 4 (the primary key plus the other 3 indexes)
 	if(count($indexes) !== 4) {
-		// Create a temporary 'comments' table
+		// Create a temporary `comments` table
 		$rs_query->doQuery("CREATE TABLE comments_temp (
 			id bigint(20) unsigned PRIMARY KEY auto_increment,
 			post bigint(20) unsigned NOT NULL default '0',
@@ -246,10 +246,37 @@ if(VERSION > '1.1.7') {
 			));
 		}
 		
-		// Delete the 'comments' table
+		// Delete the `comments` table
 		$rs_query->dropTable('comments');
 		
-		// Rename the temporary 'comments' table
+		// Rename the temporary `comments` table
 		$rs_query->doQuery("ALTER TABLE `comments_temp` RENAME TO `comments`");
+	}
+}
+
+// Check whether the version is higher than 1.2.8[b]
+if(VERSION > '1.2.8') {
+	// Select all data from the `posts` table
+	$posts = $rs_query->select('posts', array('id', 'date', 'modified', 'status'));
+	
+	// Loop through the posts
+	foreach($posts as $post) {
+		// Check whether the modified date is 'null'
+		if(is_null($post['modified'])) {
+			// If so, check whether the publish date is 'null'
+			if(is_null($post['date'])) {
+				// If so, set the modified date to the current time
+				$rs_query->update('posts', array('modified' => 'NOW()'), array('id' => $post['id']));
+			} else {
+				// Otherwise, set the modified date to the value of 'date'
+				$rs_query->update('posts', array('modified' => $post['date']), array('id' => $post['id']));
+			}
+		}
+		
+		// Check whether the post is a draft or in the trash
+		if(in_array($post['status'], array('draft', 'trash'), true)) {
+			// If not, set the publish date to 'null'
+			$rs_query->update('posts', array('date' => null), array('id' => $post['id']));
+		}
 	}
 }

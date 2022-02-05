@@ -1,6 +1,6 @@
 <?php
 /**
- * Handle Ajax requests to the server.
+ * Handle AJAX requests to the server.
  * @since 1.1.0[b]{ss-03}
  */
 
