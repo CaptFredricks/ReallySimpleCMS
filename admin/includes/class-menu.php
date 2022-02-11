@@ -22,7 +22,6 @@ class Menu extends Term {
 	 *
 	 * @access public
 	 * @param int $id (optional; default: 0)
-	 * @return null
 	 */
 	public function __construct($id = 0) {
 		// Extend the Query object
@@ -55,9 +54,8 @@ class Menu extends Term {
 	 * @since 1.8.0[a]
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function listMenus() {
+	public function listMenus(): void {
 		// Extend the Query object and the user's session data
 		global $rs_query, $session;
 		
@@ -161,9 +159,8 @@ class Menu extends Term {
 	 * @since 1.8.0[a]
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function createMenu() {
+	public function createMenu(): void {
 		// Validate the form data and return any messages
 		$message = isset($_POST['submit']) ? $this->validateMenuData($_POST) : '';
 		?>
@@ -232,9 +229,8 @@ class Menu extends Term {
 	 * @since 1.8.0[a]
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function editMenu() {
+	public function editMenu(): void {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -334,9 +330,8 @@ class Menu extends Term {
 	 * @since 1.8.1[a]
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function deleteMenu() {
+	public function deleteMenu(): void {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -375,9 +370,9 @@ class Menu extends Term {
 	 * @access private
 	 * @param array $data
 	 * @param int $id (optional; default: 0)
-	 * @return null|string (null on $id == 0; string on $id != 0)
+	 * @return string
 	 */
-	private function validateMenuData($data, $id = 0) {
+	private function validateMenuData($data, $id = 0): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -385,8 +380,8 @@ class Menu extends Term {
 		if(empty($data['name']) || empty($data['slug']))
 			return statusMessage('R');
 		
-		// Sanitize the slug (strip off HTML and/or PHP tags and replace any characters not specified in the filter)
-		$slug = preg_replace('/[^a-z0-9\-]/', '', strip_tags(strtolower($data['slug'])));
+		// Sanitize the slug
+		$slug = sanitize($data['slug']);
 		
 		// Make sure the slug is unique
 		if($this->slugExists($slug, $id))
@@ -570,7 +565,7 @@ class Menu extends Term {
 	 * @param int $id
 	 * @return bool
 	 */
-	private function slugExists($slug, $id) {
+	private function slugExists($slug, $id): bool {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -579,7 +574,10 @@ class Menu extends Term {
 			$count = $rs_query->selectRow('terms', 'COUNT(slug)', array('slug' => $slug));
 		} else {
 			// Fetch the number of times the slug appears in the database (minus the current category)
-			$count = $rs_query->selectRow('terms', 'COUNT(slug)', array('slug' => $slug, 'id' => array('<>', $id)));
+			$count = $rs_query->selectRow('terms', 'COUNT(slug)', array(
+				'slug' => $slug,
+				'id' => array('<>', $id)
+			));
 		}
 		
 		// Return true if the count is greater than zero
@@ -592,9 +590,8 @@ class Menu extends Term {
 	 *
 	 * @access private
 	 * @param int $id (optional; default: 0)
-	 * @return null
 	 */
-	private function getMenuItems($id = 0) {
+	private function getMenuItems($id = 0): void {
 		// Extend the Query object
 		global $rs_query;
 		?>
@@ -711,9 +708,8 @@ class Menu extends Term {
 	 * @since 1.8.0[a]
 	 *
 	 * @access private
-	 * @return null
 	 */
-	private function getMenuItemsSidebar() {
+	private function getMenuItemsSidebar(): void {
 		// Extend the Query object and the post types and taxonomies arrays
 		global $rs_query, $post_types, $taxonomies;
 		
@@ -806,9 +802,8 @@ class Menu extends Term {
 	 * @access private
 	 * @param int $id
 	 * @param int $menu
-	 * @return null
 	 */
-	private function moveUpMenuItem($id, $menu) {
+	private function moveUpMenuItem($id, $menu): void {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -883,9 +878,8 @@ class Menu extends Term {
 	 * @access private
 	 * @param int $id
 	 * @param int $menu
-	 * @return null
 	 */
-	private function moveDownMenuItem($id, $menu) {
+	private function moveDownMenuItem($id, $menu): void {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -970,7 +964,7 @@ class Menu extends Term {
 	 * @param int $index
 	 * @return array
 	 */
-	private function createMenuItem($type, $id, $index) {
+	private function createMenuItem($type, $id, $index): array {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -1020,9 +1014,8 @@ class Menu extends Term {
 	 *
 	 * @access private
 	 * @param int $id
-	 * @return null
 	 */
-	private function editMenuItem($id) {
+	private function editMenuItem($id): void {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -1052,7 +1045,7 @@ class Menu extends Term {
 		<form class="data-form" action="" method="post" autocomplete="off">
 			<table class="form-table">
 				<?php
-				// Title field
+				// Title
 				echo formRow(array('Title', true), array(
 					'tag' => 'input',
 					'class' => 'text-input required invalid init',
@@ -1060,7 +1053,7 @@ class Menu extends Term {
 					'value' => $menu_item['title']
 				));
 				
-				// Link dropdown
+				// Link
 				if($type === 'post') {
 					echo formRow('Link to', array(
 						'tag' => 'select',
@@ -1084,7 +1077,7 @@ class Menu extends Term {
 					));
 				}
 				
-				// Parent dropdown
+				// Parent
 				echo formRow('Parent', array(
 					'tag' => 'select',
 					'class' => 'select-input',
@@ -1092,9 +1085,10 @@ class Menu extends Term {
 					'content' => '<option value="0">(none)</option>'.$this->getParentList($menu_item['parent'], $menu_item['id'])
 				));
 				
+				// Separator
 				echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
 				
-				// Update & delete buttons
+				// Update and delete buttons
 				echo formRow('', array(
 					'tag' => 'input',
 					'type' => 'submit',
@@ -1123,9 +1117,8 @@ class Menu extends Term {
 	 * @access public
 	 * @param int $id
 	 * @param int $menu
-	 * @return null
 	 */
-	public function deleteMenuItem($id, $menu) {
+	public function deleteMenuItem($id, $menu): void {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -1194,9 +1187,9 @@ class Menu extends Term {
 	 * @access private
 	 * @param array $data
 	 * @param int $id
-	 * @return null
+	 * @return nullable (null|string)
 	 */
-	private function validateMenuItemData($data, $id) {
+	private function validateMenuItemData($data, $id): ?string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -1376,6 +1369,9 @@ class Menu extends Term {
 				}
 			}
 		}
+		
+		// Return a null value
+		return null;
 	}
 	
 	/**
@@ -1387,7 +1383,7 @@ class Menu extends Term {
 	 * @param int $menu
 	 * @return bool
 	 */
-	private function isFirstSibling($id, $menu) {
+	private function isFirstSibling($id, $menu): bool {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -1425,7 +1421,7 @@ class Menu extends Term {
 	 * @param int $menu
 	 * @return bool
 	 */
-	private function isLastSibling($id, $menu) {
+	private function isLastSibling($id, $menu): bool {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -1464,7 +1460,7 @@ class Menu extends Term {
 	 * @param int $menu
 	 * @return bool
 	 */
-	private function isPreviousSibling($previous, $id, $menu) {
+	private function isPreviousSibling($previous, $id, $menu): bool {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -1518,7 +1514,7 @@ class Menu extends Term {
 	 * @param int $menu
 	 * @return bool
 	 */
-	private function isNextSibling($next, $id, $menu) {
+	private function isNextSibling($next, $id, $menu): bool {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -1545,7 +1541,7 @@ class Menu extends Term {
 				foreach($siblings as $sibling) {
 					// Fetch the sibling's index from the database
 					$index = (int)$rs_query->selectField('postmeta', 'value', array(
-						'post' => $sibling['id'],
+						'post' => $sibling,
 						'_key' => 'menu_index'
 					));
 					
@@ -1571,7 +1567,7 @@ class Menu extends Term {
 	 * @param int $ancestor
 	 * @return bool
 	 */
-	private function isDescendant($id, $ancestor) {
+	private function isDescendant($id, $ancestor): bool {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -1599,7 +1595,7 @@ class Menu extends Term {
 	 * @param int $menu
 	 * @return bool
 	 */
-	private function hasSiblings($id, $menu) {
+	private function hasSiblings($id, $menu): bool {
 		return count($this->getSiblings($id, $menu)) > 0;
 	}
 	
@@ -1612,7 +1608,7 @@ class Menu extends Term {
 	 * @param int $exclude
 	 * @return array
 	 */
-	private function getMenuRelationships($id, $exclude) {
+	private function getMenuRelationships($id, $exclude): array {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -1665,7 +1661,7 @@ class Menu extends Term {
 	 * @param string $type
 	 * @return string
 	 */
-	private function getMenuItemsList($id, $type) {
+	private function getMenuItemsList($id, $type): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -1709,7 +1705,7 @@ class Menu extends Term {
 	 * @param int $id
 	 * @return int
 	 */
-	private function getMenuItemDepth($id) {
+	private function getMenuItemDepth($id): int {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -1739,7 +1735,7 @@ class Menu extends Term {
 	 * @param int $id
 	 * @return array
 	 */
-	private function getMenuItemMeta($id) {
+	private function getMenuItemMeta($id): array {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -1773,7 +1769,7 @@ class Menu extends Term {
 	 * @param int $id
 	 * @return int
 	 */
-	private function getParent($id) {
+	private function getParent($id): int {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -1790,7 +1786,7 @@ class Menu extends Term {
 	 * @param int $id
 	 * @return string
 	 */
-	private function getParentList($parent, $id) {
+	private function getParentList($parent, $id): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -1858,7 +1854,7 @@ class Menu extends Term {
 	 * @param int $menu
 	 * @return array
 	 */
-	private function getSiblings($id, $menu) {
+	private function getSiblings($id, $menu): array {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -1890,7 +1886,7 @@ class Menu extends Term {
 	 * @param int $menu
 	 * @return int
 	 */
-	private function getPreviousSibling($id, $menu) {
+	private function getPreviousSibling($id, $menu): int {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -1913,7 +1909,7 @@ class Menu extends Term {
 	 * @param int $menu
 	 * @return int
 	 */
-	private function getNextSibling($id, $menu) {
+	private function getNextSibling($id, $menu): int {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -1935,7 +1931,7 @@ class Menu extends Term {
 	 * @param int $id
 	 * @return int
 	 */
-	private function getFamilyTree($id) {
+	private function getFamilyTree($id): int {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -1967,9 +1963,8 @@ class Menu extends Term {
 	 *
 	 * @access private
 	 * @param int $id
-	 * @return null
 	 */
-	private function getDescendants($id) {
+	private function getDescendants($id): void {
 		// Extend the Query object
 		global $rs_query;
 		

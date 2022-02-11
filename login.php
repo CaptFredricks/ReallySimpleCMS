@@ -8,7 +8,7 @@
 require_once __DIR__.'/init.php';
 
 // Include functions
-require_once PATH.INC.'/functions.php';
+require_once FUNC;
 
 // Start output buffering
 ob_start();
@@ -25,12 +25,12 @@ $action = $_GET['action'] ?? '';
 <!DOCTYPE html>
 <html>
 	<head>
-		<title><?php echo empty($action) ? 'Log In' : ucwords(str_replace('_', ' ', $action)); ?> &rtrif; <?php getSetting('site_title'); ?></title>
+		<title><?php echo empty($action) ? 'Log In' : ucwords(str_replace('_', ' ', $action)); ?> &rtrif; <?php putSetting('site_title'); ?></title>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="robots" content="noindex, nofollow">
-		<meta name="theme-color" content="<?php getSetting('theme_color'); ?>">
-		<link type="image/x-icon" href="<?php echo getMediaSrc(getSetting('site_icon', false)); ?>" rel="icon">
+		<meta name="theme-color" content="<?php putSetting('theme_color'); ?>">
+		<link type="image/x-icon" href="<?php echo getMediaSrc(getSetting('site_icon')); ?>" rel="icon">
 		<?php headerScripts(); ?>
 	</head>
 	<body class="login">
@@ -39,14 +39,14 @@ $action = $_GET['action'] ?? '';
 				<a href="/">
 					<?php
 					// Check whether a site logo has been set
-					if(!empty(getSetting('site_logo', false))) {
+					if(!empty(getSetting('site_logo'))) {
 						// Display the site logo
 						?>
-						<img src="<?php echo getMediaSrc(getSetting('site_logo', false)); ?>" title="<?php getSetting('site_title'); ?>">
+						<img src="<?php echo getMediaSrc(getSetting('site_logo')); ?>" title="<?php putSetting('site_title'); ?>">
 						<?php
 					} else {
 						// Display the site title
-						getSetting('site_title');
+						putSetting('site_title');
 					}
 					?>
 				</a>

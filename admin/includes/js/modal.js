@@ -263,7 +263,6 @@ jQuery(document).ready($ => {
 	 *
 	 * @param object container
 	 * @param object data
-	 * @return null
 	 */
 	function insertMedia(container, data) {
 		// Fetch the text of the container element
@@ -308,8 +307,6 @@ jQuery(document).ready($ => {
 	/**
 	 * Close an open modal and perform cleanup.
 	 * @since 2.1.3[a]
-	 *
-	 * @return null
 	 */
 	function modalClose() {
 		// Remove 'modal-open' class from the body tag

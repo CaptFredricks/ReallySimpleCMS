@@ -7,14 +7,11 @@
 // Include named constants
 require_once dirname(__DIR__).'/includes/constants.php';
 
+// Make sure a config file doesn't already exist (this will be created in a moment)
+if(file_exists(DB_CONFIG)) exit('A configuration file already exists. If you wish to continue installation, please delete the existing file.');
+
 // Path to the admin stylesheets directory
 if(!defined('ADMIN_STYLES')) define('ADMIN_STYLES', ADMIN.INC.'/css');
-
-// Get data from the config setup file
-$config_file = file(PATH.INC.'/config-setup.php');
-
-// Make sure config file doesn't already exist (this will be created in a moment)
-if(file_exists(PATH.'/config.php')) exit('A configuration file already exists. If you wish to continue installation, please delete the existing file.');
 
 // Set the current step of the setup process
 $step = (int)($_GET['step'] ?? 0);
@@ -75,18 +72,11 @@ $step = (int)($_GET['step'] ?? 0);
 					<?php
 					break;
 				case 2:
-					// Create database connection constants
-					define('DB_NAME', trim(strip_tags($_POST['db_name'])));
-					define('DB_USER', trim(strip_tags($_POST['db_user'])));
-					define('DB_PASS', trim(strip_tags($_POST['db_pass'])));
-					define('DB_HOST', trim(strip_tags($_POST['db_host'])));
-					define('DB_CHAR', 'utf8');
+					// Include the debugging functions
+					require_once DEBUG_FUNC;
 					
-					// Include debugging functions
-					require_once PATH.INC.'/debug.php';
-					
-					// Include query class
-					require_once PATH.INC.'/class-query.php';
+					// Include the Query class
+					require_once QUERY_CLASS;
 					
 					// Create a Query object
 					$rs_query = new Query;
@@ -99,6 +89,16 @@ $step = (int)($_GET['step'] ?? 0);
 						<?php
 						exit;
 					}
+					
+					// Create database connection constants
+					define('DB_NAME', trim(strip_tags($_POST['db_name'])));
+					define('DB_USER', trim(strip_tags($_POST['db_user'])));
+					define('DB_PASS', trim(strip_tags($_POST['db_pass'])));
+					define('DB_HOST', trim(strip_tags($_POST['db_host'])));
+					define('DB_CHAR', 'utf8');
+					
+					// Fetch data from the config setup file
+					$config_file = file(PATH.INC.'/config-setup.php');
 					
 					// Loop through the file
 					foreach($config_file as $line_num => $line) {
@@ -134,7 +134,7 @@ $step = (int)($_GET['step'] ?? 0);
 						<?php
 					} else {
 						// File path for the config file
-						$config_file_path = PATH.'/config.php';
+						$config_file_path = DB_CONFIG;
 						
 						// Open the file stream
 						$handle = fopen($config_file_path, 'w');

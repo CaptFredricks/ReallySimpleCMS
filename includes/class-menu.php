@@ -13,7 +13,7 @@ class Menu {
 	 * @access public
 	 * @param string $slug
 	 */
-	public function getMenu($slug) {
+	public function getMenu($slug): void {
 		// Extend the Query object and the post types and taxonomies arrays
 		global $rs_query, $post_types, $taxonomies;
 		
@@ -139,7 +139,7 @@ class Menu {
 	 * @param string $uri
 	 * @return bool
 	 */
-	private function isCurrentPage($uri) {
+	private function isCurrentPage($uri): bool {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -155,7 +155,7 @@ class Menu {
 	 * @param int $id
 	 * @return bool
 	 */
-	private function menuItemHasParent($id) {
+	private function menuItemHasParent($id): bool {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -171,7 +171,7 @@ class Menu {
 	 * @param int $id
 	 * @return bool
 	 */
-	private function menuItemHasChildren($id) {
+	private function menuItemHasChildren($id): bool {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -187,7 +187,7 @@ class Menu {
 	 * @param int $id
 	 * @return array
 	 */
-	private function getMenuItemMeta($id) {
+	private function getMenuItemMeta($id): array {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -221,7 +221,7 @@ class Menu {
 	 * @param int $id
 	 * @return int
 	 */
-	private function getMenuItemParent($id) {
+	private function getMenuItemParent($id): int {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -236,7 +236,7 @@ class Menu {
 	 * @access private
 	 * @param int $id
 	 */
-	private function getMenuItemDescendants($id) {
+	private function getMenuItemDescendants($id): void {
 		// Extend the Query object and the post types array
 		global $rs_query, $post_types;
 		?>

@@ -29,7 +29,6 @@ class Query {
 	 * @since 1.0.0[a]
 	 *
 	 * @access public
-	 * @return null
 	 */
 	public function __construct() {
 		try {
@@ -67,7 +66,7 @@ class Query {
 	 * @param string $order_by (optional; default: '')
 	 * @param string $order (optional; default: 'ASC')
 	 * @param string|array $limit (optional; default: '')
-	 * @return array
+	 * @return int|array
 	 */
 	public function select($table, $data = '*', $where = array(), $order_by = '', $order = 'ASC', $limit = '') {
 		// Stop execution and throw an error if no table is specified
@@ -217,7 +216,7 @@ class Query {
 	 * @param string $order_by (optional; default: '')
 	 * @param string $order (optional; default: 'ASC')
 	 * @param string|array $limit (optional; default: '')
-	 * @return array
+	 * @return int|array
 	 */
 	public function selectRow($table, $data = '*', $where = array(), $order_by = '', $order = 'ASC', $limit = '') {
 		// Fetch the data from the database
@@ -246,7 +245,7 @@ class Query {
 	 * @param string|array $limit (optional; default: '')
 	 * @return string
 	 */
-	public function selectField($table, $field, $where = array(), $order_by = '', $order = 'ASC', $limit = '') {
+	public function selectField($table, $field, $where = array(), $order_by = '', $order = 'ASC', $limit = ''): string {
 		// Stop execution and throw an error if no field is specified
 		if(empty($field)) exit($this->errorMsg('field'));
 		
@@ -266,7 +265,7 @@ class Query {
 	 * @param array $data
 	 * @return int
 	 */
-	public function insert($table, $data) {
+	public function insert($table, $data): int {
 		// Stop execution and throw an error if no table is specified
 		if(empty($table)) exit($this->errorMsg('table'));
 		
@@ -330,9 +329,8 @@ class Query {
 	 * @param string $table
 	 * @param array $data
 	 * @param array $where (optional; default: array())
-	 * @return null
 	 */
-	public function update($table, $data, $where = array()) {
+	public function update($table, $data, $where = array()): void {
 		// Stop execution and throw an error if no table is specified
 		if(empty($table)) exit($this->errorMsg('table'));
 		
@@ -444,9 +442,8 @@ class Query {
 	 * @access public
 	 * @param string $table
 	 * @param array $where (optional; default: array())
-	 * @return null
 	 */
-	public function delete($table, $where = array()) {
+	public function delete($table, $where = array()): void {
 		// Stop execution and throw an error if no table is specified
 		if(empty($table)) exit($this->errorMsg('table'));
 		
@@ -530,9 +527,8 @@ class Query {
 	 *
 	 * @access public
 	 * @param string $sql
-	 * @return null
 	 */
-	public function doQuery($sql) {
+	public function doQuery($sql): void {
 		try {
 			// Prepare and execute the query
 			$query = $this->conn->prepare($sql);
@@ -551,7 +547,7 @@ class Query {
 	 * @param string $table (optional; default: '')
 	 * @return array
 	 */
-	public function showTables($table = '') {
+	public function showTables($table = ''): array {
 		// Create an empty array to hold the table data
 		$data = array();
 		
@@ -585,7 +581,7 @@ class Query {
 	 * @param string $table
 	 * @return array
 	 */
-	public function showIndexes($table) {
+	public function showIndexes($table): array {
 		// Stop execution and throw an error if no table is specified
 		if(empty($table)) exit($this->errorMsg('table'));
 		
@@ -616,7 +612,7 @@ class Query {
 	 * @param string $table
 	 * @return bool
 	 */
-	public function tableExists($table) {
+	public function tableExists($table): bool {
 		return !empty($this->showTables($table));
 	}
 	
@@ -626,9 +622,8 @@ class Query {
 	 *
 	 * @access public
 	 * @param string $table
-	 * @return null
 	 */
-	public function dropTable($table) {
+	public function dropTable($table): void {
 		// Stop execution and throw an error if no table is specified
 		if(empty($table)) exit($this->errorMsg('table'));
 		
@@ -642,9 +637,8 @@ class Query {
 	 *
 	 * @access public
 	 * @param array $tables
-	 * @return null
 	 */
-	public function dropTables($tables) {
+	public function dropTables($tables): void {
 		// Stop execution and throw an error if no tables are specified
 		if(empty($tables)) exit($this->errorMsg('table'));
 		
@@ -668,9 +662,8 @@ class Query {
 	 *
 	 * @access private
 	 * @param string $type
-	 * @return null
 	 */
-	private function errorMsg($type) {
+	private function errorMsg($type): void {
 		$error = 'Query Error: ';
 		
 		switch($type) {

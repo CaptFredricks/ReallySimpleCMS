@@ -126,7 +126,6 @@ private function isSibling($id, $sibling) {
  * @deprecated since 1.7.0[a]
  *
  * @param array $data
- * @return null
  */
 function populateTermRelationships($data) {
 	// Extend the Query class
@@ -194,7 +193,6 @@ function selectQuery($args) {
  * @deprecated since 1.1.0[a]
  *
  * @param array $args
- * @return null
  */
 function insertQuery($args) {
 	if(!empty($args)) {
@@ -237,7 +235,6 @@ function insertQuery($args) {
  * @deprecated since 1.1.0[a]
  *
  * @param array $args
- * @return null
  */
 function updateQuery($args) {
 	if(!empty($args)) {
@@ -326,7 +323,6 @@ function unduplicateKeys($keys) {
  * @deprecated since 1.0.3[a]
  *
  * @param array $args
- * @return null
  */
 function deleteQuery($args) {
 	if(!empty($args)) {

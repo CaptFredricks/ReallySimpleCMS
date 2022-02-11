@@ -40,7 +40,6 @@ class UserRole {
 	 *
 	 * @access public
 	 * @param int $id (optional; default: 0)
-	 * @return null
 	 */
 	public function __construct($id = 0) {
 		// Extend the Query object
@@ -64,9 +63,8 @@ class UserRole {
 	 * @since 1.7.1[a]
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function listUserRoles() {
+	public function listUserRoles(): void {
 		// Extend the Query object and the user's session data
 		global $rs_query, $session;
 		
@@ -130,16 +128,28 @@ class UserRole {
 					// Set up the action links
 					$actions = array(
 						// Edit
-						userHasPrivilege($session['role'], 'can_edit_user_roles') ? actionLink('edit', array('caption' => 'Edit', 'page' => 'user_roles', 'id' => $role['id'])) : null,
+						userHasPrivilege($session['role'], 'can_edit_user_roles') ? actionLink('edit', array(
+							'caption' => 'Edit',
+							'page' => 'user_roles',
+							'id' => $role['id']
+						)) : null,
 						// Delete
-						userHasPrivilege($session['role'], 'can_delete_user_roles') ? actionLink('delete', array('classes' => 'modal-launch delete-item', 'data_item' => 'user role', 'caption' => 'Delete', 'page' => 'user_roles', 'id' => $role['id'])) : null
+						userHasPrivilege($session['role'], 'can_delete_user_roles') ? actionLink('delete', array(
+							'classes' => 'modal-launch delete-item',
+							'data_item' => 'user role',
+							'caption' => 'Delete',
+							'page' => 'user_roles',
+							'id' => $role['id']
+						)) : null
 					);
 					
 					// Filter out any empty actions
 					$actions = array_filter($actions);
 					
 					echo tableRow(
+						// Name
 						tableCell('<strong>'.$role['name'].'</strong><div class="actions">'.implode(' &bull; ', $actions).'</div>', 'name'),
+						// Privileges
 						tableCell($this->getPrivileges($role['id']), 'privileges')
 					);
 				}
@@ -173,7 +183,9 @@ class UserRole {
 				// Loop through the user roles
 				foreach($roles as $role) {
 					echo tableRow(
+						// Name
 						tableCell('<strong>'.$role['name'].'</strong><div class="actions"><em>default roles cannot be modified</em></div>', 'name'),
+						// Privileges
 						tableCell($this->getPrivileges($role['id']), 'privileges')
 					);
 				}
@@ -197,9 +209,8 @@ class UserRole {
 	 * @since 1.7.2[a]
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function createUserRole() {
+	public function createUserRole(): void {
 		// Validate the form data and return any messages
 		$message = isset($_POST['submit']) ? $this->validateUserRoleData($_POST) : '';
 		?>
@@ -211,10 +222,28 @@ class UserRole {
 			<form class="data-form" action="" method="post" autocomplete="off">
 				<table class="form-table">
 					<?php
-					echo formRow(array('Name', true), array('tag' => 'input', 'class' => 'text-input required invalid init', 'name' => 'name', 'value' => ($_POST['name'] ?? '')));
+					// Name
+					echo formRow(array('Name', true), array(
+						'tag' => 'input',
+						'class' => 'text-input required invalid init',
+						'name' => 'name',
+						'value' => ($_POST['name'] ?? '')
+					));
+					
+					// Privileges
 					echo formRow('Privileges', $this->getPrivilegesList());
+					
+					// Separator
 					echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
-					echo formRow('', array('tag' => 'input', 'type' => 'submit', 'class' => 'submit-input button', 'name' => 'submit', 'value' => 'Create User Role'));
+					
+					// Submit button
+					echo formRow('', array(
+						'tag' => 'input',
+						'type' => 'submit',
+						'class' => 'submit-input button',
+						'name' => 'submit',
+						'value' => 'Create User Role'
+					));
 					?>
 				</table>
 			</form>
@@ -227,9 +256,8 @@ class UserRole {
 	 * @since 1.7.2[a]
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function editUserRole() {
+	public function editUserRole(): void {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -254,10 +282,28 @@ class UserRole {
 					<form class="data-form" action="" method="post" autocomplete="off">
 						<table class="form-table">
 							<?php
-							echo formRow(array('Name', true), array('tag' => 'input', 'class' => 'text-input required invalid init', 'name' => 'name', 'value' => $this->name));
+							// Name
+							echo formRow(array('Name', true), array(
+								'tag' => 'input',
+								'class' => 'text-input required invalid init',
+								'name' => 'name',
+								'value' => $this->name
+							));
+							
+							// Privileges
 							echo formRow('Privileges', $this->getPrivilegesList($this->id));
+							
+							// Separator
 							echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
-							echo formRow('', array('tag' => 'input', 'type' => 'submit', 'class' => 'submit-input button', 'name' => 'submit', 'value' => 'Update User Role'));
+							
+							// Submit button
+							echo formRow('', array(
+								'tag' => 'input',
+								'type' => 'submit',
+								'class' => 'submit-input button',
+								'name' => 'submit',
+								'value' => 'Update User Role'
+							));
 							?>
 						</table>
 					</form>
@@ -272,9 +318,8 @@ class UserRole {
 	 * @since 1.7.2[a]
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function deleteUserRole() {
+	public function deleteUserRole(): void {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -307,9 +352,9 @@ class UserRole {
 	 * @access private
 	 * @param array $data
 	 * @param int $id (optional; default: 0)
-	 * @return null|string (null on $id == 0; string on $id != 0)
+	 * @return string
 	 */
-	private function validateUserRoleData($data, $id = 0) {
+	private function validateUserRoleData($data, $id = 0): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -330,7 +375,10 @@ class UserRole {
 				// Loop through the privileges
 				foreach($data['privileges'] as $privilege) {
 					// Insert a new user relationship into the database
-					$rs_query->insert('user_relationships', array('role' => $insert_id, 'privilege' => $privilege));
+					$rs_query->insert('user_relationships', array(
+						'role' => $insert_id,
+						'privilege' => $privilege
+					));
 				}
 			}
 			
@@ -357,7 +405,10 @@ class UserRole {
 				// Loop through the privileges
 				foreach($data['privileges'] as $privilege) {
 					// Fetch any relationships between the current privilege and the role from the database
-					$relationship = $rs_query->selectRow('user_relationships', 'COUNT(*)', array('role' => $id, 'privilege' => $privilege));
+					$relationship = $rs_query->selectRow('user_relationships', 'COUNT(*)', array(
+						'role' => $id,
+						'privilege' => $privilege
+					));
 					
 					// Check whether the relationship already exists
 					if($relationship) {
@@ -387,7 +438,7 @@ class UserRole {
 	 * @param int $id
 	 * @return bool
 	 */
-	private function roleNameExists($name, $id) {
+	private function roleNameExists($name, $id): bool {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -396,7 +447,10 @@ class UserRole {
 			$count = $rs_query->selectRow('user_roles', 'COUNT(name)', array('name' => $name));
 		} else {
 			// Fetch the number of times the name appears in the database (minus the current role)
-			$count = $rs_query->selectRow('user_roles', 'COUNT(name)', array('name' => $name, 'id' => array('<>', $id)));
+			$count = $rs_query->selectRow('user_roles', 'COUNT(name)', array(
+				'name' => $name,
+				'id' => array('<>', $id)
+			));
 		}
 		
 		// Return true if the count is greater than zero
@@ -411,7 +465,7 @@ class UserRole {
 	 * @param int $id
 	 * @return string
 	 */
-	private function getPrivileges($id) {
+	private function getPrivileges($id): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -442,7 +496,7 @@ class UserRole {
 	 * @param int $id (optional; default: 0)
 	 * @return string
 	 */
-	private function getPrivilegesList($id = 0) {
+	private function getPrivilegesList($id = 0): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -453,15 +507,30 @@ class UserRole {
 		$privileges = $rs_query->select('user_privileges', '*', '', 'id');
 		
 		// Create a 'select all/select none' checkbox
-		$list .= '<li>'.formTag('input', array('type' => 'checkbox', 'id' => 'select-all', 'class' => 'checkbox-input', 'label' => array('content' => '<span>SELECT ALL</span>'))).'</li>';
+		$list .= '<li>'.formTag('input', array(
+			'type' => 'checkbox',
+			'id' => 'select-all',
+			'class' => 'checkbox-input',
+			'label' => array('content' => '<span>SELECT ALL</span>')
+		)).'</li>';
 		
 		// Loop through the privileges
 		foreach($privileges as $privilege) {
 			// Fetch any existing user relationship from the database
-			$relationship = $rs_query->selectRow('user_relationships', 'COUNT(*)', array('role' => $id, 'privilege' => $privilege['id']));
+			$relationship = $rs_query->selectRow('user_relationships', 'COUNT(*)', array(
+				'role' => $id,
+				'privilege' => $privilege['id']
+			));
 			
 			// Construct the list
-			$list .= '<li>'.formTag('input', array('type' => 'checkbox', 'class' => 'checkbox-input', 'name' => 'privileges[]', 'value' => $privilege['id'], '*' => ($relationship ? 'checked' : ''), 'label' => array('content' => '<span>'.$privilege['name'].'</span>'))).'</li>';
+			$list .= '<li>'.formTag('input', array(
+				'type' => 'checkbox',
+				'class' => 'checkbox-input',
+				'name' => 'privileges[]',
+				'value' => $privilege['id'],
+				'*' => ($relationship ? 'checked' : ''),
+				'label' => array('content' => '<span>'.$privilege['name'].'</span>')
+			)).'</li>';
 		}
 		
 		// Close the unordered list

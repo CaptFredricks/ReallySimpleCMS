@@ -12,23 +12,23 @@ if(version_compare(PHP_VERSION, PHP_MINIMUM, '<'))
 	exit('<p>The minimum version of PHP that is supported by '.CMS_NAME.' is '.PHP_MINIMUM.'; your server is running on '.PHP_VERSION.'. Please upgrade to the minimum required version or higher to use this CMS.</p>');
 
 // Check whether the configuration file exists
-if(!file_exists(PATH.'/config.php')) {
+if(!file_exists(DB_CONFIG)) {
 	// Redirect to the setup page
 	header('Location: '.ADMIN.'/setup.php');
 	exit;
 }
 
-// Include the debugging functions
-require_once PATH.INC.'/debug.php';
+// Include debugging functions
+require_once DEBUG_FUNC;
 
 // Include the database configuration
-require_once PATH.'/config.php';
+require_once DB_CONFIG;
 
 // Include the Query class
-require_once PATH.INC.'/class-query.php';
+require_once QUERY_CLASS;
 
-// Include the global functions
-require_once PATH.INC.'/globals.php';
+// Include global functions
+require_once GLOBAL_FUNC;
 
 // Check whether the 'DEBUG_MODE' constant has been defined and define it if not
 if(!defined('DEBUG_MODE')) define('DEBUG_MODE', false);
@@ -47,7 +47,7 @@ if(!$rs_query->conn_status)
 	exit('<p>There is a problem with your database connection. Check your <code>config.php</code> file located in the <code>root</code> directory of your installation.</p>');
 
 // Include the database schema
-require_once PATH.INC.'/schema.php';
+require_once DB_SCHEMA;
 
 // Fetch the database schema
 $schema = dbSchema();
@@ -88,13 +88,10 @@ if(!defined('BASE_INIT') || (defined('BASE_INIT') && !BASE_INIT)) {
 	// Check whether the user is viewing the admin dashboard, the log in page, or the 404 not found page
 	if(!isAdmin() && !isLogin() && !is404()) {
 		// Include functions
-		require_once PATH.INC.'/functions.php';
+		require_once FUNC;
 		
 		// Include theme-specific functions
 		require_once PATH.INC.'/theme-functions.php';
-		
-		// Include the theme loader file
-		require_once PATH.INC.'/load-theme.php';
 		
 		// Include the sitemap index generator
 		include_once PATH.INC.'/sitemap-index.php';
@@ -140,7 +137,8 @@ if(!defined('BASE_INIT') || (defined('BASE_INIT') && !BASE_INIT)) {
 				$rs_term = new Term;
 			} else {
 				// Catastrophic failure, abort
-				exit('The CMS has encountered a critical error. Please try again later.');
+				redirect('/404.php');
+				//exit('The CMS has encountered a critical error. Please try again later.');
 			}
 		}
 		
@@ -149,6 +147,9 @@ if(!defined('BASE_INIT') || (defined('BASE_INIT') && !BASE_INIT)) {
 			// Fetch the user's data
 			$session = getOnlineUser($_COOKIE['session']);
 		}
+		
+		// Include the theme loader file
+		require_once PATH.INC.'/load-theme.php';
 		
 		// Include the template loader file
 		require_once PATH.INC.'/load-template.php';

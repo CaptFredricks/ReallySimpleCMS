@@ -5,7 +5,7 @@
  *
  * @return array
  */
-function dbSchema() {
+function dbSchema(): array {
 	// Comments table
 	$tables['comments'] = "CREATE TABLE comments (
 		id bigint(20) unsigned PRIMARY KEY auto_increment,

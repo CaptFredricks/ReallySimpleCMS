@@ -13,7 +13,6 @@ class Widget extends Post {
 	 *
 	 * @access public
 	 * @param int $id (optional; default: 0)
-	 * @return null
 	 */
 	public function __construct($id = 0) {
 		// Extend the Query object
@@ -37,9 +36,8 @@ class Widget extends Post {
 	 * @since 1.6.0[a]
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function listWidgets() {
+	public function listWidgets(): void {
 		// Extend the Query object and the user's session data
 		global $rs_query, $session;
 		
@@ -163,9 +161,8 @@ class Widget extends Post {
 	 * @since 1.6.0[a]
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function createWidget() {
+	public function createWidget(): void {
 		// Validate the form data and return any messages
 		$message = isset($_POST['submit']) ? $this->validateData($_POST) : '';
 		?>
@@ -177,7 +174,7 @@ class Widget extends Post {
 			<form class="data-form" action="" method="post" autocomplete="off">
 				<table class="form-table">
 					<?php
-					// Title field
+					// Title
 					echo formRow(array('Title', true), array(
 						'tag' => 'input',
 						'id' => 'title-field',
@@ -186,7 +183,7 @@ class Widget extends Post {
 						'value' => ($_POST['title'] ?? '')
 					));
 					
-					// Slug field
+					// Slug
 					echo formRow(array('Slug', true), array(
 						'tag' => 'input',
 						'id' => 'slug-field',
@@ -195,7 +192,7 @@ class Widget extends Post {
 						'value' => ($_POST['slug'] ?? '')
 					));
 					
-					// Content field
+					// Content
 					echo formRow('Content', array(
 						'tag' => 'textarea',
 						'class' => 'textarea-input',
@@ -205,7 +202,7 @@ class Widget extends Post {
 						'content' => htmlspecialchars(($_POST['content'] ?? ''))
 					));
 					
-					// Status dropdown
+					// Status
 					echo formRow('Status', array(
 						'tag' => 'select',
 						'class' => 'select-input',
@@ -213,6 +210,7 @@ class Widget extends Post {
 						'content' => '<option value="active">Active</option><option value="inactive">Inactive</option>'
 					));
 					
+					// Separator
 					echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
 					
 					// Submit button
@@ -235,9 +233,8 @@ class Widget extends Post {
 	 * @since 1.6.1[a]
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function editWidget() {
+	public function editWidget(): void {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -257,7 +254,7 @@ class Widget extends Post {
 				<form class="data-form" action="" method="post" autocomplete="off">
 					<table class="form-table">
 						<?php
-						// Title field
+						// Title
 						echo formRow(array('Title', true), array(
 							'tag' => 'input',
 							'id' => 'title-field',
@@ -266,7 +263,7 @@ class Widget extends Post {
 							'value' => $this->title
 						));
 						
-						// Slug field
+						// Slug
 						echo formRow(array('Slug', true), array(
 							'tag' => 'input',
 							'id' => 'slug-field',
@@ -275,7 +272,7 @@ class Widget extends Post {
 							'value' => $this->slug
 						));
 						
-						// Content field
+						// Content
 						echo formRow('Content', array(
 							'tag' => 'textarea',
 							'class' => 'textarea-input',
@@ -285,7 +282,7 @@ class Widget extends Post {
 							'content' => htmlspecialchars($this->content)
 						));
 						
-						// Status dropdown
+						// Status
 						echo formRow('Status', array(
 							'tag' => 'select',
 							'class' => 'select-input',
@@ -293,6 +290,7 @@ class Widget extends Post {
 							'content' => '<option value="'.$this->status.'">'.ucfirst($this->status).'</option>'.($this->status === 'active' ? '<option value="inactive">Inactive</option>' : '<option value="active">Active</option>')
 						));
 						
+						// Separator
 						echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
 						
 						// Submit button
@@ -319,7 +317,7 @@ class Widget extends Post {
 	 * @param string $status
 	 * @param int $id (optional; default: 0)
 	 */
-	public function updateWidgetStatus($status, $id = 0) {
+	public function updateWidgetStatus($status, $id = 0): void {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -341,9 +339,8 @@ class Widget extends Post {
 	 * @since 1.6.1[a]
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function deleteWidget() {
+	public function deleteWidget(): void {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -367,9 +364,9 @@ class Widget extends Post {
 	 * @access private
 	 * @param array $data
 	 * @param int $id (optional; default: 0)
-	 * @return null|string (null on $id == 0; string on $id != 0)
+	 * @return string
 	 */
-	private function validateData($data, $id = 0) {
+	private function validateData($data, $id = 0): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -377,8 +374,8 @@ class Widget extends Post {
 		if(empty($data['title']) || empty($data['slug']))
 			return statusMessage('R');
 		
-		// Sanitize the slug (strip off HTML and/or PHP tags and replace any characters not specified in the filter)
-		$slug = preg_replace('/[^a-z0-9\-]/', '', strip_tags(strtolower($data['slug'])));
+		// Sanitize the slug
+		$slug = sanitize($data['slug']);
 		
 		// Make sure the slug is unique
 		if($this->slugExists($slug, $id))
@@ -426,7 +423,7 @@ class Widget extends Post {
 	 *
 	 * @access private
 	 */
-	private function bulkActions() {
+	private function bulkActions(): void {
 		// Extend the user's session data
 		global $session;
 		?>

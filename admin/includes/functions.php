@@ -40,27 +40,9 @@ spl_autoload_register(function($class_name) {
 	require_once PATH.ADMIN.INC.'/class-'.strtolower($class_name).'.php';
 });
 
-/**
- * Display the copyright information on the admin dashboard.
- * @since 1.2.0[a]
- *
- * @return null
- */
-function RSCopyright() {
-	?>
-	&copy; <?php echo date('Y'); ?> <a href="/"><?php echo CMS_NAME; ?></a> &bull; Created by <a href="https://jacefincham.com/" target="_blank" rel="noreferrer noopener">Jace Fincham</a>
-	<?php
-}
-
-/**
- * Display the CMS version on the admin dashboard.
- * @since 1.2.0[a]
- *
- * @return null
- */
-function RSVersion() {
-	echo 'Version '.VERSION.' (&beta;)';
-}
+/*------------------------------------*\
+    HEADER, FOOTER, & NAV MENU
+\*------------------------------------*/
 
 /**
  * Fetch the current admin page.
@@ -68,7 +50,7 @@ function RSVersion() {
  *
  * @return string
  */
-function getCurrentPage() {
+function getCurrentPage(): string {
 	// Extend the Query object and the post types and taxonomies arrays
 	global $rs_query, $post_types, $taxonomies;
 	
@@ -182,7 +164,7 @@ function getCurrentPage() {
  *
  * @return string
  */
-function getPageTitle() {
+function getPageTitle(): string {
 	// Extend the Query object and the post types and taxonomies arrays
 	global $rs_query, $post_types, $taxonomies;
 	
@@ -214,68 +196,51 @@ function getPageTitle() {
 }
 
 /**
- * Fetch an admin script file.
+ * Output an admin script file.
  * @since 1.2.0[a]
  *
  * @param string $script
  * @param string $version (optional; default: VERSION)
- * @param bool $echo (optional; default: true)
- * @return null|string (null on $echo == true; string on $echo == false)
  */
-function getAdminScript($script, $version = VERSION, $echo = true) {
-	if($echo)
-		echo '<script src="'.trailingSlash(ADMIN_SCRIPTS).$script.(!empty($version) ? '?v='.$version : '').'"></script>';
-	else
-		return '<script src="'.trailingSlash(ADMIN_SCRIPTS).$script.(!empty($version) ? '?v='.$version : '').'"></script>';
+function adminScript($script, $version = VERSION): void {
+	echo '<script src="'.trailingSlash(ADMIN_SCRIPTS).$script.(!empty($version) ? '?v='.$version : '').'"></script>';
 }
 
 /**
- * Fetch an admin stylesheet.
+ * Output an admin stylesheet.
  * @since 1.2.0[a]
  *
  * @param string $stylesheet
  * @param string $version (optional; default: VERSION)
- * @param bool $echo (optional; default: true)
- * @return null|string (null on $echo == true; string on $echo == false)
  */
-function getAdminStylesheet($stylesheet, $version = VERSION, $echo = true) {
-	if($echo)
-		echo '<link href="'.trailingSlash(ADMIN_STYLES).$stylesheet.(!empty($version) ? '?v='.$version : '').'" rel="stylesheet">';
-	else
-		return '<link href="'.trailingSlash(ADMIN_STYLES).$stylesheet.(!empty($version) ? '?v='.$version : '').'" rel="stylesheet">';
+function adminStylesheet($stylesheet, $version = VERSION): void {
+	echo '<link href="'.trailingSlash(ADMIN_STYLES).$stylesheet.(!empty($version) ? '?v='.$version : '').'" rel="stylesheet">';
 }
 
 /**
- * Fetch an admin theme's stylesheet.
+ * Output an admin theme's stylesheet.
  * @since 2.3.1[a]
  *
  * @param string $stylesheet
  * @param string $version (optional; default: VERSION)
- * @param bool $echo (optional; default: true)
- * @return null|string (null on $echo == true; string on $echo == false)
  */
-function getAdminTheme($stylesheet, $version = VERSION, $echo = true) {
-	if($echo)
-		echo '<link href="'.trailingSlash(ADMIN_THEMES).$stylesheet.(!empty($version) ? '?v='.$version : '').'" rel="stylesheet">';
-	else
-		return '<link href="'.trailingSlash(ADMIN_THEMES).$stylesheet.(!empty($version) ? '?v='.$version : '').'" rel="stylesheet">';
+function adminThemeStylesheet($stylesheet, $version = VERSION): void {
+	echo '<link href="'.trailingSlash(ADMIN_THEMES).$stylesheet.(!empty($version) ? '?v='.$version : '').'" rel="stylesheet">';
 }
 
 /**
  * Load all admin header scripts and stylesheets.
  * @since 2.0.7[a]
- *
- * @return null
  */
-function adminHeaderScripts() {
+function adminHeaderScripts(): void {
 	// Extend the user's session data
 	global $session;
 	
 	// Button stylesheet
-	getStylesheet('button.min.css');
+	putStylesheet('button.min.css');
 	
 	// Admin stylesheet
-	getAdminStylesheet('style.min.css');
+	adminStylesheet('style.min.css');
 	
 	// Check whether the user has a custom admin theme selected
 	if($session['theme'] !== 'default') {
@@ -285,97 +250,45 @@ function adminHeaderScripts() {
 		// Check whether the stylesheet exists
 		if(file_exists(trailingSlash(PATH.ADMIN_THEMES).$filename)) {
 			// Admin theme stylesheet
-			getAdminTheme($filename);
+			adminThemeStylesheet($filename);
 		}
 	}
 	
 	// Font Awesome icons stylesheet
-	getStylesheet('font-awesome.min.css', ICONS_VERSION);
+	putStylesheet('font-awesome.min.css', ICONS_VERSION);
 	
 	// Font Awesome font-face rules stylesheet
-	getStylesheet('font-awesome-rules.min.css');
+	putStylesheet('font-awesome-rules.min.css');
 	
 	// JQuery library
-	getScript('jquery.min.js', JQUERY_VERSION);
+	putScript('jquery.min.js', JQUERY_VERSION);
 }
 
 /**
  * Load all admin footer scripts and stylesheets.
  * @since 2.0.7[a]
- *
- * @return null
  */
-function adminFooterScripts() {
+function adminFooterScripts(): void {
 	// Admin script file
-	getAdminScript('script.js');
+	adminScript('script.js');
 }
 
 /**
- * Construct a status message.
+ * Display the copyright information on the admin dashboard.
  * @since 1.2.0[a]
- *
- * @param string $text
- * @param bool $success (optional; default: false)
- * @return string
  */
-function statusMessage($text, $success = false) {
-	// Determine whether the status is success or failure
-	if($success === true) {
-		// Set the status message's class to success
-		$class = 'success';
-	} else {
-		// Set the status message's class to failure
-		$class = 'failure';
-		
-		// Check whether the provided text value matches one of the predefined cases
-		switch($text) {
-			case 'E': case 'e':
-				// Status message for unexpected errors out of the user's control
-				$text = 'An unexpected error occurred. Please contact the system administrator.';
-				break;
-			case 'R': case 'r':
-				// Status message for required form fields that are left empty
-				$text = 'Required fields cannot be left blank!';
-				break;
-		}
-	}
-	
-	// Return the status message
-	return '<div class="status-message '.$class.'">'.$text.'</div>';
+function RSCopyright(): void {
+	?>
+	&copy; <?php echo date('Y'); ?> <a href="/"><?php echo CMS_NAME; ?></a> &bull; Created by <a href="https://jacefincham.com/" target="_blank" rel="noreferrer noopener">Jace Fincham</a>
+	<?php
 }
 
 /**
- * Populate the database tables.
- * @since 1.6.4[a]
- *
- * @param array $user_data
- * @param array $settings_data
- * @return null
+ * Display the CMS version on the admin dashboard.
+ * @since 1.2.0[a]
  */
-function populateTables($user_data, $settings_data) {
-	// Populate the `user_roles` table
-	populateUserRoles();
-	
-	// Populate the `user_privileges` and `user_relationships` tables
-	populateUserPrivileges();
-	
-	// Populate the `users` table
-	$user = populateUsers($user_data);
-	
-	// Populate the `posts` table
-	$post = populatePosts($user);
-	
-	// Add the home page to the settings data array
-	$settings_data['home_page'] = $post['home_page'];
-	
-	// Populate the `settings` table
-	populateSettings($settings_data);
-	
-	// Populate the `taxonomies` table
-	populateTaxonomies();
-	
-	// Populate the `terms` table
-	populateTerms($post['blog_post']);
+function RSVersion(): void {
+	echo 'Version '.VERSION.' (&beta;)';
 }
 
 /**
@@ -385,9 +298,8 @@ function populateTables($user_data, $settings_data) {
  * @param array $item (optional; default: array())
  * @param array $submenu (optional; default: array())
  * @param string|array $icon (optional; default: null)
- * @return null
  */
-function adminNavMenuItem($item = array(), $submenu = array(), $icon = null) {
+function adminNavMenuItem($item = array(), $submenu = array(), $icon = null): void {
 	// Fetch the current page
 	$current = getCurrentPage();
 	
@@ -496,9 +408,8 @@ function adminNavMenuItem($item = array(), $submenu = array(), $icon = null) {
 /**
  * Construct the admin nav menu.
  * @since 1.0.0[b]
- *
  */
-function adminNavMenu() {
+function adminNavMenu(): void {
 	// Extend the user's session data and the post types and taxonomies arrays
 	global $session, $post_types, $taxonomies;
 	
@@ -541,43 +452,92 @@ function adminNavMenu() {
 	}
 	
 	// Check whether the user has sufficient privileges to view comments
-	if(userHasPrivilege($session['role'], 'can_view_comments'))
-		adminNavMenuItem(array('id' => 'comments', 'link' => 'comments.php'), array(), array('comments', 'regular'));
+	if(userHasPrivilege($session['role'], 'can_view_comments')) {
+		adminNavMenuItem(array(
+			'id' => 'comments',
+			'link' => 'comments.php'
+		), array(), array('comments', 'regular'));
+	}
 	
 	// Check whether the user has sufficient privileges to view customization options
 	if(userHasPrivileges($session['role'], array('can_view_themes', 'can_view_menus', 'can_view_widgets'), 'OR')) {
 		adminNavMenuItem(array('id' => 'customization'), array( // Submenu
-			(userHasPrivilege($session['role'], 'can_view_themes') ? array('id' => 'themes', 'link' => 'themes.php', 'caption' => 'List Themes') : null),
-			(userHasPrivilege($session['role'], 'can_view_menus') ? array('id' => 'menus', 'link' => 'menus.php', 'caption' => 'List Menus') : null),
-			(userHasPrivilege($session['role'], 'can_view_widgets') ? array('id' => 'widgets', 'link' => 'widgets.php', 'caption' => 'List Widgets') : null)
+			(userHasPrivilege($session['role'], 'can_view_themes') ? array(
+				'id' => 'themes',
+				'link' => 'themes.php',
+				'caption' => 'List Themes'
+			) : null),
+			(userHasPrivilege($session['role'], 'can_view_menus') ? array(
+				'id' => 'menus',
+				'link' => 'menus.php',
+				'caption' => 'List Menus'
+			) : null),
+			(userHasPrivilege($session['role'], 'can_view_widgets') ? array(
+				'id' => 'widgets',
+				'link' => 'widgets.php',
+				'caption' => 'List Widgets'
+			) : null)
 		), 'palette');
 	}
 	
 	// Users/user profile
 	adminNavMenuItem(array('id' => 'users'), array( // Submenu
-		(userHasPrivilege($session['role'], 'can_view_users') ? array('link' => 'users.php', 'caption' => 'List Users') : null),
-		(userHasPrivilege($session['role'], 'can_create_users') ? array('id' => 'users-create', 'link' => 'users.php?action=create', 'caption' => 'Create User') : null),
+		(userHasPrivilege($session['role'], 'can_view_users') ? array(
+			'link' => 'users.php',
+			'caption' => 'List Users'
+		) : null),
+		(userHasPrivilege($session['role'], 'can_create_users') ? array(
+			'id' => 'users-create',
+			'link' => 'users.php?action=create',
+			'caption' => 'Create User'
+		) : null),
 		array('id' => 'profile', 'link' => 'profile.php', 'caption' => 'Your Profile')
 	), 'users');
 	
 	// Check whether the user has sufficient privileges to view login options
 	if(userHasPrivileges($session['role'], array('can_view_login_attempts', 'can_view_login_blacklist', 'can_view_login_rules'), 'OR')) {
 		adminNavMenuItem(array('id' => 'logins'), array( // Submenu
-			(userHasPrivilege($session['role'], 'can_view_login_attempts') ? array('link' => 'logins.php', 'caption' => 'Attempts') : null),
-			(userHasPrivilege($session['role'], 'can_view_login_blacklist') ? array('id' => 'blacklist', 'link' => 'logins.php?page=blacklist', 'caption' => 'Blacklist') : null),
-			(userHasPrivilege($session['role'], 'can_view_login_rules') ? array('id' => 'rules', 'link' => 'logins.php?page=rules', 'caption' => 'Rules') : null)
+			(userHasPrivilege($session['role'], 'can_view_login_attempts') ? array(
+				'link' => 'logins.php',
+				'caption' => 'Attempts'
+			) : null),
+			(userHasPrivilege($session['role'], 'can_view_login_blacklist') ? array(
+				'id' => 'blacklist',
+				'link' => 'logins.php?page=blacklist',
+				'caption' => 'Blacklist'
+			) : null),
+			(userHasPrivilege($session['role'], 'can_view_login_rules') ? array(
+				'id' => 'rules',
+				'link' => 'logins.php?page=rules',
+				'caption' => 'Rules'
+			) : null)
 		), 'sign-in-alt');
 	}
 	
 	// Check whether the user has sufficient privileges to view settings
 	if(userHasPrivileges($session['role'], array('can_edit_settings', 'can_view_user_roles'), 'OR')) {
 		adminNavMenuItem(array('id' => 'settings'), array( // Submenu
-			(userHasPrivilege($session['role'], 'can_edit_settings') ? array('link' => 'settings.php', 'caption' => 'General') : null),
-			(userHasPrivilege($session['role'], 'can_edit_settings') ? array('id' => 'design', 'link' => 'settings.php?page=design', 'caption' => 'Design') : null),
-			(userHasPrivilege($session['role'], 'can_view_user_roles') ? array('id' => 'user-roles', 'link' => 'settings.php?page=user_roles', 'caption' => 'User Roles') : null)
+			(userHasPrivilege($session['role'], 'can_edit_settings') ? array(
+				'link' => 'settings.php',
+				'caption' => 'General'
+			) : null),
+			(userHasPrivilege($session['role'], 'can_edit_settings') ? array(
+				'id' => 'design',
+				'link' => 'settings.php?page=design',
+				'caption' => 'Design'
+			) : null),
+			(userHasPrivilege($session['role'], 'can_view_user_roles') ? array(
+				'id' => 'user-roles',
+				'link' => 'settings.php?page=user_roles',
+				'caption' => 'User Roles'
+			) : null)
 		), 'cogs');
 	}
 }
+
+/*------------------------------------*\
+    DASHBOARD
+\*------------------------------------*/
 
 /**
  * Get statistics for a specific set of table entries.
@@ -588,7 +548,7 @@ function adminNavMenu() {
  * @param string $value (optional; default: '')
  * @return int
  */
-function getStatistics($table, $field = '', $value = '') {
+function getStatistics($table, $field = '', $value = ''): int {
 	// Extend the Query object
 	global $rs_query;
 	
@@ -602,10 +562,8 @@ function getStatistics($table, $field = '', $value = '') {
 /**
  * Create and display a bar graph of site statistics.
  * @since 1.2.4[a]
- *
- * @return null
  */
-function statsBarGraph() {
+function statsBarGraph(): void {
 	// Extend the post types and taxonomies arrays
 	global $post_types, $taxonomies;
 	
@@ -708,9 +666,8 @@ function statsBarGraph() {
  * @since 1.2.1[b]
  *
  * @param string $name
- * @return null
  */
-function dashboardWidget($name) {
+function dashboardWidget($name): void {
 	// Extend the Query object
 	global $rs_query;
 	?>
@@ -787,157 +744,9 @@ function dashboardWidget($name) {
 	<?php
 }
 
-/**
- * Enable pagination.
- * @since 1.2.1[a]
- *
- * @param int $current (optional; default: 1)
- * @param int $per_page (optional; default: 20)
- * @return array
- */
-function paginate($current = 1, $per_page = 20) {
-	// Set the current page
-	$page['current'] = $current;
-	
-	// Set the number of results per page
-	$page['per_page'] = $per_page;
-	
-	// Check whether the current page is '1'
-	if($page['current'] === 1) {
-		// Set the starting value to zero
-		$page['start'] = 0;
-	} else {
-		// Set the starting value to offset based on the number of results per page
-		$page['start'] = ($page['current'] * $page['per_page']) - $page['per_page'];
-	}
-	
-	// Return the page data
-	return $page;
-}
-
-/**
- * Construct pager navigation.
- * @since 1.2.1[a]
- *
- * @param int $page
- * @param int $page_count
- * @return null
- */
-function pagerNav($page, $page_count) {
-	// Fetch the query string from the URL
-	$query_string = $_SERVER['QUERY_STRING'];
-	
-	// Split the query string into an array
-	$query_params = explode('&', $query_string);
-	
-	// Loop through the query parameters
-	for($i = 0; $i < count($query_params); $i++) {
-		// Remove the parameter if it contains 'paged'
-		if(strpos($query_params[$i], 'paged') !== false)
-			unset($query_params[$i]);
-	}
-	
-	// Put the query string back together
-	$query_string = implode('&', $query_params);
-	?>
-	<div class="pager">
-		<?php
-		// Display the 'first page'/'previous page' buttons if the first page of results is not showing
-		if($page > 1) {
-			?>
-			<a class="pager-nav button" href="<?php echo '?'.(!empty($query_string) ? $query_string.'&' : '').'paged=1'; ?>" title="First Page">&laquo;</a><a class="pager-nav button" href="<?php echo '?'.(!empty($query_string) ? $query_string.'&' : '').'paged='.($page - 1); ?>" title="Previous Page">&lsaquo;</a>
-			<?php
-		}
-		
-		// Display the current page
-		if($page_count > 0) echo ' Page '.$page.' of '.$page_count.' ';
-		
-		// Display the 'next page'/'last page' buttons if the last page of results is not showing
-		if($page < $page_count) {
-			?>
-			<a class="pager-nav button" href="<?php echo '?'.(!empty($query_string) ? $query_string.'&' : '').'paged='.($page + 1); ?>" title="Next Page">&rsaquo;</a><a class="pager-nav button" href="<?php echo '?'.(!empty($query_string) ? $query_string.'&' : '').'paged='.$page_count; ?>" title="Last Page">&raquo;</a>
-			<?php
-		}
-		?>
-	</div>
-	<?php
-}
-
-/**
- * Construct an action link.
- * @since 1.2.0[b]{ss-01}
- *
- * @param string $action
- * @param null|string|array $args (optional; default: null)
- * @return string
- */
-function actionLink($action, $args = null) {
-	// Check whether the args value is null
-	if(!is_null($args)) {
-		// Check whether the args value is an array and turn it into one if not
-		if(!is_array($args)) $args = (array)$args;
-		
-		// Set the CSS classes
-		$classes = $args['classes'] ?? '';
-		
-		// Remove the CSS classes from the array
-		unset($args['classes']);
-		
-		// Set the data item, if provided
-		$data_item = $args['data_item'] ?? '';
-		
-		// Remove the data item from the array
-		unset($args['data_item']);
-		
-		// Set the caption
-		$caption = $args['caption'] ?? ($args[0] ?? 'Action Link');
-		
-		// Remove the caption from the array
-		unset($args['caption'], $args[0]);
-		
-		// Create a variable to hold a query string
-		$query_string = '';
-		
-		// Loop through the remaining args and assign them to a query string
-		foreach($args as $key => $value)
-			$query_string .= $key.'='.$value.'&';
-		
-		// Return the action link
-		return '<a'.(!empty($classes) ? ' class="'.$classes.'"' : '').' href="'.ADMIN_URI.'?'.($query_string ?? '').'action='.$action.'"'.(!empty($data_item) ? ' data-item="'.$data_item.'"' : '').'>'.$caption.'</a>';
-	}
-}
-
-/**
- * Construct a link to a media item.
- * @since 1.2.9[b]
- *
- * @param int $id
- * @param array $args (optional; default: array())
- * @return string
- */
-function mediaLink($id, $args = array()) {
-	// Extend the Query object
-	global $rs_query;
-	
-	// Fetch the media's modified date from the database
-	$modified = $rs_query->selectField('posts', 'modified', array('id' => $id));
-	
-	// Fetch the media's source
-	$src = getMediaSrc($id).'?cached='.formatDate($modified, 'YmdHis');
-	
-	// Check whether any link text has been provided
-	if(empty($args['link_text'])) {
-		// Fetch the media's title from the database
-		$args['link_text'] = $rs_query->selectField('posts', 'title', array('id' => $id));
-	}
-	
-	// Construct an anchor tag
-	return '<a'.(
-			!empty($args['class']) ? ' class="'.$args['class'].'"' : ''
-		).' href="'.$src.'"'.(
-			!empty($args['newtab']) && $args['newtab'] === 1 ? ' target="_blank" rel="noreferrer noopener"' : ''
-		).'>'.$args['link_text'].'</a>';
-}
+/*------------------------------------*\
+    TABLES & FORMS
+\*------------------------------------*/
 
 /**
  * Construct a table header row.
@@ -946,7 +755,7 @@ function mediaLink($id, $args = array()) {
  * @param array $items
  * @return string
  */
-function tableHeaderRow($items) {
+function tableHeaderRow($items): string {
 	// Create an empty row
 	$row = '';
 	
@@ -964,8 +773,8 @@ function tableHeaderRow($items) {
  * @param array $cells (optional; unlimited)
  * @return string
  */
-function tableRow(...$cells) {
-	if(!empty($cells)) return '<tr>'.implode('', $cells).'</tr>';
+function tableRow(...$cells): string {
+	return '<tr>'.(!empty($cells) ? implode('', $cells) : '').'</tr>';
 }
 
 /**
@@ -977,7 +786,7 @@ function tableRow(...$cells) {
  * @param int $colspan (optional; default: 1)
  * @return string
  */
-function tableCell($data, $class = '', $colspan = 1) {
+function tableCell($data, $class = '', $colspan = 1): string {
 	return '<td'.(!empty($class) ? ' class="column '.$class.'"' : '').($colspan > 1 ? ' colspan="'.$colspan.'"' : '').'>'.$data.'</td>';
 }
 
@@ -989,7 +798,7 @@ function tableCell($data, $class = '', $colspan = 1) {
  * @param array $args (optional; default: null)
  * @return string
  */
-function formTag($tag_name, $args = null) {
+function formTag($tag_name, $args = null): string {
 	// Create an array of property names from the args array
 	$props = !is_null($args) ? array_keys($args) : array();
 	
@@ -1076,14 +885,14 @@ function formTag($tag_name, $args = null) {
 }
 
 /**
- * Alias function for `formTag`.
+ * Alias for the formTag function.
  * @since 1.2.7[b]
  *
  * @param string $tag_name
  * @param array $args (optional; default: null)
  * @return string
  */
-function tag($tag_name, $args = null) {
+function tag($tag_name, $args = null): string {
 	return formTag($tag_name, $args);
 }
 
@@ -1095,7 +904,7 @@ function tag($tag_name, $args = null) {
  * @param array $args (optional; unlimited)
  * @return string
  */
-function formRow($label = '', ...$args) {
+function formRow($label = '', ...$args): string {
 	// Check whether the label is empty
 	if(!empty($label)) {
 		// Check whether the label is an array
@@ -1169,6 +978,10 @@ function formRow($label = '', ...$args) {
 	return '<tr>'.$row.'</tr>';
 }
 
+/*------------------------------------*\
+    MEDIA
+\*------------------------------------*/
+
 /**
  * Upload media to the media library.
  * @since 2.1.6[a]
@@ -1176,7 +989,7 @@ function formRow($label = '', ...$args) {
  * @param array $data
  * @return string
  */
-function uploadMediaFile($data) {
+function uploadMediaFile($data): string {
 	// Extend the Query object
 	global $rs_query;
 	
@@ -1262,9 +1075,8 @@ function uploadMediaFile($data) {
  * @since 2.1.2[a]
  *
  * @param bool $image_only (optional; default: false)
- * @return null
  */
-function loadMedia($image_only = false) {
+function loadMedia($image_only = false): void {
 	// Extend the Query object
 	global $rs_query;
 	
@@ -1332,11 +1144,315 @@ function loadMedia($image_only = false) {
 }
 
 /**
+ * Construct a link to a media item.
+ * @since 1.2.9[b]
+ *
+ * @param int $id
+ * @param array $args (optional; default: array())
+ * @return string
+ */
+function mediaLink($id, $args = array()): string {
+	// Extend the Query object
+	global $rs_query;
+	
+	// Fetch the media's modified date from the database
+	$modified = $rs_query->selectField('posts', 'modified', array('id' => $id));
+	
+	// Fetch the media's source
+	$src = getMediaSrc($id).'?cached='.formatDate($modified, 'YmdHis');
+	
+	// Check whether any link text has been provided
+	if(empty($args['link_text'])) {
+		// Fetch the media's title from the database
+		$args['link_text'] = $rs_query->selectField('posts', 'title', array('id' => $id));
+	}
+	
+	// Construct an anchor tag
+	return '<a'.(
+			!empty($args['class']) ? ' class="'.$args['class'].'"' : ''
+		).' href="'.$src.'"'.(
+			!empty($args['newtab']) && $args['newtab'] === 1 ? ' target="_blank" rel="noreferrer noopener"' : ''
+		).'>'.$args['link_text'].'</a>';
+}
+
+/**
+ * Construct a unique filename.
+ * @since 2.1.0[a]
+ *
+ * @param string $filename
+ * @return string
+ */
+function getUniqueFilename($filename): string {
+	// Extend the Query object
+	global $rs_query;
+	
+	// Fetch the number of conflicting filenames in the database
+	$count = $rs_query->select('postmeta', 'COUNT(*)', array('_key' => 'filename', 'value' => array('LIKE', $filename.'%')));
+	
+	// Check whether the count is greater than zero
+	if($count > 0) {
+		// Split the filename into separate parts
+		$file_parts = pathinfo($filename);
+		
+		do {
+			// Construct a unique filename
+			$unique_filename = $file_parts['filename'].'-'.($count + 1).'.'.$file_parts['extension'];
+			
+			// Increment the count
+			$count++;
+		} while($rs_query->selectRow('postmeta', 'COUNT(*)', array('_key' => 'filename', 'value' => $unique_filename)) > 0);
+		
+		// Return the unique filename
+		return $unique_filename;
+	} else {
+		// Return the original filename
+		return $filename;
+	}
+}
+
+/**
+ * Convert a string value or file size to bytes.
+ * @since 2.1.3[a]
+ *
+ * @param string $val
+ * @return string
+ */
+function getSizeInBytes($val): string {
+	// Get the unit's multiple value
+	$multiple = substr($val, -1, 1);
+	
+	// Trim the last character off of the value
+	$val = substr($val, 0, strlen($val) - 1);
+	
+	switch($multiple) {
+		case 'T': case 't':
+			$val *= 1024;
+		case 'G': case 'g':
+			$val *= 1024;
+		case 'M': case 'm':
+			$val *= 1024;
+		case 'K': case 'k':
+			$val *= 1024;
+	}
+	
+	// Return the value in bytes
+	return $val;
+}
+
+/**
+ * Convert a file size in bytes to its equivalent in kilobytes, metabytes, etc.
+ * @since 2.1.0[a]
+ *
+ * @param int $bytes
+ * @param int $decimals (optional; default: 1)
+ * @return string
+ */
+function getFileSize($bytes, $decimals = 1): string {
+	// Multiples for the units of bytes
+	$multiples = 'BKMGTP';
+	
+	// Calculate the factor for each unit
+	$factor = floor((strlen($bytes) - 1) / 3);
+	
+	// Return the converted file size
+	return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)).' '.$multiples[(int)$factor].($factor > 0 ? 'B' : '');
+}
+
+/*------------------------------------*\
+    MISCELLANEOUS
+\*------------------------------------*/
+
+/**
+ * Populate the database tables.
+ * @since 1.7.0[a]
+ *
+ * @param array $user_data
+ * @param array $settings_data
+ */
+function populateTables($user_data, $settings_data): void {
+	// Populate the `user_roles` table
+	populateUserRoles();
+	
+	// Populate the `user_privileges` and `user_relationships` tables
+	populateUserPrivileges();
+	
+	// Populate the `users` table
+	$user = populateUsers($user_data);
+	
+	// Populate the `posts` table
+	$post = populatePosts($user);
+	
+	// Add the home page to the settings data array
+	$settings_data['home_page'] = $post['home_page'];
+	
+	// Populate the `settings` table
+	populateSettings($settings_data);
+	
+	// Populate the `taxonomies` table
+	populateTaxonomies();
+	
+	// Populate the `terms` table
+	populateTerms($post['blog_post']);
+}
+
+/**
+ * Construct a status message.
+ * @since 1.2.0[a]
+ *
+ * @param string $text
+ * @param bool $success (optional; default: false)
+ * @return string
+ */
+function statusMessage($text, $success = false): string {
+	// Determine whether the status is success or failure
+	if($success === true) {
+		// Set the status message's class to success
+		$class = 'success';
+	} else {
+		// Set the status message's class to failure
+		$class = 'failure';
+		
+		// Check whether the provided text value matches one of the predefined cases
+		switch($text) {
+			case 'E': case 'e':
+				// Status message for unexpected errors out of the user's control
+				$text = 'An unexpected error occurred. Please contact the system administrator.';
+				break;
+			case 'R': case 'r':
+				// Status message for required form fields that are left empty
+				$text = 'Required fields cannot be left blank!';
+				break;
+		}
+	}
+	
+	// Return the status message
+	return '<div class="status-message '.$class.'">'.$text.'</div>';
+}
+
+/**
+ * Enable pagination.
+ * @since 1.2.1[a]
+ *
+ * @param int $current (optional; default: 1)
+ * @param int $per_page (optional; default: 20)
+ * @return array
+ */
+function paginate($current = 1, $per_page = 20): array {
+	// Set the current page
+	$page['current'] = $current;
+	
+	// Set the number of results per page
+	$page['per_page'] = $per_page;
+	
+	// Check whether the current page is '1'
+	if($page['current'] === 1) {
+		// Set the starting value to zero
+		$page['start'] = 0;
+	} else {
+		// Set the starting value to offset based on the number of results per page
+		$page['start'] = ($page['current'] * $page['per_page']) - $page['per_page'];
+	}
+	
+	// Return the page data
+	return $page;
+}
+
+/**
+ * Construct pager navigation.
+ * @since 1.2.1[a]
+ *
+ * @param int $page
+ * @param int $page_count
+ */
+function pagerNav($page, $page_count): void {
+	// Fetch the query string from the URL
+	$query_string = $_SERVER['QUERY_STRING'];
+	
+	// Split the query string into an array
+	$query_params = explode('&', $query_string);
+	
+	// Loop through the query parameters
+	for($i = 0; $i < count($query_params); $i++) {
+		// Remove the parameter if it contains 'paged'
+		if(strpos($query_params[$i], 'paged') !== false)
+			unset($query_params[$i]);
+	}
+	
+	// Put the query string back together
+	$query_string = implode('&', $query_params);
+	?>
+	<div class="pager">
+		<?php
+		// Display the 'first page'/'previous page' buttons if the first page of results is not showing
+		if($page > 1) {
+			?>
+			<a class="pager-nav button" href="<?php echo '?'.(!empty($query_string) ? $query_string.'&' : '').'paged=1'; ?>" title="First Page">&laquo;</a><a class="pager-nav button" href="<?php echo '?'.(!empty($query_string) ? $query_string.'&' : '').'paged='.($page - 1); ?>" title="Previous Page">&lsaquo;</a>
+			<?php
+		}
+		
+		// Display the current page
+		if($page_count > 0) echo ' Page '.$page.' of '.$page_count.' ';
+		
+		// Display the 'next page'/'last page' buttons if the last page of results is not showing
+		if($page < $page_count) {
+			?>
+			<a class="pager-nav button" href="<?php echo '?'.(!empty($query_string) ? $query_string.'&' : '').'paged='.($page + 1); ?>" title="Next Page">&rsaquo;</a><a class="pager-nav button" href="<?php echo '?'.(!empty($query_string) ? $query_string.'&' : '').'paged='.$page_count; ?>" title="Last Page">&raquo;</a>
+			<?php
+		}
+		?>
+	</div>
+	<?php
+}
+
+/**
+ * Construct an action link.
+ * @since 1.2.0[b]{ss-01}
+ *
+ * @param string $action
+ * @param null|string|array $args (optional; default: null)
+ * @return string
+ */
+function actionLink($action, $args = null): string {
+	// Check whether the args value is null
+	if(!is_null($args)) {
+		// Check whether the args value is an array and turn it into one if not
+		if(!is_array($args)) $args = (array)$args;
+		
+		// Set the CSS classes
+		$classes = $args['classes'] ?? '';
+		
+		// Remove the CSS classes from the array
+		unset($args['classes']);
+		
+		// Set the data item, if provided
+		$data_item = $args['data_item'] ?? '';
+		
+		// Remove the data item from the array
+		unset($args['data_item']);
+		
+		// Set the caption
+		$caption = $args['caption'] ?? ($args[0] ?? 'Action Link');
+		
+		// Remove the caption from the array
+		unset($args['caption'], $args[0]);
+		
+		// Create a variable to hold a query string
+		$query_string = '';
+		
+		// Loop through the remaining args and assign them to a query string
+		foreach($args as $key => $value)
+			$query_string .= $key.'='.$value.'&';
+		
+		// Return the action link
+		return '<a'.(!empty($classes) ? ' class="'.$classes.'"' : '').' href="'.ADMIN_URI.'?'.($query_string ?? '').'action='.$action.'"'.(!empty($data_item) ? ' data-item="'.$data_item.'"' : '').'>'.$caption.'</a>';
+	}
+}
+
+/**
  * Display information about each admin page's function.
  * @since 1.2.0[b]
- *
  */
-function adminInfo() {
+function adminInfo(): void {
 	?>
 	<div class="admin-info">
 		<span>
@@ -1415,47 +1531,12 @@ function adminInfo() {
  * @param int $id
  * @return bool
  */
-function postExists($id) {
+function postExists($id): bool {
 	// Extend the Query object
 	global $rs_query;
 	
 	// Fetch the number of times the id appears in the database and return true if it does
 	return $rs_query->selectRow('posts', 'COUNT(id)', array('id' => $id)) > 0;
-}
-
-/**
- * Construct a unique filename.
- * @since 2.1.0[a]
- *
- * @param string $filename
- * @return string
- */
-function getUniqueFilename($filename) {
-	// Extend the Query object
-	global $rs_query;
-	
-	// Fetch the number of conflicting filenames in the database
-	$count = $rs_query->select('postmeta', 'COUNT(*)', array('_key' => 'filename', 'value' => array('LIKE', $filename.'%')));
-	
-	// Check whether the count is greater than zero
-	if($count > 0) {
-		// Split the filename into separate parts
-		$file_parts = pathinfo($filename);
-		
-		do {
-			// Construct a unique filename
-			$unique_filename = $file_parts['filename'].'-'.($count + 1).'.'.$file_parts['extension'];
-			
-			// Increment the count
-			$count++;
-		} while($rs_query->selectRow('postmeta', 'COUNT(*)', array('_key' => 'filename', 'value' => $unique_filename)) > 0);
-		
-		// Return the unique filename
-		return $unique_filename;
-	} else {
-		// Return the original filename
-		return $filename;
-	}
 }
 
 /**
@@ -1466,7 +1547,7 @@ function getUniqueFilename($filename) {
  * @param string $table
  * @return string
  */
-function getUniqueSlug($slug, $table) {
+function getUniqueSlug($slug, $table): string {
 	// Extend the Query object
 	global $rs_query;
 	
@@ -1498,7 +1579,7 @@ function getUniqueSlug($slug, $table) {
  * @param string $slug
  * @return string
  */
-function getUniquePostSlug($slug) {
+function getUniquePostSlug($slug): string {
 	return getUniqueSlug($slug, 'posts');
 }
 
@@ -1509,54 +1590,6 @@ function getUniquePostSlug($slug) {
  * @param string $slug
  * @return string
  */
-function getUniqueTermSlug($slug) {
+function getUniqueTermSlug($slug): string {
 	return getUniqueSlug($slug, 'terms');
-}
-
-/**
- * Convert a string value or file size to bytes.
- * @since 2.1.3[a]
- *
- * @param string $val
- * @return string
- */
-function getSizeInBytes($val) {
-	// Get the unit's multiple value
-	$multiple = substr($val, -1, 1);
-	
-	// Trim the last character off of the value
-	$val = substr($val, 0, strlen($val) - 1);
-	
-	switch($multiple) {
-		case 'T': case 't':
-			$val *= 1024;
-		case 'G': case 'g':
-			$val *= 1024;
-		case 'M': case 'm':
-			$val *= 1024;
-		case 'K': case 'k':
-			$val *= 1024;
-	}
-	
-	// Return the value in bytes
-	return $val;
-}
-
-/**
- * Convert a file size in bytes to its equivalent in kilobytes, metabytes, etc.
- * @since 2.1.0[a]
- *
- * @param int $bytes
- * @param int $decimals (optional; default: 1)
- * @return string
- */
-function getFileSize($bytes, $decimals = 1) {
-	// Multiples for the units of bytes
-	$multiples = 'BKMGTP';
-	
-	// Calculate the factor for each unit
-	$factor = floor((strlen($bytes) - 1) / 3);
-	
-	// Return the converted file size
-	return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)).' '.$multiples[(int)$factor].($factor > 0 ? 'B' : '');
 }

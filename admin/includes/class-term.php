@@ -68,7 +68,6 @@ class Term {
 	 * @access public
 	 * @param int $id (optional; default: 0)
 	 * @param array $taxonomy_data (optional; default: array())
-	 * @return null
 	 */
 	public function __construct($id = 0, $taxonomy_data = array()) {
 		// Extend the Query object
@@ -101,9 +100,8 @@ class Term {
 	 * @since 1.0.5[b]
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function listTerms() {
+	public function listTerms(): void {
 		// Extend the Query object and the user's session data
 		global $rs_query, $session;
 		
@@ -130,7 +128,9 @@ class Term {
 				echo statusMessage('The '.strtolower($this->taxonomy_data['labels']['name_singular']).' was successfully deleted.', true);
 			
 			// Fetch the term entry count from the database (by taxonomy)
-			$count = $rs_query->select('terms', 'COUNT(*)', array('taxonomy' => getTaxonomyId($this->taxonomy_data['name'])));
+			$count = $rs_query->select('terms', 'COUNT(*)', array(
+				'taxonomy' => getTaxonomyId($this->taxonomy_data['name'])
+			));
 			
 			// Set the page count
 			$page['count'] = ceil($count / $page['per_page']);
@@ -155,7 +155,9 @@ class Term {
 			<tbody>
 				<?php
 				// Fetch all terms from the database (by taxonomy)
-				$terms = $rs_query->select('terms', '*', array('taxonomy' => getTaxonomyId($this->taxonomy_data['name'])), 'name', 'ASC', array($page['start'], $page['per_page']));
+				$terms = $rs_query->select('terms', '*', array(
+					'taxonomy' => getTaxonomyId($this->taxonomy_data['name'])
+				), 'name', 'ASC', array($page['start'], $page['per_page']));
 				
 				// Loop through the terms
 				foreach($terms as $term) {
@@ -198,8 +200,11 @@ class Term {
 				}
 				
 				// Display a notice if no terms are found
-				if(empty($terms))
-					echo tableRow(tableCell('There are no '.$this->taxonomy_data['labels']['name_lowercase'].' to display.', '', count($table_header_cols)));
+				if(empty($terms)) {
+					echo tableRow(
+						tableCell('There are no '.$this->taxonomy_data['labels']['name_lowercase'].' to display.', '', count($table_header_cols))
+					);
+				}
 				?>
 			</tbody>
 			<tfoot>
@@ -219,9 +224,8 @@ class Term {
 	 * @since 1.0.5[b]
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function createTerm() {
+	public function createTerm(): void {
 		// Validate the form data and return any messages
 		$message = isset($_POST['submit']) ? $this->validateData($_POST) : '';
 		?>
@@ -233,6 +237,7 @@ class Term {
 			<form class="data-form" action="" method="post" autocomplete="off">
 				<table class="form-table">
 					<?php
+					// Name
 					echo formRow(array('Name', true), array(
 						'tag' => 'input',
 						'id' => 'name-field',
@@ -240,6 +245,8 @@ class Term {
 						'name' => 'name',
 						'value' => ($_POST['name'] ?? '')
 					));
+					
+					// Slug
 					echo formRow(array('Slug', true), array(
 						'tag' => 'input',
 						'id' => 'slug-field',
@@ -247,13 +254,19 @@ class Term {
 						'name' => 'slug',
 						'value' => ($_POST['slug'] ?? '')
 					));
+					
+					// Parent
 					echo formRow('Parent', array(
 						'tag' => 'select',
 						'class' => 'select-input',
 						'name' => 'parent',
 						'content' => '<option value="0">(none)</option>'.$this->getParentList()
 					));
+					
+					// Separator
 					echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
+					
+					// Submit button
 					echo formRow('', array(
 						'tag' => 'input',
 						'type' => 'submit',
@@ -273,9 +286,8 @@ class Term {
 	 * @since 1.0.5[b]
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function editTerm() {
+	public function editTerm(): void {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -306,6 +318,7 @@ class Term {
 					<form class="data-form" action="" method="post" autocomplete="off">
 						<table class="form-table">
 							<?php
+							// Name
 							echo formRow(array('Name', true), array(
 								'tag' => 'input',
 								'id' => 'name-field',
@@ -313,6 +326,8 @@ class Term {
 								'name' => 'name',
 								'value' => $this->name
 							));
+							
+							// Slug
 							echo formRow(array('Slug', true), array(
 								'tag' => 'input',
 								'id' => 'slug-field',
@@ -320,13 +335,20 @@ class Term {
 								'name' => 'slug',
 								'value' => $this->slug
 							));
+							
+							// Parent
 							echo formRow('Parent', array(
 								'tag' => 'select',
 								'class' => 'select-input',
 								'name' => 'parent',
-								'content' => '<option value="0">(none)</option>'.$this->getParentList($this->parent, $this->id)
+								'content' => '<option value="0">(none)</option>'
+									.$this->getParentList($this->parent, $this->id)
 							));
+							
+							// Separator
 							echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
+							
+							// Submit button
 							echo formRow('', array(
 								'tag' => 'input',
 								'type' => 'submit',
@@ -348,9 +370,8 @@ class Term {
 	 * @since 1.0.5[b]
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function deleteTerm() {
+	public function deleteTerm(): void {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -372,14 +393,14 @@ class Term {
 	
 	/**
 	 * Validate the form data.
-	 * @since 1.0.5[b]
+	 * @since 1.5.2[a]
 	 *
 	 * @access private
 	 * @param array $data
 	 * @param int $id (optional; default: 0)
-	 * @return null|string (null on $id == 0; string on $id != 0)
+	 * @return string
 	 */
-	private function validateData($data, $id = 0) {
+	private function validateData($data, $id = 0): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -387,8 +408,8 @@ class Term {
 		if(empty($data['name']) || empty($data['slug']))
 			return statusMessage('R');
 		
-		// Sanitize the slug (strip off HTML and/or PHP tags and replace any characters not specified in the filter)
-		$slug = preg_replace('/[^a-z0-9\-]/', '', strip_tags(strtolower($data['slug'])));
+		// Sanitize the slug
+		$slug = sanitize($data['slug']);
 		
 		// Make sure the slug is unique
 		if($this->slugExists($slug, $id))
@@ -423,14 +444,14 @@ class Term {
 	
 	/**
 	 * Check whether a slug exists in the database.
-	 * @since 1.0.5[b]
+	 * @since 1.5.2[a]
 	 *
 	 * @access private
 	 * @param string $slug
 	 * @param int $id
 	 * @return bool
 	 */
-	private function slugExists($slug, $id) {
+	private function slugExists($slug, $id): bool {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -439,20 +460,23 @@ class Term {
 			return $rs_query->selectRow('terms', 'COUNT(slug)', array('slug' => $slug)) > 0;
 		} else {
 			// Fetch the number of times the slug appears in the database (minus the current term) and return true if it does
-			return $rs_query->selectRow('terms', 'COUNT(slug)', array('slug' => $slug, 'id' => array('<>', $id))) > 0;
+			return $rs_query->selectRow('terms', 'COUNT(slug)', array(
+				'slug' => $slug,
+				'id' => array('<>', $id)
+			)) > 0;
 		}
 	}
 	
 	/**
 	 * Check whether a term is a descendant of another term.
-	 * @since 1.0.5[b]
+	 * @since 1.5.0[a]
 	 *
 	 * @access private
 	 * @param int $id
 	 * @param int $ancestor
 	 * @return bool
 	 */
-	private function isDescendant($id, $ancestor) {
+	private function isDescendant($id, $ancestor): bool {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -479,7 +503,7 @@ class Term {
 	 * @param int $id
 	 * @return string
 	 */
-	private function getTaxonomy($id) {
+	private function getTaxonomy($id): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -489,13 +513,13 @@ class Term {
 	
 	/**
 	 * Fetch a term's parent.
-	 * @since 1.0.5[b]
+	 * @since 1.5.0[a]
 	 *
 	 * @access private
 	 * @param int $id
 	 * @return string
 	 */
-	private function getParent($id) {
+	private function getParent($id): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -508,14 +532,14 @@ class Term {
 	
 	/**
 	 * Construct a list of parents.
-	 * @since 1.0.5[b]
+	 * @since 1.5.0[a]
 	 *
 	 * @access private
 	 * @param int $parent (optional; default: 0)
 	 * @param int $id (optional; default: 0)
 	 * @return string
 	 */
-	private function getParentList($parent = 0, $id = 0) {
+	private function getParentList($parent = 0, $id = 0): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -523,7 +547,9 @@ class Term {
 		$list = '';
 		
 		// Fetch all terms of the specified taxonomy from the database
-		$terms = $rs_query->select('terms', array('id', 'name'), array('taxonomy' => getTaxonomyId($this->taxonomy_data['name'])));
+		$terms = $rs_query->select('terms', array('id', 'name'), array(
+			'taxonomy' => getTaxonomyId($this->taxonomy_data['name'])
+		));
 		
 		// Loop through the terms
 		foreach($terms as $term) {

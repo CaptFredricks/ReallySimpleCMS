@@ -86,14 +86,13 @@ class Login {
 	 * @access public
 	 * @param string $page
 	 * @param int $id
-	 * @return null
 	 */
 	public function __construct($page, $id) {
 		// Extend the Query object
 		global $rs_query;
 		
 		// Check whether the 'delete_old_login_attempts' setting is turned on
-		if(getSetting('delete_old_login_attempts', false)) {
+		if(getSetting('delete_old_login_attempts')) {
 			// Fetch all login attempts from the database
 			$login_attempts = $rs_query->select('login_attempts', array('id', 'date'));
 			
@@ -168,9 +167,8 @@ class Login {
 	 * @since 1.2.0[b]{ss-01}
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function loginAttempts() {
+	public function loginAttempts(): void {
 		// Extend the Query object and the user's session data
 		global $rs_query, $session;
 		
@@ -222,21 +220,35 @@ class Login {
 				// Loop through the login attempts
 				foreach($login_attempts as $login_attempt) {
 					// Check whether the login or IP address is blacklisted
-					$blacklisted = $rs_query->select('login_blacklist', 'COUNT(name)', array('name' => array('IN', $login_attempt['login'], $login_attempt['ip_address']))) > 0;
+					$blacklisted = $rs_query->select('login_blacklist', 'COUNT(name)', array(
+						'name' => array('IN', $login_attempt['login'], $login_attempt['ip_address'])
+					)) > 0;
 					
 					// Set up the action links
 					$actions = array(
-						userHasPrivilege($session['role'], 'can_create_login_blacklist') ? actionLink('blacklist_login', array('caption' => 'Blacklist Login', 'id' => $login_attempt['id'])) : null,
-						userHasPrivilege($session['role'], 'can_create_login_blacklist') ? actionLink('blacklist_ip', array('caption' => 'Blacklist IP', 'id' => $login_attempt['id'])) : null
+						// Blacklist login
+						userHasPrivilege($session['role'], 'can_create_login_blacklist') ? actionLink('blacklist_login', array(
+							'caption' => 'Blacklist Login',
+							'id' => $login_attempt['id']
+						)) : null,
+						// Blacklist IP
+						userHasPrivilege($session['role'], 'can_create_login_blacklist') ? actionLink('blacklist_ip', array(
+							'caption' => 'Blacklist IP',
+							'id' => $login_attempt['id']
+						)) : null
 					);
 					
 					// Filter out any empty actions
 					$actions = array_filter($actions);
 					
 					echo tableRow(
+						// Login
 						tableCell('<strong>'.$login_attempt['login'].'</strong>'.($blacklisted ? ' &mdash; <em>blacklisted</em>' : '').'<div class="actions">'.implode(' &bull; ', $actions).'</div>', 'login'),
+						// IP address
 						tableCell($login_attempt['ip_address'], 'ip-address'),
+						// Date
 						tableCell(formatDate($login_attempt['date'], 'd M Y @ g:i A'), 'date'),
+						// Status
 						tableCell(ucfirst($login_attempt['status']), 'status')
 					);
 				}
@@ -260,9 +272,8 @@ class Login {
 	 * @since 1.2.0[b]{ss-01}
 	 *
 	 * @access public
-	 * @return
 	 */
-	public function blacklistLogin() {
+	public function blacklistLogin(): void {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -282,12 +293,47 @@ class Login {
 				<form class="data-form" action="" method="post" autocomplete="off">
 					<table class="form-table">
 						<?php
-						echo formRow('', array('tag' => 'input', 'type' => 'hidden', 'name' => 'name', 'value' => $this->login));
+						// Hidden input (name)
+						echo formRow('', array(
+							'tag' => 'input',
+							'type' => 'hidden',
+							'name' => 'name',
+							'value' => $this->login
+						));
+						
+						// Name
 						echo formRow('Name', array('tag' => 'span', 'content' => $this->login));
-						echo formRow(array('Duration (seconds)', true), array('tag' => 'input', 'class' => 'text-input required invalid init', 'name' => 'duration', 'maxlength' => 15, 'value' => ($_POST['duration'] ?? '')));
-						echo formRow(array('Reason', true), array('tag' => 'textarea', 'class' => 'textarea-input required invalid init', 'name' => 'reason', 'cols' => 30, 'rows' => 5, 'content' => htmlspecialchars(($_POST['reason'] ?? ''))));
+						
+						// Duration
+						echo formRow(array('Duration (seconds)', true), array(
+							'tag' => 'input',
+							'class' => 'text-input required invalid init',
+							'name' => 'duration',
+							'maxlength' => 15,
+							'value' => ($_POST['duration'] ?? '')
+						));
+						
+						// Reason
+						echo formRow(array('Reason', true), array(
+							'tag' => 'textarea',
+							'class' => 'textarea-input required invalid init',
+							'name' => 'reason',
+							'cols' => 30,
+							'rows' => 5,
+							'content' => htmlspecialchars(($_POST['reason'] ?? ''))
+						));
+						
+						// Separator
 						echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
-						echo formRow('', array('tag' => 'input', 'type' => 'submit', 'class' => 'submit-input button', 'name' => 'submit', 'value' => 'Create Blacklist'));
+						
+						// Submit button
+						echo formRow('', array(
+							'tag' => 'input',
+							'type' => 'submit',
+							'class' => 'submit-input button',
+							'name' => 'submit',
+							'value' => 'Create Blacklist'
+						));
 						?>
 					</table>
 				</form>
@@ -301,9 +347,8 @@ class Login {
 	 * @since 1.2.0[b]{ss-01}
 	 *
 	 * @access public
-	 * @return
 	 */
-	public function blacklistIPAddress() {
+	public function blacklistIPAddress(): void {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -323,12 +368,47 @@ class Login {
 				<form class="data-form" action="" method="post" autocomplete="off">
 					<table class="form-table">
 						<?php
-						echo formRow('', array('tag' => 'input', 'type' => 'hidden', 'name' => 'name', 'value' => $this->ip_address));
+						// Hidden input (name)
+						echo formRow('', array(
+							'tag' => 'input',
+							'type' => 'hidden',
+							'name' => 'name',
+							'value' => $this->ip_address
+						));
+						
+						// Name
 						echo formRow('Name', array('tag' => 'span', 'content' => $this->ip_address));
-						echo formRow(array('Duration (seconds)', true), array('tag' => 'input', 'class' => 'text-input required invalid init', 'name' => 'duration', 'maxlength' => 15, 'value' => ($_POST['duration'] ?? '')));
-						echo formRow(array('Reason', true), array('tag' => 'textarea', 'class' => 'textarea-input required invalid init', 'name' => 'reason', 'cols' => 30, 'rows' => 5, 'content' => htmlspecialchars(($_POST['reason'] ?? ''))));
+						
+						// Duration
+						echo formRow(array('Duration (seconds)', true), array(
+							'tag' => 'input',
+							'class' => 'text-input required invalid init',
+							'name' => 'duration',
+							'maxlength' => 15,
+							'value' => ($_POST['duration'] ?? '')
+						));
+						
+						// Reason
+						echo formRow(array('Reason', true), array(
+							'tag' => 'textarea',
+							'class' => 'textarea-input required invalid init',
+							'name' => 'reason',
+							'cols' => 30,
+							'rows' => 5,
+							'content' => htmlspecialchars(($_POST['reason'] ?? ''))
+						));
+						
+						// Separator
 						echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
-						echo formRow('', array('tag' => 'input', 'type' => 'submit', 'class' => 'submit-input button', 'name' => 'submit', 'value' => 'Create Blacklist'));
+						
+						// Submit button
+						echo formRow('', array(
+							'tag' => 'input',
+							'type' => 'submit',
+							'class' => 'submit-input button',
+							'name' => 'submit',
+							'value' => 'Create Blacklist'
+						));
 						?>
 					</table>
 				</form>
@@ -342,9 +422,8 @@ class Login {
 	 * @since 1.2.0[b]{ss-01}
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function loginBlacklist() {
+	public function loginBlacklist(): void {
 		// Extend the Query object and the user's session data
 		global $rs_query, $session;
 		
@@ -354,9 +433,15 @@ class Login {
 		<div class="heading-wrap">
 			<h1>Login Blacklist</h1>
 			<?php
-			// Check whether the user has sufficient privileges to create a login blacklist and create an action link if so
-			if(userHasPrivilege($session['role'], 'can_create_login_blacklist'))
-				echo actionLink('create', array('classes' => 'button', 'caption' => 'Create New', 'page' => 'blacklist'));
+			// Check whether the user has sufficient privileges to create a login blacklist
+			if(userHasPrivilege($session['role'], 'can_create_login_blacklist')) {
+				// Construct an action link
+				echo actionLink('create', array(
+					'classes' => 'button',
+					'caption' => 'Create New',
+					'page' => 'blacklist'
+				));
+			}
 			
 			// Display the page's info
 			adminInfo();
@@ -393,7 +478,10 @@ class Login {
 			<tbody>
 				<?php
 				// Fetch all blacklisted logins from the database
-				$blacklisted_logins = $rs_query->select('login_blacklist', '*', '', 'blacklisted', 'DESC', array($page['start'], $page['per_page']));
+				$blacklisted_logins = $rs_query->select('login_blacklist', '*', '', 'blacklisted', 'DESC', array(
+					$page['start'],
+					$page['per_page']
+				));
 				
 				// Loop through the blacklisted logins
 				foreach($blacklisted_logins as $blacklisted_login) {
@@ -411,24 +499,52 @@ class Login {
 						// Delete the blacklisted login from the database
 						$rs_query->delete('login_blacklist', array('name' => $blacklisted_login['name']));
 						
-						// Continue to the next blacklisted login
-						continue;
+						// Fetch all blacklisted logins from the database
+						$bl_logins = $rs_query->select('login_blacklist', '*', '', 'blacklisted', 'DESC', array(
+							$page['start'],
+							$page['per_page']
+						));
+						
+						// Check whether the table is now empty
+						if(empty($bl_logins)) {
+							// Display a notice and break out of the loop
+							echo tableRow(tableCell('There are no blacklisted logins to display.', '', count($table_header_cols)));
+							break;
+						} else {
+							// Continue to the next blacklisted login
+							continue;
+						}
 					}
 					
 					// Set up the action links
 					$actions = array(
-						userHasPrivilege($session['role'], 'can_edit_login_blacklist') ? actionLink('edit', array('caption' => 'Edit', 'page' => 'blacklist', 'id' => $blacklisted_login['id'])) : null,
-						userHasPrivilege($session['role'], 'can_delete_login_blacklist') ? actionLink('whitelist', array('caption' => 'Whitelist', 'page' => 'blacklist', 'id' => $blacklisted_login['id'])) : null
+						// Edit
+						userHasPrivilege($session['role'], 'can_edit_login_blacklist') ? actionLink('edit', array(
+							'caption' => 'Edit',
+							'page' => 'blacklist',
+							'id' => $blacklisted_login['id']
+						)) : null,
+						// Whitelist
+						userHasPrivilege($session['role'], 'can_delete_login_blacklist') ? actionLink('whitelist', array(
+							'caption' => 'Whitelist',
+							'page' => 'blacklist',
+							'id' => $blacklisted_login['id']
+						)) : null
 					);
 					
 					// Filter out any empty actions
 					$actions = array_filter($actions);
 					
 					echo tableRow(
+						// Name
 						tableCell('<strong>'.$blacklisted_login['name'].'</strong><div class="actions">'.implode(' &bull; ', $actions).'</div>', 'name'),
+						// Attempts
 						tableCell($blacklisted_login['attempts'], 'attempts'),
+						// Blacklisted
 						tableCell(formatDate($blacklisted_login['blacklisted'], 'd M Y @ g:i A'), 'blacklisted'),
+						// Expiration
 						tableCell($blacklisted_login['duration'] === 0 ? 'Indefinite' : formatDate($expiration, 'd M Y @ g:i A'), 'expiration'),
+						// Reason
 						tableCell($blacklisted_login['reason'], 'reason')
 					);
 				}
@@ -452,9 +568,8 @@ class Login {
 	 * @since 1.2.0[b]{ss-03}
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function createBlacklist() {
+	public function createBlacklist(): void {
 		// Validate the form data and return any messages
 		$message = isset($_POST['submit']) ? $this->validateBlacklistData($_POST, 'create') : '';
 		?>
@@ -466,11 +581,44 @@ class Login {
 			<form class="data-form" action="" method="post" autocomplete="off">
 				<table class="form-table">
 					<?php
-					echo formRow(array('Name', true), array('tag' => 'input', 'class' => 'text-input required invalid init', 'name' => 'name', 'value' => ($_POST['name'] ?? '')));
-					echo formRow(array('Duration (seconds)', true), array('tag' => 'input', 'class' => 'text-input required invalid init', 'name' => 'duration', 'maxlength' => 15, 'value' => ($_POST['duration'] ?? '')));
-					echo formRow(array('Reason', true), array('tag' => 'textarea', 'class' => 'textarea-input required invalid init', 'name' => 'reason', 'cols' => 30, 'rows' => 5, 'content' => htmlspecialchars(($_POST['reason'] ?? ''))));
+					// Name
+					echo formRow(array('Name', true), array(
+						'tag' => 'input',
+						'class' => 'text-input required invalid init',
+						'name' => 'name',
+						'value' => ($_POST['name'] ?? '')
+					));
+					
+					// Duration
+					echo formRow(array('Duration (seconds)', true), array(
+						'tag' => 'input',
+						'class' => 'text-input required invalid init',
+						'name' => 'duration',
+						'maxlength' => 15,
+						'value' => ($_POST['duration'] ?? '')
+					));
+					
+					// Reason
+					echo formRow(array('Reason', true), array(
+						'tag' => 'textarea',
+						'class' => 'textarea-input required invalid init',
+						'name' => 'reason',
+						'cols' => 30,
+						'rows' => 5,
+						'content' => htmlspecialchars(($_POST['reason'] ?? ''))
+					));
+					
+					// Separator
 					echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
-					echo formRow('', array('tag' => 'input', 'type' => 'submit', 'class' => 'submit-input button', 'name' => 'submit', 'value' => 'Create Blacklist'));
+					
+					// Submit button
+					echo formRow('', array(
+						'tag' => 'input',
+						'type' => 'submit',
+						'class' => 'submit-input button',
+						'name' => 'submit',
+						'value' => 'Create Blacklist'
+					));
 					?>
 				</table>
 			</form>
@@ -483,9 +631,8 @@ class Login {
 	 * @since 1.2.0[b]{ss-02}
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function editBlacklist() {
+	public function editBlacklist(): void {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -505,12 +652,50 @@ class Login {
 				<form class="data-form" action="" method="post" autocomplete="off">
 					<table class="form-table">
 						<?php
-						echo formRow('', array('tag' => 'input', 'type' => 'hidden', 'name' => 'name', 'value' => $this->name));
-						echo formRow('Name', array('tag' => 'span', 'content' => $this->name));
-						echo formRow(array('Duration (seconds)', true), array('tag' => 'input', 'class' => 'text-input required invalid init', 'name' => 'duration', 'maxlength' => 15, 'value' => $this->duration));
-						echo formRow(array('Reason', true), array('tag' => 'textarea', 'class' => 'textarea-input required invalid init', 'name' => 'reason', 'cols' => 30, 'rows' => 5, 'content' => htmlspecialchars($this->reason)));
+						// Hidden input (name)
+						echo formRow('', array(
+							'tag' => 'input',
+							'type' => 'hidden',
+							'name' => 'name',
+							'value' => $this->name
+						));
+						
+						// Name
+						echo formRow('Name', array(
+							'tag' => 'span',
+							'content' => $this->name
+						));
+						
+						// Duration
+						echo formRow(array('Duration (seconds)', true), array(
+							'tag' => 'input',
+							'class' => 'text-input required invalid init',
+							'name' => 'duration',
+							'maxlength' => 15,
+							'value' => $this->duration
+						));
+						
+						// Reason
+						echo formRow(array('Reason', true), array(
+							'tag' => 'textarea',
+							'class' => 'textarea-input required invalid init',
+							'name' => 'reason',
+							'cols' => 30,
+							'rows' => 5,
+							'content' => htmlspecialchars($this->reason)
+						));
+						
+						// Separator
 						echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
-						echo formRow('', array('tag' => 'input', 'type' => 'submit', 'class' => 'submit-input button', 'name' => 'submit', 'value' => 'Update Blacklist'));
+						
+						// Submit button
+						echo formRow('', array(
+							'tag' => 'input',
+							'type' => 'submit',
+							'class' => 'submit-input button',
+							'name' => 'submit',
+							'value' => 'Update Blacklist'
+						));
 						?>
 					</table>
 				</form>
@@ -526,9 +711,9 @@ class Login {
 	 * @access private
 	 * @param array $data
 	 * @param string $action
-	 * @return null
+	 * @return string
 	 */
-	private function validateBlacklistData($data, $action) {
+	private function validateBlacklistData($data, $action): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -547,10 +732,20 @@ class Login {
 				$attempts = $rs_query->select('login_attempts', 'COUNT(*)', array('login' => $data['name']));
 				
 				// Insert the new blacklisted login into the database
-				$rs_query->insert('login_blacklist', array('name' => $data['name'], 'attempts' => $attempts, 'blacklisted' => 'NOW()', 'duration' => $data['duration'], 'reason' => $data['reason']));
+				$rs_query->insert('login_blacklist', array(
+					'name' => $data['name'],
+					'attempts' => $attempts,
+					'blacklisted' => 'NOW()',
+					'duration' => $data['duration'],
+					'reason' => $data['reason']
+				));
 				
 				// Fetch the blacklisted user from the database
-				$session = $rs_query->selectField('users', 'session', array('logic' => 'OR', 'username' => $data['name'], 'email' => $data['name']));
+				$session = $rs_query->selectField('users', 'session', array(
+					'logic' => 'OR',
+					'username' => $data['name'],
+					'email' => $data['name']
+				));
 				
 				// Check whether the user's session is null
 				if(!is_null($session)) {
@@ -570,15 +765,27 @@ class Login {
 				$attempts = $rs_query->select('login_attempts', 'COUNT(*)', array('ip_address' => $data['name']));
 				
 				// Insert the new blacklisted login into the database
-				$rs_query->insert('login_blacklist', array('name' => $data['name'], 'attempts' => $attempts, 'blacklisted' => 'NOW()', 'duration' => $data['duration'], 'reason' => $data['reason']));
+				$rs_query->insert('login_blacklist', array(
+					'name' => $data['name'],
+					'attempts' => $attempts,
+					'blacklisted' => 'NOW()',
+					'duration' => $data['duration'],
+					'reason' => $data['reason']
+				));
 				
 				// Fetch all logins associated with the IP address from the database
-				$logins = $rs_query->select('login_attempts', array('DISTINCT', 'login'), array('ip_address' => $data['name']));
+				$logins = $rs_query->select('login_attempts', array('DISTINCT', 'login'), array(
+					'ip_address' => $data['name']
+				));
 				
 				// Loop through the logins
 				foreach($logins as $login) {
 					// Fetch the blacklisted user from the database
-					$session = $rs_query->selectRow('users', 'session', array('logic' => 'OR', 'username' => $login['login'], 'email' => $login['login']));
+					$session = $rs_query->selectRow('users', 'session', array(
+						'logic' => 'OR',
+						'username' => $login['login'],
+						'email' => $login['login']
+					));
 				
 					// Check whether the user's session is null
 					if(!is_null($session)) {
@@ -596,17 +803,30 @@ class Login {
 				break;
 			case 'create':
 				// Fetch the number of login attempts associated with the blacklisted login or IP address in the database
-				$attempts = $rs_query->select('login_attempts', 'COUNT(*)', array('logic' => 'OR', 'login' => $data['name'], 'ip_address' => $data['name']));
+				$attempts = $rs_query->select('login_attempts', 'COUNT(*)', array(
+					'logic' => 'OR',
+					'login' => $data['name'],
+					'ip_address' => $data['name']
+				));
 				
 				// Insert the new blacklisted login into the database
-				$rs_query->insert('login_blacklist', array('name' => $data['name'], 'attempts' => $attempts, 'blacklisted' => 'NOW()', 'duration' => $data['duration'], 'reason' => $data['reason']));
+				$rs_query->insert('login_blacklist', array(
+					'name' => $data['name'],
+					'attempts' => $attempts,
+					'blacklisted' => 'NOW()',
+					'duration' => $data['duration'],
+					'reason' => $data['reason']
+				));
 				
 				// Redirect to the "Login Blacklist" page
 				redirect(ADMIN_URI.'?page=blacklist');
 				break;
 			case 'edit':
 				// Update the blacklisted login in the database
-				$rs_query->update('login_blacklist', array('duration' => $data['duration'], 'reason' => $data['reason']), array('name' => $data['name']));
+				$rs_query->update('login_blacklist', array(
+					'duration' => $data['duration'],
+					'reason' => $data['reason']
+				), array('name' => $data['name']));
 				
 				// Update the class variables
 				foreach($data as $key => $value) $this->$key = $value;
@@ -622,9 +842,8 @@ class Login {
 	 * @since 1.2.0[b]{ss-02}
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function whitelistLoginIP() {
+	public function whitelistLoginIP(): void {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -649,7 +868,7 @@ class Login {
 	 * @param string $name
 	 * @return bool
 	 */
-	private function blacklistExits($name) {
+	private function blacklistExits($name): bool {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -662,9 +881,8 @@ class Login {
 	 * @since 1.2.0[b]{ss-05}
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function loginRules() {
+	public function loginRules(): void {
 		// Extend the Query object and the user's session data
 		global $rs_query, $session;
 		
@@ -713,17 +931,29 @@ class Login {
 			<tbody>
 				<?php
 				// Fetch all login rules from the database
-				$login_rules = $rs_query->select('login_rules', '*', '', 'attempts', 'ASC', array($page['start'], $page['per_page']));
+				$login_rules = $rs_query->select('login_rules', '*', '', 'attempts', 'ASC', array(
+					$page['start'],
+					$page['per_page']
+				));
 				
 				// Loop through the login rules
 				foreach($login_rules as $login_rule) {
-					// Check whether the login or IP address is blacklisted
-					$blacklisted = $rs_query->select('login_blacklist', 'COUNT(name)', array('name' => array('IN', $login_rule['login'], $login_rule['ip_address']))) > 0;
-					
 					// Set up the action links
 					$actions = array(
-						userHasPrivilege($session['role'], 'can_edit_login_rules') ? actionLink('edit', array('caption' => 'Edit', 'page' => 'rules', 'id' => $login_rule['id'])) : null,
-						userHasPrivilege($session['role'], 'can_delete_login_rules') ? actionLink('delete', array('classes' => 'modal-launch delete-item', 'data_item' => 'login rule', 'caption' => 'Delete', 'page' => 'rules', 'id' => $login_rule['id'])) : null
+						// Edit
+						userHasPrivilege($session['role'], 'can_edit_login_rules') ? actionLink('edit', array(
+							'caption' => 'Edit',
+							'page' => 'rules',
+							'id' => $login_rule['id']
+						)) : null,
+						// Delete
+						userHasPrivilege($session['role'], 'can_delete_login_rules') ? actionLink('delete', array(
+							'classes' => 'modal-launch delete-item',
+							'data_item' => 'login rule',
+							'caption' => 'Delete',
+							'page' => 'rules',
+							'id' => $login_rule['id']
+						)) : null
 					);
 					
 					// Filter out any empty actions
@@ -756,9 +986,8 @@ class Login {
 	 * @since 1.2.0[b]{ss-05}
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function createRule() {
+	public function createRule(): void {
 		// Validate the form data and return any messages
 		$message = isset($_POST['submit']) ? $this->validateRuleData($_POST) : '';
 		?>
@@ -770,11 +999,43 @@ class Login {
 			<form class="data-form" action="" method="post" autocomplete="off">
 				<table class="form-table">
 					<?php
-					echo formRow('Type', array('tag' => 'select', 'class' => 'select-input', 'name' => 'type', 'content' => '<option value="login">Login</option><option value="ip_address">IP Address</option>'));
-					echo formRow(array('Attempts', true), array('tag' => 'input', 'class' => 'text-input required invalid init', 'name' => 'attempts', 'maxlength' => 6, 'value' => ($_POST['attempts'] ?? '')));
-					echo formRow(array('Duration (seconds)', true), array('tag' => 'input', 'class' => 'text-input required invalid init', 'name' => 'duration', 'maxlength' => 15, 'value' => ($_POST['duration'] ?? '')));
+					// Type
+					echo formRow('Type', array(
+						'tag' => 'select',
+						'class' => 'select-input',
+						'name' => 'type',
+						'content' => '<option value="login">Login</option><option value="ip_address">IP Address</option>'
+					));
+					
+					// Attempts
+					echo formRow(array('Attempts', true), array(
+						'tag' => 'input',
+						'class' => 'text-input required invalid init',
+						'name' => 'attempts',
+						'maxlength' => 6,
+						'value' => ($_POST['attempts'] ?? '')
+					));
+					
+					// Duration
+					echo formRow(array('Duration (seconds)', true), array(
+						'tag' => 'input',
+						'class' => 'text-input required invalid init',
+						'name' => 'duration',
+						'maxlength' => 15,
+						'value' => ($_POST['duration'] ?? '')
+					));
+					
+					// Separator
 					echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
-					echo formRow('', array('tag' => 'input', 'type' => 'submit', 'class' => 'submit-input button', 'name' => 'submit', 'value' => 'Create Rule'));
+					
+					// Submit button
+					echo formRow('', array(
+						'tag' => 'input',
+						'type' => 'submit',
+						'class' => 'submit-input button',
+						'name' => 'submit',
+						'value' => 'Create Rule'
+					));
 					?>
 				</table>
 			</form>
@@ -787,9 +1048,8 @@ class Login {
 	 * @since 1.2.0[b]{ss-05}
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function editRule() {
+	public function editRule(): void {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -809,11 +1069,43 @@ class Login {
 				<form class="data-form" action="" method="post" autocomplete="off">
 					<table class="form-table">
 						<?php
-						echo formRow('Type', array('tag' => 'select', 'class' => 'select-input', 'name' => 'type', 'content' => '<option value="'.$this->type.'">'.($this->type === 'ip_address' ? 'IP Address' : ucfirst($this->type)).'</option>'.($this->type === 'login' ? '<option value="ip_address">IP Address</option>' : '<option value="login">Login</option>')));
-						echo formRow(array('Attempts', true), array('tag' => 'input', 'class' => 'text-input required invalid init', 'name' => 'attempts', 'maxlength' => 6, 'value' => $this->attempts));
-						echo formRow(array('Duration (seconds)', true), array('tag' => 'input', 'class' => 'text-input required invalid init', 'name' => 'duration', 'maxlength' => 15, 'value' => $this->duration));
+						// Type
+						echo formRow('Type', array(
+							'tag' => 'select',
+							'class' => 'select-input',
+							'name' => 'type',
+							'content' => '<option value="'.$this->type.'">'.($this->type === 'ip_address' ? 'IP Address' : ucfirst($this->type)).'</option>'.($this->type === 'login' ? '<option value="ip_address">IP Address</option>' : '<option value="login">Login</option>')
+						));
+						
+						
+						echo formRow(array('Attempts', true), array(
+							'tag' => 'input',
+							'class' => 'text-input required invalid init',
+							'name' => 'attempts',
+							'maxlength' => 6,
+							'value' => $this->attempts
+						));
+						
+						
+						echo formRow(array('Duration (seconds)', true), array(
+							'tag' => 'input',
+							'class' => 'text-input required invalid init',
+							'name' => 'duration',
+							'maxlength' => 15,
+							'value' => $this->duration
+						));
+						
+						// Separator
 						echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
-						echo formRow('', array('tag' => 'input', 'type' => 'submit', 'class' => 'submit-input button', 'name' => 'submit', 'value' => 'Update Rule'));
+						
+						// Submit button
+						echo formRow('', array(
+							'tag' => 'input',
+							'type' => 'submit',
+							'class' => 'submit-input button',
+							'name' => 'submit',
+							'value' => 'Update Rule'
+						));
 						?>
 					</table>
 				</form>
@@ -827,9 +1119,8 @@ class Login {
 	 * @since 1.2.0[b]{ss-05}
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function deleteRule() {
+	public function deleteRule(): void {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -853,9 +1144,9 @@ class Login {
 	 * @access private
 	 * @param array $data
 	 * @param int $id (optional; default: 0)
-	 * @return null|string (null on $id == 0; string on $id != 0)
+	 * @return string
 	 */
-	private function validateRuleData($data, $id = 0) {
+	private function validateRuleData($data, $id = 0): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -869,13 +1160,21 @@ class Login {
 		
 		if($id === 0) {
 			// Insert the new login rule into the database
-			$insert_id = $rs_query->insert('login_rules', array('type' => $data['type'], 'attempts' => $data['attempts'], 'duration' => $data['duration']));
+			$insert_id = $rs_query->insert('login_rules', array(
+				'type' => $data['type'],
+				'attempts' => $data['attempts'],
+				'duration' => $data['duration']
+			));
 			
 			// Redirect to the appropriate "Edit Login Rule" page
 			redirect(ADMIN_URI.'?page=rules&id='.$insert_id.'&action=edit');
 		} else {
 			// Update the login rule in the database
-			$rs_query->update('login_rules', array('type' => $data['type'], 'attempts' => $data['attempts'], 'duration' => $data['duration']), array('id' => $id));
+			$rs_query->update('login_rules', array(
+				'type' => $data['type'],
+				'attempts' => $data['attempts'],
+				'duration' => $data['duration']
+			), array('id' => $id));
 			
 			// Update the class variables
 			foreach($data as $key => $value) $this->$key = $value;
@@ -893,7 +1192,7 @@ class Login {
 	 * @param int $seconds
 	 * @return string
 	 */
-	private function formatDuration($seconds) {
+	private function formatDuration($seconds): string {
 		// Check whether the seconds are equal to '0'
 		if((int)$seconds !== 0) {
 			// Create a DateTime object for the starting time
@@ -906,7 +1205,14 @@ class Login {
 			$duration = $time_start->diff($time_end);
 			
 			// Create an array of date format strings
-			$date_strings = array('y' => 'year', 'm' => 'month', 'd' => 'day', 'h' => 'hour', 'i' => 'minute', 's' => 'second');
+			$date_strings = array(
+				'y' => 'year',
+				'm' => 'month',
+				'd' => 'day',
+				'h' => 'hour',
+				'i' => 'minute',
+				's' => 'second'
+			);
 			
 			// Loop through the strings
 			foreach($date_strings as $key => &$value) {

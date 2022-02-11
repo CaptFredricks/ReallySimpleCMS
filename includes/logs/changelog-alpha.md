@@ -78,12 +78,14 @@
 ## Version 2.4.3[a] (2020-04-27)
 
 - The `constants.php` file is now included in the `setup.php` and `install.php` files (this fixes an error with an undefined constant)
-- Added a form for reassigning a user's content to another user when the former is deleted
-- Created a function that fetches a username based on a user id (`User` class)
-- Created a function that constructs a list of users (`User` class)
-- Created a function that checks whether a user has content assigned to them
-- If a user has no assigned content, deletion of their account will work as normal; if they do, however, the admin performing the deletion will be redirected to the new form
+- Added multiple new utility functions to the admin `User` class
+- Changed how deleting an existing user is handled
+  - If they have no assigned content, deletion of their account will work as normal
+  - If they do, however, the admin performing the deletion will be redirected to a new form
+  - The form allows reassigning a user's content to another user when the former is deleted
 - Improved mobile responsive design of the admin dashboard
+- New functions:
+  - Admin `User` class (`userHasContent`, `reassignContent`, `validateReassignContentData`, `getUsername`, `getUserList`)
 
 **Modified files:**
 - admin/includes/class-user.php
@@ -122,9 +124,9 @@
 - Created a template file for blog posts in the Carbon theme
 - Moved the `getTaxonomyId` function to the `globals.php` file
 - A post's categories can now be fetched on the front end
-- Created a function that creates a Category object based on a provided slug
+- A `Category` object can now be dynamically created by supplying a slug
 - Modified the Carbon theme's `getRecentPosts` function to accept an optional `categories` parameter (if populated, it will display posts from specified categories)
-- Created a function that returns the posts in a specific category
+- Posts in a specific category can now be dynamically fetched
 - New functions:
   - `Post` class (`getPostCategories`)
   - `functions.php` (`getCategory`, `getPostsInCategory`)
@@ -149,7 +151,7 @@
 - Invalid permalinks now redirect to the proper permalink
 - Tweaked a logic statement in the `load-template.php` file
 - The `getPermalink` function now adds `/category/` as the base slug for category pages
-- Created a function that checks whether the current page is actually a category archive
+- The current page can now be checked on whether it's a category archive
 - Created a front end class that handles entries in the `terms` database table
 - Created a front end class that handles categories
 - Changed the CSS classes for the Carbon theme's `index.php` article content wrapper
@@ -193,18 +195,16 @@
 - Added a page template field to the "Create Page" and "Edit Page" forms
 - A page template metadata entry is now created for the sample page when the CMS is installed
 - Created a directory in the Carbon theme for page templates
-- Created a function that constructs a list of page templates
-- Created a function that fetches all siblings of a specified menu item
 - Cleaned up code in numerous functions in the `Menu` class
 - Page/post/category titles are trimmed down to a maximum of 5 words on the menu sidebar
 - Created a file that loads page templates
 - Added the ability to check whether a page template exists in the active theme
 - Tweaked documentation and renamed a variable in the `load-theme.php` file
-- Added a regular expression that sanitizes the category slug in the `Category::validateData` function
-- Added a regular expression that sanitizes the post slug in the `Post::validateData` function
-- Added a regular expression that sanitizes the widget slug in the `Widget::validateData` function
+- Added regular expressions to the `Category::validateData`, `Post::validateData`, and `Widget::validateData` functions that sanitize the slug
 - Improved mobile responsive design for admin forms
 - New functions:
+  - Admin `Menu` class ( `getSiblings`)
+  - Admin `Post` class (`getTemplateList`)
   - `functions.php` (`templateExists`)
 
 **Bug fixes:**
@@ -240,9 +240,11 @@
 - The select media button now remains disabled if the media upload form does not return a success
 - Tweaked a regular expression in the `uploadMediaFile` function
 - Added a regular expression to sanitize the menu slug in the `Menu::validateMenuData` function
-- Created a function that inserts a nav menu item into the database
-- Created a function that fetches all relationships for a menu
+- Moved the menu item creation code to its own function (previously, it was part of the `Menu::validateMenuData` function)
+- Added checks to ensure that a menu item is a member of the menu that's currently being edited and not of another menu
 - Tweaked code in the `getPermalink` function
+- New functions:
+  - Admin `Menu` class (`createMenuItem`, `getMenuRelationships`)
 
 **Bug fixes:**
 - The `Menu::hasSiblings` and `Menu::isLastSibling` functions allow menu items to be confused with items on other menus (the functions now receive the menu's id as a second parameter)
@@ -266,16 +268,13 @@
 - Moved the `getThemeScript` and `getThemeStylesheet` functions to the front end `functions.php` file and optimized them
 - Optimized the `isEmptyDir` function
 - Tweaked styling of the front end admin bar
-- Created a function that fetches stylesheets for the admin themes
+- Admin theme stylesheets can now be dynamically loaded
 - Added a preview image for the Carbon theme
 - Styled the admin "List Themes" page
-- Created a function that checks whether a theme is the active theme
-- Created a function that activates an inactive theme
-- Created a function that checks whether a theme exists
-- Created a function that recursively deletes files and directories
-- Created a function that deletes a selected theme
-- Created a function that constructs the "Create Theme" form
-- Created a function that validates data submitted on the "Create Theme" form
+- Themes can now be created, activated, and deleted
+- New function:
+  - Admin `Theme` class (`createTheme`, `activateTheme`, `deleteTheme`, `validateData`, `themeExists`, `isActiveTheme`, `recursiveDelete`)
+  - Admin `functions.php` (`getAdminTheme`)
 
 **Bug fixes:**
 - Minor issue with the HTML in the `adminBar` function
@@ -302,12 +301,11 @@
 - Added an optional parameter for the `getHeader` and `getFooter` functions to allow specifying alternate template files from the `header.php` and `footer.php` files
 - Added error checking to the `getHeader` and `getFooter` functions
 - Modified the `getThemeScript` and `getThemeStylesheet` functions to search in the proper file path
-- Created an admin page and a class for front end themes
-- Added the "List Themes" page to the admin nav menu
+- Created a `Theme` class and themes page for the admin dashboard
 - Created user privileges for themes
 - Updated the file path for the `config.php` file in the `install.php` file
-- Created a function that displays a list of installed themes
 - New functions:
+  - Admin `Theme` class (`listThemes`)
   - `globals.php` (`isEmptyDir`)
 
 **Modified files:**
@@ -378,12 +376,14 @@
 - Added error checking to the `Media::listMedia` function that checks whether the media actually exists in the uploads directory
 - Created a footer for the front end theme
 - Created a `functions.php` file for the front end theme and included it in the root `index.php` file
-- Created a function that fetches the most recent blog posts from the database
+- The front end theme now fetches the most recent blog posts from the database for the category page
 - Constructed and styled the front end footer
 - Cleaned up code in the front end theme's `script.js` file
 - Merged the `classes` and `link_text` parameters on the `getMedia` function into a single parameter, `props` that accepts an array of key/value pairs
 - Updated all instances where the above parameters were being used
 - Tweaked the `.gitignore` file
+- New functions:
+  - Front end theme (`getRecentPosts`)
 
 **Bug fixes:**
 - The sticky header functionality is buggy
@@ -619,8 +619,8 @@
   - `Post` class (`getPostId`, `getPostTitle`, `getPostAuthor`, `getPostDate`, `getPostModDate`, `getPostContent`, `getPostStatus`, `getPostSlug`, `getPostParent`, `getPostType`, `getPostFeatImage`)
   - `functions.php` (`getPost`)
   - `globals.php` (`getMedia`)
-- Renamed function:
-  - `getMedia` -> `getMediaSrc`
+- Renamed functions:
+  - `globals.php` (`getMedia` -> `getMediaSrc`)
 
 **Modified files:**
 - 404.php
@@ -653,10 +653,9 @@
 - All admin pages now load some minified resources (the rest will be changed later)
 - The log in and reset password pages now load some minified resources (the rest will be changed later)
 - The log in and reset password page titles now display the page name before the site name
-- Created a function that fetches the title of an admin page
+- The admin page title can now be constructed dynamically
 - Tweaked documentation in the `getCurrentPage` function
-- Added a "Design Settings" page link to the admin menu
-- Created the "Design Settings" page
+- Added a "Design Settings" page to the admin dashboard and added it to the settings nav menu dropdown
 - Renamed the `feat-image-wrap` CSS class to `image-wrap`
 - Cleaned up some code in the `Profile::editProfile` function
 - Settings entries for `site_logo` and `site_icon` are now created during installation
@@ -669,6 +668,9 @@
 - Moved the `getMedia` function from the admin `functions.php` file to the `globals.php` file
 - The site icon and site logo are now both displayed on the log in and reset password pages
 - When a user's profile form is submitted, it now refreshes after only 2 seconds (reduced from 3)
+- New functions:
+  - Admin `Settings` class (`designSettings`)
+  - Admin `functions.php` (`getPageTitle`)
 
 **Modified files:**
 - admin/header.php
@@ -819,13 +821,16 @@
 
 ## Version 2.1.6[a] (2019-11-24)
 
-- Created a function to delete media from the database and the uploads folder
+- Media can now be deleted
 - Tweaked an entry in the changelog
 - Tweaked styling of the upload tab of the upload modal
 - Moved the `Media::filenameExists` and `Media::getUniqueFilename` functions to the admin `functions.php` file
 - Tweaked the layout of the upload modal's upload form
 - Media can now be uploaded via the upload modal
 - Uploaded images can now be inserted as featured images and as avatars
+- New functions:
+  - Admin `Media` class (`deleteMedia`)
+  - Admin `functions.php` (`uploadMediaFile`)
 
 **Modified files:**
 - admin/includes/class-media.php
@@ -913,11 +918,13 @@
 - Tweaked styling on the modal
 - Selected media items are now cleared when the modal is closed
 - Moved the `Media::getFileSize` function to the admin `functions.php` file
-- Created a function that converts a string or file's size to bytes
+- A string or file's size can now be dynamically converted to bytes
 - Media items can now be selected and inserted on the user profile form
 - Changed the access for the `User::getAvatar` function from `private` to `protected`
 - Cleaned up code in the `User::getAvatar` function
 - A user can now set their avatar from their own profile (through the media library only)
+- New functions:
+  - Admin `functions.php` (`getSizeInBytes`)
 
 **Modified files:**
 - admin/includes/class-media.php
@@ -934,8 +941,10 @@
 - Added a partially opaque backdrop to the modal when it's open
 - Increased the top margin above the modal
 - Improved transitioning effects for the modal
-- Created a function that loads the media library
+- The media library is now loaded in the upload modal
 - Styled the media library tab of the upload modal
+- New functions:
+  - Admin `functions.php` (`loadMedia`)
 
 **Modified files:**
 - admin/includes/class-profile.php
@@ -974,28 +983,24 @@
 ## Version 2.1.0[a] (2019-11-10)
 
 - Added a link to the "List Media" page to the admin menu
-- Created the "List Media" page and `Media` class
-- Created a function that constructs a list of all media
-- Created a function that constructs the "Upload Media" form
+- Created the `Media` class
+- Media can be viewed, uploaded, and edited
+  - When media is uploaded, the database is searched for a matching filename, and if found, the new media is given a unique filename
 - Tweaked styling for file inputs
 - Increased the width of text inputs
-- Created a function that validates the media form data
-- Created a function that checks whether a filename exists in the database
 - Added `LIKE` to the list of accepted operators for where clauses
 - Converted the operator `if/elseif` statment in the `Query::select` function to a `switch` statement
-- Created a function that makes a filename unique if a matching filename is found in the database
 - Replaced a ternary operator with a null coalescing operator in the `Widget::createWidget` function
 - Shortened a regular expression in the `Login::validateLoginData` function by using the `\w` metacharacter
 - Renamed a variable in the `Profile::getThemesList` function
 - Changed the access for the `Post::getPostMeta` function from private to protected
-- Created a function that converts a file size from bytes to a more manageable size (e.g., KB, MB, GB)
-- Created a function that constructs the "Edit Media" form
+- A file's size can now be dynamically converted from bytes to a more manageable size (e.g., KB, MB, GB)
 - Tweaked documentation in the `Widget` class
 - When a widget is created, its author is now set as the logged in user who created it
 - When a menu item is created, its author is now set as the logged in user who created it
 - Tweaked documentation in the `Menu` class
 - New functions:
-  - Admin `Media` class (`filenameExists`)
+  - Admin `Media` class (`listMedia`, `uploadMedia`, `editMedia`, `validateData`, `filenameExists`, `getUniqueFilename`, `getFileSize`)
 
 **Modified files:**
 - admin/header.php (M)
@@ -1037,8 +1042,7 @@
 - Shortened the version query string on static resources from "version" to "v" (this applies to both stylesheets and scripts)
 - Tweaked documentation in the `includes/functions.php` file
 - Tweaked documentation in the `Profile` class
-- Created a function that constructs the "Reset Password" form (`Profile` class)
-- Created a function that validates the "Reset Password" form data (`Profile` class)
+- Users can now reset their password
 - Cleaned up code in the `User::validatePasswordData` function
 - Changed the access for the `User::verifyPassword` function from `private` to `protected`
 - Replaced the `session_data` parameter with `id` in the `User::verifyPassword` function
@@ -1046,17 +1050,17 @@
 - The `User::PW_LENGTH` constant's access is now `protected` (it was inadvertently set to `private`)
 - The `User::validatePasswordData` function's second parameter is no longer optional
 - If a redirect URL is provided on the "Log In" page, the user will be redirected upon logging in
-- Created a function that loads all admin header scripts
-- Created a function that constructs a list of all admin themes
+- All admin header and footer scripts are now dynamically loaded
 - Added a field to the user profile form to allow users to select their own admin theme
 - Theme scripts and stylesheets can now be dynamically loaded
 - Users can now load custom admin themes by placing stylesheets in the `content/admin-themes` directory
-- Created a function that loads all admin footer scripts
 - Created three alternate admin themes, named "Ocean", "Forest", and "Sunset"
 - Tweaked styling of the user dropdown menu
 - Created a constant to hold the minimum password lenth (`Login` class)
 - New functions:
-  - `functions.php` (`getThemeScript`, `getThemeStylesheet`)
+  - Admin `Profile` class (`getThemesList`, `resetPassword`, `validatePasswordData`)
+  - Admin `functions.php` (`adminHeaderScripts`, `adminFooterScripts`)
+  - `globals.php` (`getThemeScript`, `getThemeStylesheet`)
 
 **Modified files:**
 - admin/footer.php
@@ -1093,15 +1097,17 @@
 - Added an error to the `Login::forgotPasswordForm` function that displays if a password reset security key has expired
 - Tweaked documentation in the front end `style.css` file
 - Changed the access for the `User::UN_LENGTH` and `User::PW_LENGTH` constants from `public` to `protected`
-- Created a function that checks whether an email exists in the database (`User` class)
+- The admin `User` class now checks whether an email exists in the database during form validation
 - Cleaned up code in the `User::usernameExists` function
 - The delete action no longer displays on the "List Users" page for the current user
 - Added output buffering to the `admin/header.php` and `admin/footer.php` files (this prevents errors with certain redirects)
 - Users can no longer delete themselves
 - The user's profile will now refresh after it's updated
 - Changed the access for the `User::usernameExists` function from `private` to `protected`
-- Created a function that validates the user profile form
+- Users can now update their profile
 - New functions:
+  - Admin `User` class (`emailExists`)
+  - Admin `Profile` class (`validateData`)
   - `Login` class (`isValidCookie`)
 
 **Modified files:**
@@ -1123,7 +1129,6 @@
 - The user will now be redirected back to the "Log In" form after they successfully submit the "Forgot Password" form
 - A confirmation is now displayed over the "Log In" form after the "Forgot Password" form is submitted
 - Tweaked documentation in the `login.php` file
-- Renamed the `Login::loginForm` function to `Login::logInForm`
 - Moved the `generatePassword` function from the `admin/functions.php` file to the `globals.php` file
 - Tweaked the `generatePassword` function's internal code
 - Added a "Reset Password" form for users who've submitted a request to reset their password
@@ -1131,6 +1136,8 @@
 - New functions:
   - `Login` class (`validateForgotPasswordData`, `resetPasswordForm`, `validateResetPasswordData`)
   - `functions.php` (`generateHash`, `formatEmail`)
+- Renamed functions:
+  - `Login` class (`loginForm` -> `logInForm`)
 
 **Modified files:**
 - admin/includes/functions.php
@@ -1143,10 +1150,12 @@
 
 - Tweaked documentation in the `globals.php` file
 - Added an optional parameter to the global redirect function to specify the HTTP status for a redirect
-- Renamed the `Login::errorMessage` function to `Login::statusMessage` and added an optional parameter to specify whether the message should show success or failure
+- Renamed the `Login::errorMessage` function and added an optional parameter to specify whether the message should show success or failure
 - Added styling for success status messages
 - Tweaked documentation in the front end stylesheet
 - Tweaked some styling on the "Log In" form
+- Renamed functions:
+  - `Login` class(`errorMessage` -> `statusMessage`)
 
 **Modified files:**
 - includes/class-login.php
@@ -1165,7 +1174,7 @@
 - New functions:
   - `Login` class (`logInForm`, `forgotPasswordForm`)
 - Renamed functions:
-  - `Login::userLogin` -> `Login::validateLoginData`
+  - `Login` class (`userLogin` -> `validateLoginData`)
 
 **Modified files:**
 - includes/class-login.php
@@ -1233,7 +1242,6 @@
 - Built and styled the user dropdown menu
 - Created the user profile page and the `Profile` class
 - Tweaked documentation in the `Widget` class
-- Created a function that constructs the "Edit Profile" form
 - Changed the access for the `User::getUserMeta` function from `private` to `protected`
 - Tweaked documentation in the root `index.php` file
 - Tweaked the styling of the "Log In" form
@@ -1243,6 +1251,7 @@
 - Tweaked documentation in the `User` class
 - Added the `start_session` function to the `captcha.php` file and the `admin/header.php` file
 - New functions:
+  - Admin `Profile` class (`editProfile`)
   - `Login` class (`userLogin`, `isValidPassword`, `isValidCaptcha`, `usernameExists`, `statusMessage`)
 
 **Modified files:**
@@ -1265,18 +1274,12 @@
 ## Version 1.8.12[a] (2019-10-13)
 
 - Changed the default values of some columns in the database schema to avoid issues when using phpMyAdmin's strict mode
-- Created a function that fetches a menu item's parent
-- Created a function that checks whether a menu item has siblings
-- Created a function that checks whether a menu item is the first of its siblings
-- Created a function that checks whether a menu item is the last of its siblings
-- Created a function that checks whether a menu item is the previous sibling of another menu item
-- Created a function that checks whether a menu item is the next sibling of another menu item
-- Created a function that fetches the previous sibling of a menu item
-- Menu items are properly reordered when a menu item is moved up
-- The `Menu::isSibling` function is now deprecated
-- Created a function that fetches the next sibling of a menu item
-- Menu items are properly reordered when a menu item is moved down
+- Deprecated the `Menu::isSibling` function in favor of multiple new functions that check the relationship of a menu item to its siblings (if any) when updating the position of the item on a menu
+  - Relatives (e.g., parents and siblings) of the current menu item can also be fetched dynamically
+- Menu items are properly reordered when a menu item is moved up or down
 - Tweaked styling for form `textarea` fields
+- New functions:
+  - Admin `Menu` class (`isFirstSibling`, `isLastSibling`, `isPreviousSibling`, `isNextSibling`, `hasSiblings`, `getParent`, `getPreviousSibling`, `getNextSibling`)
 - Deprecated functions:
   - Admin `Menu` class (`isSibling`)
 
@@ -1323,8 +1326,7 @@
 ## Version 1.8.9[a] (2019-10-07)
 
 - Menu items are now properly reordered when a menu item's parent is set (now works in all cases)
-- Created a function that checks whether a menu item is a sibling of another menu item
-- Menu items now cannot be reordered beyond the range of their siblings (i.e., a child cannot be given a lower index than its parent)
+- Added bounds checking to menu items so they can't be reordered beyond the range of their siblings (i.e., a child cannot be given a lower index than its parent)
 - New functions:
   - Admin `Menu` class (`isSibling`)
 
@@ -1353,11 +1355,13 @@
 ## Version 1.8.7[a] (2019-09-29)
 
 - Child menu items are now indented on the "Edit Menu" page (up to 3 levels deep)
-- Created a function that fetches the whole "family tree" of a menu item and returns the number of members
+- The entire "family tree" of a menu item is now calculated in the `Menu` class for reordering purposes
+  - A menu item's descendants can also be fetched dynamically
 - Added a global variable to the `Menu` class to hold the member count of a menu item's "family tree"
-- Created a function that fetches all descendants of a menu item
 - Replaced an occurence of `intval()` with a casted integer in the `install.php` file
 - Added more documentation to the `Query` class
+- New functions:
+  - Admin `Menu` class (`getFamilyTree`, `getDescendants`)
 
 **Modified files:**
 - admin/includes/class-menu.php
@@ -1368,10 +1372,10 @@
 ## Version 1.8.6[a] (2019-09-28)
 
 - Tweaked a line of documentation in the `adminNavMenuItem` function
-- Created a function that constructs a list of parent menu items
-- Created a function that checks whether the current menu item is a descendant of other menu items
+- Created multiple functions that check the relationship of a menu item to other items in a menu
 - Menu items can now be nested
-- Created a function that determines the nested depth of a menu item
+- New functions:
+  - Admin `Menu` class (`isDescendant`, `getMenuItemDepth`, `getParentList`)
 
 **Modified files:**
 - admin/includes/class-menu.php
@@ -1430,7 +1434,6 @@
 
 - Added a disabled input field that displays the menu item's type (post/page, category, or custom)
 - Added styling for disabled input fields
-- Renamed the `Menu::getPostsList` function to `Menu::getMenuItemsList`
 - Category menu items can now be edited
 - Custom links can now be added to menus
 - Custom menu items can now be edited
@@ -1439,6 +1442,10 @@
 - Added an exit function after a redirect in the `init.php` file
 - Updated some documentation in the `login.php` file
 - Tweaked some previous entries in the changelog
+- New functions:
+  - Admin `Menu` class (`moveUpMenuItem`, `moveDownMenuItem`)
+- Renamed functions:
+  - Admin `Menu` class (`getPostsList` -> `getMenuItemsList`)
 
 **Modified files:**
 - admin/includes/class-menu.php
@@ -1453,11 +1460,17 @@
 - Tweaked the documentation in all the admin files
 - Renamed all public functions with "entry" or "entries" in their name to the name of their class (e.g., `User::listEntries` -> `User::listUsers`)
 - Added a redirect from the "List Posts" page to the "List Menus" page if the requested post's type is `nav_menu_item`
-- Renamed the `Menu::getMenuItemsList` function to `Menu::getMenuItemsLists` and removed its optional parameter
+- Renamed the `Menu::getMenuItemsList` function and removed its optional parameter
 - Cleaned up the `Menu::getMenuItemsLists` function and split pages and posts into separate fieldset lists
 - Added styling to the menu items fieldsets
 - Added a checkbox list for categories and fields for adding custom menu items
 - Categories can now be added to menus
+- Renamed functions:
+  - Admin `Category` class (`listEntries` -> `listCategories`, `createEntry` -> `createCategory`, `editEntry` -> `editCategory`, `deleteEntry` -> `deleteCategory`)
+  - Admin `Menu` class (`getMenuItemsList` -> `getMenuItemsLists`)
+  - Admin `Post` class (`listEntries` -> `listPosts`, `createEntry` -> `createPost`, `editEntry` -> `editPost`, `trashEntry` -> `trashPost`, `restoreEntry` -> `restorePost`, `deleteEntry` -> `deletePost`)
+  - Admin `User` class (`listEntries` -> `listUsers`, `createEntry` -> `createUser`, `editEntry` -> `editUser`, `deleteEntry` -> `deleteUser`)
+  - Admin `Widget` class (`listEntries` -> `listWidgets`, `createEntry` -> `createWidget`, `editEntry` -> `editWidget`, `deleteEntry` -> `deleteWidget`)
 
 **Modified files:**
 - admin/categories.php
@@ -1484,18 +1497,19 @@
 - Rebuilt the `Menu::getMenuItems` function for use on the menu forms pages
 - Added extra validation to the `Category::deleteEntry` function
 - Menus can now be edited and deleted
+  - Menu items on an existing menu can also be edited and deleted
 - Added a wrapper element for data forms (allows for floating blocks outside of the main form)
 - Replaced occurrences of `count() === 0` with `empty()` when checking if no entries exist on the list entries pages
 - Set all form elements to use the `Segoe UI` font (including the installation forms)
 - Styled the reset password button on the 'Edit User' form
 - Added the admin footer to the menus page
 - Renamed all public menu functions (e.g., `Menu::createEntry` -> `Menu::createMenu`)
-- Renamed the `Menu::validateData` function to `Menu::validateMenuData`
-- Created a function that constructs the 'Edit Menu Item' form
-- Created a function that constructs a list of posts (`Menu` class)
-- Created a function to fetch a menu item's metadata
 - Menu items can now be edited and deleted
 - A cancel button will now appear when a menu item is being edited
+- New functions:
+  - Admin `Menu` class (`deleteMenu`, `editMenuItem`, `deleteMenuItem`, `validateMenuItemData`, `getPostsList`, `getMenuItemMeta`)
+- Renamed functions:
+  - Admin `Menu` class (`listEntries` -> `listMenus`, `createEntry` -> `createMenu`, `editEntry` -> `editMenu`, `validateData` -> `validateMenuData`)
 
 **Bug fixes:**
 - The "Categories" block in the post editor is captioned "Attributes" (type `post` only)
@@ -1514,15 +1528,12 @@
 ## Version 1.8.0[a] (2019-09-08)
 
 - Created the `Menu` class
-- Created an admin "List Menus" page and added a link to the nav menu
+  - Added menus to the admin nav menu
+  - Menus can be viewed and created (the edit form exists too, but it's not functional)
 - The `nav_menu` taxonomy is now created during installation
-- Created a function that constructs the "Create Menu" form
-- Created a function that constructs a list of nav menu items
 - Renamed the `privileges-list` id to the `checkbox-list` class
-- Created a function that checks whether the `nav_menu` slug already exists
-- Created a function that constructs the "Edit Menu" form
-- Created a function to fetch the nav menu items
-- Menus can now be created
+- New functions:
+  - Admin `Menu` class (`listEntries`, `createEntry`, `editEntry`, `validateData`, `slugExists`, `getMenuItems`, `getMenuItemsList`)
 
 **Bug fixes:**
 - The `pagerNav` function adds too many `paged` parameters
@@ -1596,13 +1607,15 @@
 - Added a `_default` column to the `user_roles` database table (this will be used to protect default roles from tampering)
 - Removed edit and delete actions from default user roles on the "List User Roles" page
 - Attempting to edit a default user role will now redirect the user to the "List User Roles" page
+- New functions:
+  - Admin `Settings` class (`roleNameExists`)
 
 **Bug fixes:**
 - Some pages don't properly display as 'current' on the admin nav menu when being viewed by the user
 
 **Modified files:**
 - admin/includes/class-category.php (M)
-- admin/includes/class-post.php
+- admin/includes/class-post.php (M)
 - admin/includes/class-settings.php
 - admin/includes/class-user.php
 - admin/includes/class-widget.php
@@ -1621,20 +1634,17 @@
 - Added a way to check whether a user has a specific privilege
 - Tweaked some documentation in the `Post` class
 - The `Post::getCategories` function now returns an em dash if a post has no categories
-- Renamed the `Settings::userRolesSettings` function to `Settings::listUserRoles`
-- Renamed the `Settings::validateData` function to `Settings::validateSettingsData`
-- Created a function that constructs the "Create User Role" form
 - The `formRow` function now can accept string values in its `args` parameters
 - Cleaned up the `formRow` function's code and added more documentation
 - Added styling for the user privilege list
 - Tweaked styling of the post category list
-- Created a function that constructs a list of user privileges
-- Created a function that constructs the "Edit User Role" form
-- Created a function that validates the user role form data
+- User roles can now be created, edited, and deleted
 - Replaced all occurrences of the PHP `header` function with the new `redirect` function in the `Post` and `Category` classes
-- Created a function that deletes user roles
 - New functions:
+  - Admin `Settings` class (`createUserRole`, `editUserRole`, `deleteUserRole`, `validateUserRoleData`, `getPrivileges`, `getPrivilegesList`)
   - `globals.php` (`redirect`, `userHasPrivilege`)
+- Renamed functions:
+  - Admin `Settings` class (`validateData` -> `validateSettingsData`, `userRolesSettings` -> `listUserRoles`)
 
 **Bug fixes:**
 - Categories are removed from posts when they shouldn't be
@@ -1659,10 +1669,13 @@
 - The `user_relationships` database table is now populated during installation
 - Added the `clear` class to all admin page wrapper elements (prevents page content from overflowing into the footer)
 - Removed a line of documentation from the `categories.php` file
-- Renamed the `Settings::listSettings` function to `Settings::generalSettings`
-- Created the "User Roles" settings page
+- Created a "User Roles" settings page
 - Added a nav menu item for the user roles settings page
 - Added an extra check in the `getCurrentPage` function to look for the page `GET` parameter (for settings pages)
+- New functions:
+  - Admin `Settings` class (`userRolesSettings`)
+- Renamed functions:
+  - Admin `Settings` class (`listSettings` -> `generalSettings`)
 
 **Modified files:**
 - admin/categories.php (M)
@@ -1690,15 +1703,17 @@
 - Consolidated all database table populate functions into one and moved the old functions to the `deprecated.php` file
 - The user created on installation is now given the administrator user role
 - Replaced the `UPL_DIR` constant with `UPLOADS` in the `User::getAvatar` function (the former is no longer used)
-- Created a function that constructs a list of user roles (`Settings` class)
+- Added a new utility function to the `Settings` class
 - Tweaked the username column's styling on the "List Users" page
-- Created a function that fetches a specified user's role (`User` class)
-- Created a function that constructs a list of user roles (`User` class)
 - The `Post::getAuthorList` function no longer calls the `Post::getAuthor` function
 - The `Post::getParentList` function no longer calls the `Post::getParent` function
 - User roles now appear on the "Create User" and "Edit User" forms
 - Added a missing class to a button on the "Reset Password" form
 - The `Category::getParentList` function no longer calls the `Category::getParent` function
+- New functions:
+  - Admin `User` class (`getRole`, `getRoleList`)
+  - Admin `Settings` class (`getUserRoles`)
+  - Admin `functions.php` (`populateTables`)
 - Deprecated functions:
   - Admin `functions.php` (`populateUsers`, `populatePosts`, `populateSettings`, `populateTaxonomies`, `populateTerms`, `populateTermRelationships`)
 
@@ -1761,12 +1776,14 @@
 - Tweaked the styling of data form tables
 - Added a status field to the `Widget` class forms
 - Tweaked documentation in the `Post` class
-- Added form validation for widgets
+- Widgets can now be created and edited
 - Modified date is now set when a post is edited
 - Removed a line of documentation from the `widgets.php` file
 - Tweaked the pagination code for the `Post` class
 - Removed a few lines of documentation from the `Category` class
 - Tweaked the styling of some elements on the "General Settings" page
+- New functions:
+  - Admin `Widget` class (`validateData`)
 
 **Bug fixes:**
 - The "Search Engine Visibility" checkbox cannot be checked
@@ -1789,7 +1806,9 @@
 - The text for the "Search Engine Visibility" checkbox on the installation form can now be used to check the checkbox
 - Included the jQuery library on the installation page and added a custom script
 - Added more documentation to the `Post` class
-- Created a function that constructs the "Edit Widget" form
+- Widgets can now be deleted
+- New functions:
+  - Admin `Widget` class (`editEntry`, `deleteEntry`)
 
 **Bug fixes:**
 - Old data is being fetched before the new data is submitted on admin forms
@@ -1811,11 +1830,11 @@
 - The `getCurrentPage` function now adds any action in the url to the end of the current page
 - Added more documentation to the `User` class and fixed the styling on the reset password form
 - Renamed the data form's `hr` class from `divider` to `separator` and added styling to it
-- Created the `Widget` class
-- Created admin "List Widgets" page and added a link to the nav menu
+- Created a `Widget` class and widgets page for the admin dashboard
 - Fixed some documentation in the `Category` class
-- Created a function that constructs the "Create Widget" form
 - Tweaked the documentation in the `install.css` stylesheet
+- New functions:
+  - Admin `Widget` class (`listEntries`, `createEntry`)
 
 **Modified files:**
 - admin/header.php
@@ -1907,12 +1926,14 @@
 - Added the `button` class to the pager nav links
 - Styled the pager nav buttons
 - Tweaked the styling of the entry count
-- Created a function that fetches the current admin page
 - The admin `body` tag is now assigned a class based on the current page
 - Changed some class names relating to the admin nav menu
-- Renamed the `adminNavItem` function to `adminNavMenuItem`
 - The admin nav menu now properly displays the current nav menu item
 - Submenus are now visible if they are children of the current nav menu item
+- New functions:
+  - Admin `functions.php` (`getCurrentPage`)
+- Renamed functions:
+  - Admin `functions.php` (`adminNavItem` -> `adminNavMenuItem`)
 
 **Modified files:**
 - admin/header.php (M)
@@ -1936,7 +1957,7 @@
 
 - Changed the default value for datetime columns in the schema to avoid major errors during installation in newer versions of MySQL
 - Tweaked some documentation in the `Post` class
-- Created a function that checks whether a category slug exists in the database
+- The admin `Category` class now checks whether a slug exists in the database during validation
 - Categories can now be created
 - Added more documentation to the `User` class
 - Cleaned up the code in the `User::validateData` function
@@ -1945,6 +1966,9 @@
 - Added styling to the categories list
 - Removed the parent list and added a categories list to the "Create Post" page
 - Categories can now be added to posts (they cannot yet be removed)
+- New functions:
+  - Admin `Category` class (`validateData`, `slugExists`)
+  - Admin `Post` class (`getTermsList`)
 
 **Modified files:**
 - admin/includes/class-category.php
@@ -1955,11 +1979,12 @@
 
 ## Version 1.5.1[a] (2019-07-30)
 
-- Created a function that constructs the "Edit Category" form
-- Created a function that deletes categories from the database
+- Categories can now be edited and deleted via the dashboard
 - Tweaked validation in the `Post::deleteEntry` function
 - Added more documentation to the `User` class
 - The category's parent can now be set to `none` on the "Create Category" form
+- New functions:
+  - Admin `Category` class (`editEntry`, `deleteEntry`)
 
 **Modified files:**
 - admin/categories.php
@@ -1969,23 +1994,19 @@
 
 ## Version 1.5.0[a] (2019-07-28)
 
-- Created an admin "List Categories" page
-- Added the "List Categories" page to the admin navigation
-- Created a `Category` class
+- Created a `Category` class for the admin dashboard
+  - Categories can now be created via the dashboard
+  - Added categories to the admin navigation
 - The "Create \<classname>" buttons have been relabeled as "Create New"
 - Modified the logic of the status message display on the list entries pages
 - Fixed some erroneous documentation in the `includes/functions.php` file
 - The `taxonomies`, `terms`, and `term_relationships` tables are now dynamically populated during installation
 - A taxonomy's id can now be fetched based on its name
-- Created a function that constructs a list of all categories in the database
 - A sample blog post is now created during the CMS installation in addition to the sample home page
-- Created a function that fetches the post categories
-- Created a function that fetches a category's parent
-- Created a function that constructs the "Create Category" form
-- Created a function that constructs a list of parent categories
-- Created a function that checks whether the current category is a descendant of other categories
 - Removed the `parent` column from the "List Posts" page (the `post` post type is not meant to be hierarchical)
 - New functions:
+  - Admin `Category` class (`listEntries`, `createEntry`, `isDescendant`, `getParent`, `getParentList`)
+  - Admin `Post` class (`getTerms`)
   - Admin `functions.php` (`populateTaxonomies`, `populateTerms`, `populateTermRelationships`)
   - `globals.php` (`getTaxonomyId`)
 
@@ -2012,7 +2033,9 @@
 - Improved styling on form pages using the form table layout
 - Improved documentation for the `User` class
 - Improved validation in the `User::editEntry` function
-- Created a function that retrieves post metadata
+- Post metadata can now be fetched from the database
+- New functions:
+  - Admin `Post` class (`getPostMeta`)
 
 **Modified files:**
 - admin/includes/class-post.php
@@ -2025,12 +2048,11 @@
 ## Version 1.4.9[a] (2019-07-23)
 
 - Improved styling of the "Create Post" form
-- Created a function that checks whether a post is in the trash
 - A post's permalink can now be constructed by the admin `Post` class
-- Created a function that checks whether the current post is a descendant of other posts
-- Built the "Edit Post" page (posts cannot be submitted yet)
+- Added several new utility functions to the `Post` class
+- Created the page for editing posts (they cannot be updated yet)
 - New functions:
-  - Admin `Post` class (`getPermalink`)
+  - Admin `Post` class (`editEntry`, `isTrash`, `isDescendant`, `getPermalink`)
 
 **Modified files:**
 - admin/includes/class-post.php
@@ -2039,10 +2061,12 @@
 ## Version 1.4.8[a] (2019-07-22)
 
 - Added form validation to the `Post::createEntry` function
-- Created a function that checks whether a post slug already exists in the database
+- Post slugs are now checked for existence in the database before a post is created
 - Added styling to the "Create Post" form
 - Tweaked styling on the admin footer
 - Trashed posts will no longer appear in post parent dropdowns
+- New functions:
+  - Admin `Post` class (`slugExists`)
 
 **Modified files:**
 - admin/footer.php (M)
@@ -2058,6 +2082,8 @@
 - Posts can now be deleted
 - Tweaked a previous entry in the changelog
 - Posts can now be created (no validation yet)
+- New functions:
+  - Admin `Post` class (`deleteEntry`, `validateData`)
 
 **Modified files:**
 - admin/includes/class-post.php
@@ -2067,8 +2093,10 @@
 
 - Buttons will no longer have underlined text on mouse hover
 - The "List Posts" table now tells whether metadata has been provided
-- Posts can now be trashed and restored
+- Posts can now be trashed and restored via the dashboard
 - A post slug postmeta entry will no longer be created during the CMS installation
+- New functions:
+  - Admin `Post` class (`trashEntry`, `restoreEntry`)
 
 **Modified files:**
 - admin/includes/class-post.php
@@ -2091,9 +2119,10 @@
 
 - Continued building the "Create Post" form
 - Added a new parameter to the `formTag` function and functionality for building a `label` tag
-- Created a function that constructs a list of post authors
-- Created a function that constructs a list of parent posts
-- Created a function that fetches a post's parent
+- Added several new utility functions to the `Post` class
+- A post's parent can now be fetched from the database
+- New functions:
+  - Admin `Post` class (`getAuthorList`, `getParent`, `getParentList`)
 
 **Bug fixes:**
 - A recent update to the `formTag` function prevents parts of the `formRow` function from working properly
@@ -2131,12 +2160,14 @@
 ## Version 1.4.1[a] (2019-04-09)
 
 - Minor tweak to the changelog's formatting
-- Created a function to contstruct the "Create Post" form (form is empty)
+- Started work on the "Create Post" form
 - Cleaned up the `User::createEntry` function
 - Added and styled the admin header
 - Styled the admin nav menu
 - Put the admin page heading inside a wrapper
 - Added more documentation
+- New functions:
+  - Admin `Post` class (`createEntry`)
 
 **Modified files:**
 - admin/header.php
@@ -2148,22 +2179,22 @@
 
 ## Version 1.4.0[a] (2019-04-05)
 
-- Created admin "List Posts" page and `Post` class
+- Created a `Post` class for the admin dashboard
+  - Set up several core class functions
 - Replaced `intval` with `int` type casting on the users page
 - Updated and added documentation to the `User` class
 - The buttons stylesheet is now included in the admin dashboard
 - Moved the `getStylesheet` and `getScript` functions to the `globals.php` file
 - Added links to the post page in the admin nav menu
 - The `User::getPageList` function now only retrieves published pages from the database
-- Created a function that retrieves the post count based on post status (`Post` class)
-- Created a function that constructs a table row
+- Admin table rows can now be created dynamically
 - Updated and added more documentation
-- Created a function that constructs a list of all posts in the database by post type
 - The `change.log` file has been renamed to `changelog.md` (it will henceforth be omitted from list of modified files)
 - Converted the change log to markdown format
-- Created a function that retrieve a post's author
 - Cleaned up the `User::listEntries` function
 - New functions:
+  - Admin `Post` class (`listEntries`, `getAuthor`, `getPostCount`)
+  - Admin `functions.php` (`tableRow`)
   - `globals.php` (`isHomePage`)
 
 **Modified files:**
@@ -2200,7 +2231,7 @@
 
 - Added and updated documentation in various places
 - Cleaned up some admin files
-- Created Settings admin class
+- Created a `Settings` class and settings page for the admin dashboard
 - Version numbers will now be denoted as "Version `<version><[a/b]>`" or "`@since <version><[a/b]>`"
 - Added the `maxlength` attribute to the `input` tag in the `formTag` function
 - Added the `*` attribute to the `input` tag in the `formTag` function (this is for miscellaneous attributes like `readonly` or `checked`)
@@ -2210,6 +2241,7 @@
 - A sample page is now created on installation (it is set as the default home page)
 - Cleaned up the changelog a bit (mostly rewording and adding a few things that had been omitted)
 - New functions:
+  - Admin `Settings` class (`generalSettings`, `validateSettingsData`, `getPageList`)
   - Admin `functions.php` (`populatePosts`)
 
 **Bug fixes:**
@@ -2248,7 +2280,7 @@
 - Minor styling tweaks to the installation page
 
 **Modified files:**
-- .gitignore
+- .gitignore (M)
 - admin/includes/css/install.css (M)
 - admin/includes/functions.php (M)
 - admin/install.php
@@ -2385,11 +2417,12 @@
 
 ## Version 1.2.5[a] (2019-03-08)
 
-- Created a function that retrieves statistics data
+- Statistics data can now be dynamically fetched for the dashboard stats graph
 - Text strings can now be trimmed down to a specific number of words.
 - Settings data can now easily be fetched from the database
-- Created a function that constructs admin nav items
+- Admin nav menu items are now dynamically constructed
 - New functions:
+  - Admin `functions.php` (`adminNavItem`, `getStatistics`)
   - `globals.php` (`getSetting`, `trimWords`)
 
 **Modified files:**
@@ -2399,9 +2432,12 @@
 
 ## Version 1.2.4[a] (2019-02-26)
 
-- Created function that verifies passwords
+- The admin user's password is now verified with what's in the database when they reset another user's password
 - Created function that retrieves a user's avatar
-- Created a function that constructs and displays a statistics bar graph
+- Created a statistics bar graph for the admin dashboard
+- New functions:
+  - Admin `User` class (`verifyPassword`)
+  - Admin `functions.php` (`statsBarGraph`)
 
 **Bug fixes:**
 - An exception occurs if a query returns `null`
@@ -2414,10 +2450,10 @@
 
 ## Version 1.2.3[a] (2019-02-22)
 
-- Added validation for edit user form data
-- Created a function for deleting users
-- Added reset password form
-- Added validation for the reset password form data
+- Users can now be edited and deleted
+- Admin users can now reset the passwords of other users
+- New functions:
+  - Admin `User` class (`deleteEntry`, `resetPassword`, `validatePasswordData`)
 
 **Modified files:**
 - admin/includes/class-user.php
@@ -2426,7 +2462,9 @@
 ## Version 1.2.2[a] (2019-02-21)
 
 - Added more documentation
-- Created a function that retrieves user metadata
+- User metadata can now be dynamically fetched from the database
+- New functions:
+  - Admin `User` class (`getUserMeta`)
 
 **Modified files:**
 - admin/includes/class-user.php
@@ -2437,13 +2475,14 @@
 ## Version 1.2.1[a] (2019-02-20)
 
 - Added more documentation
-- Created a function that lists all users in a table
-- Created admin pagination function
-- Created functions that assemble admin tables
+- A list of all users in the database can now be viewed
+- Added pagination to all admin pages with tables
+- Admin table cells and header rows can now be created dynamically
 - Date strings can now be dynamically formatted
-- Created a function that implements admin page navigation
-- Added the "Edit User" page and form
+- Started work on the "Edit User" form
 - New functions:
+  - Admin `User` class (`listEntries`, `editEntry`)
+  - Admin `functions.php` (`paginate`, `pagerNav`, `tableHeaderRow`, `tableCell`)
   - `globals.php` (`formatDate`)
 
 **Modified files:**
@@ -2456,10 +2495,15 @@
 
 - Added CMS copyright and version to the admin footer
 - Created a file to hold globally-scoped functions
-- Created a function that assembles form tags (works with the `formRow` function)
-- Finished the "Create User" form and added validation
-- Created functions for loading admin scripts and stylesheets
+- Form tags can now be created dynamically (works in conjunction with the `formRow` function)
+- Custom status messages can now be dynamically created for use by admin functions
+- Users can now be created
+- Admin scripts and stylesheets can now be dynamically loaded
 - Added documentation for numerous functions
+- New functions:
+  - Admin `User` class (`validateData`, `usernameExists`, ``)
+  - Admin `functions.php` (`formTag`)
+  - `globals.php` (`RSCopyright`, `RSVersion`, `getAdminScript`, `getAdminStylesheet`, `statusMessage`)
 
 **Modified files:**
 - admin/footer.php
@@ -2470,8 +2514,11 @@
 
 ## Version 1.1.2[a] (2019-02-18)
 
-- Created a function that assembles form rows
-- Created a function that constructs the "Create User" form
+- Form rows can now be created dynamically
+- Started work on the "Create User" form
+- New functions:
+  - Admin `User` class (`createEntry`)
+  - Admin `functions.php` (`formRow`)
 
 **Modified files:**
 - admin/includes/class-user.php
@@ -2493,7 +2540,7 @@
 - Rebuilt the functions for the `SELECT`, `INSERT`, and `UPDATE` statements
 - Created a file to store deprecated functions (for potential future use)
 - Extended the `Query` class' scope so it works on the back end
-- Created admin "List Users" page
+- Created a users page for the admin dashboard
 - New functions:
   - `Query` class (`select`, `insert`, `update`)
 - Deprecated functions:

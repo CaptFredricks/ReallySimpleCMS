@@ -13,7 +13,6 @@ class Media extends Post {
 	 *
 	 * @access public
 	 * @param int $id (optional; default: 0)
-	 * @return null
 	 */
 	public function __construct($id = 0) {
 		// Extend the Query object
@@ -37,9 +36,8 @@ class Media extends Post {
 	 * @since 2.1.0[a]
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function listMedia() {
+	public function listMedia(): void {
 		// Extend the Query object and the user's session data
 		global $rs_query, $session;
 		
@@ -213,9 +211,8 @@ class Media extends Post {
 	 * @since 2.1.0[a]
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function uploadMedia() {
+	public function uploadMedia(): void {
 		// Check whether the form has been submitted
 		if(isset($_POST['submit'])) {
 			// Merge the $_POST and $_FILES arrays
@@ -233,12 +230,15 @@ class Media extends Post {
 			<form class="data-form" action="" method="post" autocomplete="off" enctype="multipart/form-data">
 				<table class="form-table">
 					<?php
+					// Title
 					echo formRow(array('Title', true), array(
 						'tag' => 'input',
 						'class' => 'text-input required invalid init',
 						'name' => 'title',
 						'value' => ($_POST['title'] ?? '')
 					));
+					
+					// File
 					echo formRow(array('File', true), array(
 						'tag' => 'input',
 						'type' => 'file',
@@ -246,12 +246,16 @@ class Media extends Post {
 						'class' => 'file-input required invalid init',
 						'name' => 'file'
 					));
+					
+					// Alt text
 					echo formRow('Alt Text', array(
 						'tag' => 'input',
 						'class' => 'text-input',
 						'name' => 'alt_text',
 						'value' => ($_POST['alt_text'] ?? '')
 					));
+					
+					// Description
 					echo formRow('Description', array(
 						'tag' => 'textarea',
 						'class' => 'textarea-input',
@@ -260,7 +264,11 @@ class Media extends Post {
 						'rows' => 10,
 						'content' => htmlspecialchars(($_POST['description'] ?? ''))
 					));
+					
+					// Separator
 					echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
+					
+					// Submit button
 					echo formRow('', array(
 						'tag' => 'input',
 						'type' => 'submit',
@@ -280,9 +288,8 @@ class Media extends Post {
 	 * @since 2.1.0[a]
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function editMedia() {
+	public function editMedia(): void {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -305,23 +312,30 @@ class Media extends Post {
 				<form class="data-form" action="" method="post" autocomplete="off">
 					<table class="form-table">
 						<?php
+						// Thumbnail
 						echo formRow('Thumbnail', array(
 							'tag' => 'div',
 							'class' => 'thumb-wrap',
 							'content' => getMedia($this->id, array('class' => 'media-thumb'))
 						));
+						
+						// Title
 						echo formRow(array('Title', true), array(
 							'tag' => 'input',
 							'class' => 'text-input required invalid init',
 							'name' => 'title',
 							'value' => $this->title
 						));
+						
+						// Alt text
 						echo formRow('Alt Text', array(
 							'tag' => 'input',
 							'class' => 'text-input',
 							'name' => 'alt_text',
 							'value' => $meta['alt_text']
 						));
+						
+						// Description
 						echo formRow('Description', array(
 							'tag' => 'textarea',
 							'class' => 'textarea-input',
@@ -330,7 +344,11 @@ class Media extends Post {
 							'rows' => 10,
 							'content' => htmlspecialchars($this->content)
 						));
+						
+						// Separator
 						echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
+						
+						// Submit button
 						echo formRow('', array(
 							'tag' => 'input',
 							'type' => 'submit',
@@ -356,9 +374,8 @@ class Media extends Post {
 	 * @since 1.2.3[b]
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function replaceMedia() {
+	public function replaceMedia(): void {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -387,17 +404,22 @@ class Media extends Post {
 				<form class="data-form" action="" method="post" autocomplete="off" enctype="multipart/form-data">
 					<table class="form-table">
 						<?php
+						// Thumbnail
 						echo formRow('Thumbnail', array(
 							'tag' => 'div',
 							'class' => 'thumb-wrap',
 							'content' => getMedia($this->id, array('class' => 'media-thumb'))
 						));
+						
+						// Title
 						echo formRow(array('Title', true), array(
 							'tag' => 'input',
 							'class' => 'text-input required invalid init',
 							'name' => 'title',
 							'value' => $this->title
 						));
+						
+						// File
 						echo formRow(array('File', true), array(
 							'tag' => 'input',
 							'type' => 'file',
@@ -405,6 +427,8 @@ class Media extends Post {
 							'class' => 'file-input required invalid init',
 							'name' => 'file'
 						));
+						
+						// Metadata
 						echo formRow('Metadata', array(
 							'tag' => 'input',
 							'type' => 'checkbox',
@@ -417,7 +441,11 @@ class Media extends Post {
 								'content' => '<span>Update filename and date</span>'
 							)
 						));
+						
+						// Separator
 						echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
+						
+						// Submit button
 						echo formRow('', array(
 							'tag' => 'input',
 							'type' => 'submit',
@@ -438,9 +466,8 @@ class Media extends Post {
 	 * @since 2.1.6[a]
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function deleteMedia() {
+	public function deleteMedia(): void {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -496,9 +523,9 @@ class Media extends Post {
 	 * @param array $data
 	 * @param string $action
 	 * @param int $id (optional; default: 0)
-	 * @return null|string (null on $id == 0; string on $id != 0)
+	 * @return string
 	 */
-	private function validateData($data, $action, $id = 0) {
+	private function validateData($data, $action, $id = 0): string {
 		// Extend the Query object and the user's session data
 		global $rs_query, $session;
 		
@@ -538,8 +565,8 @@ class Media extends Post {
 				// Split the filename into separate parts
 				$file = pathinfo($data['file']['name']);
 				
-				// Convert the filename to all lowercase, remove all special characters, and replace spaces with hyphens
-				$filename = str_replace(array('  ', ' '), '-', preg_replace('/[^\w\s\-]/i', '', strtolower($file['filename'])));
+				// Sanitize the filename
+				$filename = str_replace(array('  ', ' '), '-', sanitize($file['filename'], '/[^\w\s\-]/'));
 				
 				// Get a unique slug
 				$slug = getUniquePostSlug($filename);
@@ -636,8 +663,8 @@ class Media extends Post {
 					// Split the filename into separate parts
 					$file = pathinfo($data['file']['name']);
 					
-					// Convert the filename to all lowercase, remove all special characters, and replace spaces with hyphens
-					$filename = str_replace(array('  ', ' '), '-', preg_replace('/[^\w\s\-]/i', '', strtolower($file['filename'])));
+					// Sanitize the filename
+					$filename = str_replace(array('  ', ' '), '-', sanitize($file['filename'], '/[^\w\s\-]/'));
 					
 					// Check whether the new filename is the same as the old one
 					if($filename.'.'.$file['extension'] === $meta['filename']) {
@@ -661,7 +688,7 @@ class Media extends Post {
 					$rs_query->update('posts', array(
 						'title' => $data['title'],
 						'date' => 'NOW()',
-						'modified' => null,
+						'modified' => 'NOW()',
 						'slug' => $slug
 					), array('id' => $id));
 				} else {

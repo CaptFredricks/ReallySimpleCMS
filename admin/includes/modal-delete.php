@@ -18,4 +18,4 @@
 </div>
 <?php
 // Include the modal scripts
-getAdminScript('modal.js');
+adminScript('modal.js');

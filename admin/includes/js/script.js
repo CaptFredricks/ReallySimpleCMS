@@ -313,7 +313,6 @@ jQuery(document).ready($ => {
 	 * @since 2.1.9[a]
 	 *
 	 * @param string field
-	 * @return null
 	 */
 	function formatSlug(field) {
 		// Fetch the field's value

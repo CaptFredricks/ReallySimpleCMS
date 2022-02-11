@@ -353,7 +353,7 @@ jQuery(document).ready($ => {
 		// Create an object to hold the data passed to the server
 		let data = {
 			'data_submit': 'load',
-			'post_slug': $('body').attr('class').split(' ')[0],
+			'post_slug': $('body').attr('class').split(' ')[1],
 			'start': feed_start,
 			'count': feed_count
 		};
@@ -395,7 +395,7 @@ jQuery(document).ready($ => {
 		// Create an object to hold the data passed to the server
 		let data = {
 			'data_submit': 'refresh',
-			'post_slug': $('body').attr('class').split(' ')[0],
+			'post_slug': $('body').attr('class').split(' ')[1],
 			'start': 0,
 			'count': comments
 		};
@@ -427,7 +427,7 @@ jQuery(document).ready($ => {
 			// Create an object to hold the data passed to the server
 			let data = {
 				'data_submit': 'checkupdates',
-				'post_slug': $('body').attr('class').split(' ')[0]
+				'post_slug': $('body').attr('class').split(' ')[1]
 			};
 			
 			// Submit the data

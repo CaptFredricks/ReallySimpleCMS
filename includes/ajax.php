@@ -11,7 +11,7 @@ define('BASE_INIT', true);
 require_once dirname(__DIR__).'/init.php';
 
 // Include functions
-require_once PATH.INC.'/functions.php';
+require_once FUNC;
 
 // Check whether the session cookie is set and the user's session is valid
 if(isset($_COOKIE['session']) && isValidSession($_COOKIE['session'])) {
@@ -69,7 +69,7 @@ if(isset($_POST)) {
 		$rs_comment = new Comment($rs_post->getPostId());
 		
 		// Load the comments
-		$rs_comment->loadComments($_POST['start'], $_POST['count']);
+		$rs_comment->loadComments($_POST['start'], $_POST['count'] ?? 1);
 	}
 	
 	// Check whether a request to refresh the comment feed has been passed to the server
@@ -81,6 +81,6 @@ if(isset($_POST)) {
 		$rs_comment = new Comment;
 		
 		// Fetch the comment count
-		$rs_comment->getCommentCount($rs_post->getPostId());
+		echo $rs_comment->getCommentCount($rs_post->getPostId());
 	}
 }

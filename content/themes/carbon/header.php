@@ -10,7 +10,7 @@
 			<div class="top-bar">
 				<div class="site-logo">
 					<a href="/">
-						<?php echo getMedia(getSetting('site_logo', false)); ?>
+						<?php echo getMedia(getSetting('site_logo')); ?>
 					</a>
 				</div>
 				<div class="social-menu-wrap">

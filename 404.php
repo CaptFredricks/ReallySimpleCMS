@@ -8,7 +8,7 @@
 require_once __DIR__.'/init.php';
 
 // Include functions
-require_once PATH.INC.'/functions.php';
+require_once FUNC;
 
 // Check whether the session cookie is set and the user's session is valid
 if(isset($_COOKIE['session']) && isValidSession($_COOKIE['session'])) {
@@ -19,12 +19,12 @@ if(isset($_COOKIE['session']) && isValidSession($_COOKIE['session'])) {
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>Not Found &rtrif; <?php getSetting('site_title'); ?></title>
+		<title>Not Found &rtrif; <?php putSetting('site_title'); ?></title>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="robots" content="noindex, nofollow">
-		<meta name="theme-color" content="<?php getSetting('theme_color'); ?>">
-		<link type="image/x-icon" href="<?php echo getMediaSrc(getSetting('site_icon', false)); ?>" rel="icon">
+		<meta name="theme-color" content="<?php putSetting('theme_color'); ?>">
+		<link type="image/x-icon" href="<?php echo getMediaSrc(getSetting('site_icon')); ?>" rel="icon">
 		<?php headerScripts(array('button', 'jquery')); ?>
 	</head>
 	<body class="<?php echo bodyClasses('not-found'); ?>">

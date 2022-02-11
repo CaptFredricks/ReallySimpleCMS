@@ -122,7 +122,6 @@ class Post {
 	 * @access public
 	 * @param int $id (optional; default: 0)
 	 * @param array $type_data (optional; default: array())
-	 * @return null
 	 */
 	public function __construct($id = 0, $type_data = array()) {
 		// Extend the Query object and the taxonomies array
@@ -161,9 +160,8 @@ class Post {
 	 * @since 1.4.0[a]
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function listPosts() {
+	public function listPosts(): void {
 		// Extend the Query object and the user's session data
 		global $rs_query, $session;
 		
@@ -256,7 +254,7 @@ class Post {
 					);
 					
 					// Check whether comments are enabled sitewide and for the current post type
-					if(getSetting('enable_comments', false) && $this->type_data['comments']) {
+					if(getSetting('enable_comments') && $this->type_data['comments']) {
 						// Insert the comments label into the array
 						array_splice($table_header_cols, 5, 0, 'Comments');
 					}
@@ -275,7 +273,7 @@ class Post {
 					);
 					
 					// Check whether comments are enabled sitewide and for the current post type
-					if(getSetting('enable_comments', false) && $this->type_data['comments']) {
+					if(getSetting('enable_comments') && $this->type_data['comments']) {
 						// Insert the comments label into the array
 						array_splice($table_header_cols, 4, 0, 'Comments');
 					}
@@ -370,7 +368,7 @@ class Post {
 						// Parent (hierarchical post types only)
 						$this->type_data['hierarchical'] ? tableCell($this->getParent($post['parent']), 'parent') : '',
 						// Comments
-						getSetting('enable_comments', false) && $this->type_data['comments'] ? tableCell(($meta['comment_status'] ? $meta['comment_count'] : '&mdash;'), 'comments') : '',
+						getSetting('enable_comments') && $this->type_data['comments'] ? tableCell(($meta['comment_status'] ? $meta['comment_count'] : '&mdash;'), 'comments') : '',
 						// Meta title
 						tableCell(!empty($meta['title']) ? 'Yes' : 'No', 'meta_title'),
 						// Meta description
@@ -403,9 +401,8 @@ class Post {
 	 * @since 1.4.1[a]
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function createPost() {
+	public function createPost(): void {
 		// Fetch the post's type
 		$type = $this->type_data['name'];
 		
@@ -441,7 +438,7 @@ class Post {
 						// Construct a 'permalink' form tag
 						echo formTag('label', array(
 							'for' => 'slug',
-							'content' => '<strong>Permalink:</strong> '.getSetting('site_url', false).getPermalink($this->type_data['name'])
+							'content' => '<strong>Permalink:</strong> '.getSetting('site_url').getPermalink($this->type_data['name'])
 						));
 						echo formTag('input', array(
 							'id' => 'slug-field',
@@ -573,7 +570,7 @@ class Post {
 					}
 					
 					// Check whether comments are enabled sitewide and for the current post type
-					if(getSetting('enable_comments', false) && $this->type_data['comments']) {
+					if(getSetting('enable_comments') && $this->type_data['comments']) {
 						?>
 						<div class="block">
 							<h2>Comments</h2>
@@ -672,9 +669,8 @@ class Post {
 	 * @since 1.4.9[a]
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function editPost() {
+	public function editPost(): void {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -731,7 +727,7 @@ class Post {
 									// Construct a 'permalink' form tag
 									echo formTag('label', array(
 										'for' => 'slug',
-										'content' => '<strong>Permalink:</strong> '.getSetting('site_url', false).getPermalink($this->type, $this->parent)
+										'content' => '<strong>Permalink:</strong> '.getSetting('site_url').getPermalink($this->type, $this->parent)
 									));
 									echo formTag('input', array(
 										'id' => 'slug-field',
@@ -868,7 +864,7 @@ class Post {
 								}
 								
 								// Check whether comments are enabled sitewide and for the current post type
-								if(getSetting('enable_comments', false) && $this->type_data['comments']) {
+								if(getSetting('enable_comments') && $this->type_data['comments']) {
 									?>
 									<div class="block">
 										<h2>Comments</h2>
@@ -972,7 +968,7 @@ class Post {
 	 * @param string $status
 	 * @param int $id (optional; default: 0)
 	 */
-	public function updatePostStatus($status, $id = 0) {
+	public function updatePostStatus($status, $id = 0): void {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -1022,7 +1018,7 @@ class Post {
 	 *
 	 * @access public
 	 */
-	public function trashPost() {
+	public function trashPost(): void {
 		// Set the post's status to 'trash'
 		$this->updatePostStatus('trash');
 		
@@ -1036,7 +1032,7 @@ class Post {
 	 *
 	 * @access public
 	 */
-	public function restorePost() {
+	public function restorePost(): void {
 		// Set the post's status to 'draft'
 		$this->updatePostStatus('draft');
 		
@@ -1049,9 +1045,8 @@ class Post {
 	 * @since 1.4.7[a]
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function deletePost() {
+	public function deletePost(): void {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -1105,9 +1100,9 @@ class Post {
 	 * @access private
 	 * @param array $data
 	 * @param int $id (optional; default: 0)
-	 * @return null|string (null on $id == 0; string on $id != 0)
+	 * @return string
 	 */
-	private function validateData($data, $id = 0) {
+	private function validateData($data, $id = 0): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -1115,8 +1110,8 @@ class Post {
 		if(empty($data['title']) || empty($data['slug']))
 			return statusMessage('R');
 		
-		// Sanitize the slug (strip off HTML and/or PHP tags and replace any characters not specified in the filter)
-		$slug = preg_replace('/[^a-zA-Z0-9\-]/i', '', strip_tags($data['slug']));
+		// Sanitize the slug
+		$slug = sanitize($data['slug']);
 		
 		// Make sure the slug is unique
 		if($this->slugExists($slug, $id))
@@ -1280,7 +1275,7 @@ class Post {
 	 * @param int $id (optional; default: 0)
 	 * @return bool
 	 */
-	protected function slugExists($slug, $id = 0) {
+	protected function slugExists($slug, $id = 0): bool {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -1301,7 +1296,7 @@ class Post {
 	 * @param int $id
 	 * @return bool
 	 */
-	private function isTrash($id) {
+	private function isTrash($id): bool {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -1318,7 +1313,7 @@ class Post {
 	 * @param int $ancestor
 	 * @return bool
 	 */
-	private function isDescendant($id, $ancestor) {
+	private function isDescendant($id, $ancestor): bool {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -1345,7 +1340,7 @@ class Post {
 	 * @param int $id
 	 * @return array
 	 */
-	protected function getPostMeta($id) {
+	protected function getPostMeta($id): array {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -1379,7 +1374,7 @@ class Post {
 	 * @param int $id
 	 * @return string
 	 */
-	protected function getAuthor($id) {
+	protected function getAuthor($id): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -1395,7 +1390,7 @@ class Post {
 	 * @param int $id (optional; default: 0)
 	 * @return string
 	 */
-	private function getAuthorList($id = 0) {
+	private function getAuthorList($id = 0): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -1421,7 +1416,7 @@ class Post {
 	 * @param int $id
 	 * @return string
 	 */
-	private function getTerms($id) {
+	private function getTerms($id): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -1452,7 +1447,7 @@ class Post {
 	 * @param int $id (optional; default: 0)
 	 * @return string
 	 */
-	private function getTermsList($id = 0) {
+	private function getTermsList($id = 0): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -1493,7 +1488,7 @@ class Post {
 	 * @param int $id
 	 * @return string
 	 */
-	private function getParent($id) {
+	private function getParent($id): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -1514,7 +1509,7 @@ class Post {
 	 * @param int $id (optional; default: 0)
 	 * @return string
 	 */
-	private function getParentList($type, $parent = 0, $id = 0) {
+	private function getParentList($type, $parent = 0, $id = 0): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -1551,12 +1546,12 @@ class Post {
 	 * @param int $id (optional; default: 0)
 	 * @return string
 	 */
-	private function getTemplateList($id = 0) {
+	private function getTemplateList($id = 0): string {
 		// Extend the Query object
 		global $rs_query;
 		
 		// Construct the file path for the current theme's page templates directory
-		$templates_path = trailingSlash(PATH.THEMES).getSetting('theme', false).'/templates';
+		$templates_path = trailingSlash(PATH.THEMES).getSetting('theme').'/templates';
 		
 		// Check whether the templates directory exists within the current theme
 		if(file_exists($templates_path)) {
@@ -1587,14 +1582,17 @@ class Post {
 	 * @param string $status (optional; default: '')
 	 * @return int
 	 */
-	private function getPostCount($type, $status = '') {
+	private function getPostCount($type, $status = ''): int {
 		// Extend the Query object
 		global $rs_query;
 		
 		// Check whether a status has been provided
 		if(empty($status)) {
 			// Return the count of all posts (excluding ones that are in the trash)
-			return $rs_query->select('posts', 'COUNT(*)', array('status' => array('<>', 'trash'), 'type' => $type));
+			return $rs_query->select('posts', 'COUNT(*)', array(
+				'status' => array('<>', 'trash'),
+				'type' => $type
+			));
 		} else {
 			// Return the count of all posts by the status
 			return $rs_query->select('posts', 'COUNT(*)', array('status' => $status, 'type' => $type));
@@ -1607,7 +1605,7 @@ class Post {
 	 *
 	 * @access private
 	 */
-	private function bulkActions() {
+	private function bulkActions(): void {
 		// Extend the user's session data
 		global $session;
 		?>

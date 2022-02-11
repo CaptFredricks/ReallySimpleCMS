@@ -21,7 +21,6 @@ class Term {
 	 *
 	 * @access public
 	 * @param string $slug (optional; default: '')
-	 * @return null
 	 */
 	public function __construct($slug = '') {
 		// Extend the Query object
@@ -74,7 +73,7 @@ class Term {
 	 * @access public
 	 * @return int
 	 */
-	public function getTermId() {
+	public function getTermId(): int {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -89,7 +88,7 @@ class Term {
 	 * @access public
 	 * @return string
 	 */
-	public function getTermName() {
+	public function getTermName(): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -105,7 +104,7 @@ class Term {
 	 * @param int $id
 	 * @return string
 	 */
-    public function getTermSlug($id) {
+    public function getTermSlug($id): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -120,7 +119,7 @@ class Term {
 	 * @access public
 	 * @return string
 	 */
-	public function getTermTaxonomy() {
+	public function getTermTaxonomy(): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -138,7 +137,7 @@ class Term {
 	 * @access public
 	 * @return int
 	 */
-	public function getTermParent() {
+	public function getTermParent(): int {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -153,7 +152,7 @@ class Term {
 	 * @access public
 	 * @return string
 	 */
-	public function getTermUrl() {
-		return getSetting('site_url', false).getPermalink($this->getTermTaxonomy(), $this->getTermParent(), $this->slug);
+	public function getTermUrl(): string {
+		return getSetting('site_url').getPermalink($this->getTermTaxonomy(), $this->getTermParent(), $this->slug);
     }
 }

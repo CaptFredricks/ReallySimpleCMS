@@ -14,7 +14,7 @@
  *
  * @return bool
  */
-function isPost() {
+function isPost(): bool {
 	// Extend the Post object
 	global $rs_post;
 	
@@ -28,7 +28,7 @@ function isPost() {
  * @see Post::getPostId()
  * @return int
  */
-function getPostId() {
+function getPostId(): int {
 	// Extend the Post object
 	global $rs_post;
 	
@@ -39,7 +39,7 @@ function getPostId() {
  * Display the post's id.
  * @since 1.2.8[b]
  */
-function putPostId() { echo getPostId(); }
+function putPostId(): void { echo getPostId(); }
 
 /**
  * Alias for the Post class' getPostTitle function.
@@ -48,7 +48,7 @@ function putPostId() { echo getPostId(); }
  * @see Post::getPostTitle()
  * @return string
  */
-function getPostTitle($echo = true) {
+function getPostTitle(): string {
 	// Extend the Post object
 	global $rs_post;
 	
@@ -59,7 +59,7 @@ function getPostTitle($echo = true) {
  * Display the post's title.
  * @since 1.2.8[b]
  */
-function putPostTitle() { echo getPostTitle(); }
+function putPostTitle(): void { echo getPostTitle(); }
 
 /**
  * Alias for the Post class' getPostAuthor function.
@@ -68,7 +68,7 @@ function putPostTitle() { echo getPostTitle(); }
  * @see Post::getPostAuthor()
  * @return string
  */
-function getPostAuthor() {
+function getPostAuthor(): string {
 	// Extend the Post object
 	global $rs_post;
 	
@@ -79,7 +79,7 @@ function getPostAuthor() {
  * Display the post's author.
  * @since 1.2.8[b]
  */
-function putPostAuthor() { echo getPostAuthor(); }
+function putPostAuthor(): void { echo getPostAuthor(); }
 
 /**
  * Alias for the Post class' getPostDate function.
@@ -88,7 +88,7 @@ function putPostAuthor() { echo getPostAuthor(); }
  * @see Post::getPostDate()
  * @return string
  */
-function getPostDate() {
+function getPostDate(): string {
 	// Extend the Post object
 	global $rs_post;
 	
@@ -99,7 +99,7 @@ function getPostDate() {
  * Display the post's publish date.
  * @since 1.2.8[b]
  */
-function putPostDate() { echo getPostDate(); }
+function putPostDate(): void { echo getPostDate(); }
 
 /**
  * Alias for the Post class' getPostModDate function.
@@ -108,7 +108,7 @@ function putPostDate() { echo getPostDate(); }
  * @see Post::getPostModDate()
  * @return string
  */
-function getPostModDate() {
+function getPostModDate(): string {
 	// Extend the Post object
 	global $rs_post;
 	
@@ -119,7 +119,7 @@ function getPostModDate() {
  * Display the post's modified date.
  * @since 1.2.8[b]
  */
-function putPostModDate() { echo getPostModDate(); }
+function putPostModDate(): void { echo getPostModDate(); }
 
 /**
  * Alias for the Post class' getPostContent function.
@@ -128,7 +128,7 @@ function putPostModDate() { echo getPostModDate(); }
  * @see Post::getPostContent()
  * @return string
  */
-function getPostContent() {
+function getPostContent(): string {
 	// Extend the Post object
 	global $rs_post;
 	
@@ -139,7 +139,7 @@ function getPostContent() {
  * Display the post's content.
  * @since 1.2.8[b]
  */
-function putPostContent() { echo getPostContent(); }
+function putPostContent(): void { echo getPostContent(); }
 
 /**
  * Alias for the Post class' getPostStatus function.
@@ -148,7 +148,7 @@ function putPostContent() { echo getPostContent(); }
  * @see Post::getPostStatus()
  * @return string
  */
-function getPostStatus() {
+function getPostStatus(): string {
 	// Extend the Post object
 	global $rs_post;
 	
@@ -159,7 +159,7 @@ function getPostStatus() {
  * Display the post's status.
  * @since 1.2.8[b]
  */
-function putPostStatus() { echo getPostStatus(); }
+function putPostStatus(): void { echo getPostStatus(); }
 
 /**
  * Alias for the Post class' getPostSlug function.
@@ -169,7 +169,7 @@ function putPostStatus() { echo getPostStatus(); }
  * @param int $id
  * @return string
  */
-function getPostSlug($id) {
+function getPostSlug($id): string {
 	// Extend the Post object
 	global $rs_post;
 	
@@ -179,8 +179,10 @@ function getPostSlug($id) {
 /**
  * Display the post's slug.
  * @since 1.2.8[b]
+ *
+ * @param int $id
  */
-function putPostSlug($id) { echo getPostSlug($id); }
+function putPostSlug($id): void { echo getPostSlug($id); }
 
 /**
  * Alias for the Post class' getPostParent function.
@@ -189,7 +191,7 @@ function putPostSlug($id) { echo getPostSlug($id); }
  * @see Post::getPostParent()
  * @return int
  */
-function getPostParent() {
+function getPostParent(): int {
 	// Extend the Post object
 	global $rs_post;
 	
@@ -200,7 +202,7 @@ function getPostParent() {
  * Display the post's parent.
  * @since 1.2.8[b]
  */
-function putPostParent() { echo getPostParent(); }
+function putPostParent(): void { echo getPostParent(); }
 
 /**
  * Alias for the Post class' getPostType function.
@@ -209,7 +211,7 @@ function putPostParent() { echo getPostParent(); }
  * @see Post::getPostType()
  * @return string
  */
-function getPostType() {
+function getPostType(): string {
 	// Extend the Post object
 	global $rs_post;
 	
@@ -220,7 +222,7 @@ function getPostType() {
  * Display the post's type.
  * @since 1.2.8[b]
  */
-function putPostType() { echo getPostType(); }
+function putPostType(): void { echo getPostType(); }
 
 /**
  * Alias for the Post class' getPostFeaturedImage function.
@@ -229,7 +231,7 @@ function putPostType() { echo getPostType(); }
  * @see Post::getPostFeaturedImage()
  * @return string
  */
-function getPostFeaturedImage() {
+function getPostFeaturedImage(): string {
 	// Extend the Post object
 	global $rs_post;
 	
@@ -240,7 +242,7 @@ function getPostFeaturedImage() {
  * Display the post's featured image.
  * @since 1.2.8[b]
  */
-function putPostFeaturedImage() { echo getPostFeaturedImage(); }
+function putPostFeaturedImage(): void { echo getPostFeaturedImage(); }
 
 /**
  * Alias for the Post class' getPostMeta function.
@@ -250,7 +252,7 @@ function putPostFeaturedImage() { echo getPostFeaturedImage(); }
  * @param string $key
  * @return string
  */
-function getPostMeta($key) {
+function getPostMeta($key): string {
 	// Extend the Post object
 	global $rs_post;
 	
@@ -260,8 +262,10 @@ function getPostMeta($key) {
 /**
  * Display the post's metadata.
  * @since 1.2.8[b]
+ *
+ * @param string $key
  */
-function putPostMeta($key) { echo getPostMeta($key); }
+function putPostMeta($key): void { echo getPostMeta($key); }
 
 /**
  * Alias for the Post class' getPostTerms function.
@@ -271,7 +275,7 @@ function putPostMeta($key) { echo getPostMeta($key); }
  * @param bool $linked (optional; default: true)
  * @return array
  */
-function getPostTerms($linked = true) {
+function getPostTerms($linked = true): array {
 	// Extend the Post object
 	global $rs_post;
 	
@@ -281,8 +285,10 @@ function getPostTerms($linked = true) {
 /**
  * Display the post's terms.
  * @since 1.2.8[b]
+ *
+ * @param bool $linked (optional; default: true)
  */
-function putPostTerms($linked = true) {
+function putPostTerms($linked = true): void {
 	echo empty(getPostTerms()) ? 'None' : implode(', ', getPostTerms($linked));
 }
 
@@ -293,7 +299,7 @@ function putPostTerms($linked = true) {
  * @see Post::getPostComments()
  * @param bool $feed_only (optional; default: false)
  */
-function getPostComments($feed_only = false) {
+function getPostComments($feed_only = false): void {
 	// Extend the Post object
 	global $rs_post;
 	
@@ -307,7 +313,7 @@ function getPostComments($feed_only = false) {
  * @see Post::getPostUrl()
  * @return string
  */
-function getPostUrl() {
+function getPostUrl(): string {
 	// Extend the Post object
 	global $rs_post;
 	
@@ -318,7 +324,7 @@ function getPostUrl() {
  * Display the post's full URL.
  * @since 1.2.8[b]
  */
-function putPostUrl() { echo getPostUrl(); }
+function putPostUrl(): void { echo getPostUrl(); }
 
 /**
  * Alias for the Post class' postHasFeaturedImage function.
@@ -327,7 +333,7 @@ function putPostUrl() { echo getPostUrl(); }
  * @see Post::postHasFeaturedImage()
  * @return bool
  */
-function postHasFeaturedImage() {
+function postHasFeaturedImage(): bool {
 	// Extend the Post object
 	global $rs_post;
 	
@@ -341,7 +347,7 @@ function postHasFeaturedImage() {
  * @param int $num_words (optional; default: 25)
  * @return string
  */
-function getPostExcerpt($num_words = 25) {
+function getPostExcerpt($num_words = 25): string {
 	return trimWords(str_replace(array("\n", "\r", "  "), ' ', strip_tags(getPostContent())), $num_words, '...');
 }
 
@@ -351,7 +357,7 @@ function getPostExcerpt($num_words = 25) {
  *
  * @param int $num_words (optional; default: 25)
  */
-function putPostExcerpt($num_words = 25) { echo getPostExcerpt($num_words); }
+function putPostExcerpt($num_words = 25): void { echo getPostExcerpt($num_words); }
 
 /*------------------------------------*\
     TERMS
@@ -363,7 +369,7 @@ function putPostExcerpt($num_words = 25) { echo getPostExcerpt($num_words); }
  *
  * @return bool
  */
-function isTerm() {
+function isTerm(): bool {
 	// Extend the Term object
 	global $rs_term;
 	
@@ -377,7 +383,7 @@ function isTerm() {
  * @see Term::getTermId()
  * @return int
  */
-function getTermId() {
+function getTermId(): int {
 	// Extend the Term object
 	global $rs_term;
 	
@@ -388,7 +394,7 @@ function getTermId() {
  * Display the term's id.
  * @since 1.2.8[b]
  */
-function putTermId() { echo getTermId(); }
+function putTermId(): void { echo getTermId(); }
 
 /**
  * Alias for the Term class' getTermName function.
@@ -397,7 +403,7 @@ function putTermId() { echo getTermId(); }
  * @see Term::getTermName()
  * @return string
  */
-function getTermName() {
+function getTermName(): string {
 	// Extend the Term object
 	global $rs_term;
 	
@@ -408,7 +414,7 @@ function getTermName() {
  * Display the term's name.
  * @since 1.2.8[b]
  */
-function putTermName() { echo getTermName(); }
+function putTermName(): void { echo getTermName(); }
 
 /**
  * Alias for the Term class' getTermSlug function.
@@ -418,7 +424,7 @@ function putTermName() { echo getTermName(); }
  * @param int $id
  * @return string
  */
-function getTermSlug($id) {
+function getTermSlug($id): string {
 	// Extend the Term object
 	global $rs_term;
 	
@@ -431,7 +437,7 @@ function getTermSlug($id) {
  *
  * @param int $id
  */
-function putTermSlug($id) { echo getTermSlug($id); }
+function putTermSlug($id): void { echo getTermSlug($id); }
 
 /**
  * Alias for the Term class' getTermTaxonomy function.
@@ -440,7 +446,7 @@ function putTermSlug($id) { echo getTermSlug($id); }
  * @see Term::getTermTaxonomy()
  * @return string
  */
-function getTermTaxonomy() {
+function getTermTaxonomy(): string {
 	// Extend the Term object
 	global $rs_term;
 	
@@ -451,7 +457,7 @@ function getTermTaxonomy() {
  * Display the term's taxonomy.
  * @since 1.2.8[b]
  */
-function putTermTaxonomy() { echo getTermTaxonomy(); }
+function putTermTaxonomy(): void { echo getTermTaxonomy(); }
 
 /**
  * Alias for the Term class' getTermParent function.
@@ -460,7 +466,7 @@ function putTermTaxonomy() { echo getTermTaxonomy(); }
  * @see Term::getTermParent()
  * @return int
  */
-function getTermParent() {
+function getTermParent(): int {
 	// Extend the Term object
 	global $rs_term;
 	
@@ -471,7 +477,7 @@ function getTermParent() {
  * Display the term's parent.
  * @since 1.2.8[b]
  */
-function putTermParent() { echo getTermParent(); }
+function putTermParent(): void { echo getTermParent(); }
 
 /**
  * Alias for the Term class' getTermUrl function.
@@ -480,7 +486,7 @@ function putTermParent() { echo getTermParent(); }
  * @see Term::getTermUrl()
  * @return string
  */
-function getTermUrl() {
+function getTermUrl(): string {
 	// Extend the Term object
 	global $rs_term;
 	
@@ -491,7 +497,7 @@ function getTermUrl() {
  * Display the term's full URL.
  * @since 1.2.8[b]
  */
-function putTermUrl() { echo getTermUrl(); }
+function putTermUrl(): void { echo getTermUrl(); }
 
 /**
  * Alias for the getTermId function.
@@ -500,7 +506,7 @@ function putTermUrl() { echo getTermUrl(); }
  * @see getTermId()
  * @return int
  */
-function getCategoryId() { return getTermId(); }
+function getCategoryId(): int { return getTermId(); }
 
 /**
  * Alias for the putTermId function.
@@ -508,7 +514,7 @@ function getCategoryId() { return getTermId(); }
  *
  * @see putTermId()
  */
-function putCategoryId() { putTermId(); }
+function putCategoryId(): void { putTermId(); }
 
 /**
  * Alias for the getTermName function.
@@ -517,7 +523,7 @@ function putCategoryId() { putTermId(); }
  * @see getTermName()
  * @return string
  */
-function getCategoryName() { return getTermName(); }
+function getCategoryName(): string { return getTermName(); }
 
 /**
  * Alias for the putTermName function.
@@ -525,7 +531,7 @@ function getCategoryName() { return getTermName(); }
  *
  * @see putTermName()
  */
-function putCategoryName() { putTermName(); }
+function putCategoryName(): void { putTermName(); }
 
 /**
  * Alias for the getTermSlug function.
@@ -535,7 +541,7 @@ function putCategoryName() { putTermName(); }
  * @param int $id
  * @return string
  */
-function getCategorySlug($id) { return getTermSlug($id); }
+function getCategorySlug($id): string { return getTermSlug($id); }
 
 /**
  * Alias for the putTermSlug function.
@@ -544,7 +550,7 @@ function getCategorySlug($id) { return getTermSlug($id); }
  * @see putTermSlug()
  * @param int $id
  */
-function putCategorySlug($id) { putTermSlug($id); }
+function putCategorySlug($id): void { putTermSlug($id); }
 
 /**
  * Alias for the getTermParent function.
@@ -553,7 +559,7 @@ function putCategorySlug($id) { putTermSlug($id); }
  * @see getTermParent()
  * @return int
  */
-function getCategoryParent() { return getTermParent(); }
+function getCategoryParent(): int { return getTermParent(); }
 
 /**
  * Alias for the putTermParent function.
@@ -561,7 +567,7 @@ function getCategoryParent() { return getTermParent(); }
  *
  * @see putTermParent()
  */
-function putCategoryParent() { putTermParent(); }
+function putCategoryParent(): void { putTermParent(); }
 
 /**
  * Alias for the getTermUrl function.
@@ -570,7 +576,7 @@ function putCategoryParent() { putTermParent(); }
  * @see getTermUrl()
  * @return string
  */
-function getCategoryUrl() { return getTermUrl(); }
+function getCategoryUrl(): string { return getTermUrl(); }
 
 /**
  * Alias for the putTermUrl function.
@@ -578,19 +584,38 @@ function getCategoryUrl() { return getTermUrl(); }
  *
  * @see putTermUrl()
  */
-function putCategoryUrl() { putTermUrl(); }
+function putCategoryUrl(): void { putTermUrl(); }
+
+/**
+ * Fetch a user-friendly version of the term's taxonomy name.
+ * @since 1.3.0[b]
+ *
+ * @return string
+ */
+function getTermTaxName(): string {
+	// Extend the taxonomies array
+	global $taxonomies;
+	
+	return $taxonomies[getTermTaxonomy()]['labels']['name_singular'];
+}
+
+/**
+ * Display a user-friendly version of the term's taxonomy name.
+ * @since 1.3.0[b]
+ */
+function putTermTaxName(): void { echo getTermTaxName(); }
 
 /**
  * Fetch all posts associated with the current term.
  * @since 2.4.1[a]
  *
- * @param int|string $_term (optional; default: null)
+ * @param null|int|string $_term (optional; default: null)
  * @param string $order_by (optional; default: 'date')
  * @param string $order (optional; default: 'DESC')
  * @param int $limit (optional; default: 0)
  * @return array
  */
-function getPostsWithTerm($_term = null, $order_by = 'date', $order = 'DESC', $limit = 0) {
+function getTermPosts($_term = null, $order_by = 'date', $order = 'DESC', $limit = 0): array {
 	// Extend the Query object
 	global $rs_query;
 	
@@ -618,7 +643,8 @@ function getPostsWithTerm($_term = null, $order_by = 'date', $order = 'DESC', $l
 	// Loop through the term relationships
 	foreach($relationships as $relationship) {
 		// Skip the post if it isn't published
-		if(!$rs_query->selectRow('posts', 'id', array('id' => $relationship['post'], 'status' => 'published'))) continue;
+		if(!$rs_query->selectRow('posts', 'id', array('id' => $relationship['post'], 'status' => 'published')))
+			continue;
 		
 		// Fetch each post from the database and assign them to the posts array
 		$posts[] = $rs_query->selectRow('posts', '*', array('id' => $relationship['post']), $order_by, $order, $limit);
@@ -626,6 +652,38 @@ function getPostsWithTerm($_term = null, $order_by = 'date', $order = 'DESC', $l
 	
 	// Return the posts
 	return $posts;
+}
+
+/**
+ * Display all posts associated with the current term.
+ * @since 1.3.0[b]
+ *
+ * @param null|int|string $_term (optional; default: null)
+ * @param string $order_by (optional; default: 'date')
+ * @param string $order (optional; default: 'DESC')
+ * @param int $limit (optional; default: 0)
+ */
+function putTermPosts($_term = null, $order_by = 'date', $order = 'DESC', $limit = 0): void {
+	// Fetch the posts
+	$posts = getTermPosts($_term, $order_by, $order, $limit);
+	
+	// Check whether there are any posts
+	if(empty($posts)) {
+		echo '<p>There are no posts to display!</p>';
+	} else {
+		$content = '<ul>';
+		
+		// Loop through the posts
+		foreach($posts as $post) {
+			// Fetch the post's permalink
+			$permalink = getPost($post['slug'])->getPostPermalink($post['type'], $post['parent'], $post['slug']);
+			
+			// Add the post to the list
+			$content .= '<li><a href="'.$permalink.'">'.$post['title'].'</a></li>';
+		}
+		
+		echo $content.'</ul>';
+	}
 }
 
 /*------------------------------------*\
@@ -640,7 +698,7 @@ function getPostsWithTerm($_term = null, $order_by = 'date', $order = 'DESC', $l
  * @param string $dir
  * @return bool
  */
-function templateExists($template, $dir) {
+function templateExists($template, $dir): bool {
     return file_exists(trailingSlash($dir).$template);
 }
 
@@ -656,7 +714,7 @@ function getHeader($template = '') {
 	global $session;
 	
 	// Construct the file path for the current theme
-	$theme_path = trailingSlash(PATH.THEMES).getSetting('theme', false);
+	$theme_path = trailingSlash(PATH.THEMES).getSetting('theme');
 	
 	// Check whether the template file exists
 	if(!file_exists($theme_path.'/header.php') && !file_exists(trailingSlash($theme_path).$template.'.php')) {
@@ -680,7 +738,7 @@ function getFooter($template = '') {
 	global $session;
 	
 	// Construct the file path for the current theme
-	$theme_path = trailingSlash(PATH.THEMES).getSetting('theme', false);
+	$theme_path = trailingSlash(PATH.THEMES).getSetting('theme');
 	
 	// Check whether the template file exists
 	if(!file_exists($theme_path.'/footer.php') && !file_exists(trailingSlash($theme_path).$template.'.php')) {
@@ -696,23 +754,23 @@ function getFooter($template = '') {
  * Construct and display the page title.
  * @since 1.1.3[b]
  */
-function pageTitle() {
+function pageTitle(): void {
 	if(isPost())
 		!empty(getPostMeta('title')) ? putPostMeta('title') : putPostTitle();
 	else
 		putTermName();
-	?> &rtrif; <?php getSetting('site_title');
+	?> &rtrif; <?php putSetting('site_title');
 }
 
 /**
  * Set up all of the meta tags for the <head> section.
  * @since 1.1.3[b]
  */
-function metaTags() {
+function metaTags(): void {
 	?>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta name="theme-color" content="<?php getSetting('theme_color'); ?>">
+	<meta name="theme-color" content="<?php putSetting('theme_color'); ?>">
 	<meta name="description" content="<?php
 		if(isPost())
 			!empty(getPostMeta('description')) ? putPostMeta('description') : putPostExcerpt();
@@ -725,12 +783,12 @@ function metaTags() {
 		?>">
 	<meta property="og:type" content="website">
 	<meta property="og:url" content="<?php isPost() ? putPostUrl() : putTermUrl(); ?>">
-	<meta property="og:image" content="<?php echo getMediaSrc(getSetting('site_logo', false)); ?>">
+	<meta property="og:image" content="<?php echo getMediaSrc(getSetting('site_logo')); ?>">
 	<meta property="og:description" content="<?php
 		if(isPost())
 			!empty(getPostMeta('description')) ? putPostMeta('description') : putPostExcerpt();
 		?>">
 	<link href="<?php isPost() ? putPostUrl() : putTermUrl(); ?>" rel="canonical">
-	<link type="image/x-icon" href="<?php echo getMediaSrc(getSetting('site_icon', false)); ?>" rel="icon">
+	<link type="image/x-icon" href="<?php echo getMediaSrc(getSetting('site_icon')); ?>" rel="icon">
 	<?php
 }

@@ -39,7 +39,6 @@ class Post {
 	 *
 	 * @access public
 	 * @param string $slug (optional; default: '')
-	 * @return null
 	 */
 	public function __construct($slug = '') {
 		// Extend the Query object and the post types and taxonomies arrays
@@ -170,7 +169,7 @@ class Post {
 	 * @access public
 	 * @return int
 	 */
-	public function getPostId() {
+	public function getPostId(): int {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -185,7 +184,7 @@ class Post {
 	 * @access public
 	 * @return string
 	 */
-	public function getPostTitle() {
+	public function getPostTitle(): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -200,7 +199,7 @@ class Post {
 	 * @access public
 	 * @return string
 	 */
-	public function getPostAuthor() {
+	public function getPostAuthor(): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -218,7 +217,7 @@ class Post {
 	 * @access public
 	 * @return string
 	 */
-	public function getPostDate() {
+	public function getPostDate(): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -240,7 +239,7 @@ class Post {
 	 * @access public
 	 * @return string
 	 */
-	public function getPostModDate() {
+	public function getPostModDate(): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -258,7 +257,7 @@ class Post {
 	 * @access public
 	 * @return string
 	 */
-	public function getPostContent() {
+	public function getPostContent(): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -273,7 +272,7 @@ class Post {
 	 * @access public
 	 * @return string
 	 */
-	public function getPostStatus() {
+	public function getPostStatus(): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -289,7 +288,7 @@ class Post {
 	 * @param int $id
 	 * @return string
 	 */
-    public function getPostSlug($id) {
+    public function getPostSlug($id): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -304,7 +303,7 @@ class Post {
 	 * @access public
 	 * @return int
 	 */
-	public function getPostParent() {
+	public function getPostParent(): int {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -319,7 +318,7 @@ class Post {
 	 * @access public
 	 * @return string
 	 */
-	public function getPostType() {
+	public function getPostType(): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -334,7 +333,7 @@ class Post {
 	 * @access public
 	 * @return string
 	 */
-	public function getPostFeaturedImage() {
+	public function getPostFeaturedImage(): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -356,7 +355,7 @@ class Post {
 	 * @param string $key
 	 * @return string
 	 */
-	public function getPostMeta($key) {
+	public function getPostMeta($key): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -378,7 +377,7 @@ class Post {
 	 * @param bool $linked (optional; default: true)
 	 * @return array
 	 */
-	public function getPostTerms($linked = true) {
+	public function getPostTerms($linked = true): array {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -414,7 +413,7 @@ class Post {
 	 * @access public
 	 * @param bool $feed_only (optional; default: false)
 	 */
-	public function getPostComments($feed_only = false) {
+	public function getPostComments($feed_only = false): void {
 		// Create a Comment object
 		$rs_comment = new Comment($this->getPostId());
 		
@@ -438,7 +437,7 @@ class Post {
 	 * @param string $slug (optional; default: '')
 	 * @return string
 	 */
-	public function getPostPermalink($type, $parent, $slug = '') {
+	public function getPostPermalink($type, $parent, $slug = ''): string {
 		return getPermalink($type, $parent, $slug);
 	}
 	
@@ -449,12 +448,12 @@ class Post {
 	 * @access public
 	 * @return string
 	 */
-	public function getPostUrl() {
+	public function getPostUrl(): string {
 		// Check whether the current page is the home page
 		if(isHomePage($this->getPostId()))
-			return trailingSlash(getSetting('site_url', false));
+			return trailingSlash(getSetting('site_url'));
 		else
-			return getSetting('site_url', false).$this->getPostPermalink($this->getPostType(), $this->getPostParent(), $this->slug);
+			return getSetting('site_url').$this->getPostPermalink($this->getPostType(), $this->getPostParent(), $this->slug);
     }
 	
 	/**
@@ -464,7 +463,7 @@ class Post {
 	 * @access public
 	 * @return bool
 	 */
-	public function postHasFeaturedImage() {
+	public function postHasFeaturedImage(): bool {
 		// Extend the Query object
 		global $rs_query;
 		

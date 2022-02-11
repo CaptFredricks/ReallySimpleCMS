@@ -18,12 +18,107 @@
 - [a] = alpha
 - [b] = beta
 
+## Version 1.3.0[b] (2022-02-10)
+
+- Tweaked the README file
+- Tweaked a previous entry in the changelog
+- When a media item is replaced, the modified date is no longer set to `null` if the filename and date are updated
+- The `Comment::approveComment` and `Comment::unapproveComment` now use the new `updateCommentStatus` function for all of the heavy lifting
+- Cleaned up documentation in several admin files
+- Cleaned up code in the `Settings` and `User` classes
+- Added the caching param to the site logo and site icon on the "Design Settings" page
+- Added type declarations to various functions
+- Renamed the `getAdminScript`, `getAdminStylesheet`, and `getAdminTheme` functions and removed their option to echo *or* return (now they exclusively echo their content)
+- Reorganized the admin `functions.php` file so that similar functions are grouped together
+- Added an optional parameter to the `sanitize` function that allows custom regex to be specified
+- Improved the sanitization of slugs in the `Media::validateData`, `Menu::validateData`, `Post::validateData`, `Term::validateData`, and `Widget::validateData` functions
+- Renamed `globals.php` to `global-functions.php`
+- Created several new named constants for commonly included files
+- Restructured the content of the `setup.php` file
+- Moved the `load-media.php` and `upload.php` files to the admin `includes` directory
+  - Both files now make use of the `BASE_INIT` named constant
+- Reorganized the `functions.php` and `global-functions.php` files so that similar functions are grouped together
+- Renamed `fallback.php` to `fallback-theme.php`
+- The fallback theme file now elaborates further on creating a new theme directory
+- Reordered the file loading sequence in `init.php` so that the page content can be shown on the fallback theme
+- Added new term-related functions for theme creators
+- Tweaked code in the `getPermalink` function
+- The `Comment::getCommentStatus` now actually returns a value
+- New functions:
+  - `functions.php` (`putThemeScript`, `putThemeStylesheet`)
+  - `global-functions.php` (`putScript`, `putStylesheet`)
+  - `theme-functions.php` (`getTermTaxName`, `putTermTaxName`, `putTermPosts`)
+- Renamed functions:
+  - `theme-functions.php` (`getPostsWithTerm` -> `getTermPosts`)
+  - Admin `functions.php` (`getAdminScript` -> `adminScript`, `getAdminStylesheet` -> `adminStylesheet`, `getAdminTheme` -> `adminThemeStylesheet`)
+
+**Bug fixes:**
+- There are two undefined index notices on the "Login Rules" admin page caused by an unnecessary code snippet
+- The front end comment feed displays undefined errors when the feed is updated
+- An undefined error is triggered if a comment is submitted to an empty comment feed
+- A JavaScript error occurs if a user tries to click on an anchor link to a comment that has been deleted
+- A variable in the admin `Menu::isNextSibling` tries to access a non-existent array index when a menu item is moved down
+- The "Login Blacklist" admin page displays an empty table if the only existing blacklist expires as the page is loaded
+
+**Modified files:**
+- 404.php (M)
+- README.md (M)
+- admin/header.php
+- admin/includes/bulk-actions.php (M)
+- admin/includes/class-category.php
+- admin/includes/class-comment.php
+- admin/includes/class-login.php
+- admin/includes/class-media.php
+- admin/includes/class-menu.php
+- admin/includes/class-post.php
+- admin/includes/class-profile.php
+- admin/includes/class-settings.php
+- admin/includes/class-term.php
+- admin/includes/class-theme.php
+- admin/includes/class-user-role.php
+- admin/includes/class-user.php
+- admin/includes/class-widget.php
+- admin/includes/functions.php
+- admin/includes/js/modal.js (M)
+- admin/includes/js/script.js (M)
+- admin/includes/load-media.php
+- admin/includes/modal-delete.php (M)
+- admin/includes/modal-upload.php (M)
+- admin/includes/run-install.php
+- admin/includes/upload.php
+- admin/index.php (M)
+- admin/install.php
+- admin/setup.php
+- content/themes/carbon/functions.php
+- content/themes/carbon/header.php (M)
+- content/themes/carbon/script.js (M)
+- content/themes/carbon/taxonomy.php (M)
+- includes/ajax.php (M)
+- includes/class-comment.php
+- includes/class-login.php
+- includes/class-menu.php
+- includes/class-post.php
+- includes/class-query.php
+- includes/class-term.php
+- includes/constants.php
+- includes/debug.php (M)
+- includes/deprecated.php (M)
+- includes/fallback-theme.php
+- includes/functions.php
+- includes/global-functions.php
+- includes/js/script.js (M)
+- includes/load-template.php (M)
+- includes/load-theme.php (M)
+- includes/schema.php (M)
+- includes/theme-functions.php
+- init.php
+- login.php
+
 ## Version 1.2.9[b] (2022-02-04)
 
 - Added bulk actions to the `Post` class
   - Post statuses can be changed between `published`, `draft`, and `trash`
-- Created a `modified` class variable to the `Post` class
-- A media item's filename is no longer updated when it's replaced and the 'update filename and date' checkbox is left unchecked
+- Added a `modified` class variable to the `Post` class
 - Media links can now be created in the admin dashboard
 - Added a caching param to all images so they refresh properly if the image is replaced
 - Improved code readability in several files
@@ -32,10 +127,12 @@
   - Widget statuses can be changed between `active` and `inactive`
 - Cleaned up code in the `Comment` class
 - Improved type checking in the `Post` class
+- The `Post::trashPost` and `Post::restorePost` now use the new `updatePostStatus` function for all of the heavy lifting
 - When a new post (of any type) is first submitted to the database, its modified date is now set
 - If a published post is set to a draft, its publish date is now set to `null`
 - The publish date and modified date values will be dynamically updated upon installation of this update (making a database backup is highly recommended!)
 - Improved the logic of the "Replace Media" functionality
+  - A media item's filename is no longer updated when it's replaced and the 'update filename and date' checkbox is left unchecked (unless the file type changes)
 - New functions:
   - Admin `Comment` class (`updateCommentStatus`)
   - Admin `Post` class (`updatePostStatus`, `bulkActions`)
@@ -44,7 +141,7 @@
   - `theme-functions.php` (`getPostExcerpt`, `putPostExcerpt`)
 
 **Bug fixes:**
-- There are two `undefined` errors in the `Media::replaceMedia` function when the "Replace Media" page is viewed
+- There are two undefined errors in the `Media::replaceMedia` function when the "Replace Media" page is viewed
 
 **Modified files:**
 - admin/includes/bulk-actions.php
@@ -79,9 +176,10 @@
 - Fixed erroneous version numbers in several pieces of internal documentation
 - Improved code readability in several files
 - Created a file to hold functions specifically used for theme-building (custom functions made by theme creators will still be located in the theme's directory)
+- Cleaned up code in the `Post` class
 - The `Post::getPostDate` function now uses the post's modified date in the event that the post is still a draft
 - The `Post::getPostUrl` function now checks whether the currently viewed page is the home page and returns the home URL if so
-- Moved the following functions to the `theme-functions.php` file:
+- Moved the following existing functions to the `theme-functions.php` file:
   - `templateExists`
   - `getHeader`
   - `getFooter`
@@ -127,6 +225,7 @@
 - Improved code readability in several files
 - Tweaked the styling of admin data tables
 - Added headings to the bottom of data tables
+- Created an alias for the `formTag` function
 - Created a named constant for the CMS' name
   - Replaced all instances of 'ReallySimpleCMS' throughout with the named constant
 - Tweaked the message that displays in the fallback theme (this only displays if no themes are installed)
@@ -136,6 +235,8 @@
 - Comments can now be approved/unapproved in bulk (bulk delete is not enabled yet)
 - Tweaked the Carbon theme's `script.js` code
 - New functions:
+  - Admin `Comment` class (`bulkActions`)
+  - Admin `functions.php` (`tag`)
   - `globals.php` (`button`)
 
 **Modified files:**
@@ -179,6 +280,8 @@
 - Tweaked the Light admin theme
 - Tweaked the Beta Snapshots changelog formatting
 - Code cleanup in several admin files
+- New functions:
+  - Admin `run-install.php` (`runInstall`)
 
 **Modified files:**
 - admin/header.php (M)
@@ -270,9 +373,12 @@
 - Media can now be replaced
 - Added a default error message that will display for media that can't be deleted (this should only occur in catastrophic circumstances)
 - Media entries in the database can now be deleted even if the associated file can't be found in the `uploads` directory
-- Renamed the `Menu::getMenuItemsLists` function to `Menu::getMenuItemsSidebar`
 - The newest posts and terms are now ordered first in the menu items sidebar
 - Optimized code in the `User` and `Profile` classes for the `pass_saved` checkboxes
+- New functions:
+  - Admin `Media` class (`replaceMedia`)
+- Renamed functions:
+  - Admin `Menu` class (`getMenuItemsLists` -> `getMenuItemsSidebar`)
 
 **Bug fixes:**
 - Two hyphens can be placed side by side in media filenames in some instances
@@ -289,7 +395,6 @@
 ## Version 1.2.2[b] (2021-01-31)
 
 - Added a box shadow to the admin widgets
-- Created a function that fetches a specified number of comments (front end)
 - Comment feeds now only load the ten most recent comments by default
 - Added a button to load more comments (loads ten at a time)
 - Comment feeds now remember how many comments are loaded when they refresh
@@ -312,7 +417,7 @@
 ## Version 1.2.1[b] (2021-01-20)
 
 - The active theme is now listed first on the "List Themes" page
-- Created a function that constructs admin dashboard widgets
+- Created widgets for the admin dashboard
   - Added three dashboard widgets: "Comments", "Users", and "Logins", which display information about each
 - Tweaked styles for all admin themes
 - The `SHOW INDEXES` command can now be executed using the `Query` class
@@ -322,6 +427,7 @@
 - Added the `themes` directory to the `.gitignore` file, excluding the Carbon theme
 - Cleaned up the `.gitignore` file
 - New functions:
+  - Admin `functions.php` (`dashboardWidget`)
   - `Query` class (`showIndexes`)
 
 **Bug fixes:**
@@ -352,12 +458,13 @@
 - Added the `actionLink` function to numerous admin classes
 - Added the `ADMIN_URI` constant to numerous admin classes
 - Tweaked documentation in numerous admin classes
-- Created a function that displays information for each admin page about their purpose
+- All primary admin pages now have an information icon that displays information about the page describing its purpose when clicked
 - Added indexes to the `comments` table's schema (backwards compatible)
 - Added a "select all" checkbox to the "Create User Roles" and "Edit User Roles" forms
 - Database tables can now be dropped using the `Query` class
   - Replaced all instances of the `DROP TABLE` statement with the new functions
 - New functions:
+  - Admin `functions.php` (`adminInfo`)
   - `Query` class (`dropTable`, `dropTables`)
 
 **Bug fixes:**
@@ -405,13 +512,15 @@
 - Changed the "List \<post_type>" note separator appearing after unpublished posts from an en dash to an em dash
 - Tweaked documentation in the `Post` class
 - Renamed the admin `post-status-nav` CSS class to `status-nav`
-- Created a function that fetches the comment count from the database
+- Comment counts are now fetched dynamically in the `Comment` class
 - Tweaked code in the `Post::listPosts` function
 - Added a status nav for the "List Comments" page to allow filtering comments by status (e.g., `approved` or `unapproved`)
 - The status nav links for the "List \<post_type>" and "List Comments" pages now use the full admin URL
 - Reduced the comment feed update timer from 60 seconds to 15 (note: this is how often the feed checks for updates, not how often it actually refreshes)
 - The `Settings::getPageList` function now checks whether the home page exists and displays a blank option in the dropdown if it doesn't
 - Tweaked various previous entries in the changelogs
+- New functions:
+  - Admin `Comment` class (`getCommentCount`)
 
 **Modified files:**
 - admin/includes/class-comment.php
@@ -659,7 +768,7 @@
 - The current post's `type` is now added to the `body` tag as a CSS class
 - Replaced `section` tags with `div` tags in several Carbon theme files
 - The `id` parameter in the `Post::slugExists` function is now optional (default value is `0`)
-- Created a function that constructs a unique slug
+- Unique slugs can now be created dynamically
 - Improved the logic in the `getUniqueFilename` function
 - The media upload system now checks whether the media's slug is unique before uploading it
 - Deprecated the `filenameExists` function (merged its functionality with the `getUniqueFilename` function)
@@ -668,7 +777,9 @@
 - The menu item link dropdowns now only include posts and terms of the same post type or taxonomy as their menu item
 - Added multiple CSS classes to the `body` tag on term pages (e.g., `class="<slug> <taxonomy> <taxonomy>-id-<id>"`)
 - Cleaned up some entries in the Alpha changelog
-- Dedicated functions:
+- New functions:
+  - Admin `functions.php` (`getUniqueSlug`, `getUniquePostSlug`, `getUniqueTermSlug`)
+- Deprecated functions:
   - Admin `Media` class (`filenameExists`)
 
 **Bug fixes:**
@@ -756,15 +867,13 @@
 - Improved how permalinks are structured for custom post types and taxonomies (this fixed an issue with all taxonomies having `term` as their base url)
 - Tweaked a previous entry in the changelog
 - Created a new class variable in the `Post` class to hold taxonomy data
-- Renamed the `Post::getCategoriesList` function to `Post::getTermsList`
 - Custom taxonomies are now properly linked with their respective post types
-- Renamed the `Post::getCategories` function to `Post::getTerms`
 - The 'List Posts' page now properly shows the taxonomy related to the post type (and omits it if the post type doesn't have a taxonomy)
 - Removed taxonomy labels from the `getPostTypeLabels` function
 - Moved most of the root `index.php` file's contents to the `init.php` file
 - Improved the way the CMS determines whether the current page is a post or a term
 - Added functions that check what part of the CMS the user is currently viewing
-- Created a function that creates a `Term` object based on a slug
+- A `Term` object can now be dynamically created by supplying a slug
 - Changed the way the `load-template.php` file tries to load taxonomy templates
 - Added support for custom taxonomy templates
 - Added a message to the `getRecentPosts` function if there are no posts that can be displayed
@@ -775,13 +884,14 @@
   - `functions.php` (`getTerm`)
   - `globals.php` (`isAdmin`, `isLogin`, `is404`)
 - Renamed functions:
+  - Admin `Post` class (`getCategories` -> `getTerms`, `getCategoriesList` -> `getTermsList`)
   - `Post` class (`getPostCategories` -> `getPostTerms`)
   - `functions.php` (`getPostsInCategory` -> `getPostsWithTerm`)
 - Deprecated functions:
   - `functions.php` (`isCategory`)
 
 **Bug fixes:**
-- Blank post entries are added to the posts array by the `getPostsWithTerm` function if the posts are not published
+- Blank post entries are added to the posts array by the `getPostsInCategory` function if the posts are not published
 - Using custom taxonomies as menu items causes numerous issues
 - Menu items that point to nonexistent posts or terms cause an error
 
@@ -812,13 +922,14 @@
 - Tweaked how default post type and taxonomy labels are displayed in various locations
 - Underscores are now replaced with hyphens in post type and taxonomy base urls
 - Cleaned up the `getTaxonomyId` function
-- Created a function that checks whether a post exists in the database
+- A post can now be checked for existence in the database
 - Post types can now be checked for existence in the database
 - Taxonomies can now be unregistered (this only applies to custom taxonomies)
 - Created class variables for the `Term` class
-- Created the "List Terms", "Create Term", and "Edit Term" pages
+- Terms can now be viewed, created, edited, and deleted
 - Moved all functions from the admin `Category` class to the `Term` class (only the `listCategories`, `createCategory`, `editCategory`, and `deleteCategory` functions remain as alias functions)
-- Created a function that fetches a taxonomy's name based on its id
+  - The `Category` class now inherits from the `Term` class
+  - A term's taxonomy can now be fetched from the database
 - Code cleanup in the `Post` class
 - Code cleanup in the `globals.php` file
 - The admin nav menu now scrolls if its content overflows the window
@@ -826,6 +937,8 @@
 - Current page functionality now works properly for custom post types and taxonomies
 - Tweaked the admin themes
 - New functions:
+  - Admin `Term` class (`listTerms`, `createTerm`, `editTerm`, `deleteTerm`, `getTaxonomy`)
+  - Admin `functions.php` (`postExists`)
   - `functions.php` (`postTypeExists`, `taxonomyExists`)
   - `globals.php` (`getUserRoleId`, `getUserPrivilegeId`, `unregisterPostType`, `unregisterTaxonomy`)
 
@@ -1045,6 +1158,7 @@
 - Admin menu items are now hidden if a logged in user does not have sufficient privileges to view them
 - Deprecated functions:
   - Admin `Post` class (`getPermalink`)
+  - Admin `functions.php` (`adminNavMenu`)
   - `functions.php` (`registerMenu`, `registerWidget`)
   - `globals.php` (`registerPostType`, `sanitize`)
 

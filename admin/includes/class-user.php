@@ -67,7 +67,6 @@ class User {
 	 *
 	 * @access public
 	 * @param int $id (optional; default: 0)
-	 * @return null
 	 */
 	public function __construct($id = 0) {
 		// Extend the Query object
@@ -91,9 +90,8 @@ class User {
 	 * @since 1.2.1[a]
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function listUsers() {
+	public function listUsers(): void {
 		// Extend the Query object and the user's session data
 		global $rs_query, $session;
 		
@@ -150,7 +148,10 @@ class User {
 			<tbody>
 				<?php
 				// Fetch all users from the database
-				$users = $rs_query->select('users', '*', '', 'username', 'ASC', array($page['start'], $page['per_page']));
+				$users = $rs_query->select('users', '*', '', 'username', 'ASC', array(
+					$page['start'],
+					$page['per_page']
+				));
 		
 				// Loop through the users
 				foreach($users as $user) {
@@ -224,9 +225,8 @@ class User {
 	 * @since 1.1.2[a]
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function createUser() {
+	public function createUser(): void {
 		// Validate the form data and return any messages
 		$message = isset($_POST['submit']) ? $this->validateData($_POST) : '';
 		?>
@@ -322,7 +322,7 @@ class User {
 						'tag' => 'select',
 						'class' => 'select-input',
 						'name' => 'role',
-						'content' => $this->getRoleList((int)getSetting('default_user_role', false))
+						'content' => $this->getRoleList((int)getSetting('default_user_role'))
 					));
 					
 					// Separator
@@ -350,9 +350,8 @@ class User {
 	 * @since 1.2.1[a]
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function editUser() {
+	public function editUser(): void {
 		// Extend the Query object and the user's session data
 		global $rs_query, $session;
 		
@@ -465,7 +464,11 @@ class User {
 							?>
 						</table>
 					</form>
-					<?php echo actionLink('reset_password', array('classes' => 'reset-password button', 'caption' => 'Reset Password', 'id' => $this->id)); ?>
+					<?php echo actionLink('reset_password', array(
+						'classes' => 'reset-password button',
+						'caption' => 'Reset Password',
+						'id' => $this->id
+					)); ?>
 				</div>
 				<?php
 				// Include the upload modal
@@ -479,9 +482,8 @@ class User {
 	 * @since 1.2.3[a]
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function deleteUser() {
+	public function deleteUser(): void {
 		// Extend the Query object and the user's session data
 		global $rs_query, $session;
 		
@@ -508,9 +510,9 @@ class User {
 	 * @access private
 	 * @param array $data
 	 * @param int $id (optional; default: 0)
-	 * @return null|string (null on $id == 0; string on $id != 0)
+	 * @return string
 	 */
-	private function validateData($data, $id = 0) {
+	private function validateData($data, $id = 0): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -531,7 +533,11 @@ class User {
 			return statusMessage('That email is already taken by another user. Please choose another one.');
 		
 		// Create an array to hold the user's metadata
-		$usermeta = array('first_name' => $data['first_name'], 'last_name' => $data['last_name'], 'avatar' => $data['avatar']);
+		$usermeta = array(
+			'first_name' => $data['first_name'],
+			'last_name' => $data['last_name'],
+			'avatar' => $data['avatar']
+		);
 		
 		if($id === 0) {
 			// Make sure the password field is not empty
@@ -550,20 +556,36 @@ class User {
 			$hashed_password = password_hash($data['password'], PASSWORD_BCRYPT, array('cost' => 10));
 			
 			// Insert the new user into the database
-			$insert_id = $rs_query->insert('users', array('username' => $data['username'], 'password' => $hashed_password, 'email' => $data['email'], 'registered' => 'NOW()', 'role' => $data['role']));
+			$insert_id = $rs_query->insert('users', array(
+				'username' => $data['username'],
+				'password' => $hashed_password,
+				'email' => $data['email'],
+				'registered' => 'NOW()',
+				'role' => $data['role']
+			));
 			
 			// Add a metadata entry for the user's admin theme to the usermeta array
 			$usermeta['theme'] = 'default';
 			
-			// Insert the user's metadata into the database
-			foreach($usermeta as $key => $value)
-				$rs_query->insert('usermeta', array('user' => $insert_id, '_key' => $key, 'value' => $value));
+			// Loop through the metadata
+			foreach($usermeta as $key => $value) {
+				// Insert the user's metadata into the database
+				$rs_query->insert('usermeta', array(
+					'user' => $insert_id,
+					'_key' => $key,
+					'value' => $value
+				));
+			}
 			
 			// Redirect to the appropriate "Edit User" page
 			redirect(ADMIN_URI.'?id='.$insert_id.'&action=edit');
 		} else {
 			// Update the user in the database
-			$rs_query->update('users', array('username' => $data['username'], 'email' => $data['email'], 'role' => $data['role']), array('id' => $id));
+			$rs_query->update('users', array(
+				'username' => $data['username'],
+				'email' => $data['email'],
+				'role' => $data['role']
+			), array('id' => $id));
 			
 			// Update the user's metadata in the database
 			foreach($usermeta as $key => $value)
@@ -586,7 +608,7 @@ class User {
 	 * @param int $id
 	 * @return bool
 	 */
-	protected function usernameExists($username, $id) {
+	protected function usernameExists($username, $id): bool {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -611,7 +633,7 @@ class User {
 	 * @param int $id
 	 * @return bool
 	 */
-	protected function emailExists($email, $id) {
+	protected function emailExists($email, $id): bool {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -635,7 +657,7 @@ class User {
 	 * @param int $id
 	 * @return bool
 	 */
-	private function userHasContent($id) {
+	private function userHasContent($id): bool {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -651,7 +673,7 @@ class User {
 	 * @param int $id
 	 * @return array
 	 */
-	protected function getUserMeta($id) {
+	protected function getUserMeta($id): array {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -679,13 +701,13 @@ class User {
 	
 	/**
 	 * Fetch a user's role.
-	 * @since 1.6.4[a]
+	 * @since 1.7.0[a]
 	 *
 	 * @access private
 	 * @param int $id
 	 * @return string
 	 */
-	private function getRole($id) {
+	private function getRole($id): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -695,13 +717,13 @@ class User {
 	
 	/**
 	 * Construct a list of roles.
-	 * @since 1.6.4[a]
+	 * @since 1.7.0[a]
 	 *
 	 * @access private
 	 * @param int $id (optional; default: 0)
 	 * @return string
 	 */
-	private function getRoleList($id = 0) {
+	private function getRoleList($id = 0): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -720,13 +742,12 @@ class User {
 	}
 	
 	/**
-	 * Construct the 'Reset Password' form.
+	 * Construct the "Reset Password" form.
 	 * @since 1.2.3[a]
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function resetPassword() {
+	public function resetPassword(): void {
 		// Check whether the user's id is valid
 		if(empty($this->id) || $this->id <= 0) {
 			// Redirect to the "List Users" page
@@ -809,7 +830,7 @@ class User {
 	 * @param int $id
 	 * @return string
 	 */
-	private function validatePasswordData($data, $id) {
+	private function validatePasswordData($data, $id): string {
 		// Extend the Query object and the user's session data
 		global $rs_query, $session;
 		
@@ -865,7 +886,7 @@ class User {
 	 * @param int $id
 	 * @return bool
 	 */
-	protected function verifyPassword($password, $id) {
+	protected function verifyPassword($password, $id): bool {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -881,9 +902,8 @@ class User {
 	 * @since 2.4.3[a]
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function reassignContent() {
+	public function reassignContent(): void {
 		// Extend the user's session data
 		global $session;
 		
@@ -930,15 +950,14 @@ class User {
 	}
 	
 	/**
-	 * Validate the 'Reassign Content' form data.
+	 * Validate the "Reassign Content" form data.
 	 * @since 2.4.3[a]
 	 *
 	 * @access private
 	 * @param array $data
 	 * @param int $id
-	 * @return null
 	 */
-	private function validateReassignContentData($data, $id) {
+	private function validateReassignContentData($data, $id): void {
 		// Extend the Query object and the user's session data
 		global $rs_query;
 		
@@ -963,7 +982,7 @@ class User {
 	 * @param int $id
 	 * @return string
 	 */
-	private function getUsername($id) {
+	private function getUsername($id): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -979,7 +998,7 @@ class User {
 	 * @param int $exclude
 	 * @return string
 	 */
-	private function getUserList($id) {
+	private function getUserList($id): string {
 		// Extend the Query object
 		global $rs_query;
 		

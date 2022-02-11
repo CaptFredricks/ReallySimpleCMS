@@ -21,7 +21,6 @@ class Comment {
 	 *
 	 * @access public
 	 * @param int $post (optional; default: 0)
-	 * @return null
 	 */
 	public function __construct($post = 0) {
 		$this->post = $post;
@@ -33,10 +32,9 @@ class Comment {
 	 *
 	 * @access public
 	 * @param int $id
-	 * @param bool $echo (optional; default: true)
-	 * @return null|string (null on $echo == true; string on $echo == false)
+	 * @return string
 	 */
-	public function getCommentAuthor($id, $echo = true) {
+	public function getCommentAuthor($id): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -52,10 +50,8 @@ class Comment {
 			$username = $rs_query->selectField('users', 'username', array('id' => $author));
 		}
 		
-		if($echo)
-			echo $username;
-		else
-			return $username;
+		// Return the username
+		return $username;
 	}
 	
 	/**
@@ -64,20 +60,14 @@ class Comment {
 	 *
 	 * @access public
 	 * @param int $id
-	 * @param bool $echo (optional; default: true)
-	 * @return null|int (null on $echo == true; int on $echo == false)
+	 * @return int
 	 */
-	public function getCommentAuthorId($id, $echo = true) {
+	public function getCommentAuthorId($id): int {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Fetch the comment's author from the database
-		$author = (int)$rs_query->selectField('comments', 'author', array('id' => $id));
-		
-		if($echo)
-			echo $author;
-		else
-			return $author;
+		// Fetch the comment's author from the database and return it
+		return (int)$rs_query->selectField('comments', 'author', array('id' => $id));
 	}
 	
 	/**
@@ -86,20 +76,17 @@ class Comment {
 	 *
 	 * @access public
 	 * @param int $id
-	 * @param bool $echo (optional; default: true)
-	 * @return null|string (null on $echo == true; string on $echo == false)
+	 * @return string
 	 */
-	public function getCommentDate($id, $echo = true) {
+	public function getCommentDate($id): string {
 		// Extend the Query object
 		global $rs_query;
 		
 		// Fetch the comment's date from the database
-        $date = $rs_query->selectField('comments', 'date', array('id' => $id));
+		$date = $rs_query->selectField('comments', 'date', array('id' => $id));
 		
-        if($echo)
-            echo formatDate($date, 'j M Y @ g:i A');
-        else
-            return formatDate($date, 'j M Y @ g:i A');
+		// Return a formatted date string
+		return formatDate($date, 'j M Y @ g:i A');
 	}
 	
 	/**
@@ -108,20 +95,14 @@ class Comment {
 	 *
 	 * @access public
 	 * @param int $id
-	 * @param bool $echo (optional; default: true)
-	 * @return null|string (null on $echo == true; string on $echo == false)
+	 * @return string
 	 */
-	public function getCommentContent($id, $echo = true) {
+	public function getCommentContent($id): string {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Fetch the comment's content from the database
-		$content = $rs_query->selectField('comments', 'content', array('id' => $id));
-		
-		if($echo)
-			echo $content;
-		else
-			return $content;
+		// Fetch the comment's content from the database and return it
+		return $rs_query->selectField('comments', 'content', array('id' => $id));
 	}
 	
 	/**
@@ -130,20 +111,14 @@ class Comment {
 	 *
 	 * @access public
 	 * @param int $id
-	 * @param bool $echo (optional; default: true)
-	 * @return null|int (null on $echo == true; int on $echo == false)
+	 * @return int
 	 */
-	public function getCommentUpvotes($id, $echo = true) {
+	public function getCommentUpvotes($id): int {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Fetch the comment's upvotes from the database
-		$upvotes = $rs_query->selectField('comments', 'upvotes', array('id' => $id));
-		
-		if($echo)
-			echo $upvotes;
-		else
-			return $upvotes;
+		// Fetch the comment's upvote count from the database and return it
+		return (int)$rs_query->selectField('comments', 'upvotes', array('id' => $id));
 	}
 	
 	/**
@@ -152,20 +127,14 @@ class Comment {
 	 *
 	 * @access public
 	 * @param int $id
-	 * @param bool $echo (optional; default: true)
-	 * @return null|int (null on $echo == true; int on $echo == false)
+	 * @return int
 	 */
-	public function getCommentDownvotes($id, $echo = true) {
+	public function getCommentDownvotes($id): int {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Fetch the comment's downvotes from the database
-		$downvotes = $rs_query->selectField('comments', 'downvotes', array('id' => $id));
-		
-		if($echo)
-			echo $downvotes;
-		else
-			return $downvotes;
+		// Fetch the comment's downvote count from the database and return it
+		return (int)$rs_query->selectField('comments', 'downvotes', array('id' => $id));
 	}
 	
 	/**
@@ -173,12 +142,15 @@ class Comment {
 	 * @since 1.1.0[b]{ss-03}
 	 *
 	 * @access public
-	 * @param bool $echo (optional; default: true)
-	 * @return null|string (null on $echo == true; string on $echo == false)
+	 * @param int $id
+	 * @return string
 	 */
-	public function getCommentStatus($echo = true) {
+	public function getCommentStatus($id): string {
 		// Extend the Query object
 		global $rs_query;
+		
+		// Fetch the comment's status from the database and return it
+		return $rs_query->selectField('comments', 'status', array('id' => $id));
 	}
 	
 	/**
@@ -187,20 +159,14 @@ class Comment {
 	 *
 	 * @access public
 	 * @param int $id
-	 * @param bool $echo (optional; default: true)
-	 * @return null|int (null on $echo == true; int on $echo == false)
+	 * @return int
 	 */
-	public function getCommentParent($id, $echo = true) {
+	public function getCommentParent($id): int {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Fetch the comment's parent from the database
-		$parent = (int)$rs_query->selectField('comments', 'parent', array('id' => $id));
-		
-		if($echo)
-			echo $parent;
-		else
-			return $parent;
+		// Fetch the comment's parent from the database and return it
+		return (int)$rs_query->selectField('comments', 'parent', array('id' => $id));
 	}
 	
 	/**
@@ -211,7 +177,7 @@ class Comment {
 	 * @param int $id
 	 * @return string
 	 */
-	public function getCommentPermalink($id) {
+	public function getCommentPermalink($id): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -228,20 +194,14 @@ class Comment {
 	 *
 	 * @access public
 	 * @param int $post
-	 * @param bool $echo (optional; default: true)
-	 * @return null|int (null on $echo == true; int on $echo == false)
+	 * @return int
 	 */
-	public function getCommentCount($post, $echo = true) {
+	public function getCommentCount($post): int {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Fetch the comment count from the database
-		$count = $rs_query->select('comments', 'COUNT(*)', array('post' => $post));
-		
-		if($echo)
-			echo $count;
-		else
-			return $count;
+		// Fetch the comment count from the database and return it
+		return $rs_query->select('comments', 'COUNT(*)', array('post' => $post));
 	}
 	
 	/**
@@ -249,16 +209,15 @@ class Comment {
 	 * @since 1.1.0[b]{ss-04}
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function getCommentReplyBox() {
+	public function getCommentReplyBox(): void {
 		// Extend the Post object, the user's session data, and the post types array
 		global $rs_post, $session, $post_types;
 		
 		// Check whether comments are enabled
-		if(getSetting('enable_comments', false) && $post_types[$rs_post->getPostType()]['comments'] && $rs_post->getPostMeta('comment_status')) {
+		if(getSetting('enable_comments') && $post_types[$rs_post->getPostType()]['comments'] && $rs_post->getPostMeta('comment_status')) {
 			// Check whether the user is logged in, and if not, check whether anonymous users can comment
-			if(!is_null($session) || (is_null($session) && getSetting('allow_anon_comments', false))) {
+			if(!is_null($session) || (is_null($session) && getSetting('allow_anon_comments'))) {
 				?>
 				<div id="comments-reply" class="textarea-wrap">
 					<input type="hidden" name="post" value="<?php echo $rs_post->getPostId(); ?>">
@@ -276,9 +235,8 @@ class Comment {
 	 * @since 1.1.0[b]{ss-03}
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function getCommentFeed() {
+	public function getCommentFeed(): void {
 		?>
 		<div class="comments-wrap">
 			<?php
@@ -296,9 +254,8 @@ class Comment {
 	 * @access public
 	 * @param int $start (optional; default: 0)
 	 * @param int $count (optional; default: 10)
-	 * @return array
 	 */
-	public function loadComments($start = 0, $count = 10) {
+	public function loadComments($start = 0, $count = 10): void {
 		// Extend the Query and Post objects, the user's session data, and the post types array
 		global $rs_query, $rs_post, $session, $post_types;
 		
@@ -329,11 +286,11 @@ class Comment {
 				$id = $comment['id'];
 				
 				// Fetch the comment's parent
-				$parent = $this->getCommentParent($id, false);
+				$parent = $this->getCommentParent($id);
 				?>
 				<div id="comment-<?php echo $id; ?>" class="comment">
 					<p class="meta">
-						<span class="permalink"><a href="<?php echo $this->getCommentPermalink($id); ?>">#<?php echo $id; ?></a></span>&ensp;<span class="author"><?php $this->getCommentAuthor($id); ?></span> <span class="date"><?php $this->getCommentDate($id); ?></span>
+						<span class="permalink"><a href="<?php echo $this->getCommentPermalink($id); ?>">#<?php echo $id; ?></a></span>&ensp;<span class="author"><?php echo $this->getCommentAuthor($id); ?></span> <span class="date"><?php echo $this->getCommentDate($id); ?></span>
 						<?php
 						// Check whether the comment has a parent
 						if($parent !== 0) {
@@ -344,16 +301,16 @@ class Comment {
 						?>
 					</p>
 					<div class="content">
-						<?php nl2br($this->getCommentContent($id)); ?>
+						<?php echo nl2br($this->getCommentContent($id)); ?>
 					</div>
 					<p class="actions">
-						<span class="upvote"><span><?php $this->getCommentUpvotes($id); ?></span> <a href="#" data-id="<?php echo $id; ?>" data-vote="0" title="Upvote"><i class="fas fa-thumbs-up"></i></a></span>
-						&bull; <span class="downvote"><span><?php $this->getCommentDownvotes($id); ?></span> <a href="#" data-id="<?php echo $id; ?>" data-vote="0" title="Downvote"><i class="fas fa-thumbs-down"></i></a></span>
+						<span class="upvote"><span><?php echo $this->getCommentUpvotes($id); ?></span> <a href="#" data-id="<?php echo $id; ?>" data-vote="0" title="Upvote"><i class="fas fa-thumbs-up"></i></a></span>
+						&bull; <span class="downvote"><span><?php echo $this->getCommentDownvotes($id); ?></span> <a href="#" data-id="<?php echo $id; ?>" data-vote="0" title="Downvote"><i class="fas fa-thumbs-down"></i></a></span>
 						<?php
 						// Check whether comments are enabled
-						if(getSetting('enable_comments', false) && $post_types[$rs_post->getPostType()]['comments'] && $rs_post->getPostMeta('comment_status')) {
+						if(getSetting('enable_comments') && $post_types[$rs_post->getPostType()]['comments'] && $rs_post->getPostMeta('comment_status')) {
 							// Check whether the user is logged in, and if not, check whether anonymous users can comment
-							if(!is_null($session) || (is_null($session) && getSetting('allow_anon_comments', false))) {
+							if(!is_null($session) || (is_null($session) && getSetting('allow_anon_comments'))) {
 								?>
 								&bull; <span class="reply"><a href="#" data-replyto="<?php echo $id; ?>">Reply</a></span>
 								<?php
@@ -361,14 +318,14 @@ class Comment {
 						}
 						
 						// Check whether the user has permission to edit the comment
-						if(!is_null($session) && ($session['id'] === $this->getCommentAuthorId($id, false) || userHasPrivilege($session['role'], 'can_edit_comments'))) {
+						if(!is_null($session) && ($session['id'] === $this->getCommentAuthorId($id) || userHasPrivilege($session['role'], 'can_edit_comments'))) {
 							?>
 							&bull; <span class="edit"><a href="#" data-id="<?php echo $id; ?>">Edit</a></span>
 							<?php
 						}
 						
 						// Check whether the user has permission to delete the comment
-						if(!is_null($session) && ($session['id'] === $this->getCommentAuthorId($id, false) || userHasPrivilege($session['role'], 'can_delete_comments'))) {
+						if(!is_null($session) && ($session['id'] === $this->getCommentAuthorId($id) || userHasPrivilege($session['role'], 'can_delete_comments'))) {
 							?>
 							&bull; <span class="delete"><a href="#" data-id="<?php echo $id; ?>">Delete</a></span>
 							<?php
@@ -394,16 +351,16 @@ class Comment {
 	 *
 	 * @access public
 	 * @param array $data
-	 * @return string|null
+	 * @return string
 	 */
-	public function createComment($data) {
+	public function createComment($data): string {
 		// Extend the Query object and the user's session data
 		global $rs_query, $session;
 		
 		// Check whether the comment's content is empty
 		if(!empty($data['content'])) {
 			// Set the comment status based on whether comments are set to auto approve
-			$status = getSetting('auto_approve_comments', false) ? 'approved' : 'unapproved';
+			$status = getSetting('auto_approve_comments') ? 'approved' : 'unapproved';
 			
 			// Insert a new comment into the database
 			$rs_query->insert('comments', array(
@@ -428,7 +385,7 @@ class Comment {
 			));
 			
 			// Return a status message
-			return '<p style="margin-top: 0;">Your comment was submitted'.(!getSetting('auto_approve_comments', false) ? ' for review' : '').'!</p>';
+			return '<p style="margin-top: 0;">Your comment was submitted'.(!getSetting('auto_approve_comments') ? ' for review' : '').'!</p>';
 		}
 	}
 	
@@ -438,9 +395,8 @@ class Comment {
 	 *
 	 * @access public
 	 * @param array $data
-	 * @return null
 	 */
-	public function updateComment($data) {
+	public function updateComment($data): void {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -454,9 +410,8 @@ class Comment {
 	 *
 	 * @access public
 	 * @param int $id
-	 * @return null
 	 */
-	public function deleteComment($id) {
+	public function deleteComment($id): void {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -482,7 +437,7 @@ class Comment {
 	 * @param string $type
 	 * @return int
 	 */
-	public function incrementVotes($id, $type) {
+	public function incrementVotes($id, $type): int {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -505,7 +460,7 @@ class Comment {
 	 * @param string $type
 	 * @return int
 	 */
-	public function decrementVotes($id, $type) {
+	public function decrementVotes($id, $type): int {
 		// Extend the Query object
 		global $rs_query;
 		

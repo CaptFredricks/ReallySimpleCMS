@@ -217,8 +217,11 @@ jQuery(document).ready($ => {
 		// Reduce the link to just the anchor
 		let anchor = anchor_link.substring(anchor_link.indexOf('#'));
 		
-		// Scroll to the comment's anchor
-		$('html, body').animate({scrollTop: $(anchor).offset().top - 100}, 0);
+		// Check whether the anchor exists on the page
+		if($(anchor).length) {
+			// Scroll to the comment's anchor
+			$('html, body').animate({scrollTop: $(anchor).offset().top - 100}, 0);
+		}
 	});
 	
 	/**

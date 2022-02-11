@@ -20,21 +20,18 @@
 
 ## Version 1.2.0[b]{ss-05} (2020-12-28)
 
-- Created a function that lists all login rules in the database
 - Tweaked the schema for the `login_rules` database table
-- Created a function that converts a duration in seconds to a more readable format
-- Created a function that creates a login rule
+- Login rules can now be viewed, created, edited, and deleted
+- Login blacklist duration is now dynamically converted from seconds to a more readable format
 - Added class variables for the `login_rules` table and its functions
 - Tweaked documentation in the `Login` class
-- Created a function that updates a login rule
-- Created a function that handles login rules form validation
-- Created a function that deletes a login rule
 - The `actionLink` function can now accept `data_item` as a valid argument (allows for the action link to include a `data-item` parameter)
 - The "Log In" form now checks whether a user/IP should be blacklisted based on predefined rules
 - Added two new columns to the `login_attempts` table, `last_blacklisted_login` and `last_blacklisted_ip`, which will track the most recent time the login (username or email) or IP address of a login attempt was blacklisted (if ever)
 - Cleaned up code in the `Query` class and added support for various comparison operators
 - Cleaned up code in the admin `Login` class
 - New functions:
+  - Admin `Login` class (`loginRules`, `createRule`, `editRule`, `deleteRule`, `validateRuleData`, `formatDuration`)
   - `Login` class (`shouldBlacklist`)
 
 **Modified files:**
@@ -73,7 +70,9 @@
 - The `DISTINCT` keyword can now be added to `select` queries (it must be added to the `data` parameter's array)
 - The `actionLink` function can now accept `classes` as a valid argument (allows for the action link to receive CSS classes)
 - Tweaked documentation in the admin `Login` class
-- Created a function that creates a new user-input login blacklist (distinct from the "Login Attempts" blacklist options)
+- Custom login blacklist entries can now be created (this is distinct from the "Login Attempts" blacklist options)
+- New functions:
+  - Admin `Login` class (`createBlacklist`)
 
 **Modified files:**
 - admin/includes/class-login.php
@@ -83,10 +82,8 @@
 
 ## Version 1.2.0[b]{ss-02} (2020-12-08)
 
-- Created a function that allows for editing a blacklisted login
-- Created a function that checks whether a blacklisted login already exists in the database
+- Blacklisted logins can now be edited and whitelisted
 - Expired blacklisted logins are now deleted when a user views the "Login Blacklist" page
-- Created a function that whitelists a blacklisted login or IP address
 - Added an icon to the "Login" admin menu item
 - Added login-related nav items to the admin bar menu
 - Added privileges for the `login_attempts`, `login_blacklist`, and `login_rules` tables to the `populateUserPrivileges` function
@@ -98,6 +95,7 @@
 - Cleaned up some logic in the `adminNavMenu` and `adminBar` functions
 - Made minor formatting tweaks to the `init.php` file
 - New functions:
+  - Admin `Login` class (`editBlacklist`, `whitelistLoginIP`, `blacklistExits`)
   - `globals.php` (`userHasPrivileges`)
 
 **Bug fixes:**
@@ -123,15 +121,15 @@
   - `login_rules` - stores rules for what happens if a user attempts to log in too many times unsuccessfully
   - These tables are automatically installed upon updating to this version or higher
 - Created a new admin class to handle logins
+  - Logins (usernames/emails) and IP addresses can be blacklisted
 - The front end `Login::validateLoginData` function now records all login attempts
 - Created an admin nav item for the "Login Attempts", "Login Blacklist", and "Login Rules" pages
-- Created a function that lists all login attempts
-- Created a function that lists all blacklisted logins
-- Created a function that constructs an action link
-- Created functions that blacklist logins and IP addresses
+- Action links can now be created dynamically
 - Added user/IP blacklist checks to the login form
 - A default timezone is now set in the `config-setup.php` file (and likewise the `config.php` file)
 - New functions:
+  - Admin `Login` class (`loginAttempts`, `blacklistLogin`, `blacklistIPAddress`, `loginBlacklist`, `validateBlacklistData`)
+  - Admin `functions.php` (`actionLink`)
   - `Login` class (`isBlacklisted`, `getBlacklistDuration`)
 
 **Modified files:**
@@ -175,10 +173,8 @@
 - Added comments to the "Admin" admin bar dropdown
 - Reply links are now hidden on existing comments if comments are disabled on the post, post type, or global level (existing comments are not hidden, however)
 - Styled and added a reply form to the comment feed
-- Created a function that submits comments to the database
-- Created a function that fetches a comment's parent
+- Comments can now be created and deleted
 - If a comment is a reply to another comment, the child comment now has a link to its parent
-- Created a function that deletes an existing comment
 - Tweaked previous entries in the changelog
 - Added a container element to the comment feed
 - The comment feed will now refresh whenever a new reply is posted or a comment is deleted
@@ -238,20 +234,15 @@
 
 - Tweaked a previous entry in the changelog
 - Tweaked documentation in the `update.php` file
-- Created a function that constructs and displays all comments in the database
+- Added most of the core functions of the admin `Comment` class
+  - Comments can be viewed, edited, deleted, approved, and unapproved
 - Tweaked the styling of data tables on the admin dashboard
 - Tweaked documentation in the `Post` and `Term` classes
-- Created a function that fetches a comment's post from the database
-- Created a function that fetches a comment's author from the database
 - Added an additional CSS class to data table columns to ensure that they don't conflict with other page elements
 - Tweaked the schema for the `comments` database table
-- Created a function that approves a comment
-- Created a function that unapproves a comment
-- Created a function that deletes a comment
 - Cleaned up code in the `Post` class
-- Created a function that constructs the "Edit Comment" form
-- Created a function that validates form data for the `Comment` class
-- Created a function that fetches a post's permalink (`Comment` class)
+- New functions:
+  - Admin `Comment` class (`listComments`, `editComment`, `approveComment`, `unapproveComment`, `deleteComment`, `validateData`, `getPost`, `getPostPermalink`, `getAuthor`)
 
 **Modified files:**
 - admin/comments.php

@@ -16,25 +16,25 @@ if(isset($_POST['submit_ajax']) && $_POST['submit_ajax']) {
 	require_once dirname(dirname(__DIR__)).'/includes/constants.php';
 	
 	// Include debugging functions
-	require_once PATH.INC.'/debug.php';
+	require_once DEBUG_FUNC;
 	
-	// Include database configuration
-	require_once PATH.'/config.php';
+	// Include the database configuration
+	require_once DB_CONFIG;
 	
-	// Include Query class
-	require_once PATH.INC.'/class-query.php';
+	// Include the Query class
+	require_once QUERY_CLASS;
 	
 	// Create a Query object
 	$rs_query = new Query;
 	
 	// Include global functions
-	require_once PATH.INC.'/globals.php';
+	require_once GLOBAL_FUNC;
 	
-	// Include database configuration and functions
-	require_once PATH.ADMIN.INC.'/functions.php';
+	// Include admin functions
+	require_once ADMIN_FUNC;
 	
 	// Include the database schema
-	require_once PATH.INC.'/schema.php';
+	require_once DB_SCHEMA;
 	
 	// Run the installation
 	$result = runInstall($_POST);
@@ -48,9 +48,9 @@ if(isset($_POST['submit_ajax']) && $_POST['submit_ajax']) {
  * @since 1.2.6[b]
  *
  * @param array $data
- * @return null
+ * @return array
  */
-function runInstall($data) {
+function runInstall($data): array {
 	// Extend the Query object
 	global $rs_query;
 	

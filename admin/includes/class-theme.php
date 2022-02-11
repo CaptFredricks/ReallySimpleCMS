@@ -12,9 +12,8 @@ class Theme {
 	 * @since 2.3.0[a]
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function listThemes() {
+	public function listThemes(): void {
 		// Extend the Query object and the user's session data
 		global $rs_query, $session;
 		?>
@@ -44,13 +43,13 @@ class Theme {
 				$themes = array();
 			
 			// Find the active theme in the array
-			$active = array_search(getSetting('theme', false), $themes, true);
+			$active = array_search(getSetting('theme'), $themes, true);
 			
 			// Remove the active theme from the array
 			unset($themes[$active]);
 			
 			// Place the active theme at the begining of the array
-			array_unshift($themes, getSetting('theme', false));
+			array_unshift($themes, getSetting('theme'));
 			
 			// Loop through the themes
 			foreach($themes as $theme) {
@@ -112,9 +111,8 @@ class Theme {
 	 * @since 2.3.1[a]
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function createTheme() {
+	public function createTheme(): void {
 		// Validate the form data and return any messages
 		$message = isset($_POST['submit']) ? $this->validateData($_POST) : '';
 		?>
@@ -126,6 +124,7 @@ class Theme {
 			<form class="data-form" action="" method="post" autocomplete="off">
 				<table class="form-table">
 					<?php
+					// Name
 					echo formRow(array('Name', true), array(
 						'tag' => 'input',
 						'id' => 'slug-field',
@@ -133,7 +132,11 @@ class Theme {
 						'name' => 'name',
 						'value' => ($_POST['name'] ?? '')
 					));
+					
+					// Separator
 					echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
+					
+					// Submit button
 					echo formRow('', array(
 						'tag' => 'input',
 						'type' => 'submit',
@@ -154,9 +157,8 @@ class Theme {
 	 *
 	 * @access public
 	 * @param string $name
-	 * @return null
 	 */
-	public function activateTheme($name) {
+	public function activateTheme($name): void {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -176,9 +178,8 @@ class Theme {
 	 *
 	 * @access public
 	 * @param string $name
-	 * @return null
 	 */
-	public function deleteTheme($name) {
+	public function deleteTheme($name): void {
 		// Check whether the theme's name is valid
 		if(!empty($name) && $this->themeExists($name) && !$this->isActiveTheme($name)) {
 			// Delete the theme's directory and all its contents
@@ -198,9 +199,9 @@ class Theme {
 	 *
 	 * @access private
 	 * @param array $data
-	 * @return null
+	 * @return string
 	 */
-	private function validateData($data) {
+	private function validateData($data): string {
 		// Make sure no required fields are empty
 		if(empty($data['name']))
 			return statusMessage('R');
@@ -233,7 +234,7 @@ class Theme {
 	 * @param string $name
 	 * @return bool
 	 */
-	private function themeExists($name) {
+	private function themeExists($name): bool {
 		// Fetch all installed themes
 		$themes = array_diff(scandir(PATH.THEMES), array('.', '..'));
 		
@@ -255,8 +256,8 @@ class Theme {
 	 * @param string $name
 	 * @return bool
 	 */
-	private function isActiveTheme($name) {
-		return $name === getSetting('theme', false);
+	private function isActiveTheme($name): bool {
+		return $name === getSetting('theme');
 	}
 	
 	/**
@@ -265,9 +266,8 @@ class Theme {
 	 *
 	 * @access private
 	 * @param string $dir
-	 * @return null
 	 */
-	private function recursiveDelete($dir) {
+	private function recursiveDelete($dir): void {
 		// Fetch the directory's contents
 		$contents = array_diff(scandir($dir), array('.', '..'));
 		

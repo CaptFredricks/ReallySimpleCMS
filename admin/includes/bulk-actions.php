@@ -14,7 +14,7 @@ require_once dirname(dirname(__DIR__)).'/init.php';
 define('ADMIN_URI', $_POST['uri']);
 
 // Include admin functions
-require_once PATH.ADMIN.INC.'/functions.php';
+require_once ADMIN_FUNC;
 
 // Check whether the session cookie is set and the user's session is valid
 if(isset($_COOKIE['session']) && isValidSession($_COOKIE['session'])) {

@@ -8,12 +8,12 @@
 if(!file_exists(PATH.THEMES)) mkdir(PATH.THEMES);
 
 // Check whether the themes directory is empty or the current theme is broken
-if(isEmptyDir(PATH.THEMES) || !file_exists(trailingSlash(PATH.THEMES).getSetting('theme', false))) {
+if(isEmptyDir(PATH.THEMES) || !file_exists(trailingSlash(PATH.THEMES).getSetting('theme'))) {
 	// Load the fallback theme
-	require_once PATH.INC.'/fallback.php';
+	require_once PATH.INC.'/fallback-theme.php';
 } else {
 	// Construct the file path for the current theme
-	$theme_path = trailingSlash(PATH.THEMES).getSetting('theme', false);
+	$theme_path = trailingSlash(PATH.THEMES).getSetting('theme');
 	
 	// Check whether the theme has a functions.php file and include it if so
 	if(file_exists($theme_path.'/functions.php')) require_once $theme_path.'/functions.php';

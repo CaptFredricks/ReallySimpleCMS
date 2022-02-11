@@ -29,7 +29,428 @@ spl_autoload_register(function($class_name) {
 });
 
 // Generate a cookie hash based on the site's URL
-define('COOKIE_HASH', md5(getSetting('site_url', false)));
+define('COOKIE_HASH', md5(getSetting('site_url')));
+
+/*------------------------------------*\
+    HEADER & FOOTER
+\*------------------------------------*/
+
+/**
+ * Fetch a theme-specific script file.
+ * @since 2.0.7[a]
+ *
+ * @param string $script
+ * @param string $version (optional; default: VERSION)
+ * @return string
+ */
+function getThemeScript($script, $version = VERSION): string {
+	// Construct the file path for the current theme
+	$theme_path = trailingSlash(THEMES).getSetting('theme');
+	
+	return '<script src="'.trailingSlash($theme_path).$script.(!empty($version) ? '?v='.$version : '').'"></script>';
+}
+
+/**
+ * Output a theme-specific script file.
+ * @since 1.3.0[b]
+ *
+ * @param string $script
+ * @param string $version (optional; default: VERSION)
+ */
+function putThemeScript($script, $version = VERSION): void {
+	echo getThemeScript($script, $version);
+}
+
+/**
+ * Fetch a theme-specific stylesheet.
+ * @since 2.0.7[a]
+ *
+ * @param string $stylesheet
+ * @param string $version (optional; default: VERSION)
+ * @return string
+ */
+function getThemeStylesheet($stylesheet, $version = VERSION, $echo = true): string {
+	// Construct the file path for the current theme
+	$theme_path = trailingSlash(THEMES).getSetting('theme');
+	
+	return '<link href="'.trailingSlash($theme_path).$stylesheet.(!empty($version) ? '?v='.$version : '').'" rel="stylesheet">';
+}
+
+/**
+ * Output a theme-specific stylesheet.
+ * @since 1.3.0[b]
+ *
+ * @param string $stylesheet
+ * @param string $version (optional; default: VERSION)
+ */
+function putThemeStylesheet($stylesheet, $version = VERSION): void {
+	echo getThemeStylesheet($stylesheet, $version);
+}
+
+/**
+ * Load all header scripts and stylesheets.
+ * @since 2.4.2[a]
+ *
+ * @param string|array $exclude (optional; default: '')
+ * @param string|array $include_styles (optional; default: array())
+ * @param string|array $include_scripts (optional; default: array())
+ */
+function headerScripts($exclude = '', $include_styles = array(), $include_scripts = array()): void {
+	// Convert $exclude to an array if it isn't already one
+	if(!is_array($exclude)) $exclude = explode(' ', $exclude);
+	
+	// Button stylesheet
+	if(!in_array('button', $exclude, true)) putStylesheet('button.min.css');
+	
+	// Default stylesheet
+	if(!in_array('style', $exclude, true)) putStylesheet('style.min.css');
+	
+	if(!in_array('fa', $exclude, true)) {
+		// Font Awesome icons stylesheet
+		putStylesheet('font-awesome.min.css', ICONS_VERSION);
+	
+		// Font Awesome font-face rules stylesheet
+		putStylesheet('font-awesome-rules.min.css');
+	}
+	
+	// Check whether any custom stylesheets have been included
+	if(!empty($include_styles)) {
+		// Check whether the included stylesheets are in an array
+		if(is_array($include_styles)) {
+			// Loop through the array and include the stylesheets
+			foreach($include_styles as $style) putThemeStylesheet($style[0].'.css', $style[1] ?? VERSION);
+		}
+	}
+	
+	// jQuery library
+	if(!in_array('jquery', $exclude, true)) putScript('jquery.min.js', JQUERY_VERSION);
+	
+	// Check whether any custom scripts have been included
+	if(!empty($include_scripts)) {
+		// Check whether the included scripts are in an array
+		if(is_array($include_scripts)) {
+			// Loop through the array and include the scripts
+			foreach($include_scripts as $script) putThemeScript($script[0].'.js', $script[1] ?? VERSION);
+		}
+	}
+}
+
+/**
+ * Load all footer scripts and stylesheets.
+ * @since 2.4.2[a]
+ *
+ * @param string|array $exclude (optional; default: '')
+ * @param string|array $include_styles (optional; default: array())
+ * @param string|array $include_scripts (optional; default: array())
+ */
+function footerScripts($exclude = '', $include_styles = array(), $include_scripts = array()): void {
+	// Convert $exclude to an array if it isn't already one
+	if(!is_array($exclude)) $exclude = explode(' ', $exclude);
+	
+	// Check whether any custom stylesheets have been included
+	if(!empty($include_styles)) {
+		// Check whether the included stylesheets are in an array
+		if(is_array($include_styles)) {
+			// Loop through the array and include the stylesheets
+			foreach($include_styles as $style) putThemeStylesheet($style[0].'.css', $style[1] ?? VERSION);
+		}
+	}
+	
+	// Default scripts
+	if(!in_array('script', $exclude, true)) putScript('script.js');
+	
+	// Check whether any custom scripts have been included
+	if(!empty($include_scripts)) {
+		// Check whether the included scripts are in an array
+		if(is_array($include_scripts)) {
+			// Loop through the array and include the scripts
+			foreach($include_scripts as $script) putThemeScript($script[0].'.js', $script[1] ?? VERSION);
+		}
+	}
+}
+
+/**
+ * Construct a list of CSS classes for the body tag.
+ * @since 2.2.3[a]
+ *
+ * @param array $addtl_classes (optional; default: array())
+ * @return string
+ */
+function bodyClasses($addtl_classes = array()): string {
+	// Extend the Post and Term objects and the user's session data
+	global $rs_post, $rs_term, $session;
+	
+	// Create an empty array to hold the classes
+	$classes = array();
+	
+	// Check whether the Post object has data
+	if($rs_post) {
+		// Fetch the post's id from the database
+		$id = $rs_post->getPostId();
+		
+		// Fetch the post's parent from the database
+		$parent = $rs_post->getPostParent();
+		
+		// Fetch the post's type from the database
+		$type = $rs_post->getPostType();
+		
+		// Fetch the current theme from the database and add an appropriate class
+		$classes[] = getSetting('theme').'-theme';
+		
+		// Fetch the post's slug from the database and add an appropriate class
+		$classes[] = $rs_post->getPostSlug($id);
+		
+		// Add an appropriate class with the post's type
+		$classes[] = $type;
+		
+		// Add an appropriate class with the post's type and id
+		$classes[] = $type.'-id-'.$id;
+		
+		// Check whether the current page is a child of another page and add an appropriate class if so
+		if($parent !== 0) $classes[] = $rs_post->getPostSlug($parent).'-child';
+		
+		// Check whether the current page is the home page and add an appropriate class if so
+		if(isHomePage($id)) $classes[] = 'home-page';
+	} // Check whether the Term object has data
+	elseif($rs_term) {
+		// Fetch the term's id from the database
+		$id = $rs_term->getTermId();
+		
+		// Fetch the term's taxonomy from the database
+		$taxonomy = $rs_term->getTermTaxonomy();
+		
+		// Fetch the current theme from the database and add an appropriate class
+		$classes[] = getSetting('theme').'-theme';
+		
+		// Fetch the term's slug from the database and add an appropriate class
+		$classes[] = $rs_term->getTermSlug($id);
+		
+		// Add an appropriate class with the term's taxonomy
+		$classes[] = $taxonomy;
+		
+		// Add an appropriate class with the term's taxonomy and id
+		$classes[] = $taxonomy.'-id-'.$id;
+	}
+	
+	// Merge any additional classes with the classes array
+	$classes = array_merge($classes, (array)$addtl_classes);
+	
+	// Check whether the user is logged in and add an appropriate class if so
+	if($session) $classes[] = 'logged-in';
+	
+	// Return the classes as a string
+	return implode(' ', $classes);
+}
+
+/**
+ * Construct an admin bar for logged in users.
+ * @since 2.2.7[a]
+ */
+function adminBar(): void {
+	// Extend the Post object, the user's session data, and the post types and taxonomies arrays
+	global $rs_post, $session, $post_types, $taxonomies;
+	?>
+	<div id="admin-bar">
+		<ul class="menu">
+			<li>
+				<a href="javascript:void(0)"><i class="fas fa-tachometer-alt"></i> <span>Admin</span></a>
+				<ul class="sub-menu">
+					<li><a href="/admin/">Dashboard</a></li>
+					<?php
+					// Loop through the post types
+					foreach($post_types as $post_type) {
+						// Skip any post type that the user doesn't have sufficient privileges to view or that has 'show_in_admin_bar' set to false
+						if(!userHasPrivilege($session['role'], 'can_view_'.str_replace(' ', '_', $post_type['labels']['name_lowercase'])) || !$post_type['show_in_admin_bar']) continue;
+						?>
+						<li>
+							<a href="/admin/<?php echo $post_type['menu_link']; ?>"><?php echo $post_type['label']; ?></a>
+							<?php
+							// Check whether the post type has a valid taxonomy associated with it and has 'show_in_admin_bar' set to true
+							if(!empty($post_type['taxonomy']) && array_key_exists($post_type['taxonomy'], $taxonomies) && userHasPrivilege($session['role'], 'can_view_'.str_replace(' ', '_', $taxonomies[$post_type['taxonomy']]['labels']['name_lowercase'])) && $taxonomies[$post_type['taxonomy']]['show_in_admin_bar']) {
+								?>
+								<ul class="sub-menu">
+									<li>
+										<a href="/admin/<?php echo $taxonomies[$post_type['taxonomy']]['menu_link']; ?>"><?php echo $taxonomies[$post_type['taxonomy']]['label']; ?></a>
+									</li>
+								</ul>
+								<?php
+							}
+							?>
+						</li>
+						<?php
+					}
+					
+					// Check whether the user has sufficient privileges to view comments
+					if(userHasPrivilege($session['role'], 'can_view_comments')) {
+						?>
+						<li><a href="/admin/comments.php">Comments</a></li>
+						<?php
+					}
+					
+					// Check whether the user has sufficient privileges to view customization options
+					if(userHasPrivileges($session['role'], array(
+						'can_view_themes',
+						'can_view_menus',
+						'can_view_widgets'
+					), 'OR')): ?>
+						<li>
+							<a href="javascript:void(0)">Customization</a>
+							<ul class="sub-menu">
+								<?php if(userHasPrivilege($session['role'], 'can_view_themes')): ?>
+									<li><a href="/admin/themes.php">Themes</a></li>
+								<?php endif; ?>
+								<?php if(userHasPrivilege($session['role'], 'can_view_menus')): ?>
+									<li><a href="/admin/menus.php">Menus</a></li>
+								<?php endif; ?>
+								<?php if(userHasPrivilege($session['role'], 'can_view_widgets')): ?>
+									<li><a href="/admin/widgets.php">Widgets</a></li>
+								<?php endif; ?>
+							</ul>
+						</li>
+					<?php endif; ?>
+					<?php if(userHasPrivilege($session['role'], 'can_view_users')): ?>
+						<li><a href="/admin/users.php">Users</a></li>
+					<?php endif; ?>
+					<?php if(userHasPrivileges($session['role'], array(
+						'can_view_login_attempts',
+						'can_view_login_blacklist',
+						'can_view_login_rules'
+					), 'OR')): ?>
+						<li>
+							<a href="javascript:void(0)">Logins</a>
+							<ul class="sub-menu">
+								<?php if(userHasPrivilege($session['role'], 'can_view_login_attempts')): ?>
+									<li><a href="/admin/logins.php">Attempts</a></li>
+								<?php endif; ?>
+								<?php if(userHasPrivilege($session['role'], 'can_view_login_blacklist')): ?>
+									<li><a href="/admin/logins.php?page=blacklist">Blacklist</a></li>
+								<?php endif; ?>
+								<?php if(userHasPrivilege($session['role'], 'can_view_login_rules')): ?>
+									<li><a href="/admin/logins.php?page=rules">Rules</a></li>
+								<?php endif; ?>
+							</ul>
+						</li>
+					<?php endif; ?>
+					<?php if(userHasPrivileges($session['role'], array(
+						'can_edit_settings',
+						'can_view_user_roles'
+					), 'OR')): ?>
+						<li>
+							<a href="javascript:void(0)">Settings</a>
+							<ul class="sub-menu">
+								<?php if(userHasPrivilege($session['role'], 'can_edit_settings')): ?>
+									<li><a href="/admin/settings.php">General</a></li>
+								<?php endif; ?>
+								<?php if(userHasPrivilege($session['role'], 'can_edit_settings')): ?>
+									<li><a href="/admin/settings.php?page=design">Design</a></li>
+								<?php endif; ?>
+								<?php if(userHasPrivilege($session['role'], 'can_view_user_roles')): ?>
+									<li><a href="/admin/settings.php?page=user_roles">User Roles</a></li>
+								<?php endif; ?>
+							</ul>
+						</li>
+					<?php endif; ?>
+				</ul>
+			</li>
+			<li>
+				<a href="javascript:void(0)"><i class="fas fa-plus"></i> <span>New</span></a>
+				<ul class="sub-menu">
+					<?php
+					// Loop through the post types
+					foreach($post_types as $post_type) {
+						// Skip any post type that the user doesn't have sufficient privileges to create or that has 'show_in_admin_bar' set to false
+						if(!userHasPrivilege($session['role'], ($post_type['name'] === 'media' ? 'can_upload_media' : 'can_create_'.str_replace(' ', '_', $post_type['labels']['name_lowercase']))) || !$post_type['show_in_admin_bar']) continue;
+						?>
+						<li>
+							<a href="/admin/<?php echo $post_type['menu_link'].($post_type['name'] === 'media' ? '?action=upload' : ($post_type['name'] === 'post' ? '?action=create' : '&action=create')); ?>"><?php echo $post_type['labels']['name_singular']; ?></a>
+							<?php
+							// Check whether the post type has a valid taxonomy associated with it and has 'show_in_admin_bar' set to true
+							if(!empty($post_type['taxonomy']) && array_key_exists($post_type['taxonomy'], $taxonomies) && userHasPrivilege($session['role'], 'can_create_'.str_replace(' ', '_', $taxonomies[$post_type['taxonomy']]['labels']['name_lowercase'])) && $taxonomies[$post_type['taxonomy']]['show_in_admin_bar']) {
+								?>
+								<ul class="sub-menu">
+									<li>
+										<a href="/admin/<?php echo $taxonomies[$post_type['taxonomy']]['menu_link'].($post_type['taxonomy'] === 'category' ? '?action=create' : '&action=create'); ?>"><?php echo $taxonomies[$post_type['taxonomy']]['labels']['name_singular']; ?></a>
+									</li>
+								</ul>
+								<?php
+							}
+							?>
+						</li>
+						<?php
+					}
+					
+					// Check whether the user has sufficient privileges to view customization options
+					if(userHasPrivileges($session['role'], array(
+						'can_create_themes',
+						'can_create_menus',
+						'can_create_widgets'
+					), 'OR')): ?>
+						<li>
+							<a href="javascript:void(0)">Customization</a>
+							<ul class="sub-menu">
+								<?php if(userHasPrivilege($session['role'], 'can_create_themes')): ?>
+									<li><a href="/admin/themes.php?action=create">Theme</a></li>
+								<?php endif; ?>
+								<?php if(userHasPrivilege($session['role'], 'can_create_menus')): ?>
+									<li><a href="/admin/menus.php?action=create">Menu</a></li>
+								<?php endif; ?>
+								<?php if(userHasPrivilege($session['role'], 'can_create_widgets')): ?>
+									<li><a href="/admin/widgets.php?action=create">Widget</a></li>
+								<?php endif; ?>
+							</ul>
+						</li>
+					<?php endif; ?>
+					<?php if(userHasPrivilege($session['role'], 'can_create_users')): ?>
+						<li><a href="/admin/users.php?action=create">User</a></li>
+					<?php endif; ?>
+					<?php if(userHasPrivilege($session['role'], 'can_create_login_rules')): ?>
+						<li>
+							<a href="javascript:void(0)">Login</a>
+							<ul class="sub-menu">
+								<li><a href="/admin/logins.php?page=rules&action=create">Rule</a></li>
+							</ul>
+						</li>
+					<?php endif; ?>
+					<?php if(userHasPrivilege($session['role'], 'can_create_user_roles')): ?>
+						<li>
+							<a href="javascript:void(0)">Settings</a>
+							<ul class="sub-menu">
+								<li><a href="/admin/settings.php?page=user_roles&action=create">User Roles</a></li>
+							</ul>
+						</li>
+					<?php endif; ?>
+				</ul>
+			</li>
+			<?php if(!is_null($rs_post)): ?>
+				<li>
+					<a href="/admin/posts.php?id=<?php echo $rs_post->getPostId(); ?>&action=edit"><i class="fas fa-feather-alt"></i> <span>Edit</span></a>
+				</li>
+			<?php endif; ?>
+		</ul>
+		<div class="user-dropdown">
+			<span>Welcome, <?php echo $session['username']; ?></span>
+			<?php echo getMedia($session['avatar'], array(
+				'class' => 'avatar',
+				'width' => 20,
+				'height' => 20
+			)); ?>
+			<ul class="user-dropdown-menu">
+				<?php echo getMedia($session['avatar'], array(
+					'class' => 'avatar-large',
+					'width' => 100,
+					'height' => 100
+				)); ?>
+				<li><a href="/admin/profile.php">My Profile</a></li>
+				<li><a href="/login.php?action=logout">Log Out</a></li>
+			</ul>
+		</div>
+	</div>
+	<?php
+}
+
+/*------------------------------------*\
+    MISCELLANEOUS
+\*------------------------------------*/
 
 /**
  * Check whether a post type exists in the database.
@@ -38,7 +459,7 @@ define('COOKIE_HASH', md5(getSetting('site_url', false)));
  * @param string $type
  * @return bool
  */
-function postTypeExists($type) {
+function postTypeExists($type): bool {
 	// Extend the Query object
 	global $rs_query;
 	
@@ -56,7 +477,7 @@ function postTypeExists($type) {
  * @param string $taxonomy
  * @return bool
  */
-function taxonomyExists($taxonomy) {
+function taxonomyExists($taxonomy): bool {
 	// Extend the Query object
 	global $rs_query;
 	
@@ -68,51 +489,13 @@ function taxonomyExists($taxonomy) {
 }
 
 /**
- * Fetch a theme-specific script file.
- * @since 2.0.7[a]
- *
- * @param string $script
- * @param string $version (optional; default: VERSION)
- * @param bool $echo (optional; default: true)
- * @return null|string (null on $echo == true; string on $echo == false)
- */
-function getThemeScript($script, $version = VERSION, $echo = true) {
-	// Construct the file path for the current theme
-	$theme_path = trailingSlash(THEMES).getSetting('theme', false);
-	
-	if($echo)
-		echo '<script src="'.trailingSlash($theme_path).$script.(!empty($version) ? '?v='.$version : '').'"></script>';
-	else
-		return '<script src="'.trailingSlash($theme_path).$script.(!empty($version) ? '?v='.$version : '').'"></script>';
-}
-
-/**
- * Fetch a theme-specific stylesheet.
- * @since 2.0.7[a]
- *
- * @param string $stylesheet
- * @param string $version (optional; default: VERSION)
- * @param bool $echo (optional; default: true)
- * @return null|string (null on $echo == true; string on $echo == false)
- */
-function getThemeStylesheet($stylesheet, $version = VERSION, $echo = true) {
-	// Construct the file path for the current theme
-	$theme_path = trailingSlash(THEMES).getSetting('theme', false);
-	
-	if($echo)
-		echo '<link href="'.trailingSlash($theme_path).$stylesheet.(!empty($version) ? '?v='.$version : '').'" rel="stylesheet">';
-	else
-		return '<link href="'.trailingSlash($theme_path).$stylesheet.(!empty($version) ? '?v='.$version : '').'" rel="stylesheet">';
-}
-
-/**
  * Create a Post object based on a provided slug.
  * @since 2.2.3[a]
  *
  * @param string $slug
  * @return object
  */
-function getPost($slug) {
+function getPost($slug): object {
 	return new Post($slug);
 }
 
@@ -123,7 +506,7 @@ function getPost($slug) {
  * @param string $slug
  * @return object
  */
-function getTerm($slug) {
+function getTerm($slug): object {
 	return new Term($slug);
 }
 
@@ -135,7 +518,7 @@ function getTerm($slug) {
  * @param string $slug
  * @return object
  */
-function getCategory($slug) {
+function getCategory($slug): object {
 	return getTerm($slug);
 }
 
@@ -144,9 +527,8 @@ function getCategory($slug) {
  * @since 2.2.3[a]
  *
  * @param string $slug
- * @return null
  */
-function getMenu($slug) {
+function getMenu($slug): void {
 	// Create a Menu object
 	$rs_menu = new Menu;
 	
@@ -160,9 +542,8 @@ function getMenu($slug) {
  *
  * @param string $slug
  * @param bool $display_title (optional; default: false)
- * @return null
  */
-function getWidget($slug, $display_title = false) {
+function getWidget($slug, $display_title = false): void {
 	// Extend the Query object
 	global $rs_query;
 	
@@ -214,7 +595,7 @@ function getWidget($slug, $display_title = false) {
  * @param string $name
  * @param string $slug
  */
-function registerMenu($name, $slug) {
+function registerMenu($name, $slug): void {
 	// Extend the Query object
 	global $rs_query;
 	
@@ -242,7 +623,7 @@ function registerMenu($name, $slug) {
  * @param string $title
  * @param string $slug
  */
-function registerWidget($title, $slug) {
+function registerWidget($title, $slug): void {
 	// Extend the Query object
 	global $rs_query;
 	
@@ -267,348 +648,6 @@ function registerWidget($title, $slug) {
 }
 
 /**
- * Load all header scripts and stylesheets.
- * @since 2.4.2[a]
- *
- * @param string|array $exclude (optional; default: '')
- * @param string|array $include_styles (optional; default: array())
- * @param string|array $include_scripts (optional; default: array())
- * @return null
- */
-function headerScripts($exclude = '', $include_styles = array(), $include_scripts = array()) {
-	// Convert $exclude to an array if it isn't already one
-	if(!is_array($exclude)) $exclude = explode(' ', $exclude);
-	
-	// Button stylesheet
-	if(!in_array('button', $exclude, true)) getStylesheet('button.min.css');
-	
-	// Default stylesheet
-	if(!in_array('style', $exclude, true)) getStylesheet('style.min.css');
-	
-	if(!in_array('fa', $exclude, true)) {
-		// Font Awesome icons stylesheet
-		getStylesheet('font-awesome.min.css', ICONS_VERSION);
-	
-		// Font Awesome font-face rules stylesheet
-		getStylesheet('font-awesome-rules.min.css');
-	}
-	
-	// Check whether any custom stylesheets have been included
-	if(!empty($include_styles)) {
-		// Check whether the included stylesheets are in an array
-		if(is_array($include_styles)) {
-			// Loop through the array and include the stylesheets
-			foreach($include_styles as $style) getThemeStylesheet($style[0].'.css', $style[1] ?? VERSION);
-		}
-	}
-	
-	// jQuery library
-	if(!in_array('jquery', $exclude, true)) getScript('jquery.min.js', JQUERY_VERSION);
-	
-	// Check whether any custom scripts have been included
-	if(!empty($include_scripts)) {
-		// Check whether the included scripts are in an array
-		if(is_array($include_scripts)) {
-			// Loop through the array and include the scripts
-			foreach($include_scripts as $script) getThemeScript($script[0].'.js', $script[1] ?? VERSION);
-		}
-	}
-}
-
-/**
- * Load all footer scripts and stylesheets.
- * @since 2.4.2[a]
- *
- * @param string|array $exclude (optional; default: '')
- * @param string|array $include_styles (optional; default: array())
- * @param string|array $include_scripts (optional; default: array())
- * @return null
- */
-function footerScripts($exclude = '', $include_styles = array(), $include_scripts = array()) {
-	// Convert $exclude to an array if it isn't already one
-	if(!is_array($exclude)) $exclude = explode(' ', $exclude);
-	
-	// Check whether any custom stylesheets have been included
-	if(!empty($include_styles)) {
-		// Check whether the included stylesheets are in an array
-		if(is_array($include_styles)) {
-			// Loop through the array and include the stylesheets
-			foreach($include_styles as $style) getThemeStylesheet($style[0].'.css', $style[1] ?? VERSION);
-		}
-	}
-	
-	// Default scripts
-	if(!in_array('script', $exclude, true)) getScript('script.js');
-	
-	// Check whether any custom scripts have been included
-	if(!empty($include_scripts)) {
-		// Check whether the included scripts are in an array
-		if(is_array($include_scripts)) {
-			// Loop through the array and include the scripts
-			foreach($include_scripts as $script) getThemeScript($script[0].'.js', $script[1] ?? VERSION);
-		}
-	}
-}
-
-/**
- * Construct a list of CSS classes for the body tag.
- * @since 2.2.3[a]
- *
- * @param array $addtl_classes (optional; default: array())
- * @return string
- */
-function bodyClasses($addtl_classes = array()) {
-	// Extend the Post and Term objects and the user's session data
-	global $rs_post, $rs_term, $session;
-	
-	// Create an empty array to hold the classes
-	$classes = array();
-	
-	// Check whether the Post object has data
-	if($rs_post) {
-		// Fetch the post's id from the database
-		$id = $rs_post->getPostId();
-		
-		// Fetch the post's parent from the database
-		$parent = $rs_post->getPostParent();
-		
-		// Fetch the post's type from the database
-		$type = $rs_post->getPostType();
-		
-		// Fetch the current theme from the database and add an appropriate class
-		$classes[] = getSetting('theme', false).'-theme';
-		
-		// Fetch the post's slug from the database and add an appropriate class
-		$classes[] = $rs_post->getPostSlug($id);
-		
-		// Add an appropriate class with the post's type
-		$classes[] = $type;
-		
-		// Add an appropriate class with the post's type and id
-		$classes[] = $type.'-id-'.$id;
-		
-		// Check whether the current page is a child of another page and add an appropriate class if so
-		if($parent !== 0) $classes[] = $rs_post->getPostSlug($parent).'-child';
-		
-		// Check whether the current page is the home page and add an appropriate class if so
-		if(isHomePage($id)) $classes[] = 'home-page';
-	} // Check whether the Term object has data
-	elseif($rs_term) {
-		// Fetch the term's id from the database
-		$id = $rs_term->getTermId();
-		
-		// Fetch the term's taxonomy from the database
-		$taxonomy = $rs_term->getTermTaxonomy();
-		
-		// Fetch the current theme from the database and add an appropriate class
-		$classes[] = getSetting('theme', false).'-theme';
-		
-		// Fetch the term's slug from the database and add an appropriate class
-		$classes[] = $rs_term->getTermSlug($id);
-		
-		// Add an appropriate class with the term's taxonomy
-		$classes[] = $taxonomy;
-		
-		// Add an appropriate class with the term's taxonomy and id
-		$classes[] = $taxonomy.'-id-'.$id;
-	}
-	
-	// Merge any additional classes with the classes array
-	$classes = array_merge($classes, (array)$addtl_classes);
-	
-	// Check whether the user is logged in and add an appropriate class if so
-	if($session) $classes[] = 'logged-in';
-	
-	// Return the classes as a string
-	return implode(' ', $classes);
-}
-
-/**
- * Construct an admin bar for logged in users.
- * @since 2.2.7[a]
- *
- * @return null
- */
-function adminBar() {
-	// Extend the Post object, the user's session data, and the post types and taxonomies arrays
-	global $rs_post, $session, $post_types, $taxonomies;
-	?>
-	<div id="admin-bar">
-		<ul class="menu">
-			<li>
-				<a href="javascript:void(0)"><i class="fas fa-tachometer-alt"></i> <span>Admin</span></a>
-				<ul class="sub-menu">
-					<li><a href="/admin/">Dashboard</a></li>
-					<?php
-					// Loop through the post types
-					foreach($post_types as $post_type) {
-						// Skip any post type that the user doesn't have sufficient privileges to view or that has 'show_in_admin_bar' set to false
-						if(!userHasPrivilege($session['role'], 'can_view_'.str_replace(' ', '_', $post_type['labels']['name_lowercase'])) || !$post_type['show_in_admin_bar']) continue;
-						?>
-						<li>
-							<a href="/admin/<?php echo $post_type['menu_link']; ?>"><?php echo $post_type['label']; ?></a>
-							<?php
-							// Check whether the post type has a valid taxonomy associated with it and has 'show_in_admin_bar' set to true
-							if(!empty($post_type['taxonomy']) && array_key_exists($post_type['taxonomy'], $taxonomies) && userHasPrivilege($session['role'], 'can_view_'.str_replace(' ', '_', $taxonomies[$post_type['taxonomy']]['labels']['name_lowercase'])) && $taxonomies[$post_type['taxonomy']]['show_in_admin_bar']) {
-								?>
-								<ul class="sub-menu">
-									<li>
-										<a href="/admin/<?php echo $taxonomies[$post_type['taxonomy']]['menu_link']; ?>"><?php echo $taxonomies[$post_type['taxonomy']]['label']; ?></a>
-									</li>
-								</ul>
-								<?php
-							}
-							?>
-						</li>
-						<?php
-					}
-					
-					// Check whether the user has sufficient privileges to view comments
-					if(userHasPrivilege($session['role'], 'can_view_comments')) {
-						?>
-						<li><a href="/admin/comments.php">Comments</a></li>
-						<?php
-					}
-					
-					// Check whether the user has sufficient privileges to view customization options
-					if(userHasPrivileges($session['role'], array('can_view_themes', 'can_view_menus', 'can_view_widgets'), 'OR')): ?>
-						<li>
-							<a href="javascript:void(0)">Customization</a>
-							<ul class="sub-menu">
-								<?php if(userHasPrivilege($session['role'], 'can_view_themes')): ?>
-									<li><a href="/admin/themes.php">Themes</a></li>
-								<?php endif; ?>
-								<?php if(userHasPrivilege($session['role'], 'can_view_menus')): ?>
-									<li><a href="/admin/menus.php">Menus</a></li>
-								<?php endif; ?>
-								<?php if(userHasPrivilege($session['role'], 'can_view_widgets')): ?>
-									<li><a href="/admin/widgets.php">Widgets</a></li>
-								<?php endif; ?>
-							</ul>
-						</li>
-					<?php endif; ?>
-					<?php if(userHasPrivilege($session['role'], 'can_view_users')): ?>
-						<li><a href="/admin/users.php">Users</a></li>
-					<?php endif; ?>
-					<?php if(userHasPrivileges($session['role'], array('can_view_login_attempts', 'can_view_login_blacklist', 'can_view_login_rules'), 'OR')): ?>
-						<li>
-							<a href="javascript:void(0)">Logins</a>
-							<ul class="sub-menu">
-								<?php if(userHasPrivilege($session['role'], 'can_view_login_attempts')): ?>
-									<li><a href="/admin/logins.php">Attempts</a></li>
-								<?php endif; ?>
-								<?php if(userHasPrivilege($session['role'], 'can_view_login_blacklist')): ?>
-									<li><a href="/admin/logins.php?page=blacklist">Blacklist</a></li>
-								<?php endif; ?>
-								<?php if(userHasPrivilege($session['role'], 'can_view_login_rules')): ?>
-									<li><a href="/admin/logins.php?page=rules">Rules</a></li>
-								<?php endif; ?>
-							</ul>
-						</li>
-					<?php endif; ?>
-					<?php if(userHasPrivileges($session['role'], array('can_edit_settings', 'can_view_user_roles'), 'OR')): ?>
-						<li>
-							<a href="javascript:void(0)">Settings</a>
-							<ul class="sub-menu">
-								<?php if(userHasPrivilege($session['role'], 'can_edit_settings')): ?>
-									<li><a href="/admin/settings.php">General</a></li>
-								<?php endif; ?>
-								<?php if(userHasPrivilege($session['role'], 'can_edit_settings')): ?>
-									<li><a href="/admin/settings.php?page=design">Design</a></li>
-								<?php endif; ?>
-								<?php if(userHasPrivilege($session['role'], 'can_view_user_roles')): ?>
-									<li><a href="/admin/settings.php?page=user_roles">User Roles</a></li>
-								<?php endif; ?>
-							</ul>
-						</li>
-					<?php endif; ?>
-				</ul>
-			</li>
-			<li>
-				<a href="javascript:void(0)"><i class="fas fa-plus"></i> <span>New</span></a>
-				<ul class="sub-menu">
-					<?php
-					// Loop through the post types
-					foreach($post_types as $post_type) {
-						// Skip any post type that the user doesn't have sufficient privileges to create or that has 'show_in_admin_bar' set to false
-						if(!userHasPrivilege($session['role'], ($post_type['name'] === 'media' ? 'can_upload_media' : 'can_create_'.str_replace(' ', '_', $post_type['labels']['name_lowercase']))) || !$post_type['show_in_admin_bar']) continue;
-						?>
-						<li>
-							<a href="/admin/<?php echo $post_type['menu_link'].($post_type['name'] === 'media' ? '?action=upload' : ($post_type['name'] === 'post' ? '?action=create' : '&action=create')); ?>"><?php echo $post_type['labels']['name_singular']; ?></a>
-							<?php
-							// Check whether the post type has a valid taxonomy associated with it and has 'show_in_admin_bar' set to true
-							if(!empty($post_type['taxonomy']) && array_key_exists($post_type['taxonomy'], $taxonomies) && userHasPrivilege($session['role'], 'can_create_'.str_replace(' ', '_', $taxonomies[$post_type['taxonomy']]['labels']['name_lowercase'])) && $taxonomies[$post_type['taxonomy']]['show_in_admin_bar']) {
-								?>
-								<ul class="sub-menu">
-									<li>
-										<a href="/admin/<?php echo $taxonomies[$post_type['taxonomy']]['menu_link'].($post_type['taxonomy'] === 'category' ? '?action=create' : '&action=create'); ?>"><?php echo $taxonomies[$post_type['taxonomy']]['labels']['name_singular']; ?></a>
-									</li>
-								</ul>
-								<?php
-							}
-							?>
-						</li>
-						<?php
-					}
-					
-					// Check whether the user has sufficient privileges to view customization options
-					if(userHasPrivileges($session['role'], array('can_create_themes', 'can_create_menus', 'can_create_widgets'), 'OR')): ?>
-						<li>
-							<a href="javascript:void(0)">Customization</a>
-							<ul class="sub-menu">
-								<?php if(userHasPrivilege($session['role'], 'can_create_themes')): ?>
-									<li><a href="/admin/themes.php?action=create">Theme</a></li>
-								<?php endif; ?>
-								<?php if(userHasPrivilege($session['role'], 'can_create_menus')): ?>
-									<li><a href="/admin/menus.php?action=create">Menu</a></li>
-								<?php endif; ?>
-								<?php if(userHasPrivilege($session['role'], 'can_create_widgets')): ?>
-									<li><a href="/admin/widgets.php?action=create">Widget</a></li>
-								<?php endif; ?>
-							</ul>
-						</li>
-					<?php endif; ?>
-					<?php if(userHasPrivilege($session['role'], 'can_create_users')): ?>
-						<li><a href="/admin/users.php?action=create">User</a></li>
-					<?php endif; ?>
-					<?php if(userHasPrivilege($session['role'], 'can_create_login_rules')): ?>
-						<li>
-							<a href="javascript:void(0)">Login</a>
-							<ul class="sub-menu">
-								<li><a href="/admin/logins.php?page=rules&action=create">Rule</a></li>
-							</ul>
-						</li>
-					<?php endif; ?>
-					<?php if(userHasPrivilege($session['role'], 'can_create_user_roles')): ?>
-						<li>
-							<a href="javascript:void(0)">Settings</a>
-							<ul class="sub-menu">
-								<li><a href="/admin/settings.php?page=user_roles&action=create">User Roles</a></li>
-							</ul>
-						</li>
-					<?php endif; ?>
-				</ul>
-			</li>
-			<?php if(!is_null($rs_post)): ?>
-				<li>
-					<a href="/admin/posts.php?id=<?php echo $rs_post->getPostId(); ?>&action=edit"><i class="fas fa-feather-alt"></i> <span>Edit</span></a>
-				</li>
-			<?php endif; ?>
-		</ul>
-		<div class="user-dropdown">
-			<span>Welcome, <?php echo $session['username']; ?></span>
-			<?php echo getMedia($session['avatar'], array('class' => 'avatar', 'width' => 20, 'height' => 20)); ?>
-			<ul class="user-dropdown-menu">
-				<?php echo getMedia($session['avatar'], array('class' => 'avatar-large', 'width' => 100, 'height' => 100)); ?>
-				<li><a href="/admin/profile.php">My Profile</a></li>
-				<li><a href="/login.php?action=logout">Log Out</a></li>
-			</ul>
-		</div>
-	</div>
-	<?php
-}
-
-/**
  * Generate a random hash.
  * @since 2.0.5[a]
  *
@@ -617,7 +656,7 @@ function adminBar() {
  * @param string $salt (optional; default: '')
  * @return string
  */
-function generateHash($length = 20, $special_chars = true, $salt = '') {
+function generateHash($length = 20, $special_chars = true, $salt = ''): string {
 	// Regular characters
 	$chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 	
@@ -646,7 +685,7 @@ function generateHash($length = 20, $special_chars = true, $salt = '') {
  * @param array $fields
  * @return string
  */
-function formatEmail($heading, $fields) {
+function formatEmail($heading, $fields): string {
 	$content = '<div style="background-color: #ededed; padding: 3rem 0;">';
 	$content .= '<div style="background-color: #fdfdfd; border: 1px solid #cdcdcd; border-top-color: #ededed; color: #101010 !important; margin: 0 auto; padding: 0.75rem 1.5rem; width: 60%;">';
 	$content .= !empty($heading) ? '<h2 style="text-align: center;">'.$heading.'</h2>' : '';

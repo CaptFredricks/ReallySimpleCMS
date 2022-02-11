@@ -73,7 +73,7 @@ class Comment {
 	 *
 	 * @access public
 	 */
-	public function listComments() {
+	public function listComments(): void {
 		// Extend the Query object and the user's session data
 		global $rs_query, $session;
 		
@@ -241,7 +241,7 @@ class Comment {
 	 *
 	 * @access public
 	 */
-	public function editComment() {
+	public function editComment(): void {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -306,7 +306,7 @@ class Comment {
 	 * @param string $status
 	 * @param int $id (optional; default: 0)
 	 */
-	public function updateCommentStatus($status, $id = 0) {
+	public function updateCommentStatus($status, $id = 0): void {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -341,33 +341,12 @@ class Comment {
 	 *
 	 * @access public
 	 */
-	public function approveComment() {
-		// Extend the Query object
-		global $rs_query;
+	public function approveComment(): void {
+		// Set the comment's status to 'approved'
+		$this->updateCommentStatus('approved');
 		
-		// Check whether the comment's id is valid
-		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the "List Comments" page
-			redirect(ADMIN_URI);
-		} else {
-			// Set the comment's status to 'approved'
-			$rs_query->update('comments', array('status' => 'approved'), array('id' => $this->id));
-			
-			// Fetch the number of approved comments attached to the current comment's post
-			$count = $rs_query->select('comments', 'COUNT(*)', array(
-				'post' => $this->post,
-				'status' => 'approved'
-			));
-			
-			// Update the post's comment count in the database
-			$rs_query->update('postmeta', array('value' => $count), array(
-				'post' => $this->post,
-				'_key' => 'comment_count'
-			));
-			
-			// Redirect to the "List Comments" page
-			redirect(ADMIN_URI);
-		}
+		// Redirect to the "List Comments" page
+		redirect(ADMIN_URI);
 	}
 	
 	/**
@@ -376,33 +355,12 @@ class Comment {
 	 *
 	 * @access public
 	 */
-	public function unapproveComment() {
-		// Extend the Query object
-		global $rs_query;
+	public function unapproveComment(): void {
+		// Set the comment's status to 'unapproved'
+		$this->updateCommentStatus('unapproved');
 		
-		// Check whether the comment's id is valid
-		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the "List Comments" page
-			redirect(ADMIN_URI);
-		} else {
-			// Set the comment's status to 'unapproved'
-			$rs_query->update('comments', array('status' => 'unapproved'), array('id' => $this->id));
-			
-			// Fetch the number of approved comments attached to the current comment's post
-			$count = $rs_query->select('comments', 'COUNT(*)', array(
-				'post' => $this->post,
-				'status' => 'approved'
-			));
-			
-			// Update the post's comment count in the database
-			$rs_query->update('postmeta', array('value' => $count), array(
-				'post' => $this->post,
-				'_key' => 'comment_count'
-			));
-			
-			// Redirect to the "List Comments" page
-			redirect(ADMIN_URI);
-		}
+		// Redirect to the "List Comments" page
+		redirect(ADMIN_URI);
 	}
 	
 	/**
@@ -411,7 +369,7 @@ class Comment {
 	 *
 	 * @access public
 	 */
-	public function deleteComment() {
+	public function deleteComment(): void {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -449,7 +407,7 @@ class Comment {
 	 * @param int $id
 	 * @return string
 	 */
-	private function validateData($data, $id) {
+	private function validateData($data, $id): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -482,7 +440,7 @@ class Comment {
 	 * @param int $id
 	 * @return string
 	 */
-	private function getPost($id) {
+	private function getPost($id): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -501,7 +459,7 @@ class Comment {
 	 * @param int $id
 	 * @return string
 	 */
-	private function getPostPermalink($id) {
+	private function getPostPermalink($id): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -524,7 +482,7 @@ class Comment {
 	 * @param int $id
 	 * @return string
 	 */
-	private function getAuthor($id) {
+	private function getAuthor($id): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -543,7 +501,7 @@ class Comment {
 	 * @param string $status (optional; default: '')
 	 * @return int
 	 */
-	private function getCommentCount($status = '') {
+	private function getCommentCount($status = ''): int {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -563,7 +521,7 @@ class Comment {
 	 *
 	 * @access private
 	 */
-	private function bulkActions() {
+	private function bulkActions(): void {
 		// Extend the user's session data
 		global $session;
 		?>

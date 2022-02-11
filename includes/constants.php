@@ -15,7 +15,7 @@ define('PHP_MINIMUM', '7.3');
 define('PHP_RECOMMENDED', '7.4');
 
 // Current CMS version
-define('VERSION', '1.2.9');
+define('VERSION', '1.3.0');
 
 // Current jQuery version
 define('JQUERY_VERSION', '3.6.0');
@@ -50,6 +50,31 @@ define('THEMES', CONT.'/themes');
 
 // Path to the uploads directory
 define('UPLOADS', CONT.'/uploads');
+
+/*------------------------------------*\
+    FILES
+\*------------------------------------*/
+
+// Path to the database configuration file
+define('DB_CONFIG', PATH.'/config.php');
+
+// Path to the database schema file
+define('DB_SCHEMA', PATH.INC.'/schema.php');
+
+// Path to the Query class
+define('QUERY_CLASS', PATH.INC.'/class-query.php');
+
+// Path to the primary functions file
+define('FUNC', PATH.INC.'/functions.php');
+
+// Path to the admin functions file
+define('ADMIN_FUNC', PATH.ADMIN.INC.'/functions.php');
+
+// Path to the debugging functions file
+define('DEBUG_FUNC', PATH.INC.'/debug.php');
+
+// Path to the global functions file
+define('GLOBAL_FUNC', PATH.INC.'/global-functions.php');
 
 /*------------------------------------*\
     MISCELLANEOUS

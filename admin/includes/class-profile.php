@@ -11,9 +11,8 @@ class Profile extends User {
 	 * @since 2.0.0[a]
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function editProfile() {
+	public function editProfile(): void {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -122,7 +121,10 @@ class Profile extends User {
 					?>
 				</table>
 			</form>
-			<?php echo actionLink('reset_password', array('classes' => 'reset-password button', 'caption' => 'Reset Password')); ?>
+			<?php echo actionLink('reset_password', array(
+				'classes' => 'reset-password button',
+				'caption' => 'Reset Password'
+			)); ?>
 		</div>
 		<?php
 		// Include the upload modal
@@ -137,7 +139,7 @@ class Profile extends User {
 	 * @param array $data
 	 * @return string
 	 */
-	private function validateData($data) {
+	private function validateData($data): string {
 		// Extend the Query object and the user's session data
 		global $rs_query, $session;
 		
@@ -182,7 +184,7 @@ class Profile extends User {
 	 * @param string $current
 	 * @return string
 	 */
-	private function getThemesList($current) {
+	private function getThemesList($current): string {
 		// Extend the Query object
 		global $rs_query;
 		
@@ -219,9 +221,8 @@ class Profile extends User {
 	 * @since 2.0.7[a]
 	 *
 	 * @access public
-	 * @return null
 	 */
-	public function resetPassword() {
+	public function resetPassword(): void {
 		// Check whether the form has been submitted
 		if(isset($_POST['submit'])) {
 			// Validate the form data and return any messages
@@ -247,11 +248,55 @@ class Profile extends User {
 			<form class="data-form" action="" method="post" autocomplete="off">
 				<table class="form-table">
 					<?php
-					echo formRow('Current Password', array('tag' => 'input', 'type' => 'password', 'class' => 'text-input required invalid init', 'name' => 'current_pass'));
-					echo formRow('New Password', array('tag' => 'input', 'id' => 'password-field', 'class' => 'text-input required invalid init', 'name' => 'new_pass'), array('tag' => 'input', 'type' => 'button', 'id' => 'password-gen', 'class' => 'button-input button', 'value' => 'Generate Password'), array('tag' => 'label', 'class' => 'checkbox-label hidden required invalid init', 'content' => formTag('br', array('class' => 'spacer')).formTag('input', array('type' => 'checkbox', 'class' => 'checkbox-input', 'name' => 'pass_saved', 'value' => 1)).formTag('span', array('content' => 'I have copied the password to a safe place.'))));
-					echo formRow('New Password (confirm)', array('tag' => 'input', 'class' => 'text-input required invalid init', 'name' => 'confirm_pass'));
+					// Current password
+					echo formRow('Current Password', array(
+						'tag' => 'input',
+						'type' => 'password',
+						'class' => 'text-input required invalid init',
+						'name' => 'current_pass'
+					));
+					
+					// New password
+					echo formRow('New Password', array(
+						'tag' => 'input',
+						'id' => 'password-field',
+						'class' => 'text-input required invalid init',
+						'name' => 'new_pass'
+					), array(
+						'tag' => 'input',
+						'type' => 'button',
+						'id' => 'password-gen',
+						'class' => 'button-input button',
+						'value' => 'Generate Password'
+					), array(
+						'tag' => 'label',
+						'class' => 'checkbox-label hidden required invalid init',
+						'content' => formTag('br', array('class' => 'spacer')).formTag('input', array(
+							'type' => 'checkbox',
+							'class' => 'checkbox-input',
+							'name' => 'pass_saved',
+							'value' => 1
+						)).formTag('span', array('content' => 'I have copied the password to a safe place.'))
+					));
+					
+					// New password (confirmation)
+					echo formRow('New Password (confirm)', array(
+						'tag' => 'input',
+						'class' => 'text-input required invalid init',
+						'name' => 'confirm_pass'
+					));
+					
+					// Separator
 					echo formRow('', array('tag' => 'hr', 'class' => 'separator'));
-					echo formRow('', array('tag' => 'input', 'type' => 'submit', 'class' => 'submit-input button', 'name' => 'submit', 'value' => 'Update Password'));
+					
+					// Submit button
+					echo formRow('', array(
+						'tag' => 'input',
+						'type' => 'submit',
+						'class' => 'submit-input button',
+						'name' => 'submit',
+						'value' => 'Update Password'
+					));
 					?>
 				</table>
 			</form>
@@ -268,7 +313,7 @@ class Profile extends User {
 	 * @param int $id
 	 * @return string
 	 */
-	private function validatePasswordData($data, $id) {
+	private function validatePasswordData($data, $id): string {
 		// Extend the Query object
 		global $rs_query;
 		

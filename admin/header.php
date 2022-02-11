@@ -3,14 +3,14 @@
 require_once dirname(__DIR__).'/init.php';
 
 // Include admin functions
-require_once PATH.ADMIN.INC.'/functions.php';
+require_once ADMIN_FUNC;
 
 // Include functions
-require_once PATH.INC.'/functions.php';
+require_once FUNC;
 
 // Check whether the current theme has a functions.php file and include it if so
-if(file_exists(trailingSlash(PATH.THEMES).getSetting('theme', false).'/functions.php'))
-	require_once trailingSlash(PATH.THEMES).getSetting('theme', false).'/functions.php';
+if(file_exists(trailingSlash(PATH.THEMES).getSetting('theme').'/functions.php'))
+	require_once trailingSlash(PATH.THEMES).getSetting('theme').'/functions.php';
 
 // Start output buffering
 ob_start();
@@ -30,19 +30,19 @@ $current_page = getCurrentPage();
 <!DOCTYPE html>
 <html>
 	<head>
-		<title><?php echo getPageTitle(); ?> &rtrif; <?php getSetting('site_title'); ?> &mdash; <?php echo CMS_NAME; ?></title>
+		<title><?php echo getPageTitle(); ?> &rtrif; <?php putSetting('site_title'); ?> &mdash; <?php echo CMS_NAME; ?></title>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="robots" content="noindex, nofollow">
 		<meta name="theme-color" content="#e0e0e0">
-		<link type="image/x-icon" href="<?php echo getMediaSrc(getSetting('site_icon', false)); ?>" rel="icon">
+		<link type="image/x-icon" href="<?php echo getMediaSrc(getSetting('site_icon')); ?>" rel="icon">
 		<?php adminHeaderScripts(); ?>
 	</head>
 	<body class="<?php echo $current_page; ?>">
 		<header id="admin-header">
 			<a id="site-title" href="/">
 				<i class="fas fa-home"></i>
-				<span><?php getSetting('site_title'); ?></span>
+				<span><?php putSetting('site_title'); ?></span>
 			</a>
 			<div class="user-dropdown">
 				<span>Welcome, <?php echo $session['username']; ?></span>

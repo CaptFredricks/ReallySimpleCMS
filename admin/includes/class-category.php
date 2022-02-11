@@ -9,45 +9,49 @@
 class Category extends Term {
 	/**
 	 * Construct a list of all categories in the database.
+	 * Alias for the Term class' listCategories function.
 	 * @since 1.5.0[a]
 	 *
+	 * @see Term::listCategories()
 	 * @access public
-	 * @return null
 	 */
-	public function listCategories() {
+	public function listCategories(): void {
 		$this->listTerms();
 	}
 	
 	/**
 	 * Create a category.
+	 * Alias for the Term class' createCategory function.
 	 * @since 1.5.0[a]
 	 *
+	 * @see Term::createCategory()
 	 * @access public
-	 * @return null
 	 */
-	public function createCategory() {
+	public function createCategory(): void {
 		$this->createTerm();
 	}
 	
 	/**
 	 * Edit a category.
+	 * Alias for the Term class' editCategory function.
 	 * @since 1.5.1[a]
 	 *
+	 * @see Term::editCategory()
 	 * @access public
-	 * @return null
 	 */
-	public function editCategory() {
+	public function editCategory(): void {
 		$this->editTerm();
 	}
 	
 	/**
 	 * Delete a category.
+	 * Alias for the Term class' deleteCategory function.
 	 * @since 1.5.1[a]
 	 *
+	 * @see Term::deleteCategory()
 	 * @access public
-	 * @return null
 	 */
-	public function deleteCategory() {
+	public function deleteCategory(): void {
 		$this->deleteTerm();
 	}
 }

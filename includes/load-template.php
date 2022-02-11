@@ -5,7 +5,7 @@
  */
 
 // Construct the file path for the current theme
-$theme_path = trailingSlash(PATH.THEMES).getSetting('theme', false);
+$theme_path = trailingSlash(PATH.THEMES).getSetting('theme');
 
 // Check whether the theme has an index.php file
 if(file_exists($theme_path.'/index.php')) {
@@ -76,9 +76,9 @@ if(file_exists($theme_path.'/index.php')) {
 		}
 	} else {
 		// Load the fallback theme
-		require_once PATH.INC.'/fallback.php';
+		require_once PATH.INC.'/fallback-theme.php';
 	}
 } else {
 	// Load the fallback theme
-	require_once PATH.INC.'/fallback.php';
+	require_once PATH.INC.'/fallback-theme.php';
 }

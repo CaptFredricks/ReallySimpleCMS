@@ -38,9 +38,8 @@ registerWidget('Copyright', 'copyright');
  * @param int $count (optional; default: 3)
  * @param array $terms (optional; default: 0)
  * @param bool $display_title (optional; default: false)
- * @return null
  */
-function getRecentPosts($count = 3, $terms = 0, $display_title = false) {
+function getRecentPosts($count = 3, $terms = 0, $display_title = false): void {
 	// Extend the Query object
 	global $rs_query;
 	?>
@@ -56,12 +55,15 @@ function getRecentPosts($count = 3, $terms = 0, $display_title = false) {
 		// Check whether a term or terms have been specified
 		if($terms === 0) {
 			// Fetch the posts from the database
-			$posts = $rs_query->select('posts', '*', array('status'=>'published', 'type'=>'post'), 'date', 'DESC', $count);
+			$posts = $rs_query->select('posts', '*', array(
+				'status' => 'published',
+				'type' => 'post'
+			), 'date', 'DESC', $count);
 		} else {
 			// Check whether the term value is null
 			if(is_null($terms)) {
 				// Fetch only the posts associated with the current term
-				$posts = getPostsWithTerm($terms, 'date', 'DESC', $count);
+				$posts = getTermPosts($terms, 'date', 'DESC', $count);
 			} else {
 				// Check whether the terms are in an array and convert them if not
 				if(!is_array($terms)) $terms = (array)$terms;
@@ -72,7 +74,7 @@ function getRecentPosts($count = 3, $terms = 0, $display_title = false) {
 				// Loop through the terms
 				foreach($terms as $term) {
 					// Fetch only the posts associated with the specified term or terms from the database
-					$posts[] = getPostsWithTerm($term, 'date', 'DESC', $count);
+					$posts[] = getTermPosts($term, 'date', 'DESC', $count);
 				}
 				
 				// Merge all posts into one array
@@ -92,12 +94,15 @@ function getRecentPosts($count = 3, $terms = 0, $display_title = false) {
 				// Loop through the posts
 				foreach($posts as $post) {
 					// Fetch the post's metadata from the database
-					$feat_image = $rs_query->selectField('postmeta', 'value', array('post'=>$post['id'], '_key'=>'feat_image'));
+					$feat_image = $rs_query->selectField('postmeta', 'value', array(
+						'post' => $post['id'],
+						'_key' => 'feat_image'
+					));
 					?>
 					<li class="post id-<?php echo $post['id']; ?> clear">
 						<?php
 						// Check whether the post has a featured image and display it if so
-						if($feat_image) echo getMedia($feat_image, array('class'=>'feat-image', 'width'=>80));
+						if($feat_image) echo getMedia($feat_image, array('class' => 'feat-image', 'width' => 80));
 						?>
 						<h4><a href="<?php echo getPost($post['slug'])->getPostPermalink($post['type'], $post['parent'], $post['slug']); ?>"><?php echo $post['title']; ?></a></h4>
 						<p class="date"><?php echo formatDate($post['date'], 'j M Y'); ?></p>

@@ -8,30 +8,30 @@
 require_once dirname(__DIR__).'/includes/constants.php';
 
 // Make sure config file has been created already (if not, redirect to the setup page)
-if(!file_exists(PATH.'/config.php')) header('Location: '.ADMIN.'/setup.php');
+if(!file_exists(DB_CONFIG)) header('Location: '.ADMIN.'/setup.php');
 
 // Include debugging functions
-require_once PATH.INC.'/debug.php';
+require_once DEBUG_FUNC;
 
-// Include database configuration
-require_once PATH.'/config.php';
+// Include the database configuration
+require_once DB_CONFIG;
 
-// Include Query class
-require_once PATH.INC.'/class-query.php';
+// Include the Query class
+require_once QUERY_CLASS;
 
 // Create a Query object
 $rs_query = new Query;
 
 // Include global functions
-require_once PATH.INC.'/globals.php';
+require_once GLOBAL_FUNC;
 
-// Include database configuration and functions
-require_once PATH.ADMIN.INC.'/functions.php';
+// Include admin functions
+require_once ADMIN_FUNC;
 
 // Make sure the CMS isn't already installed
 if($rs_query->conn_status) {
 	// Include the database schema
-	require_once PATH.INC.'/schema.php';
+	require_once DB_SCHEMA;
 	
 	// Fetch the database schema
 	$schema = dbSchema();
@@ -70,10 +70,10 @@ $step = (int)($_GET['step'] ?? 1);
 		<meta name="robots" content="noindex, nofollow">
 		<?php
 		// Include stylesheets
-		getStylesheet('button.min.css');
-		getAdminStylesheet('install.min.css');
-		getStylesheet('font-awesome.min.css', ICONS_VERSION);
-		getStylesheet('font-awesome-rules.min.css');
+		putStylesheet('button.min.css');
+		adminStylesheet('install.min.css');
+		putStylesheet('font-awesome.min.css', ICONS_VERSION);
+		putStylesheet('font-awesome-rules.min.css');
 		?>
 	</head>
 	<body>
@@ -85,9 +85,8 @@ $step = (int)($_GET['step'] ?? 1);
 			 * @since 1.3.0[a]
 			 *
 			 * @param string $error (optional; default: null)
-			 * @return null
 			 */
-			function displayInstallForm($error = null) {
+			function displayInstallForm($error = null): void {
 				?>
 				<p>You're almost ready to begin using the <?php echo CMS_NAME; ?>. Fill in the form below to proceed with the installation.</p>
 				<p>All of the settings below can be changed at a later date. They're required in order to set up the CMS, though.</p>
@@ -162,8 +161,8 @@ $step = (int)($_GET['step'] ?? 1);
 		</div>
 		<?php
 		// Include scripts
-		getScript('jquery.min.js', JQUERY_VERSION);
-		getAdminScript('install.min.js');
+		putScript('jquery.min.js', JQUERY_VERSION);
+		adminScript('install.min.js');
 		?>
 	</body>
 </html>
