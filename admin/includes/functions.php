@@ -65,19 +65,19 @@ function getCurrentPage(): string {
 		// Loop through the query parameters
 		foreach($query_params as $query_param) {
 			// Check whether the query parameter contains 'type'
-			if(strpos($query_param, 'type') !== false) {
+			if(str_contains($query_param, 'type')) {
 				// Set the current page
 				$current = str_replace(' ', '_', $post_types[substr($query_param, strpos($query_param, '=') + 1)]['labels']['name_lowercase']);
 			}
 			
 			// Check whether the query parameter contains 'taxonomy'
-			if(strpos($query_param, 'taxonomy') !== false) {
+			if(str_contains($query_param, 'taxonomy')) {
 				// Set the current page
 				$current = str_replace(' ', '_', $taxonomies[substr($query_param, strpos($query_param, '=') + 1)]['labels']['name_lowercase']);
 			}
 			
 			// Check whether the query parameter contains 'action'
-			if(strpos($query_param, 'action') !== false) {
+			if(str_contains($query_param, 'action')) {
 				// Fetch the current action
 				$action = substr($query_param, strpos($query_param, '=') + 1);
 				
@@ -106,7 +106,7 @@ function getCurrentPage(): string {
 			}
 			
 			// Check whether the query parameter contains 'page'
-			if(strpos($query_param, 'page=') !== false) {
+			if(str_contains($query_param, 'page=')) {
 				// Fetch the current page
 				$page = substr($query_param, strpos($query_param, '=') + 1);
 				
@@ -836,7 +836,7 @@ function formTag($tag_name, $args = null): string {
 			// Loop through the args
 			foreach($args as $key => $value) {
 				// Check whether the property has been whitelisted and it does not equal 'content'
-				if(in_array($key, $whitelisted_props[$tag_name], true) && $key !== 'content' || strpos($key, 'data-') !== false) {
+				if(in_array($key, $whitelisted_props[$tag_name], true) && $key !== 'content' || str_starts_with($key, 'data-')) {
 					// Check whether the tag is an input and the property is valueless
 					if($tag_name === 'input' && $key === '*') {
 						// Add the property to the tag
@@ -1374,7 +1374,7 @@ function pagerNav($page, $page_count): void {
 	// Loop through the query parameters
 	for($i = 0; $i < count($query_params); $i++) {
 		// Remove the parameter if it contains 'paged'
-		if(strpos($query_params[$i], 'paged') !== false)
+		if(str_contains($query_params[$i], 'paged'))
 			unset($query_params[$i]);
 	}
 	

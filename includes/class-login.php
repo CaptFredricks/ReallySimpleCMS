@@ -112,7 +112,7 @@ class Login {
 			return $this->statusMessage('F');
 		
 		// Check whether the login used was an email
-		if(strpos($data['login'], '@') !== false) {
+		if(str_contains($data['login'], '@')) {
 			// Sanitize the email
 			$email = $this->sanitizeData($data['login'], FILTER_SANITIZE_EMAIL);
 		} else {
@@ -256,7 +256,7 @@ class Login {
 		global $rs_query;
 		
 		// Check whether the login used was an email
-		if(strpos($login, '@') !== false) {
+		if(str_contains($login, '@')) {
 			// Fetch the user's email from the database
 			$db_password = $rs_query->selectField('users', 'password', array('email' => $login));
 		} else {
@@ -642,7 +642,7 @@ class Login {
 		$site_url = (!empty($_SERVER['HTTPS']) ? 'https://' : 'http://').$_SERVER['HTTP_HOST'];
 		
 		// Check whether the login used was an email
-		if(strpos($data['login'], '@') !== false) {
+		if(str_contains($data['login'], '@')) {
 			// Sanitize the email
 			$email = $this->sanitizeData($data['login'], FILTER_SANITIZE_EMAIL);
 			

@@ -41,7 +41,7 @@ class Term {
 			$uri = array_filter($uri);
 			
 			// Check whether the last element of the array is the slug
-			if(strpos(end($uri), '?') !== false) {
+			if(str_starts_with(end($uri), '?')) {
 				// Fetch the query string at the end of the array
 				$query_string = array_pop($uri);
 			}

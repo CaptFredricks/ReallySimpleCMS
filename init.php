@@ -93,9 +93,6 @@ if(!defined('BASE_INIT') || (defined('BASE_INIT') && !BASE_INIT)) {
 		// Include theme-specific functions
 		require_once PATH.INC.'/theme-functions.php';
 		
-		// Include the sitemap index generator
-		include_once PATH.INC.'/sitemap-index.php';
-		
 		// Check whether the current post is a preview and the id is valid
 		if(isset($_GET['preview']) && $_GET['preview'] === 'true' && isset($_GET['id']) && $_GET['id'] > 0) {
 			// Create a Post object
@@ -105,7 +102,7 @@ if(!defined('BASE_INIT') || (defined('BASE_INIT') && !BASE_INIT)) {
 			$raw_uri = $_SERVER['REQUEST_URI'];
 			
 			// Check whether the current page is the home page
-			if($raw_uri === '/' || strpos($raw_uri, '/?') === 0) {
+			if($raw_uri === '/' || str_starts_with($raw_uri, '/?')) {
 				// Fetch the home page's id from the database
 				$home_page = $rs_query->selectField('settings', 'value', array('name' => 'home_page'));
 				
@@ -119,7 +116,7 @@ if(!defined('BASE_INIT') || (defined('BASE_INIT') && !BASE_INIT)) {
 				$uri = array_filter($uri);
 				
 				// Check whether the last element of the array is the slug
-				if(strpos(end($uri), '?') !== false) {
+				if(str_starts_with(end($uri), '?')) {
 					// Pop the query string off the end of the array
 					array_pop($uri);
 				}
@@ -149,7 +146,10 @@ if(!defined('BASE_INIT') || (defined('BASE_INIT') && !BASE_INIT)) {
 		}
 		
 		// Include the theme loader file
-		require_once PATH.INC.'/load-theme.php';
+		require_once PATH.INC.'/load-theme.php';		
+		
+		// Include the sitemap index generator
+		include_once PATH.INC.'/sitemap-index.php';
 		
 		// Include the template loader file
 		require_once PATH.INC.'/load-template.php';

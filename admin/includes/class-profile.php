@@ -160,14 +160,26 @@ class Profile extends User {
 			return statusMessage('That email is already taken by another user. Please choose another one.');
 		
 		// Create an array to hold the user's metadata
-		$usermeta = array('first_name' => $data['first_name'], 'last_name' => $data['last_name'], 'avatar' => $data['avatar'], 'theme' => $data['theme']);
+		$usermeta = array(
+			'first_name' => $data['first_name'],
+			'last_name' => $data['last_name'],
+			'avatar' => $data['avatar'],
+			'theme' => $data['theme']
+		);
 		
 		// Update the user in the database
-		$rs_query->update('users', array('username' => $data['username'], 'email' => $data['email']), array('id' => $session['id']));
+		$rs_query->update('users', array(
+			'username' => $data['username'],
+			'email' => $data['email']
+		), array('id' => $session['id']));
 		
 		// Update the user's metadata in the database
-		foreach($usermeta as $key => $value)
-			$rs_query->update('usermeta', array('value' => $value), array('user' => $session['id'], '_key' => $key));
+		foreach($usermeta as $key => $value) {
+			$rs_query->update('usermeta', array('value' => $value), array(
+				'user' => $session['id'],
+				'_key' => $key
+			));
+		}
 		
 		// Update the class variables
 		foreach($data as $key => $value) $this->$key = $value;
@@ -229,20 +241,18 @@ class Profile extends User {
 			$message = $this->validatePasswordData($_POST, $this->id);
 			
 			// Check whether the message contains 'success'
-			if(strpos($message, 'success') !== false) {
+			if(str_contains($message, 'success')) {
 				// Refresh the page after 2 seconds
 				?>
-				<meta http-equiv="refresh" content="2; url='/login.php?redirect=<?php echo urlencode($_SERVER['PHP_SELF']); ?>'">
-				<?php
+				<meta http-equiv="refresh" content="2; url='/login.php?redirect=<?php
+					echo urlencode($_SERVER['PHP_SELF']);
+				?>'"><?php
 			}
-		} else {
-			// Set the message as an empty string
-			$message = '';
 		}
 		?>
 		<div class="heading-wrap">
 			<h1>Reset Password</h1>
-			<?php echo $message; ?>
+			<?php echo $message ?? ''; ?>
 		</div>
 		<div class="data-form-wrap clear">
 			<form class="data-form" action="" method="post" autocomplete="off">

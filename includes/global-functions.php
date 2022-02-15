@@ -4,6 +4,9 @@
  * @since 1.2.0[a]
  */
 
+// Include the backward compatible functions file
+require_once PATH.INC.'/backward-compat.php';
+
 // Array to hold all existing post types
 $post_types = array();
 
@@ -531,7 +534,7 @@ function registerPostType($name, $args = array()): void {
 		'show_in_admin_menu' => null,
 		'show_in_admin_bar' => null,
 		'show_in_nav_menus' => null,
-		'menu_link' => 'posts.php',
+		'menu_link' => 'posts.php?type='.$name,
 		'menu_icon' => null,
 		'comments' => false,
 		'taxonomy' => ''
@@ -681,12 +684,12 @@ function registerDefaultPostTypes(): void {
 	// Page
 	registerPostType('page', array(
 		'hierarchical' => true,
-		'menu_link' => 'posts.php?type=page',
 		'menu_icon' => array('copy', 'regular')
 	));
 	
 	// Post
 	registerPostType('post', array(
+		'menu_link' => 'posts.php',
 		'menu_icon' => 'newspaper',
 		'comments' => true,
 		'taxonomy' => 'category'
@@ -792,7 +795,7 @@ function registerTaxonomy($name, $args = array()): void {
 		'show_in_admin_menu' => null,
 		'show_in_admin_bar' => null,
 		'show_in_nav_menus' => null,
-		'menu_link' => 'terms.php'
+		'menu_link' => 'terms.php?taxonomy='.$name
 	);
 	
 	// Merge the defaults with the provided arguments
@@ -1027,7 +1030,7 @@ function isHomePage($id): bool {
  * @return bool
  */
 function isAdmin(): bool {
-	return strpos($_SERVER['REQUEST_URI'], '/admin/') !== false;
+	return str_starts_with($_SERVER['REQUEST_URI'], '/admin/');
 }
 
 /**
@@ -1037,7 +1040,7 @@ function isAdmin(): bool {
  * @return bool
  */
 function isLogin(): bool {
-	return strpos($_SERVER['REQUEST_URI'], '/login.php') !== false;
+	return str_starts_with($_SERVER['REQUEST_URI'], '/login.php');
 }
 
 /**
@@ -1047,7 +1050,7 @@ function isLogin(): bool {
  * @return bool
  */
 function is404(): bool {
-	return strpos($_SERVER['REQUEST_URI'], '/404.php') !== false;
+	return str_starts_with($_SERVER['REQUEST_URI'], '/404.php');
 }
 
 /**
@@ -1327,7 +1330,7 @@ function getMedia($id, $args = array()): string {
 	$mime_type = $rs_query->selectField('postmeta', 'value', array('post' => $id, '_key' => 'mime_type'));
 	
 	// Determine what kind of HTML tag to construct based on the media's MIME type
-	if(strpos($mime_type, 'image') !== false || $src === '//:0') {
+	if(str_starts_with($mime_type, 'image') || $src === '//:0') {
 		// Fetch the image's alt text
 		$alt_text = $rs_query->selectField('postmeta', 'value', array('post' => $id, '_key' => 'alt_text'));
 		
@@ -1348,10 +1351,10 @@ function getMedia($id, $args = array()): string {
 		
 		// Return the constructed tag
 		return $tag.'>';
-	} elseif(strpos($mime_type, 'audio') !== false) {
+	} elseif(str_starts_with($mime_type, 'audio')) {
 		// Construct an audio tag
 		return '<audio'.(!empty($args['class']) ? ' class="'.$args['class'].'"' : '').' src="'.$src.'"></audio>';
-	} elseif(strpos($mime_type, 'video') !== false) {
+	} elseif(str_starts_with($mime_type, 'video')) {
 		// Construct a video tag
 		return '<video'.(!empty($args['class']) ? ' class="'.$args['class'].'"' : '').' src="'.$src.'"></video>';
 	} else {
@@ -1455,11 +1458,15 @@ function trimWords($text, $num_words = 50, $more = '&hellip;'): string {
  *
  * @param string $text
  * @param string $regex (optional; default: '/[^a-z0-9_\-]/')
+ * @param bool $lc (optional; default: true)
  * @return string
  */
-function sanitize($text, $regex = '/[^a-z0-9_\-]/'): string {
-	// Convert the text to lowercase and strip all HTML and PHP tags from it
-	$text = strip_tags(strtolower($text));
+function sanitize($text, $regex = '/[^a-z0-9_\-]/', $lc = true): string {
+	// Strip all HTML and PHP tags from the text
+	$text = strip_tags($text);
+	
+	// Check whether the text should be converted to lowercase and convert it if so
+	if($lc) $text = strtolower($text);
 	
 	// Sanitize the text and return it
 	return preg_replace($regex, '', $text);

@@ -366,7 +366,7 @@ class Settings {
 			// Check whether 'do_robots' has changed
 			if($data['do_robots'] !== (int)$do_robots) {
 				// Check whether the second line is what we want to change
-				if(strpos($file[1], 'Disallow:') !== false) {
+				if(str_starts_with($file[1], 'Disallow:')) {
 					// Check whether 'do_robots' is set
 					if($data['do_robots'] === 0) {
 						// Block robots from crawling the site

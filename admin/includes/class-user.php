@@ -524,8 +524,11 @@ class User {
 		if(strlen($data['username']) < self::UN_LENGTH)
 			return statusMessage('Username must be at least '.self::UN_LENGTH.' characters long.');
 		
+		// Sanitize the username
+		$username = sanitize($data['username'], '/[^a-z0-9_\.]/i', false);
+		
 		// Make sure the username is not already being used
-		if($this->usernameExists($data['username'], $id))
+		if($this->usernameExists($username, $id))
 			return statusMessage('That username has already been taken. Please choose another one.');
 		
 		// Make sure the email is not already being used
@@ -557,7 +560,7 @@ class User {
 			
 			// Insert the new user into the database
 			$insert_id = $rs_query->insert('users', array(
-				'username' => $data['username'],
+				'username' => $username,
 				'password' => $hashed_password,
 				'email' => $data['email'],
 				'registered' => 'NOW()',
@@ -582,7 +585,7 @@ class User {
 		} else {
 			// Update the user in the database
 			$rs_query->update('users', array(
-				'username' => $data['username'],
+				'username' => $username,
 				'email' => $data['email'],
 				'role' => $data['role']
 			), array('id' => $id));

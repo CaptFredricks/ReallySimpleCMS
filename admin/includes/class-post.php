@@ -1517,7 +1517,10 @@ class Post {
 		$list = '';
 		
 		// Fetch all posts from the database (by type)
-		$posts = $rs_query->select('posts', array('id', 'title'), array('status' => array('<>', 'trash'), 'type' => $type));
+		$posts = $rs_query->select('posts', array('id', 'title'), array(
+			'status' => array('<>', 'trash'),
+			'type' => $type
+		));
 		
 		// Loop through the posts
 		foreach($posts as $post) {

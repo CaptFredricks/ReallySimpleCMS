@@ -30,7 +30,7 @@ if(is_writable(PATH)) {
 	// Loop through the directory's contents
 	while(($entry = readdir($handle)) !== false) {
 		// Check whether the current entry is a sitemap and assign it to the sitemaps array if so
-		if(strpos($entry, 'sitemap-') !== false) $sitemaps[] = $entry;
+		if(str_starts_with($entry, 'sitemap-')) $sitemaps[] = $entry;
 	}
 	
 	// Loop through the sitemaps
@@ -84,7 +84,7 @@ if(is_writable(PATH)) {
 			fclose($handle);
 			
 			// Check whether a sitemap is defined in robots.txt
-			if(strpos($contents, 'Sitemap:') === false) {
+			if(!str_contains($contents, 'Sitemap:')) {
 				// Open the file stream in append mode
 				$handle = fopen($robots_file_path, 'a');
 				

@@ -18,6 +18,45 @@
 - [a] = alpha
 - [b] = beta
 
+## Version 1.3.1[b] (2022-02-14)
+
+- Fixed a typo in the README file
+- The default menu link arg in the `registerPostType` function is now `'posts.php?type='.$name` (previously it was simply `'posts.php'`)
+- The default menu link arg in the `registerTaxonomy` function is now `'terms.php?taxonomy='.$name` (previously it was simply `'terms.php'`)
+- Categories and terms of custom taxonomies can now be edited via the admin bar
+- Created a file that will hold backward compatible functions to support installations running on PHP versions below the recommended version
+- Cleaned up some code in the admin `Media` class
+- Replaced most instances of the `strpos` function being used to check for the existence of a string in another string with the new `str_contains` and `str_starts_with` functions introduced in PHP 8.0
+- Simplified some code in the `Menu` class
+- The `sanitize` function now has an optional parameter that determines whether the text should be converted to lowercase
+- Usernames are now sanitized before being submitted to the database
+- The admin "information" text no longer displays inline when the icon is clicked
+- Text in the admin header, nav menu, and statistics bar graph can no longer be selected
+
+**Bug fixes:**
+- Sitemaps for custom post types and taxonomies are not being created
+
+**Modified files:**
+- README.md (M)
+- admin/includes/class-media.php
+- admin/includes/class-post.php (M)
+- admin/includes/class-profile.php (M)
+- admin/includes/class-settings.php (M)
+- admin/includes/class-user.php
+- admin/includes/css/style.css
+- admin/includes/css/style.min.css
+- admin/includes/functions.php
+- includes/backward-compat.php (N)
+- includes/class-login.php (M)
+- includes/class-menu.php (M)
+- includes/class-post.php (M)
+- includes/class-query.php (M)
+- includes/class-term.php (M)
+- includes/functions.php
+- includes/global-functions.php
+- includes/sitemap-index.php (M)
+- init.php
+
 ## Version 1.3.0[b] (2022-02-10)
 
 - Tweaked the README file

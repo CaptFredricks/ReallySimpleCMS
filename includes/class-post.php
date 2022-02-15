@@ -56,7 +56,7 @@ class Post {
 			$raw_uri = $_SERVER['REQUEST_URI'];
 			
 			// Check whether the current page is the home page
-			if($raw_uri === '/' || (strpos($raw_uri, '/?') === 0 && !isset($_GET['preview']))) {
+			if($raw_uri === '/' || (str_starts_with($raw_uri, '/?') && !isset($_GET['preview']))) {
 				// Fetch the home page's id from the database
 				$home_page = $rs_query->selectField('settings', 'value', array('name' => 'home_page'));
 				
@@ -108,7 +108,7 @@ class Post {
 					$uri = array_filter($uri);
 					
 					// Check whether the last element of the array is the slug
-					if(strpos(end($uri), '?') !== false) {
+					if(str_starts_with(end($uri), '?')) {
 						// Fetch the query string at the end of the array
 						$query_string = array_pop($uri);
 					}

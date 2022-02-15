@@ -247,8 +247,8 @@ function bodyClasses($addtl_classes = array()): string {
  * @since 2.2.7[a]
  */
 function adminBar(): void {
-	// Extend the Post object, the user's session data, and the post types and taxonomies arrays
-	global $rs_post, $session, $post_types, $taxonomies;
+	// Extend the Post and Term objects, the user's session data, and the post types and taxonomies arrays
+	global $rs_post, $rs_term, $session, $post_types, $taxonomies;
 	?>
 	<div id="admin-bar">
 		<ul class="menu">
@@ -423,7 +423,18 @@ function adminBar(): void {
 			</li>
 			<?php if(!is_null($rs_post)): ?>
 				<li>
-					<a href="/admin/posts.php?id=<?php echo $rs_post->getPostId(); ?>&action=edit"><i class="fas fa-feather-alt"></i> <span>Edit</span></a>
+					<a href="/admin/posts.php?id=<?php
+						// Create an edit link for pages and other post types
+						echo $rs_post->getPostId();
+					?>&action=edit"><i class="fas fa-feather-alt"></i> <span>Edit</span></a>
+				</li>
+			<?php elseif(!is_null($rs_term)): ?>
+				<li>
+					<a href="/admin/<?php
+						// Create an edit link for categories and other terms
+						echo ($rs_term->getTermTaxonomy() === 'category' ? 'categories.php' : 'terms.php')
+							.'?id='.$rs_term->getTermId();
+					?>&action=edit"><i class="fas fa-feather-alt"></i> <span>Edit</span></a>
 				</li>
 			<?php endif; ?>
 		</ul>

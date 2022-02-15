@@ -150,15 +150,18 @@ class Media extends Post {
 					// Filter out any empty actions
 					$actions = array_filter($actions);
 					
+					// Get the media's filepath
+					$file_path = trailingSlash(PATH.UPLOADS).$meta['filename'];
+					
 					// Check whether the media exists
-					if(file_exists(trailingSlash(PATH.UPLOADS).$meta['filename'])) {
+					if(file_exists($file_path)) {
 						// Fetch the media's file size
-						$size = getFileSize(filesize(trailingSlash(PATH.UPLOADS).$meta['filename']));
+						$size = getFileSize(filesize($file_path));
 						
 						// Check whether the media is an image
-						if(strpos(mime_content_type(trailingSlash(PATH.UPLOADS).$meta['filename']), 'image') !== false) {
+						if(str_starts_with(mime_content_type($file_path), 'image')) {
 							// Fetch the image's dimensions
-							list($width, $height) = getimagesize(trailingSlash(PATH.UPLOADS).$meta['filename']);
+							list($width, $height) = getimagesize($file_path);
 							
 							// Set the dimensions
 							$dimensions = $width.' x '.$height;
@@ -696,7 +699,7 @@ class Media extends Post {
 					$file = pathinfo($data['file']['name']);
 					
 					// Check whether the extension of the new file matches the existing one
-					if(strpos($meta['filename'], $file['extension']) !== false) {
+					if(str_contains($meta['filename'], $file['extension'])) {
 						// If so, keep the filename and extension the same
 						$filename = $meta['filename'];
 					} else {

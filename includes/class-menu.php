@@ -53,7 +53,9 @@ class Menu {
 				// Loop through the menu items' metadata
 				foreach($itemmeta as $meta) {
 					// Fetch the menu item from the database
-					$menu_item = $rs_query->selectRow('posts', array('id', 'title', 'status'), array('id' => $meta['post']));
+					$menu_item = $rs_query->selectRow('posts', array('id', 'title', 'status'), array(
+						'id' => $meta['post']
+					));
 					
 					// Check whether the menu item is invalid
 					if($menu_item['status'] === 'invalid') continue;
@@ -81,7 +83,9 @@ class Menu {
 							}
 						} elseif(isset($meta['term_link'])) {
 							// Fetch the taxonomy's id of the term the menu item points to
-							$tax_id = $rs_query->selectField('terms', 'taxonomy', array('id' => $meta['term_link']));
+							$tax_id = $rs_query->selectField('terms', 'taxonomy', array(
+								'id' => $meta['term_link']
+							));
 							
 							// Fetch the taxonomy of the term the menu item points to
 							$taxonomy = $rs_query->selectField('taxonomies', 'name', array('id' => $tax_id));
@@ -96,7 +100,7 @@ class Menu {
 							$permalink = $meta['custom_link'];
 							
 							// Check whether the menu item links to an external site and set the flag to true if so
-							if(strpos($permalink, 'http') !== false && strpos($permalink, $domain) === false) $external = true;
+							if(!str_contains($permalink, $domain)) $external = true;
 						}
 						
 						// Check whether a permalink has been constructed
@@ -301,7 +305,7 @@ class Menu {
 					$permalink = $meta['custom_link'];
 					
 					// Check whether the menu item links to an external site and set the flag to true if so
-					if(strpos($permalink, 'http') !== false && strpos($permalink, $domain) === false) $external = true;
+					if(!str_contains($permalink, $domain)) $external = true;
 				}
 				
 				// Check whether a permalink has been constructed
