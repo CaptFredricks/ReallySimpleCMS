@@ -26,7 +26,7 @@ class Media extends Post {
 			// Fetch the media from the database
 			$media = $rs_query->selectRow('posts', $cols, array('id' => $id, 'type' => 'media'));
 			
-			// Loop through the array and set the class variables
+			// Set the class variable values
 			foreach($media as $key => $value) $this->$key = $media[$key];
 		}
 	}
@@ -124,7 +124,6 @@ class Media extends Post {
 					$page['per_page']
 				));
 				
-				// Loop through the media
 				foreach($mediaa as $media) {
 					// Fetch the media's metadata from the database
 					$meta = $this->getPostMeta($media['id']);
@@ -176,25 +175,25 @@ class Media extends Post {
 					
 					echo tableRow(
 						// Thumbnail
-						tableCell(getMedia($media['id']), 'thumbnail'),
+						tdCell(getMedia($media['id']), 'thumbnail'),
 						// File
-						tableCell('<strong>'.$media['title'].'</strong><br><em>'.$meta['filename'].'</em><div class="actions">'.implode(' &bull; ', $actions).'</div>', 'file'),
+						tdCell('<strong>'.$media['title'].'</strong><br><em>'.$meta['filename'].'</em><div class="actions">'.implode(' &bull; ', $actions).'</div>', 'file'),
 						// Author
-						tableCell($this->getAuthor($media['author']), 'author'),
+						tdCell($this->getAuthor($media['author']), 'author'),
 						// Upload date
-						tableCell(formatDate($media['date'], 'd M Y @ g:i A'), 'upload-date'),
+						tdCell(formatDate($media['date'], 'd M Y @ g:i A'), 'upload-date'),
 						// Size
-						tableCell($size ?? '0 B', 'size'),
+						tdCell($size ?? '0 B', 'size'),
 						// Dimensions
-						tableCell($dimensions ?? '&mdash;', 'dimensions'),
+						tdCell($dimensions ?? '&mdash;', 'dimensions'),
 						// MIME type
-						tableCell($meta['mime_type'], 'mime-type')
+						tdCell($meta['mime_type'], 'mime-type')
 					);
 				}
 				
 				// Display a notice if no media are found
 				if(empty($mediaa))
-					echo tableRow(tableCell('There are no media to display.', '', count($table_header_cols)));
+					echo tableRow(tdCell('There are no media to display.', '', count($table_header_cols)));
 				?>
 			</tbody>
 			<tfoot>

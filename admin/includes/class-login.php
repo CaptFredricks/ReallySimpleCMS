@@ -96,7 +96,6 @@ class Login {
 			// Fetch all login attempts from the database
 			$login_attempts = $rs_query->select('login_attempts', array('id', 'date'));
 			
-			// Loop through the login attempts
 			foreach($login_attempts as $login_attempt) {
 				// Create a DateTime object
 				$time = new DateTime();
@@ -115,14 +114,13 @@ class Login {
 			}
 		}
 		
-		// Check whether the id is '0'
 		if($id !== 0) {
 			// Create an array of columns to fetch from the database
 			$cols = array_keys(get_object_vars($this));
 			
 			// Check whether the user is on the "List Blacklist" page
 			if($page === 'blacklist') {
-				// Exclude columns from the 'login_attempts' and 'login_rules' tables
+				// Exclude columns from the `login_attempts` and `login_rules` tables
 				$exclude = array('login', 'ip_address', 'type', 'attempts');
 				
 				// Update the columns array
@@ -131,11 +129,11 @@ class Login {
 				// Fetch the blacklisted login from the database
 				$blacklisted_login = $rs_query->selectRow('login_blacklist', $cols, array('id' => $id));
 				
-				// Loop through the array and set the class variables
+				// Set the class variable values
 				foreach($blacklisted_login as $key => $value) $this->$key = $blacklisted_login[$key];
 			} // Check whether the user is on the "List Rules" page
 			elseif($page === 'rules') {
-				// Exclude columns from the 'login_attempts' and 'login_blacklist' tables
+				// Exclude columns from the `login_attempts` and `login_blacklist` tables
 				$exclude = array('login', 'ip_address', 'name', 'reason');
 				
 				// Update the columns array
@@ -144,7 +142,7 @@ class Login {
 				// Fetch the login rule from the database
 				$login_rule = $rs_query->selectRow('login_rules', $cols, array('id' => $id));
 				
-				// Loop through the array and set the class variables
+				// Set the class variable values
 				foreach($login_rule as $key => $value) $this->$key = $login_rule[$key];
 			} else {
 				// Exclude columns from the 'login_blacklist' and 'login_rules' tables
@@ -156,7 +154,7 @@ class Login {
 				// Fetch the login attempt from the database
 				$login_attempt = $rs_query->selectRow('login_attempts', $cols, array('id' => $id));
 				
-				// Loop through the array and set the class variables
+				// Set the class variable values
 				foreach($login_attempt as $key => $value) $this->$key = $login_attempt[$key];
 			}
 		}
@@ -171,6 +169,9 @@ class Login {
 	public function loginAttempts(): void {
 		// Extend the Query object and the user's session data
 		global $rs_query, $session;
+		
+		// Fetch the status of the currently displayed comments
+		$status = $_GET['status'] ?? 'all';
 		
 		// Set up pagination
 		$page = paginate((int)($_GET['paged'] ?? 1));
@@ -188,17 +189,42 @@ class Login {
 				elseif($_GET['blacklist'] === 'ip_address')
 					echo statusMessage('The IP address was successfully blacklisted.', true);
 			}
-			
-			// Fetch the login attempt entry count from the database
-			$count = $rs_query->select('login_attempts', 'COUNT(*)');
-			
+			?>
+			<ul class="status-nav">
+				<?php
+				// Create keys for each of the possible statuses
+				$keys = array('all', 'success', 'failure');
+				$count = array();
+				
+				// Fetch the login attempt entry count from the database (by status)
+				foreach($keys as $key) {
+					if($key === 'all')
+						$count[$key] = $this->getLoginCount();
+					else
+						$count[$key] = $this->getLoginCount($key);
+				}
+				
+				foreach($count as $key => $value) {
+					?>
+					<li>
+						<a href="<?php echo ADMIN_URI.($key === 'all' ? '' : '?status='.$key);
+						?>"><?php echo ucfirst($key); ?> <span class="count">(<?php echo $value; ?>)</span></a>
+					</li>
+					<?php
+					if($key !== array_key_last($count)) {
+						?> &bull; <?php
+					}
+				}
+				?>
+			</ul>
+			<?php
 			// Set the page count
-			$page['count'] = ceil($count / $page['per_page']);
+			$page['count'] = ceil($count[$status] / $page['per_page']);
 			?>
 			<div class="entry-count">
 				<?php
-				// Display the entry count
-				echo $count.' '.($count === 1 ? 'entry' : 'entries');
+				// Display the entry count for the current status
+				echo $count[$status].' '.($count[$status] === 1 ? 'entry' : 'entries');
 				?>
 			</div>
 		</div>
@@ -214,10 +240,21 @@ class Login {
 			</thead>
 			<tbody>
 				<?php
-				// Fetch all login attempts from the database
-				$login_attempts = $rs_query->select('login_attempts', '*', '', 'date', 'DESC', array($page['start'], $page['per_page']));
+				// Fetch all login attempts from the database (by status)
+				if($status === 'all') {
+					$login_attempts = $rs_query->select('login_attempts', '*', '', 'date', 'DESC', array(
+						$page['start'],
+						$page['per_page']
+					));
+				} else {
+					$login_attempts = $rs_query->select('login_attempts', '*', array(
+						'status' => $status
+					), 'date', 'DESC', array(
+						$page['start'],
+						$page['per_page']
+					));
+				}
 				
-				// Loop through the login attempts
 				foreach($login_attempts as $login_attempt) {
 					// Check whether the login or IP address is blacklisted
 					$blacklisted = $rs_query->select('login_blacklist', 'COUNT(name)', array(
@@ -243,19 +280,19 @@ class Login {
 					
 					echo tableRow(
 						// Login
-						tableCell('<strong>'.$login_attempt['login'].'</strong>'.($blacklisted ? ' &mdash; <em>blacklisted</em>' : '').'<div class="actions">'.implode(' &bull; ', $actions).'</div>', 'login'),
+						tdCell('<strong>'.$login_attempt['login'].'</strong>'.($blacklisted ? ' &mdash; <em>blacklisted</em>' : '').'<div class="actions">'.implode(' &bull; ', $actions).'</div>', 'login'),
 						// IP address
-						tableCell($login_attempt['ip_address'], 'ip-address'),
+						tdCell($login_attempt['ip_address'], 'ip-address'),
 						// Date
-						tableCell(formatDate($login_attempt['date'], 'd M Y @ g:i A'), 'date'),
+						tdCell(formatDate($login_attempt['date'], 'd M Y @ g:i A'), 'date'),
 						// Status
-						tableCell(ucfirst($login_attempt['status']), 'status')
+						tdCell(ucfirst($login_attempt['status']), 'status')
 					);
 				}
 				
 				// Display a notice if no login attempts are found
 				if(empty($login_attempts))
-					echo tableRow(tableCell('There are no login attempts to display.', '', count($table_header_cols)));
+					echo tableRow(tdCell('There are no login attempts to display.', '', count($table_header_cols)));
 				?>
 			</tbody>
 			<tfoot>
@@ -483,7 +520,6 @@ class Login {
 					$page['per_page']
 				));
 				
-				// Loop through the blacklisted logins
 				foreach($blacklisted_logins as $blacklisted_login) {
 					// Create a DateTime object
 					$time = new DateTime($blacklisted_login['blacklisted']);
@@ -508,7 +544,7 @@ class Login {
 						// Check whether the table is now empty
 						if(empty($bl_logins)) {
 							// Display a notice and break out of the loop
-							echo tableRow(tableCell('There are no blacklisted logins to display.', '', count($table_header_cols)));
+							echo tableRow(tdCell('There are no blacklisted logins to display.', '', count($table_header_cols)));
 							break;
 						} else {
 							// Continue to the next blacklisted login
@@ -537,21 +573,21 @@ class Login {
 					
 					echo tableRow(
 						// Name
-						tableCell('<strong>'.$blacklisted_login['name'].'</strong><div class="actions">'.implode(' &bull; ', $actions).'</div>', 'name'),
+						tdCell('<strong>'.$blacklisted_login['name'].'</strong><div class="actions">'.implode(' &bull; ', $actions).'</div>', 'name'),
 						// Attempts
-						tableCell($blacklisted_login['attempts'], 'attempts'),
+						tdCell($blacklisted_login['attempts'], 'attempts'),
 						// Blacklisted
-						tableCell(formatDate($blacklisted_login['blacklisted'], 'd M Y @ g:i A'), 'blacklisted'),
+						tdCell(formatDate($blacklisted_login['blacklisted'], 'd M Y @ g:i A'), 'blacklisted'),
 						// Expiration
-						tableCell($blacklisted_login['duration'] === 0 ? 'Indefinite' : formatDate($expiration, 'd M Y @ g:i A'), 'expiration'),
+						tdCell($blacklisted_login['duration'] === 0 ? 'Indefinite' : formatDate($expiration, 'd M Y @ g:i A'), 'expiration'),
 						// Reason
-						tableCell($blacklisted_login['reason'], 'reason')
+						tdCell($blacklisted_login['reason'], 'reason')
 					);
 				}
 				
 				// Display a notice if no blacklisted logins are found
 				if(empty($blacklisted_logins))
-					echo tableRow(tableCell('There are no blacklisted logins to display.', '', count($table_header_cols)));
+					echo tableRow(tdCell('There are no blacklisted logins to display.', '', count($table_header_cols)));
 				?>
 			</tbody>
 			<tfoot>
@@ -778,7 +814,6 @@ class Login {
 					'ip_address' => $data['name']
 				));
 				
-				// Loop through the logins
 				foreach($logins as $login) {
 					// Fetch the blacklisted user from the database
 					$session = $rs_query->selectRow('users', 'session', array(
@@ -936,7 +971,6 @@ class Login {
 					$page['per_page']
 				));
 				
-				// Loop through the login rules
 				foreach($login_rules as $login_rule) {
 					// Set up the action links
 					$actions = array(
@@ -960,13 +994,13 @@ class Login {
 					$actions = array_filter($actions);
 					
 					echo tableRow(
-						tableCell('If failed login attempts exceed <strong>'.$login_rule['attempts'].'</strong>, blacklist the <strong>'.($login_rule['type'] === 'ip_address' ? 'IP address' : $login_rule['type']).'</strong> '.($login_rule['duration'] !== 0 ? 'for ' : '').'<strong>'.$this->formatDuration($login_rule['duration']).'</strong>.<div class="actions">'.implode(' &bull; ', $actions).'</div>')
+						tdCell('If failed login attempts exceed <strong>'.$login_rule['attempts'].'</strong>, blacklist the <strong>'.($login_rule['type'] === 'ip_address' ? 'IP address' : $login_rule['type']).'</strong> '.($login_rule['duration'] !== 0 ? 'for ' : '').'<strong>'.$this->formatDuration($login_rule['duration']).'</strong>.<div class="actions">'.implode(' &bull; ', $actions).'</div>')
 					);
 				}
 				
 				// Display a notice if no login rules are found
 				if(empty($login_rules))
-					echo tableRow(tableCell('There are no login rules to display.', '', count($table_header_cols)));
+					echo tableRow(tdCell('There are no login rules to display.', '', count($table_header_cols)));
 				?>
 			</tbody>
 			<tfoot>
@@ -1214,7 +1248,6 @@ class Login {
 				's' => 'second'
 			);
 			
-			// Loop through the strings
 			foreach($date_strings as $key => &$value) {
 				// Check whether the key is set in the duration
 				if($duration->$key) {
@@ -1231,6 +1264,28 @@ class Login {
 		} else {
 			// Return 'indefinitely' as the duration
 			return 'indefinitely';
+		}
+	}
+	
+	/**
+	 * Fetch the login attempt count based on a specific status.
+	 * @since 1.3.2[b]
+	 *
+	 * @access private
+	 * @param string $status (optional; default: '')
+	 * @return int
+	 */
+	private function getLoginCount($status = ''): int {
+		// Extend the Query class
+		global $rs_query;
+		
+		// Check whether a status has been provided
+		if(empty($status)) {
+			// Return the count of all login attempts
+			return $rs_query->select('login_attempts', 'COUNT(*)');
+		} else {
+			// Return the count of all login attempts by the status
+			return $rs_query->select('login_attempts', 'COUNT(*)', array('status' => $status));
 		}
 	}
 }

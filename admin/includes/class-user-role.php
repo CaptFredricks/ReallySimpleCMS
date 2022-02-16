@@ -53,7 +53,7 @@ class UserRole {
 			// Fetch the user role from the database
 			$role = $rs_query->selectRow('user_roles', $cols, array('id' => $id));
 			
-			// Loop through the array and set the class variables
+			// Set the class variable values
 			foreach($role as $key => $value) $this->$key = $role[$key];
 		}
 	}
@@ -123,7 +123,6 @@ class UserRole {
 					$page['per_page']
 				));
 				
-				// Loop through the user roles
 				foreach($roles as $role) {
 					// Set up the action links
 					$actions = array(
@@ -148,15 +147,15 @@ class UserRole {
 					
 					echo tableRow(
 						// Name
-						tableCell('<strong>'.$role['name'].'</strong><div class="actions">'.implode(' &bull; ', $actions).'</div>', 'name'),
+						tdCell('<strong>'.$role['name'].'</strong><div class="actions">'.implode(' &bull; ', $actions).'</div>', 'name'),
 						// Privileges
-						tableCell($this->getPrivileges($role['id']), 'privileges')
+						tdCell($this->getPrivileges($role['id']), 'privileges')
 					);
 				}
 				
 				// Display a notice if no user roles are found
 				if(empty($roles))
-					echo tableRow(tableCell('There are no user roles to display.', '', count($table_header_cols)));
+					echo tableRow(tdCell('There are no user roles to display.', '', count($table_header_cols)));
 				?>
 			</tbody>
 			<tfoot>
@@ -180,19 +179,18 @@ class UserRole {
 				// Fetch all user roles from the database
 				$roles = $rs_query->select('user_roles', '*', array('_default' => 'yes'), 'id');
 				
-				// Loop through the user roles
 				foreach($roles as $role) {
 					echo tableRow(
 						// Name
-						tableCell('<strong>'.$role['name'].'</strong><div class="actions"><em>default roles cannot be modified</em></div>', 'name'),
+						tdCell('<strong>'.$role['name'].'</strong><div class="actions"><em>default roles cannot be modified</em></div>', 'name'),
 						// Privileges
-						tableCell($this->getPrivileges($role['id']), 'privileges')
+						tdCell($this->getPrivileges($role['id']), 'privileges')
 					);
 				}
 				
 				// Display a notice if no user roles are found
 				if(empty($roles))
-					echo tableRow(tableCell('There are no user roles to display.', '', count($table_header_cols)));
+					echo tableRow(tdCell('There are no user roles to display.', '', count($table_header_cols)));
 				?>
 			</tbody>
 			<tfoot>
@@ -372,7 +370,6 @@ class UserRole {
 			
 			// Check whether any privileges have been selected
 			if(!empty($data['privileges'])) {
-				// Loop through the privileges
 				foreach($data['privileges'] as $privilege) {
 					// Insert a new user relationship into the database
 					$rs_query->insert('user_relationships', array(
@@ -391,7 +388,6 @@ class UserRole {
 			// Fetch all user relationships associated with the user role from the database
 			$relationships = $rs_query->select('user_relationships', '*', array('role' => $id));
 			
-			// Loop through the relationships
 			foreach($relationships as $relationship) {
 				// Check whether the relationship still exists
 				if(empty($data['privileges']) || !in_array($relationship['privilege'], $data['privileges'], true)) {
@@ -402,7 +398,6 @@ class UserRole {
 			
 			// Check whether any privileges have been selected
 			if(!empty($data['privileges'])) {
-				// Loop through the privileges
 				foreach($data['privileges'] as $privilege) {
 					// Fetch any relationships between the current privilege and the role from the database
 					$relationship = $rs_query->selectRow('user_relationships', 'COUNT(*)', array(
@@ -475,7 +470,6 @@ class UserRole {
 		// Fetch the user relationships from the database
 		$relationships = $rs_query->select('user_relationships', 'privilege', array('role' => $id), 'privilege');
 		
-		// Loop through the user relationships
 		foreach($relationships as $relationship) {
 			// Fetch the privilege's name from the database
 			$privilege = $rs_query->selectField('user_privileges', 'name', array('id' => $relationship['privilege']));
@@ -514,7 +508,6 @@ class UserRole {
 			'label' => array('content' => '<span>SELECT ALL</span>')
 		)).'</li>';
 		
-		// Loop through the privileges
 		foreach($privileges as $privilege) {
 			// Fetch any existing user relationship from the database
 			$relationship = $rs_query->selectRow('user_relationships', 'COUNT(*)', array(

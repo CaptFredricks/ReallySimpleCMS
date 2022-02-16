@@ -471,6 +471,13 @@ jQuery(document).ready($ => {
 		LOG IN FORM
 	\*------------------------------*/
 	
+	let field_height = $('.password-field input').height();
+	let button_height = $('#password-toggle').height();
+	
+	// Correct the password toggle button's height if it's different from the password field's height
+	if(button_height < field_height)
+		$('#password-toggle').css({ height: field_height + 12 + 'px' });
+	
 	/**
 	 * Toggle the visibility of the user's password.
 	 * @since 2.2.5[a]

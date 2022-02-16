@@ -141,7 +141,7 @@ class Post {
 			// Fetch the post from the database
 			$post = $rs_query->selectRow('posts', $cols, array('id' => $id));
 			
-			// Loop through the array and set the class variables
+			// Set the class variable values
 			foreach($post as $key => $value) $this->$key = $post[$key];
 		}
 		
@@ -207,7 +207,6 @@ class Post {
 						$count[$key] = $this->getPostCount($type, $key);
 				}
 				
-				// Loop through the post counts (by status)
 				foreach($count as $key => $value) {
 					?>
 					<li>
@@ -310,7 +309,6 @@ class Post {
 					), $order_by, $order, array($page['start'], $page['per_page']));
 				}
 				
-				// Loop through the posts
 				foreach($posts as $post) {
 					// Fetch the post's metadata from the database
 					$meta = $this->getPostMeta($post['id']);
@@ -352,33 +350,33 @@ class Post {
 					
 					echo tableRow(
 						// Bulk select
-						tableCell(tag('input', array(
+						tdCell(tag('input', array(
 							'type' => 'checkbox',
 							'class' => 'checkbox',
 							'value' => $post['id']
 						)), 'bulk-select'),
 						// Title
-						tableCell((isHomePage($post['id']) ? '<i class="fas fa-home" style="cursor: help;" title="Home Page"></i> ' : '').'<strong>'.$post['title'].'</strong>'.($post['status'] !== 'published' && $status === 'all' ? ' &mdash; <em>'.$post['status'].'</em>' : '').'<div class="actions">'.implode(' &bull; ', $actions).'</div>', 'title'),
+						tdCell((isHomePage($post['id']) ? '<i class="fas fa-home" style="cursor: help;" title="Home Page"></i> ' : '').'<strong>'.$post['title'].'</strong>'.($post['status'] !== 'published' && $status === 'all' ? ' &mdash; <em>'.$post['status'].'</em>' : '').'<div class="actions">'.implode(' &bull; ', $actions).'</div>', 'title'),
 						// Author
-						tableCell($this->getAuthor($post['author']), 'author'),
+						tdCell($this->getAuthor($post['author']), 'author'),
 						// Terms (hierarchical post types only)
-						!$this->type_data['hierarchical'] && !empty($this->type_data['taxonomy']) ? tableCell($this->getTerms($post['id']), 'terms') : '',
+						!$this->type_data['hierarchical'] && !empty($this->type_data['taxonomy']) ? tdCell($this->getTerms($post['id']), 'terms') : '',
 						// Publish date
-						tableCell(is_null($post['date']) ? '&mdash;' : formatDate($post['date'], 'd M Y @ g:i A'), 'publish-date'),
+						tdCell(is_null($post['date']) ? '&mdash;' : formatDate($post['date'], 'd M Y @ g:i A'), 'publish-date'),
 						// Parent (hierarchical post types only)
-						$this->type_data['hierarchical'] ? tableCell($this->getParent($post['parent']), 'parent') : '',
+						$this->type_data['hierarchical'] ? tdCell($this->getParent($post['parent']), 'parent') : '',
 						// Comments
-						getSetting('enable_comments') && $this->type_data['comments'] ? tableCell(($meta['comment_status'] ? $meta['comment_count'] : '&mdash;'), 'comments') : '',
+						getSetting('enable_comments') && $this->type_data['comments'] ? tdCell(($meta['comment_status'] ? $meta['comment_count'] : '&mdash;'), 'comments') : '',
 						// Meta title
-						tableCell(!empty($meta['title']) ? 'Yes' : 'No', 'meta_title'),
+						tdCell(!empty($meta['title']) ? 'Yes' : 'No', 'meta-title'),
 						// Meta description
-						tableCell(!empty($meta['description']) ? 'Yes' : 'No', 'meta_description')
+						tdCell(!empty($meta['description']) ? 'Yes' : 'No', 'meta-description')
 					);
 				}
 				
 				// Display a notice if no posts are found
 				if(empty($posts))
-					echo tableRow(tableCell('There are no '.$this->type_data['labels']['name_lowercase'].' to display.', '', count($table_header_cols)));
+					echo tableRow(tdCell('There are no '.$this->type_data['labels']['name_lowercase'].' to display.', '', count($table_header_cols)));
 				?>
 			</tbody>
 			<tfoot>
@@ -1064,7 +1062,6 @@ class Post {
 			// Fetch all term relationships associated with the post from the database
 			$relationships = $rs_query->select('term_relationships', '*', array('post' => $this->id));
 			
-			// Loop through the relationships
 			foreach($relationships as $relationship) {
 				// Delete each unused relationship from the database
 				$rs_query->delete('term_relationships', array('id' => $relationship['id']));
@@ -1082,7 +1079,6 @@ class Post {
 			// Fetch any menu items associated with the post from the database
 			$menu_items = $rs_query->select('postmeta', 'post', array('_key' => 'post_link', 'value' => $this->id));
 			
-			// Loop through the menu items
 			foreach($menu_items as $menu_item) {
 				// Set the status of any menu items associated with the post to 'invalid' in the database
 				$rs_query->update('posts', array('status' => 'invalid'), array('id' => $menu_item['post']));
@@ -1172,7 +1168,6 @@ class Post {
 			
 			// Check whether any terms have been selected
 			if(!empty($data['terms'])) {
-				// Loop through the terms
 				foreach($data['terms'] as $term) {
 					// Insert a new term relationship into the database
 					$rs_query->insert('term_relationships', array('term' => $term, 'post' => $insert_id));
@@ -1219,7 +1214,6 @@ class Post {
 			// Fetch all term relationships associated with the post from the database
 			$relationships = $rs_query->select('term_relationships', '*', array('post' => $id));
 			
-			// Loop through the relationships
 			foreach($relationships as $relationship) {
 				// Check whether the relationship still exists
 				if(empty($data['terms']) || !in_array($relationship['term'], $data['terms'], true)) {
@@ -1236,7 +1230,6 @@ class Post {
 			
 			// Check whether any terms have been selected
 			if(!empty($data['terms'])) {
-				// Loop through the terms
 				foreach($data['terms'] as $term) {
 					// Fetch any relationships between the current term and the post from the database
 					$relationship = $rs_query->selectRow('term_relationships', 'COUNT(*)', array('term' => $term, 'post' => $id));
@@ -1350,7 +1343,6 @@ class Post {
 		// Create an empty array to hold the metadata
 		$meta = array();
 		
-		// Loop through the metadata
 		foreach($postmeta as $metadata) {
 			// Get the meta values
 			$values = array_values($metadata);
@@ -1426,7 +1418,6 @@ class Post {
 		// Fetch the term relationships from the database
 		$relationships = $rs_query->select('term_relationships', 'term', array('post' => $id));
 		
-		// Loop through the term relationships
 		foreach($relationships as $relationship) {
 			// Fetch each term from the database and assign them to the terms array
 			$terms[] = $rs_query->selectField('terms', 'name', array(
@@ -1457,7 +1448,6 @@ class Post {
 		// Fetch all terms associated with the post type from the database
 		$terms = $rs_query->select('terms', array('id', 'name'), array('taxonomy' => getTaxonomyId($this->taxonomy_data['name'])), 'name');
 		
-		// Loop through the terms
 		foreach($terms as $term) {
 			// Fetch any existing term relationship from the database
 			$relationship = $rs_query->selectRow('term_relationships', 'COUNT(*)', array('term' => $term['id'], 'post' => $id));
@@ -1522,7 +1512,6 @@ class Post {
 			'type' => $type
 		));
 		
-		// Loop through the posts
 		foreach($posts as $post) {
 			// Do some extra checks if an id is provided
 			if($id !== 0) {
@@ -1564,7 +1553,7 @@ class Post {
 			// Fetch the page's current template from the database
 			$current = $rs_query->selectField('postmeta', 'value', array('post' => $id, '_key' => 'template'));
 			
-			// Loop through the templates and add each one to an array
+			// Add each template to an array
 			foreach($templates as $template)
 				$list[] = '<option value="'.$template.'"'.(isset($current) && $current === $template ? ' selected' : '').'>'.ucwords(substr(str_replace('-', ' ', $template), 0, strpos($template, '.'))).'</option>';
 			

@@ -99,7 +99,7 @@ class Query {
 			$conditions = $values = $vals = $placeholders = array();
 			
 			// Create an array of accepted operators
-			$operators = array('=', '>', '<', '>=', '<=', '<>', 'LIKE', 'IN', 'NOT IN');
+			$operators = array('=', '>', '<', '>=', '<=', '<>', 'LIKE', 'IN', 'NOT IN', 'IS NULL', 'IS NOT NULL');
 			
 			// Set the default operator value
 			$operator = '<>';
@@ -139,20 +139,21 @@ class Query {
 						$placeholders[] = '?';
 					}
 					
+					// Set up the conditions based on the provided operator
 					switch($operator) {
 						case 'IN': case 'NOT IN':
-							// Add a condition to the conditions array
 							$conditions[] = $field.' '.$operator.' ('.implode(', ', $placeholders).')';
 							break;
+						case 'IS NULL': case 'IS NOT NULL':
+							$conditions[] = $field.' '.$operator;
+							break;
 						default:
-							// Add a condition to the conditions array
 							$conditions[] = $field.' '.$operator.' ?';
 					}
 					
 					// Merge the two values arrays into one
 					$values = array_merge($values, $vals);
 				} else {
-					// Add a condition to the conditions array
 					$conditions[] = $field.' = ?';
 					
 					// Add the value to the values array

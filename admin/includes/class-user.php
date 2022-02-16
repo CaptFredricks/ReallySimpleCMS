@@ -75,12 +75,11 @@ class User {
 		// Create an array of columns to fetch from the database
 		$cols = array_keys(get_object_vars($this));
 		
-		// Check whether the id is '0'
 		if($id !== 0) {
 			// Fetch the user from the database
 			$user = $rs_query->selectRow('users', $cols, array('id' => $id));
 			
-			// Loop through the array and set the class variables
+			// Set the class variable values
 			foreach($user as $key => $value) $this->$key = $user[$key];
 		}
 	}
@@ -94,6 +93,9 @@ class User {
 	public function listUsers(): void {
 		// Extend the Query object and the user's session data
 		global $rs_query, $session;
+		
+		// Fetch the status of the currently displayed comments
+		$status = $_GET['status'] ?? 'all';
 		
 		// Set up pagination
 		$page = paginate((int)($_GET['paged'] ?? 1));
@@ -113,25 +115,54 @@ class User {
 			// Check whether any status messages have been returned and display them if so
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
 				echo statusMessage('The user was successfully deleted.', true);
-			
-			// Fetch the user entry count from the database
-			$count = $rs_query->select('users', 'COUNT(*)');
-			
+			?>
+			<ul class="status-nav">
+				<?php
+				// Create keys for each of the possible statuses
+				$keys = array('all', 'online', 'offline');
+				$count = array();
+				
+				// Fetch the user entry count from the database (by status)
+				foreach($keys as $key) {
+					if($key === 'all')
+						$count[$key] = $this->getUserCount();
+					else
+						$count[$key] = $this->getUserCount($key);
+				}
+				
+				foreach($count as $key => $value) {
+					?>
+					<li>
+						<a href="<?php echo ADMIN_URI.($key === 'all' ? '' : '?status='.$key);
+						?>"><?php echo ucfirst($key); ?> <span class="count">(<?php echo $value; ?>)</span></a>
+					</li>
+					<?php
+					if($key !== array_key_last($count)) {
+						?> &bull; <?php
+					}
+				}
+				?>
+			</ul>
+			<?php
 			// Set the page count
-			$page['count'] = ceil($count / $page['per_page']);
+			$page['count'] = ceil($count[$status] / $page['per_page']);
 			?>
 			<div class="entry-count">
 				<?php
-				// Display the entry count
-				echo $count.' '.($count === 1 ? 'entry' : 'entries');
+				// Display the entry count for the current status
+				echo $count[$status].' '.($count[$status] === 1 ? 'entry' : 'entries');
 				?>
 			</div>
 		</div>
-		<table class="data-table">
+		<table class="data-table has-bulk-select">
 			<thead>
 				<?php
 				// Fill an array with the table header columns
 				$table_header_cols = array(
+					tag('input', array(
+						'type' => 'checkbox',
+						'class' => 'checkbox bulk-selector'
+					)),
 					'Username',
 					'Full Name',
 					'Email',
@@ -147,13 +178,32 @@ class User {
 			</thead>
 			<tbody>
 				<?php
-				// Fetch all users from the database
-				$users = $rs_query->select('users', '*', '', 'username', 'ASC', array(
-					$page['start'],
-					$page['per_page']
-				));
-		
-				// Loop through the users
+				// Fetch all users from the database (by status)
+				switch($status) {
+					case 'all':
+						$users = $rs_query->select('users', '*', '', 'username', 'ASC', array(
+							$page['start'],
+							$page['per_page']
+						));
+						break;
+					case 'online':
+						$users = $rs_query->select('users', '*', array(
+							'session' => array('IS NOT NULL')
+						), 'username', 'ASC', array(
+							$page['start'],
+							$page['per_page']
+						));
+						break;
+					case 'offline':
+						$users = $rs_query->select('users', '*', array(
+							'session' => array('IS NULL')
+						), 'username', 'ASC', array(
+							$page['start'],
+							$page['per_page']
+						));
+						break;
+				}
+				
 				foreach($users as $user) {
 					// Fetch the user's metadata from the database
 					$meta = $this->getUserMeta($user['id']);
@@ -182,30 +232,36 @@ class User {
 					$actions = array_filter($actions);
 					
 					echo tableRow(
+						// Bulk select
+						tdCell(tag('input', array(
+							'type' => 'checkbox',
+							'class' => 'checkbox',
+							'value' => $user['id']
+						)), 'bulk-select'),
 						// Username
-						tableCell(getMedia($meta['avatar'], array(
+						tdCell(getMedia($meta['avatar'], array(
 							'class' => 'avatar',
 							'width' => 32,
 							'height' => 32
 						)).'<strong>'.$user['username'].'</strong><div class="actions">'.implode(' &bull; ', $actions).'</div>', 'username'),
 						// Full name
-						tableCell(empty($meta['first_name']) && empty($meta['last_name']) ? '&mdash;' : $meta['first_name'].' '.$meta['last_name'], 'full-name'),
+						tdCell(empty($meta['first_name']) && empty($meta['last_name']) ? '&mdash;' : $meta['first_name'].' '.$meta['last_name'], 'full-name'),
 						// Email
-						tableCell($user['email'], 'email'),
+						tdCell($user['email'], 'email'),
 						// Registered
-						tableCell(formatDate($user['registered'], 'd M Y @ g:i A'), 'registered'),
+						tdCell(formatDate($user['registered'], 'd M Y @ g:i A'), 'registered'),
 						// Role
-						tableCell($this->getRole($user['role']), 'role'),
+						tdCell($this->getRole($user['role']), 'role'),
 						// Status
-						tableCell(is_null($user['session']) ? 'Offline' : 'Online', 'status'),
+						tdCell(is_null($user['session']) ? 'Offline' : 'Online', 'status'),
 						// Last login
-						tableCell(is_null($user['last_login']) ? 'Never' : formatDate($user['last_login'], 'd M Y @ g:i A'), 'last-login')
+						tdCell(is_null($user['last_login']) ? 'Never' : formatDate($user['last_login'], 'd M Y @ g:i A'), 'last-login')
 					);
 				}
 				
 				// Display a notice if no users are found
 				if(empty($users))
-					echo tableRow(tableCell('There are no users to display.', '', count($table_header_cols)));
+					echo tableRow(tdCell('There are no users to display.', '', count($table_header_cols)));
 				?>
 			</tbody>
 			<tfoot>
@@ -213,6 +269,9 @@ class User {
 			</tfoot>
 		</table>
 		<?php
+		// Bulk actions
+		if(!empty($users)) $this->bulkActions();
+		
 		// Set up page navigation
 		echo pagerNav($page['current'], $page['count']);
 		
@@ -478,6 +537,34 @@ class User {
 	}
 	
 	/**
+	 * Update a user's role.
+	 * @since 1.3.2[b]
+	 *
+	 * @access public
+	 * @param int $role
+	 * @param int $id
+	 */
+	public function updateUserRole($role, $id): void {
+		// Extend the Query class and the user's session data
+		global $rs_query, $session;
+		
+		// Update the class id
+		$this->id = (int)$id;
+		
+		// Check whether the user's id is valid
+		if(empty($this->id) || $this->id <= 0) {
+			// Redirect to the "List Users" page
+			redirect(ADMIN_URI);
+		} else {
+			// Check whether the id matches the logged in user's id
+			if($this->id !== $session['id']) {
+				// Update the user's role
+				$rs_query->update('users', array('role' => (int)$role), array('id' => $this->id));
+			}
+		}
+	}
+	
+	/**
 	 * Delete a user.
 	 * @since 1.2.3[a]
 	 *
@@ -570,9 +657,8 @@ class User {
 			// Add a metadata entry for the user's admin theme to the usermeta array
 			$usermeta['theme'] = 'default';
 			
-			// Loop through the metadata
+			// Insert the user's metadata into the database
 			foreach($usermeta as $key => $value) {
-				// Insert the user's metadata into the database
 				$rs_query->insert('usermeta', array(
 					'user' => $insert_id,
 					'_key' => $key,
@@ -686,7 +772,6 @@ class User {
 		// Create an empty array to hold the metadata
 		$meta = array();
 		
-		// Loop through the metadata
 		foreach($usermeta as $metadata) {
 			// Get the meta values
 			$values = array_values($metadata);
@@ -1017,5 +1102,85 @@ class User {
 		
 		// Return the list
 		return $list;
+	}
+	
+	/**
+	 * Fetch the user count based on a specific status.
+	 * @since 1.3.2[b]
+	 *
+	 * @access private
+	 * @param string $status (optional; default: '')
+	 * @return int
+	 */
+	private function getUserCount($status = ''): int {
+		// Extend the Query class
+		global $rs_query;
+		
+		// Check whether a status has been provided
+		if(empty($status)) {
+			// Return the count of all users
+			return $rs_query->select('users', 'COUNT(*)');
+		} else {
+			switch($status) {
+				case 'online':
+					// Return the count of all online users
+					return $rs_query->select('users', 'COUNT(*)', array('session' => array('IS NOT NULL')));
+					break;
+				case 'offline':
+					// Return the count of all offline users
+					return $rs_query->select('users', 'COUNT(*)', array('session' => array('IS NULL')));
+					break;
+			}
+		}
+	}
+	
+	/**
+	 * Construct bulk actions.
+	 * @since 1.3.2[b]
+	 *
+	 * @access private
+	 */
+	private function bulkActions(): void {
+		// Extend the Query class and the user's session data
+		global $rs_query, $session;
+		?>
+		<div class="bulk-actions">
+			<?php
+			// Make sure the user has the required permissions
+			if(userHasPrivilege($session['role'], 'can_edit_users')) {
+				?>
+				<select class="actions">
+					<?php
+					// Fetch all user roles from the database
+					$roles = $rs_query->select('user_roles', array('id', 'name'), '', 'id');
+					
+					foreach($roles as $role) {
+						?>
+						<option value="<?php echo $role['id']; ?>"><?php echo $role['name']; ?></option>
+						<?php
+					}
+					?>
+				</select>
+				<?php
+				// Update status
+				button(array(
+					'class' => 'bulk-update',
+					'title' => 'Bulk status update',
+					'label' => 'Update'
+				));
+			}
+			
+			// Make sure the user has the required permissions
+			if(userHasPrivilege($session['role'], 'can_delete_users')) {
+				// Delete
+				button(array(
+					'class' => 'bulk-delete',
+					'title' => 'Bulk delete',
+					'label' => 'Delete'
+				));
+			}
+			?>
+		</div>
+		<?php
 	}
 }

@@ -26,7 +26,7 @@ class Widget extends Post {
 			// Fetch the widget from the database
 			$widget = $rs_query->selectRow('posts', $cols, array('id' => $id, 'type' => 'widget'));
 			
-			// Loop through the array and set the class variables
+			// Set the class variable values
 			foreach($widget as $key => $value) $this->$key = $widget[$key];
 		}
 	}
@@ -99,7 +99,6 @@ class Widget extends Post {
 					$page['per_page']
 				));
 				
-				// Loop through the widgets
 				foreach($widgets as $widget) {
 					// Set up the action links
 					$actions = array(
@@ -122,23 +121,23 @@ class Widget extends Post {
 					
 					echo tableRow(
 						// Bulk select
-						tableCell(tag('input', array(
+						tdCell(tag('input', array(
 							'type' => 'checkbox',
 							'class' => 'checkbox',
 							'value' => $widget['id']
 						)), 'bulk-select'),
 						// Title
-						tableCell('<strong>'.$widget['title'].'</strong><div class="actions">'.implode(' &bull; ', $actions).'</div>', 'title'),
+						tdCell('<strong>'.$widget['title'].'</strong><div class="actions">'.implode(' &bull; ', $actions).'</div>', 'title'),
 						// Slug
-						tableCell($widget['slug'], 'slug'),
+						tdCell($widget['slug'], 'slug'),
 						// Status
-						tableCell(ucfirst($widget['status']), 'status')
+						tdCell(ucfirst($widget['status']), 'status')
 					);
 				}
 				
 				// Display a notice if no widgets are found
 				if(empty($widgets))
-					echo tableRow(tableCell('There are no widgets to display.', '', count($table_header_cols)));
+					echo tableRow(tdCell('There are no widgets to display.', '', count($table_header_cols)));
 				?>
 			</tbody>
 			<tfoot>

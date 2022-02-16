@@ -1,7 +1,7 @@
 /**
  * Admin dashboard Harvest theme.
  * @since 2.1.9[a]
- * @version 1.6
+ * @version 1.7
  */
 
 :root {
@@ -22,11 +22,11 @@
 	
 	/* Border colors */
 	
-	--global--graph-bdr-color: #cdbd6d;
-	--global--table-bdr-color: #bdad5d;
-	--global--form-bdr-color: #dfbf2f;
-	--global--input-bdr-color: #ad9d4d;
-	--global--modal-bdr-color: var(--global--form-bdr-color);
+	--global--graph-border-color: #cdbd6d;
+	--global--table-border-color: #bdad5d;
+	--global--form-border-color: #dfbf2f;
+	--global--input-border-color: #ad9d4d;
+	--global--modal-border-color: var(--global--form-border-color);
 	
 	/* Text/link colors */
 	

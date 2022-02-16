@@ -18,6 +18,46 @@
 - [a] = alpha
 - [b] = beta
 
+## Version 1.3.2[b] (2022-02-15)
+
+- Cleaned up some internal documentation
+- Added bulk actions to the "List Users" page
+- Added the `IS NULL` and `IS NOT NULL` operators to the list of allowed operators in the `Query::select` function
+- Users can now be filtered by online or offline status on the "List Users" page
+- Login attempts can now be filtered by success or failure status on the "Login Attempts" page
+- Bumped the minimum PHP version to 7.4 and the recommended version to 8.0
+- Tweaked the styling of admin dashboard widgets
+- Added an admin page that displays information about the CMS
+- Updated several custom property names in the Harvest admin theme
+- Replaced all old instances of the `tableCell` function with the new `tdCell` function
+- Cleaned up code in several functions
+- The password toggle button's height should now match the password field's height on mobile
+- New functions:
+  - Admin `Login` class (`getLoginCount`)
+  - Admin `User` class (`updateUserRole`, `getUserCount`, `bulkActions`)
+  - Admin `functions.php` (`thCell`, `tdCell`)
+
+**Modified files:**
+- admin/about.php (N)
+- admin/includes/bulk-actions.php
+- admin/includes/class-comment.php
+- admin/includes/class-login.php
+- admin/includes/class-media.php
+- admin/includes/class-menu.php
+- admin/includes/class-post.php
+- admin/includes/class-term.php
+- admin/includes/class-user-role.php
+- admin/includes/class-user.php
+- admin/includes/class-widget.php
+- admin/includes/css/style.css
+- admin/includes/css/style.min.css
+- admin/includes/functions.php
+- content/admin-themes/harvest.css (M)
+- includes/class-query.php
+- includes/css/style.css (M)
+- includes/css/style.min.css (M)
+- includes/js/script.js
+
 ## Version 1.3.1[b] (2022-02-14)
 
 - Fixed a typo in the README file
@@ -155,7 +195,7 @@
 
 ## Version 1.2.9[b] (2022-02-04)
 
-- Added bulk actions to the `Post` class
+- Added bulk actions to the "List \<post_type>" page
   - Post statuses can be changed between `published`, `draft`, and `trash`
 - Added a `modified` class variable to the `Post` class
 - Media links can now be created in the admin dashboard

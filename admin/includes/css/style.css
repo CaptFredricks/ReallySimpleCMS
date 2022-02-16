@@ -775,6 +775,16 @@ h3 {
 	line-height: 1;
 }
 
+.about .data-table th:not(.heading) {
+	font-weight: 500;
+	text-align: right;
+	width: 50%;
+}
+
+.about .data-table td {
+	width: 50%;
+}
+
 /** Bulk actions **/
 
 .bulk-actions {
@@ -1910,16 +1920,6 @@ h3 {
 }
 
 @media screen and (min-width: 1250px) {
-	.data-list li {
-		margin-bottom: 2.5em;
-	}
-	
-	.modal-body .media-item-wrap {
-		width: 16.667%;
-	}
-}
-
-@media screen and (min-width: 1350px) {
 	.dashboard-widget {
 		width: 32%;
 	}
@@ -1932,6 +1932,16 @@ h3 {
 		margin-right: 2%;
 	}
 	
+	.data-list li {
+		margin-bottom: 2.5em;
+	}
+	
+	.modal-body .media-item-wrap {
+		width: 16.667%;
+	}
+}
+
+@media screen and (min-width: 1350px) {
 	.data-list li {
 		width: 32%;
 	}

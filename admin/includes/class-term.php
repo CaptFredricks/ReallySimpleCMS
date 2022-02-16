@@ -87,7 +87,7 @@ class Term {
 			// Fetch the term from the database
 			$term = $rs_query->selectRow('terms', $cols, array('id' => $id));
 			
-			// Loop through the array and set the class variables
+			// Set the class variable values
 			foreach($term as $key => $value) $this->$key = $term[$key];
 		}
 		
@@ -159,7 +159,6 @@ class Term {
 					'taxonomy' => getTaxonomyId($this->taxonomy_data['name'])
 				), 'name', 'ASC', array($page['start'], $page['per_page']));
 				
-				// Loop through the terms
 				foreach($terms as $term) {
 					// Fetch the name of the term's taxonomy
 					$tax_name = str_replace(' ', '_', $this->taxonomy_data['labels']['name_lowercase']);
@@ -189,20 +188,20 @@ class Term {
 					
 					echo tableRow(
 						// Name
-						tableCell('<strong>'.$term['name'].'</strong><div class="actions">'.implode(' &bull; ', $actions).'</div>', 'name'),
+						tdCell('<strong>'.$term['name'].'</strong><div class="actions">'.implode(' &bull; ', $actions).'</div>', 'name'),
 						// Slug
-						tableCell($term['slug'], 'slug'),
+						tdCell($term['slug'], 'slug'),
 						// Parent
-						tableCell($this->getParent($term['parent']), 'parent'),
+						tdCell($this->getParent($term['parent']), 'parent'),
 						// Count
-						tableCell($term['count'], 'count')
+						tdCell($term['count'], 'count')
 					);
 				}
 				
 				// Display a notice if no terms are found
 				if(empty($terms)) {
 					echo tableRow(
-						tableCell('There are no '.$this->taxonomy_data['labels']['name_lowercase'].' to display.', '', count($table_header_cols))
+						tdCell('There are no '.$this->taxonomy_data['labels']['name_lowercase'].' to display.', '', count($table_header_cols))
 					);
 				}
 				?>
@@ -551,7 +550,6 @@ class Term {
 			'taxonomy' => getTaxonomyId($this->taxonomy_data['name'])
 		));
 		
-		// Loop through the terms
 		foreach($terms as $term) {
 			// Do some extra checks if an id is provided
 			if($id !== 0) {

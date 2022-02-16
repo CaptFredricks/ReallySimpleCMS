@@ -87,4 +87,17 @@ switch($_POST['page']) {
 		// Display the "List Widgets" page
 		echo $rs_widget->listWidgets();
 		break;
+	case 'users':
+		// Create a User object
+		$rs_user = new User;
+		
+		// Check whether at least one record has been selected
+		if(!empty($_POST['selected'])) {
+			// Update the status of all selected users
+			foreach($_POST['selected'] as $id) $rs_user->updateUserRole($_POST['action'], $id);
+		}
+		
+		// Display the "List Users" page
+		echo $rs_user->listUsers();
+		break;
 }

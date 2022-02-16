@@ -26,7 +26,6 @@ spl_autoload_register(function($class_name) {
 		// Remove the first match
 		array_shift($matches);
 		
-		// Loop through the matches
 		foreach($matches as $match) {
 			// Flatten the array
 			$match = implode($match);
@@ -62,21 +61,21 @@ function getCurrentPage(): string {
 		// Fetch the query string and separate it by its parameters
 		$query_params = explode('&', $_SERVER['QUERY_STRING']);
 		
-		// Loop through the query parameters
 		foreach($query_params as $query_param) {
-			// Check whether the query parameter contains 'type'
 			if(str_contains($query_param, 'type')) {
 				// Set the current page
-				$current = str_replace(' ', '_', $post_types[substr($query_param, strpos($query_param, '=') + 1)]['labels']['name_lowercase']);
+				$current = str_replace(' ', '_',
+					$post_types[substr($query_param, strpos($query_param, '=') + 1)]['labels']['name_lowercase']
+				);
 			}
 			
-			// Check whether the query parameter contains 'taxonomy'
 			if(str_contains($query_param, 'taxonomy')) {
 				// Set the current page
-				$current = str_replace(' ', '_', $taxonomies[substr($query_param, strpos($query_param, '=') + 1)]['labels']['name_lowercase']);
+				$current = str_replace(' ', '_',
+					$taxonomies[substr($query_param, strpos($query_param, '=') + 1)]['labels']['name_lowercase']
+				);
 			}
 			
-			// Check whether the query parameter contains 'action'
 			if(str_contains($query_param, 'action')) {
 				// Fetch the current action
 				$action = substr($query_param, strpos($query_param, '=') + 1);
@@ -84,7 +83,6 @@ function getCurrentPage(): string {
 				// Create an array of pages to exclude
 				$exclude = array('themes', 'menus', 'widgets');
 				
-				// Loop through the taxonomies array
 				foreach($taxonomies as $taxonomy) {
 					// Assign each taxonomy's name to the array
 					$exclude[] = str_replace(' ', '_', $taxonomy['labels']['name_lowercase']);
@@ -95,7 +93,6 @@ function getCurrentPage(): string {
 					case 'upload':
 						// Check whether the current page should be excluded
 						if(in_array($current, $exclude, true)) {
-							// Break out of the switch statement
 							break;
 						} else {
 							// Add the action's name to the current page
@@ -105,7 +102,6 @@ function getCurrentPage(): string {
 				}
 			}
 			
-			// Check whether the query parameter contains 'page'
 			if(str_contains($query_param, 'page=')) {
 				// Fetch the current page
 				$page = substr($query_param, strpos($query_param, '=') + 1);
@@ -116,14 +112,12 @@ function getCurrentPage(): string {
 			}
 		}
 		
-		// Check whether the current page is the 'Edit Post' page
+		// Check whether the current page is the "Edit Post" page
 		if($current === 'posts' && isset($_GET['id'])) {
 			// Fetch the number of times the post appears in the database
 			$count = $rs_query->selectRow('posts', 'COUNT(*)', array('id' => $_GET['id']));
 			
-			// Check whether the count is zero
 			if($count === 0) {
-				// Redirect to the 'List Posts' page
 				redirect('posts.php');
 			} else {
 				// Fetch the post's type from the database
@@ -132,14 +126,12 @@ function getCurrentPage(): string {
 				// Set the current page
 				$current = str_replace(' ', '_', $post_types[$type]['labels']['name_lowercase']);
 			}
-		} // Check whether the current page is the 'Edit Term' page
+		} // Check whether the current page is the "Edit Term" page
 		elseif($current === 'terms' && isset($_GET['id'])) {
 			// Fetch the number of times the term appears in the database
 			$count = $rs_query->selectRow('terms', 'COUNT(*)', array('id' => $_GET['id']));
 			
-			// Check whether the count is zero
 			if($count === 0) {
-				// Redirect to the 'List Categories' page
 				redirect('categories.php');
 			} else {
 				// Fetch the term's taxonomy id from the database
@@ -191,7 +183,6 @@ function getPageTitle(): string {
 		$title = ucfirst(basename($_SERVER['PHP_SELF'], '.php'));
 	}
 	
-	// Return the title
 	return $title;
 }
 
@@ -321,7 +312,6 @@ function adminNavMenuItem($item = array(), $submenu = array(), $icon = null): vo
 		$item_class = 'current-menu-item';
 	} // Otherwise, check whether the submenu is empty
 	elseif(!empty($submenu)) {
-		// Loop through the submenu items
 		foreach($submenu as $sub_item) {
 			// Check whether the submenu item id matches the current page
 			if(!empty($sub_item['id']) && $sub_item['id'] === $current) {
@@ -337,9 +327,8 @@ function adminNavMenuItem($item = array(), $submenu = array(), $icon = null): vo
 	<li<?php echo !empty($item_class) ? ' class="'.$item_class.'"' : ''; ?>>
 		<a href="<?php echo $item_link; ?>">
 			<?php
-			// Check whether an icon has been provided
+			// Nav menu icon
 			if(!empty($icon)) {
-				// Check whether the icon parameter is an array
 				if(is_array($icon)) {
 					switch($icon[1]) {
 						case 'regular':
@@ -367,19 +356,16 @@ function adminNavMenuItem($item = array(), $submenu = array(), $icon = null): vo
 			<span><?php echo $item_caption; ?></span>
 		</a>
 		<?php
-		// Check whether the submenu parameters have been specified
 		if(!empty($submenu)) {
 			// Return if the submenu is not an array
 			if(!is_array($submenu)) return;
 			?>
 			<ul class="submenu">
 				<?php
-				// Loop through the submenu items
 				foreach($submenu as $sub_item) {
 					// Break out of the loop if the menu item is not an array
 					if(!empty($sub_item) && !is_array($sub_item)) break;
 					
-					// Check whether the menu item is empty
 					if(!empty($sub_item)) {
 						// Fetch the submenu item id
 						$sub_item_id = $sub_item['id'] ?? $item_id;
@@ -416,7 +402,6 @@ function adminNavMenu(): void {
 	// Dashboard
 	adminNavMenuItem(array('id' => 'dashboard', 'link' => 'index.php'), array(), 'tachometer-alt');
 	
-	// Loop through the post types
 	foreach($post_types as $post_type) {
 		// Skip any post type that has 'show_in_admin_menu' set to false
 		if(!$post_type['show_in_admin_menu']) continue;
@@ -533,6 +518,9 @@ function adminNavMenu(): void {
 			) : null)
 		), 'cogs');
 	}
+	
+	// About the CMS
+	adminNavMenuItem(array('id' => 'about', 'link' => 'about.php'), array(), 'info-circle');
 }
 
 /*------------------------------------*\
@@ -570,7 +558,6 @@ function statsBarGraph(): void {
 	// Create empty arrays to hold the bar data and the stats data
 	$bars = $stats = array();
 	
-	// Loop through the post types
 	foreach($post_types as $key => $value) {
 		// Skip any post type that has 'show_in_stats_graph' set to false
 		if(!$post_types[$key]['show_in_stats_graph']) continue;
@@ -585,7 +572,6 @@ function statsBarGraph(): void {
 		$stats[] = $bars[$key]['stats'];
 	}
 	
-	// Loop through the taxonomies
 	foreach($taxonomies as $key => $value) {
 		// Skip any taxonomy that has 'show_in_stats_graph' set to false
 		if(!$taxonomies[$key]['show_in_stats_graph']) continue;
@@ -600,13 +586,8 @@ function statsBarGraph(): void {
 		$stats[] = $bars[$key]['stats'];
 	}
 	
-	// Find the max count
 	$max_count = max($stats);
-	
-	// Divide the max count by 25 and round it up to the nearest whole number
 	$num = ceil($max_count / 25);
-	
-	// Multiply the number times 5
 	$num *= 5;
 	?>
 	<input type="hidden" id="max-ct" value="<?php echo $num * 5; ?>">
@@ -623,7 +604,6 @@ function statsBarGraph(): void {
 		</ul>
 		<ul class="graph-content">
 			<?php
-			// Loop through the bars
 			foreach($bars as $bar) {
 				?>
 				<li style="width: <?php echo 1 / count($bars) * 100; ?>%;">
@@ -645,7 +625,6 @@ function statsBarGraph(): void {
 		</ul>
 		<ul class="graph-x">
 			<?php
-			// Loop through the bars
 			foreach($bars as $bar) {
 				?>
 				<li style="width: <?php echo 1 / count($bars) * 100; ?>%;">
@@ -678,16 +657,14 @@ function dashboardWidget($name): void {
 				?>
 				<h2>Comments</h2>
 				<ul>
-					<?php
-					// Fetch the approved comment count from the database
-					$approved = $rs_query->select('comments', 'COUNT(*)', array('status' => 'approved'));
-					?>
-					<li><a href="/admin/comments.php?status=approved">Approved</a>: <strong class="value"><?php echo $approved; ?></strong></li>
-					<?php
-					// Fetch the pending comment count from the database
-					$pending = $rs_query->select('comments', 'COUNT(*)', array('status' => 'unapproved'));
-					?>
-					<li><a href="/admin/comments.php?status=unapproved">Pending</a>: <strong class="value"><?php echo $pending; ?></strong></li>
+					<?php $approved = $rs_query->select('comments', 'COUNT(*)', array('status' => 'approved')); ?>
+					<li>
+						<a href="/admin/comments.php?status=approved">Approved</a>: <strong class="value"><?php echo $approved; ?></strong>
+					</li>
+					<?php $pending = $rs_query->select('comments', 'COUNT(*)', array('status' => 'unapproved')); ?>
+					<li>
+						<a href="/admin/comments.php?status=unapproved">Pending</a>: <strong class="value"><?php echo $pending; ?></strong>
+					</li>
 				</ul>
 				<?php
 				break;
@@ -696,23 +673,21 @@ function dashboardWidget($name): void {
 				<h2>Users</h2>
 				<ul>
 					<?php
-					// Fetch all users' sessions from the database
-					$users = $rs_query->select('users', 'session');
-					
-					// Initialize online and offline user counts to zero
-					$online = $offline = 0;
-					
-					// Loop through the users
-					foreach($users as $user) {
-						// Check whether the user's session is null and increment the appropriate value
-						if(is_null($user['session']))
-							$offline += 1;
-						else
-							$online += 1;
-					}
+					$online = $rs_query->select('users', 'COUNT(*)', array(
+						'session' => array('IS NOT NULL')
+					));
 					?>
-					<li><a href="/admin/users.php">Online</a>: <strong class="value"><?php echo $online; ?></strong></li>
-					<li><a href="/admin/users.php">Offline</a>: <strong class="value"><?php echo $offline; ?></strong></li>
+					<li>
+						<a href="/admin/users.php?status=online">Online</a>: <strong class="value"><?php echo $online; ?></strong>
+					</li>
+					<?php
+					$offline = $rs_query->select('users', 'COUNT(*)', array(
+						'session' => array('IS NULL')
+					));
+					?>
+					<li>
+						<a href="/admin/users.php?status=offline">Offline</a>: <strong class="value"><?php echo $offline; ?></strong>
+					</li>
 				</ul>
 				<?php
 				break;
@@ -721,20 +696,23 @@ function dashboardWidget($name): void {
 				<h2>Logins</h2>
 				<ul>
 					<?php
-					// Fetch the successful login attempt count from the database
 					$login_success = $rs_query->select('login_attempts', 'COUNT(*)', array('status' => 'success'));
 					?>
-					<li><a href="/admin/logins.php">Successful</a>: <strong class="value"><?php echo $login_success; ?></strong></li>
+					<li>
+						<a href="/admin/logins.php?status=success">Successful</a>: <strong class="value"><?php echo $login_success; ?></strong>
+					</li>
 					<?php
-					// Fetch the failed login attempt count from the database
 					$login_failure = $rs_query->select('login_attempts', 'COUNT(*)', array('status' => 'failure'));
 					?>
-					<li><a href="/admin/logins.php">Failed</a>: <strong class="value"><?php echo $login_failure; ?></strong></li>
+					<li>
+						<a href="/admin/logins.php?status=failure">Failed</a>: <strong class="value"><?php echo $login_failure; ?></strong>
+					</li>
 					<?php
-					// Fetch the blacklisted login count from the database
 					$blacklisted = $rs_query->select('login_blacklist', 'COUNT(*)');
 					?>
-					<li><a href="/admin/logins.php?page=blacklist">Blacklisted</a>: <strong class="value"><?php echo $blacklisted; ?></strong></li>
+					<li>
+						<a href="/admin/logins.php?page=blacklist">Blacklisted</a>: <strong class="value"><?php echo $blacklisted; ?></strong>
+					</li>
 				</ul>
 				<?php
 				break;
@@ -749,25 +727,7 @@ function dashboardWidget($name): void {
 \*------------------------------------*/
 
 /**
- * Construct a table header row.
- * @since 1.2.1[a]
- *
- * @param array $items
- * @return string
- */
-function tableHeaderRow($items): string {
-	// Create an empty row
-	$row = '';
-	
-	// Loop through the column headings
-	foreach($items as $item) $row .= '<th>'.$item.'</th>';
-	
-	// Return the row
-	return '<tr>'.$row.'</tr>';
-}
-
-/**
- * Construct a table row.
+ * Construct a table row. Also known as an HTML `tr` tag.
  * @since 1.4.0[a]
  *
  * @param array $cells (optional; unlimited)
@@ -778,16 +738,60 @@ function tableRow(...$cells): string {
 }
 
 /**
- * Construct a table cell.
+ * Construct a table cell, either of the header or data variety.
  * @since 1.2.1[a]
  *
- * @param string $data
+ * @param string $tag
+ * @param string $content
  * @param string $class (optional; default: '')
  * @param int $colspan (optional; default: 1)
  * @return string
  */
-function tableCell($data, $class = '', $colspan = 1): string {
-	return '<td'.(!empty($class) ? ' class="column '.$class.'"' : '').($colspan > 1 ? ' colspan="'.$colspan.'"' : '').'>'.$data.'</td>';
+function tableCell($tag, $content, $class = '', $colspan = 1): string {
+	if($tag !== 'th' && $tag !== 'td') $tag = 'td';
+	
+	return '<'.$tag
+		.(!empty($class) ? ' class="column '.$class.'"' : '')
+		.($colspan > 1 ? ' colspan="'.$colspan.'"' : '').'>'.$content.'</'.$tag.'>';
+}
+
+/**
+ * Construct a table header cell. Also known as an HTML `th` tag.
+ * @since 1.3.2[b]
+ *
+ * @param string $content
+ * @param string $class (optional; default: '')
+ * @param int $colspan (optional; default: 1)
+ * @return string
+ */
+function thCell($content, $class = '', $colspan = 1): string {
+	return tableCell('th', $content, $class, $colspan);
+}
+
+/**
+ * Construct a table data cell. Also known as an HTML `td` tag.
+ * @since 1.3.2[b]
+ *
+ * @param string $content
+ * @param string $class (optional; default: '')
+ * @param int $colspan (optional; default: 1)
+ * @return string
+ */
+function tdCell($content, $class = '', $colspan = 1): string {
+	return tableCell('td', $content, $class, $colspan);
+}
+
+/**
+ * Construct a table header row.
+ * @since 1.2.1[a]
+ *
+ * @param array $items
+ * @return string
+ */
+function tableHeaderRow($items): string {
+	foreach($items as $item) $row[] = thCell($item);
+	
+	return tableRow(implode('', $row));
 }
 
 /**
@@ -825,15 +829,12 @@ function formTag($tag_name, $args = null): string {
 		// Start the opening portion of the tag
 		$tag = '<'.$tag_name;
 		
-		// Check whether the tag is an input
 		if($tag_name === 'input') {
 			// Check whether the 'type' property has been provided and set it to 'text' if not
 			if(!in_array('type', $props, true)) $tag .= ' type="text"';
 		}
 		
-		// Check whether any args have been provided
 		if(!is_null($args)) {
-			// Loop through the args
 			foreach($args as $key => $value) {
 				// Check whether the property has been whitelisted and it does not equal 'content'
 				if(in_array($key, $whitelisted_props[$tag_name], true) && $key !== 'content' || str_starts_with($key, 'data-')) {
@@ -868,7 +869,6 @@ function formTag($tag_name, $args = null): string {
 		$tag = '';
 	}
 	
-	// Check whether a label argument has been provided
 	if(!empty($args['label'])) {
 		// Construct a label tag
 		$label = '<label'.(!empty($args['label']['id']) ? ' id="'.$args['label']['id'].'"' : '').(!empty($args['label']['class']) ? ' class="'.$args['label']['class'].'"' : '').'>';
@@ -880,7 +880,6 @@ function formTag($tag_name, $args = null): string {
 		$tag = $label.$tag.$content;
 	}
 	
-	// Return the constructed tag
 	return $tag;
 }
 
@@ -905,9 +904,7 @@ function tag($tag_name, $args = null): string {
  * @return string
  */
 function formRow($label = '', ...$args): string {
-	// Check whether the label is empty
 	if(!empty($label)) {
-		// Check whether the label is an array
 		if(is_array($label)) {
 			// Pop the second value from the array
 			$required = array_pop($label);
@@ -916,66 +913,50 @@ function formRow($label = '', ...$args): string {
 			$label = implode('', $label);
 		}
 		
-		// Loop through the args
 		for($i = 0; $i < count($args); $i++) {
 			// Break out of the loop if the 'name' key is found
 			if(is_array($args[$i]) && array_key_exists('name', $args[$i])) break;
 		}
 		
 		// Create the label for the form row
-		$row = '<th><label'.(!empty($args[$i]['name']) ? ' for="'.$args[$i]['name'].'"' : '').'>'.$label.(!empty($required) && $required === true ? ' <span class="required">*</span>' : '').'</label></th>';
+		$row_label = '<label'.(!empty($args[$i]['name']) ? ' for="'.$args[$i]['name'].'"' : '').'>'.$label.(!empty($required) && $required === true ? ' <span class="required">*</span>' : '').'</label>';
 		
-		// Open the table cell tag
-		$row .= '<td>';
-		
-		// Check whether any args have been provided
 		if(count($args) > 0) {
 			// Check whether the args are a multidimensional array
 			if(count($args) !== count($args, COUNT_RECURSIVE)) {
-				// Loop through the args
 				foreach($args as $arg) {
 					// Fetch the arg's HTML tag and remove it from the args array
 					$tag = array_shift($arg);
 					
 					// Construct the form tag and add it to the row
-					$row .= formTag($tag, $arg);
+					$row_content[] = formTag($tag, $arg);
 				}
 			} else {
-				// Loop through the args and add any content to the row
-				foreach($args as $arg) $row .= $arg;
+				// Add any content to the row
+				foreach($args as $arg) $row_content[] = $arg;
 			}
 		}
 		
-		// Close the table cell tag
-		$row .= '</td>';
+		return tableRow(thCell($row_label), tdCell(implode('', $row_content)));
 	} else {
-		// Open the table cell tag
-		$row = '<td colspan="2">';
-		
-		// Check whether any args have been provided
 		if(count($args) > 0) {
 			// Check whether the args are a multidimensional array
 			if(count($args) !== count($args, COUNT_RECURSIVE)) {
-				// Loop through the args
 				foreach($args as $arg) {
 					// Fetch the arg's HTML tag and remove it from the args array
 					$tag = array_shift($arg);
 					
 					// Construct the form tag and add it to the row
-					$row .= formTag($tag, $arg);
+					$row_content[] = formTag($tag, $arg);
 				}
 			} else {
-				// Loop through the args and add any content to the row
-				foreach($args as $arg) $row .= $arg;
+				// Add any content to the row
+				foreach($args as $arg) $row_content[] = $arg;
 			}
 		}
 		
-		// Close the table cell tag
-		$row .= '</td>';
+		return tableRow(tdCell(implode('', $row_content), '', 2));
 	}
-	
-	// Return the form row
-	return '<tr>'.$row.'</tr>';
 }
 
 /*------------------------------------*\
@@ -1083,63 +1064,57 @@ function loadMedia($image_only = false): void {
 	// Fetch all media from the database
 	$mediaa = $rs_query->select('posts', '*', array('type' => 'media'), 'date', 'DESC');
 	
-	// Loop through the media
-	foreach($mediaa as $media) {
-		// Fetch the media's metadata from the database
-		$mediameta = $rs_query->select('postmeta', array('_key', 'value'), array('post' => $media['id']));
-		
-		// Create an empty array to hold the metadata
-		$meta = array();
-		
-		// Loop through the metadata
-		foreach($mediameta as $metadata) {
-			// Get the meta values
-			$values = array_values($metadata);
-			
-			// Loop through the individual metadata entries
-			for($i = 0; $i < count($metadata); $i += 2) {
-				// Assign the metadata to the meta array
-				$meta[$values[$i]] = $values[$i + 1];
-			}
-		}
-		
-		// Check whether only images should be loaded
-		if($image_only) {
-			// Create an array of image MIME types
-			$image_mime = array('image/jpeg', 'image/png', 'image/gif', 'image/x-icon');
-			
-			// Check whether the current media item is an image and skip to the next item if not
-			if(!in_array($meta['mime_type'], $image_mime, true)) continue;
-			
-			// Fetch the image's dimensions
-			list($width, $height) = getimagesize(trailingSlash(PATH.UPLOADS).$meta['filename']);
-		}
-		?>
-		<div class="media-item-wrap">
-			<div class="media-item">
-				<div class="thumb-wrap">
-					<?php echo getMedia($media['id'], array('class' => 'thumb')); ?>
-				</div>
-				<div>
-					<div class="hidden" data-field="id"><?php echo $media['id']; ?></div>
-					<div class="hidden" data-field="thumb"><?php echo getMedia($media['id']); ?></div>
-					<div class="hidden" data-field="title"><?php echo $media['title']; ?></div>
-					<div class="hidden" data-field="date"><?php echo formatDate($media['date'], 'd M Y @ g:i A'); ?></div>
-					<div class="hidden" data-field="filename"><?php echo mediaLink($media['id'], array('link_text' => $meta['filename'], 'newtab' => 1)); ?></div>
-					<div class="hidden" data-field="mime_type"><?php echo $meta['mime_type']; ?></div>
-					<div class="hidden" data-field="alt_text"><?php echo $meta['alt_text']; ?></div>
-					<div class="hidden" data-field="width"><?php echo $width ?? 150; ?></div>
-				</div>
-			</div>
-		</div>
-		<?php
-	}
-	
-	// Display a notice if no media are found
 	if(empty($mediaa)) {
 		?>
 		<p style="margin: 1em;">The media library is empty!</p>
 		<?php
+	} else {
+		foreach($mediaa as $media) {
+			// Fetch the media's metadata from the database
+			$mediameta = $rs_query->select('postmeta', array('_key', 'value'), array('post' => $media['id']));
+			
+			// Create an empty array to hold the metadata
+			$meta = array();
+			
+			foreach($mediameta as $metadata) {
+				// Get the meta values
+				$values = array_values($metadata);
+				
+				// Loop through the individual metadata entries
+				for($i = 0; $i < count($metadata); $i += 2) {
+					// Assign the metadata to the meta array
+					$meta[$values[$i]] = $values[$i + 1];
+				}
+			}
+			
+			if($image_only) {
+				$image_mime = array('image/jpeg', 'image/png', 'image/gif', 'image/x-icon');
+				
+				if(!in_array($meta['mime_type'], $image_mime, true)) continue;
+				
+				// Fetch the image's dimensions
+				list($width, $height) = getimagesize(trailingSlash(PATH.UPLOADS).$meta['filename']);
+			}
+			?>
+			<div class="media-item-wrap">
+				<div class="media-item">
+					<div class="thumb-wrap">
+						<?php echo getMedia($media['id'], array('class' => 'thumb')); ?>
+					</div>
+					<div>
+						<div class="hidden" data-field="id"><?php echo $media['id']; ?></div>
+						<div class="hidden" data-field="thumb"><?php echo getMedia($media['id']); ?></div>
+						<div class="hidden" data-field="title"><?php echo $media['title']; ?></div>
+						<div class="hidden" data-field="date"><?php echo formatDate($media['date'], 'd M Y @ g:i A'); ?></div>
+						<div class="hidden" data-field="filename"><?php echo mediaLink($media['id'], array('link_text' => $meta['filename'], 'newtab' => 1)); ?></div>
+						<div class="hidden" data-field="mime_type"><?php echo $meta['mime_type']; ?></div>
+						<div class="hidden" data-field="alt_text"><?php echo $meta['alt_text']; ?></div>
+						<div class="hidden" data-field="width"><?php echo $width ?? 150; ?></div>
+					</div>
+				</div>
+			</div>
+			<?php
+		}
 	}
 }
 
@@ -1161,7 +1136,6 @@ function mediaLink($id, $args = array()): string {
 	// Fetch the media's source
 	$src = getMediaSrc($id).'?cached='.formatDate($modified, 'YmdHis');
 	
-	// Check whether any link text has been provided
 	if(empty($args['link_text'])) {
 		// Fetch the media's title from the database
 		$args['link_text'] = $rs_query->selectField('posts', 'title', array('id' => $id));
@@ -1189,7 +1163,6 @@ function getUniqueFilename($filename): string {
 	// Fetch the number of conflicting filenames in the database
 	$count = $rs_query->select('postmeta', 'COUNT(*)', array('_key' => 'filename', 'value' => array('LIKE', $filename.'%')));
 	
-	// Check whether the count is greater than zero
 	if($count > 0) {
 		// Split the filename into separate parts
 		$file_parts = pathinfo($filename);
@@ -1235,7 +1208,6 @@ function getSizeInBytes($val): string {
 			$val *= 1024;
 	}
 	
-	// Return the value in bytes
 	return $val;
 }
 
@@ -1312,7 +1284,6 @@ function statusMessage($text, $success = false): string {
 		// Set the status message's class to failure
 		$class = 'failure';
 		
-		// Check whether the provided text value matches one of the predefined cases
 		switch($text) {
 			case 'E': case 'e':
 				// Status message for unexpected errors out of the user's control
@@ -1344,7 +1315,6 @@ function paginate($current = 1, $per_page = 20): array {
 	// Set the number of results per page
 	$page['per_page'] = $per_page;
 	
-	// Check whether the current page is '1'
 	if($page['current'] === 1) {
 		// Set the starting value to zero
 		$page['start'] = 0;
@@ -1353,7 +1323,6 @@ function paginate($current = 1, $per_page = 20): array {
 		$page['start'] = ($page['current'] * $page['per_page']) - $page['per_page'];
 	}
 	
-	// Return the page data
 	return $page;
 }
 
@@ -1371,7 +1340,6 @@ function pagerNav($page, $page_count): void {
 	// Split the query string into an array
 	$query_params = explode('&', $query_string);
 	
-	// Loop through the query parameters
 	for($i = 0; $i < count($query_params); $i++) {
 		// Remove the parameter if it contains 'paged'
 		if(str_contains($query_params[$i], 'paged'))
@@ -1413,9 +1381,7 @@ function pagerNav($page, $page_count): void {
  * @return string
  */
 function actionLink($action, $args = null): string {
-	// Check whether the args value is null
 	if(!is_null($args)) {
-		// Check whether the args value is an array and turn it into one if not
 		if(!is_array($args)) $args = (array)$args;
 		
 		// Set the CSS classes
@@ -1439,7 +1405,7 @@ function actionLink($action, $args = null): string {
 		// Create a variable to hold a query string
 		$query_string = '';
 		
-		// Loop through the remaining args and assign them to a query string
+		// Assign the remaining args to a query string
 		foreach($args as $key => $value)
 			$query_string .= $key.'='.$value.'&';
 		
@@ -1535,7 +1501,6 @@ function postExists($id): bool {
 	// Extend the Query object
 	global $rs_query;
 	
-	// Fetch the number of times the id appears in the database and return true if it does
 	return $rs_query->selectRow('posts', 'COUNT(id)', array('id' => $id)) > 0;
 }
 
@@ -1554,7 +1519,6 @@ function getUniqueSlug($slug, $table): string {
 	// Fetch the number of conflicting slugs in the database
 	$count = $rs_query->selectRow($table, 'COUNT(slug)', array('slug' => $slug));
 	
-	// Check whether the count is greater than zero
 	if($count > 0) {
 		do {
 			// Try to construct a unique slug

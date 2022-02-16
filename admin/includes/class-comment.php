@@ -62,7 +62,7 @@ class Comment {
 			// Fetch the comment from the database
 			$comment = $rs_query->selectRow('comments', $cols, array('id' => $id));
 			
-			// Loop through the array and set the class variables
+			// Set the class variable values
 			foreach($comment as $key => $value) $this->$key = $comment[$key];
 		}
 	}
@@ -106,7 +106,6 @@ class Comment {
 						$count[$key] = $this->getCommentCount($key);
 				}
 				
-				// Loop through the comment counts (by status)
 				foreach($count as $key => $value) {
 					?>
 					<li><a href="<?php echo ADMIN_URI.($key === 'all' ? '' : '?status='.$key); ?>"><?php echo ucfirst($key); ?> <span class="count">(<?php echo $value; ?>)</span></a></li>
@@ -165,7 +164,6 @@ class Comment {
 					));
 				}
 				
-				// Loop through the comments
 				foreach($comments as $comment) {
 					// Set up the action links
 					$actions = array(
@@ -199,25 +197,25 @@ class Comment {
 					
 					echo tableRow(
 						// Bulk select
-						tableCell(tag('input', array(
+						tdCell(tag('input', array(
 							'type' => 'checkbox',
 							'class' => 'checkbox',
 							'value' => $comment['id']
 						)), 'bulk-select'),
 						// Comment
-						tableCell(trimWords($comment['content']).($comment['status'] === 'unapproved' && $status === 'all' ? ' &mdash; <em>pending approval</em>' : '').'<div class="actions">'.implode(' &bull; ', $actions).'</div>', 'content'),
+						tdCell(trimWords($comment['content']).($comment['status'] === 'unapproved' && $status === 'all' ? ' &mdash; <em>pending approval</em>' : '').'<div class="actions">'.implode(' &bull; ', $actions).'</div>', 'content'),
 						// Post
-						tableCell($this->getPost($comment['post']), 'post'),
+						tdCell($this->getPost($comment['post']), 'post'),
 						// Author
-						tableCell($this->getAuthor($comment['author']), 'author'),
+						tdCell($this->getAuthor($comment['author']), 'author'),
 						// Date posted
-						tableCell(formatDate($comment['date'], 'd M Y @ g:i A'), 'date')
+						tdCell(formatDate($comment['date'], 'd M Y @ g:i A'), 'date')
 					);
 				}
 				
 				// Display a notice if no comments are found
 				if(empty($comments))
-					echo tableRow(tableCell('There are no comments to display.', '', count($table_header_cols)));
+					echo tableRow(tdCell('There are no comments to display.', '', count($table_header_cols)));
 				?>
 			</tbody>
 			<tfoot>
