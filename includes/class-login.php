@@ -40,10 +40,7 @@ class Login {
 	 * @access public
 	 */
 	public function __construct() {
-		// Check whether HTTPS is enabled and set the class variable's value
 		$this->https = !empty($_SERVER['HTTPS']) ? true : false;
-		
-		// Fetch the current user's IP address
 		$this->ip_address = $_SERVER['REMOTE_ADDR'];
 	}
 	
@@ -54,11 +51,13 @@ class Login {
 	 * @access public
 	 */
 	public function logInForm(): void {
-		// Display a confirmation if the 'Forgot Password' form has just been submitted
-		echo isset($_GET['pw_forgot']) && $_GET['pw_forgot'] === 'confirm' ? $this->statusMessage('Check your email for a confirmation to reset your password.', true) : '';
+		// "Forgot Password" form confirmation
+		if(isset($_GET['pw_forgot']) && $_GET['pw_forgot'] === 'confirm')
+			echo $this->statusMessage('Check your email for a confirmation to reset your password.', true);
 		
-		// Display a confirmation if the 'Reset Password' form has just been submitted
-		echo isset($_GET['pw_reset']) && $_GET['pw_reset'] === 'confirm' ? $this->statusMessage('Your password has been successfully reset.', true) : '';
+		// "Reset Password" form confirmation
+		if(isset($_GET['pw_reset']) && $_GET['pw_reset'] === 'confirm')
+			echo $this->statusMessage('Your password has been successfully reset.', true);
 		
 		// Validate the form data and display any error messages
 		echo isset($_POST['submit']) ? $this->validateLoginData($_POST) : '';
@@ -71,13 +70,12 @@ class Login {
 				<label for="password">Password<br><input type="password" name="password"></label><button type="button" id="password-toggle" class="button" title="Show Password" data-visibility="hidden"><i class="far fa-eye"></i></button>
 			</p>
 			<p class="captcha-field">
-				<label for="captcha">Captcha<br><input type="text" name="captcha" autocomplete="off"><img id="captcha" src="<?php echo INC.'/captcha.php'; ?>"></label>
+				<label for="captcha">Captcha<br><input type="text" name="captcha" autocomplete="off"><img id="captcha" src="<?php echo INC . '/captcha.php'; ?>"></label>
 			</p>
 			<p class="remember-field">
 				<label class="checkbox-label"><input type="checkbox" name="remember_login" value="checked"> <span>Keep me logged in</span></label>
 			</p>
 			<?php
-			// Check whether a redirect URL has been specified
 			if(isset($_GET['redirect'])) {
 				?>
 				<input type="hidden" name="redirect" value="<?php echo $_GET['redirect']; ?>">
@@ -87,7 +85,6 @@ class Login {
 			<input type="submit" class="button" name="submit" value="Log In">
 		</form>
 		<?php
-		// Check whether the user has just submitted the 'Forgot Password' form and hide the 'forgot your password' link if so
 		if(!isset($_GET['pw_forgot'])) {
 			?>
 			<a href="?action=forgot_password">Forgot your password?</a>
@@ -112,18 +109,13 @@ class Login {
 			return $this->statusMessage('F');
 		
 		// Check whether the login used was an email
-		if(str_contains($data['login'], '@')) {
-			// Sanitize the email
+		if(str_contains($data['login'], '@'))
 			$email = $this->sanitizeData($data['login'], FILTER_SANITIZE_EMAIL);
-		} else {
-			// Sanitize the username
+		else
 			$username = $this->sanitizeData($data['login'], '/[^\w.]/i');
-		}
 		
-		// Check whether the IP address or login should be blacklisted
 		$this->shouldBlacklist($this->ip_address, ($email ?? $username));
 		
-		// Check whether the user's IP address is blacklisted
 		if($this->isBlacklisted($this->ip_address)) {
 			// Check whether the blacklist duration is zero (indefinite) and redirect off-site if so
 			if($this->getBlacklistDuration($this->ip_address) === 0) {
@@ -134,7 +126,6 @@ class Login {
 			}
 		}
 		
-		// Check whether the email or username is blacklisted
 		if($this->isBlacklisted($email ?? $username)) {
 			// Check whether the blacklist duration is zero (indefinite) and redirect off-site if so
 			if($this->getBlacklistDuration($email ?? $username) === 0) {
@@ -145,19 +136,17 @@ class Login {
 			}
 		}
 		
-		// Sanitize the password
 		$password = $this->sanitizeData($data['password']);
-		
-		// Sanitize the captcha
 		$captcha = $this->sanitizeData($data['captcha'], '/[^a-zA-Z0-9]/i');
 		
-		// Check whether login attempts should be tracked
 		if(getSetting('track_login_attempts')) {
-			// Insert the new login attempt into the database
-			$login_attempt = $rs_query->insert('login_attempts', array('login' => ($email ?? $username), 'ip_address' => $this->ip_address, 'date' => 'NOW()'));
+			$login_attempt = $rs_query->insert('login_attempts', array(
+				'login' => ($email ?? $username),
+				'ip_address' => $this->ip_address,
+				'date' => 'NOW()'
+			));
 		}
 		
-		// Make sure the captcha value is valid
 		if(!$this->isValidCaptcha($captcha))
 			return $this->statusMessage('The captcha is not valid.');
 		
@@ -166,23 +155,18 @@ class Login {
 			$session = generateHash(12);
 		} while($this->sessionExists($session));
 		
-		// Check whether the email or username variable is set
 		if(isset($email)) {
-			// Make sure the email and password are valid
 			if(!$this->emailExists($email) || !$this->isValidPassword($email, $password))
 				return $this->statusMessage('The email and/or password is not valid.');
 			
-			// Update the user in the database
 			$rs_query->update('users', array(
 				'last_login' => 'NOW()',
 				'session' => $session
 			), array('email' => $email));
 		} elseif(isset($username)) {
-			// Make sure the username and password are valid
 			if(!$this->usernameExists($username) || !$this->isValidPassword($username, $password))
 				return $this->statusMessage('The username and/or password is not valid.');
 			
-			// Update the user in the database
 			$rs_query->update('users', array(
 				'last_login' => 'NOW()',
 				'session' => $session
@@ -190,10 +174,8 @@ class Login {
 		}
 		
 		// Check whether the login attempt was tracked
-		if(isset($login_attempt)) {
-			// Update the login attempt in the database
+		if(isset($login_attempt))
 			$rs_query->update('login_attempts', array('status' => 'success'), array('id' => $login_attempt));
-		}
 		
 		// Check whether the "Keep me logged in" checkbox has been checked
 		if(isset($data['remember_login']) && $data['remember_login'] === 'checked') {
@@ -216,10 +198,8 @@ class Login {
 			));
 		}
 		
-		// Unset the secure login code
 		unset($_SESSION['secure_login']);
 		
-		// Check whether the page needs to redirect to a specific URL after login
 		if(isset($data['redirect']))
 			redirect($data['redirect']);
 		else
@@ -238,7 +218,6 @@ class Login {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Return true if the count is greater than zero
 		return $rs_query->select('login_blacklist', 'COUNT(name)', array('name' => $name)) > 0;
 	}
 	
@@ -256,15 +235,11 @@ class Login {
 		global $rs_query;
 		
 		// Check whether the login used was an email
-		if(str_contains($login, '@')) {
-			// Fetch the user's email from the database
+		if(str_contains($login, '@'))
 			$db_password = $rs_query->selectField('users', 'password', array('email' => $login));
-		} else {
-			// Fetch the user's password from the database
+		else
 			$db_password = $rs_query->selectField('users', 'password', array('username' => $login));
-		}
 		
-		// Return true if the password is valid
 		return !empty($db_password) && password_verify($password, $db_password);
 	}
 	
@@ -292,28 +267,22 @@ class Login {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Fetch the last blacklisted IP from the database
 		$last_blacklisted_ip = $rs_query->selectField('login_attempts', 'last_blacklisted_ip', array(
 			'ip_address' => $ip_address
 		), 'id', 'ASC', '1');
 		
-		// Fetch the number of failed login attempts by the IP address
 		$failed_logins = $rs_query->select('login_attempts', 'COUNT(*)', array(
 			'ip_address' => $ip_address,
 			'date' => array('>', $last_blacklisted_ip),
 			'status' => 'failure'
 		));
 		
-		// Fetch the rules for logins by type 'ip_address'
 		$login_rules = $rs_query->select('login_rules', '*', array('type' => 'ip_address'), 'attempts', 'DESC');
 		
-		// Loop through the login rules
 		foreach($login_rules as $login_rule) {
 			// Check whether the failed logins exceed the rule's threshold
 			if($failed_logins >= $login_rule['attempts']) {
-				// Check whether the IP address is already blacklisted
 				if(!$this->isBlacklisted($ip_address)) {
-					// Fetch the total number of login attempts from the database
 					$attempts = $rs_query->select('login_attempts', 'COUNT(*)', array(
 						'ip_address' => $ip_address,
 						'status' => 'failure'
@@ -329,25 +298,23 @@ class Login {
 					));
 					
 					// Update the last blacklisted date of the IP address and return
-					$rs_query->update('login_attempts', array('last_blacklisted_ip' => 'NOW()'), array('ip_address' => $ip_address));
+					$rs_query->update('login_attempts', array('last_blacklisted_ip' => 'NOW()'), array(
+						'ip_address' => $ip_address
+					));
 					
 					// Fetch all logins associated with the IP address from the database
 					$logins = $rs_query->select('login_attempts', array('DISTINCT', 'login'), array(
 						'ip_address' => $ip_address
 					));
 					
-					// Loop through the logins
 					foreach($logins as $login) {
-						// Fetch the user's session from the database
 						$session = $rs_query->selectField('users', 'session', array(
 							'logic' => 'OR',
 							'username' => $login['login'],
 							'email' => $login['login']
 						));
 						
-						// Check whether the user's session is null
 						if(!is_null($session)) {
-							// Set the user's session to null in the database
 							$rs_query->update('users', array('session' => null), array('session' => $session));
 							
 							// Check whether the cookie's value matches the session value and delete it if so
@@ -361,26 +328,21 @@ class Login {
 			}
 		}
 		
-		// Fetch the last blacklisted login from the database
 		$last_blacklisted_login = $rs_query->selectField('login_attempts', 'last_blacklisted_login', array(
 			'login' => $login
 		), 'id', 'ASC', '1');
 		
-		// Fetch the number of failed login attempts by the login
 		$failed_logins = $rs_query->select('login_attempts', 'COUNT(*)', array(
 			'login' => $login,
 			'date' => array('>', $last_blacklisted_login),
 			'status' => 'failure'
 		));
 		
-		// Fetch the rules for logins by type 'login'
 		$login_rules = $rs_query->select('login_rules', '*', array('type' => 'login'), 'attempts', 'DESC');
 		
-		// Loop through the login rules
 		foreach($login_rules as $login_rule) {
 			// Check whether the failed logins exceed the rule's threshold
 			if($failed_logins >= $login_rule['attempts']) {
-				// Check whether the login is already blacklisted
 				if(!$this->isBlacklisted($login)) {
 					// Fetch the total number of failed login attempts from the database
 					$attempts = $rs_query->select('login_attempts', 'COUNT(*)', array(
@@ -402,16 +364,13 @@ class Login {
 						'login' => $login
 					));
 					
-					// Fetch the user's session from the database
 					$session = $rs_query->selectField('users', 'session', array(
 						'logic' => 'OR',
 						'username' => $login,
 						'email' => $login
 					));
 					
-					// Check whether the user's session is null
 					if(!is_null($session)) {
-						// Set the user's session to null in the database
 						$rs_query->update('users', array('session' => null), array('session' => $session));
 						
 						// Check whether the cookie's value matches the session value and delete it if so
@@ -437,7 +396,6 @@ class Login {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Fetch the number of times the session appears in the database and return whether it's greater than zero
 		return $rs_query->selectRow('users', 'COUNT(session)', array('session' => $session)) > 0;
 	}
 	
@@ -453,7 +411,6 @@ class Login {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Fetch the number of times the email appears in the database and return whether it's greater than zero
 		return $rs_query->selectRow('users', 'COUNT(email)', array('email' => $email)) > 0;
 	}
 	
@@ -469,7 +426,6 @@ class Login {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Fetch the number of times the username appears in the database and return whether it's greater than zero
 		return $rs_query->selectRow('users', 'COUNT(username)', array('username' => $username)) > 0;
 	}
 	
@@ -488,18 +444,13 @@ class Login {
 		// Fetch the blacklist's duration from the database
 		$login = $rs_query->selectRow('login_blacklist', array('blacklisted', 'duration'), array('name' => $name));
 		
-		// Check whether any data has been retrieved
 		if(empty($login)) {
 			// Set the duration to -1 (expired)
 			$duration = -1;
 		} else {
-			// Create a DateTime object
+			// Calculate the expiration date
 			$time = new DateTime($login['blacklisted']);
-			
-			// Add the blacklist's duration to the time to find the expiration
 			$time->add(new DateInterval('PT'.$login['duration'].'S'));
-			
-			// Format the expiration date
 			$expiration = $time->format('Y-m-d H:i:s');
 			
 			// Check whether the blacklist has expired
@@ -507,7 +458,6 @@ class Login {
 				// Set the duration to -1 (expired)
 				$duration = -1;
 				
-				// Delete the blacklisted login from the database
 				$rs_query->delete('login_blacklist', array('name' => $name));
 			} else {
 				// Set the duration
@@ -515,7 +465,6 @@ class Login {
 			}
 		}
 		
-		// Return the duration
 		return $duration;
 	}
 	
@@ -529,7 +478,6 @@ class Login {
 	 * @return string
 	 */
 	private function sanitizeData($data, $filter = null): string {
-		// Check whether a filter has been provided
 		if(is_null($filter)) {
 			// Trim off whitespace characters, strip off HTML and/or PHP tags and return the data
 			return strip_tags(trim($data));
@@ -552,25 +500,19 @@ class Login {
 	 * @return string
 	 */
 	private function statusMessage($text, $success = false): string {
-		// Determine whether the status is success or failure
 		if($success === true) {
-			// Set the status message's class to 'success'
 			$class = 'success';
 		} else {
-			// Set the status message's class to 'failure'
 			$class = 'failure';
 			
-			// Check whether the provided text value matches one of the predefined cases
 			switch($text) {
 				case 'F': case 'f':
-					// Status message for form fields that are left empty
 					$text = 'All fields must be filled in!';
 					break;
 			}
 		}
 		
-		// Return the status message
-		return '<div class="status-message '.$class.'">'.$text.'</div>';
+		return '<div class="status-message ' . $class . '">' . $text . '</div>';
 	}
 	
 	/**
@@ -584,13 +526,11 @@ class Login {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Update the user's session in the database
 		$rs_query->update('users', array('session' => null), array('session' => $session));
 		
 		// Delete the session cookie
 		setcookie('session', '', 1, '/');
 		
-		// Redirect to the login page
 		redirect('../login.php');
 	}
 	
@@ -601,11 +541,14 @@ class Login {
 	 * @access public
 	 */
 	public function forgotPasswordForm(): void {
-		// Display an error if the password reset security key is invalid
-		echo isset($_GET['error']) && $_GET['error'] === 'invalid_key' ? $this->statusMessage('Your security key is invalid. Submit this form to get a new password reset link.') : '';
-		
-		// Display an error if the password reset security key has expired
-		echo isset($_GET['error']) && $_GET['error'] === 'expired_key' ? $this->statusMessage('Your security key has expired. Submit this form to get a new password reset link.') : '';
+		if(isset($_GET['error'])) {
+			$error = $_GET['error'];
+			
+			if($error === 'invalid_key')
+				echo $this->statusMessage('Your security key is invalid. Submit this form to get a new password reset link.');
+			elseif($error === 'expired_key')
+				echo $this->statusMessage('Your security key has expired. Submit this form to get a new password reset link.');
+		}
 		
 		// Validate the form data and display any error messages
 		echo isset($_POST['submit']) ? $this->validateForgotPasswordData($_POST) : '';
@@ -639,91 +582,54 @@ class Login {
 		$key = generateHash(20, false, time());
 		
 		// Fetch the site's URL
-		$site_url = (!empty($_SERVER['HTTPS']) ? 'https://' : 'http://').$_SERVER['HTTP_HOST'];
+		$site_url = (!empty($_SERVER['HTTPS']) ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'];
 		
 		// Check whether the login used was an email
 		if(str_contains($data['login'], '@')) {
-			// Sanitize the email
 			$email = $this->sanitizeData($data['login'], FILTER_SANITIZE_EMAIL);
 			
-			// Make sure the email exists in the database
 			if(!$this->emailExists($email))
 				return $this->statusMessage('The email you provided is not registered on this website.');
 			
-			// Fetch the user's id and username from the database
 			list($id, $username) = array_values($rs_query->selectRow('users', array('id', 'username'), array(
 				'email' => $email
 			)));
-			
-			// Construct the email's subject line
-			$subject = getSetting('site_title').' – Password Reset';
-			
-			// Construct the 'Reset Password' link
-			$pw_reset_link = $site_url.'/login.php?login='.$username.'&key='.$key.'&action=reset_password';
-			
-			// Construct the email's text
-			$message = 'A request has been made to reset the password for the user <strong>'.$username.'</strong> on "'.getSetting('site_title').'".<br><br>If this was you, please click the link below to reset your password. If not, you may disregard this email.<br><br><a href="'.$pw_reset_link.'">Reset your password</a>';
-			
-			// Format the email's content
-			$content = formatEmail('Reset Password', array('message' => $message));
-			
-			// Set the content headers (to allow for HTML-formatted emails)
-			$headers[] = "MIME-Version: 1.0";
-			$headers[] = "Content-type: text/html; charset=iso-8859-1";
-			$headers[] = "From: ".CMS_NAME." <rscms@".$_SERVER['HTTP_HOST'].">";
-			
-			// Make sure the email can be sent
-			if(mail($email, $subject, $content, implode("\r\n", $headers))) {
-				// Update the user's security key in the database
-				$rs_query->update('users', array('security_key' => $key), array('id' => $id));
-				
-				// Redirect to the 'Log In' form
-				redirect('login.php?pw_forgot=confirm');
-			} else {
-				// Return a failure status message
-				return $this->statusMessage(CMS_NAME.' encountered an error and could not send an email. Please contact this website\'s administrator or web host.');
-			}
 		} else {
-			// Sanitize the username
 			$username = $this->sanitizeData($data['login'], '/[^a-zA-Z0-9_\.]/i');
 			
-			// Make sure the username exists in the database
 			if(!$this->usernameExists($username))
 				return $this->statusMessage('The username you provided is not registered on this website.');
 			
-			// Fetch the user's id and email from the database
 			list($id, $email) = array_values($rs_query->selectRow('users', array('id', 'email'), array(
 				'username' => $username
 			)));
-			
-			// Construct the email's subject line
-			$subject = getSetting('site_title').' – Password Reset';
-			
-			// Construct the 'Reset Password' link
-			$pw_reset_link = $site_url.'/login.php?login='.$username.'&key='.$key.'&action=reset_password';
-			
-			// Construct the email's text
-			$message = 'A request has been made to reset the password for the user <strong>'.$username.'</strong> on "'.getSetting('site_title').'".<br><br>If this was you, please click the link below to reset your password. If not, you may disregard this email.<br><br><a href="'.$pw_reset_link.'">Reset your password</a>';
-			
-			// Format the email's content
-			$content = formatEmail('Reset Password', array('message' => $message));
-			
-			// Set the content headers (to allow for HTML-formatted emails)
-			$headers[] = "MIME-Version: 1.0";
-			$headers[] = "Content-type: text/html; charset=iso-8859-1";
-			$headers[] = "From: ".CMS_NAME." <rscms@".$_SERVER['HTTP_HOST'].">";
-			
-			// Make sure the email can be sent
-			if(mail($email, $subject, $content, implode("\r\n", $headers))) {
-				// Update the user's security key in the database
-				$rs_query->update('users', array('security_key' => $key), array('id' => $id));
-				
-				// Redirect to the 'Log In' form
-				redirect('login.php?pw_forgot=confirm');
-			} else {
-				// Return a failure status message
-				return $this->statusMessage(CMS_NAME.' encountered an error and could not send an email. Please contact this website\'s administrator or web host.');
-			}
+		}
+		
+		// Construct the email's subject line
+		$subject = getSetting('site_title') . ' – Password Reset';
+		
+		// Construct the "Reset Password" link
+		$pw_reset_link = $site_url . '/login.php?login=' . $username . '&key=' . $key .
+			'&action=reset_password';
+		
+		// Construct the email's text
+		$message = 'A request has been made to reset the password for the user <strong>' . $username .
+			'</strong> on "' . getSetting('site_title') . '".<br><br>If this was you, please click the link below to reset your password. If not, you may disregard this email.<br><br><a href="' .
+			$pw_reset_link . '">Reset your password</a>';
+		
+		$content = formatEmail('Reset Password', array('message' => $message));
+		
+		// Set the content headers (to allow for HTML-formatted emails)
+		$headers[] = "MIME-Version: 1.0";
+		$headers[] = "Content-type: text/html; charset=iso-8859-1";
+		$headers[] = "From: " . CMS_NAME . " <rscms@" . $_SERVER['HTTP_HOST'] . ">";
+		
+		// Make sure the email can be sent
+		if(mail($email, $subject, $content, implode("\r\n", $headers))) {
+			$rs_query->update('users', array('security_key' => $key), array('id' => $id));
+			redirect('login.php?pw_forgot=confirm');
+		} else {
+			return $this->statusMessage(CMS_NAME . ' encountered an error and could not send an email. Please contact this website\'s administrator or web host.');
 		}
 	}
 	
@@ -737,10 +643,9 @@ class Login {
 		// Set a name for the password reset cookie
 		$cookie_name = 'pw-reset-'.COOKIE_HASH;
 		
-		// Check whether the login and key are in the query string
 		if(isset($_GET['login']) && isset($_GET['key'])) {
 			// Create a cookie that expires when the browser is closed
-			setcookie($cookie_name, $_GET['login'].':'.$_GET['key'], array(
+			setcookie($cookie_name, $_GET['login'] . ':' . $_GET['key'], array(
 				'expires' => 0,
 				'path' => '/login.php',
 				'secure' => $this->https,
@@ -752,12 +657,10 @@ class Login {
 			redirect('login.php?action=reset_password');
 		}
 		
-		// Check whether the reset password cookie is set
 		if(isset($_COOKIE[$cookie_name])) {
 			// Fetch the cookie's data
 			list($login, $key) = explode(':', $_COOKIE[$cookie_name]);
 			
-			// Check whether the reset password cookie is valid
 			if(!$this->isValidCookie($login, $key)) {
 				// Delete the cookie
 				setcookie($cookie_name, '', 1, '/login.php');
@@ -798,16 +701,13 @@ class Login {
 		if(empty($data['password']))
 			return $this->statusMessage('F');
 		
-		// Make sure the password is long enough
 		if(strlen($data['password']) < self::PW_LENGTH)
-			return statusMessage('Password must be at least '.self::PW_LENGTH.' characters long.');
+			return statusMessage('Password must be at least ' . self::PW_LENGTH . ' characters long.');
 		
-		// Check whether the reset password cookie is valid
 		if($this->isValidCookie($data['login'], $data['key'])) {
 			// Hash the password (encrypts the password for security purposes)
 			$hashed_password = password_hash($data['password'], PASSWORD_BCRYPT, array('cost' => 10));
 			
-			// Update the user's password and security key in the database
 			$rs_query->update('users', array(
 				'password' => $hashed_password,
 				'security_key' => null
@@ -837,7 +737,6 @@ class Login {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Return true if the key is found for the user in the database
 		return $rs_query->selectRow('users', 'COUNT(*)', array('username' => $login, 'security_key' => $key)) > 0;
 	}
 }

@@ -49,27 +49,27 @@ $rs_post = new Post($id, $post_types[$type] ?? array());
 	switch($action) {
 		case 'create':
 			// Create a new post
-			userHasPrivilege($session['role'], 'can_create_'.$type_id) ? $rs_post->createPost() : redirect($post_types[$type]['menu_link']);
+			userHasPrivilege('can_create_'.$type_id) ? $rs_post->createPost() : redirect($post_types[$type]['menu_link']);
 			break;
 		case 'edit':
 			// Edit an existing post
-			userHasPrivilege($session['role'], 'can_edit_'.$type_id) ? $rs_post->editPost() : redirect($post_types[$type]['menu_link']);
+			userHasPrivilege('can_edit_'.$type_id) ? $rs_post->editPost() : redirect($post_types[$type]['menu_link']);
 			break;
 		case 'trash':
 			// Send an existing post to the trash
-			userHasPrivilege($session['role'], 'can_edit_'.$type_id) ? $rs_post->trashPost() : redirect($post_types[$type]['menu_link']);
+			userHasPrivilege('can_edit_'.$type_id) ? $rs_post->trashPost() : redirect($post_types[$type]['menu_link']);
 			break;
 		case 'restore':
 			// Restore a trashed post
-			userHasPrivilege($session['role'], 'can_edit_'.$type_id) ? $rs_post->restorePost() : redirect($post_types[$type]['menu_link']);
+			userHasPrivilege('can_edit_'.$type_id) ? $rs_post->restorePost() : redirect($post_types[$type]['menu_link']);
 			break;
 		case 'delete':
 			// Delete an existing post
-			userHasPrivilege($session['role'], 'can_delete_'.$type_id) ? $rs_post->deletePost() : redirect($post_types[$type]['menu_link']);
+			userHasPrivilege('can_delete_'.$type_id) ? $rs_post->deletePost() : redirect($post_types[$type]['menu_link']);
 			break;
 		default:
 			// List all posts
-			userHasPrivilege($session['role'], 'can_view_'.$type_id) ? $rs_post->listPosts() : redirect('index.php');
+			userHasPrivilege('can_view_'.$type_id) ? $rs_post->listPosts() : redirect('index.php');
 	}
 	?>
 </div>

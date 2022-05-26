@@ -14,14 +14,14 @@ class Theme {
 	 * @access public
 	 */
 	public function listThemes(): void {
-		// Extend the Query object and the user's session data
-		global $rs_query, $session;
+		// Extend the Query object
+		global $rs_query;
 		?>
 		<div class="heading-wrap">
 			<h1>Themes</h1>
 			<?php
 			// Check whether the user has sufficient privileges to create themes and create an action link if so
-			if(userHasPrivilege($session['role'], 'can_create_themes'))
+			if(userHasPrivilege('can_create_themes'))
 				echo actionLink('create', array('classes' => 'button', 'caption' => 'Create New'));
 			
 			// Display the page's info
@@ -62,12 +62,12 @@ class Theme {
 				// Set up the action links
 				$actions = array(
 					// Activate
-					userHasPrivilege($session['role'], 'can_edit_themes') ? actionLink('activate', array(
+					userHasPrivilege('can_edit_themes') ? actionLink('activate', array(
 						'caption' => 'Activate',
 						'name' => $theme
 					)) : null,
 					// Delete
-					userHasPrivilege($session['role'], 'can_delete_themes') ? actionLink('delete', array(
+					userHasPrivilege('can_delete_themes') ? actionLink('delete', array(
 						'classes' => 'modal-launch delete-item',
 						'data_item' => 'theme',
 						'caption' => 'Delete',

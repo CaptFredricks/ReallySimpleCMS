@@ -18,6 +18,63 @@
 - [a] = alpha
 - [b] = beta
 
+## Version 1.3.3[b] (2022-05-26)
+
+- Cleaned up internal documentation throughout the CMS (not every line needs to be documented, so this will be cut back quite a bit from here on)
+- The `role` parameter of the `userHasPrivilege` and `userHasPrivileges` functions are now optional (the functions will default to the currently active user's role)
+- Cleaned up code in the `Login::validateForgotPasswordData` function
+- Added the admin "About" page to the admin bar
+
+**Bug fixes:**
+- Custom post types aren't properly loaded on the front end
+- If a user tries to view a post of an unrecognized type, the CMS will redirect them to the 404 Not Found page instead of throwing an error (the same goes for terms of unrecognized taxonomies)
+
+**Modified files:**
+- 404.php (M)
+- admin/categories.php
+- admin/comments.php
+- admin/includes/class-comment.php
+- admin/includes/class-login.php
+- admin/includes/class-media.php
+- admin/includes/class-menu.php
+- admin/includes/class-post.php
+- admin/includes/class-term.php
+- admin/includes/class-theme.php
+- admin/includes/class-user-role.php
+- admin/includes/class-user.php
+- admin/includes/class-widget.php
+- admin/includes/functions.php
+- admin/logins.php
+- admin/media.php
+- admin/menus.php
+- admin/posts.php
+- admin/settings.php
+- admin/terms.php
+- admin/themes.php
+- admin/users.php
+- admin/widgets.php
+- includes/ajax.php
+- includes/class-comment.php
+- includes/class-login.php
+- includes/class-menu.php
+- includes/class-post.php
+- includes/class-query.php
+- includes/class-term.php
+- includes/debug.php (M)
+- includes/functions.php
+- includes/global-functions.php
+- includes/load-template.php
+- includes/load-theme.php
+- includes/schema.php (M)
+- includes/sitemap-index.php
+- includes/sitemap-posts.php
+- includes/sitemap-terms.php
+- includes/theme-functions.php
+- includes/user-privileges.php (N)
+- index.php (M)
+- init.php
+- login.php (M)
+
 ## Version 1.3.2[b] (2022-02-15)
 
 - Cleaned up some internal documentation
@@ -31,7 +88,7 @@
 - Updated several custom property names in the Harvest admin theme
 - Replaced all old instances of the `tableCell` function with the new `tdCell` function
 - Cleaned up code in several functions
-- The password toggle button's height should now match the password field's height on mobile
+- The login page's password toggle button's height should now match the password field's height on mobile
 - New functions:
   - Admin `Login` class (`getLoginCount`)
   - Admin `User` class (`updateUserRole`, `getUserCount`, `bulkActions`)
@@ -68,13 +125,13 @@
 - Cleaned up some code in the admin `Media` class
 - Replaced most instances of the `strpos` function being used to check for the existence of a string in another string with the new `str_contains` and `str_starts_with` functions introduced in PHP 8.0
 - Simplified some code in the `Menu` class
-- The `sanitize` function now has an optional parameter that determines whether the text should be converted to lowercase
+- Added an optional parameter to the `sanitize` function that determines whether the text should be converted to lowercase
 - Usernames are now sanitized before being submitted to the database
 - The admin "information" text no longer displays inline when the icon is clicked
 - Text in the admin header, nav menu, and statistics bar graph can no longer be selected
 
 **Bug fixes:**
-- Sitemaps for custom post types and taxonomies are not being created
+- Sitemaps for custom post types and taxonomies are not being generated
 
 **Modified files:**
 - README.md (M)

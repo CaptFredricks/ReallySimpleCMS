@@ -37,19 +37,19 @@ $rs_term = new Term($id, $taxonomies[$taxonomy] ?? array());
 	switch($action) {
 		case 'create':
 			// Create a new term
-			userHasPrivilege($session['role'], 'can_create_'.$tax_id) ? $rs_term->createTerm() : redirect($taxonomies[$taxonomy]['menu_link']);
+			userHasPrivilege('can_create_'.$tax_id) ? $rs_term->createTerm() : redirect($taxonomies[$taxonomy]['menu_link']);
 			break;
 		case 'edit':
 			// Edit an existing term
-			userHasPrivilege($session['role'], 'can_edit_'.$tax_id) ? $rs_term->editTerm() : redirect($taxonomies[$taxonomy]['menu_link']);
+			userHasPrivilege('can_edit_'.$tax_id) ? $rs_term->editTerm() : redirect($taxonomies[$taxonomy]['menu_link']);
 			break;
 		case 'delete':
 			// Delete an existing term
-			userHasPrivilege($session['role'], 'can_delete_'.$tax_id) ? $rs_term->deleteTerm() : redirect($taxonomies[$taxonomy]['menu_link']);
+			userHasPrivilege('can_delete_'.$tax_id) ? $rs_term->deleteTerm() : redirect($taxonomies[$taxonomy]['menu_link']);
 			break;
 		default:
 			// List all posts
-			userHasPrivilege($session['role'], 'can_view_'.$tax_id) ? $rs_term->listTerms() : redirect('index.php');
+			userHasPrivilege('can_view_'.$tax_id) ? $rs_term->listTerms() : redirect('index.php');
 	}
 	
 	// Redirect to the 'List Categories' page if the term's taxonomy is 'category'

@@ -619,38 +619,29 @@ function getTermPosts($_term = null, $order_by = 'date', $order = 'DESC', $limit
 	// Extend the Query object
 	global $rs_query;
 	
-	// Create an empty array to hold the posts
 	$posts = array();
 	
-	// Check whether the term value is null
 	if(!is_null($_term)) {
-		// Check whether the term value is an integer
-		if(is_int($_term)) {
-			// Fetch the term
+		if(is_int($_term))
 			$term = $_term;
-		} else {
-			// Fetch the term's id
+		else
 			$term = getTerm($_term)->getTermId();
-		}
 	} else {
-		// Fetch the term's id
 		$term = getTermId();
 	}
 	
-	// Fetch the term relationships from the database
 	$relationships = $rs_query->select('term_relationships', 'post', array('term' => $term));
 	
-	// Loop through the term relationships
 	foreach($relationships as $relationship) {
 		// Skip the post if it isn't published
 		if(!$rs_query->selectRow('posts', 'id', array('id' => $relationship['post'], 'status' => 'published')))
 			continue;
 		
-		// Fetch each post from the database and assign them to the posts array
-		$posts[] = $rs_query->selectRow('posts', '*', array('id' => $relationship['post']), $order_by, $order, $limit);
+		$posts[] = $rs_query->selectRow('posts', '*', array(
+			'id' => $relationship['post']
+		), $order_by, $order, $limit);
 	}
 	
-	// Return the posts
 	return $posts;
 }
 
@@ -664,25 +655,20 @@ function getTermPosts($_term = null, $order_by = 'date', $order = 'DESC', $limit
  * @param int $limit (optional; default: 0)
  */
 function putTermPosts($_term = null, $order_by = 'date', $order = 'DESC', $limit = 0): void {
-	// Fetch the posts
 	$posts = getTermPosts($_term, $order_by, $order, $limit);
 	
-	// Check whether there are any posts
 	if(empty($posts)) {
 		echo '<p>There are no posts to display!</p>';
 	} else {
 		$content = '<ul>';
 		
-		// Loop through the posts
 		foreach($posts as $post) {
-			// Fetch the post's permalink
 			$permalink = getPost($post['slug'])->getPostPermalink($post['type'], $post['parent'], $post['slug']);
 			
-			// Add the post to the list
-			$content .= '<li><a href="'.$permalink.'">'.$post['title'].'</a></li>';
+			$content .= '<li><a href="' . $permalink . '">' . $post['title'] . '</a></li>';
 		}
 		
-		echo $content.'</ul>';
+		echo $content . '</ul>';
 	}
 }
 
@@ -713,16 +699,15 @@ function getHeader($template = '') {
 	// Extend the user's session data
 	global $session;
 	
-	// Construct the file path for the current theme
-	$theme_path = trailingSlash(PATH.THEMES).getSetting('theme');
+	$theme_path = trailingSlash(PATH . THEMES) . getSetting('theme');
 	
 	// Check whether the template file exists
-	if(!file_exists($theme_path.'/header.php') && !file_exists(trailingSlash($theme_path).$template.'.php')) {
+	if(!file_exists($theme_path . '/header.php') && !file_exists(trailingSlash($theme_path) . $template . '.php')) {
 		// Don't load anything
 		return null;
 	} else {
 		// Include the header template
-		require_once trailingSlash($theme_path).(!empty($template) ? $template : 'header').'.php';
+		require_once trailingSlash($theme_path) . (!empty($template) ? $template : 'header') . '.php';
 	}
 }
 
@@ -737,16 +722,15 @@ function getFooter($template = '') {
 	// Extend the user's session data
 	global $session;
 	
-	// Construct the file path for the current theme
-	$theme_path = trailingSlash(PATH.THEMES).getSetting('theme');
+	$theme_path = trailingSlash(PATH . THEMES) . getSetting('theme');
 	
 	// Check whether the template file exists
-	if(!file_exists($theme_path.'/footer.php') && !file_exists(trailingSlash($theme_path).$template.'.php')) {
+	if(!file_exists($theme_path . '/footer.php') && !file_exists(trailingSlash($theme_path) . $template . '.php')) {
 		// Don't load anything
 		return null;
 	} else {
 		// Include the footer template
-		require_once trailingSlash($theme_path).(!empty($template) ? $template : 'footer').'.php';
+		require_once trailingSlash($theme_path) . (!empty($template) ? $template : 'footer') . '.php';
 	}
 }
 

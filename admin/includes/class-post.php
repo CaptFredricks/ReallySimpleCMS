@@ -162,8 +162,8 @@ class Post {
 	 * @access public
 	 */
 	public function listPosts(): void {
-		// Extend the Query object and the user's session data
-		global $rs_query, $session;
+		// Extend the Query object
+		global $rs_query;
 		
 		// Fetch the post's type
 		$type = $this->type_data['name'];
@@ -178,7 +178,7 @@ class Post {
 			<h1><?php echo $this->type_data['label']; ?></h1>
 			<?php
 			// Check whether the user has sufficient privileges to create posts of the current type and create an action link if so
-			if(userHasPrivilege($session['role'], 'can_create_'.str_replace(' ', '_', $this->type_data['labels']['name_lowercase']))) {
+			if(userHasPrivilege('can_create_'.str_replace(' ', '_', $this->type_data['labels']['name_lowercase']))) {
 				?>
 				<a class="button" href="?<?php echo $type === 'post' ? '' : 'type='.$type.'&'; ?>action=create">Create New</a>
 				<?php
@@ -319,13 +319,13 @@ class Post {
 					// Set up the action links
 					$actions = array(
 						// Edit
-						userHasPrivilege($session['role'], 'can_edit_'.$type_name
+						userHasPrivilege('can_edit_'.$type_name
 						) && $status !== 'trash' ? actionLink('edit', array(
 							'caption' => 'Edit',
 							'id' => $post['id']
 						)) : null,
 						// Trash/restore
-						userHasPrivilege($session['role'], 'can_edit_'.$type_name
+						userHasPrivilege('can_edit_'.$type_name
 						) ? ($status === 'trash' ? actionLink('restore', array(
 							'caption' => 'Restore',
 							'id' => $post['id']
@@ -334,7 +334,7 @@ class Post {
 							'id' => $post['id']
 						))) : null,
 						// Delete
-						$status === 'trash' ? (userHasPrivilege($session['role'], 'can_delete_'.$type_name
+						$status === 'trash' ? (userHasPrivilege('can_delete_'.$type_name
 						) ? actionLink('delete', array(
 							'classes' => 'modal-launch delete-item',
 							'data_item' => strtolower($this->type_data['labels']['name_singular']),
@@ -1598,8 +1598,6 @@ class Post {
 	 * @access private
 	 */
 	private function bulkActions(): void {
-		// Extend the user's session data
-		global $session;
 		?>
 		<div class="bulk-actions">
 			<?php
@@ -1607,7 +1605,7 @@ class Post {
 			$type_name = str_replace(' ', '_', $this->type_data['labels']['name_lowercase']);
 			
 			// Make sure the user has the required permissions
-			if(userHasPrivilege($session['role'], 'can_edit_'.$type_name)) {
+			if(userHasPrivilege('can_edit_'.$type_name)) {
 				?>
 				<select class="actions">
 					<option value="published">Publish</option>
@@ -1624,7 +1622,7 @@ class Post {
 			}
 			
 			// Make sure the user has the required permissions
-			if(userHasPrivilege($session['role'], 'can_delete_'.$type_name)) {
+			if(userHasPrivilege('can_delete_'.$type_name)) {
 				// Delete
 				button(array(
 					'class' => 'bulk-delete',

@@ -104,7 +104,7 @@ class User {
 			<h1>Users</h1>
 			<?php
 			// Check whether the user has sufficient privileges to create users and create an action link if so
-			if(userHasPrivilege($session['role'], 'can_create_users'))
+			if(userHasPrivilege('can_create_users'))
 				echo actionLink('create', array('classes' => 'button', 'caption' => 'Create New'));
 			
 			// Display the page's info
@@ -211,13 +211,13 @@ class User {
 					// Set up the action links
 					$actions = array(
 						// Edit
-						userHasPrivilege($session['role'], 'can_edit_users'
+						userHasPrivilege('can_edit_users'
 							) || $user['id'] === $session['id'] ? ($user['id'] === $session['id'] ? '<a href="'.ADMIN.'/profile.php">Edit</a>' : actionLink('edit', array(
 								'caption' => 'Edit',
 								'id' => $user['id']
 							))) : null,
 						// Delete
-						userHasPrivilege($session['role'], 'can_delete_users'
+						userHasPrivilege('can_delete_users'
 							) && $user['id'] !== $session['id'] ? ($this->userHasContent($user['id']) ? actionLink('reassign_content', array(
 								'caption' => 'Delete', 'id' => $user['id']
 							)) : actionLink('delete', array(
@@ -1141,13 +1141,13 @@ class User {
 	 * @access private
 	 */
 	private function bulkActions(): void {
-		// Extend the Query class and the user's session data
-		global $rs_query, $session;
+		// Extend the Query class
+		global $rs_query;
 		?>
 		<div class="bulk-actions">
 			<?php
 			// Make sure the user has the required permissions
-			if(userHasPrivilege($session['role'], 'can_edit_users')) {
+			if(userHasPrivilege('can_edit_users')) {
 				?>
 				<select class="actions">
 					<?php
@@ -1171,7 +1171,7 @@ class User {
 			}
 			
 			// Make sure the user has the required permissions
-			if(userHasPrivilege($session['role'], 'can_delete_users')) {
+			if(userHasPrivilege('can_delete_users')) {
 				// Delete
 				button(array(
 					'class' => 'bulk-delete',

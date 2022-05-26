@@ -38,8 +38,8 @@ class Media extends Post {
 	 * @access public
 	 */
 	public function listMedia(): void {
-		// Extend the Query object and the user's session data
-		global $rs_query, $session;
+		// Extend the Query object
+		global $rs_query;
 		
 		// Set up pagination
 		$page = paginate((int)($_GET['paged'] ?? 1));
@@ -48,7 +48,7 @@ class Media extends Post {
 			<h1>Media</h1>
 			<?php
 			// Check whether the user has sufficient privileges to upload media and create an action link if so
-			if(userHasPrivilege($session['role'], 'can_upload_media'))
+			if(userHasPrivilege('can_upload_media'))
 				echo actionLink('upload', array('classes' => 'button', 'caption' => 'Upload New'));
 			
 			// Display the page's info
@@ -131,12 +131,12 @@ class Media extends Post {
 					// Set up the action links
 					$actions = array(
 						// Edit
-						userHasPrivilege($session['role'], 'can_edit_media') ? actionLink('edit', array(
+						userHasPrivilege('can_edit_media') ? actionLink('edit', array(
 							'caption' => 'Edit',
 							'id' => $media['id']
 						)) : null,
 						// Delete
-						userHasPrivilege($session['role'], 'can_delete_media') ? actionLink('delete', array(
+						userHasPrivilege('can_delete_media') ? actionLink('delete', array(
 							'classes' => 'modal-launch delete-item',
 							'data_item' => 'media',
 							'caption' => 'Delete',

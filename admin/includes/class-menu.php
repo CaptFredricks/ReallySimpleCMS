@@ -56,8 +56,8 @@ class Menu extends Term {
 	 * @access public
 	 */
 	public function listMenus(): void {
-		// Extend the Query object and the user's session data
-		global $rs_query, $session;
+		// Extend the Query object
+		global $rs_query;
 		
 		// Set up pagination
 		$page = paginate((int)($_GET['paged'] ?? 1));
@@ -66,7 +66,7 @@ class Menu extends Term {
 			<h1>Menus</h1>
 			<?php
 			// Check whether the user has sufficient privileges to create menus and create an action link if so
-			if(userHasPrivilege($session['role'], 'can_create_menus'))
+			if(userHasPrivilege('can_create_menus'))
 				echo actionLink('create', array('classes' => 'button', 'caption' => 'Create New'));
 			
 			// Display the page's info
@@ -112,12 +112,12 @@ class Menu extends Term {
 					// Set up the action links
 					$actions = array(
 						// Edit
-						userHasPrivilege($session['role'], 'can_edit_menus') ? actionLink('edit', array(
+						userHasPrivilege('can_edit_menus') ? actionLink('edit', array(
 							'caption' => 'Edit',
 							'id' => $menu['id']
 						)) : null,
 						// Delete
-						userHasPrivilege($session['role'], 'can_delete_menus') ? actionLink('delete', array(
+						userHasPrivilege('can_delete_menus') ? actionLink('delete', array(
 							'classes' => 'modal-launch delete-item',
 							'data_item' => 'menu',
 							'caption' => 'Delete',

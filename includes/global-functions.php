@@ -5,7 +5,7 @@
  */
 
 // Include the backward compatible functions file
-require_once PATH.INC.'/backward-compat.php';
+require_once PATH . INC . '/backward-compat.php';
 
 // Array to hold all existing post types
 $post_types = array();
@@ -33,103 +33,69 @@ function populateTable($table): void {
 	switch($table) {
 		case 'postmeta':
 		case 'posts':
-			// Create an array with the table names
 			$names = array('postmeta', 'posts');
 			
-			// Loop through the tables
 			foreach($names as $name) {
-				// Check whether the table still exists
 				if($rs_query->tableExists($name)) {
-					// Delete the table
 					$rs_query->dropTable($name);
-					
-					// Recreate the table
 					$rs_query->doQuery($schema[$name]);
 				}
 			}
 			
-			// Fetch the admin user role
 			$admin_user_role = getUserRoleId('Administrator');
-			
-			// Fetch the first administrator's id from the database
 			$admin = $rs_query->selectField('users', 'id', array('role' => $admin_user_role), 'id', 'ASC', '1');
 			
-			// Populate the tables
 			populatePosts($admin);
 			break;
 		case 'settings':
-			// Populate the table
 			populateSettings();
 			break;
 		case 'taxonomies':
-			// Populate the table
 			populateTaxonomies();
 			break;
 		case 'terms':
 		case 'term_relationships':
-			// Create an array with the table names
 			$names = array('terms', 'term_relationships');
 			
-			// Loop through the tables
 			foreach($names as $name) {
-				// Check whether the table still exists
 				if($rs_query->tableExists($name)) {
-					// Delete the table
 					$rs_query->dropTable($name);
-					
-					// Recreate the table
 					$rs_query->doQuery($schema[$name]);
 				}
 			}
 			
-			// Fetch the first eligible post from the database
 			$post = $rs_query->selectField('posts', 'id', array(
 				'status' => 'published',
 				'type' => 'post'
 			), 'id', 'ASC', '1');
 			
-			// Populate the tables
 			populateTerms($post);
 			break;
 		case 'usermeta':
 		case 'users':
-			// Create an array with the table names
 			$names = array('usermeta', 'users');
 			
-			// Loop through the tables
 			foreach($names as $name) {
-				// Check whether the table still exists
 				if($rs_query->tableExists($name)) {
-					// Delete the table
 					$rs_query->dropTable($name);
-					
-					// Recreate the table
 					$rs_query->doQuery($schema[$name]);
 				}
 			}
 			
-			// Populate the tables
 			populateUsers();
 			break;
 		case 'user_privileges':
 		case 'user_relationships':
 		case 'user_roles':
-			// Create an array with the table names
 			$names = array('user_privileges', 'user_relationships', 'user_roles');
 			
-			// Loop through the tables
 			foreach($names as $name) {
-				// Check whether the table still exists
 				if($rs_query->tableExists($name)) {
-					// Delete the table
 					$rs_query->dropTable($name);
-					
-					// Recreate the table
 					$rs_query->doQuery($schema[$name]);
 				}
 			}
 			
-			// Populate the tables
 			populateUserRoles();
 			populateUserPrivileges();
 			break;
@@ -169,7 +135,6 @@ function populatePosts($author): array {
 		'slug' => 'sample-post'
 	));
 	
-	// Post metadata
 	$postmeta = array(
 		'home_page' => array(
 			'title' => 'Sample Page',
@@ -186,10 +151,8 @@ function populatePosts($author): array {
 		)
 	);
 	
-	// Loop through the post metadata
 	foreach($postmeta as $metadata) {
 		foreach($metadata as $key => $value) {
-			// Insert the post metadata into the database
 			$rs_query->insert('postmeta', array(
 				'post' => $post[key($postmeta)],
 				'_key' => $key,
@@ -197,11 +160,9 @@ function populatePosts($author): array {
 			));
 		}
 		
-		// Move the array pointer to the next element
 		next($postmeta);
 	}
 	
-	// Return the post ids
 	return $post;
 }
 
@@ -213,14 +174,10 @@ function populateUserRoles(): void {
 	// Extend the Query object
 	global $rs_query;
 	
-	// Create an array of user roles
 	$roles = array('User', 'Editor', 'Moderator', 'Administrator');
 	
-	// Loop through the user roles
-	foreach($roles as $role) {
-		// Insert the user roles into the database
+	foreach($roles as $role)
 		$rs_query->insert('user_roles', array('name' => $role, '_default' => 'yes'));
-	}
 }
 
 /**
@@ -231,7 +188,6 @@ function populateUserPrivileges(): void {
 	// Extend the Query object
 	global $rs_query;
 	
-	// Create an array of admin pages (for privileges)
 	$admin_pages = array(
 		'pages',
 		'posts',
@@ -248,45 +204,31 @@ function populateUserPrivileges(): void {
 		'settings',
 		'user_roles'
 	);
-	
-	// Create an array of user privileges
 	$privileges = array('can_view_', 'can_create_', 'can_edit_', 'can_delete_');
 	
-	// Loop through the admin pages
 	foreach($admin_pages as $admin_page) {
-		// Loop through the user privileges
 		foreach($privileges as $privilege) {
 			switch($admin_page) {
 				case 'media':
-					// Change the 'can_create_' privilege to 'can_upload_'
 					if($privilege === 'can_create_') $privilege = 'can_upload_';
-					
-					// Insert the user privilege into the database
-					$rs_query->insert('user_privileges', array('name' => $privilege.$admin_page));
 					break;
 				case 'comments':
 					// Skip 'can_create_' for comments
 					if($privilege === 'can_create_') continue 2;
-					
-					// Insert the user privilege into the database
-					$rs_query->insert('user_privileges', array('name' => $privilege.$admin_page));
 					break;
 				case 'login_attempts':
 					// Skip 'can_create_', 'can_edit_', and 'can_delete_' for settings
 					if($privilege === 'can_create_' || $privilege === 'can_edit_' || $privilege === 'can_delete_')
 						continue 2;
-					
-					// Insert the user privilege into the database
-					$rs_query->insert('user_privileges', array('name' => $privilege.$admin_page));
 					break;
 				case 'settings':
 					// Skip 'can_view_', 'can_create_', and 'can_delete_' for settings
 					if($privilege === 'can_view_' || $privilege === 'can_create_' || $privilege === 'can_delete_')
 						continue 2;
-				default:
-					// Insert the user privilege into the database
-					$rs_query->insert('user_privileges', array('name' => $privilege.$admin_page));
+					break;
 			}
+			
+			$rs_query->insert('user_privileges', array('name' => $privilege . $admin_page));
 		}
 	}
 	
@@ -308,10 +250,8 @@ function populateUserPrivileges(): void {
 	 * 46 => 'can_view_user_roles', 47 => 'can_create_user_roles', 48 => 'can_edit_user_roles', 49 => 'can_delete_user_roles'
 	 */
 	
-	// Fetch all default user roles from the database
 	$roles = $rs_query->select('user_roles', 'id', array('id' => array('IN', 1, 2, 3, 4)), 'id');
 	
-	// Loop through the user roles
 	foreach($roles as $role) {
 		switch($role['id']) {
 			case 1:
@@ -332,7 +272,6 @@ function populateUserPrivileges(): void {
 				break;
 		}
 		
-		// Insert the user relationships into the database
 		foreach($privileges as $privilege)
 			$rs_query->insert('user_relationships', array('role' => $role['id'], 'privilege' => $privilege));
 	}
@@ -350,7 +289,6 @@ function populateUsers($args = array()): int {
 	// Extend the Query class
 	global $rs_query;
 	
-	// Set the default arguments
 	$defaults = array(
 		'username' => 'admin',
 		'password' => '12345678',
@@ -358,7 +296,6 @@ function populateUsers($args = array()): int {
 		'role' => getUserRoleId('Administrator')
 	);
 	
-	// Merge the defaults with the provided arguments
 	$args = array_merge($defaults, $args);
 	
 	// Encrypt password
@@ -372,15 +309,11 @@ function populateUsers($args = array()): int {
 		'registered' => 'NOW()',
 		'role' => $args['role']
 	));
-	
-	// User metadata
 	$usermeta = array('first_name' => '', 'last_name' => '', 'avatar' => 0, 'theme' => 'default');
 	
-	// Insert the user metadata into the database
 	foreach($usermeta as $key => $value)
 		$rs_query->insert('usermeta', array('user' => $user, '_key' => $key, 'value' => $value));
 	
-	// Return the user's id
 	return $user;
 }
 
@@ -395,11 +328,10 @@ function populateSettings($args = array()): void {
 	// Extend the Query class
 	global $rs_query;
 	
-	// Set the default arguments
 	$defaults = array(
 		'site_title' => 'My Website',
-		'description' => 'A new '.CMS_NAME.' website!',
-		'site_url' => (!empty($_SERVER['HTTPS']) ? 'https://' : 'http://').$_SERVER['HTTP_HOST'],
+		'description' => 'A new ' . CMS_NAME . ' website!',
+		'site_url' => (!empty($_SERVER['HTTPS']) ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'],
 		'admin_email' => 'admin@rscmswebsite.com',
 		'default_user_role' => getUserRoleId('User'),
 		'home_page' => $rs_query->selectField('posts', 'id', array(
@@ -418,10 +350,8 @@ function populateSettings($args = array()): void {
 		'theme_color' => '#ededed'
 	);
 	
-	// Merge the defaults with the provided arguments
 	$args = array_merge($defaults, $args);
 	
-	// Insert the settings into the database
 	foreach($args as $name => $value)
 		$rs_query->insert('settings', array('name' => $name, 'value' => $value));
 }
@@ -435,10 +365,8 @@ function populateTaxonomies(): void {
 	// Extend the Query class
 	global $rs_query;
 	
-	// Create an array of default taxonomies
 	$taxonomies = array('category', 'nav_menu');
 	
-	// Insert the taxonomies into the database
 	foreach($taxonomies as $taxonomy)
 		$rs_query->insert('taxonomies', array('name' => $taxonomy));
 }
@@ -454,7 +382,6 @@ function populateTerms($post): void {
 	// Extend the Query class
 	global $rs_query;
 	
-	// Insert the terms into the database
 	$term = $rs_query->insert('terms', array(
 		'name' => 'Uncategorized',
 		'slug' => 'uncategorized',
@@ -462,7 +389,6 @@ function populateTerms($post): void {
 		'count' => 1
 	));
 	
-	// Insert the term relationships into the database
 	$rs_query->insert('term_relationships', array('term' => $term, 'post' => $post));
 }
 
@@ -966,6 +892,66 @@ function registerDefaultTaxonomies(): void {
 }
 
 /*------------------------------------*\
+    USER PRIVILEGES
+\*------------------------------------*/
+
+/**
+ * Check whether a user has a specified privilege.
+ * @since 1.7.2[a]
+ *
+ * @param string $privilege
+ * @param int $role (optional; default: null)
+ * @return bool
+ */
+function userHasPrivilege($privilege, $role = null): bool {
+	// Extend the Query object and the user's session data
+	global $rs_query, $session;
+	
+	if(is_null($role)) $role = $session['role'];
+	
+	$id = $rs_query->selectField('user_privileges', 'id', array('name' => $privilege));
+	
+	// Fetch any relationships between the user's role and the specified privilege and return true if there are
+	return $rs_query->selectRow('user_relationships', 'COUNT(*)', array('role' => $role, 'privilege' => $id)) > 0;
+}
+
+/**
+ * Check whether a user has a specified group of privileges.
+ * @since 1.2.0[b]{ss-02}
+ *
+ * @param array $privileges (optional; default: array())
+ * @param string $logic (optional; default: 'AND')
+ * @param int $role (optional; default: null)
+ * @return bool
+ */
+function userHasPrivileges($privileges = array(), $logic = 'AND', $role = null): bool {
+	if(!is_array($privileges)) $privileges = (array)$privileges;
+	
+	foreach($privileges as $privilege) {
+		// Check which logic operator is being used
+		if(strtoupper($logic) === 'AND') {
+			// Return false if one of the privileges is not found
+			if(userHasPrivilege($privilege, $role) === false) return false;
+		} elseif(strtoupper($logic) === 'OR') {
+			// Return true if one of the privileges is found
+			if(userHasPrivilege($privilege, $role) === true) return true;
+		}
+	}
+	
+	// Check which logic operator is being used
+	if(strtoupper($logic) === 'AND') {
+		// Return true if all of the privileges are found
+		return true;
+	} elseif(strtoupper($logic) === 'OR') {
+		// Return false if none of the privileges are found
+		return false;
+	}
+}
+
+// Include the user privileges functions file
+require_once PATH.INC.'/user-privileges.php';
+
+/*------------------------------------*\
     MISCELLANEOUS
 \*------------------------------------*/
 
@@ -1219,60 +1205,6 @@ function getOnlineUser($session): array {
 	
 	// Return the user data
 	return $user;
-}
-
-/**
- * Check whether a user has a specified privilege.
- * @since 1.7.2[a]
- *
- * @param int $role
- * @param string $privilege
- * @return bool
- */
-function userHasPrivilege($role, $privilege): bool {
-	// Extend the Query object
-	global $rs_query;
-	
-	// Fetch the privilege's id from the database
-	$id = $rs_query->selectField('user_privileges', 'id', array('name' => $privilege));
-	
-	// Fetch any relationships between the user's role and the specified privilege and return true if there are
-	return $rs_query->selectRow('user_relationships', 'COUNT(*)', array('role' => $role, 'privilege' => $id)) > 0;
-}
-
-/**
- * Check whether a user has a specified group of privileges.
- * @since 1.2.0[b]{ss-02}
- *
- * @param int $role
- * @param array $privileges (optional; default: array())
- * @param string $logic (optional; default: 'AND')
- * @return bool
- */
-function userHasPrivileges($role, $privileges = array(), $logic = 'AND'): bool {
-	// Make sure the privileges are in an array
-	if(!is_array($privileges)) $privileges = (array)$privileges;
-	
-	// Loop through the privileges
-	foreach($privileges as $privilege) {
-		// Check which logic operator is being used
-		if(strtoupper($logic) === 'AND') {
-			// Return false if one of the privileges is not found
-			if(userHasPrivilege($role, $privilege) === false) return false;
-		} elseif(strtoupper($logic) === 'OR') {
-			// Return true if one of the privileges is found
-			if(userHasPrivilege($role, $privilege) === true) return true;
-		}
-	}
-	
-	// Check which logic operator is being used
-	if(strtoupper($logic) === 'AND') {
-		// Return true if all of the privileges are found
-		return true;
-	} elseif(strtoupper($logic) === 'OR') {
-		// Return false if none of the privileges are found
-		return false;
-	}
 }
 
 /**

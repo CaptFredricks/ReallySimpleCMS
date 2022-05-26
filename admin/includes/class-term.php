@@ -102,8 +102,8 @@ class Term {
 	 * @access public
 	 */
 	public function listTerms(): void {
-		// Extend the Query object and the user's session data
-		global $rs_query, $session;
+		// Extend the Query object
+		global $rs_query;
 		
 		// Set up pagination
 		$page = paginate((int)($_GET['paged'] ?? 1));
@@ -112,7 +112,7 @@ class Term {
 			<h1><?php echo $this->taxonomy_data['label']; ?></h1>
 			<?php
 			// Check whether the user has sufficient privileges to create terms of the current taxonomy and create an action link if so
-			if(userHasPrivilege($session['role'], 'can_create_'.str_replace(' ', '_', $this->taxonomy_data['labels']['name_lowercase']))) {
+			if(userHasPrivilege('can_create_'.str_replace(' ', '_', $this->taxonomy_data['labels']['name_lowercase']))) {
 				?>
 				<a class="button" href="<?php echo $this->taxonomy_data['menu_link'].($this->taxonomy_data['name'] === 'category' ? '?' : '&'); ?>action=create">Create New</a>
 				<?php
@@ -166,13 +166,13 @@ class Term {
 					// Set up the action links
 					$actions = array(
 						// Edit
-						userHasPrivilege($session['role'], 'can_edit_'.$tax_name
+						userHasPrivilege('can_edit_'.$tax_name
 						) ? actionLink('edit', array(
 							'caption' => 'Edit',
 							'id' => $term['id']
 						)) : null,
 						// Delete
-						userHasPrivilege($session['role'], 'can_delete_'.$tax_name
+						userHasPrivilege('can_delete_'.$tax_name
 						) ? actionLink('delete', array(
 							'classes' => 'modal-launch delete-item',
 							'data_item' => strtolower($this->taxonomy_data['labels']['name_singular']),

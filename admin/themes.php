@@ -16,19 +16,19 @@ $rs_theme = new Theme;
 	switch($action) {
 		case 'create':
 			// Create a new theme
-			userHasPrivilege($session['role'], 'can_create_themes') ? $rs_theme->createTheme() : redirect('themes.php');
+			userHasPrivilege('can_create_themes') ? $rs_theme->createTheme() : redirect('themes.php');
 			break;
 		case 'activate':
 			// Activate an inactive theme
-			userHasPrivilege($session['role'], 'can_edit_themes') ? $rs_theme->activateTheme($name) : redirect('themes.php');
+			userHasPrivilege('can_edit_themes') ? $rs_theme->activateTheme($name) : redirect('themes.php');
 			break;
 		case 'delete':
 			// Delete an existing theme
-			userHasPrivilege($session['role'], 'can_delete_themes') ? $rs_theme->deleteTheme($name) : redirect('themes.php');
+			userHasPrivilege('can_delete_themes') ? $rs_theme->deleteTheme($name) : redirect('themes.php');
 			break;
 		default:
 			// List all themes
-			userHasPrivilege($session['role'], 'can_view_themes') ? $rs_theme->listThemes() : redirect('index.php');
+			userHasPrivilege('can_view_themes') ? $rs_theme->listThemes() : redirect('index.php');
 	}
 	?>
 </div>

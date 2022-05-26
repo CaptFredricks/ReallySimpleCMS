@@ -4,81 +4,61 @@
  * @since 2.3.3[a]
  */
 
-// Construct the file path for the current theme
-$theme_path = trailingSlash(PATH.THEMES).getSetting('theme');
-
-// Check whether the theme has an index.php file
-if(file_exists($theme_path.'/index.php')) {
-	// Check whether the current page is a post
-	if(isPost()) {
-		// Check whether the post is of type 'page'
-		if(getPostType() === 'page') {
-			// Fetch the page's template
-			$template = getPostMeta('template');
-			
-			// Check whether the template is valid
-			if(!empty($template) && templateExists($template, $theme_path.'/templates')) {
-				// Include the template file
-				require_once $theme_path.'/templates/'.$template;
-			} else {
-				// Check whether a generic 'page' template file exists
-				if(file_exists($theme_path.'/page.php')) {
-					// Include the template file
-					require_once $theme_path.'/page.php';
+if(!is_null($theme_path)) {
+	if(file_exists($theme_path . '/index.php')) {
+		if(isPost()) {
+			if(getPostType() === 'page') {
+				$template = getPostMeta('template');
+				
+				// Check whether the template is valid
+				if(!empty($template) && templateExists($template, $theme_path . '/templates')) {
+					require_once $theme_path . '/templates/' . $template;
 				} else {
-					// Include the theme's index file
-					require_once $theme_path.'/index.php';
+					// Load either the generic 'page' template file or the index.php file as a last resort
+					if(file_exists($theme_path . '/page.php'))
+						require_once $theme_path . '/page.php';
+					else
+						require_once $theme_path . '/index.php';
+				}
+			} else {
+				// Check whether a specific post type template file exists
+				if(file_exists($theme_path . '/posttype-' . getPostType() . '.php')) {
+					require_once $theme_path . '/posttype-' . getPostType() . '.php';
+				} // Load either the generic 'post' template file or the index.php file as a last resort
+				elseif(file_exists($theme_path . '/post.php')) {
+					require_once $theme_path . '/post.php';
+				} else {
+					require_once $theme_path . '/index.php';
+				}
+			}
+		} elseif(isTerm()) {
+			if(getTermTaxonomy() === 'category') {
+				// Check whether a 'category' template file exists
+				if(file_exists($theme_path . '/category.php')) {
+					require_once $theme_path . '/category.php';
+				} // Load either the generic 'taxonomy' template file or the index.php file as a last resort
+				elseif(file_exists($theme_path . '/taxonomy.php')) {
+					require_once $theme_path . '/taxonomy.php';
+				} else {
+					require_once $theme_path . '/index.php';
+				}
+			} else {
+				// Check whether a specific taxonomy template file exists
+				if(file_exists($theme_path . '/taxonomy-' . getTermTaxonomy() . '.php')) {
+					require_once $theme_path . '/taxonomy-' . getTermTaxonomy() . '.php';
+				} // Load either the generic 'taxonomy' template file or the index.php file as a last resort
+				elseif(file_exists($theme_path . '/taxonomy.php')) {
+					require_once $theme_path . '/taxonomy.php';
+				} else {
+					require_once $theme_path . '/index.php';
 				}
 			}
 		} else {
-			// Check whether a specific post type template file exists
-			if(file_exists($theme_path.'/posttype-'.getPostType().'.php')) {
-				// Include the template file
-				require_once $theme_path.'/posttype-'.getPostType().'.php';
-			} // Check whether a generic 'post' template file exists
-			elseif(file_exists($theme_path.'/post.php')) {
-				// Include the template file
-				require_once $theme_path.'/post.php';
-			} else {
-				// Include the theme's index file
-				require_once $theme_path.'/index.php';
-			}
-		}
-	} // Check whether the Term object is set
-	elseif(isTerm()) {
-		// Check whether the term is in the 'category' taxonomy
-		if(getTermTaxonomy() === 'category') {
-			// Check whether a 'category' template file exists
-			if(file_exists($theme_path.'/category.php')) {
-				// Include the template file
-				require_once $theme_path.'/category.php';
-			} // Check whether a generic 'taxonomy' template file exists
-			elseif(file_exists($theme_path.'/taxonomy.php')) {
-				// Include the template file
-				require_once $theme_path.'/taxonomy.php';
-			} else {
-				// Include the theme's index file
-				require_once $theme_path.'/index.php';
-			}
-		} else {
-			// Check whether a specific taxonomy template file exists
-			if(file_exists($theme_path.'/taxonomy-'.getTermTaxonomy().'.php')) {
-				// Include the template file
-				require_once $theme_path.'/taxonomy-'.getTermTaxonomy().'.php';
-			} // Check whether a generic 'taxonomy' template file exists
-			elseif(file_exists($theme_path.'/taxonomy.php')) {
-				// Include the template file
-				require_once $theme_path.'/taxonomy.php';
-			} else {
-				// Include the theme's index file
-				require_once $theme_path.'/index.php';
-			}
+			require_once PATH . INC . '/fallback-theme.php';
 		}
 	} else {
-		// Load the fallback theme
-		require_once PATH.INC.'/fallback-theme.php';
+		require_once PATH . INC . '/fallback-theme.php';
 	}
 } else {
-	// Load the fallback theme
-	require_once PATH.INC.'/fallback-theme.php';
+	require_once PATH . INC . '/fallback-theme.php';
 }

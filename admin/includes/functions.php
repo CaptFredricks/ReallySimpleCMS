@@ -396,8 +396,8 @@ function adminNavMenuItem($item = array(), $submenu = array(), $icon = null): vo
  * @since 1.0.0[b]
  */
 function adminNavMenu(): void {
-	// Extend the user's session data and the post types and taxonomies arrays
-	global $session, $post_types, $taxonomies;
+	// Extend the post types and taxonomies arrays
+	global $post_types, $taxonomies;
 	
 	// Dashboard
 	adminNavMenuItem(array('id' => 'dashboard', 'link' => 'index.php'), array(), 'tachometer-alt');
@@ -416,18 +416,18 @@ function adminNavMenu(): void {
 		}
 		
 		// Check whether the user has sufficient privileges to view the post type
-		if(userHasPrivilege($session['role'], 'can_view_'.$id)) {
+		if(userHasPrivilege('can_view_'.$id)) {
 			adminNavMenuItem(array('id' => $id), array( // Submenu
 				array( // List <post_type>
 					'link' => $post_type['menu_link'],
 					'caption' => $post_type['labels']['list_items']
 				),
-				(userHasPrivilege($session['role'], ($post_type['name'] === 'media' ? 'can_upload_media' : 'can_create_'.$id)) ? array( // Create <post_type>
+				(userHasPrivilege(($post_type['name'] === 'media' ? 'can_upload_media' : 'can_create_'.$id)) ? array( // Create <post_type>
 					'id' => $id === 'media' ? $id.'-upload' : $id.'-create',
 					'link' => $post_type['menu_link'].($post_type['name'] === 'media' ? '?action=upload' : ($post_type['name'] === 'post' ? '?action=create' : '&action=create')),
 					'caption' => $post_type['labels']['create_item']
 				) : null),
-				(!empty($post_type['taxonomy']) && array_key_exists($post_type['taxonomy'], $taxonomies) && userHasPrivilege($session['role'], 'can_view_'.$tax_id) && $taxonomies[$post_type['taxonomy']]['show_in_admin_menu'] ? array( // Taxonomy
+				(!empty($post_type['taxonomy']) && array_key_exists($post_type['taxonomy'], $taxonomies) && userHasPrivilege('can_view_'.$tax_id) && $taxonomies[$post_type['taxonomy']]['show_in_admin_menu'] ? array( // Taxonomy
 					'id' => $tax_id,
 					'link' => $taxonomies[$post_type['taxonomy']]['menu_link'],
 					'caption' => $taxonomies[$post_type['taxonomy']]['labels']['list_items']
@@ -437,7 +437,7 @@ function adminNavMenu(): void {
 	}
 	
 	// Check whether the user has sufficient privileges to view comments
-	if(userHasPrivilege($session['role'], 'can_view_comments')) {
+	if(userHasPrivilege('can_view_comments')) {
 		adminNavMenuItem(array(
 			'id' => 'comments',
 			'link' => 'comments.php'
@@ -445,19 +445,19 @@ function adminNavMenu(): void {
 	}
 	
 	// Check whether the user has sufficient privileges to view customization options
-	if(userHasPrivileges($session['role'], array('can_view_themes', 'can_view_menus', 'can_view_widgets'), 'OR')) {
+	if(userHasPrivileges(array('can_view_themes', 'can_view_menus', 'can_view_widgets'), 'OR')) {
 		adminNavMenuItem(array('id' => 'customization'), array( // Submenu
-			(userHasPrivilege($session['role'], 'can_view_themes') ? array(
+			(userHasPrivilege('can_view_themes') ? array(
 				'id' => 'themes',
 				'link' => 'themes.php',
 				'caption' => 'List Themes'
 			) : null),
-			(userHasPrivilege($session['role'], 'can_view_menus') ? array(
+			(userHasPrivilege('can_view_menus') ? array(
 				'id' => 'menus',
 				'link' => 'menus.php',
 				'caption' => 'List Menus'
 			) : null),
-			(userHasPrivilege($session['role'], 'can_view_widgets') ? array(
+			(userHasPrivilege('can_view_widgets') ? array(
 				'id' => 'widgets',
 				'link' => 'widgets.php',
 				'caption' => 'List Widgets'
@@ -467,11 +467,11 @@ function adminNavMenu(): void {
 	
 	// Users/user profile
 	adminNavMenuItem(array('id' => 'users'), array( // Submenu
-		(userHasPrivilege($session['role'], 'can_view_users') ? array(
+		(userHasPrivilege('can_view_users') ? array(
 			'link' => 'users.php',
 			'caption' => 'List Users'
 		) : null),
-		(userHasPrivilege($session['role'], 'can_create_users') ? array(
+		(userHasPrivilege('can_create_users') ? array(
 			'id' => 'users-create',
 			'link' => 'users.php?action=create',
 			'caption' => 'Create User'
@@ -480,18 +480,18 @@ function adminNavMenu(): void {
 	), 'users');
 	
 	// Check whether the user has sufficient privileges to view login options
-	if(userHasPrivileges($session['role'], array('can_view_login_attempts', 'can_view_login_blacklist', 'can_view_login_rules'), 'OR')) {
+	if(userHasPrivileges(array('can_view_login_attempts', 'can_view_login_blacklist', 'can_view_login_rules'), 'OR')) {
 		adminNavMenuItem(array('id' => 'logins'), array( // Submenu
-			(userHasPrivilege($session['role'], 'can_view_login_attempts') ? array(
+			(userHasPrivilege('can_view_login_attempts') ? array(
 				'link' => 'logins.php',
 				'caption' => 'Attempts'
 			) : null),
-			(userHasPrivilege($session['role'], 'can_view_login_blacklist') ? array(
+			(userHasPrivilege('can_view_login_blacklist') ? array(
 				'id' => 'blacklist',
 				'link' => 'logins.php?page=blacklist',
 				'caption' => 'Blacklist'
 			) : null),
-			(userHasPrivilege($session['role'], 'can_view_login_rules') ? array(
+			(userHasPrivilege('can_view_login_rules') ? array(
 				'id' => 'rules',
 				'link' => 'logins.php?page=rules',
 				'caption' => 'Rules'
@@ -500,18 +500,18 @@ function adminNavMenu(): void {
 	}
 	
 	// Check whether the user has sufficient privileges to view settings
-	if(userHasPrivileges($session['role'], array('can_edit_settings', 'can_view_user_roles'), 'OR')) {
+	if(userHasPrivileges(array('can_edit_settings', 'can_view_user_roles'), 'OR')) {
 		adminNavMenuItem(array('id' => 'settings'), array( // Submenu
-			(userHasPrivilege($session['role'], 'can_edit_settings') ? array(
+			(userHasPrivilege('can_edit_settings') ? array(
 				'link' => 'settings.php',
 				'caption' => 'General'
 			) : null),
-			(userHasPrivilege($session['role'], 'can_edit_settings') ? array(
+			(userHasPrivilege('can_edit_settings') ? array(
 				'id' => 'design',
 				'link' => 'settings.php?page=design',
 				'caption' => 'Design'
 			) : null),
-			(userHasPrivilege($session['role'], 'can_view_user_roles') ? array(
+			(userHasPrivilege('can_view_user_roles') ? array(
 				'id' => 'user-roles',
 				'link' => 'settings.php?page=user_roles',
 				'caption' => 'User Roles'

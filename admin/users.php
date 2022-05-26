@@ -16,27 +16,27 @@ $rs_user = new User($id);
 	switch($action) {
 		case 'create':
 			// Create a new user
-			userHasPrivilege($session['role'], 'can_create_users') ? $rs_user->createUser() : redirect('users.php');
+			userHasPrivilege('can_create_users') ? $rs_user->createUser() : redirect('users.php');
 			break;
 		case 'edit':
 			// Edit an existing user
-			userHasPrivilege($session['role'], 'can_edit_users') ? $rs_user->editUser() : redirect('users.php');
+			userHasPrivilege('can_edit_users') ? $rs_user->editUser() : redirect('users.php');
 			break;
 		case 'delete':
 			// Delete an existing user
-			userHasPrivilege($session['role'], 'can_delete_users') ? $rs_user->deleteUser() : redirect('users.php');
+			userHasPrivilege('can_delete_users') ? $rs_user->deleteUser() : redirect('users.php');
 			break;
 		case 'reset_password':
 			// Reset a user's password
-			userHasPrivilege($session['role'], 'can_edit_users') ? $rs_user->resetPassword() : redirect('users.php');
+			userHasPrivilege('can_edit_users') ? $rs_user->resetPassword() : redirect('users.php');
 			break;
 		case 'reassign_content':
 			// Reassign a user's content
-			userHasPrivilege($session['role'], 'can_delete_users') ? $rs_user->reassignContent() : redirect('users.php');
+			userHasPrivilege('can_delete_users') ? $rs_user->reassignContent() : redirect('users.php');
 			break;
 		default:
 			// List all users
-			userHasPrivilege($session['role'], 'can_view_users') ? $rs_user->listUsers() : redirect('index.php');
+			userHasPrivilege('can_view_users') ? $rs_user->listUsers() : redirect('index.php');
 	}
 	?>
 </div>

@@ -19,7 +19,7 @@ $rs_settings = new Settings;
 	switch($page) {
 		case 'design':
 			// Design settings
-			userHasPrivilege($session['role'], 'can_edit_settings') ? $rs_settings->designSettings() : redirect('index.php');
+			userHasPrivilege('can_edit_settings') ? $rs_settings->designSettings() : redirect('index.php');
 			break;
 		case 'user_roles':
 			// Create a UserRole object
@@ -28,24 +28,24 @@ $rs_settings = new Settings;
 			switch($action) {
 				case 'create':
 					// Create a new user role
-					userHasPrivilege($session['role'], 'can_create_user_roles') ? $rs_user_role->createUserRole() : redirect('settings.php?page=user_roles');
+					userHasPrivilege('can_create_user_roles') ? $rs_user_role->createUserRole() : redirect('settings.php?page=user_roles');
 					break;
 				case 'edit':
 					// Edit an existing user role
-					userHasPrivilege($session['role'], 'can_edit_user_roles') ? $rs_user_role->editUserRole() : redirect('settings.php?page=user_roles');
+					userHasPrivilege('can_edit_user_roles') ? $rs_user_role->editUserRole() : redirect('settings.php?page=user_roles');
 					break;
 				case 'delete':
 					// Delete an existing user role
-					userHasPrivilege($session['role'], 'can_delete_user_roles') ? $rs_user_role->deleteUserRole() : redirect('settings.php?page=user_roles');
+					userHasPrivilege('can_delete_user_roles') ? $rs_user_role->deleteUserRole() : redirect('settings.php?page=user_roles');
 					break;
 				default:
 					// List all user roles
-					userHasPrivilege($session['role'], 'can_view_user_roles') ? $rs_user_role->listUserRoles() : redirect('index.php');
+					userHasPrivilege('can_view_user_roles') ? $rs_user_role->listUserRoles() : redirect('index.php');
 			}
 			break;
 		default:
 			// General settings
-			userHasPrivilege($session['role'], 'can_edit_settings') ? $rs_settings->generalSettings() : redirect('index.php');
+			userHasPrivilege('can_edit_settings') ? $rs_settings->generalSettings() : redirect('index.php');
 	}
 	?>
 </div>

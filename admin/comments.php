@@ -16,23 +16,23 @@ $rs_comment = new Comment($id);
 	switch($action) {
 		case 'edit':
 			// Edit an existing comment
-			userHasPrivilege($session['role'], 'can_edit_comments') ? $rs_comment->editComment() : redirect('comments.php');
+			userHasPrivilege('can_edit_comments') ? $rs_comment->editComment() : redirect('comments.php');
 			break;
 		case 'approve':
 			// Approve an existing comment
-			userHasPrivilege($session['role'], 'can_edit_comments') ? $rs_comment->approveComment() : redirect('comments.php');
+			userHasPrivilege('can_edit_comments') ? $rs_comment->approveComment() : redirect('comments.php');
 			break;
 		case 'unapprove':
 			// Unapprove an existing comment
-			userHasPrivilege($session['role'], 'can_edit_comments') ? $rs_comment->unapproveComment() : redirect('comments.php');
+			userHasPrivilege('can_edit_comments') ? $rs_comment->unapproveComment() : redirect('comments.php');
 			break;
 		case 'delete':
 			// Delete an existing comment
-			userHasPrivilege($session['role'], 'can_delete_comments') ? $rs_comment->deleteComment() : redirect('comments.php');
+			userHasPrivilege('can_delete_comments') ? $rs_comment->deleteComment() : redirect('comments.php');
 			break;
 		default:
 			// List all comments
-			userHasPrivilege($session['role'], 'can_view_comments') ? $rs_comment->listComments() : redirect('index.php');
+			userHasPrivilege('can_view_comments') ? $rs_comment->listComments() : redirect('index.php');
 	}
 	?>
 </div>

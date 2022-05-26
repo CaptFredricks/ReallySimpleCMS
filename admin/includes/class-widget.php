@@ -38,8 +38,8 @@ class Widget extends Post {
 	 * @access public
 	 */
 	public function listWidgets(): void {
-		// Extend the Query object and the user's session data
-		global $rs_query, $session;
+		// Extend the Query object
+		global $rs_query;
 		
 		// Set up pagination
 		$page = paginate((int)($_GET['paged'] ?? 1));
@@ -48,7 +48,7 @@ class Widget extends Post {
 			<h1>Widgets</h1>
 			<?php
 			// Check whether the user has sufficient privileges to create widgets and create an action link if so
-			if(userHasPrivilege($session['role'], 'can_create_widgets'))
+			if(userHasPrivilege('can_create_widgets'))
 				echo actionLink('create', array('classes' => 'button', 'caption' => 'Create New'));
 			
 			// Display the page's info
@@ -103,12 +103,12 @@ class Widget extends Post {
 					// Set up the action links
 					$actions = array(
 						// Edit
-						userHasPrivilege($session['role'], 'can_edit_widgets') ? actionLink('edit', array(
+						userHasPrivilege('can_edit_widgets') ? actionLink('edit', array(
 							'caption' => 'Edit',
 							'id' => $widget['id']
 						)) : null,
 						// Delete
-						userHasPrivilege($session['role'], 'can_delete_widgets') ? actionLink('delete', array(
+						userHasPrivilege('can_delete_widgets') ? actionLink('delete', array(
 							'classes' => 'modal-launch delete-item',
 							'data_item' => 'widget',
 							'caption' => 'Delete',
@@ -423,13 +423,11 @@ class Widget extends Post {
 	 * @access private
 	 */
 	private function bulkActions(): void {
-		// Extend the user's session data
-		global $session;
 		?>
 		<div class="bulk-actions">
 			<?php
 			// Make sure the user has the required permissions
-			if(userHasPrivilege($session['role'], 'can_edit_widgets')) {
+			if(userHasPrivilege('can_edit_widgets')) {
 				?>
 				<select class="actions">
 					<option value="active">Active</option>
@@ -445,7 +443,7 @@ class Widget extends Post {
 			}
 			
 			// Make sure the user has the required permissions
-			if(userHasPrivilege($session['role'], 'can_delete_widgets')) {
+			if(userHasPrivilege('can_delete_widgets')) {
 				// Delete
 				button(array(
 					'class' => 'bulk-delete',

@@ -74,8 +74,8 @@ class Comment {
 	 * @access public
 	 */
 	public function listComments(): void {
-		// Extend the Query object and the user's session data
-		global $rs_query, $session;
+		// Extend the Query object
+		global $rs_query;
 		
 		// Fetch the status of the currently displayed comments
 		$status = $_GET['status'] ?? 'all';
@@ -168,7 +168,7 @@ class Comment {
 					// Set up the action links
 					$actions = array(
 						// Approve/unapprove
-						userHasPrivilege($session['role'], 'can_edit_comments'
+						userHasPrivilege('can_edit_comments'
 							) ? ($comment['status'] === 'approved' ? actionLink('unapprove', array(
 								'caption' => 'Unapprove',
 								'id' => $comment['id']
@@ -177,12 +177,12 @@ class Comment {
 								'id' => $comment['id']
 							))) : null,
 						// Edit
-						userHasPrivilege($session['role'], 'can_edit_comments') ? actionLink('edit', array(
+						userHasPrivilege('can_edit_comments') ? actionLink('edit', array(
 								'caption' => 'Edit',
 								'id' => $comment['id']
 							)) : null,
 						// Delete
-						userHasPrivilege($session['role'], 'can_delete_comments') ? actionLink('delete', array(
+						userHasPrivilege('can_delete_comments') ? actionLink('delete', array(
 								'classes' => 'modal-launch delete-item',
 								'data_item' => 'comment',
 								'caption' => 'Delete',
@@ -520,13 +520,11 @@ class Comment {
 	 * @access private
 	 */
 	private function bulkActions(): void {
-		// Extend the user's session data
-		global $session;
 		?>
 		<div class="bulk-actions">
 			<?php
 			// Make sure the user has the required permissions
-			if(userHasPrivilege($session['role'], 'can_edit_comments')) {
+			if(userHasPrivilege('can_edit_comments')) {
 				?>
 				<select class="actions">
 					<option value="approved">Approve</option>
@@ -542,7 +540,7 @@ class Comment {
 			}
 			
 			// Make sure the user has the required permissions
-			if(userHasPrivilege($session['role'], 'can_delete_comments')) {
+			if(userHasPrivilege('can_delete_comments')) {
 				// Delete
 				button(array(
 					'class' => 'bulk-delete',

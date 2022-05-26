@@ -65,8 +65,8 @@ class UserRole {
 	 * @access public
 	 */
 	public function listUserRoles(): void {
-		// Extend the Query object and the user's session data
-		global $rs_query, $session;
+		// Extend the Query object
+		global $rs_query;
 		
 		// Set up pagination
 		$page = paginate((int)($_GET['paged'] ?? 1));
@@ -75,7 +75,7 @@ class UserRole {
 			<h1>User Roles</h1>
 			<?php
 			// Check whether the user has sufficient privileges to create user roles and create an action link if so
-			if(userHasPrivilege($session['role'], 'can_create_user_roles')) {
+			if(userHasPrivilege('can_create_user_roles')) {
 				echo actionLink('create', array(
 					'classes' => 'button',
 					'caption' => 'Create New',
@@ -127,13 +127,13 @@ class UserRole {
 					// Set up the action links
 					$actions = array(
 						// Edit
-						userHasPrivilege($session['role'], 'can_edit_user_roles') ? actionLink('edit', array(
+						userHasPrivilege('can_edit_user_roles') ? actionLink('edit', array(
 							'caption' => 'Edit',
 							'page' => 'user_roles',
 							'id' => $role['id']
 						)) : null,
 						// Delete
-						userHasPrivilege($session['role'], 'can_delete_user_roles') ? actionLink('delete', array(
+						userHasPrivilege('can_delete_user_roles') ? actionLink('delete', array(
 							'classes' => 'modal-launch delete-item',
 							'data_item' => 'user role',
 							'caption' => 'Delete',

@@ -167,8 +167,8 @@ class Login {
 	 * @access public
 	 */
 	public function loginAttempts(): void {
-		// Extend the Query object and the user's session data
-		global $rs_query, $session;
+		// Extend the Query object
+		global $rs_query;
 		
 		// Fetch the status of the currently displayed comments
 		$status = $_GET['status'] ?? 'all';
@@ -264,12 +264,12 @@ class Login {
 					// Set up the action links
 					$actions = array(
 						// Blacklist login
-						userHasPrivilege($session['role'], 'can_create_login_blacklist') ? actionLink('blacklist_login', array(
+						userHasPrivilege('can_create_login_blacklist') ? actionLink('blacklist_login', array(
 							'caption' => 'Blacklist Login',
 							'id' => $login_attempt['id']
 						)) : null,
 						// Blacklist IP
-						userHasPrivilege($session['role'], 'can_create_login_blacklist') ? actionLink('blacklist_ip', array(
+						userHasPrivilege('can_create_login_blacklist') ? actionLink('blacklist_ip', array(
 							'caption' => 'Blacklist IP',
 							'id' => $login_attempt['id']
 						)) : null
@@ -461,8 +461,8 @@ class Login {
 	 * @access public
 	 */
 	public function loginBlacklist(): void {
-		// Extend the Query object and the user's session data
-		global $rs_query, $session;
+		// Extend the Query object
+		global $rs_query;
 		
 		// Set up pagination
 		$page = paginate((int)($_GET['paged'] ?? 1));
@@ -471,7 +471,7 @@ class Login {
 			<h1>Login Blacklist</h1>
 			<?php
 			// Check whether the user has sufficient privileges to create a login blacklist
-			if(userHasPrivilege($session['role'], 'can_create_login_blacklist')) {
+			if(userHasPrivilege('can_create_login_blacklist')) {
 				// Construct an action link
 				echo actionLink('create', array(
 					'classes' => 'button',
@@ -555,13 +555,13 @@ class Login {
 					// Set up the action links
 					$actions = array(
 						// Edit
-						userHasPrivilege($session['role'], 'can_edit_login_blacklist') ? actionLink('edit', array(
+						userHasPrivilege('can_edit_login_blacklist') ? actionLink('edit', array(
 							'caption' => 'Edit',
 							'page' => 'blacklist',
 							'id' => $blacklisted_login['id']
 						)) : null,
 						// Whitelist
-						userHasPrivilege($session['role'], 'can_delete_login_blacklist') ? actionLink('whitelist', array(
+						userHasPrivilege('can_delete_login_blacklist') ? actionLink('whitelist', array(
 							'caption' => 'Whitelist',
 							'page' => 'blacklist',
 							'id' => $blacklisted_login['id']
@@ -918,8 +918,8 @@ class Login {
 	 * @access public
 	 */
 	public function loginRules(): void {
-		// Extend the Query object and the user's session data
-		global $rs_query, $session;
+		// Extend the Query object
+		global $rs_query;
 		
 		// Set up pagination
 		$page = paginate((int)($_GET['paged'] ?? 1));
@@ -928,8 +928,13 @@ class Login {
 			<h1>Login Rules</h1>
 			<?php
 			// Check whether the user has sufficient privileges to create login rules and create an action link if so
-			if(userHasPrivilege($session['role'], 'can_create_login_rules'))
-				echo actionLink('create', array('classes' => 'button', 'caption' => 'Create New', 'page' => 'rules'));
+			if(userHasPrivilege('can_create_login_rules')) {
+				echo actionLink('create', array(
+					'classes' => 'button',
+					'caption' => 'Create New',
+					'page' => 'rules'
+				));
+			}
 			
 			// Display the page's info
 			adminInfo();
@@ -975,13 +980,13 @@ class Login {
 					// Set up the action links
 					$actions = array(
 						// Edit
-						userHasPrivilege($session['role'], 'can_edit_login_rules') ? actionLink('edit', array(
+						userHasPrivilege('can_edit_login_rules') ? actionLink('edit', array(
 							'caption' => 'Edit',
 							'page' => 'rules',
 							'id' => $login_rule['id']
 						)) : null,
 						// Delete
-						userHasPrivilege($session['role'], 'can_delete_login_rules') ? actionLink('delete', array(
+						userHasPrivilege('can_delete_login_rules') ? actionLink('delete', array(
 							'classes' => 'modal-launch delete-item',
 							'data_item' => 'login rule',
 							'caption' => 'Delete',
