@@ -949,7 +949,7 @@ function userHasPrivileges($privileges = array(), $logic = 'AND', $role = null):
 }
 
 // Include the user privileges functions file
-require_once PATH.INC.'/user-privileges.php';
+//require_once PATH.INC.'/user-privileges.php';
 
 /*------------------------------------*\
     MISCELLANEOUS

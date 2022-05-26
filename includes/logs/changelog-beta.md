@@ -18,6 +18,16 @@
 - [a] = alpha
 - [b] = beta
 
+## Version 1.3.3.1[b] (2022-05-26)
+
+- Incremented the CMS version
+
+**Bug fixes:**
+- Removed the inclusion of a file that doesn't exist
+
+**Modified files:**
+- includes/global-functions.php (M)
+
 ## Version 1.3.3[b] (2022-05-26)
 
 - Cleaned up internal documentation throughout the CMS (not every line needs to be documented, so this will be cut back quite a bit from here on)
@@ -70,7 +80,6 @@
 - includes/sitemap-posts.php
 - includes/sitemap-terms.php
 - includes/theme-functions.php
-- includes/user-privileges.php (N)
 - index.php (M)
 - init.php
 - login.php (M)
