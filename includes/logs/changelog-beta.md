@@ -18,6 +18,42 @@
 - [a] = alpha
 - [b] = beta
 
+## Version 1.3.4[b] (2022-05-31)
+
+- Cleaned up internal documentation throughout the CMS
+- Added a new arg to the `registerTaxonomy` function for specifying the post type the taxonomy links to
+- Posts can now be filtered by the term they belong to, by clicking on the `count` field on the term page
+- Terms now link to their associated archive page in the post data tables
+- Added support for default terms (new posts will have this term selected by default)
+- Added some error checking for the bulk actions AJAX submission
+- View/preview links on the "Edit \<post_type\>" form now opens in a new tab
+- Themes with missing `index.php` files are now shown on the "List Themes" page, but a warning is included
+- Tweaked and simplified some of the admin form checkbox CSS
+- Renamed a CSS class
+- Tweaked the structure and styling of the "Create/Edit Menu" forms
+- The `actionLink` function now returns an error message if no args are provided
+- Added a new optional parameter to the `actionLink` function that allows further query parameters to be specified and placed after the action in the query string
+- Users can no longer blacklist themselves via the "Login Attempts" or "Create Login Blacklist" pages
+- Logged in users are now logged out if their username is blacklisted via the "Create Login Blacklist" form
+
+**Bug fixes:**
+- Bulk edit doesn't work for custom post types
+
+**Modified files:**
+- admin/includes/bulk-actions.php
+- admin/includes/class-login.php
+- admin/includes/class-menu.php
+- admin/includes/class-post.php
+- admin/includes/class-term.php
+- admin/includes/class-theme.php
+- admin/includes/css/style.css
+- admin/includes/css/style.min.css
+- admin/includes/functions.php
+- admin/includes/js/script.js
+- content/themes/carbon/functions.php (M)
+- includes/constants.php
+- includes/global-functions.php
+
 ## Version 1.3.3.1[b] (2022-05-26)
 
 - Incremented the CMS version

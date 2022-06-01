@@ -88,6 +88,9 @@ jQuery(document).ready($ => {
 					selected: selected
 				},
 				dataType: 'html',
+				error: (request, status, error) => {
+					console.log(error);
+				},
 				method: 'POST',
 				success: result => {
 					// Suppress XMLHttpRequest warning

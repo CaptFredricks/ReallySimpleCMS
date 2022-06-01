@@ -14,7 +14,7 @@
  * Register custom taxonomies.
  * @since 1.0.1[b]
  */
-// registerTaxonomy($name);
+// registerTaxonomy($name, $post_type, $args);
 
 /**
  * Register theme menus.

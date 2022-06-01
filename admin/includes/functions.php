@@ -1378,40 +1378,37 @@ function pagerNav($page, $page_count): void {
  *
  * @param string $action
  * @param null|string|array $args (optional; default: null)
+ * @param null|string|array $more_params (optional; default: null)
  * @return string
  */
-function actionLink($action, $args = null): string {
+function actionLink($action, $args = null, $more_params = null): string {
 	if(!is_null($args)) {
 		if(!is_array($args)) $args = (array)$args;
+		if(!is_array($more_params)) $more_params = (array)$more_params;
 		
-		// Set the CSS classes
 		$classes = $args['classes'] ?? '';
-		
-		// Remove the CSS classes from the array
 		unset($args['classes']);
 		
-		// Set the data item, if provided
 		$data_item = $args['data_item'] ?? '';
-		
-		// Remove the data item from the array
 		unset($args['data_item']);
 		
-		// Set the caption
 		$caption = $args['caption'] ?? ($args[0] ?? 'Action Link');
-		
-		// Remove the caption from the array
 		unset($args['caption'], $args[0]);
 		
-		// Create a variable to hold a query string
-		$query_string = '';
+		$query_string = $more_string = '';
 		
-		// Assign the remaining args to a query string
 		foreach($args as $key => $value)
-			$query_string .= $key.'='.$value.'&';
+			$query_string .= $key . '=' . $value . '&';
 		
-		// Return the action link
-		return '<a'.(!empty($classes) ? ' class="'.$classes.'"' : '').' href="'.ADMIN_URI.'?'.($query_string ?? '').'action='.$action.'"'.(!empty($data_item) ? ' data-item="'.$data_item.'"' : '').'>'.$caption.'</a>';
+		foreach($more_params as $key => $value)
+			$more_string .= '&' . $key . '=' . $value;
+		
+		return '<a' . (!empty($classes) ? ' class="' . $classes . '"' : '') . ' href="' . ADMIN_URI . '?' .
+			($query_string ?? '') . 'action=' . $action . ($more_string ?? '') . '"' . (!empty($data_item) ? ' data-item="' .
+			$data_item . '"' : '') . '>' . $caption . '</a>';
 	}
+	
+	return '<span>Invalid action link</span>';
 }
 
 /**

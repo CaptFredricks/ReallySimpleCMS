@@ -130,29 +130,21 @@ class Post {
 		// Create an array of columns to fetch from the database
 		$cols = array_keys(get_object_vars($this));
 		
-		// Exclude 'type_data' and 'taxonomy_data'
 		$exclude = array('type_data', 'taxonomy_data');
-		
-		// Update the columns array
 		$cols = array_diff($cols, $exclude);
 		
-		// Check whether the id is '0'
 		if($id !== 0) {
-			// Fetch the post from the database
 			$post = $rs_query->selectRow('posts', $cols, array('id' => $id));
 			
 			// Set the class variable values
 			foreach($post as $key => $value) $this->$key = $post[$key];
 		}
 		
-		// Fetch the type data
 		$this->type_data = $type_data;
 		
-		// Check whether the current post type has a taxonomy associated with it and the taxonomy is valid
-		if(!empty($this->type_data['taxonomy']) && array_key_exists($this->type_data['taxonomy'], $taxonomies)) {
-			// Fetch the taxonomy data
+		// Fetch any associated taxonomy data
+		if(!empty($this->type_data['taxonomy']) && array_key_exists($this->type_data['taxonomy'], $taxonomies))
 			$this->taxonomy_data = $taxonomies[$this->type_data['taxonomy']];
-		}
 	}
 	
 	/**
@@ -165,11 +157,9 @@ class Post {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Fetch the post's type
 		$type = $this->type_data['name'];
-		
-		// Fetch the status of the currently displayed posts
 		$status = $_GET['status'] ?? 'all';
+		$term = $_GET['term'] ?? '';
 		
 		// Set up pagination
 		$page = paginate((int)($_GET['paged'] ?? 1));
@@ -177,29 +167,31 @@ class Post {
 		<div class="heading-wrap">
 			<h1><?php echo $this->type_data['label']; ?></h1>
 			<?php
-			// Check whether the user has sufficient privileges to create posts of the current type and create an action link if so
-			if(userHasPrivilege('can_create_'.str_replace(' ', '_', $this->type_data['labels']['name_lowercase']))) {
+			// Check whether the user has sufficient privileges to create posts of the current type
+			if(userHasPrivilege('can_create_' . str_replace(' ', '_',
+				$this->type_data['labels']['name_lowercase']))) {
+					
 				?>
-				<a class="button" href="?<?php echo $type === 'post' ? '' : 'type='.$type.'&'; ?>action=create">Create New</a>
+				<a class="button" href="?<?php echo $type === 'post' ? '' : 'type=' . $type .
+					'&'; ?>action=create">Create New</a>
 				<?php
 			}
 			
-			// Display the page's info
 			adminInfo();
 			?>
 			<hr>
 			<?php
 			// Check whether any status messages have been returned and display them if so
-			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
-				echo statusMessage('The '.strtolower($this->type_data['labels']['name_singular']).' was successfully deleted.', true);
+			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success') {
+				echo statusMessage('The ' . strtolower($this->type_data['labels']['name_singular']) .
+					' was successfully deleted.', true);
+			}
 			?>
 			<ul class="status-nav">
 				<?php
-				// Create keys for each of the possible statuses
 				$keys = array('all', 'published', 'draft', 'trash');
 				$count = array();
 				
-				// Fetch the post entry count from the database (by status)
 				foreach($keys as $key) {
 					if($key === 'all')
 						$count[$key] = $this->getPostCount($type);
@@ -211,34 +203,34 @@ class Post {
 					?>
 					<li>
 						<a href="<?php
-							echo ADMIN_URI.'?type='.$type.($key === 'all' ? '' : '&status='.$key);
+							echo ADMIN_URI . '?type=' . $type . ($key === 'all' ? '' : '&status=' . $key);
 							?>"><?php echo ucfirst($key); ?> <span class="count">(<?php echo $value; ?>)</span></a>
 					</li>
 					<?php
-					// Add bullets in between
 					if($key !== array_key_last($count)) {
 						?> &bull; <?php
 					}
 				}
 				?>
 			</ul>
-			<?php
-			// Set the page count
-			$page['count'] = ceil($count[$status] / $page['per_page']);
-			?>
+			<?php $page['count'] = ceil($count[$status] / $page['per_page']); ?>
 			<div class="entry-count status">
 				<?php
-				// Display the entry count for the current status
-				echo $count[$status].' '.($count[$status] === 1 ? 'entry' : 'entries');
+				if(!empty($term)) {
+					$t = str_replace('-', '_', $term);
+					$count[$t] = $this->getPostCount($type, '', $term);
+					
+					echo $count[$t] . ' ' . ($count[$t] === 1 ? 'entry' : 'entries');
+				} else {
+					echo $count[$status] . ' ' . ($count[$status] === 1 ? 'entry' : 'entries');
+				}
 				?>
 			</div>
 		</div>
 		<table class="data-table has-bulk-select">
 			<thead>
 				<?php
-				// Check whether the post type is hierarchical
 				if($this->type_data['hierarchical']) {
-					// Fill an array with the table header columns
 					$table_header_cols = array(
 						tag('input', array(
 							'type' => 'checkbox',
@@ -252,13 +244,10 @@ class Post {
 						'Meta Desc.'
 					);
 					
-					// Check whether comments are enabled sitewide and for the current post type
-					if(getSetting('enable_comments') && $this->type_data['comments']) {
-						// Insert the comments label into the array
+					// Insert the comments label into the array if comments are enabled
+					if(getSetting('enable_comments') && $this->type_data['comments'])
 						array_splice($table_header_cols, 5, 0, 'Comments');
-					}
 				} else {
-					// Fill an array with the table header columns
 					$table_header_cols = array(
 						tag('input', array(
 							'type' => 'checkbox',
@@ -271,38 +260,54 @@ class Post {
 						'Meta Desc.'
 					);
 					
-					// Check whether comments are enabled sitewide and for the current post type
-					if(getSetting('enable_comments') && $this->type_data['comments']) {
-						// Insert the comments label into the array
+					// Insert the comments label into the array if comments are enabled
+					if(getSetting('enable_comments') && $this->type_data['comments'])
 						array_splice($table_header_cols, 4, 0, 'Comments');
-					}
 					
-					// Check whether the post type has a taxonomy associated with it
-					if(!empty($this->taxonomy_data)) {
-						// Insert the taxonomy's label into the array
+					// Insert the taxonomy label into the array if the post type has an associated taxonomy
+					if(!empty($this->taxonomy_data))
 						array_splice($table_header_cols, 3, 0, $this->taxonomy_data['label']);
-					}
 				}
 				
-				// Construct the table header
 				echo tableHeaderRow($table_header_cols);
 				?>
 			</thead>
 			<tbody>
 				<?php
-				// Set the default 'order by' argument
 				$order_by = $type === 'page' ? 'title' : 'date';
-				
-				// Set the default 'order' argument
 				$order = $type === 'page' ? 'ASC' : 'DESC';
 				
-				// Fetch all posts from the database (by status)
 				if($status === 'all') {
-					$posts = $rs_query->select('posts', '*', array(
-						'status' => array('<>', 'trash'),
-						'type' => $type
-					), $order_by, $order, array($page['start'], $page['per_page']));
+					if(!empty($term)) {
+						$term_id = (int)$rs_query->selectField('terms', 'id', array('slug' => $term));
+						$relationships = $rs_query->select('term_relationships', 'post', array('term' => $term_id));
+						
+						if(count($relationships) > 1) {
+							$post_ids = array('IN');
+							
+							foreach($relationships as $rel)
+								$post_ids[] = $rel['post'];
+						} elseif(count($relationships) > 0) {
+							$post_ids = $relationships[0]['post'];
+						} else {
+							$post_ids = 0;
+						}
+						
+						// Fetch all posts in the specified term
+						$posts = $rs_query->select('posts', '*', array(
+							'status' => array('<>', 'trash'),
+							'id' => $post_ids,
+							'type' => $type
+						), $order_by, $order, array($page['start'], $page['per_page']));
+					} else {
+						// Fetch all posts
+						$posts = $rs_query->select('posts', '*', array(
+							'status' => array('<>', 'trash'),
+							'type' => $type
+						), $order_by, $order, array($page['start'], $page['per_page']));
+					}
 				} else {
+					// Fetch all posts of the specified status
 					$posts = $rs_query->select('posts', '*', array(
 						'status' => $status,
 						'type' => $type
@@ -310,22 +315,19 @@ class Post {
 				}
 				
 				foreach($posts as $post) {
-					// Fetch the post's metadata from the database
 					$meta = $this->getPostMeta($post['id']);
 					
-					// Fetch the name of the post's type
 					$type_name = str_replace(' ', '_', $this->type_data['labels']['name_lowercase']);
 					
-					// Set up the action links
 					$actions = array(
 						// Edit
-						userHasPrivilege('can_edit_'.$type_name
+						userHasPrivilege('can_edit_' . $type_name
 						) && $status !== 'trash' ? actionLink('edit', array(
 							'caption' => 'Edit',
 							'id' => $post['id']
 						)) : null,
 						// Trash/restore
-						userHasPrivilege('can_edit_'.$type_name
+						userHasPrivilege('can_edit_' . $type_name
 						) ? ($status === 'trash' ? actionLink('restore', array(
 							'caption' => 'Restore',
 							'id' => $post['id']
@@ -334,7 +336,7 @@ class Post {
 							'id' => $post['id']
 						))) : null,
 						// Delete
-						$status === 'trash' ? (userHasPrivilege('can_delete_'.$type_name
+						$status === 'trash' ? (userHasPrivilege('can_delete_' . $type_name
 						) ? actionLink('delete', array(
 							'classes' => 'modal-launch delete-item',
 							'data_item' => strtolower($this->type_data['labels']['name_singular']),
@@ -342,7 +344,9 @@ class Post {
 							'id' => $post['id']
 						)) : null) : (
 						// View/preview
-						'<a href="'.($post['status'] === 'published' ? (isHomePage($post['id']) ? '/' : getPermalink($post['type'], $post['parent'], $post['slug'])).'">View' : ('/?id='.$post['id'].'&preview=true').'">Preview').'</a>')
+						'<a href="' . ($post['status'] === 'published' ? (isHomePage($post['id']) ? '/' :
+							getPermalink($post['type'], $post['parent'], $post['slug'])) . '">View' :
+							('/?id=' . $post['id'] . '&preview=true') . '">Preview') . '</a>')
 					);
 					
 					// Filter out any empty actions
@@ -356,17 +360,24 @@ class Post {
 							'value' => $post['id']
 						)), 'bulk-select'),
 						// Title
-						tdCell((isHomePage($post['id']) ? '<i class="fas fa-home" style="cursor: help;" title="Home Page"></i> ' : '').'<strong>'.$post['title'].'</strong>'.($post['status'] !== 'published' && $status === 'all' ? ' &mdash; <em>'.$post['status'].'</em>' : '').'<div class="actions">'.implode(' &bull; ', $actions).'</div>', 'title'),
+						tdCell((isHomePage($post['id']) ?
+							'<i class="fas fa-home" style="cursor: help;" title="Home Page"></i> ' : '') .
+							'<strong>' . $post['title'] . '</strong>' . ($post['status'] !== 'published' &&
+							$status === 'all' ? ' &mdash; <em>' . $post['status'] . '</em>' : '') .
+							'<div class="actions">' . implode(' &bull; ', $actions) . '</div>', 'title'),
 						// Author
 						tdCell($this->getAuthor($post['author']), 'author'),
 						// Terms (hierarchical post types only)
-						!$this->type_data['hierarchical'] && !empty($this->type_data['taxonomy']) ? tdCell($this->getTerms($post['id']), 'terms') : '',
+						!$this->type_data['hierarchical'] && !empty($this->type_data['taxonomy']) ?
+							tdCell($this->getTerms($post['id']), 'terms') : '',
 						// Publish date
-						tdCell(is_null($post['date']) ? '&mdash;' : formatDate($post['date'], 'd M Y @ g:i A'), 'publish-date'),
+						tdCell(is_null($post['date']) ? '&mdash;' :
+							formatDate($post['date'], 'd M Y @ g:i A'), 'publish-date'),
 						// Parent (hierarchical post types only)
 						$this->type_data['hierarchical'] ? tdCell($this->getParent($post['parent']), 'parent') : '',
 						// Comments
-						getSetting('enable_comments') && $this->type_data['comments'] ? tdCell(($meta['comment_status'] ? $meta['comment_count'] : '&mdash;'), 'comments') : '',
+						getSetting('enable_comments') && $this->type_data['comments'] ?
+							tdCell(($meta['comment_status'] ? $meta['comment_count'] : '&mdash;'), 'comments') : '',
 						// Meta title
 						tdCell(!empty($meta['title']) ? 'Yes' : 'No', 'meta-title'),
 						// Meta description
@@ -374,9 +385,10 @@ class Post {
 					);
 				}
 				
-				// Display a notice if no posts are found
-				if(empty($posts))
-					echo tableRow(tdCell('There are no '.$this->type_data['labels']['name_lowercase'].' to display.', '', count($table_header_cols)));
+				if(empty($posts)) {
+					echo tableRow(tdCell('There are no ' . $this->type_data['labels']['name_lowercase'] .
+						' to display.', '', count($table_header_cols)));
+				}
 				?>
 			</tbody>
 			<tfoot>
@@ -390,8 +402,7 @@ class Post {
 		// Set up page navigation
 		echo pagerNav($page['current'], $page['count']);
 		
-		// Include the delete modal
-        include_once PATH.ADMIN.INC.'/modal-delete.php';
+        include_once PATH . ADMIN . INC . '/modal-delete.php';
 	}
 	
 	/**
@@ -401,7 +412,6 @@ class Post {
 	 * @access public
 	 */
 	public function createPost(): void {
-		// Fetch the post's type
 		$type = $this->type_data['name'];
 		
 		// Validate the form data and return any messages
@@ -415,28 +425,29 @@ class Post {
 			<form class="data-form" action="" method="post" autocomplete="off">
 				<div class="content">
 					<?php
-					// Construct a hidden 'type' form tag
+					// Type (hidden)
 					echo formTag('input', array(
 						'type' => 'hidden',
 						'name' => 'type',
 						'value' => $type
 					));
 					
-					// Construct a 'title' form tag
+					// Title
 					echo formTag('input', array(
 						'id' => 'title-field',
 						'class' => 'text-input required invalid init',
 						'name' => 'title',
 						'value' => ($_POST['title'] ?? ''),
-						'placeholder' => $this->type_data['labels']['name_singular'].' title'
+						'placeholder' => $this->type_data['labels']['name_singular'] . ' title'
 					));
 					?>
 					<div class="permalink">
 						<?php
-						// Construct a 'permalink' form tag
+						// Permalink
 						echo formTag('label', array(
 							'for' => 'slug',
-							'content' => '<strong>Permalink:</strong> '.getSetting('site_url').getPermalink($this->type_data['name'])
+							'content' => '<strong>Permalink:</strong> ' . getSetting('site_url') .
+								getPermalink($this->type_data['name'])
 						));
 						echo formTag('input', array(
 							'id' => 'slug-field',
@@ -448,7 +459,7 @@ class Post {
 						?>
 					</div>
 					<?php
-					// Construct an 'insert media' button form tag
+					// Insert media button
 					echo formTag('input', array(
 						'type' => 'button',
 						'class' => 'button-input button modal-launch',
@@ -457,7 +468,7 @@ class Post {
 						'data-insert' => 'true'
 					));
 					
-					// Construct a 'content' form tag
+					// Content
 					echo formTag('textarea', array(
 						'class' => 'textarea-input',
 						'name' => 'content',
@@ -471,7 +482,7 @@ class Post {
 						<h2>Publish</h2>
 						<div class="row">
 							<?php
-							// Construct a 'status' form tag
+							// Status
 							echo formTag('label', array('for' => 'status', 'content' => 'Status'));
 							echo formTag('select', array(
 								'class' => 'select-input',
@@ -482,7 +493,7 @@ class Post {
 						</div>
 						<div class="row">
 							<?php
-							// Construct an 'author' form tag
+							// Author
 							echo formTag('label', array('for' => 'author', 'content' => 'Author'));
 							echo formTag('select', array(
 								'class' => 'select-input',
@@ -493,7 +504,7 @@ class Post {
 						</div>
 						<div class="row">
 							<?php
-							// Construct a 'publish date' form tag
+							// Publish date
 							echo formTag('label', array('for' => 'date', 'content' => 'Publish on'));
 							echo formTag('br');
 							echo formTag('input', array(
@@ -510,7 +521,7 @@ class Post {
 						</div>
 						<div id="submit" class="row">
 							<?php
-							// Construct a 'submit' button form tag
+							// Submit button
 							echo formTag('input', array(
 								'type' => 'submit',
 								'class' => 'submit-input button',
@@ -521,44 +532,43 @@ class Post {
 						</div>
 					</div>
 					<?php
-					// Check whether the post type is hierarchical
 					if($this->type_data['hierarchical']) {
 						?>
 						<div class="block">
 							<h2>Attributes</h2>
 							<div class="row">
 								<?php
-								// Construct a 'parent' form tag
+								// Parent
 								echo formTag('label', array('for' => 'parent', 'content' => 'Parent'));
 								echo formTag('select', array(
 									'class' => 'select-input',
 									'name' => 'parent',
-									'content' => '<option value="0">(none)</option>'.$this->getParentList($type)
+									'content' => '<option value="0">(none)</option>' . $this->getParentList($type)
 								));
 								?>
 							</div>
 							<div class="row">
 								<?php
-								// Construct a 'template' form tag
+								// Template
 								echo formTag('label', array('for' => 'template', 'content' => 'Template'));
 								echo formTag('select', array(
 									'class' => 'select-input',
 									'name' => 'template',
-									'content' => '<option value="default">Default</option>'.$this->getTemplateList()
+									'content' => '<option value="default">Default</option>' .
+										$this->getTemplateList()
 								));
 								?>
 							</div>
 						</div>
 						<?php
 					} else {
-						// Check whether the post type has a valid taxonomy associated with it
 						if(!empty($this->taxonomy_data)) {
 							?>
 							<div class="block">
 								<h2><?php echo $this->taxonomy_data['label']; ?></h2>
 								<div class="row">
 									<?php
-									// Construct a 'terms' form checklist
+									// Terms list
 									echo $this->getTermsList();
 									?>
 								</div>
@@ -567,7 +577,6 @@ class Post {
 						}
 					}
 					
-					// Check whether comments are enabled sitewide and for the current post type
 					if(getSetting('enable_comments') && $this->type_data['comments']) {
 						?>
 						<div class="block">
@@ -575,9 +584,10 @@ class Post {
 							<div class="row">
 								<?php
 								// Check whether comments are enabled for this post
-								$comments = isset($_POST['comments']) || (!isset($_POST['comments']) && $this->type_data['comments']) ? 'checked' : '';
+								$comments = isset($_POST['comments']) || (!isset($_POST['comments']) &&
+									$this->type_data['comments']) ? 'checked' : '';
 								
-								// Construct a checkbox tag
+								// Enable comments
 								echo formTag('input', array(
 									'type' => 'checkbox',
 									'class' => 'checkbox-input',
@@ -600,10 +610,10 @@ class Post {
 						<div class="row">
 							<div class="image-wrap">
 								<?php
-								// Construct an image tag to display the featured image thumbnail
+								// Featured image thumbnail
 								echo formTag('img', array('src' => '//:0', 'data-field' => 'thumb'));
 								
-								// Construct a span tag to display the 'remove image' button
+								// Remove image button
 								echo formTag('span', array(
 									'class' => 'image-remove',
 									'title' => 'Remove',
@@ -612,7 +622,7 @@ class Post {
 								?>
 							</div>
 							<?php
-							// Construct a hidden 'featured image' form tag
+							// Featured image (hidden)
 							echo formTag('input', array(
 								'type' => 'hidden',
 								'name' => 'feat_image',
@@ -629,7 +639,7 @@ class Post {
 						<h2>Metadata</h2>
 						<div class="row">
 							<?php
-							// Construct a 'meta title' form tag
+							// Meta title
 							echo formTag('label', array('for' => 'meta_title', 'content' => 'Title'));
 							echo formTag('br');
 							echo formTag('input', array(
@@ -641,7 +651,7 @@ class Post {
 						</div>
 						<div class="row">
 							<?php
-							// Construct a 'meta description' form tag
+							// Meta description
 							echo formTag('label', array('for' => 'meta_description', 'content' => 'Description'));
 							echo formTag('br');
 							echo formTag('textarea', array(
@@ -658,8 +668,7 @@ class Post {
 			</form>
 		</div>
 		<?php
-		// Include the upload modal
-		include_once PATH.ADMIN.INC.'/modal-upload.php';
+		include_once PATH . ADMIN . INC . '/modal-upload.php';
 	}
 	
 	/**
@@ -672,36 +681,27 @@ class Post {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Check whether the post's id is valid
 		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the "List Posts" page
 			redirect(ADMIN_URI);
 		} else {
-			// Check whether the post's type is valid
 			if(empty($this->type)) {
-				// Redirect to the "List Posts" page
 				redirect(ADMIN_URI);
 			} elseif($this->type === 'media') {
-				// Redirect to the appropriate "Edit Media" form
-				redirect('media.php?id='.$this->id.'&action=edit');
+				redirect('media.php?id=' . $this->id . '&action=edit');
 			} elseif($this->type === 'widget') {
-				// Redirect to the appropriate "Edit Widget" form
-				redirect('widgets.php?id='.$this->id.'&action=edit');
+				redirect('widgets.php?id=' . $this->id . '&action=edit');
 			} else {
-				// Check whether the post is in the trash
 				if($this->isTrash($this->id)) {
-					// Redirect to the "List Posts" trash page
-					redirect(ADMIN_URI.($this->type !== 'post' ? '?type='.$this->type.'&' : '?').'status=trash');
+					redirect(ADMIN_URI . ($this->type !== 'post' ? '?type=' . $this->type . '&' : '?') .
+						'status=trash');
 				} else {
 					// Validate the form data and return any messages
 					$message = isset($_POST['submit']) ? $this->validateData($_POST, $this->id) : '';
 					
-					// Fetch the post's metadata from the database
 					$meta = $this->getPostMeta($this->id);
 					
-					// Check whether the post has a featured image and fetch its dimensions if so
 					if(!empty($meta['feat_image']))
-						list($width, $height) = getimagesize(PATH.getMediaSrc($meta['feat_image']));
+						list($width, $height) = getimagesize(PATH . getMediaSrc($meta['feat_image']));
 					?>
 					<div class="heading-wrap">
 						<h1><?php echo $this->type_data['labels']['edit_item']; ?></h1>
@@ -711,21 +711,22 @@ class Post {
 						<form class="data-form" action="" method="post" autocomplete="off">
 							<div class="content">
 								<?php
-								// Construct a 'title' form tag
+								// Title
 								echo formTag('input', array(
 									'id' => 'title-field',
 									'class' => 'text-input required invalid init',
 									'name' => 'title',
 									'value' => $this->title,
-									'placeholder' => $this->type_data['labels']['name_singular'].' title'
+									'placeholder' => $this->type_data['labels']['name_singular'] . ' title'
 								));
 								?>
 								<div class="permalink">
 									<?php
-									// Construct a 'permalink' form tag
+									// Permalink
 									echo formTag('label', array(
 										'for' => 'slug',
-										'content' => '<strong>Permalink:</strong> '.getSetting('site_url').getPermalink($this->type, $this->parent)
+										'content' => '<strong>Permalink:</strong> ' . getSetting('site_url') .
+											getPermalink($this->type, $this->parent)
 									));
 									echo formTag('input', array(
 										'id' => 'slug-field',
@@ -737,7 +738,7 @@ class Post {
 									?>
 								</div>
 								<?php
-								// Construct an 'insert media' button form tag
+								// Insert media button
 								echo formTag('input', array(
 									'type' => 'button',
 									'class' => 'button-input button modal-launch',
@@ -746,7 +747,7 @@ class Post {
 									'data-insert' => 'true'
 								));
 								
-								// Construct a 'content' form tag
+								// Content
 								echo formTag('textarea', array(
 									'class' => 'textarea-input',
 									'name' => 'content',
@@ -760,18 +761,22 @@ class Post {
 									<h2>Publish</h2>
 									<div class="row">
 										<?php
-										// Construct a 'status' form tag
+										// Status
 										echo formTag('label', array('for' => 'status', 'content' => 'Status'));
 										echo formTag('select', array(
 											'class' => 'select-input',
 											'name' => 'status',
-											'content' => '<option value="'.$this->status.'">'.ucfirst($this->status).'</option>'.($this->status === 'draft' ? '<option value="published">Published</option>' : '<option value="draft">Draft</option>')
+											'content' => '<option value="' . $this->status . '">' .
+												ucfirst($this->status) . '</option>' .
+												($this->status === 'draft' ?
+												'<option value="published">Published</option>' :
+												'<option value="draft">Draft</option>')
 										));
 										?>
 									</div>
 									<div class="row">
 										<?php
-										// Construct an 'author' form tag
+										// Author
 										echo formTag('label', array('for' => 'author', 'content' => 'Author'));
 										echo formTag('select', array(
 											'class' => 'select-input',
@@ -782,29 +787,38 @@ class Post {
 									</div>
 									<div class="row">
 										<?php
-										// Construct a 'publish date' form tag
+										// Publish date
 										echo formTag('label', array('for' => 'date', 'content' => 'Published on'));
 										echo formTag('br');
 										echo formTag('input', array(
 											'type' => 'date',
 											'class' => 'date-input',
 											'name' => 'date[]',
-											'value' => (!is_null($this->date) ? formatDate($this->date, 'Y-m-d') : formatDate($this->modified, 'Y-m-d'))
+											'value' => (!is_null($this->date) ? formatDate($this->date, 'Y-m-d') :
+												formatDate($this->modified, 'Y-m-d'))
 										));
 										echo formTag('input', array(
 											'type' => 'time',
 											'class' => 'date-input',
 											'name' => 'date[]',
-											'value' => (!is_null($this->date) ? formatDate($this->date, 'H:i') : formatDate($this->modified, 'H:i'))
+											'value' => (!is_null($this->date) ? formatDate($this->date, 'H:i') :
+												formatDate($this->modified, 'H:i'))
 										));
 										?>
 									</div>
 									<div id="submit" class="row">
 										<?php
-										// Construct a view/preview link
-										echo $this->status === 'published' ? '<a href="'.(isHomePage($this->id) ? '/' : getPermalink($this->type, $this->parent, $this->slug)).'">View</a>' : '<a href="/?id='.$this->id.'&preview=true">Preview</a>';
+										// View/preview link
+										echo $this->status === 'published' ? '<a href="' .
+											(isHomePage($this->id) ? '/' : getPermalink(
+												$this->type,
+												$this->parent,
+												$this->slug
+											)) . '" target="_blank" rel="noreferrer noopener">View</a>' :
+											'<a href="/?id=' . $this->id .
+											'&preview=true" target="_blank" rel="noreferrer noopener">Preview</a>';
 										
-										// Construct a 'submit' button form tag
+										// Submit button
 										echo formTag('input', array(
 											'type' => 'submit',
 											'class' => 'submit-input button',
@@ -815,44 +829,47 @@ class Post {
 									</div>
 								</div>
 								<?php
-								// Check whether the post type is hierarchical
 								if($this->type_data['hierarchical']) {
 									?>
 									<div class="block">
 										<h2>Attributes</h2>
 										<div class="row">
 											<?php
-											// Construct a 'parent' form tag
+											// Parent
 											echo formTag('label', array('for' => 'parent', 'content' => 'Parent'));
 											echo formTag('select', array(
 												'class' => 'select-input',
 												'name' => 'parent',
-												'content' => '<option value="0">(none)</option>'.$this->getParentList($this->type, $this->parent, $this->id)
+												'content' => '<option value="0">(none)</option>' .
+													$this->getParentList($this->type, $this->parent, $this->id)
 											));
 											?>
 										</div>
 										<div class="row">
 											<?php
-											// Construct a 'template' form tag
-											echo formTag('label', array('for' => 'template', 'content' => 'Template'));
+											// Template
+											echo formTag('label', array(
+												'for' => 'template',
+												'content' => 'Template'
+											));
 											echo formTag('select', array(
 												'class' => 'select-input',
 												'name' => 'template',
-												'content' => '<option value="default">Default</option>'.$this->getTemplateList($this->id)
+												'content' => '<option value="default">Default</option>' .
+													$this->getTemplateList($this->id)
 											));
 											?>
 										</div>
 									</div>
 									<?php
 								} else {
-									// Check whether the post type has a valid taxonomy associated with it
 									if(!empty($this->taxonomy_data)) {
 										?>
 										<div class="block">
 											<h2><?php echo $this->taxonomy_data['label']; ?></h2>
 											<div class="row">
 												<?php
-												// Construct a 'terms' form checklist
+												// Terms list
 												echo $this->getTermsList($this->id);
 												?>
 											</div>
@@ -861,14 +878,13 @@ class Post {
 									}
 								}
 								
-								// Check whether comments are enabled sitewide and for the current post type
 								if(getSetting('enable_comments') && $this->type_data['comments']) {
 									?>
 									<div class="block">
 										<h2>Comments</h2>
 										<div class="row">
 											<?php
-											// Construct a checkbox tag
+											// Enable comments
 											echo formTag('input', array(
 												'type' => 'checkbox',
 												'class' => 'checkbox-input',
@@ -889,14 +905,15 @@ class Post {
 								<div class="block">
 									<h2>Featured Image</h2>
 									<div class="row">
-										<div class="image-wrap<?php echo !empty($meta['feat_image']) ? ' visible' : ''; ?>" style="width: <?php echo $width ?? 0; ?>px;">
+										<div class="image-wrap<?php echo !empty($meta['feat_image']) ?
+											' visible' : ''; ?>" style="width: <?php echo $width ?? 0; ?>px;">
 											<?php
-											// Construct an image tag to display the featured image thumbnail
+											// Featured image thumbnail
 											echo getMedia($meta['feat_image'], array(
 												'data-field' => 'thumb'
 											));
 											
-											// Construct a span tag to display the 'remove image' button
+											// Remove image button
 											echo formTag('span', array(
 												'class' => 'image-remove',
 												'title' => 'Remove',
@@ -905,7 +922,7 @@ class Post {
 											?>
 										</div>
 										<?php
-										// Construct a hidden 'featured image' form tag
+										// Featured image (hidden)
 										echo formTag('input', array(
 											'type' => 'hidden',
 											'name' => 'feat_image',
@@ -922,7 +939,7 @@ class Post {
 									<h2>Metadata</h2>
 									<div class="row">
 										<?php
-										// Construct a 'meta title' form tag
+										// Meta title
 										echo formTag('label', array('for' => 'meta_title', 'content' => 'Title'));
 										echo formTag('br');
 										echo formTag('input', array(
@@ -934,8 +951,11 @@ class Post {
 									</div>
 									<div class="row">
 										<?php
-										// Construct a 'meta description' form tag
-										echo formTag('label', array('for' => 'meta_description', 'content' => 'Description'));
+										// Meta description
+										echo formTag('label', array(
+											'for' => 'meta_description',
+											'content' => 'Description'
+										));
 										echo formTag('br');
 										echo formTag('textarea', array(
 											'class' => 'textarea-input',
@@ -951,8 +971,7 @@ class Post {
 						</form>
 					</div>
 					<?php
-					// Include the upload modal
-					include_once PATH.ADMIN.INC.'/modal-upload.php';
+					include_once PATH . ADMIN . INC . '/modal-upload.php';
 				}
 			}
 		}
@@ -970,37 +989,26 @@ class Post {
 		// Extend the Query object
 		global $rs_query;
 		
-		// If the provided id is not zero, update the class id to match it
 		if($id !== 0) $this->id = $id;
 		
-		// Check whether the post's id is valid
 		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the "List Posts" page
 			redirect(ADMIN_URI);
 		} else {
-			// Fetch the post's type from the database
 			$type = $rs_query->selectField('posts', 'type', array('id' => $this->id));
 			
-			// Make sure the post's type matches the active post type
 			if($type === $this->type_data['name']) {
-				// Check whether the post is being published
 				if($status === 'published') {
-					// Fetch the post's status from the database
 					$db_status = $rs_query->selectField('posts', 'status', array('id' => $this->id));
 					
-					// Check whether the current and new statuses match
 					if($db_status !== $status) {
-						// Update the post's status and publish date
 						$rs_query->update('posts', array(
 							'date' => 'NOW()',
 							'status' => $status
 						), array('id' => $this->id));
 					} else {
-						// Update the post's status only
 						$rs_query->update('posts', array('status' => $status), array('id' => $this->id));
 					}
 				} else {
-					// Update the post's status and set the publish date to 'null'
 					$rs_query->update('posts', array(
 						'date' => null,
 						'status' => $status
@@ -1017,10 +1025,8 @@ class Post {
 	 * @access public
 	 */
 	public function trashPost(): void {
-		// Set the post's status to 'trash'
 		$this->updatePostStatus('trash');
 		
-		// Redirect to the "List Posts" page
 		redirect($this->type_data['menu_link']);
 	}
 	
@@ -1031,11 +1037,9 @@ class Post {
 	 * @access public
 	 */
 	public function restorePost(): void {
-		// Set the post's status to 'draft'
 		$this->updatePostStatus('draft');
 		
-		// Redirect to the "List Posts" trash page
-		redirect($this->type_data['menu_link'].($this->type !== 'post' ? '&' : '?').'status=trash');
+		redirect($this->type_data['menu_link'] . ($this->type !== 'post' ? '&' : '?') . 'status=trash');
 	}
 	
 	/**
@@ -1048,44 +1052,32 @@ class Post {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Check whether the post's id is valid
 		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the "List Posts" page
 			redirect(ADMIN_URI);
 		} else {
-			// Delete the post from the database
 			$rs_query->delete('posts', array('id' => $this->id));
-			
-			// Delete the post's metadata from the database
 			$rs_query->delete('postmeta', array('post' => $this->id));
-			
-			// Fetch all term relationships associated with the post from the database
 			$relationships = $rs_query->select('term_relationships', '*', array('post' => $this->id));
 			
 			foreach($relationships as $relationship) {
-				// Delete each unused relationship from the database
 				$rs_query->delete('term_relationships', array('id' => $relationship['id']));
-				
-				// Fetch the number of shared relationships between the category and a post in the database
 				$count = $rs_query->selectRow('term_relationships', 'COUNT(*)', array('term' => $relationship['term']));
-				
-				// Update the category's count (posts)
 				$rs_query->update('terms', array('count' => $count), array('id' => $relationship['term']));
 			}
 			
-			// Delete all comments associated with the post from the database
 			$rs_query->delete('comments', array('post' => $this->id));
 			
-			// Fetch any menu items associated with the post from the database
-			$menu_items = $rs_query->select('postmeta', 'post', array('_key' => 'post_link', 'value' => $this->id));
+			$menu_items = $rs_query->select('postmeta', 'post', array(
+				'_key' => 'post_link',
+				'value' => $this->id
+			));
 			
-			foreach($menu_items as $menu_item) {
-				// Set the status of any menu items associated with the post to 'invalid' in the database
+			// Set any menu items associated with the post to invalid
+			foreach($menu_items as $menu_item)
 				$rs_query->update('posts', array('status' => 'invalid'), array('id' => $menu_item['post']));
-			}
 			
-			// Redirect to the "List Posts" page with an appropriate exit status
-			redirect($this->type_data['menu_link'].($this->type !== 'post' ? '&' : '?').'status=trash&exit_status=success');
+			redirect($this->type_data['menu_link'] . ($this->type !== 'post' ? '&' : '?') .
+				'status=trash&exit_status=success');
 		}
 	}
 	
@@ -1106,51 +1098,43 @@ class Post {
 		if(empty($data['title']) || empty($data['slug']))
 			return statusMessage('R');
 		
-		// Sanitize the slug
 		$slug = sanitize($data['slug']);
 		
-		// Make sure the slug is unique
 		if($this->slugExists($slug, $id))
 			$slug = getUniquePostSlug($slug);
 		
-		// Make sure the post has a valid status
 		if($data['status'] !== 'draft' && $data['status'] !== 'published')
 			$data['status'] = 'draft';
 		
-		// Create an array to hold the post's metadata
 		$postmeta = array(
 			'title' => $data['meta_title'],
 			'description' => $data['meta_description'],
 			'feat_image' => $data['feat_image']
 		);
 		
-		// Check whether a page template has been submitted and add it to the postmeta array if so
 		if(isset($data['template'])) $postmeta['template'] = $data['template'];
 		
 		// Check whether comments are enabled for the post type
 		if($this->type_data['comments']) {
-			// Check whether comments are enabled for the specified post and add the status to the postmeta array if so
+			// Check whether comments are enabled for the specified post
 			$postmeta['comment_status'] = isset($data['comments']) ? 1 : 0;
 		}
 		
 		if($id === 0) {
-			// Check whether a date has been provided and is valid
-			if(!empty($data['date'][0]) && !empty($data['date'][1]) && $data['date'][0] >= '1000-01-01') {
-				// Merge the date and time into a string
-				$data['date'] = implode(' ', $data['date']);
-			} else {
-				// Fetch the current date and time
-				$data['date'] = 'NOW()';
-			}
+			// New post
 			
-			// Set the parent to zero if the post's type is 'post' (non-hierarchical)
+			// Check whether a date has been provided and is valid
+			if(!empty($data['date'][0]) && !empty($data['date'][1]) && $data['date'][0] >= '1000-01-01')
+				$data['date'] = implode(' ', $data['date']);
+			else
+				$data['date'] = 'NOW()';
+			
 			if(!$this->type_data['hierarchical']) $data['parent'] = 0;
 			
-			// Insert the new post into the database
 			$insert_id = $rs_query->insert('posts', array(
 				'title' => $data['title'],
 				'author' => $data['author'],
-				'date' => $data['status'] === 'published' ? $data['date'] : null,
+				'date' => ($data['status'] === 'published' ? $data['date'] : null),
 				'modified' => $data['date'],
 				'content' => $data['content'],
 				'status' => $data['status'],
@@ -1159,47 +1143,36 @@ class Post {
 				'type' => $data['type']
 			));
 			
-			// Check whether comments data has been submitted and set the comment count to zero if so
 			if(isset($postmeta['comment_status'])) $postmeta['comment_count'] = 0;
 			
-			// Insert the post's metadata into the database
 			foreach($postmeta as $key => $value)
 				$rs_query->insert('postmeta', array('post' => $insert_id, '_key' => $key, 'value' => $value));
 			
-			// Check whether any terms have been selected
 			if(!empty($data['terms'])) {
+				// Create new relationships
 				foreach($data['terms'] as $term) {
-					// Insert a new term relationship into the database
 					$rs_query->insert('term_relationships', array('term' => $term, 'post' => $insert_id));
-					
-					// Fetch the number of shared relationships between the term and a post in the database
 					$count = $rs_query->selectRow('term_relationships', 'COUNT(*)', array('term' => $term));
-					
-					// Update the term's count (posts)
 					$rs_query->update('terms', array('count' => $count), array('id' => $term));
 				}
 			}
 			
-			// Redirect to the appropriate "Edit Post" page
-			redirect(ADMIN_URI.'?id='.$insert_id.'&action=edit');
+			redirect(ADMIN_URI . '?id=' . $insert_id . '&action=edit');
 		} else {
-			// Check whether a date has been provided and is valid
-			if(!empty($data['date'][0]) && !empty($data['date'][1]) && $data['date'][0] >= '1000-01-01') {
-				// Merge the date and time into a string
-				$data['date'] = implode(' ', $data['date']);
-			} else {
-				// Set the date and time to null
-				$data['date'] = null;
-			}
+			// Existing post
 			
-			// Set the parent to zero if the post is non-hierarchical
+			// Check whether a date has been provided and is valid
+			if(!empty($data['date'][0]) && !empty($data['date'][1]) && $data['date'][0] >= '1000-01-01')
+				$data['date'] = implode(' ', $data['date']);
+			else
+				$data['date'] = null;
+			
 			if(!$this->type_data['hierarchical']) $data['parent'] = 0;
 			
-			// Update the post in the database
 			$rs_query->update('posts', array(
 				'title' => $data['title'],
 				'author' => $data['author'],
-				'date' => $data['status'] === 'published' ? $data['date'] : null,
+				'date' => ($data['status'] === 'published' ? $data['date'] : null),
 				'modified' => 'NOW()',
 				'content' => $data['content'],
 				'status' => $data['status'],
@@ -1207,45 +1180,35 @@ class Post {
 				'parent' => $data['parent']
 			), array('id' => $id));
 			
-			// Update the post's metadata in the database
 			foreach($postmeta as $key => $value)
 				$rs_query->update('postmeta', array('value' => $value), array('post' => $id, '_key' => $key));
 			
-			// Fetch all term relationships associated with the post from the database
 			$relationships = $rs_query->select('term_relationships', '*', array('post' => $id));
 			
 			foreach($relationships as $relationship) {
-				// Check whether the relationship still exists
+				// Delete any unused relationships
 				if(empty($data['terms']) || !in_array($relationship['term'], $data['terms'], true)) {
-					// Delete each unused relationship from the database
 					$rs_query->delete('term_relationships', array('id' => $relationship['id']));
-					
-					// Fetch the number of shared relationships between the term and a post in the database
-					$count = $rs_query->selectRow('term_relationships', 'COUNT(*)', array('term' => $relationship['term']));
-					
-					// Update the term's count (posts)
+					$count = $rs_query->selectRow('term_relationships', 'COUNT(*)', array(
+						'term' => $relationship['term']
+					));
 					$rs_query->update('terms', array('count' => $count), array('id' => $relationship['term']));
 				}
 			}
 			
-			// Check whether any terms have been selected
 			if(!empty($data['terms'])) {
 				foreach($data['terms'] as $term) {
-					// Fetch any relationships between the current term and the post from the database
-					$relationship = $rs_query->selectRow('term_relationships', 'COUNT(*)', array('term' => $term, 'post' => $id));
+					$relationship = $rs_query->selectRow('term_relationships', 'COUNT(*)', array(
+						'term' => $term,
+						'post' => $id
+					));
 					
-					// Check whether the relationship already exists
+					// Skip existing relationships, otherwise create a new one
 					if($relationship) {
-						// Skip to the next term
 						continue;
 					} else {
-						// Insert a new term relationship into the database
 						$rs_query->insert('term_relationships', array('term' => $term, 'post' => $id));
-						
-						// Fetch the number of shared relationships between the term and a post in the database
 						$count = $rs_query->select('term_relationships', 'COUNT(*)', array('term' => $term));
-						
-						// Update the term's count (posts)
 						$rs_query->update('terms', array('count' => $count), array('id' => $term));
 					}
 				}
@@ -1254,8 +1217,8 @@ class Post {
 			// Update the class variables
 			foreach($data as $key => $value) $this->$key = $value;
 			
-			// Return a status message
-			return statusMessage($this->type_data['labels']['name_singular'].' updated! <a href="'.ADMIN_URI.($this->type === 'post' ? '' : '?type='.$this->type).'">Return to list</a>?', true);
+			return statusMessage($this->type_data['labels']['name_singular'] . ' updated! <a href="' . ADMIN_URI .
+				($this->type === 'post' ? '' : '?type=' . $this->type) . '">Return to list</a>?', true);
 		}
 	}
 	
@@ -1273,11 +1236,12 @@ class Post {
 		global $rs_query;
 		
 		if($id === 0) {
-			// Fetch the number of times the slug appears in the database and return true if it does
 			return $rs_query->selectRow('posts', 'COUNT(slug)', array('slug' => $slug)) > 0;
 		} else {
-			// Fetch the number of times the slug appears in the database (minus the current post) and return true if it does
-			return $rs_query->selectRow('posts', 'COUNT(slug)', array('slug' => $slug, 'id' => array('<>', $id))) > 0;
+			return $rs_query->selectRow('posts', 'COUNT(slug)', array(
+				'slug' => $slug,
+				'id' => array('<>', $id)
+			)) > 0;
 		}
 	}
 	
@@ -1293,7 +1257,6 @@ class Post {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Fetch the post's status from the database and return true if it's in the trash
 		return $rs_query->selectField('posts', 'status', array('id' => $id)) === 'trash';
 	}
 	
@@ -1311,17 +1274,12 @@ class Post {
 		global $rs_query;
 		
 		do {
-			// Fetch the post's parent from the database
 			$parent = $rs_query->selectField('posts', 'parent', array('id' => $id));
-			
-			// Set the new id
 			$id = (int)$parent;
 			
-			// Return true if the post's ancestor is found
 			if($id === $ancestor) return true;
 		} while($id !== 0);
 		
-		// Return false if no ancestor is found
 		return false;
 	}
 	
@@ -1337,24 +1295,17 @@ class Post {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Fetch the post's metadata from the database
 		$postmeta = $rs_query->select('postmeta', array('_key', 'value'), array('post' => $id));
-		
-		// Create an empty array to hold the metadata
 		$meta = array();
 		
 		foreach($postmeta as $metadata) {
-			// Get the meta values
 			$values = array_values($metadata);
 			
-			// Loop through the individual metadata entries
-			for($i = 0; $i < count($metadata); $i += 2) {
-				// Assign the metadata to the meta array
+			// Assign the metadata to the meta array
+			for($i = 0; $i < count($metadata); $i += 2)
 				$meta[$values[$i]] = $values[$i + 1];
-			}
 		}
 		
-		// Return the metadata
 		return $meta;
 	}
 	
@@ -1370,7 +1321,6 @@ class Post {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Fetch the author's username from the database and return it
 		return $rs_query->selectField('users', 'username', array('id' => $id));
 	}
 	
@@ -1386,17 +1336,14 @@ class Post {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Create an empty list
 		$list = '';
-		
-		// Fetch all authors from the database
 		$authors = $rs_query->select('users', array('id', 'username'), '', 'username');
 		
-		// Add each author to the list
-		foreach($authors as $author)
-			$list .= '<option value="'.$author['id'].'"'.($author['id'] === (int)$id ? ' selected' : '').'>'.$author['username'].'</option>';
+		foreach($authors as $author) {
+			$list .= '<option value="' . $author['id'] . '"' . ($author['id'] === (int)$id ? ' selected' : '') .
+				'>' . $author['username'] . '</option>';
+		}
 		
-		// Return the list
 		return $list;
 	}
 	
@@ -1412,21 +1359,19 @@ class Post {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Create an empty array to hold the terms
 		$terms = array();
-		
-		// Fetch the term relationships from the database
 		$relationships = $rs_query->select('term_relationships', 'term', array('post' => $id));
 		
 		foreach($relationships as $relationship) {
-			// Fetch each term from the database and assign them to the terms array
-			$terms[] = $rs_query->selectField('terms', 'name', array(
+			$term = $rs_query->selectRow('terms', '*', array(
 				'id' => $relationship['term'],
 				'taxonomy' => getTaxonomyId($this->taxonomy_data['name'])
 			));
+			
+			$terms[] = '<a href="' . getPermalink($this->taxonomy_data['name'], $term['parent'], $term['slug']) .
+				'">' . $term['name'] . '</a>';
 		}
 		
-		// Return the terms
 		return empty($terms) ? '&mdash;' : implode(', ', $terms);
 	}
 	
@@ -1442,31 +1387,33 @@ class Post {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Create a list with an opening unordered list tag
-		$list = '<ul id="categories-list">';
-		
-		// Fetch all terms associated with the post type from the database
-		$terms = $rs_query->select('terms', array('id', 'name'), array('taxonomy' => getTaxonomyId($this->taxonomy_data['name'])), 'name');
+		$list = '<ul id="terms-list">';
+		$terms = $rs_query->select('terms', array('id', 'name', 'slug'), array(
+			'taxonomy' => getTaxonomyId($this->taxonomy_data['name'])
+		), 'name');
 		
 		foreach($terms as $term) {
-			// Fetch any existing term relationship from the database
-			$relationship = $rs_query->selectRow('term_relationships', 'COUNT(*)', array('term' => $term['id'], 'post' => $id));
+			$relationship = $rs_query->selectRow('term_relationships', 'COUNT(*)', array(
+				'term' => $term['id'],
+				'post' => $id
+			));
 			
-			// Construct the list
-			$list .= '<li>'.formTag('input', array(
+			$list .= '<li>' . formTag('input', array(
 				'type' => 'checkbox',
 				'class' => 'checkbox-input',
 				'name' => 'terms[]',
 				'value' => $term['id'],
-				'*' => ($relationship ? 'checked' : ''),
-				'label' => array('content' => '<span>'.$term['name'].'</span>')
-			)).'</li>';
+				'*' => ($relationship || ($id === 0 &&
+					$term['slug'] === $this->taxonomy_data['default_term']['slug']) ? 'checked' : ''),
+				'label' => array(
+					'class' => 'checkbox-label',
+					'content' => '<span>' . $term['name'] . '</span>'
+				)
+			)) . '</li>';
 		}
 		
-		// Close the unordered list
 		$list .= '</ul>';
 		
-		// Return the list
 		return $list;
 	}
 	
@@ -1482,10 +1429,8 @@ class Post {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Fetch the post's parent from the database
 		$parent = $rs_query->selectField('posts', 'title', array('id' => $id));
 		
-		// Return the parent's title
 		return empty($parent) ? '&mdash;' : $parent;
 	}
 	
@@ -1503,17 +1448,13 @@ class Post {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Create an empty list
 		$list = '';
-		
-		// Fetch all posts from the database (by type)
 		$posts = $rs_query->select('posts', array('id', 'title'), array(
 			'status' => array('<>', 'trash'),
 			'type' => $type
 		));
 		
 		foreach($posts as $post) {
-			// Do some extra checks if an id is provided
 			if($id !== 0) {
 				// Skip the current post
 				if($post['id'] === $id) continue;
@@ -1522,11 +1463,10 @@ class Post {
 				if($this->isDescendant($post['id'], $id)) continue;
 			}
 			
-			// Construct the list
-			$list .= '<option value="'.$post['id'].'"'.($post['id'] === $parent ? ' selected' : '').'>'.$post['title'].'</option>';
+			$list .= '<option value="' . $post['id'] . '"' . ($post['id'] === $parent ? ' selected' : '') . '>' .
+				$post['title'] . '</option>';
 		}
 		
-		// Return the list
 		return $list;
 	}
 	
@@ -1542,52 +1482,67 @@ class Post {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Construct the file path for the current theme's page templates directory
-		$templates_path = trailingSlash(PATH.THEMES).getSetting('theme').'/templates';
+		$templates_path = trailingSlash(PATH . THEMES) . getSetting('theme') . '/templates';
 		
-		// Check whether the templates directory exists within the current theme
 		if(file_exists($templates_path)) {
 			// Fetch all templates in the directory
 			$templates = array_diff(scandir($templates_path), array('.', '..'));
 			
-			// Fetch the page's current template from the database
 			$current = $rs_query->selectField('postmeta', 'value', array('post' => $id, '_key' => 'template'));
 			
-			// Add each template to an array
-			foreach($templates as $template)
-				$list[] = '<option value="'.$template.'"'.(isset($current) && $current === $template ? ' selected' : '').'>'.ucwords(substr(str_replace('-', ' ', $template), 0, strpos($template, '.'))).'</option>';
+			foreach($templates as $template) {
+				$list[] = '<option value="' . $template . '"' . (isset($current) && $current === $template ?
+					' selected' : '') . '>' . ucwords(substr(str_replace('-', ' ', $template), 0,
+					strpos($template, '.'))) . '</option>';
+			}
 			
-			// Convert the list array into a string
 			$list = implode('', $list);
 		}
 		
-		// Return the list
 		return $list ?? '';
 	}
 	
 	/**
-	 * Fetch the post count based on a specific status.
+	 * Fetch the post count based on a specific status or term.
 	 * @since 1.4.0[a]
 	 *
 	 * @access private
 	 * @param string $type
 	 * @param string $status (optional; default: '')
+	 * @param string $term (optional; default: '')
 	 * @return int
 	 */
-	private function getPostCount($type, $status = ''): int {
+	private function getPostCount($type, $status = '', $term = ''): int {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Check whether a status has been provided
-		if(empty($status)) {
-			// Return the count of all posts (excluding ones that are in the trash)
+		if(!empty($status)) {
+			return $rs_query->select('posts', 'COUNT(*)', array('status' => $status, 'type' => $type));
+		} elseif(!empty($term)) {
+			$term_id = (int)$rs_query->selectField('terms', 'id', array('slug' => $term));
+			$relationships = $rs_query->select('term_relationships', 'post', array('term' => $term_id));
+			
+			if(count($relationships) > 1) {
+				$post_ids = array('IN');
+				
+				foreach($relationships as $rel)
+					$post_ids[] = $rel['post'];
+			} elseif(count($relationships) > 0) {
+				$post_ids = $relationships[0]['post'];
+			} else {
+				$post_ids = 0;
+			}
+			
+			return $rs_query->select('posts', 'COUNT(*)', array(
+				'status' => array('<>', 'trash'),
+				'id' => $post_ids,
+				'type' => $type
+			));
+		} else {
 			return $rs_query->select('posts', 'COUNT(*)', array(
 				'status' => array('<>', 'trash'),
 				'type' => $type
 			));
-		} else {
-			// Return the count of all posts by the status
-			return $rs_query->select('posts', 'COUNT(*)', array('status' => $status, 'type' => $type));
 		}
 	}
 	
@@ -1601,11 +1556,9 @@ class Post {
 		?>
 		<div class="bulk-actions">
 			<?php
-			// Fetch the name of the post's type
 			$type_name = str_replace(' ', '_', $this->type_data['labels']['name_lowercase']);
 			
-			// Make sure the user has the required permissions
-			if(userHasPrivilege('can_edit_'.$type_name)) {
+			if(userHasPrivilege('can_edit_' . $type_name)) {
 				?>
 				<select class="actions">
 					<option value="published">Publish</option>
@@ -1621,8 +1574,7 @@ class Post {
 				));
 			}
 			
-			// Make sure the user has the required permissions
-			if(userHasPrivilege('can_delete_'.$type_name)) {
+			if(userHasPrivilege('can_delete_' . $type_name)) {
 				// Delete
 				button(array(
 					'class' => 'bulk-delete',

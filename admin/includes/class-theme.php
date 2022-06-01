@@ -20,11 +20,10 @@ class Theme {
 		<div class="heading-wrap">
 			<h1>Themes</h1>
 			<?php
-			// Check whether the user has sufficient privileges to create themes and create an action link if so
+			// Check whether the user has sufficient privileges to create themes
 			if(userHasPrivilege('can_create_themes'))
 				echo actionLink('create', array('classes' => 'button', 'caption' => 'Create New'));
 			
-			// Display the page's info
 			adminInfo();
 			?>
 			<hr>
@@ -36,13 +35,12 @@ class Theme {
 		</div>
 		<ul class="data-list clear">
 			<?php
-			// Check whether the themes directory exists and extract any existing theme directories if so
-			if(file_exists(PATH.THEMES))
-				$themes = array_diff(scandir(PATH.THEMES), array('.', '..'));
+			// Extract any existing theme directories
+			if(file_exists(PATH . THEMES))
+				$themes = array_diff(scandir(PATH . THEMES), array('.', '..'));
 			else
 				$themes = array();
 			
-			// Find the active theme in the array
 			$active = array_search(getSetting('theme'), $themes, true);
 			
 			// Remove the active theme from the array
@@ -51,15 +49,12 @@ class Theme {
 			// Place the active theme at the begining of the array
 			array_unshift($themes, getSetting('theme'));
 			
-			// Loop through the themes
 			foreach($themes as $theme) {
-				// Construct the file path for the active theme
-				$theme_path = trailingSlash(PATH.THEMES).$theme;
+				$theme_path = trailingSlash(PATH . THEMES) . $theme;
+				$is_broken = false;
 				
-				// Check whether the theme has an index.php file and skip it if not
-				if(!file_exists($theme_path.'/index.php')) continue;
+				if(!file_exists($theme_path . '/index.php')) $is_broken = true;
 				
-				// Set up the action links
 				$actions = array(
 					// Activate
 					userHasPrivilege('can_edit_themes') ? actionLink('activate', array(
@@ -80,17 +75,20 @@ class Theme {
 				?>
 				<li>
 					<div class="theme-preview">
-						<?php if(file_exists($theme_path.'/preview.png')): ?>
-							<img src="<?php echo trailingSlash(THEMES).$theme.'/preview.png'; ?>" alt="<?php echo ucwords(str_replace('-', ' ', $theme)); ?> preview">
+						<?php if($is_broken): ?>
+							<span class="error">Warning:<br>missing index.php file</span>
+						<?php elseif(file_exists($theme_path . '/preview.png')): ?>
+							<img src="<?php echo trailingSlash(THEMES) . $theme .
+								'/preview.png'; ?>" alt="<?php echo ucwords(str_replace('-', ' ', $theme)); ?> preview">
 						<?php else: ?>
 							<span>No theme preview</span>
 						<?php endif; ?>
 					</div>
 					<h2 class="theme-name">
-						<?php echo ucwords(str_replace('-', ' ', $theme)).($this->isActiveTheme($theme) ? ' &mdash; <small><em>active</em></small>' : ''); ?>
+						<?php echo ucwords(str_replace('-', ' ', $theme)) . ($this->isActiveTheme($theme) ?
+							' &mdash; <small><em>active</em></small>' : ''); ?>
 						<span class="actions">
 							<?php
-							// Check whether the theme is active and display the action links if not
 							if(!$this->isActiveTheme($theme))
 								echo implode(' &bull; ', $actions);
 							?>
@@ -102,8 +100,7 @@ class Theme {
 			?>
 		</ul>
 		<?php
-		// Include the delete modal
-        include_once PATH.ADMIN.INC.'/modal-delete.php';
+        include_once PATH . ADMIN . INC . '/modal-delete.php';
 	}
 	
 	/**
@@ -162,13 +159,9 @@ class Theme {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Check whether the theme's name is valid
-		if(!empty($name) && $this->themeExists($name) && !$this->isActiveTheme($name)) {
-			// Update the theme setting in the database
+		if(!empty($name) && $this->themeExists($name) && !$this->isActiveTheme($name))
 			$rs_query->update('settings', array('value' => $name), array('name' => 'theme'));
-		}
 		
-		// Redirect to the "List Themes" page
 		redirect(ADMIN_URI);
 	}
 	
@@ -180,16 +173,12 @@ class Theme {
 	 * @param string $name
 	 */
 	public function deleteTheme($name): void {
-		// Check whether the theme's name is valid
 		if(!empty($name) && $this->themeExists($name) && !$this->isActiveTheme($name)) {
-			// Delete the theme's directory and all its contents
-			$this->recursiveDelete(trailingSlash(PATH.THEMES).$name);
+			$this->recursiveDelete(trailingSlash(PATH . THEMES) . $name);
 			
-			// Redirect to the "List Themes" page with an appropriate exit status
-			redirect(ADMIN_URI.'?exit_status=success');
+			redirect(ADMIN_URI . '?exit_status=success');
 		}
 		
-		// Redirect to the "List Themes" page
 		redirect(ADMIN_URI);
 	}
 	
@@ -206,23 +195,17 @@ class Theme {
 		if(empty($data['name']))
 			return statusMessage('R');
 		
-		// Sanitize the name (strip off HTML and/or PHP tags and replace any characters not specified in the filter)
-		$name = preg_replace('/[^a-z0-9\-]/', '', strip_tags(strtolower($data['name'])));
+		$name = sanitize($data['name'], '/[^a-z0-9\-]/');
 		
-		// Make sure the theme doesn't already exist
 		if($this->themeExists($name))
 			return statusMessage('That theme already exists. Please choose a different name.');
 		
-		// Construct the file path for the new theme
-		$theme_path = trailingSlash(PATH.THEMES).$name;
+		$theme_path = trailingSlash(PATH . THEMES) . $name;
 		
-		// Create a directory with the chosen name
+		// Create the theme directory and index.php
 		mkdir($theme_path);
+		file_put_contents($theme_path . '/index.php', array("<?php\r\n", '// Start building your new theme!'));
 		
-		// Create an index.php file
-		file_put_contents($theme_path.'/index.php', array("<?php\r\n", '// Start building your new theme!'));
-		
-		// Redirect to the "List Themes" page
 		redirect(ADMIN_URI);
 	}
 	
@@ -236,15 +219,11 @@ class Theme {
 	 */
 	private function themeExists($name): bool {
 		// Fetch all installed themes
-		$themes = array_diff(scandir(PATH.THEMES), array('.', '..'));
+		$themes = array_diff(scandir(PATH . THEMES), array('.', '..'));
 		
-		// Loop through the themes
-		foreach($themes as $theme) {
-			// Return true if the theme is found
+		foreach($themes as $theme)
 			if($theme === $name) return true;
-		}
 		
-		// Return false otherwise
 		return false;
 	}
 	
@@ -271,10 +250,9 @@ class Theme {
 		// Fetch the directory's contents
 		$contents = array_diff(scandir($dir), array('.', '..'));
 		
-		// Loop through the directory
 		foreach($contents as $content) {
 			// If the content is a directory, recursively delete its contents, otherwise delete the file
-			is_dir($dir.'/'.$content) ? recursiveDelete($dir.'/'.$content) : unlink($dir.'/'.$content);
+			is_dir($dir . '/' . $content) ? recursiveDelete($dir . '/' . $content) : unlink($dir . '/' . $content);
 		}
 		
 		// Delete the directory

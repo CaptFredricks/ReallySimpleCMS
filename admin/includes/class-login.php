@@ -91,26 +91,20 @@ class Login {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Check whether the 'delete_old_login_attempts' setting is turned on
 		if(getSetting('delete_old_login_attempts')) {
-			// Fetch all login attempts from the database
 			$login_attempts = $rs_query->select('login_attempts', array('id', 'date'));
 			
 			foreach($login_attempts as $login_attempt) {
-				// Create a DateTime object
 				$time = new DateTime();
 				
 				// Subtract 30 days from the current date
 				$time->sub(new DateInterval('P30D'));
 				
-				// Format the threshold date
 				$threshold = $time->format('Y-m-d H:i:s');
 				
-				// Check whether the login attempt has expired
-				if($threshold > $login_attempt['date']) {
-					// Delete the login attempt from the database
+				// Delete the login attempt if it's expired
+				if($threshold > $login_attempt['date'])
 					$rs_query->delete('login_attempts', array('id' => $login_attempt['id']));
-				}
 			}
 		}
 		
@@ -123,10 +117,7 @@ class Login {
 				// Exclude columns from the `login_attempts` and `login_rules` tables
 				$exclude = array('login', 'ip_address', 'type', 'attempts');
 				
-				// Update the columns array
 				$cols = array_diff($cols, $exclude);
-				
-				// Fetch the blacklisted login from the database
 				$blacklisted_login = $rs_query->selectRow('login_blacklist', $cols, array('id' => $id));
 				
 				// Set the class variable values
@@ -136,10 +127,7 @@ class Login {
 				// Exclude columns from the `login_attempts` and `login_blacklist` tables
 				$exclude = array('login', 'ip_address', 'name', 'reason');
 				
-				// Update the columns array
 				$cols = array_diff($cols, $exclude);
-				
-				// Fetch the login rule from the database
 				$login_rule = $rs_query->selectRow('login_rules', $cols, array('id' => $id));
 				
 				// Set the class variable values
@@ -148,10 +136,7 @@ class Login {
 				// Exclude columns from the 'login_blacklist' and 'login_rules' tables
 				$exclude = array('name', 'duration', 'reason', 'type', 'attempts');
 				
-				// Update the columns array
 				$cols = array_diff($cols, $exclude);
-				
-				// Fetch the login attempt from the database
 				$login_attempt = $rs_query->selectRow('login_attempts', $cols, array('id' => $id));
 				
 				// Set the class variable values
@@ -170,7 +155,6 @@ class Login {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Fetch the status of the currently displayed comments
 		$status = $_GET['status'] ?? 'all';
 		
 		// Set up pagination
@@ -207,7 +191,7 @@ class Login {
 				foreach($count as $key => $value) {
 					?>
 					<li>
-						<a href="<?php echo ADMIN_URI.($key === 'all' ? '' : '?status='.$key);
+						<a href="<?php echo ADMIN_URI . ($key === 'all' ? '' : '?status=' . $key);
 						?>"><?php echo ucfirst($key); ?> <span class="count">(<?php echo $value; ?>)</span></a>
 					</li>
 					<?php
@@ -217,24 +201,16 @@ class Login {
 				}
 				?>
 			</ul>
-			<?php
-			// Set the page count
-			$page['count'] = ceil($count[$status] / $page['per_page']);
-			?>
+			<?php $page['count'] = ceil($count[$status] / $page['per_page']); ?>
 			<div class="entry-count">
-				<?php
-				// Display the entry count for the current status
-				echo $count[$status].' '.($count[$status] === 1 ? 'entry' : 'entries');
-				?>
+				<?php echo $count[$status] . ' ' . ($count[$status] === 1 ? 'entry' : 'entries'); ?>
 			</div>
 		</div>
 		<table class="data-table">
 			<thead>
 				<?php
-				// Fill an array with the table header columns
 				$table_header_cols = array('Login', 'IP Address', 'Date', 'Status');
 				
-				// Construct the table header
 				echo tableHeaderRow($table_header_cols);
 				?>
 			</thead>
@@ -261,7 +237,6 @@ class Login {
 						'name' => array('IN', $login_attempt['login'], $login_attempt['ip_address'])
 					)) > 0;
 					
-					// Set up the action links
 					$actions = array(
 						// Blacklist login
 						userHasPrivilege('can_create_login_blacklist') ? actionLink('blacklist_login', array(
@@ -280,7 +255,9 @@ class Login {
 					
 					echo tableRow(
 						// Login
-						tdCell('<strong>'.$login_attempt['login'].'</strong>'.($blacklisted ? ' &mdash; <em>blacklisted</em>' : '').'<div class="actions">'.implode(' &bull; ', $actions).'</div>', 'login'),
+						tdCell('<strong>' . $login_attempt['login'] . '</strong>' . ($blacklisted ?
+							' &mdash; <em>blacklisted</em>' : '') . '<div class="actions">' .
+							implode(' &bull; ', $actions) . '</div>', 'login'),
 						// IP address
 						tdCell($login_attempt['ip_address'], 'ip-address'),
 						// Date
@@ -290,7 +267,6 @@ class Login {
 					);
 				}
 				
-				// Display a notice if no login attempts are found
 				if(empty($login_attempts))
 					echo tableRow(tdCell('There are no login attempts to display.', '', count($table_header_cols)));
 				?>
@@ -314,9 +290,7 @@ class Login {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Check whether the login attempt's id is valid
 		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the "Login Attempts" page
 			redirect(ADMIN_URI);
 		} else {
 			// Validate the form data and return any messages
@@ -330,7 +304,7 @@ class Login {
 				<form class="data-form" action="" method="post" autocomplete="off">
 					<table class="form-table">
 						<?php
-						// Hidden input (name)
+						// Name (hidden)
 						echo formRow('', array(
 							'tag' => 'input',
 							'type' => 'hidden',
@@ -389,9 +363,7 @@ class Login {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Check whether the login attempt's id is valid
 		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the "Login Attempts" page
 			redirect(ADMIN_URI);
 		} else {
 			// Validate the form data and return any messages
@@ -405,7 +377,7 @@ class Login {
 				<form class="data-form" action="" method="post" autocomplete="off">
 					<table class="form-table">
 						<?php
-						// Hidden input (name)
+						// Name (hidden)
 						echo formRow('', array(
 							'tag' => 'input',
 							'type' => 'hidden',
@@ -472,7 +444,6 @@ class Login {
 			<?php
 			// Check whether the user has sufficient privileges to create a login blacklist
 			if(userHasPrivilege('can_create_login_blacklist')) {
-				// Construct an action link
 				echo actionLink('create', array(
 					'classes' => 'button',
 					'caption' => 'Create New',
@@ -480,7 +451,6 @@ class Login {
 				));
 			}
 			
-			// Display the page's info
 			adminInfo();
 			?>
 			<hr>
@@ -489,62 +459,46 @@ class Login {
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
 				echo statusMessage('The login or IP address was successfully whitelisted.', true);
 			
-			// Fetch the login blacklist entry count from the database
 			$count = $rs_query->select('login_blacklist', 'COUNT(*)');
-			
-			// Set the page count
 			$page['count'] = ceil($count / $page['per_page']);
 			?>
 			<div class="entry-count">
-				<?php
-				// Display the entry count
-				echo $count.' '.($count === 1 ? 'entry' : 'entries');
-				?>
+				<?php echo $count . ' ' . ($count === 1 ? 'entry' : 'entries'); ?>
 			</div>
 		</div>
 		<table class="data-table">
 			<thead>
 				<?php
-				// Fill an array with the table header columns
 				$table_header_cols = array('Name', 'Attempts', 'Blacklisted', 'Expires', 'Reason');
 				
-				// Construct the table header
 				echo tableHeaderRow($table_header_cols);
 				?>
 			</thead>
 			<tbody>
 				<?php
-				// Fetch all blacklisted logins from the database
 				$blacklisted_logins = $rs_query->select('login_blacklist', '*', '', 'blacklisted', 'DESC', array(
 					$page['start'],
 					$page['per_page']
 				));
 				
 				foreach($blacklisted_logins as $blacklisted_login) {
-					// Create a DateTime object
 					$time = new DateTime($blacklisted_login['blacklisted']);
-					
-					// Add the blacklist duration to the time to find the expiration
-					$time->add(new DateInterval('PT'.$blacklisted_login['duration'].'S'));
-					
-					// Format the expiration date
+					$time->add(new DateInterval('PT' . $blacklisted_login['duration'] . 'S'));
 					$expiration = $time->format('Y-m-d H:i:s');
 					
 					// Check whether the blacklist has expired
 					if(date('Y-m-d H:i:s') >= $expiration && $blacklisted_login['duration'] !== 0) {
-						// Delete the blacklisted login from the database
 						$rs_query->delete('login_blacklist', array('name' => $blacklisted_login['name']));
 						
-						// Fetch all blacklisted logins from the database
 						$bl_logins = $rs_query->select('login_blacklist', '*', '', 'blacklisted', 'DESC', array(
 							$page['start'],
 							$page['per_page']
 						));
 						
-						// Check whether the table is now empty
 						if(empty($bl_logins)) {
-							// Display a notice and break out of the loop
-							echo tableRow(tdCell('There are no blacklisted logins to display.', '', count($table_header_cols)));
+							echo tableRow(tdCell('There are no blacklisted logins to display.', '',
+								count($table_header_cols)
+							));
 							break;
 						} else {
 							// Continue to the next blacklisted login
@@ -552,7 +506,6 @@ class Login {
 						}
 					}
 					
-					// Set up the action links
 					$actions = array(
 						// Edit
 						userHasPrivilege('can_edit_login_blacklist') ? actionLink('edit', array(
@@ -573,21 +526,25 @@ class Login {
 					
 					echo tableRow(
 						// Name
-						tdCell('<strong>'.$blacklisted_login['name'].'</strong><div class="actions">'.implode(' &bull; ', $actions).'</div>', 'name'),
+						tdCell('<strong>' . $blacklisted_login['name'] . '</strong><div class="actions">' .
+							implode(' &bull; ', $actions) . '</div>', 'name'),
 						// Attempts
 						tdCell($blacklisted_login['attempts'], 'attempts'),
 						// Blacklisted
 						tdCell(formatDate($blacklisted_login['blacklisted'], 'd M Y @ g:i A'), 'blacklisted'),
 						// Expiration
-						tdCell($blacklisted_login['duration'] === 0 ? 'Indefinite' : formatDate($expiration, 'd M Y @ g:i A'), 'expiration'),
+						tdCell($blacklisted_login['duration'] === 0 ? 'Indefinite' :
+							formatDate($expiration, 'd M Y @ g:i A'), 'expiration'),
 						// Reason
 						tdCell($blacklisted_login['reason'], 'reason')
 					);
 				}
 				
-				// Display a notice if no blacklisted logins are found
-				if(empty($blacklisted_logins))
-					echo tableRow(tdCell('There are no blacklisted logins to display.', '', count($table_header_cols)));
+				if(empty($blacklisted_logins)) {
+					echo tableRow(tdCell('There are no blacklisted logins to display.', '',
+						count($table_header_cols)
+					));
+				}
 				?>
 			</tbody>
 			<tfoot>
@@ -672,10 +629,8 @@ class Login {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Check whether the blacklisted login's id is valid
 		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the "Login Blacklist" page
-			redirect(ADMIN_URI.'?page=blacklist');
+			redirect(ADMIN_URI . '?page=blacklist');
 		} else {
 			// Validate the form data and return any messages
 			$message = isset($_POST['submit']) ? $this->validateBlacklistData($_POST, 'edit') : '';
@@ -688,7 +643,7 @@ class Login {
 				<form class="data-form" action="" method="post" autocomplete="off">
 					<table class="form-table">
 						<?php
-						// Hidden input (name)
+						// Name (hidden)
 						echo formRow('', array(
 							'tag' => 'input',
 							'type' => 'hidden',
@@ -750,24 +705,28 @@ class Login {
 	 * @return string
 	 */
 	private function validateBlacklistData($data, $action): string {
-		// Extend the Query object
-		global $rs_query;
+		// Extend the Query object and the user's session data
+		global $rs_query, $session;
 		
 		// Make sure no required fields are empty
 		if((empty($data['duration']) && $data['duration'] != 0) || empty($data['reason']))
 			return statusMessage('R');
 		
+		// Don't let the user blacklist themselves
+		if($data['name'] === $session['username'] || $data['name'] === $_SERVER['REMOTE_ADDR'])
+			return statusMessage('You cannot blacklist yourself!');
+		
 		// Make sure the login or IP address is not already blacklisted
-		if($action !== 'edit' && $this->blacklistExits($data['name']))
-			return statusMessage('This '.($action === 'login' ? 'login ' : 'IP address').' is already blacklisted!');
+		if($action !== 'edit' && $this->blacklistExits($data['name'])) {
+			return statusMessage('This ' . ($action === 'login' ? 'login ' : 'IP address') .
+				' is already blacklisted!');
+		}
 		
 		// Check which action has been submitted
 		switch($action) {
 			case 'login':
-				// Fetch the number of login attempts associated with the blacklisted login in the database
 				$attempts = $rs_query->select('login_attempts', 'COUNT(*)', array('login' => $data['name']));
 				
-				// Insert the new blacklisted login into the database
 				$rs_query->insert('login_blacklist', array(
 					'name' => $data['name'],
 					'attempts' => $attempts,
@@ -776,31 +735,25 @@ class Login {
 					'reason' => $data['reason']
 				));
 				
-				// Fetch the blacklisted user from the database
 				$session = $rs_query->selectField('users', 'session', array(
 					'logic' => 'OR',
 					'username' => $data['name'],
 					'email' => $data['name']
 				));
 				
-				// Check whether the user's session is null
+				// Log the user out if they're logged in
 				if(!is_null($session)) {
-					// Set the user's session to null in the database
 					$rs_query->update('users', array('session' => null), array('session' => $session));
 					
-					// Check whether the cookie's value matches the session value and delete it if so
 					if($_COOKIE['session'] === $session)
 						setcookie('session', '', 1, '/');
 				}
 				
-				// Redirect to the "Login Attempts" page with an appropriate exit status
-				redirect(ADMIN_URI.'?exit_status=success&blacklist=login');
+				redirect(ADMIN_URI . '?exit_status=success&blacklist=login');
 				break;
 			case 'ip_address':
-				// Fetch the number of login attempts associated with the blacklisted IP address in the database
 				$attempts = $rs_query->select('login_attempts', 'COUNT(*)', array('ip_address' => $data['name']));
 				
-				// Insert the new blacklisted login into the database
 				$rs_query->insert('login_blacklist', array(
 					'name' => $data['name'],
 					'attempts' => $attempts,
@@ -809,42 +762,38 @@ class Login {
 					'reason' => $data['reason']
 				));
 				
-				// Fetch all logins associated with the IP address from the database
 				$logins = $rs_query->select('login_attempts', array('DISTINCT', 'login'), array(
 					'ip_address' => $data['name']
 				));
 				
 				foreach($logins as $login) {
-					// Fetch the blacklisted user from the database
 					$session = $rs_query->selectRow('users', 'session', array(
 						'logic' => 'OR',
 						'username' => $login['login'],
 						'email' => $login['login']
 					));
-				
-					// Check whether the user's session is null
+					
+					// Log the user out if they're logged in
 					if(!is_null($session)) {
-						// Set the user's session to null in the database
 						$rs_query->update('users', array('session' => null), array('session' => $session));
 						
-						// Check whether the cookie's value matches the session value and delete it if so
 						if($_COOKIE['session'] === $session)
 							setcookie('session', '', 1, '/');
 					}
 				}
 				
-				// Redirect to the "Login Attempts" page with an appropriate exit status
-				redirect(ADMIN_URI.'?exit_status=success&blacklist=ip_address');
+				redirect(ADMIN_URI . '?exit_status=success&blacklist=ip_address');
 				break;
 			case 'create':
-				// Fetch the number of login attempts associated with the blacklisted login or IP address in the database
+				if(empty($data['name']))
+					return statusMessage('R');
+				
 				$attempts = $rs_query->select('login_attempts', 'COUNT(*)', array(
 					'logic' => 'OR',
 					'login' => $data['name'],
 					'ip_address' => $data['name']
 				));
 				
-				// Insert the new blacklisted login into the database
 				$rs_query->insert('login_blacklist', array(
 					'name' => $data['name'],
 					'attempts' => $attempts,
@@ -853,11 +802,23 @@ class Login {
 					'reason' => $data['reason']
 				));
 				
-				// Redirect to the "Login Blacklist" page
-				redirect(ADMIN_URI.'?page=blacklist');
+				$session = $rs_query->selectField('users', 'session', array(
+					'logic' => 'OR',
+					'username' => $data['name'],
+					'email' => $data['name']
+				));
+				
+				// Log the user out if they're logged in
+				if(!is_null($session)) {
+					$rs_query->update('users', array('session' => null), array('session' => $session));
+					
+					if($_COOKIE['session'] === $session)
+						setcookie('session', '', 1, '/');
+				}
+				
+				redirect(ADMIN_URI . '?page=blacklist');
 				break;
 			case 'edit':
-				// Update the blacklisted login in the database
 				$rs_query->update('login_blacklist', array(
 					'duration' => $data['duration'],
 					'reason' => $data['reason']
@@ -866,8 +827,8 @@ class Login {
 				// Update the class variables
 				foreach($data as $key => $value) $this->$key = $value;
 				
-				// Return a status message
-				return statusMessage('Blacklist updated! <a href="'.ADMIN_URI.'?page=blacklist">Return to list</a>?', true);
+				return statusMessage('Blacklist updated! <a href="' . ADMIN_URI .
+					'?page=blacklist">Return to list</a>?', true);
 				break;
 		}
 	}
@@ -882,16 +843,12 @@ class Login {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Check whether the blacklisted login's id is valid
 		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the "Login Blacklist" page
-			redirect(ADMIN_URI.'?page=blacklist');
+			redirect(ADMIN_URI . '?page=blacklist');
 		} else {
-			// Delete the blacklisted login from the database
 			$rs_query->delete('login_blacklist', array('id' => $this->id));
 			
-			// Redirect to the "Login Blacklist" page with an appropriate exit status
-			redirect(ADMIN_URI.'?page=blacklist&exit_status=success');
+			redirect(ADMIN_URI . '?page=blacklist&exit_status=success');
 		}
 	}
 	
@@ -907,7 +864,6 @@ class Login {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Return true if the blacklist appears in the database
 		return $rs_query->selectRow('login_blacklist', 'COUNT(name)', array('name' => $name)) > 0;
 	}
 	
@@ -927,7 +883,7 @@ class Login {
 		<div class="heading-wrap">
 			<h1>Login Rules</h1>
 			<?php
-			// Check whether the user has sufficient privileges to create login rules and create an action link if so
+			// Check whether the user has sufficient privileges to create login rules
 			if(userHasPrivilege('can_create_login_rules')) {
 				echo actionLink('create', array(
 					'classes' => 'button',
@@ -936,7 +892,6 @@ class Login {
 				));
 			}
 			
-			// Display the page's info
 			adminInfo();
 			?>
 			<hr>
@@ -945,39 +900,29 @@ class Login {
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
 				echo statusMessage('The rule was successfully deleted.', true);
 			
-			// Fetch the login rules entry count from the database
 			$count = $rs_query->select('login_rules', 'COUNT(*)');
-			
-			// Set the page count
 			$page['count'] = ceil($count / $page['per_page']);
 			?>
 			<div class="entry-count">
-				<?php
-				// Display the entry count
-				echo $count.' '.($count === 1 ? 'entry' : 'entries');
-				?>
+				<?php echo $count . ' ' . ($count === 1 ? 'entry' : 'entries'); ?>
 			</div>
 		</div>
 		<table class="data-table">
 			<thead>
 				<?php
-				// Fill an array with the table header columns
 				$table_header_cols = array('Rule');
 				
-				// Construct the table header
 				echo tableHeaderRow($table_header_cols);
 				?>
 			</thead>
 			<tbody>
 				<?php
-				// Fetch all login rules from the database
 				$login_rules = $rs_query->select('login_rules', '*', '', 'attempts', 'ASC', array(
 					$page['start'],
 					$page['per_page']
 				));
 				
 				foreach($login_rules as $login_rule) {
-					// Set up the action links
 					$actions = array(
 						// Edit
 						userHasPrivilege('can_edit_login_rules') ? actionLink('edit', array(
@@ -999,11 +944,15 @@ class Login {
 					$actions = array_filter($actions);
 					
 					echo tableRow(
-						tdCell('If failed login attempts exceed <strong>'.$login_rule['attempts'].'</strong>, blacklist the <strong>'.($login_rule['type'] === 'ip_address' ? 'IP address' : $login_rule['type']).'</strong> '.($login_rule['duration'] !== 0 ? 'for ' : '').'<strong>'.$this->formatDuration($login_rule['duration']).'</strong>.<div class="actions">'.implode(' &bull; ', $actions).'</div>')
+						tdCell('If failed login attempts exceed <strong>' . $login_rule['attempts'] .
+							'</strong>, blacklist the <strong>' . ($login_rule['type'] === 'ip_address' ?
+							'IP address' : $login_rule['type']) . '</strong> ' .
+							($login_rule['duration'] !== 0 ? 'for ' : '') . '<strong>' .
+							$this->formatDuration($login_rule['duration']) .
+							'</strong>.<div class="actions">' . implode(' &bull; ', $actions) . '</div>')
 					);
 				}
 				
-				// Display a notice if no login rules are found
 				if(empty($login_rules))
 					echo tableRow(tdCell('There are no login rules to display.', '', count($table_header_cols)));
 				?>
@@ -1016,8 +965,7 @@ class Login {
 		// Set up page navigation
 		echo pagerNav($page['current'], $page['count']);
 		
-		// Include the delete modal
-        include_once PATH.ADMIN.INC.'/modal-delete.php';
+        include_once PATH . ADMIN . INC . '/modal-delete.php';
 	}
 	
 	/**
@@ -1092,10 +1040,8 @@ class Login {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Check whether the login rule's id is valid
 		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the "Login Rules" page
-			redirect(ADMIN_URI.'?page=rules');
+			redirect(ADMIN_URI . '?page=rules');
 		} else {
 			// Validate the form data and return any messages
 			$message = isset($_POST['submit']) ? $this->validateRuleData($_POST, $this->id) : '';
@@ -1113,7 +1059,10 @@ class Login {
 							'tag' => 'select',
 							'class' => 'select-input',
 							'name' => 'type',
-							'content' => '<option value="'.$this->type.'">'.($this->type === 'ip_address' ? 'IP Address' : ucfirst($this->type)).'</option>'.($this->type === 'login' ? '<option value="ip_address">IP Address</option>' : '<option value="login">Login</option>')
+							'content' => '<option value="' . $this->type . '">' . ($this->type === 'ip_address' ?
+								'IP Address' : ucfirst($this->type)) . '</option>' . ($this->type === 'login' ?
+								'<option value="ip_address">IP Address</option>' :
+								'<option value="login">Login</option>')
 						));
 						
 						
@@ -1163,16 +1112,12 @@ class Login {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Check whether the login rule's id is valid
 		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the "Login Rules" page
-			redirect(ADMIN_URI.'?page=rules');
+			redirect(ADMIN_URI . '?page=rules');
 		} else {
-			// Delete the login rule from the database
 			$rs_query->delete('login_rules', array('id' => $this->id));
 			
-			// Redirect to the "Login Rules" page with an appropriate exit status
-			redirect(ADMIN_URI.'?page=rules&exit_status=success');
+			redirect(ADMIN_URI . '?page=rules&exit_status=success');
 		}
 	}
 	
@@ -1193,22 +1138,20 @@ class Login {
 		if(empty($data['attempts']) || (empty($data['duration']) && $data['duration'] != 0))
 			return statusMessage('R');
 		
-		// Make sure the rule has a valid type
 		if($data['type'] !== 'login' && $data['type'] !== 'ip_address')
 			$data['type'] = 'login';
 		
 		if($id === 0) {
-			// Insert the new login rule into the database
+			// New rule
 			$insert_id = $rs_query->insert('login_rules', array(
 				'type' => $data['type'],
 				'attempts' => $data['attempts'],
 				'duration' => $data['duration']
 			));
 			
-			// Redirect to the appropriate "Edit Login Rule" page
-			redirect(ADMIN_URI.'?page=rules&id='.$insert_id.'&action=edit');
+			redirect(ADMIN_URI . '?page=rules&id=' . $insert_id . '&action=edit');
 		} else {
-			// Update the login rule in the database
+			// Existing rule
 			$rs_query->update('login_rules', array(
 				'type' => $data['type'],
 				'attempts' => $data['attempts'],
@@ -1218,8 +1161,7 @@ class Login {
 			// Update the class variables
 			foreach($data as $key => $value) $this->$key = $value;
 			
-			// Return a status message
-			return statusMessage('Rule updated! <a href="'.ADMIN_URI.'?page=rules">Return to list</a>?', true);
+			return statusMessage('Rule updated! <a href="' . ADMIN_URI . '?page=rules">Return to list</a>?', true);
 		}
 	}
 	
@@ -1232,18 +1174,11 @@ class Login {
 	 * @return string
 	 */
 	private function formatDuration($seconds): string {
-		// Check whether the seconds are equal to '0'
 		if((int)$seconds !== 0) {
-			// Create a DateTime object for the starting time
 			$time_start = new DateTime('@0');
-			
-			// Create a DateTime object for the ending time
-			$time_end = new DateTime('@'.$seconds);
-			
-			// Determine the duration
+			$time_end = new DateTime('@' . $seconds);
 			$duration = $time_start->diff($time_end);
 			
-			// Create an array of date format strings
 			$date_strings = array(
 				'y' => 'year',
 				'm' => 'month',
@@ -1254,20 +1189,14 @@ class Login {
 			);
 			
 			foreach($date_strings as $key => &$value) {
-				// Check whether the key is set in the duration
-				if($duration->$key) {
-					// Format the value
-					$value = $duration->$key.' '.$value.($duration->$key > 1 ? 's' : '');
-				} else {
-					// Remove the key and its value from the array
+				if($duration->$key)
+					$value = $duration->$key . ' ' . $value . ($duration->$key > 1 ? 's' : '');
+				else
 					unset($date_strings[$key]);
-				}
 			}
 			
-			// Return the formatted duration
 			return implode(', ', $date_strings);
 		} else {
-			// Return 'indefinitely' as the duration
 			return 'indefinitely';
 		}
 	}
@@ -1284,13 +1213,9 @@ class Login {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Check whether a status has been provided
-		if(empty($status)) {
-			// Return the count of all login attempts
+		if(empty($status))
 			return $rs_query->select('login_attempts', 'COUNT(*)');
-		} else {
-			// Return the count of all login attempts by the status
+		else
 			return $rs_query->select('login_attempts', 'COUNT(*)', array('status' => $status));
-		}
 	}
 }

@@ -76,22 +76,16 @@ class Term {
 		// Create an array of columns to fetch from the database
 		$cols = array_keys(get_object_vars($this));
 		
-		// Exclude 'taxonomy_data'
 		$exclude = array('taxonomy_data');
-		
-		// Update the columns array
 		$cols = array_diff($cols, $exclude);
 		
-		// Check whether the id is '0'
 		if($id !== 0) {
-			// Fetch the term from the database
 			$term = $rs_query->selectRow('terms', $cols, array('id' => $id));
 			
 			// Set the class variable values
 			foreach($term as $key => $value) $this->$key = $term[$key];
 		}
 		
-		// Set the $taxonomy_data class variable
 		$this->taxonomy_data = $taxonomy_data;
 	}
 	
@@ -102,8 +96,8 @@ class Term {
 	 * @access public
 	 */
 	public function listTerms(): void {
-		// Extend the Query object
-		global $rs_query;
+		// Extend the Query object and post types array
+		global $rs_query, $post_types;
 		
 		// Set up pagination
 		$page = paginate((int)($_GET['paged'] ?? 1));
@@ -111,68 +105,61 @@ class Term {
 		<div class="heading-wrap">
 			<h1><?php echo $this->taxonomy_data['label']; ?></h1>
 			<?php
-			// Check whether the user has sufficient privileges to create terms of the current taxonomy and create an action link if so
-			if(userHasPrivilege('can_create_'.str_replace(' ', '_', $this->taxonomy_data['labels']['name_lowercase']))) {
+			// Check whether the user has sufficient privileges to create terms of the current taxonomy
+			if(userHasPrivilege('can_create_' . str_replace(' ', '_',
+				$this->taxonomy_data['labels']['name_lowercase']))) {
+					
 				?>
-				<a class="button" href="<?php echo $this->taxonomy_data['menu_link'].($this->taxonomy_data['name'] === 'category' ? '?' : '&'); ?>action=create">Create New</a>
+				<a class="button" href="<?php echo $this->taxonomy_data['menu_link'] .
+					($this->taxonomy_data['name'] === 'category' ? '?' : '&'); ?>action=create">Create New</a>
 				<?php
 			}
 			
-			// Display the page's info
 			adminInfo();
 			?>
 			<hr>
 			<?php
 			// Check whether any status messages have been returned and display them if so
-			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
-				echo statusMessage('The '.strtolower($this->taxonomy_data['labels']['name_singular']).' was successfully deleted.', true);
+			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success') {
+				echo statusMessage('The ' . strtolower($this->taxonomy_data['labels']['name_singular']) .
+					' was successfully deleted.', true);
+			}
 			
-			// Fetch the term entry count from the database (by taxonomy)
 			$count = $rs_query->select('terms', 'COUNT(*)', array(
 				'taxonomy' => getTaxonomyId($this->taxonomy_data['name'])
 			));
 			
-			// Set the page count
 			$page['count'] = ceil($count / $page['per_page']);
 			?>
 			<div class="entry-count">
-				<?php
-				// Display the entry count
-				echo $count.' '.($count === 1 ? 'entry' : 'entries');
-				?>
+				<?php echo $count . ' ' . ($count === 1 ? 'entry' : 'entries'); ?>
 			</div>
 		</div>
 		<table class="data-table">
 			<thead>
 				<?php
-				// Fill an array with the table header columns
 				$table_header_cols = array('Name', 'Slug', 'Parent', 'Count');
-				
-				// Construct the table header
 				echo tableHeaderRow($table_header_cols);
 				?>
 			</thead>
 			<tbody>
 				<?php
-				// Fetch all terms from the database (by taxonomy)
 				$terms = $rs_query->select('terms', '*', array(
 					'taxonomy' => getTaxonomyId($this->taxonomy_data['name'])
 				), 'name', 'ASC', array($page['start'], $page['per_page']));
 				
 				foreach($terms as $term) {
-					// Fetch the name of the term's taxonomy
 					$tax_name = str_replace(' ', '_', $this->taxonomy_data['labels']['name_lowercase']);
 					
-					// Set up the action links
 					$actions = array(
 						// Edit
-						userHasPrivilege('can_edit_'.$tax_name
+						userHasPrivilege('can_edit_' . $tax_name
 						) ? actionLink('edit', array(
 							'caption' => 'Edit',
 							'id' => $term['id']
 						)) : null,
 						// Delete
-						userHasPrivilege('can_delete_'.$tax_name
+						userHasPrivilege('can_delete_' . $tax_name
 						) ? actionLink('delete', array(
 							'classes' => 'modal-launch delete-item',
 							'data_item' => strtolower($this->taxonomy_data['labels']['name_singular']),
@@ -180,7 +167,8 @@ class Term {
 							'id' => $term['id']
 						)) : null,
 						// View
-						'<a href="'.getPermalink($this->taxonomy_data['name'], $term['parent'], $term['slug']).'">View</a>'
+						'<a href="' . getPermalink($this->taxonomy_data['name'], $term['parent'], $term['slug']) .
+							'">View</a>'
 					);
 					
 					// Filter out any empty actions
@@ -188,20 +176,25 @@ class Term {
 					
 					echo tableRow(
 						// Name
-						tdCell('<strong>'.$term['name'].'</strong><div class="actions">'.implode(' &bull; ', $actions).'</div>', 'name'),
+						tdCell('<strong>' . $term['name'] . '</strong><div class="actions">' .
+							implode(' &bull; ', $actions) . '</div>', 'name'),
 						// Slug
 						tdCell($term['slug'], 'slug'),
 						// Parent
 						tdCell($this->getParent($term['parent']), 'parent'),
 						// Count
-						tdCell($term['count'], 'count')
+						tdCell((empty($this->taxonomy_data['post_type']) ||
+							!array_key_exists($this->taxonomy_data['post_type'], $post_types) ? $term['count'] :
+							'<a href="' . ADMIN . '/posts.php?' . ($this->taxonomy_data['post_type'] !== 'post' ?
+							'type=' . $this->taxonomy_data['post_type'] . '&' : '') . 'term=' . $term['slug'] .
+							'">' . $term['count'] . '</a>'), 'count')
 					);
 				}
 				
-				// Display a notice if no terms are found
 				if(empty($terms)) {
 					echo tableRow(
-						tdCell('There are no '.$this->taxonomy_data['labels']['name_lowercase'].' to display.', '', count($table_header_cols))
+						tdCell('There are no ' . $this->taxonomy_data['labels']['name_lowercase'] .
+							' to display.', '', count($table_header_cols))
 					);
 				}
 				?>
@@ -214,8 +207,7 @@ class Term {
 		// Set up page navigation
 		echo pagerNav($page['current'], $page['count']);
 		
-		// Include the delete modal
-        include_once PATH.ADMIN.INC.'/modal-delete.php';
+        include_once PATH . ADMIN . INC . '/modal-delete.php';
 	}
 	
 	/**
@@ -259,7 +251,7 @@ class Term {
 						'tag' => 'select',
 						'class' => 'select-input',
 						'name' => 'parent',
-						'content' => '<option value="0">(none)</option>'.$this->getParentList()
+						'content' => '<option value="0">(none)</option>' . $this->getParentList()
 					));
 					
 					// Separator
@@ -290,21 +282,17 @@ class Term {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Check whether the term's id is valid
 		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the "List Categories" page
 			redirect('categories.php');
 		} else {
-			// Check whether the term's taxonomy is valid
 			if(empty($this->taxonomy)) {
-				// Redirect to the "List Categories" page
 				redirect('categories.php');
-			} elseif($this->getTaxonomy($this->taxonomy) === 'category' && $this->taxonomy_data['menu_link'] !== 'categories.php') {
-				// Redirect to the appropriate "Edit Category" form
-				redirect('categories.php?id='.$this->id.'&action=edit');
+			} elseif($this->getTaxonomy($this->taxonomy) === 'category' &&
+				$this->taxonomy_data['menu_link'] !== 'categories.php') {
+					
+				redirect('categories.php?id=' . $this->id . '&action=edit');
 			} elseif($this->getTaxonomy($this->taxonomy) === 'nav_menu') {
-				// Redirect to the appropriate "Edit Menu" form
-				redirect('menus.php?id='.$this->id.'&action=edit');
+				redirect('menus.php?id=' . $this->id . '&action=edit');
 			} else {
 				// Validate the form data and return any messages
 				$message = isset($_POST['submit']) ? $this->validateData($_POST, $this->id) : '';
@@ -340,8 +328,8 @@ class Term {
 								'tag' => 'select',
 								'class' => 'select-input',
 								'name' => 'parent',
-								'content' => '<option value="0">(none)</option>'
-									.$this->getParentList($this->parent, $this->id)
+								'content' => '<option value="0">(none)</option>' .
+									$this->getParentList($this->parent, $this->id)
 							));
 							
 							// Separator
@@ -353,7 +341,7 @@ class Term {
 								'type' => 'submit',
 								'class' => 'submit-input button',
 								'name' => 'submit',
-								'value' => 'Update '.$this->taxonomy_data['labels']['name_singular']
+								'value' => 'Update ' . $this->taxonomy_data['labels']['name_singular']
 							));
 							?>
 						</table>
@@ -374,19 +362,13 @@ class Term {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Check whether the term's id is valid
 		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the "List Categories" page
 			redirect('categories.php');
 		} else {
-			// Delete the category from the database
 			$rs_query->delete('terms', array('id' => $this->id, 'taxonomy' => $this->taxonomy));
-			
-			// Delete the term relationship(s) from the database
 			$rs_query->delete('term_relationships', array('term' => $this->id));
 			
-			// Redirect to the "List Terms" page with an appropriate exit status
-			redirect($this->taxonomy_data['menu_link'].'?exit_status=success');
+			redirect($this->taxonomy_data['menu_link'] . '?exit_status=success');
 		}
 	}
 	
@@ -407,15 +389,13 @@ class Term {
 		if(empty($data['name']) || empty($data['slug']))
 			return statusMessage('R');
 		
-		// Sanitize the slug
 		$slug = sanitize($data['slug']);
 		
-		// Make sure the slug is unique
 		if($this->slugExists($slug, $id))
 			$slug = getUniqueTermSlug($slug);
 		
 		if($id === 0) {
-			// Insert the new term into the database
+			// New term
 			$insert_id = $rs_query->insert('terms', array(
 				'name' => $data['name'],
 				'slug' => $slug,
@@ -423,10 +403,9 @@ class Term {
 				'parent' => $data['parent']
 			));
 			
-			// Redirect to the appropriate "Edit Term" page
-			redirect(ADMIN_URI.'?id='.$insert_id.'&action=edit');
+			redirect(ADMIN_URI . '?id=' . $insert_id . '&action=edit');
 		} else {
-			// Update the category in the database
+			// Existing term
 			$rs_query->update('terms', array(
 				'name' => $data['name'],
 				'slug' => $slug,
@@ -436,8 +415,8 @@ class Term {
 			// Update the class variables
 			foreach($data as $key => $value) $this->$key = $value;
 			
-			// Return a status message
-			return statusMessage($this->taxonomy_data['labels']['name_singular'].' updated! <a href="'.$this->taxonomy_data['menu_link'].'">Return to list</a>?', true);
+			return statusMessage($this->taxonomy_data['labels']['name_singular'] . ' updated! <a href="' .
+				$this->taxonomy_data['menu_link'] . '">Return to list</a>?', true);
 		}
 	}
 	
@@ -455,10 +434,8 @@ class Term {
 		global $rs_query;
 		
 		if($id === 0) {
-			// Fetch the number of times the slug appears in the database and return true if it does
 			return $rs_query->selectRow('terms', 'COUNT(slug)', array('slug' => $slug)) > 0;
 		} else {
-			// Fetch the number of times the slug appears in the database (minus the current term) and return true if it does
 			return $rs_query->selectRow('terms', 'COUNT(slug)', array(
 				'slug' => $slug,
 				'id' => array('<>', $id)
@@ -480,17 +457,12 @@ class Term {
 		global $rs_query;
 		
 		do {
-			// Fetch the parent term from the database
 			$parent = $rs_query->selectField('terms', 'parent', array('id' => $id));
-			
-			// Set the new id
 			$id = (int)$parent;
 			
-			// Return true if the term's ancestor is found
 			if($id === $ancestor) return true;
 		} while($id !== 0);
 		
-		// Return false if no ancestor is found
 		return false;
 	}
 	
@@ -506,7 +478,6 @@ class Term {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Fetch the taxonomy's name from the database and return it
 		return $rs_query->selectField('taxonomies', 'name', array('id' => $id));
 	}
 	
@@ -522,10 +493,8 @@ class Term {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Fetch the parent term from the database
 		$parent = $rs_query->selectField('terms', 'name', array('id' => $id));
 		
-		// Return the parent's name
 		return empty($parent) ? '&mdash;' : $parent;
 	}
 	
@@ -542,16 +511,13 @@ class Term {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Create an empty list
 		$list = '';
 		
-		// Fetch all terms of the specified taxonomy from the database
 		$terms = $rs_query->select('terms', array('id', 'name'), array(
 			'taxonomy' => getTaxonomyId($this->taxonomy_data['name'])
 		));
 		
 		foreach($terms as $term) {
-			// Do some extra checks if an id is provided
 			if($id !== 0) {
 				// Skip the current term
 				if($term['id'] === $id) continue;
@@ -560,11 +526,10 @@ class Term {
 				if($this->isDescendant($term['id'], $id)) continue;
 			}
 			
-			// Construct the list
-			$list .= '<option value="'.$term['id'].'"'.($term['id'] === $parent ? ' selected' : '').'>'.$term['name'].'</option>';
+			$list .= '<option value="' . $term['id'] . '"' . ($term['id'] === $parent ? ' selected' : '') .
+				'>' . $term['name'] . '</option>';
 		}
 		
-		// Return the list
 		return $list;
 	}
 }

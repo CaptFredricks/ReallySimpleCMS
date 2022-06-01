@@ -985,7 +985,10 @@ h3 {
 
 .data-form .checkbox-input {
 	cursor: pointer;
+	height: 1.125em;
+	margin-right: 0.5em;
 	vertical-align: bottom;
+	width: 1.125em;
 }
 
 .data-form .checkbox-label {
@@ -995,8 +998,10 @@ h3 {
 }
 
 .data-form .checkbox-label span {
+	display: inline-block;
 	font-size: 0.9375em;
-	vertical-align: text-top;
+	-webkit-transform: translateY(-0.125em);
+	transform: translateY(-0.125em);
 }
 
 .data-form .checkbox-list {
@@ -1011,9 +1016,6 @@ h3 {
 
 .data-form .checkbox-list label span {
 	color: var(--global--table-color);
-	display: inline-block;
-	-webkit-transform: translateY(-0.125em);
-	transform: translateY(-0.125em);
 }
 
 .data-form #password-gen {
@@ -1085,6 +1087,10 @@ h3 {
 .data-form .content {
 	float: none;
 	margin-bottom: 1.25em;
+}
+
+.menus .data-form .content {
+	margin-bottom: 0;
 }
 
 .data-form .content #title-field,
@@ -1162,7 +1168,7 @@ h3 {
 	line-height: 2rem;
 }
 
-.data-form .sidebar #categories-list {
+.data-form .sidebar #terms-list {
 	list-style: none;
 	margin: 0;
 	max-height: 200px;
@@ -1170,26 +1176,9 @@ h3 {
 	padding: 0.125em;
 }
 
-.data-form .sidebar #categories-list label,
+.data-form .sidebar #terms-list label,
 .data-form .checkbox-list label {
-	cursor: pointer;
 	margin-right: 0;
-	-webkit-user-select: none;
-	user-select: none;
-}
-
-.data-form .sidebar #categories-list label span {
-	display: inline-block;
-	-webkit-transform: translateY(-0.125em);
-	transform: translateY(-0.125em);
-}
-
-.data-form .sidebar #categories-list .checkbox-input,
-.data-form .checkbox-list .checkbox-input {
-	height: 1.125em;
-	margin-right: 0.5em;
-	vertical-align: bottom;
-	width: 1.125em;
 }
 
 .data-form .metadata label {
@@ -1325,8 +1314,13 @@ h3 {
 	  justify-content: center;
 	font-weight: 700;
 	height: calc(100% - 45px);
+	text-align: center;
 	text-transform: uppercase;
 	width: 100%;
+}
+
+.data-list .theme-preview span.error {
+	color: var(--global--failure-color);
 }
 
 .data-list .theme-name {
