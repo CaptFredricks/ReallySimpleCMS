@@ -887,10 +887,11 @@ function userHasPrivileges($privileges = array(), $logic = 'AND', $role = null):
 	if(!is_array($privileges)) $privileges = (array)$privileges;
 	
 	foreach($privileges as $privilege) {
-		if(strtoupper($logic) === 'AND')
+		if(strtoupper($logic) === 'AND') {
 			if(userHasPrivilege($privilege, $role) === false) return false;
-		elseif(strtoupper($logic) === 'OR')
+		} elseif(strtoupper($logic) === 'OR') {
 			if(userHasPrivilege($privilege, $role) === true) return true;
+		}
 	}
 	
 	if(strtoupper($logic) === 'AND')

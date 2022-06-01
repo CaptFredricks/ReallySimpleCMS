@@ -18,6 +18,14 @@
 - [a] = alpha
 - [b] = beta
 
+## Version 1.3.4.1[b] (2022-05-31)
+
+**Bug fixes:**
+- Certain items are not displaying on the admin menu and the admin bar
+
+**Modified files:**
+- includes/global-functions.php (M)
+
 ## Version 1.3.4[b] (2022-05-31)
 
 - Cleaned up internal documentation throughout the CMS
