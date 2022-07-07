@@ -5,13 +5,13 @@
  */
 
 // Path to the admin stylesheets directory
-if(!defined('ADMIN_STYLES')) define('ADMIN_STYLES', ADMIN.INC.'/css');
+if(!defined('ADMIN_STYLES')) define('ADMIN_STYLES', ADMIN . INC . '/css');
 
 // Path to the admin scripts directory
-if(!defined('ADMIN_SCRIPTS')) define('ADMIN_SCRIPTS', ADMIN.INC.'/js');
+if(!defined('ADMIN_SCRIPTS')) define('ADMIN_SCRIPTS', ADMIN . INC . '/js');
 
 // Path to the admin themes directory
-if(!defined('ADMIN_THEMES')) define('ADMIN_THEMES', CONT.'/admin-themes');
+if(!defined('ADMIN_THEMES')) define('ADMIN_THEMES', CONT . '/admin-themes');
 
 // Current admin page URI
 if(!defined('ADMIN_URI')) define('ADMIN_URI', $_SERVER['PHP_SELF']);
@@ -36,7 +36,7 @@ spl_autoload_register(function($class_name) {
 	}
 	
 	// Include the class
-	require_once PATH.ADMIN.INC.'/class-'.strtolower($class_name).'.php';
+	require_once PATH . ADMIN . INC . '/class-' . strtolower($class_name) . '.php';
 });
 
 /*------------------------------------*\
@@ -191,10 +191,11 @@ function getPageTitle(): string {
  * @since 1.2.0[a]
  *
  * @param string $script
- * @param string $version (optional; default: VERSION)
+ * @param string $version (optional; default: CMS_VERSION)
  */
-function adminScript($script, $version = VERSION): void {
-	echo '<script src="'.trailingSlash(ADMIN_SCRIPTS).$script.(!empty($version) ? '?v='.$version : '').'"></script>';
+function adminScript($script, $version = CMS_VERSION): void {
+	echo '<script src="' . trailingSlash(ADMIN_SCRIPTS) . $script . (!empty($version) ? '?v=' .
+		$version : '') . '"></script>';
 }
 
 /**
@@ -202,10 +203,11 @@ function adminScript($script, $version = VERSION): void {
  * @since 1.2.0[a]
  *
  * @param string $stylesheet
- * @param string $version (optional; default: VERSION)
+ * @param string $version (optional; default: CMS_VERSION)
  */
-function adminStylesheet($stylesheet, $version = VERSION): void {
-	echo '<link href="'.trailingSlash(ADMIN_STYLES).$stylesheet.(!empty($version) ? '?v='.$version : '').'" rel="stylesheet">';
+function adminStylesheet($stylesheet, $version = CMS_VERSION): void {
+	echo '<link href="' . trailingSlash(ADMIN_STYLES) . $stylesheet . (!empty($version) ? '?v=' .
+		$version : '') . '" rel="stylesheet">';
 }
 
 /**
@@ -213,10 +215,11 @@ function adminStylesheet($stylesheet, $version = VERSION): void {
  * @since 2.3.1[a]
  *
  * @param string $stylesheet
- * @param string $version (optional; default: VERSION)
+ * @param string $version (optional; default: CMS_VERSION)
  */
-function adminThemeStylesheet($stylesheet, $version = VERSION): void {
-	echo '<link href="'.trailingSlash(ADMIN_THEMES).$stylesheet.(!empty($version) ? '?v='.$version : '').'" rel="stylesheet">';
+function adminThemeStylesheet($stylesheet, $version = CMS_VERSION): void {
+	echo '<link href="' . trailingSlash(ADMIN_THEMES) . $stylesheet . (!empty($version) ? '?v=' .
+		$version : '') . '" rel="stylesheet">';
 }
 
 /**
@@ -236,10 +239,10 @@ function adminHeaderScripts(): void {
 	// Check whether the user has a custom admin theme selected
 	if($session['theme'] !== 'default') {
 		// Filename for the admin theme stylesheet
-		$filename = $session['theme'].'.css';
+		$filename = $session['theme'] . '.css';
 		
 		// Check whether the stylesheet exists
-		if(file_exists(trailingSlash(PATH.ADMIN_THEMES).$filename)) {
+		if(file_exists(trailingSlash(PATH . ADMIN_THEMES) . $filename)) {
 			// Admin theme stylesheet
 			adminThemeStylesheet($filename);
 		}
@@ -279,7 +282,7 @@ function RSCopyright(): void {
  * @since 1.2.0[a]
  */
 function RSVersion(): void {
-	echo 'Version '.VERSION.' (&beta;)';
+	echo 'Version ' . CMS_VERSION . ' (&beta;)';
 }
 
 /**
@@ -301,7 +304,7 @@ function adminNavMenuItem($item = array(), $submenu = array(), $icon = null): vo
 	$item_id = $item['id'] ?? 'menu-item';
 	
 	// Fetch the menu item link
-	$item_link = isset($item['link']) ? trailingSlash(ADMIN).$item['link'] : 'javascript:void(0)';
+	$item_link = isset($item['link']) ? trailingSlash(ADMIN) . $item['link'] : 'javascript:void(0)';
 	
 	// Fetch the menu item caption
 	$item_caption = $item['caption'] ?? ucwords(str_replace(array('_', '-'), ' ', $item_id));
@@ -324,7 +327,7 @@ function adminNavMenuItem($item = array(), $submenu = array(), $icon = null): vo
 		}
 	}
 	?>
-	<li<?php echo !empty($item_class) ? ' class="'.$item_class.'"' : ''; ?>>
+	<li<?php echo !empty($item_class) ? ' class="' . $item_class . '"' : ''; ?>>
 		<a href="<?php echo $item_link; ?>">
 			<?php
 			// Nav menu icon
@@ -333,23 +336,23 @@ function adminNavMenuItem($item = array(), $submenu = array(), $icon = null): vo
 					switch($icon[1]) {
 						case 'regular':
 							?>
-							<i class="far fa-<?php echo $icon[0]; ?>"></i>
+							<i class="fa-regular fa-<?php echo $icon[0]; ?>"></i>
 							<?php
 							break;
 						case 'solid':
 						default:
 							?>
-							<i class="fas fa-<?php echo $icon[0]; ?>"></i>
+							<i class="fa-solid fa-<?php echo $icon[0]; ?>"></i>
 							<?php
 					}
 				} else {
 					?>
-					<i class="fas fa-<?php echo $icon; ?>"></i>
+					<i class="fa-solid fa-<?php echo $icon; ?>"></i>
 					<?php
 				}
 			} else {
 				?>
-				<i class="fas fa-code-branch"></i>
+				<i class="fa-solid fa-code-branch"></i>
 				<?php
 			}
 			?>
@@ -371,7 +374,8 @@ function adminNavMenuItem($item = array(), $submenu = array(), $icon = null): vo
 						$sub_item_id = $sub_item['id'] ?? $item_id;
 						
 						// Fetch the submenu item link
-						$sub_item_link = isset($sub_item['link']) ? trailingSlash(ADMIN).$sub_item['link'] : 'javascript:void(0)';
+						$sub_item_link = isset($sub_item['link']) ? trailingSlash(ADMIN) .
+							$sub_item['link'] : 'javascript:void(0)';
 						
 						// Fetch the submenu item caption
 						$sub_item_caption = $sub_item['caption'] ?? ucwords(str_replace('-', ' ', $sub_item_id));
@@ -400,34 +404,34 @@ function adminNavMenu(): void {
 	global $post_types, $taxonomies;
 	
 	// Dashboard
-	adminNavMenuItem(array('id' => 'dashboard', 'link' => 'index.php'), array(), 'tachometer-alt');
+	adminNavMenuItem(array('id' => 'dashboard', 'link' => 'index.php'), array(), 'gauge-high');
 	
+	// Pages/posts/media/CPTs
 	foreach($post_types as $post_type) {
-		// Skip any post type that has 'show_in_admin_menu' set to false
 		if(!$post_type['show_in_admin_menu']) continue;
 		
-		// Create an id from the post type's label
 		$id = str_replace(' ', '_', $post_type['labels']['name_lowercase']);
 		
-		// Check whether the post type has a valid taxonomy associated with it
-		if(!empty($post_type['taxonomy']) && array_key_exists($post_type['taxonomy'], $taxonomies)) {
-			// Create an id from the taxonomy's label
+		if(!empty($post_type['taxonomy']) && array_key_exists($post_type['taxonomy'], $taxonomies))
 			$tax_id = str_replace(' ', '_', $taxonomies[$post_type['taxonomy']]['labels']['name_lowercase']);
-		}
 		
-		// Check whether the user has sufficient privileges to view the post type
-		if(userHasPrivilege('can_view_'.$id)) {
+		if(userHasPrivilege('can_view_' . $id)) {
 			adminNavMenuItem(array('id' => $id), array( // Submenu
 				array( // List <post_type>
 					'link' => $post_type['menu_link'],
 					'caption' => $post_type['labels']['list_items']
 				),
-				(userHasPrivilege(($post_type['name'] === 'media' ? 'can_upload_media' : 'can_create_'.$id)) ? array( // Create <post_type>
-					'id' => $id === 'media' ? $id.'-upload' : $id.'-create',
-					'link' => $post_type['menu_link'].($post_type['name'] === 'media' ? '?action=upload' : ($post_type['name'] === 'post' ? '?action=create' : '&action=create')),
+				(userHasPrivilege(($post_type['name'] === 'media' ? 'can_upload_media' : 'can_create_' . $id)) ?
+				array( // Create <post_type>
+					'id' => $id === 'media' ? $id . '-upload' : $id . '-create',
+					'link' => $post_type['menu_link'] . ($post_type['name'] === 'media' ? '?action=upload' :
+						($post_type['name'] === 'post' ? '?action=create' : '&action=create')),
 					'caption' => $post_type['labels']['create_item']
 				) : null),
-				(!empty($post_type['taxonomy']) && array_key_exists($post_type['taxonomy'], $taxonomies) && userHasPrivilege('can_view_'.$tax_id) && $taxonomies[$post_type['taxonomy']]['show_in_admin_menu'] ? array( // Taxonomy
+				(!empty($post_type['taxonomy']) && array_key_exists($post_type['taxonomy'], $taxonomies) &&
+					userHasPrivilege('can_view_' . $tax_id) &&
+					$taxonomies[$post_type['taxonomy']]['show_in_admin_menu'] ?
+				array( // Taxonomy
 					'id' => $tax_id,
 					'link' => $taxonomies[$post_type['taxonomy']]['menu_link'],
 					'caption' => $taxonomies[$post_type['taxonomy']]['labels']['list_items']
@@ -436,7 +440,7 @@ function adminNavMenu(): void {
 		}
 	}
 	
-	// Check whether the user has sufficient privileges to view comments
+	// Comments
 	if(userHasPrivilege('can_view_comments')) {
 		adminNavMenuItem(array(
 			'id' => 'comments',
@@ -444,7 +448,7 @@ function adminNavMenu(): void {
 		), array(), array('comments', 'regular'));
 	}
 	
-	// Check whether the user has sufficient privileges to view customization options
+	// Customization (themes/menus/widgets)
 	if(userHasPrivileges(array('can_view_themes', 'can_view_menus', 'can_view_widgets'), 'OR')) {
 		adminNavMenuItem(array('id' => 'customization'), array( // Submenu
 			(userHasPrivilege('can_view_themes') ? array(
@@ -479,8 +483,12 @@ function adminNavMenu(): void {
 		array('id' => 'profile', 'link' => 'profile.php', 'caption' => 'Your Profile')
 	), 'users');
 	
-	// Check whether the user has sufficient privileges to view login options
-	if(userHasPrivileges(array('can_view_login_attempts', 'can_view_login_blacklist', 'can_view_login_rules'), 'OR')) {
+	// Logins (attempts/blacklist/rules)
+	if(userHasPrivileges(array(
+		'can_view_login_attempts',
+		'can_view_login_blacklist',
+		'can_view_login_rules'
+	), 'OR')) {
 		adminNavMenuItem(array('id' => 'logins'), array( // Submenu
 			(userHasPrivilege('can_view_login_attempts') ? array(
 				'link' => 'logins.php',
@@ -496,10 +504,10 @@ function adminNavMenu(): void {
 				'link' => 'logins.php?page=rules',
 				'caption' => 'Rules'
 			) : null)
-		), 'sign-in-alt');
+		), 'right-to-bracket');
 	}
 	
-	// Check whether the user has sufficient privileges to view settings
+	// Settings (general/design/user roles)
 	if(userHasPrivileges(array('can_edit_settings', 'can_view_user_roles'), 'OR')) {
 		adminNavMenuItem(array('id' => 'settings'), array( // Submenu
 			(userHasPrivilege('can_edit_settings') ? array(
@@ -516,11 +524,11 @@ function adminNavMenu(): void {
 				'link' => 'settings.php?page=user_roles',
 				'caption' => 'User Roles'
 			) : null)
-		), 'cogs');
+		), 'gears');
 	}
 	
 	// About the CMS
-	adminNavMenuItem(array('id' => 'about', 'link' => 'about.php'), array(), 'info-circle');
+	adminNavMenuItem(array('id' => 'about', 'link' => 'about.php'), array(), 'circle-info');
 }
 
 /*------------------------------------*\
@@ -734,7 +742,7 @@ function dashboardWidget($name): void {
  * @return string
  */
 function tableRow(...$cells): string {
-	return '<tr>'.(!empty($cells) ? implode('', $cells) : '').'</tr>';
+	return '<tr>' . (!empty($cells) ? implode('', $cells) : '') . '</tr>';
 }
 
 /**
@@ -745,14 +753,15 @@ function tableRow(...$cells): string {
  * @param string $content
  * @param string $class (optional; default: '')
  * @param int $colspan (optional; default: 1)
+ * @param int $rowspan (optional; default: 1)
  * @return string
  */
-function tableCell($tag, $content, $class = '', $colspan = 1): string {
+function tableCell($tag, $content, $class = '', $colspan = 1, $rowspan = 1): string {
 	if($tag !== 'th' && $tag !== 'td') $tag = 'td';
 	
-	return '<'.$tag
-		.(!empty($class) ? ' class="column '.$class.'"' : '')
-		.($colspan > 1 ? ' colspan="'.$colspan.'"' : '').'>'.$content.'</'.$tag.'>';
+	return '<' . $tag . ' class="column' . (!empty($class) ? ' ' . $class : '') . '"' .
+		($colspan > 1 ? ' colspan="' . $colspan . '"' : '') .
+		($rowspan > 1 ? ' rowspan="' . $rowspan . '"' : '') . '>' . $content . '</' . $tag . '>';
 }
 
 /**
@@ -762,10 +771,11 @@ function tableCell($tag, $content, $class = '', $colspan = 1): string {
  * @param string $content
  * @param string $class (optional; default: '')
  * @param int $colspan (optional; default: 1)
+ * @param int $rowspan (optional; default: 1)
  * @return string
  */
-function thCell($content, $class = '', $colspan = 1): string {
-	return tableCell('th', $content, $class, $colspan);
+function thCell($content, $class = '', $colspan = 1, $rowspan = 1): string {
+	return tableCell('th', $content, $class, $colspan, $rowspan);
 }
 
 /**
@@ -775,10 +785,11 @@ function thCell($content, $class = '', $colspan = 1): string {
  * @param string $content
  * @param string $class (optional; default: '')
  * @param int $colspan (optional; default: 1)
+ * @param int $rowspan (optional; default: 1)
  * @return string
  */
-function tdCell($content, $class = '', $colspan = 1): string {
-	return tableCell('td', $content, $class, $colspan);
+function tdCell($content, $class = '', $colspan = 1, $rowspan = 1): string {
+	return tableCell('td', $content, $class, $colspan, $rowspan);
 }
 
 /**
@@ -789,7 +800,12 @@ function tdCell($content, $class = '', $colspan = 1): string {
  * @return string
  */
 function tableHeaderRow($items): string {
-	foreach($items as $item) $row[] = thCell($item);
+	if(count(array_filter(array_keys($items), 'is_string')) > 0) {
+		foreach($items as $key => $value)
+			$row[] = thCell($value, 'col-' . $key);
+	} else {
+		foreach($items as $item) $row[] = thCell($item);
+	}
 	
 	return tableRow(implode('', $row));
 }
@@ -806,54 +822,63 @@ function formTag($tag_name, $args = null): string {
 	// Create an array of property names from the args array
 	$props = !is_null($args) ? array_keys($args) : array();
 	
-	// Create an array of whitelisted tags with their properties
+	$always_whitelist = array('id', 'class');
+	
 	$whitelisted_props = array(
-		'a' => array('id', 'class', 'href', 'content'),
-		'br' => array('id', 'class'),
-		'div' => array('id', 'class', 'style', 'content'),
-		'hr' => array('id', 'class'),
-		'i' => array('id', 'class'),
-		'img' => array('id', 'class', 'src', 'width'),
-		'input' => array('type', 'id', 'class', 'name', 'maxlength', 'value', 'placeholder', '*'),
-		'label' => array('id', 'class', 'for', 'content'),
-		'select' => array('id', 'class', 'name', 'content'),
-		'span' => array('id', 'class', 'style', 'title', 'content'),
-		'textarea' => array('id', 'class', 'name', 'cols', 'rows', 'content')
+		'a' => array_merge($always_whitelist, array('href', 'target', 'rel', 'title')),
+		'br' => $always_whitelist,
+		'button' => $always_whitelist,
+		'div' => array_merge($always_whitelist, array('style')),
+		'fieldset' => array(),
+		'hr' => $always_whitelist,
+		'i' => $always_whitelist,
+		'img' => array_merge($always_whitelist, array('src', 'width')),
+		'input' => array_merge(
+			array('type'),
+			$always_whitelist,
+			array('name', 'maxlength', 'value', 'placeholder', 'checked')
+		),
+		'label' => array_merge($always_whitelist, array('for')),
+		'option' => array('value', 'selected'),
+		'select' => array_merge($always_whitelist, array('name')),
+		'span' => array_merge($always_whitelist, array('style', 'title')),
+		'textarea' => array_merge($always_whitelist, array('name', 'cols', 'rows'))
 	);
 	
-	// Create an array of whitelisted tags
 	$whitelisted_tags = array_keys($whitelisted_props);
 	
 	// Check whether the specified tag has been whitelisted
 	if(in_array($tag_name, $whitelisted_tags, true)) {
-		// Start the opening portion of the tag
-		$tag = '<'.$tag_name;
+		$tag = '<' . $tag_name;
 		
-		if($tag_name === 'input') {
-			// Check whether the 'type' property has been provided and set it to 'text' if not
+		// Add the 'type' param to input tags
+		if($tag_name === 'input')
 			if(!in_array('type', $props, true)) $tag .= ' type="text"';
-		}
 		
 		if(!is_null($args)) {
 			foreach($args as $key => $value) {
-				// Check whether the property has been whitelisted and it does not equal 'content'
-				if(in_array($key, $whitelisted_props[$tag_name], true) && $key !== 'content' || str_starts_with($key, 'data-')) {
-					// Check whether the tag is an input and the property is valueless
-					if($tag_name === 'input' && $key === '*') {
-						// Add the property to the tag
-						$tag .= ' '.$value;
-					} else {
-						// Add the property and its value to the tag
-						$tag .= ' '.$key.'="'.$value.'"';
+				// Check whether the property has been whitelisted
+				if(in_array($key, $whitelisted_props[$tag_name], true) ||
+					str_starts_with($key, 'data-')) {
+						
+					switch($key) {
+						case 'checked':
+						case 'selected':
+							$tag .= $value ? ' ' . $key : '';
+							break;
+						default:
+							$tag .= ' ' . $key . '="' . $value . '"';
 					}
+				}
+				if($tag_name === 'input' && $key === '*') {
+					// Add the property to the tag
+					$tag .= ' '.$value;
 				}
 			}
 		}
 		
-		// Finish the opening portion of the tag
 		$tag .= '>';
 		
-		// Create an array of self-closing tags
 		$self_closing = array('br', 'hr', 'img', 'input');
 		
 		// Check whether the tag should have a closing portion
@@ -861,23 +886,22 @@ function formTag($tag_name, $args = null): string {
 			// Add any provided content
 			$tag .= $args['content'] ?? '';
 			
-			// Create the closing portion of the tag
-			$tag .= '</'.$tag_name.'>';
+			// Closing tag
+			$tag .= '</' . $tag_name . '>';
 		}
 	} else {
-		// Create an empty tag
 		$tag = '';
 	}
 	
 	if(!empty($args['label'])) {
-		// Construct a label tag
-		$label = '<label'.(!empty($args['label']['id']) ? ' id="'.$args['label']['id'].'"' : '').(!empty($args['label']['class']) ? ' class="'.$args['label']['class'].'"' : '').'>';
+		$label = '<label' . (!empty($args['label']['id']) ? ' id="' . $args['label']['id'] .
+			'"' : '') . (!empty($args['label']['class']) ? ' class="' . $args['label']['class'] .
+			'"' : '') . '>';
 		
-		// Construct the content of the label
-		$content = (!empty($args['label']['content']) ? $args['label']['content'] : '').'</label>';
+		$content = (!empty($args['label']['content']) ? $args['label']['content'] : '') . '</label>';
 		
 		// Put everything together
-		$tag = $label.$tag.$content;
+		$tag = $label . $tag . $content;
 	}
 	
 	return $tag;
@@ -918,8 +942,15 @@ function formRow($label = '', ...$args): string {
 			if(is_array($args[$i]) && array_key_exists('name', $args[$i])) break;
 		}
 		
-		// Create the label for the form row
-		$row_label = '<label'.(!empty($args[$i]['name']) ? ' for="'.$args[$i]['name'].'"' : '').'>'.$label.(!empty($required) && $required === true ? ' <span class="required">*</span>' : '').'</label>';
+		$row_label = tag('label', array(
+			'for' => (!empty($args[$i]['name']) ? $args[$i]['name'] : ''),
+			'content' => $label . ' ' . (!empty($required) && $required === true ?
+				tag('span', array(
+					'class' => 'required',
+					'content' => '*'
+				)) : ''
+			)
+		));
 		
 		if(count($args) > 0) {
 			// Check whether the args are a multidimensional array
@@ -929,7 +960,7 @@ function formRow($label = '', ...$args): string {
 					$tag = array_shift($arg);
 					
 					// Construct the form tag and add it to the row
-					$row_content[] = formTag($tag, $arg);
+					$row_content[] = tag($tag, $arg);
 				}
 			} else {
 				// Add any content to the row
@@ -947,7 +978,7 @@ function formRow($label = '', ...$args): string {
 					$tag = array_shift($arg);
 					
 					// Construct the form tag and add it to the row
-					$row_content[] = formTag($tag, $arg);
+					$row_content[] = tag($tag, $arg);
 				}
 			} else {
 				// Add any content to the row
@@ -994,13 +1025,16 @@ function uploadMediaFile($data): string {
 	if(!in_array($data['type'], $accepted_mime, true))
 		return statusMessage('The file could not be uploaded.');
 	
-	// File path for the uploads directory
-	$file_path = PATH.UPLOADS;
+	$basepath = PATH . UPLOADS;
 	
-	// Check whether the uploads directory exists and create it if not
-	if(!file_exists($file_path)) mkdir($file_path);
+	if(!file_exists($basepath)) mkdir($basepath);
 	
-	// Convert the filename to all lowercase, replace spaces with hyphens, and remove all special characters
+	$year = date('Y');
+	
+	if(!file_exists(trailingSlash($basepath) . $year))
+		mkdir(trailingSlash($basepath) . $year);
+	
+	// Sanitize the filename
 	$filename = preg_replace('/[^\w.-]/i', '', str_replace(' ', '-', strtolower($data['name'])));
 	
 	// Get a unique filename
@@ -1012,11 +1046,19 @@ function uploadMediaFile($data): string {
 	// Get a unique slug
 	$slug = getUniquePostSlug($slug);
 	
-	// Move the uploaded file to the uploads directory
-	move_uploaded_file($data['tmp_name'], trailingSlash(PATH.UPLOADS).$filename);
+	$filepath = trailingSlash($year) . $filename;
 	
-	// Create an array to hold the media's metadata
-	$mediameta = array('filename' => $filename, 'mime_type' => $data['type'], 'alt_text' => '');
+	// Move the uploaded file to the uploads directory
+	move_uploaded_file(
+		$data['tmp_name'],
+		trailingSlash($basepath) . $filepath
+	);
+	
+	$mediameta = array(
+		'filepath' => $filepath,
+		'mime_type' => $data['type'],
+		'alt_text' => ''
+	);
 	
 	// Set the media's title
 	$title = ucwords(str_replace('-', ' ', $slug));
@@ -1034,21 +1076,47 @@ function uploadMediaFile($data): string {
 		'type' => 'media'
 	));
 	
-	// Insert the media's metadata into the database
-	foreach($mediameta as $key => $value)
-		$rs_query->insert('postmeta', array('post' => $insert_id, '_key' => $key, 'value' => $value));
+	foreach($mediameta as $key => $value) {
+		$rs_query->insert('postmeta', array(
+			'post' => $insert_id,
+			'_key' => $key,
+			'value' => $value
+		));
+	}
 	
 	// Check whether the media is an image
 	if(in_array($data['type'], array('image/jpeg', 'image/png', 'image/gif', 'image/x-icon'), true)) {
-		// Fetch the media's dimensions
-		list($width, $height) = getimagesize(trailingSlash(PATH.UPLOADS).$filename);
+		list($width, $height) = getimagesize(trailingSlash($basepath) . $filepath);
 		
-		// Construct hidden fields for the status message
-		$status_msg = '<div class="hidden" data-field="id">'.$insert_id.'</div><div class="hidden" data-field="title">'.$title.'</div><div class="hidden" data-field="filename">'.trailingSlash(UPLOADS).$filename.'</div><div class="hidden" data-field="mime_type">'.$data['type'].'</div><dive class="hidden" data-field="width">'.$width.'</div>';
+		$status_msg = tag('div', array(
+			// ID
+			'class' => 'hidden',
+			'data-field' => 'id',
+			'content' => $insert_id
+		)) . tag('div', array(
+			// Title
+			'class' => 'hidden',
+			'data-field' => 'title',
+			'content' => $title
+		)) . tag('div', array(
+			// Filepath
+			'class' => 'hidden',
+			'data-field' => 'filepath',
+			'content' => trailingSlash(UPLOADS) . $filepath
+		)) . tag('div', array(
+			// MIME type
+			'class' => 'hidden',
+			'data-field' => 'mime_type',
+			'content' => $data['type']
+		)) . tag('div', array(
+			// Width
+			'class' => 'hidden',
+			'data-field' => 'width',
+			'content' => $width
+		));
 	}
 	
-	// Return a success message and a hidden field with the media's id
-	return statusMessage('Upload successful!', true).($status_msg ?? '');
+	return statusMessage('Upload successful!', true) . ($status_msg ?? '');
 }
 
 /**
@@ -1061,7 +1129,6 @@ function loadMedia($image_only = false): void {
 	// Extend the Query object
 	global $rs_query;
 	
-	// Fetch all media from the database
 	$mediaa = $rs_query->select('posts', '*', array('type' => 'media'), 'date', 'DESC');
 	
 	if(empty($mediaa)) {
@@ -1071,9 +1138,11 @@ function loadMedia($image_only = false): void {
 	} else {
 		foreach($mediaa as $media) {
 			// Fetch the media's metadata from the database
-			$mediameta = $rs_query->select('postmeta', array('_key', 'value'), array('post' => $media['id']));
+			$mediameta = $rs_query->select('postmeta',
+				array('_key', 'value'),
+				array('post' => $media['id'])
+			);
 			
-			// Create an empty array to hold the metadata
 			$meta = array();
 			
 			foreach($mediameta as $metadata) {
@@ -1092,8 +1161,9 @@ function loadMedia($image_only = false): void {
 				
 				if(!in_array($meta['mime_type'], $image_mime, true)) continue;
 				
-				// Fetch the image's dimensions
-				list($width, $height) = getimagesize(trailingSlash(PATH.UPLOADS).$meta['filename']);
+				list($width, $height) = getimagesize(
+					trailingSlash(PATH . UPLOADS) . $meta['filepath']
+				);
 			}
 			?>
 			<div class="media-item-wrap">
@@ -1102,14 +1172,54 @@ function loadMedia($image_only = false): void {
 						<?php echo getMedia($media['id'], array('class' => 'thumb')); ?>
 					</div>
 					<div>
-						<div class="hidden" data-field="id"><?php echo $media['id']; ?></div>
-						<div class="hidden" data-field="thumb"><?php echo getMedia($media['id']); ?></div>
-						<div class="hidden" data-field="title"><?php echo $media['title']; ?></div>
-						<div class="hidden" data-field="date"><?php echo formatDate($media['date'], 'd M Y @ g:i A'); ?></div>
-						<div class="hidden" data-field="filename"><?php echo mediaLink($media['id'], array('link_text' => $meta['filename'], 'newtab' => 1)); ?></div>
-						<div class="hidden" data-field="mime_type"><?php echo $meta['mime_type']; ?></div>
-						<div class="hidden" data-field="alt_text"><?php echo $meta['alt_text']; ?></div>
-						<div class="hidden" data-field="width"><?php echo $width ?? 150; ?></div>
+						<?php
+						$file = pathinfo($meta['filepath']);
+						
+						echo formTag('div', array(
+							// ID
+							'class' => 'hidden',
+							'data-field' => 'id',
+							'content' => $media['id']
+						)) . formTag('div', array(
+							// Thumb
+							'class' => 'hidden',
+							'data-field' => 'thumb',
+							'content' => getMedia($media['id'])
+						)) . formTag('div', array(
+							// Title
+							'class' => 'hidden',
+							'data-field' => 'title',
+							'content' => $media['title']
+						)) . formTag('div', array(
+							// Date
+							'class' => 'hidden',
+							'data-field' => 'date',
+							'content' => formatDate($media['date'], 'd M Y @ g:i A')
+						)) . formTag('div', array(
+							// Filepath
+							'class' => 'hidden',
+							'data-field' => 'filepath',
+							'content' => mediaLink($media['id'], array(
+								'link_text' => $file['basename'],
+								'newtab' => 1
+							))
+						)) . formTag('div', array(
+							// MIME type
+							'class' => 'hidden',
+							'data-field' => 'mime_type',
+							'content' => $meta['mime_type']
+						)) . formTag('div', array(
+							// Alt text
+							'class' => 'hidden',
+							'data-field' => 'alt_text',
+							'content' => $meta['alt_text']
+						)) . formTag('div', array(
+							// Width
+							'class' => 'hidden',
+							'data-field' => 'width',
+							'content' => ($width ?? 150)
+						));
+						?>
 					</div>
 				</div>
 			</div>
@@ -1130,23 +1240,25 @@ function mediaLink($id, $args = array()): string {
 	// Extend the Query object
 	global $rs_query;
 	
-	// Fetch the media's modified date from the database
 	$modified = $rs_query->selectField('posts', 'modified', array('id' => $id));
 	
-	// Fetch the media's source
-	$src = getMediaSrc($id).'?cached='.formatDate($modified, 'YmdHis');
+	$src = getMediaSrc($id) . '?cached=' . formatDate($modified, 'YmdHis');
 	
-	if(empty($args['link_text'])) {
-		// Fetch the media's title from the database
+	if(!empty($args['newtab']) && $args['newtab'] === 1)
+		$newtab = 1;
+	else
+		$newtab = 0;
+	
+	if(empty($args['link_text']))
 		$args['link_text'] = $rs_query->selectField('posts', 'title', array('id' => $id));
-	}
 	
-	// Construct an anchor tag
-	return '<a'.(
-			!empty($args['class']) ? ' class="'.$args['class'].'"' : ''
-		).' href="'.$src.'"'.(
-			!empty($args['newtab']) && $args['newtab'] === 1 ? ' target="_blank" rel="noreferrer noopener"' : ''
-		).'>'.$args['link_text'].'</a>';
+	return tag('a', array(
+		'class' => (!empty($args['class']) ? $args['class'] : ''),
+		'href' => $src,
+		'target' => ($newtab ? '_blank' : ''),
+		'rel' => ($newtab ? 'noreferrer noopener' : ''),
+		'content' => $args['link_text']
+	));
 }
 
 /**
@@ -1161,7 +1273,10 @@ function getUniqueFilename($filename): string {
 	global $rs_query;
 	
 	// Fetch the number of conflicting filenames in the database
-	$count = $rs_query->select('postmeta', 'COUNT(*)', array('_key' => 'filename', 'value' => array('LIKE', $filename.'%')));
+	$count = $rs_query->select('postmeta', 'COUNT(*)', array(
+		'_key' => 'filepath',
+		'value' => array('LIKE', '%' . $filename . '%')
+	));
 	
 	if($count > 0) {
 		// Split the filename into separate parts
@@ -1169,16 +1284,17 @@ function getUniqueFilename($filename): string {
 		
 		do {
 			// Construct a unique filename
-			$unique_filename = $file_parts['filename'].'-'.($count + 1).'.'.$file_parts['extension'];
+			$unique_filename = $file_parts['filename'] . '-' . ($count + 1) . '.' .
+				$file_parts['extension'];
 			
-			// Increment the count
 			$count++;
-		} while($rs_query->selectRow('postmeta', 'COUNT(*)', array('_key' => 'filename', 'value' => $unique_filename)) > 0);
+		} while($rs_query->selectRow('postmeta', 'COUNT(*)', array(
+			'_key' => 'filepath',
+			'value' => array('LIKE', '%' . $filename)
+		)) > 0);
 		
-		// Return the unique filename
 		return $unique_filename;
 	} else {
-		// Return the original filename
 		return $filename;
 	}
 }
@@ -1227,7 +1343,8 @@ function getFileSize($bytes, $decimals = 1): string {
 	$factor = floor((strlen($bytes) - 1) / 3);
 	
 	// Return the converted file size
-	return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)).' '.$multiples[(int)$factor].($factor > 0 ? 'B' : '');
+	return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . ' ' . $multiples[(int)$factor] .
+		($factor > 0 ? 'B' : '');
 }
 
 /*------------------------------------*\
@@ -1296,8 +1413,7 @@ function statusMessage($text, $success = false): string {
 		}
 	}
 	
-	// Return the status message
-	return '<div class="status-message '.$class.'">'.$text.'</div>';
+	return '<div class="status-message ' . $class . '">' . $text . '</div>';
 }
 
 /**
@@ -1351,21 +1467,38 @@ function pagerNav($page, $page_count): void {
 	?>
 	<div class="pager">
 		<?php
-		// Display the 'first page'/'previous page' buttons if the first page of results is not showing
 		if($page > 1) {
-			?>
-			<a class="pager-nav button" href="<?php echo '?'.(!empty($query_string) ? $query_string.'&' : '').'paged=1'; ?>" title="First Page">&laquo;</a><a class="pager-nav button" href="<?php echo '?'.(!empty($query_string) ? $query_string.'&' : '').'paged='.($page - 1); ?>" title="Previous Page">&lsaquo;</a>
-			<?php
+			echo formTag('a', array(
+				'class' => 'pager-nav button',
+				'href' => ADMIN_URI . '?' . (!empty($query_string) ? $query_string . '&' : '') .
+					'paged=1',
+				'title' => 'First Page',
+				'content' => '&laquo;'
+			)) . formTag('a', array(
+				'class' => 'pager-nav button',
+				'href' => ADMIN_URI . '?' . (!empty($query_string) ? $query_string . '&' : '') .
+					'paged=' . ($page - 1),
+				'title' => 'Previous Page',
+				'content' => '&lsaquo;'
+			));
 		}
 		
-		// Display the current page
-		if($page_count > 0) echo ' Page '.$page.' of '.$page_count.' ';
+		if($page_count > 0) echo ' Page ' . $page . ' of ' . $page_count . ' ';
 		
-		// Display the 'next page'/'last page' buttons if the last page of results is not showing
 		if($page < $page_count) {
-			?>
-			<a class="pager-nav button" href="<?php echo '?'.(!empty($query_string) ? $query_string.'&' : '').'paged='.($page + 1); ?>" title="Next Page">&rsaquo;</a><a class="pager-nav button" href="<?php echo '?'.(!empty($query_string) ? $query_string.'&' : '').'paged='.$page_count; ?>" title="Last Page">&raquo;</a>
-			<?php
+			echo formTag('a', array(
+				'class' => 'pager-nav button',
+				'href' => ADMIN_URI . '?' . (!empty($query_string) ? $query_string . '&' : '') .
+					'paged=' . ($page + 1),
+				'title' => 'Next Page',
+				'content' => '&rsaquo;'
+			)) . formTag('a', array(
+				'class' => 'pager-nav button',
+				'href' => ADMIN_URI . '?' . (!empty($query_string) ? $query_string . '&' : '') .
+					'paged=' . $page_count,
+				'title' => 'Last Page',
+				'content' => '&raquo;'
+			));
 		}
 		?>
 	</div>
@@ -1403,9 +1536,10 @@ function actionLink($action, $args = null, $more_params = null): string {
 		foreach($more_params as $key => $value)
 			$more_string .= '&' . $key . '=' . $value;
 		
-		return '<a' . (!empty($classes) ? ' class="' . $classes . '"' : '') . ' href="' . ADMIN_URI . '?' .
-			($query_string ?? '') . 'action=' . $action . ($more_string ?? '') . '"' . (!empty($data_item) ? ' data-item="' .
-			$data_item . '"' : '') . '>' . $caption . '</a>';
+		return '<a' . (!empty($classes) ? ' class="' . $classes . '"' : '') .
+			' href="' . ADMIN_URI . '?' . ($query_string ?? '') . 'action=' . $action .
+			($more_string ?? '') . '"' . (!empty($data_item) ? ' data-item="' . $data_item . '"' :
+			'') . '>' . $caption . '</a>';
 	}
 	
 	return '<span>Invalid action link</span>';
@@ -1420,7 +1554,6 @@ function adminInfo(): void {
 	<div class="admin-info">
 		<span>
 			<?php
-			// Fetch the current page
 			$page = basename($_SERVER['PHP_SELF'], '.php');
 			
 			switch($page) {
@@ -1482,7 +1615,7 @@ function adminInfo(): void {
 			}
 			?>
 		</span>
-		<i class="fas fa-info-circle" title="Information"></i>
+		<i class="fa-solid fa-circle-info" title="Information"></i>
 	</div>
 	<?php
 }
@@ -1519,16 +1652,13 @@ function getUniqueSlug($slug, $table): string {
 	if($count > 0) {
 		do {
 			// Try to construct a unique slug
-			$unique_slug = $slug.'-'.($count + 1);
+			$unique_slug = $slug . '-' . ($count + 1);
 			
-			// Increment the count
 			$count++;
 		} while($rs_query->selectRow($table, 'COUNT(slug)', array('slug' => $unique_slug)) > 0);
 		
-		// Return the unique slug
 		return $unique_slug;
 	} else {
-		// Return the original slug
 		return $slug;
 	}
 }

@@ -16,7 +16,7 @@
 				<div class="social-menu-wrap">
 					<?php getWidget('social-media'); ?>
 					<div class="nav-menu-toggle">
-						<i class="fas fa-bars"></i>
+						<i class="fa-solid fa-bars"></i>
 					</div>
 					<div class="nav-menu-wrap">
 						<?php getMenu('main-menu'); ?>

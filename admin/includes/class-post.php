@@ -361,8 +361,8 @@ class Post {
 						)), 'bulk-select'),
 						// Title
 						tdCell((isHomePage($post['id']) ?
-							'<i class="fas fa-home" style="cursor: help;" title="Home Page"></i> ' : '') .
-							'<strong>' . $post['title'] . '</strong>' . ($post['status'] !== 'published' &&
+							'<i class="fa-solid fa-house-chimney" style="cursor: help;" title="Home Page"></i> ' :
+							'') . '<strong>' . $post['title'] . '</strong>' . ($post['status'] !== 'published' &&
 							$status === 'all' ? ' &mdash; <em>' . $post['status'] . '</em>' : '') .
 							'<div class="actions">' . implode(' &bull; ', $actions) . '</div>', 'title'),
 						// Author
@@ -455,7 +455,9 @@ class Post {
 							'name' => 'slug',
 							'value' => ($_POST['slug'] ?? '')
 						));
-						echo '<span>/</span>';
+						echo formTag('span', array(
+							'content' => '/'
+						));
 						?>
 					</div>
 					<?php
@@ -487,7 +489,13 @@ class Post {
 							echo formTag('select', array(
 								'class' => 'select-input',
 								'name' => 'status',
-								'content' => '<option value="draft">Draft</option><option value="published">Published</option>'
+								'content' => tag('option', array(
+									'value' => 'draft',
+									'content' => 'Draft'
+								)) . tag('option', array(
+									'value' => 'published',
+									'content' => 'Published'
+								))
 							));
 							?>
 						</div>
@@ -543,19 +551,27 @@ class Post {
 								echo formTag('select', array(
 									'class' => 'select-input',
 									'name' => 'parent',
-									'content' => '<option value="0">(none)</option>' . $this->getParentList($type)
+									'content' => tag('option', array(
+										'value' => 0,
+										'content' => '(none)'
+									)) . $this->getParentList($type)
 								));
 								?>
 							</div>
 							<div class="row">
 								<?php
 								// Template
-								echo formTag('label', array('for' => 'template', 'content' => 'Template'));
+								echo formTag('label', array(
+									'for' => 'template',
+									'content' => 'Template'
+								));
 								echo formTag('select', array(
 									'class' => 'select-input',
 									'name' => 'template',
-									'content' => '<option value="default">Default</option>' .
-										$this->getTemplateList()
+									'content' => tag('option', array(
+										'value' => 'default',
+										'content' => 'Default'
+									)) . $this->getTemplateList()
 								));
 								?>
 							</div>
@@ -593,10 +609,12 @@ class Post {
 									'class' => 'checkbox-input',
 									'name' => 'comments',
 									'value' => (!empty($comments) ? 1 : 0),
-									'*' => $comments,
+									'checked' => $comments,
 									'label' => array(
 										'class' => 'checkbox-label',
-										'content' => '<span>Enable comments</span>'
+										'content' => tag('span', array(
+											'content' => 'Enable comments'
+										))
 									)
 								));
 								?>
@@ -617,7 +635,7 @@ class Post {
 								echo formTag('span', array(
 									'class' => 'image-remove',
 									'title' => 'Remove',
-									'content' => formTag('i', array('class' => 'fas fa-times'))
+									'content' => tag('i', array('class' => 'fa-solid fa-xmark'))
 								));
 								?>
 							</div>
@@ -652,7 +670,10 @@ class Post {
 						<div class="row">
 							<?php
 							// Meta description
-							echo formTag('label', array('for' => 'meta_description', 'content' => 'Description'));
+							echo formTag('label', array(
+								'for' => 'meta_description',
+								'content' => 'Description'
+							));
 							echo formTag('br');
 							echo formTag('textarea', array(
 								'class' => 'textarea-input',
@@ -717,7 +738,8 @@ class Post {
 									'class' => 'text-input required invalid init',
 									'name' => 'title',
 									'value' => $this->title,
-									'placeholder' => $this->type_data['labels']['name_singular'] . ' title'
+									'placeholder' => $this->type_data['labels']['name_singular'] .
+										' title'
 								));
 								?>
 								<div class="permalink">
@@ -725,7 +747,8 @@ class Post {
 									// Permalink
 									echo formTag('label', array(
 										'for' => 'slug',
-										'content' => '<strong>Permalink:</strong> ' . getSetting('site_url') .
+										'content' => '<strong>Permalink:</strong> ' .
+											getSetting('site_url') .
 											getPermalink($this->type, $this->parent)
 									));
 									echo formTag('input', array(
@@ -734,7 +757,9 @@ class Post {
 										'name' => 'slug',
 										'value' => $this->slug
 									));
-									echo '<span>/</span>';
+									echo formTag('span', array(
+										'content' => '/'
+									));
 									?>
 								</div>
 								<?php
@@ -762,22 +787,32 @@ class Post {
 									<div class="row">
 										<?php
 										// Status
-										echo formTag('label', array('for' => 'status', 'content' => 'Status'));
+										echo formTag('label', array(
+											'for' => 'status',
+											'content' => 'Status'
+										));
 										echo formTag('select', array(
 											'class' => 'select-input',
 											'name' => 'status',
-											'content' => '<option value="' . $this->status . '">' .
-												ucfirst($this->status) . '</option>' .
-												($this->status === 'draft' ?
-												'<option value="published">Published</option>' :
-												'<option value="draft">Draft</option>')
+											'content' => tag('option', array(
+												'value' => 'draft',
+												'selected' => ($this->status === 'draft' ? 1 : 0),
+												'content' => 'Draft'
+											)) . tag('option', array(
+												'value' => 'published',
+												'selected' => ($this->status === 'published' ? 1 : 0),
+												'content' => 'Published'
+											))
 										));
 										?>
 									</div>
 									<div class="row">
 										<?php
 										// Author
-										echo formTag('label', array('for' => 'author', 'content' => 'Author'));
+										echo formTag('label', array(
+											'for' => 'author',
+											'content' => 'Author'
+										));
 										echo formTag('select', array(
 											'class' => 'select-input',
 											'name' => 'author',
@@ -788,20 +823,28 @@ class Post {
 									<div class="row">
 										<?php
 										// Publish date
-										echo formTag('label', array('for' => 'date', 'content' => 'Published on'));
+										echo formTag('label', array(
+											'for' => 'date',
+											'content' => 'Published on'
+										));
 										echo formTag('br');
 										echo formTag('input', array(
 											'type' => 'date',
 											'class' => 'date-input',
 											'name' => 'date[]',
-											'value' => (!is_null($this->date) ? formatDate($this->date, 'Y-m-d') :
-												formatDate($this->modified, 'Y-m-d'))
+											'value' => (
+												!is_null($this->date) ?
+												formatDate($this->date, 'Y-m-d') :
+												formatDate($this->modified, 'Y-m-d')
+											)
 										));
 										echo formTag('input', array(
 											'type' => 'time',
 											'class' => 'date-input',
 											'name' => 'date[]',
-											'value' => (!is_null($this->date) ? formatDate($this->date, 'H:i') :
+											'value' => (
+												!is_null($this->date) ?
+												formatDate($this->date, 'H:i') :
 												formatDate($this->modified, 'H:i'))
 										));
 										?>
@@ -836,12 +879,22 @@ class Post {
 										<div class="row">
 											<?php
 											// Parent
-											echo formTag('label', array('for' => 'parent', 'content' => 'Parent'));
+											echo formTag('label', array(
+												'for' => 'parent',
+												'content' => 'Parent'
+											));
 											echo formTag('select', array(
 												'class' => 'select-input',
 												'name' => 'parent',
-												'content' => '<option value="0">(none)</option>' .
-													$this->getParentList($this->type, $this->parent, $this->id)
+												'content' => tag('option', array(
+													'value' => 0,
+													'content' => '(none)'
+												)) .
+												$this->getParentList(
+													$this->type,
+													$this->parent,
+													$this->id
+												)
 											));
 											?>
 										</div>
@@ -855,8 +908,10 @@ class Post {
 											echo formTag('select', array(
 												'class' => 'select-input',
 												'name' => 'template',
-												'content' => '<option value="default">Default</option>' .
-													$this->getTemplateList($this->id)
+												'content' => tag('option', array(
+													'value' => 'default',
+													'content' => 'Default'
+												)). $this->getTemplateList($this->id)
 											));
 											?>
 										</div>
@@ -889,8 +944,8 @@ class Post {
 												'type' => 'checkbox',
 												'class' => 'checkbox-input',
 												'name' => 'comments',
-												'value' => (int)$meta['comment_status'],
-												'*' => ($meta['comment_status'] ? 'checked' : ''),
+												'value' => $meta['comment_status'],
+												'checked' => $meta['comment_status'],
 												'label' => array(
 													'class' => 'checkbox-label',
 													'content' => '<span>Enable comments</span>'
@@ -917,7 +972,9 @@ class Post {
 											echo formTag('span', array(
 												'class' => 'image-remove',
 												'title' => 'Remove',
-												'content' => formTag('i', array('class' => 'fas fa-times'))
+												'content' => tag('i', array(
+													'class' => 'fa-solid fa-xmark'
+												))
 											));
 											?>
 										</div>
@@ -940,7 +997,10 @@ class Post {
 									<div class="row">
 										<?php
 										// Meta title
-										echo formTag('label', array('for' => 'meta_title', 'content' => 'Title'));
+										echo formTag('label', array(
+											'for' => 'meta_title',
+											'content' => 'Title'
+										));
 										echo formTag('br');
 										echo formTag('input', array(
 											'class' => 'text-input',
@@ -1061,8 +1121,13 @@ class Post {
 			
 			foreach($relationships as $relationship) {
 				$rs_query->delete('term_relationships', array('id' => $relationship['id']));
-				$count = $rs_query->selectRow('term_relationships', 'COUNT(*)', array('term' => $relationship['term']));
-				$rs_query->update('terms', array('count' => $count), array('id' => $relationship['term']));
+				$count = $rs_query->selectRow('term_relationships', 'COUNT(*)', array(
+					'term' => $relationship['term']
+				));
+				$rs_query->update('terms',
+					array('count' => $count),
+					array('id' => $relationship['term'])
+				);
 			}
 			
 			$rs_query->delete('comments', array('post' => $this->id));
@@ -1073,8 +1138,12 @@ class Post {
 			));
 			
 			// Set any menu items associated with the post to invalid
-			foreach($menu_items as $menu_item)
-				$rs_query->update('posts', array('status' => 'invalid'), array('id' => $menu_item['post']));
+			foreach($menu_items as $menu_item) {
+				$rs_query->update('posts',
+					array('status' => 'invalid'),
+					array('id' => $menu_item['post'])
+				);
+			}
 			
 			redirect($this->type_data['menu_link'] . ($this->type !== 'post' ? '&' : '?') .
 				'status=trash&exit_status=success');
@@ -1145,14 +1214,24 @@ class Post {
 			
 			if(isset($postmeta['comment_status'])) $postmeta['comment_count'] = 0;
 			
-			foreach($postmeta as $key => $value)
-				$rs_query->insert('postmeta', array('post' => $insert_id, '_key' => $key, 'value' => $value));
+			foreach($postmeta as $key => $value) {
+				$rs_query->insert('postmeta', array(
+					'post' => $insert_id,
+					'_key' => $key,
+					'value' => $value
+				));
+			}
 			
 			if(!empty($data['terms'])) {
 				// Create new relationships
 				foreach($data['terms'] as $term) {
-					$rs_query->insert('term_relationships', array('term' => $term, 'post' => $insert_id));
-					$count = $rs_query->selectRow('term_relationships', 'COUNT(*)', array('term' => $term));
+					$rs_query->insert('term_relationships', array(
+						'term' => $term,
+						'post' => $insert_id
+					));
+					$count = $rs_query->selectRow('term_relationships', 'COUNT(*)', array(
+						'term' => $term
+					));
 					$rs_query->update('terms', array('count' => $count), array('id' => $term));
 				}
 			}
@@ -1180,8 +1259,12 @@ class Post {
 				'parent' => $data['parent']
 			), array('id' => $id));
 			
-			foreach($postmeta as $key => $value)
-				$rs_query->update('postmeta', array('value' => $value), array('post' => $id, '_key' => $key));
+			foreach($postmeta as $key => $value) {
+				$rs_query->update('postmeta', array('value' => $value), array(
+					'post' => $id,
+					'_key' => $key
+				));
+			}
 			
 			$relationships = $rs_query->select('term_relationships', '*', array('post' => $id));
 			
@@ -1192,7 +1275,10 @@ class Post {
 					$count = $rs_query->selectRow('term_relationships', 'COUNT(*)', array(
 						'term' => $relationship['term']
 					));
-					$rs_query->update('terms', array('count' => $count), array('id' => $relationship['term']));
+					$rs_query->update('terms',
+						array('count' => $count),
+						array('id' => $relationship['term'])
+					);
 				}
 			}
 			
@@ -1208,7 +1294,9 @@ class Post {
 						continue;
 					} else {
 						$rs_query->insert('term_relationships', array('term' => $term, 'post' => $id));
-						$count = $rs_query->select('term_relationships', 'COUNT(*)', array('term' => $term));
+						$count = $rs_query->select('term_relationships', 'COUNT(*)', array(
+							'term' => $term
+						));
 						$rs_query->update('terms', array('count' => $count), array('id' => $term));
 					}
 				}
@@ -1398,18 +1486,22 @@ class Post {
 				'post' => $id
 			));
 			
-			$list .= '<li>' . formTag('input', array(
+			$list .= '<li>' . tag('input', array(
 				'type' => 'checkbox',
 				'class' => 'checkbox-input',
 				'name' => 'terms[]',
 				'value' => $term['id'],
-				'*' => ($relationship || ($id === 0 &&
-					$term['slug'] === $this->taxonomy_data['default_term']['slug']) ? 'checked' : ''),
+				'checked' => ($relationship || ($id === 0 &&
+					$term['slug'] === $this->taxonomy_data['default_term']['slug'])
+				),
 				'label' => array(
 					'class' => 'checkbox-label',
-					'content' => '<span>' . $term['name'] . '</span>'
+					'content' => tag('span', array(
+						'content' => $term['name']
+					))
 				)
 			)) . '</li>';
+			//echo $relationship;
 		}
 		
 		$list .= '</ul>';
@@ -1463,8 +1555,11 @@ class Post {
 				if($this->isDescendant($post['id'], $id)) continue;
 			}
 			
-			$list .= '<option value="' . $post['id'] . '"' . ($post['id'] === $parent ? ' selected' : '') . '>' .
-				$post['title'] . '</option>';
+			$list .= tag('option', array(
+				'value' => $post['id'],
+				'selected' => ($post['id'] === $parent),
+				'content' => $post['title']
+			));
 		}
 		
 		return $list;
@@ -1491,9 +1586,14 @@ class Post {
 			$current = $rs_query->selectField('postmeta', 'value', array('post' => $id, '_key' => 'template'));
 			
 			foreach($templates as $template) {
-				$list[] = '<option value="' . $template . '"' . (isset($current) && $current === $template ?
-					' selected' : '') . '>' . ucwords(substr(str_replace('-', ' ', $template), 0,
-					strpos($template, '.'))) . '</option>';
+				$list[] = tag('option', array(
+					'value' => $template,
+					'selected' => (isset($current) && $current === $template),
+					'content' => ucwords(substr(
+						str_replace('-', ' ', $template), 0,
+						strpos($template, '.')
+					))
+				));
 			}
 			
 			$list = implode('', $list);

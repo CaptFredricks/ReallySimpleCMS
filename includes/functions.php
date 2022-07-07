@@ -208,7 +208,7 @@ function adminBar(): void {
 	<div id="admin-bar">
 		<ul class="menu">
 			<li>
-				<a href="javascript:void(0)"><i class="fas fa-tachometer-alt"></i> <span>Admin</span></a>
+				<a href="javascript:void(0)"><i class="fa-solid fa-gauge-high"></i> <span>Admin</span></a>
 				<ul class="sub-menu">
 					<li><a href="/admin/">Dashboard</a></li>
 					<?php
@@ -311,7 +311,7 @@ function adminBar(): void {
 				</ul>
 			</li>
 			<li>
-				<a href="javascript:void(0)"><i class="fas fa-plus"></i> <span>New</span></a>
+				<a href="javascript:void(0)"><i class="fa-solid fa-plus"></i> <span>New</span></a>
 				<ul class="sub-menu">
 					<?php
 					foreach($post_types as $post_type) {
@@ -388,7 +388,7 @@ function adminBar(): void {
 					<a href="/admin/posts.php?id=<?php
 						// Create an edit link for pages and other post types
 						echo $rs_post->getPostId();
-					?>&action=edit"><i class="fas fa-feather-alt"></i> <span>Edit</span></a>
+					?>&action=edit"><i class="fa-solid fa-feather-pointed"></i> <span>Edit</span></a>
 				</li>
 			<?php elseif(!is_null($rs_term)): ?>
 				<li>
@@ -396,7 +396,7 @@ function adminBar(): void {
 						// Create an edit link for categories and other terms
 						echo ($rs_term->getTermTaxonomy() === 'category' ? 'categories.php' : 'terms.php') .
 							'?id=' . $rs_term->getTermId();
-					?>&action=edit"><i class="fas fa-feather-alt"></i> <span>Edit</span></a>
+					?>&action=edit"><i class="fa-solid fa-feather-pointed"></i> <span>Edit</span></a>
 				</li>
 			<?php endif; ?>
 		</ul>

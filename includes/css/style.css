@@ -113,7 +113,7 @@ small {
 
 /** Data form **/
 
-.login .data-form * :not(.far) {
+.login .data-form * :not(.fa-regular) {
     font-family: 'Segoe UI', Helvetica, sans-serif;
 }
 

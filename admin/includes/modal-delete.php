@@ -2,7 +2,7 @@
 	<div class="modal-wrap">
 		<div class="modal-header clear">
 			<button type="button" id="modal-close">
-				<i class="fas fa-times"></i>
+				<i class="fa-solid fa-xmark"></i>
 			</button>
 		</div>
 		<div class="modal-body">
@@ -16,6 +16,4 @@
 		</div>
 	</div>
 </div>
-<?php
-// Include the modal scripts
-adminScript('modal.js');
+<?php adminScript('modal.js'); ?>

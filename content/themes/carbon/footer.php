@@ -1,5 +1,5 @@
 			<div id="scroll-top">
-				<i class="fas fa-chevron-up"></i>
+				<i class="fa-solid fa-chevron-up"></i>
 			</div>
 		</main>
 		<footer class="footer">

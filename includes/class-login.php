@@ -67,7 +67,7 @@ class Login {
 				<label for="login">Username or Email<br><input type="text" name="login" autofocus></label>
 			</p>
 			<p class="password-field">
-				<label for="password">Password<br><input type="password" name="password"></label><button type="button" id="password-toggle" class="button" title="Show Password" data-visibility="hidden"><i class="far fa-eye"></i></button>
+				<label for="password">Password<br><input type="password" name="password"></label><button type="button" id="password-toggle" class="button" title="Show Password" data-visibility="hidden"><i class="fa-regular fa-eye"></i></button>
 			</p>
 			<p class="captcha-field">
 				<label for="captcha">Captcha<br><input type="text" name="captcha" autocomplete="off"><img id="captcha" src="<?php echo INC . '/captcha.php'; ?>"></label>
@@ -104,6 +104,8 @@ class Login {
 		// Extend the Query object
 		global $rs_query;
 		
+		$offsite_redirect = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
+		
 		// Make sure no required fields are empty
 		if(empty($data['login']) || empty($data['password']) || empty($data['captcha']))
 			return $this->statusMessage('F');
@@ -119,7 +121,7 @@ class Login {
 		if($this->isBlacklisted($this->ip_address)) {
 			// Check whether the blacklist duration is zero (indefinite) and redirect off-site if so
 			if($this->getBlacklistDuration($this->ip_address) === 0) {
-				redirect('https://www.google.com/');
+				redirect($offsite_redirect);
 			} // Otherwise, check whether the duration is greater than zero and return an error if so
 			elseif($this->getBlacklistDuration($this->ip_address) > 0) {
 				return $this->statusMessage('You\'re attempting to log in too fast! Try again later.');
@@ -129,7 +131,7 @@ class Login {
 		if($this->isBlacklisted($email ?? $username)) {
 			// Check whether the blacklist duration is zero (indefinite) and redirect off-site if so
 			if($this->getBlacklistDuration($email ?? $username) === 0) {
-				redirect('https://www.google.com/');
+				redirect($offsite_redirect);
 			} // Otherwise, check whether the duration is greater than zero and return an error if so
 			elseif($this->getBlacklistDuration($email ?? $username) > 0) {
 				return $this->statusMessage('You\'re attempting to log in too fast! Try again later.');

@@ -6,11 +6,11 @@
 					<a href="javascript:void(0)">Upload</a>
 				</li>
 				<li id="media" class="tab">
-					<a href="javascript:void(0)" data-href="<?php echo ADMIN.INC.'/load-media.php'; ?>">Media</a>
+					<a href="javascript:void(0)" data-href="<?php echo ADMIN . INC . '/load-media.php'; ?>">Media</a>
 				</li>
 			</ul>
 			<button type="button" id="modal-close">
-				<i class="fas fa-times"></i>
+				<i class="fa-solid fa-xmark"></i>
 			</button>
 		</div>
 		<div class="modal-body">
@@ -18,7 +18,7 @@
 				<div class="upload-wrap">
 					<h2>Select a file to upload</h2>
 					<div class="upload-result"></div>
-					<form id="media-upload" action="<?php echo ADMIN.INC.'/upload.php'; ?>" method="post" enctype="multipart/form-data">
+					<form id="media-upload" action="<?php echo ADMIN . INC . '/upload.php'; ?>" method="post" enctype="multipart/form-data">
 						<input type="file" name="media_upload">
 						<input type="submit" class="submit-input button" name="upload_submit" value="Upload">
 					</form>
@@ -33,7 +33,7 @@
 					<div class="info">
 						<div class="field thumb"></div>
 						<div class="field title"></div>
-						<div class="field filename"></div>
+						<div class="field filepath"></div>
 						<div class="field date"></div>
 					</div>
 				</div>
@@ -44,6 +44,4 @@
 		</div>
 	</div>
 </div>
-<?php
-// Include the modal scripts
-adminScript('modal.js');
+<?php adminScript('modal.js'); ?>

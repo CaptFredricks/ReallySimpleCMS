@@ -18,6 +18,61 @@
 - [a] = alpha
 - [b] = beta
 
+## Version 1.3.5[b] (2022-07-07)
+
+- Updated Font Awesome to v6.1.1
+- Cleaned up internal documentation throughout the CMS
+- Moved all code out of the `update.php` file and into a new filed called `update-db.php`
+  - The `update.php` file will be used for the upcoming auto-update feature
+- Added an optional `rowspan` parameter to the `tableCell`, `thCell`, and `tdCell` functions
+- Cleaned up code in the `formTag` function and whitelisted additional HTML tags
+- Uploaded files are now stored in year subdirectories of the main `uploads` directory
+  - `/content/uploads/<filename>` -> `/content/uploads/<year>/<filename>`
+  - All existing media on the site is retroactively updated
+- Created a new global constant named `CMS_VERSION` which will eventually replace `VERSION`
+- Updated the URL that permanently blacklisted users are redirected to
+- New functions:
+  - `Query` class (`columnExists`)
+
+**Modified files:**
+- admin/about.php (M)
+- admin/header.php
+- admin/includes/class-media.php
+- admin/includes/class-post.php
+- admin/includes/class-profile.php
+- admin/includes/class-settings.php
+- admin/includes/class-user-role.php
+- admin/includes/class-user.php (M)
+- admin/includes/css/style.css (M)
+- admin/includes/css/style.min.css (M)
+- admin/includes/functions.php
+- admin/includes/js/install.js
+- admin/includes/js/install.min.js (M)
+- admin/includes/js/modal.js
+- admin/includes/modal-delete.php (M)
+- admin/includes/modal-upload.php
+- content/themes/carbon/footer.php (M)
+- content/themes/carbon/header.php (M)
+- content/themes/carbon/post.php
+- content/themes/carbon/script.js
+- includes/class-comment.php (M)
+- includes/class-login.php (M)
+- includes/class-query.php
+- includes/constants.php (M)
+- includes/css/font-awesome-rules.min.css
+- includes/css/font-awesome.min.css
+- includes/css/style.css (M)
+- includes/css/style.min.css (M)
+- includes/fonts/fa-brands.ttf
+- includes/fonts/fa-regular.ttf
+- includes/fonts/fa-solid.ttf
+- includes/fonts/fa-v4compatibility.ttf (N)
+- includes/functions.php (M)
+- includes/global-functions.php (M)
+- includes/update-db.php (N)
+- includes/update.php
+- init.php
+
 ## Version 1.3.4.1[b] (2022-05-31)
 
 **Bug fixes:**

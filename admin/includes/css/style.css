@@ -1580,7 +1580,7 @@ h3 {
 	font-weight: 700;
 }
 
-.modal-body .media-details .info .filename a {
+.modal-body .media-details .info .filepath a {
 	cursor: alias;
 }
 

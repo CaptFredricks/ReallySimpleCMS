@@ -20,10 +20,8 @@ class Settings {
 		// Validate the form data and return any messages
 		$message = isset($_POST['submit']) ? $this->validateSettingsData($_POST) : '';
 		
-		// Fetch all settings from the database
 		$db_settings = $rs_query->select('settings', '*');
 		
-		// Loop through the settings
 		foreach($db_settings as $db_setting)
 			$setting[$db_setting['name']] = $db_setting['value'];
 		?>
@@ -92,11 +90,13 @@ class Settings {
 						'type' => 'checkbox',
 						'class' => 'checkbox-input',
 						'name' => 'do_robots',
-						'value' => (int)$setting['do_robots'],
-						'*' => (!$setting['do_robots'] ? 'checked' : ''),
+						'value' => $setting['do_robots'],
+						'checked' => !$setting['do_robots'],
 						'label' => array(
 							'class' => 'checkbox-label',
-							'content' => '<span>Discourage search engines from indexing this site</span>'
+							'content' => tag('span', array(
+								'content' => 'Discourage search engines from indexing this site'
+							))
 						)
 					));
 					
@@ -106,33 +106,39 @@ class Settings {
 						'type' => 'checkbox',
 						'class' => 'checkbox-input',
 						'name' => 'enable_comments',
-						'value' => (int)$setting['enable_comments'],
-						'*' => ($setting['enable_comments'] ? 'checked' : ''),
+						'value' => $setting['enable_comments'],
+						'checked' => $setting['enable_comments'],
 						'label' => array(
 							'class' => 'checkbox-label conditional-toggle',
-							'content' => '<span>Enable comments</span>'
+							'content' => tag('span', array(
+								'content' => 'Enable comments'
+							))
 						)
 					), array('tag' => 'br'), array(
 						'tag' => 'input',
 						'type' => 'checkbox',
 						'class' => 'checkbox-input',
 						'name' => 'auto_approve_comments',
-						'value' => (int)$setting['auto_approve_comments'],
-						'*' => ($setting['auto_approve_comments'] ? 'checked' : ''),
+						'value' => $setting['auto_approve_comments'],
+						'checked' => $setting['auto_approve_comments'],
 						'label' => array(
 							'class' => 'checkbox-label conditional-field',
-							'content' => '<span>Approve comments automatically</span>'
+							'content' => tag('span', array(
+								'content' => 'Approve comments automatically'
+							))
 						)
 					), array('tag' => 'br', 'class' => 'conditional-field'), array(
 						'tag' => 'input',
 						'type' => 'checkbox',
 						'class' => 'checkbox-input',
 						'name' => 'allow_anon_comments',
-						'value' => (int)$setting['allow_anon_comments'],
-						'*' => ($setting['allow_anon_comments'] ? 'checked' : ''),
+						'value' => $setting['allow_anon_comments'],
+						'checked' => $setting['allow_anon_comments'],
 						'label' => array(
 							'class' => 'checkbox-label conditional-field',
-							'content' => '<span>Allow comments from anonymous (logged out) users</span>'
+							'content' => tag('span', array(
+								'content' => 'Allow comments from anonymous (logged out) users'
+							))
 						)
 					));
 					
@@ -142,22 +148,26 @@ class Settings {
 						'type' => 'checkbox',
 						'class' => 'checkbox-input',
 						'name' => 'track_login_attempts',
-						'value' => (int)$setting['track_login_attempts'],
-						'*' => ($setting['track_login_attempts'] ? 'checked' : ''),
+						'value' => $setting['track_login_attempts'],
+						'checked' => $setting['track_login_attempts'],
 						'label' => array(
 							'class' => 'checkbox-label conditional-toggle',
-							'content' => '<span>Keep track of login attempts</span>'
+							'content' => tag('span', array(
+								'content' => 'Keep track of login attempts'
+							))
 						)
 					), array('tag' => 'br'), array(
 						'tag' => 'input',
 						'type' => 'checkbox',
 						'class' => 'checkbox-input',
 						'name' => 'delete_old_login_attempts',
-						'value' => (int)$setting['delete_old_login_attempts'],
-						'*' => ($setting['delete_old_login_attempts'] ? 'checked' : ''),
+						'value' => $setting['delete_old_login_attempts'],
+						'checked' => $setting['delete_old_login_attempts'],
 						'label' => array(
 							'class' => 'checkbox-label conditional-field',
-							'content' => '<span>Delete login attempts from more than 30 days ago</span>'
+							'content' => tag('span', array(
+								'content' => 'Delete login attempts from more than 30 days ago'
+							))
 						)
 					));
 					
@@ -192,10 +202,8 @@ class Settings {
 		// Validate the form data and return any messages
 		$message = isset($_POST['submit']) ? $this->validateSettingsData($_POST) : '';
 		
-		// Fetch all settings from the database
 		$db_settings = $rs_query->select('settings', '*');
 		
-		// Loop through the settings
 		foreach($db_settings as $db_setting)
 			$setting[$db_setting['name']] = $db_setting['value'];
 		
@@ -210,7 +218,6 @@ class Settings {
 		<div class="heading-wrap">
 			<h1>Design Settings</h1>
 			<?php
-			// Display any returned messages
 			echo $message;
 			
 			// Refresh the page after 2 seconds
@@ -220,22 +227,26 @@ class Settings {
 		<div class="data-form-wrap clear">
 			<form class="data-form" action="" method="post" autocomplete="off">
 				<?php
-				// Construct a hidden 'page' form tag
-				echo formTag('input', array('type' => 'hidden', 'name' => 'page', 'value' => 'design'));
+				// Page ID (hidden)
+				echo formTag('input', array(
+					'type' => 'hidden',
+					'name' => 'page',
+					'value' => 'design'
+				));
 				?>
 				<table class="form-table">
 					<?php
 					// Site logo
 					echo formRow('Site Logo', array(
 						'tag' => 'div',
-						'class' => 'image-wrap'.(!empty($setting['site_logo']) ? ' visible' : ''),
-						'style' => 'width: '.($logo_width ?? 0).'px;',
+						'class' => 'image-wrap' . (!empty($setting['site_logo']) ? ' visible' : ''),
+						'style' => 'width: ' . ($logo_width ?? 0) . 'px;',
 						'content' => getMedia($setting['site_logo'], array(
 							'data-field' => 'thumb'
-						)).formTag('span', array(
+						)) . tag('span', array(
 							'class' => 'image-remove',
 							'title' => 'Remove',
-							'content' => formTag('i', array('class' => 'fas fa-times'))
+							'content' => tag('i', array('class' => 'fa-solid fa-xmark'))
 						))
 					), array(
 						'tag' => 'input',
@@ -254,14 +265,14 @@ class Settings {
 					// Site icon
 					echo formRow('Site Icon', array(
 						'tag' => 'div',
-						'class' => 'image-wrap'.(!empty($setting['site_icon']) ? ' visible' : ''),
-						'style' => 'width: '.($icon_width ?? 0).'px;',
+						'class' => 'image-wrap' . (!empty($setting['site_icon']) ? ' visible' : ''),
+						'style' => 'width: ' . ($icon_width ?? 0) . 'px;',
 						'content' => getMedia($setting['site_icon'], array(
 							'data-field' => 'thumb'
-						)).formTag('span', array(
+						)) . tag('span', array(
 							'class' => 'image-remove',
 							'title' => 'Remove',
-							'content' => formTag('i', array('class' => 'fas fa-times'))
+							'content' => tag('i', array('class' => 'fa-solid fa-xmark'))
 						))
 					), array(
 						'tag' => 'input',
@@ -302,8 +313,7 @@ class Settings {
 			</form>
 		</div>
 		<?php
-		// Include the upload modal
-		include_once PATH.ADMIN.INC.'/modal-upload.php';
+		include_once PATH . ADMIN . INC . '/modal-upload.php';
 	}
 	
 	/**
@@ -382,7 +392,6 @@ class Settings {
 			}
 		}
 		
-		// Return a success message
 		return statusMessage('Settings updated!', true);
 	}
 	
@@ -398,17 +407,18 @@ class Settings {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Create an empty list
 		$list = '';
 		
-		// Fetch all user roles from the database
 		$roles = $rs_query->select('user_roles', '*', '', 'id');
 		
-		// Add each role to the list
-		foreach($roles as $role)
-			$list .= '<option value="'.$role['id'].'"'.($role['id'] === $default ? ' selected' : '').'>'.$role['name'].'</option>';
+		foreach($roles as $role) {
+			$list .= tag('option', array(
+				'value' => $role['id'],
+				'selected' => ($role['id'] === $default),
+				'content' => $role['name']
+			));
+		}
 		
-		// Return the list
 		return $list;
 	}
 	
@@ -424,24 +434,30 @@ class Settings {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Create an empty list
 		$list = '';
 		
-		// Fetch all pages from the database
 		$pages = $rs_query->select('posts', array('id', 'title'), array(
 			'status' => 'published',
 			'type' => 'page'
 		), 'title');
 		
 		// Check whether the home page exists and add a blank option if not
-		if(array_search($home_page, array_column($pages, 'id'), true) === false)
-			$list .= '<option value="0" selected>(none)</option>';
+		if(array_search($home_page, array_column($pages, 'id'), true) === false) {
+			$list .= tag('option', array(
+				'value' => 0,
+				'selected' => 1,
+				'content' => '(none)'
+			));
+		}
 		
-		// Add each page to the list
-		foreach($pages as $page)
-			$list .= '<option value="'.$page['id'].'"'.($page['id'] === $home_page ? ' selected' : '').'>'.$page['title'].'</option>';
+		foreach($pages as $page) {
+			$list .= tag('option', array(
+				'value' => $page['id'],
+				'selected' => ($page['id'] === $home_page),
+				'content' => $page['title']
+			));
+		}
 		
-		// Return the list
 		return $list;
 	}
 }

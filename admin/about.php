@@ -1,4 +1,4 @@
-<?php require_once __DIR__.'/header.php'; ?>
+<?php require_once __DIR__ . '/header.php'; ?>
 <div class="content">
 	<div class="heading-wrap">
 		<h1>About <?php echo CMS_NAME; ?></h1>
@@ -10,7 +10,12 @@
 			
 			echo tableRow(
 				thCell('Creator/Lead Developer'),
-				tdCell('<a href="https://jacefincham.com/" target="_blank" rel="noreferrer noopener">Jace Fincham</a>')
+				tdCell(tag('a', array(
+					'href' => 'https://jacefincham.com/',
+					'target' => '_blank',
+					'rel' => 'noreferrer noopener',
+					'content' => 'Jace Fincham'
+				)))
 			);
 			
 			echo tableRow(
@@ -22,7 +27,7 @@
 			
 			echo tableRow(
 				thCell('CMS Version'),
-				tdCell(VERSION.' (Beta)')
+				tdCell(CMS_VERSION . ' (Beta)')
 			);
 			
 			echo tableRow(
@@ -53,4 +58,4 @@
 		</tbody>
 	</table>
 </div>
-<?php require_once __DIR__.'/footer.php'; ?>
+<?php require_once __DIR__ . '/footer.php'; ?>

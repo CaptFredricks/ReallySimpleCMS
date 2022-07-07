@@ -634,16 +634,16 @@ function registerDefaultPostTypes(): void {
  * @return array
  */
 function getTaxonomyLabels($taxonomy, $labels = array()): array {
-	$name = ucwords(str_replace(array('_', '-'), ' ', ($taxonomy === 'category' ? 'Categories' : $taxonomy.'s')));
+	$name = ucwords(str_replace(array('_', '-'), ' ', ($taxonomy === 'category' ? 'Categories' : $taxonomy . 's')));
 	$name_singular = ucwords(str_replace(array('_', '-'), ' ', $taxonomy));
 	
 	$defaults = array(
 		'name' => $name,
 		'name_lowercase' => strtolower($name),
 		'name_singular' => $name_singular,
-		'list_items' => 'List '.$name,
-		'create_item' => 'Create '.$name_singular,
-		'edit_item' => 'Edit '.$name_singular,
+		'list_items' => 'List ' . $name,
+		'create_item' => 'Create ' . $name_singular,
+		'edit_item' => 'Edit ' . $name_singular,
 	);
 	$labels = array_merge($defaults, $labels);
 	
@@ -1173,7 +1173,10 @@ function getMediaSrc($id): string {
 	// Extend the Query object
 	global $rs_query;
 	
-	$media = $rs_query->selectField('postmeta', 'value', array('post' => $id, '_key' => 'filename'));
+	$media = $rs_query->selectField('postmeta', 'value', array(
+		'post' => $id,
+		'_key' => 'filepath'
+	));
 	
 	if(!empty($media))
 		return trailingSlash(UPLOADS) . $media;

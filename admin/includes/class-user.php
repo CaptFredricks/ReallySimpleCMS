@@ -360,7 +360,7 @@ class User {
 						'content' => formTag('img', array('src' => '//:0', 'data-field' => 'thumb')).formTag('span', array(
 							'class' => 'image-remove',
 							'title' => 'Remove',
-							'content' => formTag('i', array('class' => 'fas fa-times'))
+							'content' => formTag('i', array('class' => 'fa-solid fa-xmark'))
 						))
 					), array(
 						'tag' => 'input',
@@ -485,7 +485,7 @@ class User {
 								)).formTag('span', array(
 									'class' => 'image-remove',
 									'title' => 'Remove',
-									'content' => formTag('i', array('class' => 'fas fa-times'))
+									'content' => formTag('i', array('class' => 'fa-solid fa-xmark'))
 								))
 							), array(
 								'tag' => 'input',

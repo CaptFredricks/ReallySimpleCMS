@@ -21,9 +21,7 @@ class Media extends Post {
 		// Create an array of columns to fetch from the database
 		$cols = array_keys(get_object_vars($this));
 		
-		// Check whether the id is '0'
 		if($id !== 0) {
-			// Fetch the media from the database
 			$media = $rs_query->selectRow('posts', $cols, array('id' => $id, 'type' => 'media'));
 			
 			// Set the class variable values
@@ -47,11 +45,10 @@ class Media extends Post {
 		<div class="heading-wrap">
 			<h1>Media</h1>
 			<?php
-			// Check whether the user has sufficient privileges to upload media and create an action link if so
+			// Check whether the user has sufficient privileges to upload media
 			if(userHasPrivilege('can_upload_media'))
 				echo actionLink('upload', array('classes' => 'button', 'caption' => 'Upload New'));
 			
-			// Display the page's info
 			adminInfo();
 			?>
 			<hr>
@@ -85,50 +82,39 @@ class Media extends Post {
 				}
 			}
 			
-			// Fetch the media entry count from the database
 			$count = $rs_query->select('posts', 'COUNT(*)', array('type' => 'media'));
-			
-			// Set the page count
 			$page['count'] = ceil($count / $page['per_page']);
 			?>
 			<div class="entry-count">
-				<?php
-				// Display the entry count
-				echo $count.' '.($count === 1 ? 'entry' : 'entries');
-				?>
+				<?php echo $count . ' ' . ($count === 1 ? 'entry' : 'entries'); ?>
 			</div>
 		</div>
 		<table class="data-table">
 			<thead>
 				<?php
-				// Fill an array with the table header columns
-				$table_header_cols = array(
-					'Thumbnail',
-					'File',
-					'Author',
-					'Upload Date',
-					'Size',
-					'Dimensions',
-					'MIME Type'
+				$header_cols = array(
+					'thumbnail' => 'Thumbnail',
+					'file' => 'File',
+					'author' => 'Author',
+					'upload-date' => 'Upload Date',
+					'size' => 'Size',
+					'dimensions' => 'Dimensions',
+					'mime-type' => 'MIME Type'
 				);
 				
-				// Construct the table header
-				echo tableHeaderRow($table_header_cols);
+				echo tableHeaderRow($header_cols);
 				?>
 			</thead>
 			<tbody>
 				<?php
-				// Fetch all media from the database
-				$mediaa = $rs_query->select('posts', '*', array('type' => 'media'), 'date', 'DESC', array(
-					$page['start'],
-					$page['per_page']
-				));
+				$mediaa = $rs_query->select('posts', '*',
+					array('type' => 'media'), 'date', 'DESC',
+					array($page['start'], $page['per_page'])
+				);
 				
 				foreach($mediaa as $media) {
-					// Fetch the media's metadata from the database
 					$meta = $this->getPostMeta($media['id']);
 					
-					// Set up the action links
 					$actions = array(
 						// Edit
 						userHasPrivilege('can_edit_media') ? actionLink('edit', array(
@@ -150,26 +136,21 @@ class Media extends Post {
 					$actions = array_filter($actions);
 					
 					// Get the media's filepath
-					$file_path = trailingSlash(PATH.UPLOADS).$meta['filename'];
+					$file_path = trailingSlash(PATH . UPLOADS) . $meta['filepath'];
 					
-					// Check whether the media exists
 					if(file_exists($file_path)) {
-						// Fetch the media's file size
+						$path = pathinfo($file_path);
 						$size = getFileSize(filesize($file_path));
 						
 						// Check whether the media is an image
 						if(str_starts_with(mime_content_type($file_path), 'image')) {
-							// Fetch the image's dimensions
 							list($width, $height) = getimagesize($file_path);
 							
-							// Set the dimensions
-							$dimensions = $width.' x '.$height;
+							$dimensions = $width . ' x ' . $height;
 						} else {
-							// Set the dimensions to null
 							$dimensions = null;
 						}
 					} else {
-						// Set the file size to null
 						$size = null;
 					}
 					
@@ -177,7 +158,9 @@ class Media extends Post {
 						// Thumbnail
 						tdCell(getMedia($media['id']), 'thumbnail'),
 						// File
-						tdCell('<strong>'.$media['title'].'</strong><br><em>'.$meta['filename'].'</em><div class="actions">'.implode(' &bull; ', $actions).'</div>', 'file'),
+						tdCell('<strong>' . $media['title'] . '</strong><br><em>' . $path['basename'] .
+							'</em><div class="actions">' . implode(' &bull; ', $actions) . '</div>',
+						'file'),
 						// Author
 						tdCell($this->getAuthor($media['author']), 'author'),
 						// Upload date
@@ -191,21 +174,19 @@ class Media extends Post {
 					);
 				}
 				
-				// Display a notice if no media are found
 				if(empty($mediaa))
-					echo tableRow(tdCell('There are no media to display.', '', count($table_header_cols)));
+					echo tableRow(tdCell('There are no media to display.', '', count($header_cols)));
 				?>
 			</tbody>
 			<tfoot>
-				<?php echo tableHeaderRow($table_header_cols); ?>
+				<?php echo tableHeaderRow($header_cols); ?>
 			</tfoot>
 		</table>
 		<?php
 		// Set up page navigation
 		echo pagerNav($page['current'], $page['count']);
 		
-		// Include the delete modal
-        include_once PATH.ADMIN.INC.'/modal-delete.php';
+        include_once PATH . ADMIN . INC . '/modal-delete.php';
 	}
 	
 	/**
@@ -295,15 +276,16 @@ class Media extends Post {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Check whether the media's id is valid
 		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the "List Media" page
 			redirect(ADMIN_URI);
 		} else {
 			// Validate the form data and return any messages
-			$message = isset($_POST['submit']) ? $this->validateData($_POST, $_GET['action'], $this->id) : '';
+			$message = isset($_POST['submit']) ? $this->validateData(
+				$_POST,
+				$_GET['action'],
+				$this->id
+			) : '';
 			
-			// Fetch the media's metadata from the database
 			$meta = $this->getPostMeta($this->id);
 			?>
 			<div class="heading-wrap">
@@ -381,21 +363,16 @@ class Media extends Post {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Check whether the media's id is valid
 		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the "List Media" page
 			redirect(ADMIN_URI);
 		} else {
-			// Check whether the form has been submitted
 			if(isset($_POST['submit'])) {
-				// Merge the $_POST and $_FILES arrays
 				$data = array_merge($_POST, $_FILES);
 				
 				// Validate the form data and return any messages
 				$message = $this->validateData($data, $_GET['action'], $this->id);
 			}
 			
-			// Fetch the media's metadata from the database
 			$meta = $this->getPostMeta($this->id);
 			?>
 			<div class="heading-wrap">
@@ -437,7 +414,7 @@ class Media extends Post {
 							'class' => 'checkbox-input',
 							'name' => 'update_filename_date',
 							'value' => 1,
-							'*' => (isset($_POST['update_filename_date']) && $_POST['update_filename_date'] ? 'checked' : ''),
+							'checked' => ($_POST['update_filename_date'] ?? 0),
 							'label' => array(
 								'class' => 'checkbox-label',
 								'content' => '<span>Update filename and date</span>'
@@ -477,43 +454,44 @@ class Media extends Post {
 		$conflicts = array();
 		
 		// Fetch the number of times the media is used as an avatar from the database
-		$count = $rs_query->select('usermeta', 'COUNT(*)', array('_key' => 'avatar', 'value' => $this->id));
+		$count = $rs_query->select('usermeta', 'COUNT(*)', array(
+			'_key' => 'avatar',
+			'value' => $this->id
+		));
 		
 		// Check whether the count is greater than zero
 		if($count > 0) $conflicts[] = 'users';
 		
 		// Fetch the number of times the media is used as a featured image from the database
-		$count = $rs_query->select('postmeta', 'COUNT(*)', array('_key' => 'feat_image', 'value' => $this->id));
+		$count = $rs_query->select('postmeta', 'COUNT(*)', array(
+			'_key' => 'feat_image',
+			'value' => $this->id
+		));
 		
 		// Check whether the count is greater than zero
 		if($count > 0) $conflicts[] = 'posts';
 		
 		// Check whether there are any conflicts and redirect to the "List Media" page with an appropriate exit status if so
 		if(!empty($conflicts))
-			redirect(ADMIN_URI.'?exit_status=failure&conflicts='.implode(':', $conflicts));
+			redirect(ADMIN_URI . '?exit_status=failure&conflicts=' . implode(':', $conflicts));
 		
-		// Fetch the filename from the database
-		$filename = $rs_query->selectField('postmeta', 'value', array('post' => $this->id, '_key' => 'filename'));
+		$filename = $rs_query->selectField('postmeta', 'value', array(
+			'post' => $this->id,
+			'_key' => 'filepath'
+		));
 		
-		// Check whether the filename exists in the database
+		// If the file exists, delete it
 		if($filename) {
-			// File path for the file to be deleted
-			$file_path = trailingSlash(PATH.UPLOADS).$filename;
+			$file_path = trailingSlash(PATH . UPLOADS) . $filename;
 			
-			// Check whether the file exists and delete it if so
 			if(file_exists($file_path)) unlink($file_path);
 			
-			// Delete the media from the database
 			$rs_query->delete('posts', array('id' => $this->id));
-			
-			// Delete the media's metadata from the database
 			$rs_query->delete('postmeta', array('post' => $this->id));
 			
-			// Redirect to the "List Media" page with an appropriate exit status
-			redirect(ADMIN_URI.'?exit_status=success');
+			redirect(ADMIN_URI . '?exit_status=success');
 		} else {
-			// Redirect to the "List Media" page with an appropriate exit status
-			redirect(ADMIN_URI.'?exit_status=failure');
+			redirect(ADMIN_URI . '?exit_status=failure');
 		}
 	}
 	
@@ -535,14 +513,14 @@ class Media extends Post {
 		if(empty($data['title']))
 			return statusMessage('R');
 		
-		// Check which action has been submitted
+		$basepath = PATH . UPLOADS;
+		
 		switch($action) {
 			case 'upload':
 				// Make sure a file has been selected
 				if(empty($data['file']['name']))
 					return statusMessage('A file must be selected for upload!');
 				
-				// Create an array of accepted MIME types
 				$accepted_mime = array(
 					'image/jpeg',
 					'image/png',
@@ -558,11 +536,12 @@ class Media extends Post {
 				if(!in_array($data['file']['type'], $accepted_mime, true))
 					return statusMessage('The file could not be uploaded.');
 				
-				// File path for the uploads directory
-				$file_path = PATH.UPLOADS;
+				if(!file_exists($basepath)) mkdir($basepath);
 				
-				// Check whether the uploads directory exists, and create it if not
-				if(!file_exists($file_path)) mkdir($file_path);
+				$year = date('Y');
+				
+				if(!file_exists(trailingSlash($basepath) . $year))
+					mkdir(trailingSlash($basepath) . $year);
 				
 				// Split the filename into separate parts
 				$file = pathinfo($data['file']['name']);
@@ -574,10 +553,15 @@ class Media extends Post {
 				$slug = getUniquePostSlug($filename);
 				
 				// Get a unique filename
-				$filename = getUniqueFilename($filename.'.'.$file['extension']);
+				$filename = getUniqueFilename($filename . '.' . $file['extension']);
+				
+				$filepath = trailingSlash($year) . $filename;
 				
 				// Move the uploaded file to the uploads directory
-				move_uploaded_file($data['file']['tmp_name'], trailingSlash(PATH.UPLOADS).$filename);
+				move_uploaded_file(
+					$data['file']['tmp_name'],
+					trailingSlash($basepath) . $filepath
+				);
 				
 				// Insert the new media into the database
 				$insert_id = $rs_query->insert('posts', array(
@@ -590,14 +574,12 @@ class Media extends Post {
 					'type' => 'media'
 				));
 				
-				// Create an array to hold the media's metadata
 				$mediameta = array(
-					'filename' => $filename,
+					'filepath' => $filepath,
 					'mime_type' => $data['file']['type'],
 					'alt_text' => $data['alt_text']
 				);
 				
-				// Insert the media's metadata into the database
 				foreach($mediameta as $key => $value) {
 					$rs_query->insert('postmeta', array(
 						'post' => $insert_id,
@@ -606,8 +588,7 @@ class Media extends Post {
 					));
 				}
 				
-				// Redirect to the appropriate "Edit Media" page
-				redirect(ADMIN_URI.'?id='.$insert_id.'&action=edit');
+				redirect(ADMIN_URI . '?id=' . $insert_id . '&action=edit');
 				break;
 			case 'edit':
 				// Update the media in the database
@@ -617,12 +598,13 @@ class Media extends Post {
 					'content' => $data['description']
 				), array('id' => $id));
 				
-				// Create an array to hold the media's metadata
 				$mediameta = array('alt_text' => $data['alt_text']);
 				
-				// Update the media's metadata in the database
 				foreach($mediameta as $key => $value)
-					$rs_query->update('postmeta', array('value' => $value), array('post' => $id, '_key' => $key));
+					$rs_query->update('postmeta', array('value' => $value), array(
+						'post' => $id,
+						'_key' => $key
+					));
 				
 				// Update the class variables
 				foreach($data as $key => $value) $this->$key = $value;
@@ -630,8 +612,7 @@ class Media extends Post {
 				// Update the content class variable
 				$this->content = $data['description'];
 				
-				// Return a status message
-				return statusMessage('Media updated! <a href="'.ADMIN_URI.'">Return to list</a>?', true);
+				return statusMessage('Media updated! <a href="' . ADMIN_URI . '">Return to list</a>?', true);
 				break;
 			case 'replace':
 				// Make sure a file has been selected
@@ -654,14 +635,18 @@ class Media extends Post {
 				if(!in_array($data['file']['type'], $accepted_mime, true))
 					return statusMessage('The file could not be uploaded.');
 				
-				// Fetch the media's metadata from the database
 				$meta = $this->getPostMeta($id);
 				
-				// Delete the old file from the uploads directory
-				unlink(trailingSlash(PATH.UPLOADS).$meta['filename']);
+				// Delete the old file
+				unlink(trailingSlash($basepath) . $meta['filepath']);
 				
 				// Check whether the filename and upload date should be updated
 				if(isset($data['update_filename_date']) && $data['update_filename_date'] == 1) {
+					$year = date('Y');
+					
+					if(!file_exists(trailingSlash($basepath) . $year))
+						mkdir(trailingSlash($basepath) . $year);
+					
 					// Split the filename into separate parts
 					$file = pathinfo($data['file']['name']);
 					
@@ -669,22 +654,28 @@ class Media extends Post {
 					$filename = str_replace(array('  ', ' '), '-', sanitize($file['filename'], '/[^\w\s\-]/'));
 					
 					// Check whether the new filename is the same as the old one
-					if($filename.'.'.$file['extension'] === $meta['filename']) {
+					if(trailingSlash($year) . $filename . '.' .
+						$file['extension'] === $meta['filepath']) {
+							
 						// Set the slug to match the filename
 						$slug = $filename;
 						
-						// Add the extension to the filename
-						$filename .= '.'.$file['extension'];
+						$filepath = trailingSlash($year) . $filename . '.' . $file['extension'];
 					} else {
 						// Get a unique slug
 						$slug = getUniquePostSlug($filename);
 						
 						// Get a unique filename
-						$filename = getUniqueFilename($filename.'.'.$file['extension']);
+						$filename = getUniqueFilename($filename . '.' . $file['extension']);
+						
+						$filepath = trailingSlash($year) . $filename;
 					}
 					
 					// Move the uploaded file to the uploads directory
-					move_uploaded_file($data['file']['tmp_name'], trailingSlash(PATH.UPLOADS).$filename);
+					move_uploaded_file(
+						$data['file']['tmp_name'],
+						trailingSlash($basepath) . $filepath
+					);
 					
 					// Update the media in the database
 					$rs_query->update('posts', array(
@@ -694,24 +685,30 @@ class Media extends Post {
 						'slug' => $slug
 					), array('id' => $id));
 				} else {
+					$year = formatDate($rs_query->selectField('posts', 'date', array('id' => $id)), 'Y');
+					
 					// Split the filename into separate parts
 					$file = pathinfo($data['file']['name']);
 					
 					// Check whether the extension of the new file matches the existing one
-					if(str_contains($meta['filename'], $file['extension'])) {
+					if(str_contains($meta['filepath'], $file['extension'])) {
 						// If so, keep the filename and extension the same
-						$filename = $meta['filename'];
+						$filepath = $meta['filepath'];
 					} else {
 						// Otherwise,
 						// Split the old filename into separate parts
-						$old_filename = pathinfo($meta['filename']);
+						$old_filename = pathinfo($meta['filepath']);
 						
 						// Update the extension
-						$filename = $old_filename['filename'].'.'.$file['extension'];
+						$filepath = trailingSlash($year) . $old_filename['filename'] . '.' .
+							$file['extension'];
 					}
 					
 					// Move the uploaded file to the uploads directory
-					move_uploaded_file($data['file']['tmp_name'], trailingSlash(PATH.UPLOADS).$filename);
+					move_uploaded_file(
+						$data['file']['tmp_name'],
+						trailingSlash($basepath) . $filepath
+					);
 					
 					// Update the media in the database
 					$rs_query->update('posts', array(
@@ -720,18 +717,22 @@ class Media extends Post {
 					), array('id' => $id));
 				}
 				
-				// Create an array to hold the media's metadata
-				$mediameta = array('filename' => $filename, 'mime_type' => $data['file']['type']);
+				$mediameta = array(
+					'filepath' => $filepath,
+					'mime_type' => $data['file']['type']
+				);
 				
-				// Update the media's metadata in the database
-				foreach($mediameta as $key => $value)
-					$rs_query->update('postmeta', array('value' => $value), array('post' => $id, '_key' => $key));
+				foreach($mediameta as $key => $value) {
+					$rs_query->update('postmeta', array('value' => $value), array(
+						'post' => $id,
+						'_key' => $key
+					));
+				}
 				
 				// Update the class variables
 				foreach($data as $key => $value) $this->$key = $value;
 				
-				// Return a status message
-				return statusMessage('Media replaced! <a href="'.ADMIN_URI.'">Return to list</a>?', true);
+				return statusMessage('Media replaced! <a href="' . ADMIN_URI . '">Return to list</a>?', true);
 				break;
 		}
 	}

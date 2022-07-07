@@ -19,17 +19,15 @@ class Profile extends User {
 		// Validate the form data and return any messages
 		$message = isset($_POST['submit']) ? $this->validateData($_POST) : '';
 		
-		// Fetch the user's metadata from the database
 		$meta = $this->getUserMeta($this->id);
 		
 		// Check whether the user has an avatar and fetch its dimensions if so
 		if(!empty($meta['avatar']))
-			list($width, $height) = getimagesize(PATH.getMediaSrc($meta['avatar']));
+			list($width, $height) = getimagesize(PATH . getMediaSrc($meta['avatar']));
 		?>
 		<div class="heading-wrap">
 			<h1>Edit Profile</h1>
 			<?php
-			// Display any returned messages
 			echo $message;
 
 			// Refresh the page after 2 seconds
@@ -76,14 +74,14 @@ class Profile extends User {
 					// Avatar
 					echo formRow('Avatar', array(
 						'tag' => 'div',
-						'class' => 'image-wrap'.(!empty($meta['avatar']) ? ' visible' : ''),
-						'style' => 'width: '.($width ?? 0).'px;',
+						'class' => 'image-wrap' . (!empty($meta['avatar']) ? ' visible' : ''),
+						'style' => 'width: ' . ($width ?? 0) . 'px;',
 						'content' => getMedia($meta['avatar'], array(
 							'data-field' => 'thumb'
-						)).formTag('span', array(
+						)) . tag('span', array(
 							'class' => 'image-remove',
 							'title' => 'Remove',
-							'content' => formTag('i', array('class' => 'fas fa-times'))
+							'content' => formTag('i', array('class' => 'fa-solid fa-xmark'))
 						))
 					), array(
 						'tag' => 'input',
@@ -127,8 +125,7 @@ class Profile extends User {
 			)); ?>
 		</div>
 		<?php
-		// Include the upload modal
-		include_once PATH.ADMIN.INC.'/modal-upload.php';
+		include_once PATH . ADMIN . INC . '/modal-upload.php';
 	}
 	
 	/**
@@ -149,7 +146,7 @@ class Profile extends User {
 		
 		// Make sure the username is long enough
 		if(strlen($data['username']) < self::UN_LENGTH)
-			return statusMessage('Username must be at least '.self::UN_LENGTH.' characters long.');
+			return statusMessage('Username must be at least ' . self::UN_LENGTH . ' characters long.');
 		
 		// Make sure the username is not already being used
 		if($this->usernameExists($data['username'], $session['id']))
@@ -159,7 +156,6 @@ class Profile extends User {
 		if($this->emailExists($data['email'], $session['id']))
 			return statusMessage('That email is already taken by another user. Please choose another one.');
 		
-		// Create an array to hold the user's metadata
 		$usermeta = array(
 			'first_name' => $data['first_name'],
 			'last_name' => $data['last_name'],
@@ -167,13 +163,11 @@ class Profile extends User {
 			'theme' => $data['theme']
 		);
 		
-		// Update the user in the database
 		$rs_query->update('users', array(
 			'username' => $data['username'],
 			'email' => $data['email']
 		), array('id' => $session['id']));
 		
-		// Update the user's metadata in the database
 		foreach($usermeta as $key => $value) {
 			$rs_query->update('usermeta', array('value' => $value), array(
 				'user' => $session['id'],
@@ -184,7 +178,6 @@ class Profile extends User {
 		// Update the class variables
 		foreach($data as $key => $value) $this->$key = $value;
 		
-		// Return a status message
 		return statusMessage('Profile updated! This page will automatically refresh for all changes to take effect.', true);
 	}
 	
@@ -200,31 +193,31 @@ class Profile extends User {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Create a list with just the default theme
-		$list = '<option value="default">Default</option>';
+		$list = tag('option', array(
+			'value' => 'default',
+			'content' => 'Default'
+		));
 		
-		// File path for the admin themes directory
-		$file_path = PATH.CONT.'/admin-themes';
+		$themes_filepath = PATH . CONT . '/admin-themes';
 		
 		// Check whether the directory exists and extract any existing theme filenames if so
-		if(file_exists($file_path))
-			$themes = array_diff(scandir($file_path), array('.', '..'));
+		if(file_exists($themes_filepath))
+			$themes = array_diff(scandir($themes_filepath), array('.', '..'));
 		else
 			$themes = array();
 		
-		// Loop through the themes
 		foreach($themes as $theme) {
-			// Create an array to hold the parts of the theme's filename
 			$theme = pathinfo($theme);
 			
-			// Check whether the file's extension is 'css'
 			if($theme['extension'] === 'css') {
-				// Add each theme to the list
-				$list .= '<option value="'.$theme['filename'].'"'.($theme['filename'] === $current ? ' selected' : '').'>'.ucwords(str_replace('-', ' ', $theme['filename'])).'</option>';
+				$list .= tag('option', array(
+					'value' => $theme['filename'],
+					'selected' => ($theme['filename'] === $current),
+					'content' => ucwords(str_replace('-', ' ', $theme['filename']))
+				));
 			}
 		}
 		
-		// Return the list
 		return $list;
 	}
 	
@@ -240,7 +233,6 @@ class Profile extends User {
 			// Validate the form data and return any messages
 			$message = $this->validatePasswordData($_POST, $this->id);
 			
-			// Check whether the message contains 'success'
 			if(str_contains($message, 'success')) {
 				// Refresh the page after 2 seconds
 				?>
@@ -281,12 +273,12 @@ class Profile extends User {
 					), array(
 						'tag' => 'label',
 						'class' => 'checkbox-label hidden required invalid init',
-						'content' => formTag('br', array('class' => 'spacer')).formTag('input', array(
+						'content' => tag('br', array('class' => 'spacer')) . tag('input', array(
 							'type' => 'checkbox',
 							'class' => 'checkbox-input',
 							'name' => 'pass_saved',
 							'value' => 1
-						)).formTag('span', array('content' => 'I have copied the password to a safe place.'))
+						)) . tag('span', array('content' => 'I have copied the password to a safe place.'))
 					));
 					
 					// New password (confirmation)
@@ -341,7 +333,7 @@ class Profile extends User {
 		
 		// Make sure the new and confirm passwords are long enough
 		if(strlen($data['new_pass']) < self::PW_LENGTH || strlen($data['confirm_pass']) < self::PW_LENGTH)
-			return statusMessage('New password must be at least '.self::PW_LENGTH.' characters long.');
+			return statusMessage('New password must be at least ' . self::PW_LENGTH . ' characters long.');
 		
 		// Make sure the password saved checkbox has been checked
 		if(!isset($data['pass_saved']) || $data['pass_saved'] != 1)
@@ -351,12 +343,14 @@ class Profile extends User {
 		$hashed_password = password_hash($data['new_pass'], PASSWORD_BCRYPT, array('cost' => 10));
 		
 		// Update the current user's password and session in the database
-		$rs_query->update('users', array('password' => $hashed_password, 'session' => null), array('id' => $id));
+		$rs_query->update('users', array(
+			'password' => $hashed_password,
+			'session' => null
+		), array('id' => $id));
 		
 		// Delete the session cookie
 		setcookie('session', '', 1, '/');
 		
-		// Return a status message
 		return statusMessage('Password updated! You will be required to log back in.', true);
 	}
 }

@@ -280,8 +280,8 @@ class Comment {
 						<?php echo nl2br($this->getCommentContent($id)); ?>
 					</div>
 					<p class="actions">
-						<span class="upvote"><span><?php echo $this->getCommentUpvotes($id); ?></span> <a href="#" data-id="<?php echo $id; ?>" data-vote="0" title="Upvote"><i class="fas fa-thumbs-up"></i></a></span>
-						&bull; <span class="downvote"><span><?php echo $this->getCommentDownvotes($id); ?></span> <a href="#" data-id="<?php echo $id; ?>" data-vote="0" title="Downvote"><i class="fas fa-thumbs-down"></i></a></span>
+						<span class="upvote"><span><?php echo $this->getCommentUpvotes($id); ?></span> <a href="#" data-id="<?php echo $id; ?>" data-vote="0" title="Upvote"><i class="fa-solid fa-thumbs-up"></i></a></span>
+						&bull; <span class="downvote"><span><?php echo $this->getCommentDownvotes($id); ?></span> <a href="#" data-id="<?php echo $id; ?>" data-vote="0" title="Downvote"><i class="fa-solid fa-thumbs-down"></i></a></span>
 						<?php
 						// Check whether comments are enabled
 						if(getSetting('enable_comments') && $post_types[$rs_post->getPostType()]['comments'] &&

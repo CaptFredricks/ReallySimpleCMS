@@ -1,30 +1,27 @@
 <?php
-// Include the initialization file
-require_once dirname(__DIR__).'/init.php';
+// Initialization file
+require_once dirname(__DIR__) . '/init.php';
 
-// Include admin functions
+// Admin functions
 require_once ADMIN_FUNC;
 
-// Include functions
+// Site-wide functions
 require_once FUNC;
 
-// Check whether the current theme has a functions.php file and include it if so
-if(file_exists(trailingSlash(PATH.THEMES).getSetting('theme').'/functions.php'))
-	require_once trailingSlash(PATH.THEMES).getSetting('theme').'/functions.php';
+if(file_exists(trailingSlash(PATH . THEMES) . getSetting('theme') . '/functions.php'))
+	require_once trailingSlash(PATH . THEMES) . getSetting('theme') . '/functions.php';
 
 // Start output buffering
 ob_start();
 
-// Check whether the session cookie is set and the user's session is valid
+// Fetch the user's session data if they're logged in
 if(isset($_COOKIE['session']) && isValidSession($_COOKIE['session'])) {
-	// Fetch the user's data
 	$session = getOnlineUser($_COOKIE['session']);
 } else {
-	// Redirect to the login page
-	redirect('../login.php'.($_SERVER['REQUEST_URI'] !== '/admin/' ? '?redirect='.urlencode($_SERVER['PHP_SELF']) : ''));
+	redirect('../login.php' . ($_SERVER['REQUEST_URI'] !== '/admin/' ? '?redirect=' .
+		urlencode($_SERVER['PHP_SELF']) : ''));
 }
 
-// Fetch the current page
 $current_page = getCurrentPage();
 ?>
 <!DOCTYPE html>
@@ -41,7 +38,7 @@ $current_page = getCurrentPage();
 	<body class="<?php echo $current_page; ?>">
 		<header id="admin-header">
 			<a id="site-title" href="/">
-				<i class="fas fa-home"></i>
+				<i class="fa-solid fa-house-chimney"></i>
 				<span><?php putSetting('site_title'); ?></span>
 			</a>
 			<div class="user-dropdown">

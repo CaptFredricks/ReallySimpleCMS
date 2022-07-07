@@ -474,7 +474,7 @@ class Query {
 		// Stop execution and throw an error if no table is specified
 		if(empty($table)) exit($this->errorMsg('table'));
 		
-		$sql = 'SHOW INDEXES FROM `' . $table . '`';
+		$sql = 'SHOW INDEXES FROM `' . $table . '`;';
 		
 		try {
 			$query = $this->conn->prepare($sql);
@@ -498,6 +498,33 @@ class Query {
 	 */
 	public function tableExists($table): bool {
 		return !empty($this->showTables($table));
+	}
+	
+	/**
+	 * Check whether a column exists in a database table.
+	 * @since 1.3.5[b]
+	 *
+	 * @access public
+	 * @param string $table
+	 * @param string $column
+	 * @return bool
+	 */
+	public function columnExists($table, $column): bool {
+		// Stop execution and throw an error if no table or column is specified
+		if(empty($table)) exit($this->errorMsg('table'));
+		if(empty($column)) exit($this->errorMsg('column'));
+		
+		$sql = 'SHOW COLUMNS FROM `' . $table . '` LIKE \'' . $column . '\';';
+		
+		try {
+			$query = $this->conn->prepare($sql);
+			$query->execute();
+			
+			return !empty($query->fetch());
+		} catch(PDOException $e) {
+			logError($e);
+			return false;
+		}
 	}
 	
 	/**
@@ -549,8 +576,8 @@ class Query {
 			case 'table':
 				$error .= 'A table or tables must be specified!';
 				break;
-			case 'field':
-				$error .= 'A field must be specified!';
+			case 'column': case 'field':
+				$error .= 'A column or field must be specified!';
 				break;
 			case 'where':
 				$error .= 'Where clause parameters must be in an array.';

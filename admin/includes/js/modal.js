@@ -17,13 +17,8 @@ jQuery(document).ready($ => {
 		// Set the clicked button to the button that was clicked
 		clicked_button = this;
 		
-		// Add 'modal-open' class to the body tag
 		$('body').addClass('modal-open');
-		
-		// Show the modal
 		$('.modal').fadeIn(100);
-		
-		// Add 'in' class to the modal
 		$('.modal').addClass('in');
 		
 		// Fetch the type of media that should display in the media library tab
@@ -40,11 +35,10 @@ jQuery(document).ready($ => {
 	});
 	
 	/**
-	 * Event handler for closing an open modal window.
+	 * Close an open modal window.
 	 * @since 2.1.1[a]
 	 */
 	$('#modal-close').on('click', function() {
-		// Close the modal
 		modalClose();
 	});
 	
@@ -53,7 +47,6 @@ jQuery(document).ready($ => {
 	 * @since 2.1.8[a]
 	 */
 	$('.delete-item').on('click', function(e) {
-		// Prevent the default (navigation) action
 		e.preventDefault();
 		
 		// Replace the default warning text with the appropriate item type
@@ -70,7 +63,6 @@ jQuery(document).ready($ => {
 	$('.modal-header .tabber .tab').on('click', function() {
 		// Check whether the clicked tab is active
 		if(!$(this).hasClass('active')) {
-			// Toggle the 'active' class
 			$('.modal-header .tabber .tab').toggleClass('active');
 			$('.modal-body .tab').toggleClass('active');
 			
@@ -105,10 +97,8 @@ jQuery(document).ready($ => {
 	 * @since 2.1.6[a]
 	 */
 	$('#media-upload').on('submit', function(e) {
-		// Prevent the default (submit) action
 		e.preventDefault();
 		
-		// Submit the form data using Ajax
 		$.ajax({
 			contentType: false,
 			data: new FormData(this),
@@ -159,7 +149,6 @@ jQuery(document).ready($ => {
 			// Enable the 'Select Media' button
 			$('#media-select').prop('disabled', false);
 		} else {
-			// Remove the 'selected' class
 			$(this).removeClass('selected');
 			
 			// Clear the media details
@@ -175,17 +164,16 @@ jQuery(document).ready($ => {
 	 * @since 2.1.3[a]
 	 */
 	$('#media-select').on('click', function() {
-		// Create an object to hold the media item's data
-		let data = { id: 0, title: '', filename: '', mime_type: '', alt_text: '', width: 0 };
+		let data = { id: 0, title: '', filepath: '', mime_type: '', alt_text: '', width: 0 };
 		
 		// Check which tab is active
 		if($('#upload').hasClass('active')) {
 			// Check whether the hidden fields are in the result
-			if($('.upload-result .hidden[data-field="id"]').length && $('.upload-result .hidden[data-field="filename"]').length) {
+			if($('.upload-result .hidden[data-field="id"]').length && $('.upload-result .hidden[data-field="filepath"]').length) {
 				// Populate the data object
 				data.id = $('.upload-result .hidden[data-field="id"]').text();
 				data.title = $('.upload-result .hidden[data-field="title"]').text();
-				data.filename = $('.upload-result .hidden[data-field="filename"]').text();
+				data.filepath = $('.upload-result .hidden[data-field="filepath"]').text();
 				data.mime_type = $('.upload-result .hidden[data-field="mime_type"]').text();
 				data.width = $('.upload-result .hidden[data-field="width"]').text();
 				
@@ -197,8 +185,8 @@ jQuery(document).ready($ => {
 					// Insert the media's id onto the form
 					$(clicked_button).siblings('input[data-field="id"]').val(data.id);
 					
-					// Insert the media's filename onto the form
-					$(clicked_button).siblings('.image-wrap').children('img[data-field="thumb"]').attr('src', data.filename);
+					// Insert the media's filepath onto the form
+					$(clicked_button).siblings('.image-wrap').children('img[data-field="thumb"]').attr('src', data.filepath);
 				}
 			}
 		} else if($('#media').hasClass('active')) {
@@ -207,7 +195,7 @@ jQuery(document).ready($ => {
 				// Populate the data object
 				data.id = $('.media-item.selected .hidden[data-field="id"]').text();
 				data.title = $('.media-item.selected .hidden[data-field="title"]').text();
-				data.filename = $('.media-item.selected .hidden[data-field="filename"] a').attr('href');
+				data.filepath = $('.media-item.selected .hidden[data-field="filepath"] a').attr('href');
 				data.mime_type = $('.media-item.selected .hidden[data-field="mime_type"]').text();
 				data.alt_text = $('.media-item.selected .hidden[data-field="alt_text"]').text();
 				data.width = $('.media-item.selected .hidden[data-field="width"]').text();
@@ -220,8 +208,8 @@ jQuery(document).ready($ => {
 					// Insert the media's id on the form
 					$(clicked_button).siblings('input[data-field="id"]').val(data.id);
 					
-					// Insert the media's filename on the form
-					$(clicked_button).siblings('.image-wrap').children('img[data-field="thumb"]').attr('src', data.filename);
+					// Insert the media's filepath on the form
+					$(clicked_button).siblings('.image-wrap').children('img[data-field="thumb"]').attr('src', data.filepath);
 				}
 			} else {
 				// Set the media's 'id' field to zero
@@ -253,7 +241,6 @@ jQuery(document).ready($ => {
 			$(clicked_button).siblings('.image-wrap').removeClass('visible');
 		}
 		
-		// Close the modal
 		modalClose();
 	});
 	
@@ -288,16 +275,16 @@ jQuery(document).ready($ => {
 		// Determine what kind of HTML tag to construct based on the media's MIME type
 		if(data.mime_type.indexOf('image') !== -1) {
 			// Construct an image tag
-			media = '<img src="' + data.filename + '" alt="' + (data.hasOwnProperty('alt_text') ? data.alt_text : '') + '">';
+			media = '<img src="' + data.filepath + '" alt="' + (data.hasOwnProperty('alt_text') ? data.alt_text : '') + '">';
 		} else if(data.mime_type.indexOf('audio') !== -1) {
 			// Construct an audio tag
-			media = '<audio src="' + data.filename + '"></audio>';
+			media = '<audio src="' + data.filepath + '"></audio>';
 		} else if(data.mime_type.indexOf('video') !== -1) {
 			// Construct a video tag
-			media = '<video src="' + data.filename + '"></video>';
+			media = '<video src="' + data.filepath + '"></video>';
 		} else {
 			// Construct an anchor tag
-			media = '<a href="' + data.filename + '">' + data.title + '</a>';
+			media = '<a href="' + data.filepath + '">' + data.title + '</a>';
 		}
 		
 		// Update the container's content
@@ -309,13 +296,11 @@ jQuery(document).ready($ => {
 	 * @since 2.1.3[a]
 	 */
 	function modalClose() {
-		// Remove 'modal-open' class from the body tag
 		$('body').removeClass('modal-open');
 		
 		// Hide the modal
 		$('.modal').fadeOut(500);
 		
-		// Remove 'in' class from the modal
 		$('.modal').removeClass('in');
 		
 		// Check whether the open modal is the upload modal

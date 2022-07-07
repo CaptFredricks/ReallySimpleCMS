@@ -4,10 +4,9 @@
  * @since 1.3.0[a]
  */
 
-// Include named constants
+// Named constants
 require_once __DIR__ . '/includes/constants.php';
 
-// Check whether the server is running the required PHP version
 if(version_compare(PHP_VERSION, PHP_MINIMUM, '<'))
 	exit('<p>The minimum version of PHP that is supported by ' . CMS_NAME . ' is ' . PHP_MINIMUM . '; your server is running on ' . PHP_VERSION . '. Please upgrade to the minimum required version or higher to use this CMS.</p>');
 
@@ -18,16 +17,16 @@ if(!file_exists(DB_CONFIG)) {
 	exit;
 }
 
-// Include debugging functions
+// Debugging functions
 require_once DEBUG_FUNC;
 
-// Include the database configuration
+// Database configuration
 require_once DB_CONFIG;
 
-// Include the Query class
+// Query class
 require_once QUERY_CLASS;
 
-// Include global functions
+// Global functions
 require_once GLOBAL_FUNC;
 
 // Check whether the 'DEBUG_MODE' constant has been defined and define it if not
@@ -45,7 +44,7 @@ $rs_query = new Query;
 if(!$rs_query->conn_status)
 	exit('<p>There is a problem with your database connection. Check your <code>config.php</code> file located in the <code>root</code> directory of your installation.</p>');
 
-// Include the database schema
+// Database schema
 require_once DB_SCHEMA;
 
 $schema = dbSchema();
@@ -74,7 +73,7 @@ if(!defined('BASE_INIT') || (defined('BASE_INIT') && !BASE_INIT)) {
 	
 	// Check whether the user is viewing the admin dashboard, the log in page, or the 404 not found page
 	if(!isAdmin() && !isLogin() && !is404()) {
-		// Include functions
+		// Site-wide functions
 		require_once FUNC;
 		
 		// Initialize the theme
