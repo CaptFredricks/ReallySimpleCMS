@@ -14,4 +14,7 @@ if(isEmptyDir(PATH . THEMES) || !file_exists(trailingSlash(PATH . THEMES) . getS
 	$theme_path = trailingSlash(PATH . THEMES) . getSetting('theme');
 	
 	if(file_exists($theme_path . '/functions.php')) require_once $theme_path . '/functions.php';
+	
+	// Set a default theme version if none is set in the theme's functions.php
+	if(!defined('THEME_VERSION')) define('THEME_VERSION', CMS_VERSION);
 }

@@ -1031,13 +1031,10 @@ function uploadMediaFile($data): string {
 	
 	$year = date('Y');
 	
-	if(!file_exists(trailingSlash($basepath) . $year))
-		mkdir(trailingSlash($basepath) . $year);
+	if(!file_exists(slash($basepath) . $year))
+		mkdir(slash($basepath) . $year);
 	
-	// Sanitize the filename
-	$filename = preg_replace('/[^\w.-]/i', '', str_replace(' ', '-', strtolower($data['name'])));
-	
-	// Get a unique filename
+	$filename = str_replace(array('  ', ' ', '_'), '-', sanitize($data['name'], '/[^\w.-]/'));
 	$filename = getUniqueFilename($filename);
 	
 	// Strip off the filename's extension for the post's slug
@@ -1046,12 +1043,12 @@ function uploadMediaFile($data): string {
 	// Get a unique slug
 	$slug = getUniquePostSlug($slug);
 	
-	$filepath = trailingSlash($year) . $filename;
+	$filepath = slash($year) . $filename;
 	
 	// Move the uploaded file to the uploads directory
 	move_uploaded_file(
 		$data['tmp_name'],
-		trailingSlash($basepath) . $filepath
+		slash($basepath) . $filepath
 	);
 	
 	$mediameta = array(
@@ -1086,7 +1083,7 @@ function uploadMediaFile($data): string {
 	
 	// Check whether the media is an image
 	if(in_array($data['type'], array('image/jpeg', 'image/png', 'image/gif', 'image/x-icon'), true)) {
-		list($width, $height) = getimagesize(trailingSlash($basepath) . $filepath);
+		list($width, $height) = getimagesize(slash($basepath) . $filepath);
 		
 		$status_msg = tag('div', array(
 			// ID
@@ -1102,7 +1099,7 @@ function uploadMediaFile($data): string {
 			// Filepath
 			'class' => 'hidden',
 			'data-field' => 'filepath',
-			'content' => trailingSlash(UPLOADS) . $filepath
+			'content' => slash(UPLOADS) . $filepath
 		)) . tag('div', array(
 			// MIME type
 			'class' => 'hidden',
@@ -1290,7 +1287,7 @@ function getUniqueFilename($filename): string {
 			$count++;
 		} while($rs_query->selectRow('postmeta', 'COUNT(*)', array(
 			'_key' => 'filepath',
-			'value' => array('LIKE', '%' . $filename)
+			'value' => array('LIKE', '%' . $unique_filename)
 		)) > 0);
 		
 		return $unique_filename;

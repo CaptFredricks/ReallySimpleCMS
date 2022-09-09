@@ -18,11 +18,46 @@
 - [a] = alpha
 - [b] = beta
 
+## Version 1.3.6[b] (2022-09-09)
+
+- Tweaked a previous entry in the changelog
+- Tweaked styles in the default front end stylesheet
+- Removed a deprecated parameter from the `getThemeStylesheet` function
+- The `trailingSlash` function is now deprecated, and all future uses will be replaced with the `slash` function
+- Underscores are now replaced with hyphens in file uploads
+- Added a new named constant: `THEME_VERSION` (uses the `CMS_VERSION` constant if none is defined; can be overridden in the active theme's `functions.php` file)
+- The `headerScripts` function now uses unminified CSS files when the CMS is in debug mode
+- Tweaked styling of the fallback theme
+- Added a new maintenance mode feature with a basic maintenance page that will only display on the front end for logged out users (the text on the screen cannot be customized as of now)
+- New functions:
+  - `global-functions.php` (`slash`, `unslash`)
+
+**Bug fixes:**
+- The `getUniqueFilename` function loops infinitely if a filename exists in the database
+- Double quotes in meta descriptions aren't properly escaped
+
+**Modified files:**
+- admin/header.php (M)
+- admin/includes/class-media.php
+- admin/includes/class-theme.php (M)
+- admin/includes/functions.php
+- content/themes/carbon/functions.php (M)
+- includes/class-post.php
+- includes/css/style.css
+- includes/css/style.min.css
+- includes/fallback-theme.php
+- includes/functions.php
+- includes/global-functions.php
+- includes/load-theme.php
+- includes/maintenance.php (N)
+- includes/update-db.php (M)
+- init.php
+
 ## Version 1.3.5[b] (2022-07-07)
 
 - Updated Font Awesome to v6.1.1
 - Cleaned up internal documentation throughout the CMS
-- Moved all code out of the `update.php` file and into a new filed called `update-db.php`
+- Moved all code out of the `update.php` file and into a new file called `update-db.php`
   - The `update.php` file will be used for the upcoming auto-update feature
 - Added an optional `rowspan` parameter to the `tableCell`, `thCell`, and `tdCell` functions
 - Cleaned up code in the `formTag` function and whitelisted additional HTML tags
@@ -236,7 +271,7 @@
 - Added an optional parameter to the `sanitize` function that determines whether the text should be converted to lowercase
 - Usernames are now sanitized before being submitted to the database
 - The admin "information" text no longer displays inline when the icon is clicked
-- Text in the admin header, nav menu, and statistics bar graph can no longer be selected
+- Text in the admin header, nav menu, and statistics bar graph can no longer be selected with the mouse cursor
 
 **Bug fixes:**
 - Sitemaps for custom post types and taxonomies are not being generated
@@ -656,6 +691,7 @@
 - includes/class-comment.php
 - includes/css/style.css (M)
 - includes/css/style.min.css (M)
+- includes/functions.php (M)
 - includes/js/script.js
 
 ## Version 1.2.1[b] (2021-01-20)

@@ -4,6 +4,8 @@
  * @since 2.2.6[a]
  */
 
+define('THEME_VERSION', '1.10');
+
 /**
  * Register custom post types.
  * @since 1.0.0[b]

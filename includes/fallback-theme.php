@@ -7,7 +7,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title><?php echo CMS_NAME; ?></title>
+		<title><?php putSetting('site_title'); ?></title>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<?php putStylesheet('style.min.css'); ?>
@@ -27,8 +27,7 @@
 					<?php putTermPosts(); ?>
 				<?php endif; ?>
 			</article>
-			<hr>
-			<p>&copy; <?php echo date('Y'); ?> <?php echo CMS_NAME; ?>. All rights reserved.</p>
 		</div>
+		<p class="copyright">&copy; <?php echo date('Y'); ?> <?php echo CMS_NAME; ?>. All rights reserved.</p>
 	</body>
 </html>

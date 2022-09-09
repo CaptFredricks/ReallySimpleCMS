@@ -315,10 +315,16 @@ class Post {
 		// Extend the Query object
 		global $rs_query;
 		
-		return $rs_query->selectField('postmeta', 'value', array(
+		$field = $rs_query->selectField('postmeta', 'value', array(
 			'post' => $this->getPostId(),
 			'_key' => $key
 		));
+		
+		// Escape double quotes in meta descriptions
+		if($key === 'description')
+			$field = str_replace('"', '&quot;', $field);
+		
+		return $field;
     }
 	
 	/**

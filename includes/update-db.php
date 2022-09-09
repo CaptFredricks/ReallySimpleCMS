@@ -6,7 +6,7 @@
  */
 
 // Adding comments
-if(version_compare(VERSION, '1.1.0', '>=')) {
+if(version_compare(CMS_VERSION, '1.1.0', '>=')) {
 	$schema = dbSchema();
 	
 	// Try to create the `comments` table
@@ -62,7 +62,7 @@ if(version_compare(VERSION, '1.1.0', '>=')) {
 }
 
 // Tweaking settings
-if(version_compare(VERSION, '1.1.7', '>=')) {
+if(version_compare(CMS_VERSION, '1.1.7', '>=')) {
 	// Setting: 'comment_status'
 	if($rs_query->selectRow('settings', 'COUNT(*)', array('name' => 'comment_status')) > 0) {
 		// Rename the setting to 'enable_comments'
@@ -92,7 +92,7 @@ if(version_compare(VERSION, '1.1.7', '>=')) {
 }
 
 // Adding logins
-if(version_compare(VERSION, '1.2.0', '>=')) {
+if(version_compare(CMS_VERSION, '1.2.0', '>=')) {
 	$schema = dbSchema();
 	
 	// Try to create the `login_attempts` table
@@ -228,12 +228,12 @@ if(version_compare(VERSION, '1.2.0', '>=')) {
 		}
 		
 		$rs_query->dropTable('comments');
-		$rs_query->doQuery("ALTER TABLE `comments_temp` RENAME TO `comments`");
+		$rs_query->doQuery("ALTER TABLE `comments_temp` RENAME TO `comments`;");
 	}
 }
 
 // Tweaking post dates
-if(version_compare(VERSION, '1.2.9', '>=')) {
+if(version_compare(CMS_VERSION, '1.2.9', '>=')) {
 	$posts = $rs_query->select('posts', array('id', 'date', 'modified', 'status'));
 	
 	foreach($posts as $post) {
@@ -257,7 +257,7 @@ if(version_compare(VERSION, '1.2.9', '>=')) {
 }
 
 // Tweaking media metadata
-if(version_compare(VERSION, '1.3.5', '>=')) {
+if(version_compare(CMS_VERSION, '1.3.5', '>=')) {
 	if($rs_query->select('postmeta', 'COUNT(*)', array('_key' => 'filename')) > 0) {
 		$mediaa = $rs_query->select('posts', array('id', 'date'), array('type' => 'media'));
 		

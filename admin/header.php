@@ -1,4 +1,9 @@
 <?php
+/**
+ * Admin dashboard header.
+ * @since 1.0.2[a]
+ */
+
 // Initialization file
 require_once dirname(__DIR__) . '/init.php';
 
@@ -8,8 +13,8 @@ require_once ADMIN_FUNC;
 // Site-wide functions
 require_once FUNC;
 
-if(file_exists(trailingSlash(PATH . THEMES) . getSetting('theme') . '/functions.php'))
-	require_once trailingSlash(PATH . THEMES) . getSetting('theme') . '/functions.php';
+if(file_exists(slash(PATH . THEMES) . getSetting('theme') . '/functions.php'))
+	require_once slash(PATH . THEMES) . getSetting('theme') . '/functions.php';
 
 // Start output buffering
 ob_start();
@@ -73,4 +78,4 @@ $current_page = getCurrentPage();
 		<?php if(version_compare(PHP_VERSION, PHP_RECOMMENDED, '<')): ?>
 			<div id="php-deprecation" class="header-notice">Notice: Your server's PHP version, <?php echo PHP_VERSION; ?>, is below the recommended PHP version, <?php echo PHP_RECOMMENDED; ?>. Consider upgrading to the recommended version.</div>
 		<?php endif; ?>
-			<div class="wrapper clear">
+		<div class="wrapper clear">

@@ -40,13 +40,13 @@ define('COOKIE_HASH', md5(getSetting('site_url')));
  * @since 2.0.7[a]
  *
  * @param string $script
- * @param string $version (optional; default: VERSION)
+ * @param string $version (optional; default: CMS_VERSION)
  * @return string
  */
-function getThemeScript($script, $version = VERSION): string {
-	$theme_path = trailingSlash(THEMES) . getSetting('theme');
+function getThemeScript($script, $version = CMS_VERSION): string {
+	$theme_path = slash(THEMES) . getSetting('theme');
 	
-	return '<script src="' . trailingSlash($theme_path) . $script .
+	return '<script src="' . slash($theme_path) . $script .
 		(!empty($version) ? '?v=' . $version : '') . '"></script>';
 }
 
@@ -55,9 +55,9 @@ function getThemeScript($script, $version = VERSION): string {
  * @since 1.3.0[b]
  *
  * @param string $script
- * @param string $version (optional; default: VERSION)
+ * @param string $version (optional; default: CMS_VERSION)
  */
-function putThemeScript($script, $version = VERSION): void {
+function putThemeScript($script, $version = CMS_VERSION): void {
 	echo getThemeScript($script, $version);
 }
 
@@ -66,13 +66,13 @@ function putThemeScript($script, $version = VERSION): void {
  * @since 2.0.7[a]
  *
  * @param string $stylesheet
- * @param string $version (optional; default: VERSION)
+ * @param string $version (optional; default: CMS_VERSION)
  * @return string
  */
-function getThemeStylesheet($stylesheet, $version = VERSION, $echo = true): string {
-	$theme_path = trailingSlash(THEMES) . getSetting('theme');
+function getThemeStylesheet($stylesheet, $version = CMS_VERSION): string {
+	$theme_path = slash(THEMES) . getSetting('theme');
 	
-	return '<link href="' . trailingSlash($theme_path) . $stylesheet .
+	return '<link href="' . slash($theme_path) . $stylesheet .
 		(!empty($version) ? '?v=' . $version : '') . '" rel="stylesheet">';
 }
 
@@ -81,9 +81,9 @@ function getThemeStylesheet($stylesheet, $version = VERSION, $echo = true): stri
  * @since 1.3.0[b]
  *
  * @param string $stylesheet
- * @param string $version (optional; default: VERSION)
+ * @param string $version (optional; default: CMS_VERSION)
  */
-function putThemeStylesheet($stylesheet, $version = VERSION): void {
+function putThemeStylesheet($stylesheet, $version = CMS_VERSION): void {
 	echo getThemeStylesheet($stylesheet, $version);
 }
 
@@ -98,11 +98,24 @@ function putThemeStylesheet($stylesheet, $version = VERSION): void {
 function headerScripts($exclude = '', $include_styles = array(), $include_scripts = array()): void {
 	if(!is_array($exclude)) $exclude = explode(' ', $exclude);
 	
+	$debug = false;
+	if(defined('DEBUG_MODE') && DEBUG_MODE) $debug = true;
+	
 	// Button stylesheet
-	if(!in_array('button', $exclude, true)) putStylesheet('button.min.css');
+	if(!in_array('button', $exclude, true)) {
+		if($debug)
+			putStylesheet('button.css');
+		else
+			putStylesheet('button.min.css');
+	}
 	
 	// Default stylesheet
-	if(!in_array('style', $exclude, true)) putStylesheet('style.min.css');
+	if(!in_array('style', $exclude, true)) {
+		if($debug)
+			putStylesheet('style.css');
+		else
+			putStylesheet('style.min.css');
+	}
 	
 	if(!in_array('fa', $exclude, true)) {
 		// Font Awesome icons stylesheet
@@ -114,8 +127,10 @@ function headerScripts($exclude = '', $include_styles = array(), $include_script
 	
 	// Check whether any custom stylesheets have been included
 	if(!empty($include_styles)) {
-		if(is_array($include_styles))
-			foreach($include_styles as $style) putThemeStylesheet($style[0] . '.css', $style[1] ?? VERSION);
+		if(is_array($include_styles)) {
+			foreach($include_styles as $style)
+				putThemeStylesheet($style[0] . '.css', $style[1] ?? THEME_VERSION);
+		}
 	}
 	
 	// jQuery library
@@ -123,8 +138,10 @@ function headerScripts($exclude = '', $include_styles = array(), $include_script
 	
 	// Check whether any custom scripts have been included
 	if(!empty($include_scripts)) {
-		if(is_array($include_scripts))
-			foreach($include_scripts as $script) putThemeScript($script[0] . '.js', $script[1] ?? VERSION);
+		if(is_array($include_scripts)) {
+			foreach($include_scripts as $script)
+				putThemeScript($script[0] . '.js', $script[1] ?? THEME_VERSION);
+		}
 	}
 }
 
@@ -141,8 +158,10 @@ function footerScripts($exclude = '', $include_styles = array(), $include_script
 	
 	// Check whether any custom stylesheets have been included
 	if(!empty($include_styles)) {
-		if(is_array($include_styles))
-			foreach($include_styles as $style) putThemeStylesheet($style[0] . '.css', $style[1] ?? VERSION);
+		if(is_array($include_styles)) {
+			foreach($include_styles as $style)
+				putThemeStylesheet($style[0] . '.css', $style[1] ?? THEME_VERSION);
+		}
 	}
 	
 	// Default scripts
@@ -150,8 +169,10 @@ function footerScripts($exclude = '', $include_styles = array(), $include_script
 	
 	// Check whether any custom scripts have been included
 	if(!empty($include_scripts)) {
-		if(is_array($include_scripts))
-			foreach($include_scripts as $script) putThemeScript($script[0] . '.js', $script[1] ?? VERSION);
+		if(is_array($include_scripts)) {
+			foreach($include_scripts as $script)
+				putThemeScript($script[0] . '.js', $script[1] ?? THEME_VERSION);
+		}
 	}
 }
 

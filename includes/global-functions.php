@@ -416,7 +416,10 @@ function populateTerms($post): void {
  * @return array
  */
 function getPostTypeLabels($post_type, $labels = array()): array {
-	$name = ucwords(str_replace(array('_', '-'), ' ', ($post_type === 'media' ? $post_type : $post_type . 's')));
+	$name = ucwords(str_replace(
+		array('_', '-'), ' ',
+		($post_type === 'media' ? $post_type : $post_type . 's')
+	));
 	$name_singular = ucwords(str_replace(array('_', '-'), ' ', $post_type));
 	
 	$defaults = array(
@@ -571,7 +574,9 @@ function unregisterPostType($name): void {
 		);
 		
 		foreach($privileges as $privilege) {
-			$rs_query->delete('user_relationships', array('privilege' => getUserPrivilegeId($privilege)));
+			$rs_query->delete('user_relationships', array(
+				'privilege' => getUserPrivilegeId($privilege)
+			));
 			$rs_query->delete('user_privileges', array('name' => $privilege));
 		}
 		
@@ -634,7 +639,10 @@ function registerDefaultPostTypes(): void {
  * @return array
  */
 function getTaxonomyLabels($taxonomy, $labels = array()): array {
-	$name = ucwords(str_replace(array('_', '-'), ' ', ($taxonomy === 'category' ? 'Categories' : $taxonomy . 's')));
+	$name = ucwords(str_replace(
+		array('_', '-'), ' ',
+		($taxonomy === 'category' ? 'Categories' : $taxonomy . 's')
+	));
 	$name_singular = ucwords(str_replace(array('_', '-'), ' ', $taxonomy));
 	
 	$defaults = array(
@@ -871,7 +879,10 @@ function userHasPrivilege($privilege, $role = null): bool {
 	
 	$id = $rs_query->selectField('user_privileges', 'id', array('name' => $privilege));
 	
-	return $rs_query->selectRow('user_relationships', 'COUNT(*)', array('role' => $role, 'privilege' => $id)) > 0;
+	return $rs_query->selectRow('user_relationships', 'COUNT(*)', array(
+		'role' => $role,
+		'privilege' => $id
+	)) > 0;
 }
 
 /**
@@ -1018,11 +1029,11 @@ function is404(): bool {
  * @since 1.3.3[a]
  *
  * @param string $script
- * @param string $version (optional; default: VERSION)
+ * @param string $version (optional; default: CMS_VERSION)
  * @return string
  */
-function getScript($script, $version = VERSION): string {
-	return '<script src="' . trailingSlash(SCRIPTS) . $script . (!empty($version) ? '?v=' . $version : '') .
+function getScript($script, $version = CMS_VERSION): string {
+	return '<script src="' . slash(SCRIPTS) . $script . (!empty($version) ? '?v=' . $version : '') .
 		'"></script>';
 }
 
@@ -1031,9 +1042,9 @@ function getScript($script, $version = VERSION): string {
  * @since 1.3.0[b]
  *
  * @param string $script
- * @param string $version (optional; default: VERSION)
+ * @param string $version (optional; default: CMS_VERSION)
  */
-function putScript($script, $version = VERSION): void {
+function putScript($script, $version = CMS_VERSION): void {
 	echo getScript($script, $version);
 }
 
@@ -1042,11 +1053,11 @@ function putScript($script, $version = VERSION): void {
  * @since 1.3.3[a]
  *
  * @param string $stylesheet
- * @param string $version (optional; default: VERSION)
+ * @param string $version (optional; default: CMS_VERSION)
  * @return string
  */
-function getStylesheet($stylesheet, $version = VERSION): string {
-	return '<link href="' . trailingSlash(STYLES) . $stylesheet . (!empty($version) ? '?v=' . $version : '') .
+function getStylesheet($stylesheet, $version = CMS_VERSION): string {
+	return '<link href="' . slash(STYLES) . $stylesheet . (!empty($version) ? '?v=' . $version : '') .
 		'" rel="stylesheet">';
 }
 
@@ -1055,9 +1066,9 @@ function getStylesheet($stylesheet, $version = VERSION): string {
  * @since 1.3.0[b]
  *
  * @param string $stylesheet
- * @param string $version (optional; default: VERSION)
+ * @param string $version (optional; default: CMS_VERSION)
  */
-function putStylesheet($stylesheet, $version = VERSION): void {
+function putStylesheet($stylesheet, $version = CMS_VERSION): void {
 	echo getStylesheet($stylesheet, $version);
 }
 
@@ -1119,9 +1130,9 @@ function getPermalink($type, $parent = 0, $slug = ''): string {
 	$permalink = implode('/', array_reverse($permalink));
 	
 	// Construct the full permalink and return it
-	return '/' . (isset($base) ? trailingSlash($base) : '') .
-		(!empty($permalink) ? trailingSlash($permalink) : '') .
-		(!empty($slug) ? trailingSlash($slug) : '');
+	return '/' . (isset($base) ? slash($base) : '') .
+		(!empty($permalink) ? slash($permalink) : '') .
+		(!empty($slug) ? slash($slug) : '');
 }
 
 /**
@@ -1179,7 +1190,7 @@ function getMediaSrc($id): string {
 	));
 	
 	if(!empty($media))
-		return trailingSlash(UPLOADS) . $media;
+		return slash(UPLOADS) . $media;
 	else
 		return '//:0';
 }
@@ -1205,12 +1216,18 @@ function getMedia($id, $args = array()): string {
 		$src .= '?cached=' . formatDate($modified, 'YmdHis');
 	}
 	
-	$mime_type = $rs_query->selectField('postmeta', 'value', array('post' => $id, '_key' => 'mime_type'));
+	$mime_type = $rs_query->selectField('postmeta', 'value', array(
+		'post' => $id,
+		'_key' => 'mime_type'
+	));
 	
 	// Determine what kind of HTML tag to construct based on the media's MIME type
 	if(str_starts_with($mime_type, 'image') || $src === '//:0') {
 		// Image tag
-		$alt_text = $rs_query->selectField('postmeta', 'value', array('post' => $id, '_key' => 'alt_text'));
+		$alt_text = $rs_query->selectField('postmeta', 'value', array(
+			'post' => $id,
+			'_key' => 'alt_text'
+		));
 		$props = array_merge(array('src' => $src, 'alt' => $alt_text), $args);
 		$tag = '<img';
 		
@@ -1315,14 +1332,37 @@ function button($args = array(), $link = false): void {
 }
 
 /**
+ * Remove a trailing slash from a string.
+ * @since 1.3.6[b]
+ *
+ * @param string $text
+ * @return string
+ */
+function unslash($text): string {
+	return rtrim($text, '/\\');
+}
+
+/**
+ * Add a trailing slash to a string.
+ * @since 1.3.6[b]
+ *
+ * @param string $text
+ * @return string
+ */
+function slash($text): string {
+	return unslash($text) . '/';
+}
+
+/**
  * Add a trailing slash to a string.
  * @since 1.3.1[a]
+ * @deprecated since 1.3.6[b]
  *
  * @param string $text
  * @return string
  */
 function trailingSlash($text): string {
-	return $text . '/';
+	return slash($text);
 }
 
 /**

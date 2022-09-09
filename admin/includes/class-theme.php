@@ -78,8 +78,8 @@ class Theme {
 						<?php if($is_broken): ?>
 							<span class="error">Warning:<br>missing index.php file</span>
 						<?php elseif(file_exists($theme_path . '/preview.png')): ?>
-							<img src="<?php echo trailingSlash(THEMES) . $theme .
-								'/preview.png'; ?>" alt="<?php echo ucwords(str_replace('-', ' ', $theme)); ?> preview">
+							<img src="<?php echo slash(THEMES) . $theme .
+								'/preview.png'; ?>" alt="<?php echo ucwords(str_replace('-', ' ', $theme)); ?> theme preview">
 						<?php else: ?>
 							<span>No theme preview</span>
 						<?php endif; ?>

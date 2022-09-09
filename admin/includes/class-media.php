@@ -540,27 +540,22 @@ class Media extends Post {
 				
 				$year = date('Y');
 				
-				if(!file_exists(trailingSlash($basepath) . $year))
-					mkdir(trailingSlash($basepath) . $year);
+				if(!file_exists(slash($basepath) . $year))
+					mkdir(slash($basepath) . $year);
 				
-				// Split the filename into separate parts
 				$file = pathinfo($data['file']['name']);
+				$filename = str_replace(array('  ', ' ', '_'), '-',
+					sanitize($file['filename'], '/[^\w-]/')
+				);
 				
-				// Sanitize the filename
-				$filename = str_replace(array('  ', ' '), '-', sanitize($file['filename'], '/[^\w\s\-]/'));
-				
-				// Get a unique slug
 				$slug = getUniquePostSlug($filename);
-				
-				// Get a unique filename
 				$filename = getUniqueFilename($filename . '.' . $file['extension']);
-				
-				$filepath = trailingSlash($year) . $filename;
+				$filepath = slash($year) . $filename;
 				
 				// Move the uploaded file to the uploads directory
 				move_uploaded_file(
 					$data['file']['tmp_name'],
-					trailingSlash($basepath) . $filepath
+					slash($basepath) . $filepath
 				);
 				
 				// Insert the new media into the database
@@ -591,7 +586,6 @@ class Media extends Post {
 				redirect(ADMIN_URI . '?id=' . $insert_id . '&action=edit');
 				break;
 			case 'edit':
-				// Update the media in the database
 				$rs_query->update('posts', array(
 					'title' => $data['title'],
 					'modified' => 'NOW()',
@@ -638,43 +632,36 @@ class Media extends Post {
 				$meta = $this->getPostMeta($id);
 				
 				// Delete the old file
-				unlink(trailingSlash($basepath) . $meta['filepath']);
+				unlink(slash($basepath) . $meta['filepath']);
 				
 				// Check whether the filename and upload date should be updated
 				if(isset($data['update_filename_date']) && $data['update_filename_date'] == 1) {
 					$year = date('Y');
 					
-					if(!file_exists(trailingSlash($basepath) . $year))
-						mkdir(trailingSlash($basepath) . $year);
+					if(!file_exists(slash($basepath) . $year))
+						mkdir(slash($basepath) . $year);
 					
-					// Split the filename into separate parts
 					$file = pathinfo($data['file']['name']);
-					
-					// Sanitize the filename
-					$filename = str_replace(array('  ', ' '), '-', sanitize($file['filename'], '/[^\w\s\-]/'));
+					$filename = str_replace(array('  ', ' ', '_'), '-',
+						sanitize($file['filename'], '/[^\w-]/')
+					);
 					
 					// Check whether the new filename is the same as the old one
-					if(trailingSlash($year) . $filename . '.' .
+					if(slash($year) . $filename . '.' .
 						$file['extension'] === $meta['filepath']) {
 							
-						// Set the slug to match the filename
 						$slug = $filename;
-						
-						$filepath = trailingSlash($year) . $filename . '.' . $file['extension'];
+						$filepath = slash($year) . $filename . '.' . $file['extension'];
 					} else {
-						// Get a unique slug
 						$slug = getUniquePostSlug($filename);
-						
-						// Get a unique filename
 						$filename = getUniqueFilename($filename . '.' . $file['extension']);
-						
-						$filepath = trailingSlash($year) . $filename;
+						$filepath = slash($year) . $filename;
 					}
 					
 					// Move the uploaded file to the uploads directory
 					move_uploaded_file(
 						$data['file']['tmp_name'],
-						trailingSlash($basepath) . $filepath
+						slash($basepath) . $filepath
 					);
 					
 					// Update the media in the database
@@ -700,14 +687,14 @@ class Media extends Post {
 						$old_filename = pathinfo($meta['filepath']);
 						
 						// Update the extension
-						$filepath = trailingSlash($year) . $old_filename['filename'] . '.' .
+						$filepath = slash($year) . $old_filename['filename'] . '.' .
 							$file['extension'];
 					}
 					
 					// Move the uploaded file to the uploads directory
 					move_uploaded_file(
 						$data['file']['tmp_name'],
-						trailingSlash($basepath) . $filepath
+						slash($basepath) . $filepath
 					);
 					
 					// Update the media in the database
