@@ -18,6 +18,14 @@
 - [a] = alpha
 - [b] = beta
 
+## Version 1.3.6.1[b] (2022-09-09)
+
+- Tweaked a previous entry in the changelog
+- Incremented the CMS version
+
+**Modified files:**
+- n/a
+
 ## Version 1.3.6[b] (2022-09-09)
 
 - Tweaked a previous entry in the changelog
@@ -42,13 +50,13 @@
 - admin/includes/class-theme.php (M)
 - admin/includes/functions.php
 - content/themes/carbon/functions.php (M)
-- includes/class-post.php
+- includes/class-post.php (M)
 - includes/css/style.css
 - includes/css/style.min.css
-- includes/fallback-theme.php
+- includes/fallback-theme.php (M)
 - includes/functions.php
 - includes/global-functions.php
-- includes/load-theme.php
+- includes/load-theme.php (M)
 - includes/maintenance.php (N)
 - includes/update-db.php (M)
 - init.php
