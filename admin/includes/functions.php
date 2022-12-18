@@ -234,16 +234,10 @@ function adminHeaderScripts(): void {
 	if(defined('DEBUG_MODE') && DEBUG_MODE) $debug = true;
 	
 	// Button stylesheet
-	if($debug)
-		putStylesheet('button.css');
-	else
-		putStylesheet('button.min.css');
+	putStylesheet('button' . ($debug ? '' : '.min') . '.css');
 	
 	// Admin stylesheet
-	if($debug)
-		adminStylesheet('style.css');
-	else
-		adminStylesheet('style.min.css');
+	adminStylesheet('style' . ($debug ? '' : '.min') . '.css');
 	
 	// Check whether the user has a custom admin theme selected
 	if($session['theme'] !== 'default') {

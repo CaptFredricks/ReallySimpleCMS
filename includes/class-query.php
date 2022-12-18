@@ -13,7 +13,7 @@ class Query {
 	 * @access private
 	 * @var object
 	 */
-	public $conn;
+	private $conn;
 	
 	/**
 	 * The status of the database connection.

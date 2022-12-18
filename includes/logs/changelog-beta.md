@@ -18,6 +18,19 @@
 - [a] = alpha
 - [b] = beta
 
+## Version 1.3.7.1[b] (2022-12-18)
+
+- Tweaked a previous entry in the changelog
+- Removed an unused block of admin CSS
+- Optimized some code in the admin `functions.php`
+- Set a class variable of the `Query` class back to private (it was changed during testing and was not meant to remain public)
+
+**Modified files:**
+- admin/includes/css/style.css (M)
+- admin/includes/css/style.min.css (M)
+- admin/includes/functions.php
+- includes/class-query.php (M)
+
 ## Version 1.3.7[b] (2022-12-18)
 
 - Cleaned up internal documentation throughout the CMS
@@ -48,7 +61,7 @@
 - admin/includes/class-post.php
 - admin/includes/class-profile.php (M)
 - admin/includes/class-term.php
-- admin/includes/class-theme.php
+- admin/includes/class-theme.php (M)
 - admin/includes/class-user-role.php
 - admin/includes/class-user.php
 - admin/includes/class-widget.php
@@ -127,7 +140,7 @@
   - `/content/uploads/<filename>` -> `/content/uploads/<year>/<filename>`
   - All existing media on the site is retroactively updated
 - Created a new global constant named `CMS_VERSION` which will eventually replace `VERSION`
-- Updated the URL that permanently blacklisted users are redirected to
+- Updated the URL that permanently blacklisted users are redirected to ;)
 - New functions:
   - `Query` class (`columnExists`)
 

@@ -55,15 +55,7 @@
     ANIMATIONS
 \*------------------------------------*/
 
-@keyframes slide_right {
-	from {
-		transform: translateX(-10%);
-	}
-	
-	to {
-		transform: translateX(0%);
-	}
-}
+
 
 /*------------------------------------*\
     NORMALIZATION
