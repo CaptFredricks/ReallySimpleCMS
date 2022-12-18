@@ -13,7 +13,7 @@ class Query {
 	 * @access private
 	 * @var object
 	 */
-	private $conn;
+	public $conn;
 	
 	/**
 	 * The status of the database connection.
@@ -108,6 +108,7 @@ class Query {
 			// Default logic
 			$logic = 'AND';
 			
+			$x = $y = $z = 0;
 			foreach($where as $field => $value) {
 				if($field === 'logic') {
 					$logic = strtoupper($value);
@@ -142,6 +143,7 @@ class Query {
 					
 					// Merge the two values arrays into one
 					$values = array_merge($values, $vals);
+					$vals = array();
 				} else {
 					$conditions[] = $field . ' = ?';
 					$values[] = $value;

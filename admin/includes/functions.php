@@ -230,11 +230,20 @@ function adminHeaderScripts(): void {
 	// Extend the user's session data
 	global $session;
 	
+	$debug = false;
+	if(defined('DEBUG_MODE') && DEBUG_MODE) $debug = true;
+	
 	// Button stylesheet
-	putStylesheet('button.min.css');
+	if($debug)
+		putStylesheet('button.css');
+	else
+		putStylesheet('button.min.css');
 	
 	// Admin stylesheet
-	adminStylesheet('style.min.css');
+	if($debug)
+		adminStylesheet('style.css');
+	else
+		adminStylesheet('style.min.css');
 	
 	// Check whether the user has a custom admin theme selected
 	if($session['theme'] !== 'default') {
@@ -836,7 +845,7 @@ function formTag($tag_name, $args = null): string {
 		'input' => array_merge(
 			array('type'),
 			$always_whitelist,
-			array('name', 'maxlength', 'value', 'placeholder', 'checked')
+			array('name', 'maxlength', 'value', 'placeholder', 'checked', 'disabled')
 		),
 		'label' => array_merge($always_whitelist, array('for')),
 		'option' => array('value', 'selected'),
@@ -863,6 +872,7 @@ function formTag($tag_name, $args = null): string {
 						
 					switch($key) {
 						case 'checked':
+						case 'disabled':
 						case 'selected':
 							$tag .= $value ? ' ' . $key : '';
 							break;
@@ -988,6 +998,48 @@ function formRow($label = '', ...$args): string {
 		
 		return tableRow(tdCell(implode('', $row_content), '', 2));
 	}
+}
+
+/**
+ * Record search form.
+ * @since 1.3.7[b]
+ *
+ * @param array $args (optional; default: array())
+ */
+function recordSearch($args = array()): void {
+	button(array(
+		'id' => 'search-toggle',
+		'title' => 'Record search',
+		'label' => '<i class="fa-solid fa-magnifying-glass"></i>'
+	));
+	?>
+	<form class="search-form" action="" method="get">
+		<?php
+		foreach($args as $key => $value) {
+			if(!empty($args[$key])) {
+				echo formTag('input', array(
+					'type' => 'hidden',
+					'name' => $key,
+					'value' => $args[$key]
+				));
+			}
+		}
+		
+		// Search field
+		echo formTag('input', array(
+			'id' => 'record-search',
+			'name' => 'search'
+		));
+		
+		// Submit button
+		echo formTag('input', array(
+			'type' => 'submit',
+			'class' => 'submit-input button',
+			'value' => 'Search'
+		));
+		?>
+	</form>
+	<?php
 }
 
 /*------------------------------------*\
@@ -1508,13 +1560,13 @@ function pagerNav($page, $page_count): void {
  *
  * @param string $action
  * @param null|string|array $args (optional; default: null)
- * @param null|string|array $more_params (optional; default: null)
+ * @param null|string|array $more_args (optional; default: null)
  * @return string
  */
-function actionLink($action, $args = null, $more_params = null): string {
+function actionLink($action, $args = null, $more_args = null): string {
 	if(!is_null($args)) {
 		if(!is_array($args)) $args = (array)$args;
-		if(!is_array($more_params)) $more_params = (array)$more_params;
+		if(!is_array($more_args)) $more_args = (array)$more_args;
 		
 		$classes = $args['classes'] ?? '';
 		unset($args['classes']);
@@ -1527,11 +1579,15 @@ function actionLink($action, $args = null, $more_params = null): string {
 		
 		$query_string = $more_string = '';
 		
-		foreach($args as $key => $value)
-			$query_string .= $key . '=' . $value . '&';
+		foreach($args as $key => $value) {
+			if(!is_null($value))
+				$query_string .= $key . '=' . $value . '&';
+		}
 		
-		foreach($more_params as $key => $value)
-			$more_string .= '&' . $key . '=' . $value;
+		foreach($more_args as $key => $value) {
+			if(!is_null($value))
+				$more_string .= '&' . $key . '=' . $value;
+		}
 		
 		return '<a' . (!empty($classes) ? ' class="' . $classes . '"' : '') .
 			' href="' . ADMIN_URI . '?' . ($query_string ?? '') . 'action=' . $action .
@@ -1629,6 +1685,20 @@ function postExists($id): bool {
 	global $rs_query;
 	
 	return $rs_query->selectRow('posts', 'COUNT(id)', array('id' => $id)) > 0;
+}
+
+/**
+ * Check whether a term exists in the database.
+ * @since 1.3.7[b]
+ *
+ * @param int $id
+ * @return bool
+ */
+function termExists($id): bool {
+	// Extend the Query object
+	global $rs_query;
+	
+	return $rs_query->selectRow('terms', 'COUNT(id)', array('id' => $id)) > 0;
 }
 
 /**

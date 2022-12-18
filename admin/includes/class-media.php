@@ -39,8 +39,9 @@ class Media extends Post {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Set up pagination
-		$page = paginate((int)($_GET['paged'] ?? 1));
+		// Query vars
+		$search = $_GET['search'] ?? null;
+		$paged = paginate((int)($_GET['paged'] ?? 1));
 		?>
 		<div class="heading-wrap">
 			<h1>Media</h1>
@@ -49,6 +50,7 @@ class Media extends Post {
 			if(userHasPrivilege('can_upload_media'))
 				echo actionLink('upload', array('classes' => 'button', 'caption' => 'Upload New'));
 			
+			recordSearch();
 			adminInfo();
 			?>
 			<hr>
@@ -82,8 +84,16 @@ class Media extends Post {
 				}
 			}
 			
-			$count = $rs_query->select('posts', 'COUNT(*)', array('type' => 'media'));
-			$page['count'] = ceil($count / $page['per_page']);
+			if(!is_null($search)) {
+				$count = $rs_query->select('posts', 'COUNT(*)', array(
+					'title' => array('LIKE', '%' . $search . '%'),
+					'type' => 'media'
+				));
+			} else {
+				$count = $rs_query->select('posts', 'COUNT(*)', array('type' => 'media'));
+			}
+			
+			$paged['count'] = ceil($count / $paged['per_page']);
 			?>
 			<div class="entry-count">
 				<?php echo $count . ' ' . ($count === 1 ? 'entry' : 'entries'); ?>
@@ -107,10 +117,19 @@ class Media extends Post {
 			</thead>
 			<tbody>
 				<?php
-				$mediaa = $rs_query->select('posts', '*',
-					array('type' => 'media'), 'date', 'DESC',
-					array($page['start'], $page['per_page'])
-				);
+				if(!is_null($search)) {
+					// Search results
+					$mediaa = $rs_query->select('posts', '*', array(
+						'title' => array('LIKE', '%' . $search . '%'),
+						'type' => 'media'
+					), 'date', 'DESC', array($paged['start'], $paged['per_page']));
+				} else {
+					// All results
+					$mediaa = $rs_query->select('posts', '*',
+						array('type' => 'media'), 'date', 'DESC',
+						array($paged['start'], $paged['per_page'])
+					);
+				}
 				
 				foreach($mediaa as $media) {
 					$meta = $this->getPostMeta($media['id']);
@@ -184,7 +203,7 @@ class Media extends Post {
 		</table>
 		<?php
 		// Set up page navigation
-		echo pagerNav($page['current'], $page['count']);
+		echo pagerNav($paged['current'], $paged['count']);
 		
         include_once PATH . ADMIN . INC . '/modal-delete.php';
 	}

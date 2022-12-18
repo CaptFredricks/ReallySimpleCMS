@@ -59,7 +59,16 @@ class Term {
 	 * @access private
 	 * @var array
 	 */
-	private $taxonomy_data = array();
+	private $tax_data = array();
+	
+	/**
+	 * The currently queried term's post type data.
+	 * @since 1.3.7[b]
+	 *
+	 * @access private
+	 * @var array
+	 */
+	private $type_data = array();
 	
 	/**
 	 * Class constructor.
@@ -67,16 +76,16 @@ class Term {
 	 *
 	 * @access public
 	 * @param int $id (optional; default: 0)
-	 * @param array $taxonomy_data (optional; default: array())
+	 * @param array $tax_data (optional; default: array())
 	 */
-	public function __construct($id = 0, $taxonomy_data = array()) {
-		// Extend the Query object
-		global $rs_query;
+	public function __construct($id = 0, $tax_data = array()) {
+		// Extend the Query object and post types array
+		global $rs_query, $post_types;
 		
 		// Create an array of columns to fetch from the database
 		$cols = array_keys(get_object_vars($this));
 		
-		$exclude = array('taxonomy_data');
+		$exclude = array('tax_data', 'type_data');
 		$cols = array_diff($cols, $exclude);
 		
 		if($id !== 0) {
@@ -86,7 +95,13 @@ class Term {
 			foreach($term as $key => $value) $this->$key = $term[$key];
 		}
 		
-		$this->taxonomy_data = $taxonomy_data;
+		$this->tax_data = $tax_data;
+		
+		// Fetch any associated post type data
+		if(!empty($this->tax_data['post_type']) &&
+			array_key_exists($this->tax_data['post_type'], $post_types)) {
+				$this->type_data = $post_types[$this->tax_data['post_type']];
+		}
 	}
 	
 	/**
@@ -96,40 +111,53 @@ class Term {
 	 * @access public
 	 */
 	public function listTerms(): void {
-		// Extend the Query object and post types array
-		global $rs_query, $post_types;
+		// Extend the Query object
+		global $rs_query;
 		
-		// Set up pagination
-		$page = paginate((int)($_GET['paged'] ?? 1));
+		// Query vars
+		$tax = $this->tax_data['name'];
+		$search = $_GET['search'] ?? null;
+		$paged = paginate((int)($_GET['paged'] ?? 1));
 		?>
 		<div class="heading-wrap">
-			<h1><?php echo $this->taxonomy_data['label']; ?></h1>
+			<h1><?php echo $this->tax_data['label']; ?></h1>
 			<?php
 			// Check whether the user has sufficient privileges to create terms of the current taxonomy
 			if(userHasPrivilege('can_create_' . str_replace(' ', '_',
-				$this->taxonomy_data['labels']['name_lowercase']))) {
+				$this->tax_data['labels']['name_lowercase']))) {
 					
-				?>
-				<a class="button" href="<?php echo $this->taxonomy_data['menu_link'] .
-					($this->taxonomy_data['name'] === 'category' ? '?' : '&'); ?>action=create">Create New</a>
-				<?php
+				echo actionLink('create', array(
+					'taxonomy' => ($tax === 'category' ? null : $tax),
+					'classes' => 'button',
+					'caption' => 'Create New'
+				));
 			}
 			
+			recordSearch(array(
+				'taxonomy' => ($tax === 'category' ? null : $tax)
+			));
 			adminInfo();
 			?>
 			<hr>
 			<?php
 			// Check whether any status messages have been returned and display them if so
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success') {
-				echo statusMessage('The ' . strtolower($this->taxonomy_data['labels']['name_singular']) .
+				echo statusMessage('The ' . strtolower($this->tax_data['labels']['name_singular']) .
 					' was successfully deleted.', true);
 			}
 			
-			$count = $rs_query->select('terms', 'COUNT(*)', array(
-				'taxonomy' => getTaxonomyId($this->taxonomy_data['name'])
-			));
+			if(!is_null($search)) {
+				$count = $rs_query->select('terms', 'COUNT(*)', array(
+					'name' => array('LIKE', '%' . $search . '%'),
+					'taxonomy' => getTaxonomyId($this->tax_data['name'])
+				));
+			} else {
+				$count = $rs_query->select('terms', 'COUNT(*)', array(
+					'taxonomy' => getTaxonomyId($this->tax_data['name'])
+				));
+			}
 			
-			$page['count'] = ceil($count / $page['per_page']);
+			$paged['count'] = ceil($count / $paged['per_page']);
 			?>
 			<div class="entry-count">
 				<?php echo $count . ' ' . ($count === 1 ? 'entry' : 'entries'); ?>
@@ -144,12 +172,21 @@ class Term {
 			</thead>
 			<tbody>
 				<?php
-				$terms = $rs_query->select('terms', '*', array(
-					'taxonomy' => getTaxonomyId($this->taxonomy_data['name'])
-				), 'name', 'ASC', array($page['start'], $page['per_page']));
+				if(!is_null($search)) {
+					// Search results
+					$terms = $rs_query->select('terms', '*', array(
+						'name' => array('LIKE', '%' . $search . '%'),
+						'taxonomy' => getTaxonomyId($this->tax_data['name'])
+					), 'name', 'ASC', array($paged['start'], $paged['per_page']));
+				} else {
+					// All results
+					$terms = $rs_query->select('terms', '*', array(
+						'taxonomy' => getTaxonomyId($this->tax_data['name'])
+					), 'name', 'ASC', array($paged['start'], $paged['per_page']));
+				}
 				
 				foreach($terms as $term) {
-					$tax_name = str_replace(' ', '_', $this->taxonomy_data['labels']['name_lowercase']);
+					$tax_name = str_replace(' ', '_', $this->tax_data['labels']['name_lowercase']);
 					
 					$actions = array(
 						// Edit
@@ -162,12 +199,12 @@ class Term {
 						userHasPrivilege('can_delete_' . $tax_name
 						) ? actionLink('delete', array(
 							'classes' => 'modal-launch delete-item',
-							'data_item' => strtolower($this->taxonomy_data['labels']['name_singular']),
+							'data_item' => strtolower($this->tax_data['labels']['name_singular']),
 							'caption' => 'Delete',
 							'id' => $term['id']
 						)) : null,
 						// View
-						'<a href="' . getPermalink($this->taxonomy_data['name'], $term['parent'], $term['slug']) .
+						'<a href="' . getPermalink($this->tax_data['name'], $term['parent'], $term['slug']) .
 							'">View</a>'
 					);
 					
@@ -183,17 +220,17 @@ class Term {
 						// Parent
 						tdCell($this->getParent($term['parent']), 'parent'),
 						// Count
-						tdCell((empty($this->taxonomy_data['post_type']) ||
-							!array_key_exists($this->taxonomy_data['post_type'], $post_types) ? $term['count'] :
-							'<a href="' . ADMIN . '/posts.php?' . ($this->taxonomy_data['post_type'] !== 'post' ?
-							'type=' . $this->taxonomy_data['post_type'] . '&' : '') . 'term=' . $term['slug'] .
+						tdCell((empty($this->tax_data['post_type']) ||
+							$this->tax_data['post_type'] !== $this->type_data['name'] ? $term['count'] :
+							'<a href="' . ADMIN . '/posts.php?' . ($this->tax_data['post_type'] !== 'post' ?
+							'type=' . $this->tax_data['post_type'] . '&' : '') . 'term=' . $term['slug'] .
 							'">' . $term['count'] . '</a>'), 'count')
 					);
 				}
 				
 				if(empty($terms)) {
 					echo tableRow(
-						tdCell('There are no ' . $this->taxonomy_data['labels']['name_lowercase'] .
+						tdCell('There are no ' . $this->tax_data['labels']['name_lowercase'] .
 							' to display.', '', count($table_header_cols))
 					);
 				}
@@ -205,7 +242,7 @@ class Term {
 		</table>
 		<?php
 		// Set up page navigation
-		echo pagerNav($page['current'], $page['count']);
+		echo pagerNav($paged['current'], $paged['count']);
 		
         include_once PATH . ADMIN . INC . '/modal-delete.php';
 	}
@@ -221,7 +258,7 @@ class Term {
 		$message = isset($_POST['submit']) ? $this->validateData($_POST) : '';
 		?>
 		<div class="heading-wrap">
-			<h1><?php echo $this->taxonomy_data['labels']['create_item']; ?></h1>
+			<h1><?php echo $this->tax_data['labels']['create_item']; ?></h1>
 			<?php echo $message; ?>
 		</div>
 		<div class="data-form-wrap clear">
@@ -288,7 +325,7 @@ class Term {
 			if(empty($this->taxonomy)) {
 				redirect('categories.php');
 			} elseif($this->getTaxonomy($this->taxonomy) === 'category' &&
-				$this->taxonomy_data['menu_link'] !== 'categories.php') {
+				$this->tax_data['menu_link'] !== 'categories.php') {
 					
 				redirect('categories.php?id=' . $this->id . '&action=edit');
 			} elseif($this->getTaxonomy($this->taxonomy) === 'nav_menu') {
@@ -298,7 +335,7 @@ class Term {
 				$message = isset($_POST['submit']) ? $this->validateData($_POST, $this->id) : '';
 				?>
 				<div class="heading-wrap">
-					<h1><?php echo $this->taxonomy_data['labels']['edit_item']; ?></h1>
+					<h1><?php echo $this->tax_data['labels']['edit_item']; ?></h1>
 					<?php echo $message; ?>
 				</div>
 				<div class="data-form-wrap clear">
@@ -341,7 +378,7 @@ class Term {
 								'type' => 'submit',
 								'class' => 'submit-input button',
 								'name' => 'submit',
-								'value' => 'Update ' . $this->taxonomy_data['labels']['name_singular']
+								'value' => 'Update ' . $this->tax_data['labels']['name_singular']
 							));
 							?>
 						</table>
@@ -368,7 +405,7 @@ class Term {
 			$rs_query->delete('terms', array('id' => $this->id, 'taxonomy' => $this->taxonomy));
 			$rs_query->delete('term_relationships', array('term' => $this->id));
 			
-			redirect($this->taxonomy_data['menu_link'] . '?exit_status=success');
+			redirect($this->tax_data['menu_link'] . '?exit_status=success');
 		}
 	}
 	
@@ -399,7 +436,7 @@ class Term {
 			$insert_id = $rs_query->insert('terms', array(
 				'name' => $data['name'],
 				'slug' => $slug,
-				'taxonomy' => getTaxonomyId($this->taxonomy_data['name']),
+				'taxonomy' => getTaxonomyId($this->tax_data['name']),
 				'parent' => $data['parent']
 			));
 			
@@ -415,8 +452,8 @@ class Term {
 			// Update the class variables
 			foreach($data as $key => $value) $this->$key = $value;
 			
-			return statusMessage($this->taxonomy_data['labels']['name_singular'] . ' updated! <a href="' .
-				$this->taxonomy_data['menu_link'] . '">Return to list</a>?', true);
+			return statusMessage($this->tax_data['labels']['name_singular'] . ' updated! <a href="' .
+				$this->tax_data['menu_link'] . '">Return to list</a>?', true);
 		}
 	}
 	
@@ -514,7 +551,7 @@ class Term {
 		$list = '';
 		
 		$terms = $rs_query->select('terms', array('id', 'name'), array(
-			'taxonomy' => getTaxonomyId($this->taxonomy_data['name'])
+			'taxonomy' => getTaxonomyId($this->tax_data['name'])
 		));
 		
 		foreach($terms as $term) {

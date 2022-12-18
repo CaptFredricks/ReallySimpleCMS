@@ -54,8 +54,9 @@ class Menu extends Term {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Set up pagination
-		$page = paginate((int)($_GET['paged'] ?? 1));
+		// Query vars
+		$search = $_GET['search'] ?? null;
+		$paged = paginate((int)($_GET['paged'] ?? 1));
 		?>
 		<div class="heading-wrap">
 			<h1>Menus</h1>
@@ -64,6 +65,7 @@ class Menu extends Term {
 			if(userHasPrivilege('can_create_menus'))
 				echo actionLink('create', array('classes' => 'button', 'caption' => 'Create New'));
 			
+			recordSearch();
 			adminInfo();
 			?>
 			<hr>
@@ -72,8 +74,16 @@ class Menu extends Term {
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
 				echo statusMessage('The menu was successfully deleted.', true);
 			
-			$count = $rs_query->select('terms', 'COUNT(*)', array('taxonomy' => getTaxonomyId('nav_menu')));
-			$page['count'] = ceil($count / $page['per_page']);
+			if(!is_null($search)) {
+				$count = $rs_query->select('terms', 'COUNT(*)', array(
+					'name' => array('LIKE', '%' . $search . '%'),
+					'taxonomy' => getTaxonomyId('nav_menu')
+				));
+			} else {
+				$count = $rs_query->select('terms', 'COUNT(*)', array('taxonomy' => getTaxonomyId('nav_menu')));
+			}
+			
+			$paged['count'] = ceil($count / $paged['per_page']);
 			?>
 			<div class="entry-count">
 				<?php echo $count . ' ' . ($count === 1 ? 'entry' : 'entries'); ?>
@@ -89,9 +99,18 @@ class Menu extends Term {
 			</thead>
 			<tbody>
 				<?php
-				$menus = $rs_query->select('terms', '*', array(
-					'taxonomy' => getTaxonomyId('nav_menu')
-				), 'name', 'ASC', array($page['start'], $page['per_page']));
+				if(!is_null($search)) {
+					// Search results
+					$menus = $rs_query->select('terms', '*', array(
+						'name' => array('LIKE', '%' . $search . '%'),
+						'taxonomy' => getTaxonomyId('nav_menu')
+					), 'name', 'ASC', array($paged['start'], $paged['per_page']));
+				} else {
+					// All results
+					$menus = $rs_query->select('terms', '*', array(
+						'taxonomy' => getTaxonomyId('nav_menu')
+					), 'name', 'ASC', array($paged['start'], $paged['per_page']));
+				}
 				
 				foreach($menus as $menu) {
 					$actions = array(
@@ -131,7 +150,7 @@ class Menu extends Term {
 		</table>
 		<?php
 		// Set up page navigation
-		pagerNav($page['current'], $page['count']);
+		pagerNav($paged['current'], $paged['count']);
 		
         include_once PATH . ADMIN . INC . '/modal-delete.php';
 	}

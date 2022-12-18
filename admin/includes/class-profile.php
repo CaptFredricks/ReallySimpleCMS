@@ -144,15 +144,12 @@ class Profile extends User {
 		if(empty($data['username']) || empty($data['email']))
 			return statusMessage('R');
 		
-		// Make sure the username is long enough
 		if(strlen($data['username']) < self::UN_LENGTH)
 			return statusMessage('Username must be at least ' . self::UN_LENGTH . ' characters long.');
 		
-		// Make sure the username is not already being used
 		if($this->usernameExists($data['username'], $session['id']))
 			return statusMessage('That username has already been taken. Please choose another one.');
 		
-		// Make sure the email is not already being used
 		if($this->emailExists($data['email'], $session['id']))
 			return statusMessage('That email is already taken by another user. Please choose another one.');
 		
@@ -323,26 +320,20 @@ class Profile extends User {
 		if(empty($data['current_pass']) || empty($data['new_pass']) || empty($data['confirm_pass']))
 			return statusMessage('R');
 		
-		// Make sure the current password is correctly entered
 		if(!$this->verifyPassword($data['current_pass'], $id))
 			return statusMessage('Current password is incorrect.');
 		
-		// Make sure the new and confirm password fields match
 		if($data['new_pass'] !== $data['confirm_pass'])
 			return statusMessage('New and confirm passwords do not match.');
 		
-		// Make sure the new and confirm passwords are long enough
 		if(strlen($data['new_pass']) < self::PW_LENGTH || strlen($data['confirm_pass']) < self::PW_LENGTH)
 			return statusMessage('New password must be at least ' . self::PW_LENGTH . ' characters long.');
 		
-		// Make sure the password saved checkbox has been checked
 		if(!isset($data['pass_saved']) || $data['pass_saved'] != 1)
 			return statusMessage('Please confirm that you\'ve saved your password to a safe location.');
 		
-		// Hash the password (encrypts the password for security purposes)
 		$hashed_password = password_hash($data['new_pass'], PASSWORD_BCRYPT, array('cost' => 10));
 		
-		// Update the current user's password and session in the database
 		$rs_query->update('users', array(
 			'password' => $hashed_password,
 			'session' => null

@@ -1,6 +1,5 @@
 <?php
-// Include the header
-require_once __DIR__.'/header.php';
+require_once __DIR__ . '/header.php';
 
 // Fetch the user's id
 $id = (int)($_GET['id'] ?? 0);
@@ -16,30 +15,35 @@ $rs_user = new User($id);
 	switch($action) {
 		case 'create':
 			// Create a new user
-			userHasPrivilege('can_create_users') ? $rs_user->createUser() : redirect('users.php');
+			userHasPrivilege('can_create_users') ? $rs_user->createUser() :
+				redirect(ADMIN_URI);
 			break;
 		case 'edit':
 			// Edit an existing user
-			userHasPrivilege('can_edit_users') ? $rs_user->editUser() : redirect('users.php');
+			userHasPrivilege('can_edit_users') ? $rs_user->editUser() :
+				redirect(ADMIN_URI);
 			break;
 		case 'delete':
 			// Delete an existing user
-			userHasPrivilege('can_delete_users') ? $rs_user->deleteUser() : redirect('users.php');
+			userHasPrivilege('can_delete_users') ? $rs_user->deleteUser() :
+				redirect(ADMIN_URI);
 			break;
 		case 'reset_password':
 			// Reset a user's password
-			userHasPrivilege('can_edit_users') ? $rs_user->resetPassword() : redirect('users.php');
+			userHasPrivilege('can_edit_users') ? $rs_user->resetPassword() :
+				redirect(ADMIN_URI);
 			break;
 		case 'reassign_content':
 			// Reassign a user's content
-			userHasPrivilege('can_delete_users') ? $rs_user->reassignContent() : redirect('users.php');
+			userHasPrivilege('can_delete_users') ? $rs_user->reassignContent() :
+				redirect(ADMIN_URI);
 			break;
 		default:
 			// List all users
-			userHasPrivilege('can_view_users') ? $rs_user->listUsers() : redirect('index.php');
+			userHasPrivilege('can_view_users') ? $rs_user->listUsers() :
+				redirect('index.php');
 	}
 	?>
 </div>
 <?php
-// Include the footer
-require_once __DIR__.'/footer.php';
+require_once __DIR__ . '/footer.php';

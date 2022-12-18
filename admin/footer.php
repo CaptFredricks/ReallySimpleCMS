@@ -1,3 +1,9 @@
+<?php
+/**
+ * Admin dashboard footer.
+ * @since 1.0.2[a]
+ */
+?>
 		</div>
 		<footer id="admin-footer" class="clear">
 			<div class="copyright"><?php RSCopyright(); ?></div>

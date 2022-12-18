@@ -66,8 +66,10 @@ class UserRole {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Set up pagination
-		$page = paginate((int)($_GET['paged'] ?? 1));
+		// Query vars
+		$page = $_GET['page'] ?? '';
+		$search = $_GET['search'] ?? null;
+		$paged = paginate((int)($_GET['paged'] ?? 1));
 		?>
 		<div class="heading-wrap">
 			<h1>User Roles</h1>
@@ -81,6 +83,9 @@ class UserRole {
 				));
 			}
 			
+			recordSearch(array(
+				'page' => $page
+			));
 			adminInfo();
 			?>
 			<hr>
@@ -89,8 +94,16 @@ class UserRole {
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
 				echo statusMessage('The user role was successfully deleted.', true);
 			
-			$count = $rs_query->select('user_roles', 'COUNT(*)', array('_default' => 'no'));
-			$page['count'] = ceil($count / $page['per_page']);
+			if(!is_null($search)) {
+				$count = $rs_query->select('user_roles', 'COUNT(*)', array(
+					'name' => array('LIKE', '%' . $search . '%'),
+					'_default' => 'no'
+				));
+			} else {
+				$count = $rs_query->select('user_roles', 'COUNT(*)', array('_default' => 'no'));
+			}
+			
+			$paged['count'] = ceil($count / $paged['per_page']);
 			?>
 			<div class="entry-count">
 				<?php echo $count . ' ' . ($count === 1 ? 'entry' : 'entries'); ?>
@@ -106,13 +119,23 @@ class UserRole {
 			</thead>
 			<tbody>
 				<?php
-				$roles = $rs_query->select('user_roles', '*',
-					array('_default' => 'no'), 'id', 'ASC',
-					array(
-						$page['start'],
-						$page['per_page']
-					)
-				);
+				if(!is_null($search)) {
+					$roles = $rs_query->select('user_roles', '*', array(
+						'name' => array('LIKE', '%' . $search . '%'),
+						'_default' => 'no'
+					), 'id', 'ASC', array(
+						$paged['start'],
+						$paged['per_page']
+					));
+				} else {
+					$roles = $rs_query->select('user_roles', '*',
+						array('_default' => 'no'), 'id', 'ASC',
+						array(
+							$paged['start'],
+							$paged['per_page']
+						)
+					);
+				}
 				
 				foreach($roles as $role) {
 					$actions = array(
@@ -154,7 +177,7 @@ class UserRole {
 		</table>
 		<?php
 		// Set up page navigation
-		echo pagerNav($page['current'], $page['count']);
+		echo pagerNav($paged['current'], $paged['count']);
 		?>
 		<h2 class="subheading">Default User Roles</h2>
 		<table class="data-table">

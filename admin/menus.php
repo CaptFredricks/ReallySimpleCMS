@@ -1,6 +1,5 @@
 <?php
-// Include the header
-require_once __DIR__.'/header.php';
+require_once __DIR__ . '/header.php';
 
 // Fetch the menu's id
 $id = (int)($_GET['id'] ?? 0);
@@ -16,22 +15,25 @@ $rs_menu = new Menu($id);
 	switch($action) {
 		case 'create':
 			// Create a new menu
-			userHasPrivilege('can_create_menus') ? $rs_menu->createMenu() : redirect('menus.php');
+			userHasPrivilege('can_create_menus') ? $rs_menu->createMenu() :
+				redirect(ADMIN_URI);
 			break;
 		case 'edit':
 			// Edit an existing menu
-			userHasPrivilege('can_edit_menus') ? $rs_menu->editMenu() : redirect('menus.php');
+			userHasPrivilege('can_edit_menus') ? $rs_menu->editMenu() :
+				redirect(ADMIN_URI);
 			break;
 		case 'delete':
 			// Delete an existing menu
-			userHasPrivilege('can_delete_menus') ? $rs_menu->deleteMenu() : redirect('menus.php');
+			userHasPrivilege('can_delete_menus') ? $rs_menu->deleteMenu() :
+				redirect(ADMIN_URI);
 			break;
 		default:
 			// List all menus
-			userHasPrivilege('can_view_menus') ? $rs_menu->listMenus() : redirect('index.php');
+			userHasPrivilege('can_view_menus') ? $rs_menu->listMenus() :
+				redirect('index.php');
 	}
 	?>
 </div>
 <?php
-// Include the footer
-require_once __DIR__.'/footer.php';
+require_once __DIR__ . '/footer.php';

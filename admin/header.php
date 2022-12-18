@@ -13,6 +13,7 @@ require_once ADMIN_FUNC;
 // Site-wide functions
 require_once FUNC;
 
+// Theme functions
 if(file_exists(slash(PATH . THEMES) . getSetting('theme') . '/functions.php'))
 	require_once slash(PATH . THEMES) . getSetting('theme') . '/functions.php';
 
@@ -23,6 +24,7 @@ ob_start();
 if(isset($_COOKIE['session']) && isValidSession($_COOKIE['session'])) {
 	$session = getOnlineUser($_COOKIE['session']);
 } else {
+	// Redirect them to the login page if their session is invalid
 	redirect('../login.php' . ($_SERVER['REQUEST_URI'] !== '/admin/' ? '?redirect=' .
 		urlencode($_SERVER['PHP_SELF']) : ''));
 }

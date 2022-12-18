@@ -52,6 +52,20 @@
 }
 
 /*------------------------------------*\
+    ANIMATIONS
+\*------------------------------------*/
+
+@keyframes slide_right {
+	from {
+		transform: translateX(-10%);
+	}
+	
+	to {
+		transform: translateX(0%);
+	}
+}
+
+/*------------------------------------*\
     NORMALIZATION
 \*------------------------------------*/
 
@@ -419,6 +433,24 @@ h3 {
 .heading-wrap hr {
 	margin: 0;
 	visibility: hidden;
+}
+
+.heading-wrap .button ~ #search-toggle {
+	margin-left: 0.25rem;
+}
+
+.heading-wrap .search-form {
+	display: inline-flex;
+	position: relative;
+	  z-index: -1;
+}
+
+.heading-wrap .search-form.is-visible {
+	z-index: 0;
+}
+
+.heading-wrap .search-form #record-search {
+	margin-right: 4px;
 }
 
 .heading-wrap .admin-info {
@@ -795,11 +827,12 @@ h3 {
 .bulk-actions select {
 	font-family: var(--global-font);
 	font-size: 0.875em;
+	margin-right: 0.25rem;
 	padding: 0.125rem;
 }
 
 .bulk-actions .button:not(:last-child) {
-	margin-right: 0.25em;
+	margin-right: 0.25rem;
 }
 
 /** Pager **/
@@ -921,12 +954,19 @@ h3 {
 	width: 100%;
 }
 
+.data-form .text-input.disabled,
 .data-form .text-input[disabled] {
 	background-color: var(--global--table-bg-color);
 }
 
+.data-form .text-input.disabled:hover,
 .data-form .text-input[disabled]:hover {
 	cursor: not-allowed;
+}
+
+.data-form .text-input.disabled::selection,
+.data-form .text-input[disabled]::selection {
+	background-color: transparent;
 }
 
 .data-form .select-input {
@@ -1599,6 +1639,10 @@ h3 {
 \*------------------------------------*/
 
 @media screen and (max-width: 649px) {
+	.heading-wrap #search-toggle {
+		display: none;
+	}
+	
 	#stats-graph {
 		height: 21rem;
 	}
@@ -1726,8 +1770,20 @@ h3 {
 		margin: 0 0.625rem 0 0;
 	}
 	
-	.heading-wrap .button {
+	.heading-wrap .button,
+	.heading-wrap .search-form {
 		vertical-align: top;
+	}
+	
+	.heading-wrap .search-form {
+		opacity: 0;
+		transform: translateX(-10%);
+		transition: all 0.3s ease-in-out;
+	}
+
+	.heading-wrap .search-form.is-visible {
+		opacity: 1;
+		transform: translateX(0%);
 	}
 	
 	.heading-wrap .entry-count {

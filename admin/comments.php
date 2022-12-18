@@ -1,6 +1,5 @@
 <?php
-// Include the header
-require_once __DIR__.'/header.php';
+require_once __DIR__ . '/header.php';
 
 // Fetch the comment's id
 $id = (int)($_GET['id'] ?? 0);
@@ -16,26 +15,35 @@ $rs_comment = new Comment($id);
 	switch($action) {
 		case 'edit':
 			// Edit an existing comment
-			userHasPrivilege('can_edit_comments') ? $rs_comment->editComment() : redirect('comments.php');
+			userHasPrivilege('can_edit_comments') ? $rs_comment->editComment() :
+				redirect(ADMIN_URI);
 			break;
 		case 'approve':
 			// Approve an existing comment
-			userHasPrivilege('can_edit_comments') ? $rs_comment->approveComment() : redirect('comments.php');
+			userHasPrivilege('can_edit_comments') ? $rs_comment->approveComment() :
+				redirect(ADMIN_URI);
 			break;
 		case 'unapprove':
 			// Unapprove an existing comment
-			userHasPrivilege('can_edit_comments') ? $rs_comment->unapproveComment() : redirect('comments.php');
+			userHasPrivilege('can_edit_comments') ? $rs_comment->unapproveComment() :
+				redirect(ADMIN_URI);
+			break;
+		case 'spam':
+			// Send an existing comment to spam
+			userHasPrivilege('can_edit_comments') ? $rs_comment->spamComment() :
+				redirect(ADMIN_URI);
 			break;
 		case 'delete':
 			// Delete an existing comment
-			userHasPrivilege('can_delete_comments') ? $rs_comment->deleteComment() : redirect('comments.php');
+			userHasPrivilege('can_delete_comments') ? $rs_comment->deleteComment() :
+				redirect(ADMIN_URI);
 			break;
 		default:
 			// List all comments
-			userHasPrivilege('can_view_comments') ? $rs_comment->listComments() : redirect('index.php');
+			userHasPrivilege('can_view_comments') ? $rs_comment->listComments() :
+				redirect('index.php');
 	}
 	?>
 </div>
 <?php
-// Include the footer
-require_once __DIR__.'/footer.php';
+require_once __DIR__ . '/footer.php';

@@ -428,7 +428,8 @@ function getPostTypeLabels($post_type, $labels = array()): array {
 		'name_singular' => $name_singular,
 		'list_items' => 'List ' . $name,
 		'create_item' => 'Create ' . $name_singular,
-		'edit_item' => 'Edit ' . $name_singular
+		'edit_item' => 'Edit ' . $name_singular,
+		'duplicate_item' => 'Duplicate ' . $name_singular
 	);
 	$labels = array_merge($defaults, $labels);
 	
@@ -1321,11 +1322,13 @@ function sanitize($text, $regex = '/[^a-z0-9_\-]/', $lc = true): string {
  */
 function button($args = array(), $link = false): void {
 	if($link) {
-		echo '<a class="' . (!empty($args['class']) ? $args['class'] . ' ' : '') . 'button" href="' .
+		echo '<a id="' . (!empty($args['id']) ? $args['id'] : '') . '"' .
+			' class="' . (!empty($args['class']) ? $args['class'] . ' ' : '') . 'button" href="' .
 			($args['link'] ?? '#') . '"' . (!empty($args['title']) ? ' title="' . $args['title'] . '"' : '') .
 			'>' . ($args['label'] ?? 'Button') . '</a>';
 	} else {
-		echo '<button class="' . (!empty($args['class']) ? $args['class'] . ' ' : '') . 'button"' .
+		echo '<button id="' . (!empty($args['id']) ? $args['id'] : '') . '"' .
+			' class="' . (!empty($args['class']) ? $args['class'] . ' ' : '') . 'button"' .
 			(!empty($args['title']) ? ' title="' . $args['title'] . '"' : '') . '>' .
 			($args['label'] ?? 'Button') . '</button>';
 	}

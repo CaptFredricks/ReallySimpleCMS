@@ -3,6 +3,10 @@
  * Fallback theme used by the CMS if there are no themes installed.
  * @since 2.3.0[a]
  */
+
+// Determine whether the site is in debug mode
+$debug = false;
+if(defined('DEBUG_MODE') && DEBUG_MODE) $debug = true;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -10,7 +14,12 @@
 		<title><?php putSetting('site_title'); ?></title>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<?php putStylesheet('style.min.css'); ?>
+		<?php
+		if($debug)
+			putStylesheet('style.css');
+		else
+			putStylesheet('style.min.css');
+		?>
 	</head>
 	<body class="fallback-theme">
 		<div class="wrapper">

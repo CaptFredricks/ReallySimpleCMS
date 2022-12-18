@@ -76,7 +76,6 @@ class User {
 		$cols = array_keys(get_object_vars($this));
 		
 		if($id !== 0) {
-			// Fetch the user from the database
 			$user = $rs_query->selectRow('users', $cols, array('id' => $id));
 			
 			// Set the class variable values
@@ -94,11 +93,10 @@ class User {
 		// Extend the Query object and the user's session data
 		global $rs_query, $session;
 		
-		// Fetch the status of the currently displayed comments
+		// Query vars
 		$status = $_GET['status'] ?? 'all';
-		
-		// Set up pagination
-		$page = paginate((int)($_GET['paged'] ?? 1));
+		$search = $_GET['search'] ?? null;
+		$paged = paginate((int)($_GET['paged'] ?? 1));
 		?>
 		<div class="heading-wrap">
 			<h1>Users</h1>
@@ -107,7 +105,9 @@ class User {
 			if(userHasPrivilege('can_create_users'))
 				echo actionLink('create', array('classes' => 'button', 'caption' => 'Create New'));
 			
-			// Display the page's info
+			recordSearch(array(
+				'status' => $status
+			));
 			adminInfo();
 			?>
 			<hr>
@@ -118,22 +118,27 @@ class User {
 			?>
 			<ul class="status-nav">
 				<?php
-				// Create keys for each of the possible statuses
 				$keys = array('all', 'online', 'offline');
 				$count = array();
 				
-				// Fetch the user entry count from the database (by status)
 				foreach($keys as $key) {
-					if($key === 'all')
-						$count[$key] = $this->getUserCount();
-					else
-						$count[$key] = $this->getUserCount($key);
+					if($key === 'all') {
+						if(!is_null($search) && $key === $status)
+							$count[$key] = $this->getUserCount('', $search);
+						else
+							$count[$key] = $this->getUserCount();
+					} else {
+						if(!is_null($search) && $key === $status)
+							$count[$key] = $this->getUserCount($key, $search);
+						else
+							$count[$key] = $this->getUserCount($key);
+					}
 				}
 				
 				foreach($count as $key => $value) {
 					?>
 					<li>
-						<a href="<?php echo ADMIN_URI.($key === 'all' ? '' : '?status='.$key);
+						<a href="<?php echo ADMIN_URI . ($key === 'all' ? '' : '?status=' . $key);
 						?>"><?php echo ucfirst($key); ?> <span class="count">(<?php echo $value; ?>)</span></a>
 					</li>
 					<?php
@@ -144,20 +149,15 @@ class User {
 				?>
 			</ul>
 			<?php
-			// Set the page count
-			$page['count'] = ceil($count[$status] / $page['per_page']);
+			$paged['count'] = ceil($count[$status] / $paged['per_page']);
 			?>
 			<div class="entry-count">
-				<?php
-				// Display the entry count for the current status
-				echo $count[$status].' '.($count[$status] === 1 ? 'entry' : 'entries');
-				?>
+				<?php echo $count[$status] . ' ' . ($count[$status] === 1 ? 'entry' : 'entries'); ?>
 			</div>
 		</div>
 		<table class="data-table has-bulk-select">
 			<thead>
 				<?php
-				// Fill an array with the table header columns
 				$table_header_cols = array(
 					tag('input', array(
 						'type' => 'checkbox',
@@ -172,47 +172,73 @@ class User {
 					'Last Login'
 				);
 				
-				// Construct the table header
 				echo tableHeaderRow($table_header_cols);
 				?>
 			</thead>
 			<tbody>
 				<?php
-				// Fetch all users from the database (by status)
 				switch($status) {
 					case 'all':
-						$users = $rs_query->select('users', '*', '', 'username', 'ASC', array(
-							$page['start'],
-							$page['per_page']
-						));
+						if(!is_null($search)) {
+							$users = $rs_query->select('users', '*', array(
+								'username' => array('LIKE', '%' . $search . '%')
+							), 'username', 'ASC', array(
+								$paged['start'],
+								$paged['per_page']
+							));
+						} else {
+							$users = $rs_query->select('users', '*', '', 'username', 'ASC', array(
+								$paged['start'],
+								$paged['per_page']
+							));
+						}
 						break;
 					case 'online':
-						$users = $rs_query->select('users', '*', array(
-							'session' => array('IS NOT NULL')
-						), 'username', 'ASC', array(
-							$page['start'],
-							$page['per_page']
-						));
+						if(!is_null($search)) {
+							$users = $rs_query->select('users', '*', array(
+								'username' => array('LIKE', '%' . $search . '%'),
+								'session' => array('IS NOT NULL')
+							), 'username', 'ASC', array(
+								$paged['start'],
+								$paged['per_page']
+							));
+						} else {
+							$users = $rs_query->select('users', '*', array(
+								'session' => array('IS NOT NULL')
+							), 'username', 'ASC', array(
+								$paged['start'],
+								$paged['per_page']
+							));
+						}
 						break;
 					case 'offline':
-						$users = $rs_query->select('users', '*', array(
-							'session' => array('IS NULL')
-						), 'username', 'ASC', array(
-							$page['start'],
-							$page['per_page']
-						));
+						if(!is_null($search)) {
+							$users = $rs_query->select('users', '*', array(
+								'username' => array('LIKE', '%' . $search . '%'),
+								'session' => array('IS NULL')
+							), 'username', 'ASC', array(
+								$paged['start'],
+								$paged['per_page']
+							));
+						} else {
+							$users = $rs_query->select('users', '*', array(
+								'session' => array('IS NULL')
+							), 'username', 'ASC', array(
+								$paged['start'],
+								$paged['per_page']
+							));
+						}
 						break;
 				}
 				
 				foreach($users as $user) {
-					// Fetch the user's metadata from the database
 					$meta = $this->getUserMeta($user['id']);
 					
-					// Set up the action links
 					$actions = array(
 						// Edit
 						userHasPrivilege('can_edit_users'
-							) || $user['id'] === $session['id'] ? ($user['id'] === $session['id'] ? '<a href="'.ADMIN.'/profile.php">Edit</a>' : actionLink('edit', array(
+							) || $user['id'] === $session['id'] ? ($user['id'] === $session['id'] ? '<a href="' .
+								ADMIN . '/profile.php">Edit</a>' : actionLink('edit', array(
 								'caption' => 'Edit',
 								'id' => $user['id']
 							))) : null,
@@ -243,9 +269,11 @@ class User {
 							'class' => 'avatar',
 							'width' => 32,
 							'height' => 32
-						)).'<strong>'.$user['username'].'</strong><div class="actions">'.implode(' &bull; ', $actions).'</div>', 'username'),
+						)) . '<strong>' . $user['username'] . '</strong><div class="actions">' .
+							implode(' &bull; ', $actions) . '</div>', 'username'),
 						// Full name
-						tdCell(empty($meta['first_name']) && empty($meta['last_name']) ? '&mdash;' : $meta['first_name'].' '.$meta['last_name'], 'full-name'),
+						tdCell(empty($meta['first_name']) && empty($meta['last_name']) ? '&mdash;' :
+							$meta['first_name'] . ' ' . $meta['last_name'], 'full-name'),
 						// Email
 						tdCell($user['email'], 'email'),
 						// Registered
@@ -259,7 +287,6 @@ class User {
 					);
 				}
 				
-				// Display a notice if no users are found
 				if(empty($users))
 					echo tableRow(tdCell('There are no users to display.', '', count($table_header_cols)));
 				?>
@@ -273,10 +300,9 @@ class User {
 		if(!empty($users)) $this->bulkActions();
 		
 		// Set up page navigation
-		echo pagerNav($page['current'], $page['count']);
+		echo pagerNav($paged['current'], $paged['count']);
 		
-		// Include the delete modal
-		include_once PATH.ADMIN.INC.'/modal-delete.php';
+		include_once PATH . ADMIN . INC . '/modal-delete.php';
 	}
 	
 	/**
@@ -345,22 +371,22 @@ class User {
 					), array(
 						'tag' => 'label',
 						'class' => 'checkbox-label hidden required invalid init',
-						'content' => formTag('br', array('class' => 'spacer')).formTag('input', array(
+						'content' => tag('br', array('class' => 'spacer')) . tag('input', array(
 							'type' => 'checkbox',
 							'class' => 'checkbox-input',
 							'name' => 'pass_saved',
 							'value' => 1
-						)).formTag('span', array('content' => 'I have copied the password to a safe place.'))
+						)) . tag('span', array('content' => 'I have copied the password to a safe place.'))
 					));
 					
 					// Avatar
 					echo formRow('Avatar', array(
 						'tag' => 'div',
 						'class' => 'image-wrap',
-						'content' => formTag('img', array('src' => '//:0', 'data-field' => 'thumb')).formTag('span', array(
+						'content' => tag('img', array('src' => '//:0', 'data-field' => 'thumb')) . tag('span', array(
 							'class' => 'image-remove',
 							'title' => 'Remove',
-							'content' => formTag('i', array('class' => 'fa-solid fa-xmark'))
+							'content' => tag('i', array('class' => 'fa-solid fa-xmark'))
 						))
 					), array(
 						'tag' => 'input',
@@ -400,8 +426,7 @@ class User {
 			</form>
 		</div>
 		<?php
-		// Include the upload modal
-		include_once PATH.ADMIN.INC.'/modal-upload.php';
+		include_once PATH . ADMIN . INC . '/modal-upload.php';
 	}
 	
 	/**
@@ -414,25 +439,20 @@ class User {
 		// Extend the Query object and the user's session data
 		global $rs_query, $session;
 		
-		// Check whether the user's id is valid
 		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the "List Users" page
 			redirect(ADMIN_URI);
 		} else {
 			// Check whether the user is viewing their own page
 			if($this->id === $session['id']) {
-				// Redirect to the user's profile page
 				redirect('profile.php');
 			} else {
 				// Validate the form data and return any messages
 				$message = isset($_POST['submit']) ? $this->validateData($_POST, $this->id) : '';
 				
-				// Fetch the user's metadata from the database
 				$meta = $this->getUserMeta($this->id);
 				
-				// Check whether the user has an avatar and fetch its dimensions if so
 				if(!empty($meta['avatar']))
-					list($width, $height) = getimagesize(PATH.getMediaSrc($meta['avatar']));
+					list($width, $height) = getimagesize(PATH . getMediaSrc($meta['avatar']));
 				?>
 				<div class="heading-wrap">
 					<h1>Edit User</h1>
@@ -478,14 +498,14 @@ class User {
 							// Avatar
 							echo formRow('Avatar', array(
 								'tag' => 'div',
-								'class' => 'image-wrap'.(!empty($meta['avatar']) ? ' visible' : ''),
-								'style' => 'width: '.($width ?? 0).'px;',
+								'class' => 'image-wrap' . (!empty($meta['avatar']) ? ' visible' : ''),
+								'style' => 'width: ' . ($width ?? 0) . 'px;',
 								'content' => getMedia($meta['avatar'], array(
 									'data-field' => 'thumb'
-								)).formTag('span', array(
+								)) . tag('span', array(
 									'class' => 'image-remove',
 									'title' => 'Remove',
-									'content' => formTag('i', array('class' => 'fa-solid fa-xmark'))
+									'content' => tag('i', array('class' => 'fa-solid fa-xmark'))
 								))
 							), array(
 								'tag' => 'input',
@@ -530,8 +550,7 @@ class User {
 					)); ?>
 				</div>
 				<?php
-				// Include the upload modal
-				include_once PATH.ADMIN.INC.'/modal-upload.php';
+				include_once PATH . ADMIN . INC . '/modal-upload.php';
 			}
 		}
 	}
@@ -548,19 +567,13 @@ class User {
 		// Extend the Query class and the user's session data
 		global $rs_query, $session;
 		
-		// Update the class id
 		$this->id = (int)$id;
 		
-		// Check whether the user's id is valid
 		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the "List Users" page
 			redirect(ADMIN_URI);
 		} else {
-			// Check whether the id matches the logged in user's id
-			if($this->id !== $session['id']) {
-				// Update the user's role
+			if($this->id !== $session['id'])
 				$rs_query->update('users', array('role' => (int)$role), array('id' => $this->id));
-			}
 		}
 	}
 	
@@ -574,19 +587,13 @@ class User {
 		// Extend the Query object and the user's session data
 		global $rs_query, $session;
 		
-		// Check whether the user's id is valid
 		if(empty($this->id) || $this->id <= 0 || $this->id === $session['id']) {
-			// Redirect to the "List Users" page
 			redirect(ADMIN_URI);
 		} else {
-			// Delete the user from the database
 			$rs_query->delete('users', array('id' => $this->id));
-			
-			// Delete the user's metadata from the database
 			$rs_query->delete('usermeta', array('user' => $this->id));
 			
-			// Redirect to the "List Users" page with an appropriate exit status
-			redirect(ADMIN_URI.'?exit_status=success');
+			redirect(ADMIN_URI . '?exit_status=success');
 		}
 	}
 	
@@ -607,22 +614,17 @@ class User {
 		if(empty($data['username']) || empty($data['email']))
 			return statusMessage('R');
 		
-		// Make sure the username is long enough
 		if(strlen($data['username']) < self::UN_LENGTH)
-			return statusMessage('Username must be at least '.self::UN_LENGTH.' characters long.');
+			return statusMessage('Username must be at least ' . self::UN_LENGTH . ' characters long.');
 		
-		// Sanitize the username
 		$username = sanitize($data['username'], '/[^a-z0-9_\.]/i', false);
 		
-		// Make sure the username is not already being used
 		if($this->usernameExists($username, $id))
 			return statusMessage('That username has already been taken. Please choose another one.');
 		
-		// Make sure the email is not already being used
 		if($this->emailExists($data['email'], $id))
 			return statusMessage('That email is already taken by another user. Please choose another one.');
 		
-		// Create an array to hold the user's metadata
 		$usermeta = array(
 			'first_name' => $data['first_name'],
 			'last_name' => $data['last_name'],
@@ -630,22 +632,18 @@ class User {
 		);
 		
 		if($id === 0) {
-			// Make sure the password field is not empty
+			// New user
 			if(empty($data['password']))
 				return statusMessage('R');
 			
-			// Make sure the password is long enough
 			if(strlen($data['password']) < self::PW_LENGTH)
-				return statusMessage('Password must be at least '.self::PW_LENGTH.' characters long.');
+				return statusMessage('Password must be at least ' . self::PW_LENGTH . ' characters long.');
 			
-			// Make sure the password saved checkbox has been checked
 			if(!isset($data['pass_saved']) || $data['pass_saved'] != 1)
 				return statusMessage('Please confirm that you\'ve saved your password to a safe location.');
 			
-			// Hash the password (encrypts the password for security purposes)
 			$hashed_password = password_hash($data['password'], PASSWORD_BCRYPT, array('cost' => 10));
 			
-			// Insert the new user into the database
 			$insert_id = $rs_query->insert('users', array(
 				'username' => $username,
 				'password' => $hashed_password,
@@ -654,10 +652,8 @@ class User {
 				'role' => $data['role']
 			));
 			
-			// Add a metadata entry for the user's admin theme to the usermeta array
 			$usermeta['theme'] = 'default';
 			
-			// Insert the user's metadata into the database
 			foreach($usermeta as $key => $value) {
 				$rs_query->insert('usermeta', array(
 					'user' => $insert_id,
@@ -666,25 +662,22 @@ class User {
 				));
 			}
 			
-			// Redirect to the appropriate "Edit User" page
-			redirect(ADMIN_URI.'?id='.$insert_id.'&action=edit');
+			redirect(ADMIN_URI . '?id=' . $insert_id . '&action=edit');
 		} else {
-			// Update the user in the database
+			// Existing user
 			$rs_query->update('users', array(
 				'username' => $username,
 				'email' => $data['email'],
 				'role' => $data['role']
 			), array('id' => $id));
 			
-			// Update the user's metadata in the database
 			foreach($usermeta as $key => $value)
 				$rs_query->update('usermeta', array('value' => $value), array('user' => $id, '_key' => $key));
 			
 			// Update the class variables
 			foreach($data as $key => $value) $this->$key = $value;
 			
-			// Return a status message
-			return statusMessage('User updated! <a href="'.ADMIN_URI.'">Return to list</a>?', true);
+			return statusMessage('User updated! <a href="' . ADMIN_URI . '">Return to list</a>?', true);
 		}
 	}
 	
@@ -750,7 +743,6 @@ class User {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Return true if the user has any content assigned to them
 		return $rs_query->selectRow('posts', 'COUNT(author)', array('author' => $id)) > 0;
 	}
 	
@@ -766,24 +758,17 @@ class User {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Fetch the user's metadata from the database
 		$usermeta = $rs_query->select('usermeta', array('_key', 'value'), array('user' => $id));
 		
-		// Create an empty array to hold the metadata
 		$meta = array();
 		
 		foreach($usermeta as $metadata) {
-			// Get the meta values
 			$values = array_values($metadata);
 			
-			// Loop through the individual metadata entries
-			for($i = 0; $i < count($metadata); $i += 2) {
-				// Assign the metadata to the meta array
+			for($i = 0; $i < count($metadata); $i += 2)
 				$meta[$values[$i]] = $values[$i + 1];
-			}
 		}
 		
-		// Return the metadata
 		return $meta;
 	}
 	
@@ -799,7 +784,6 @@ class User {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Fetch the user's role from the database and return it
 		return $rs_query->selectField('user_roles', 'name', array('id' => $id));
 	}
 	
@@ -815,17 +799,14 @@ class User {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Create an empty list
 		$list = '';
 		
-		// Fetch all roles from the database
 		$roles = $rs_query->select('user_roles', '*', '', 'id');
 		
-		// Add each role to the list
 		foreach($roles as $role)
-			$list .= '<option value="'.$role['id'].'"'.($role['id'] === $id ? ' selected' : '').'>'.$role['name'].'</option>';
+			$list .= '<option value="' . $role['id'] . '"' . ($role['id'] === $id ? ' selected' : '') . '>' .
+				$role['name'] . '</option>';
 		
-		// Return the list
 		return $list;
 	}
 	
@@ -836,9 +817,7 @@ class User {
 	 * @access public
 	 */
 	public function resetPassword(): void {
-		// Check whether the user's id is valid
 		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the "List Users" page
 			redirect(ADMIN_URI);
 		} else {
 			// Validate the form data and return any messages
@@ -926,43 +905,33 @@ class User {
 		if(empty($data['admin_pass']) || empty($data['new_pass']) || empty($data['confirm_pass']))
 			return statusMessage('R');
 		
-		// Make sure the admin password is correctly entered
 		if(!$this->verifyPassword($data['admin_pass'], $session['id']))
 			return statusMessage('Admin password is incorrect.');
 		
-		// Make sure the new and confirm password fields match
 		if($data['new_pass'] !== $data['confirm_pass'])
 			return statusMessage('New and confirm passwords do not match.');
 		
-		// Make sure the new and confirm passwords are long enough
 		if(strlen($data['new_pass']) < self::PW_LENGTH || strlen($data['confirm_pass']) < self::PW_LENGTH)
-			return statusMessage('New password must be at least '.self::PW_LENGTH.' characters long.');
+			return statusMessage('New password must be at least ' . self::PW_LENGTH . ' characters long.');
 		
-		// Make sure the password saved checkbox has been checked
 		if(!isset($data['pass_saved']) || $data['pass_saved'] != 1)
 			return statusMessage('Please confirm that you\'ve saved your password to a safe location.');
 		
 		// Hash the password (encrypts the password for security purposes)
 		$hashed_password = password_hash($data['new_pass'], PASSWORD_BCRYPT, array('cost' => 10));
 		
-		// Update the user's password in the database
 		$rs_query->update('users', array('password' => $hashed_password), array('id' => $id));
 		
-		// Fetch the user's session from the database
 		$session = $rs_query->selectField('users', 'session', array('id' => $id));
 		
-		// Check whether the user's session is null
 		if(!is_null($session)) {
-			// Set the user's session to null in the database
 			$rs_query->update('users', array('session' => null), array('id' => $id, 'session' => $session));
 			
-			// Check whether the cookie's value matches the session value and delete it if so
 			if($_COOKIE['session'] === $session)
 				setcookie('session', '', 1, '/');
 		}
 		
-		// Return a status message
-		return statusMessage('Password updated! Return to <a href="'.ADMIN_URI.'">Return to list</a>?', true);
+		return statusMessage('Password updated! Return to <a href="' . ADMIN_URI . '">Return to list</a>?', true);
 	}
 	
 	/**
@@ -978,10 +947,8 @@ class User {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Fetch the user's password from the database
 		$db_password = $rs_query->selectField('users', 'password', array('id' => $id));
 		
-		// Return true if the password is valid
 		return !empty($db_password) && password_verify($password, $db_password);
 	}
 	
@@ -995,9 +962,7 @@ class User {
 		// Extend the user's session data
 		global $session;
 		
-		// Check whether the user's id is valid
 		if(empty($this->id) || $this->id <= 0 || $this->id === $session['id']) {
-			// Redirect to the "List Users" page
 			redirect(ADMIN_URI);
 		} else {
 			// Validate the form data
@@ -1052,14 +1017,10 @@ class User {
 		// Reassign all posts to the new author
 		$rs_query->update('posts', array('author' => $data['reassign_to']), array('author' => $id));
 		
-		// Delete the user from the database
 		$rs_query->delete('users', array('id' => $id));
-		
-		// Delete the user's metadata from the database
 		$rs_query->delete('usermeta', array('user' => $id));
 		
-		// Redirect to the "List Users" page with an appropriate exit status
-		redirect(ADMIN_URI.'?exit_status=success');
+		redirect(ADMIN_URI . '?exit_status=success');
 	}
 	
 	/**
@@ -1074,7 +1035,6 @@ class User {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Return the username
 		return $rs_query->selectField('users', 'username', array('id' => $id));
 	}
 	
@@ -1090,17 +1050,13 @@ class User {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Create an empty list
 		$list = '';
 		
-		// Fetch all users from the database
 		$users = $rs_query->select('users', array('id', 'username'), array('id' => array('<>', $id)), 'username');
 		
-		// Add each user to the list
 		foreach($users as $user)
-			$list .= '<option value="'.$user['id'].'">'.$user['username'].'</option>';
+			$list .= '<option value="' . $user['id'] . '">' . $user['username'] . '</option>';
 		
-		// Return the list
 		return $list;
 	}
 	
@@ -1110,27 +1066,42 @@ class User {
 	 *
 	 * @access private
 	 * @param string $status (optional; default: '')
+	 * @param string $search (optional; default: '')
 	 * @return int
 	 */
-	private function getUserCount($status = ''): int {
+	private function getUserCount($status = '', $search = ''): int {
 		// Extend the Query class
 		global $rs_query;
 		
-		// Check whether a status has been provided
-		if(empty($status)) {
-			// Return the count of all users
-			return $rs_query->select('users', 'COUNT(*)');
-		} else {
-			switch($status) {
-				case 'online':
-					// Return the count of all online users
+		switch($status) {
+			case 'online':
+				if(!empty($search)) {
+					return $rs_query->select('users', 'COUNT(*)', array(
+						'username' => array('LIKE', '%' . $search . '%'),
+						'session' => array('IS NOT NULL')
+					));
+				} else {
 					return $rs_query->select('users', 'COUNT(*)', array('session' => array('IS NOT NULL')));
-					break;
-				case 'offline':
-					// Return the count of all offline users
+				}
+				break;
+			case 'offline':
+				if(!empty($search)) {
+					return $rs_query->select('users', 'COUNT(*)', array(
+						'username' => array('LIKE', '%' . $search . '%'),
+						'session' => array('IS NULL')
+					));
+				} else {
 					return $rs_query->select('users', 'COUNT(*)', array('session' => array('IS NULL')));
-					break;
-			}
+				}
+				break;
+			default:
+				if(!empty($search)) {
+					return $rs_query->select('users', 'COUNT(*)', array(
+						'username' => array('LIKE', '%' . $search . '%')
+					));
+				} else {
+					return $rs_query->select('users', 'COUNT(*)');
+				}
 		}
 	}
 	
@@ -1146,18 +1117,17 @@ class User {
 		?>
 		<div class="bulk-actions">
 			<?php
-			// Make sure the user has the required permissions
 			if(userHasPrivilege('can_edit_users')) {
 				?>
 				<select class="actions">
 					<?php
-					// Fetch all user roles from the database
 					$roles = $rs_query->select('user_roles', array('id', 'name'), '', 'id');
 					
 					foreach($roles as $role) {
-						?>
-						<option value="<?php echo $role['id']; ?>"><?php echo $role['name']; ?></option>
-						<?php
+						echo formTag('option', array(
+							'value' => $role['id'],
+							'content' => $role['name']
+						));
 					}
 					?>
 				</select>
@@ -1170,7 +1140,6 @@ class User {
 				));
 			}
 			
-			// Make sure the user has the required permissions
 			if(userHasPrivilege('can_delete_users')) {
 				// Delete
 				button(array(

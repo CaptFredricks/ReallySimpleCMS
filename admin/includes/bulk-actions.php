@@ -57,9 +57,16 @@ switch($_POST['page']) {
 	case 'comments':
 		$rs_comment = new Comment;
 		
-		// Update all selected comments
-		if(!empty($_POST['selected']))
-			foreach($_POST['selected'] as $id) $rs_comment->updateCommentStatus($_POST['action'], $id);
+		switch($_POST['action']) {
+			case 'delete_spam':
+				// Delete all spam comments
+				$rs_comment->deleteSpamComments();
+				break;
+			default:
+				// Update all selected comments
+				if(!empty($_POST['selected']))
+					foreach($_POST['selected'] as $id) $rs_comment->updateCommentStatus($_POST['action'], $id);
+		}
 		
 		echo $rs_comment->listComments();
 		break;

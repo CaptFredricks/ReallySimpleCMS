@@ -21,9 +21,7 @@ class Widget extends Post {
 		// Create an array of columns to fetch from the database
 		$cols = array_keys(get_object_vars($this));
 		
-		// Check whether the id is '0'
 		if($id !== 0) {
-			// Fetch the widget from the database
 			$widget = $rs_query->selectRow('posts', $cols, array('id' => $id, 'type' => 'widget'));
 			
 			// Set the class variable values
@@ -41,8 +39,9 @@ class Widget extends Post {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Set up pagination
-		$page = paginate((int)($_GET['paged'] ?? 1));
+		// Query vars
+		$search = $_GET['search'] ?? null;
+		$paged = paginate((int)($_GET['paged'] ?? 1));
 		?>
 		<div class="heading-wrap">
 			<h1>Widgets</h1>
@@ -51,7 +50,7 @@ class Widget extends Post {
 			if(userHasPrivilege('can_create_widgets'))
 				echo actionLink('create', array('classes' => 'button', 'caption' => 'Create New'));
 			
-			// Display the page's info
+			recordSearch();
 			adminInfo();
 			?>
 			<hr>
@@ -60,23 +59,24 @@ class Widget extends Post {
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
 				echo statusMessage('The widget was successfully deleted.', true);
 			
-			// Fetch the widget entry count from the database
-			$count = $rs_query->select('posts', 'COUNT(*)', array('type' => 'widget'));
+			if(!is_null($search)) {
+				$count = $rs_query->select('posts', 'COUNT(*)', array(
+					'title' => array('LIKE', '%' . $search . '%'),
+					'type' => 'widget'
+				));
+			} else {
+				$count = $rs_query->select('posts', 'COUNT(*)', array('type' => 'widget'));
+			}
 			
-			// Set the page count
-			$page['count'] = ceil($count / $page['per_page']);
+			$paged['count'] = ceil($count / $paged['per_page']);
 			?>
 			<div class="entry-count">
-				<?php
-				// Display the entry count
-				echo $count.' '.($count === 1 ? 'entry' : 'entries');
-				?>
+				<?php echo $count . ' ' . ($count === 1 ? 'entry' : 'entries'); ?>
 			</div>
 		</div>
 		<table class="data-table has-bulk-select">
 			<thead>
 				<?php
-				// Fill an array with the table header columns
 				$table_header_cols = array(
 					tag('input', array(
 						'type' => 'checkbox',
@@ -87,20 +87,29 @@ class Widget extends Post {
 					'Status'
 				);
 				
-				// Construct the table header
 				echo tableHeaderRow($table_header_cols);
 				?>
 			</thead>
 			<tbody>
 				<?php
-				// Fetch all widgets from the database
-				$widgets = $rs_query->select('posts', '*', array('type' => 'widget'), 'title', 'ASC', array(
-					$page['start'],
-					$page['per_page']
-				));
+				if(!is_null($search)) {
+					// Search results
+					$widgets = $rs_query->select('posts', '*', array(
+						'title' => array('LIKE', '%' . $search . '%'),
+						'type' => 'widget'
+					), 'title', 'ASC', array(
+						$paged['start'],
+						$paged['per_page']
+					));
+				} else {
+					// All results
+					$widgets = $rs_query->select('posts', '*', array('type' => 'widget'), 'title', 'ASC', array(
+						$paged['start'],
+						$paged['per_page']
+					));
+				}
 				
 				foreach($widgets as $widget) {
-					// Set up the action links
 					$actions = array(
 						// Edit
 						userHasPrivilege('can_edit_widgets') ? actionLink('edit', array(
@@ -127,7 +136,8 @@ class Widget extends Post {
 							'value' => $widget['id']
 						)), 'bulk-select'),
 						// Title
-						tdCell('<strong>'.$widget['title'].'</strong><div class="actions">'.implode(' &bull; ', $actions).'</div>', 'title'),
+						tdCell('<strong>' . $widget['title'] . '</strong><div class="actions">' .
+							implode(' &bull; ', $actions) . '</div>', 'title'),
 						// Slug
 						tdCell($widget['slug'], 'slug'),
 						// Status
@@ -135,7 +145,6 @@ class Widget extends Post {
 					);
 				}
 				
-				// Display a notice if no widgets are found
 				if(empty($widgets))
 					echo tableRow(tdCell('There are no widgets to display.', '', count($table_header_cols)));
 				?>
@@ -149,10 +158,9 @@ class Widget extends Post {
 		if(!empty($widgets)) $this->bulkActions();
 		
 		// Set up page navigation
-		echo pagerNav($page['current'], $page['count']);
+		echo pagerNav($paged['current'], $paged['count']);
 		
-		// Include the delete modal
-        include_once PATH.ADMIN.INC.'/modal-delete.php';
+        include_once PATH . ADMIN . INC . '/modal-delete.php';
 	}
 	
 	/**
@@ -206,7 +214,13 @@ class Widget extends Post {
 						'tag' => 'select',
 						'class' => 'select-input',
 						'name' => 'status',
-						'content' => '<option value="active">Active</option><option value="inactive">Inactive</option>'
+						'content' => tag('option', array(
+							'value' => 'active',
+							'content' => 'Active'
+						)) . tag('option', array(
+							'value' => 'inactive',
+							'content' => 'Inactive'
+						))
 					));
 					
 					// Separator
@@ -237,9 +251,7 @@ class Widget extends Post {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Check whether the widget's id is valid
 		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the "List Widgets" page
 			redirect(ADMIN_URI);
 		} else {
 			// Validate the form data and return any messages
@@ -286,7 +298,15 @@ class Widget extends Post {
 							'tag' => 'select',
 							'class' => 'select-input',
 							'name' => 'status',
-							'content' => '<option value="'.$this->status.'">'.ucfirst($this->status).'</option>'.($this->status === 'active' ? '<option value="inactive">Inactive</option>' : '<option value="active">Active</option>')
+							'content' => tag('option', array(
+								'value' => 'active',
+								'selected' => ($this->status === 'active' ? 1 : 0),
+								'content' => 'Active'
+							)) . tag('option', array(
+								'value' => 'inactive',
+								'selected' => ($this->status === 'inactive' ? 1 : 0),
+								'content' => 'Inactive'
+							))
 						));
 						
 						// Separator
@@ -320,17 +340,12 @@ class Widget extends Post {
 		// Extend the Query object
 		global $rs_query;
 		
-		// If the provided id is not zero, update the class id to match it
 		if($id !== 0) $this->id = $id;
 		
-		// Check whether the widget's id is valid
-		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the "List Widgets" page
+		if(empty($this->id) || $this->id <= 0)
 			redirect(ADMIN_URI);
-		} else {
-			// Update the widget's status
+		else
 			$rs_query->update('posts', array('status' => $status), array('id' => $this->id, 'type' => 'widget'));
-		}
 	}
 	
 	/**
@@ -343,16 +358,12 @@ class Widget extends Post {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Check whether the widget's id is valid
 		if(empty($this->id) || $this->id <= 0) {
-			// Redirect to the "List Widgets" page
 			redirect(ADMIN_URI);
 		} else {
-			// Delete the widget from the database
 			$rs_query->delete('posts', array('id' => $this->id, 'type' => 'widget'));
 			
-			// Redirect to the "List Widgets" page with an appropriate exit status
-			redirect(ADMIN_URI.'?exit_status=success');
+			redirect(ADMIN_URI . '?exit_status=success');
 		}
 	}
 	
@@ -380,12 +391,11 @@ class Widget extends Post {
 		if($this->slugExists($slug, $id))
 			$slug = getUniquePostSlug($slug);
 		
-		// Make sure the widget has a valid status
 		if($data['status'] !== 'active' && $data['status'] !== 'inactive')
 			$data['status'] = 'active';
 		
 		if($id === 0) {
-			// Insert the new widget into the database
+			// New widget
 			$insert_id = $rs_query->insert('posts', array(
 				'title' => $data['title'],
 				'date' => 'NOW()',
@@ -396,10 +406,9 @@ class Widget extends Post {
 				'type' => 'widget'
 			));
 			
-			// Redirect to the appropriate "Edit Widget" page
-			redirect(ADMIN_URI.'?id='.$insert_id.'&action=edit');
+			redirect(ADMIN_URI . '?id=' . $insert_id . '&action=edit');
 		} else {
-			// Update the widget in the database
+			// Existing widget
 			$rs_query->update('posts', array(
 				'title' => $data['title'],
 				'modified' => 'NOW()',
@@ -411,8 +420,7 @@ class Widget extends Post {
 			// Update the class variables
 			foreach($data as $key => $value) $this->$key = $value;
 			
-			// Return a status message
-			return statusMessage('Widget updated! <a href="'.ADMIN_URI.'">Return to list</a>?', true);
+			return statusMessage('Widget updated! <a href="' . ADMIN_URI . '">Return to list</a>?', true);
 		}
 	}
 	
@@ -426,14 +434,18 @@ class Widget extends Post {
 		?>
 		<div class="bulk-actions">
 			<?php
-			// Make sure the user has the required permissions
 			if(userHasPrivilege('can_edit_widgets')) {
-				?>
-				<select class="actions">
-					<option value="active">Active</option>
-					<option value="inactive">Inactive</option>
-				</select>
-				<?php
+				echo formTag('select', array(
+					'class' => 'actions',
+					'content' => tag('option', array(
+						'value' => 'active',
+						'content' => 'Active'
+					)) . tag('option', array(
+						'value' => 'inactive',
+						'content' => 'Inactive'
+					))
+				));
+				
 				// Update status
 				button(array(
 					'class' => 'bulk-update',
@@ -442,7 +454,6 @@ class Widget extends Post {
 				));
 			}
 			
-			// Make sure the user has the required permissions
 			if(userHasPrivilege('can_delete_widgets')) {
 				// Delete
 				button(array(

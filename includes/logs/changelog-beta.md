@@ -18,6 +18,60 @@
 - [a] = alpha
 - [b] = beta
 
+## Version 1.3.7[b] (2022-12-18)
+
+- Cleaned up internal documentation throughout the CMS
+- Posts of any type can now be duplicated
+- Most records can now be searched on the dashboard
+- The `button` function now supports the `id` field
+- Comments can now be sent to spam and spam can be mass deleted, no questions asked
+- Renamed a param in the `actionLink` function
+- New functions:
+  - Admin `Comment` class (`deleteSpamComments`, `spamComment`)
+  - Admin `Post` class (`duplicatePost`)
+  - Admin `functions.php` (`recordSearch`, `termExists`)
+
+**Bug fixes:**
+- Duplicate values are being added to the sql data in the `Query::select` function, breaking some queries
+- Comment counts are not being updated for posts when using bulk update
+
+**Modified files:**
+- admin/categories.php
+- admin/comments.php
+- admin/footer.php (M)
+- admin/header.php (M)
+- admin/includes/bulk-actions.php
+- admin/includes/class-comment.php
+- admin/includes/class-login.php
+- admin/includes/class-media.php
+- admin/includes/class-menu.php
+- admin/includes/class-post.php
+- admin/includes/class-profile.php (M)
+- admin/includes/class-term.php
+- admin/includes/class-theme.php
+- admin/includes/class-user-role.php
+- admin/includes/class-user.php
+- admin/includes/class-widget.php
+- admin/includes/css/style.css
+- admin/includes/css/style.min.css
+- admin/includes/functions.php
+- admin/includes/js/script.js
+- admin/index.php (M)
+- admin/logins.php
+- admin/media.php
+- admin/menus.php
+- admin/posts.php
+- admin/profile.php (M)
+- admin/settings.php
+- admin/terms.php
+- admin/themes.php
+- admin/users.php
+- admin/widgets.php
+- includes/class-query.php (M)
+- includes/fallback-theme.php
+- includes/global-functions.php
+- init.php (M)
+
 ## Version 1.3.6.1[b] (2022-09-09)
 
 - Tweaked a previous entry in the changelog

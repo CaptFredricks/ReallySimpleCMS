@@ -16,6 +16,9 @@ class Theme {
 	public function listThemes(): void {
 		// Extend the Query object
 		global $rs_query;
+		
+		// Query vars
+		$search = $_GET['search'] ?? null;
 		?>
 		<div class="heading-wrap">
 			<h1>Themes</h1>
@@ -24,6 +27,7 @@ class Theme {
 			if(userHasPrivilege('can_create_themes'))
 				echo actionLink('create', array('classes' => 'button', 'caption' => 'Create New'));
 			
+			recordSearch();
 			adminInfo();
 			?>
 			<hr>
@@ -50,6 +54,8 @@ class Theme {
 			array_unshift($themes, getSetting('theme'));
 			
 			foreach($themes as $theme) {
+				if(!is_null($search) && !str_contains($theme, $search)) continue;
+				
 				$theme_path = trailingSlash(PATH . THEMES) . $theme;
 				$is_broken = false;
 				

@@ -112,7 +112,6 @@ class Login {
 			// Create an array of columns to fetch from the database
 			$cols = array_keys(get_object_vars($this));
 			
-			// Check whether the user is on the "List Blacklist" page
 			if($page === 'blacklist') {
 				// Exclude columns from the `login_attempts` and `login_rules` tables
 				$exclude = array('login', 'ip_address', 'type', 'attempts');
@@ -122,8 +121,7 @@ class Login {
 				
 				// Set the class variable values
 				foreach($blacklisted_login as $key => $value) $this->$key = $blacklisted_login[$key];
-			} // Check whether the user is on the "List Rules" page
-			elseif($page === 'rules') {
+			} elseif($page === 'rules') {
 				// Exclude columns from the `login_attempts` and `login_blacklist` tables
 				$exclude = array('login', 'ip_address', 'name', 'reason');
 				
@@ -133,7 +131,7 @@ class Login {
 				// Set the class variable values
 				foreach($login_rule as $key => $value) $this->$key = $login_rule[$key];
 			} else {
-				// Exclude columns from the 'login_blacklist' and 'login_rules' tables
+				// Exclude columns from the `login_blacklist` and `login_rules` tables
 				$exclude = array('name', 'duration', 'reason', 'type', 'attempts');
 				
 				$cols = array_diff($cols, $exclude);
@@ -155,14 +153,19 @@ class Login {
 		// Extend the Query object
 		global $rs_query;
 		
+		// Query vars
 		$status = $_GET['status'] ?? 'all';
-		
-		// Set up pagination
-		$page = paginate((int)($_GET['paged'] ?? 1));
+		$search = $_GET['search'] ?? null;
+		$paged = paginate((int)($_GET['paged'] ?? 1));
 		?>
 		<div class="heading-wrap">
 			<h1>Login Attempts</h1>
-			<?php adminInfo(); ?>
+			<?php
+			recordSearch(array(
+				'status' => $status
+			));
+			adminInfo();
+			?>
 			<hr>
 			<?php
 			// Check whether any status messages have been returned
@@ -176,16 +179,21 @@ class Login {
 			?>
 			<ul class="status-nav">
 				<?php
-				// Create keys for each of the possible statuses
 				$keys = array('all', 'success', 'failure');
 				$count = array();
 				
-				// Fetch the login attempt entry count from the database (by status)
 				foreach($keys as $key) {
-					if($key === 'all')
-						$count[$key] = $this->getLoginCount();
-					else
-						$count[$key] = $this->getLoginCount($key);
+					if($key === 'all') {
+						if(!is_null($search) && $key === $status)
+							$count[$key] = $this->getLoginCount('', $search);
+						else
+							$count[$key] = $this->getLoginCount();
+					} else {
+						if(!is_null($search) && $key === $status)
+							$count[$key] = $this->getLoginCount($key, $search);
+						else
+							$count[$key] = $this->getLoginCount($key);
+					}
 				}
 				
 				foreach($count as $key => $value) {
@@ -201,7 +209,7 @@ class Login {
 				}
 				?>
 			</ul>
-			<?php $page['count'] = ceil($count[$status] / $page['per_page']); ?>
+			<?php $paged['count'] = ceil($count[$status] / $paged['per_page']); ?>
 			<div class="entry-count">
 				<?php echo $count[$status] . ' ' . ($count[$status] === 1 ? 'entry' : 'entries'); ?>
 			</div>
@@ -216,19 +224,37 @@ class Login {
 			</thead>
 			<tbody>
 				<?php
-				// Fetch all login attempts from the database (by status)
 				if($status === 'all') {
-					$login_attempts = $rs_query->select('login_attempts', '*', '', 'date', 'DESC', array(
-						$page['start'],
-						$page['per_page']
-					));
+					if(!is_null($search)) {
+						$login_attempts = $rs_query->select('login_attempts', '*', array(
+							'login' => array('LIKE', '%' . $search . '%')
+						), 'date', 'DESC', array(
+							$paged['start'],
+							$paged['per_page']
+						));
+					} else {
+						$login_attempts = $rs_query->select('login_attempts', '*', '', 'date', 'DESC', array(
+							$paged['start'],
+							$paged['per_page']
+						));
+					}
 				} else {
-					$login_attempts = $rs_query->select('login_attempts', '*', array(
-						'status' => $status
-					), 'date', 'DESC', array(
-						$page['start'],
-						$page['per_page']
-					));
+					if(!is_null($search)) {
+						$login_attempts = $rs_query->select('login_attempts', '*', array(
+							'login' => array('LIKE', '%' . $search . '%'),
+							'status' => $status
+						), 'date', 'DESC', array(
+							$paged['start'],
+							$paged['per_page']
+						));
+					} else {
+						$login_attempts = $rs_query->select('login_attempts', '*', array(
+							'status' => $status
+						), 'date', 'DESC', array(
+							$paged['start'],
+							$paged['per_page']
+						));
+					}
 				}
 				
 				foreach($login_attempts as $login_attempt) {
@@ -277,7 +303,7 @@ class Login {
 		</table>
 		<?php
 		// Set up page navigation
-		echo pagerNav($page['current'], $page['count']);
+		echo pagerNav($paged['current'], $paged['count']);
 	}
 	
 	/**
@@ -436,8 +462,10 @@ class Login {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Set up pagination
-		$page = paginate((int)($_GET['paged'] ?? 1));
+		// Query vars
+		$page = $_GET['page'] ?? '';
+		$search = $_GET['search'] ?? null;
+		$paged = paginate((int)($_GET['paged'] ?? 1));
 		?>
 		<div class="heading-wrap">
 			<h1>Login Blacklist</h1>
@@ -451,6 +479,9 @@ class Login {
 				));
 			}
 			
+			recordSearch(array(
+				'page' => $page
+			));
 			adminInfo();
 			?>
 			<hr>
@@ -459,8 +490,15 @@ class Login {
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
 				echo statusMessage('The login or IP address was successfully whitelisted.', true);
 			
-			$count = $rs_query->select('login_blacklist', 'COUNT(*)');
-			$page['count'] = ceil($count / $page['per_page']);
+			if(!is_null($search)) {
+				$count = $rs_query->select('login_blacklist', 'COUNT(*)', array(
+					'name' => array('LIKE', '%' . $search . '%')
+				));
+			} else {
+				$count = $rs_query->select('login_blacklist', 'COUNT(*)');
+			}
+			
+			$paged['count'] = ceil($count / $paged['per_page']);
 			?>
 			<div class="entry-count">
 				<?php echo $count . ' ' . ($count === 1 ? 'entry' : 'entries'); ?>
@@ -476,10 +514,19 @@ class Login {
 			</thead>
 			<tbody>
 				<?php
-				$blacklisted_logins = $rs_query->select('login_blacklist', '*', '', 'blacklisted', 'DESC', array(
-					$page['start'],
-					$page['per_page']
-				));
+				if(!is_null($search)) {
+					$blacklisted_logins = $rs_query->select('login_blacklist', '*', array(
+						'name' => array('LIKE', '%' . $search . '%')
+					), 'blacklisted', 'DESC', array(
+						$paged['start'],
+						$paged['per_page']
+					));
+				} else {
+					$blacklisted_logins = $rs_query->select('login_blacklist', '*', '', 'blacklisted', 'DESC', array(
+						$paged['start'],
+						$paged['per_page']
+					));
+				}
 				
 				foreach($blacklisted_logins as $blacklisted_login) {
 					$time = new DateTime($blacklisted_login['blacklisted']);
@@ -491,8 +538,8 @@ class Login {
 						$rs_query->delete('login_blacklist', array('name' => $blacklisted_login['name']));
 						
 						$bl_logins = $rs_query->select('login_blacklist', '*', '', 'blacklisted', 'DESC', array(
-							$page['start'],
-							$page['per_page']
+							$paged['start'],
+							$paged['per_page']
 						));
 						
 						if(empty($bl_logins)) {
@@ -553,7 +600,7 @@ class Login {
 		</table>
 		<?php
 		// Set up page navigation
-		echo pagerNav($page['current'], $page['count']);
+		echo pagerNav($paged['current'], $paged['count']);
 	}
 	
 	/**
@@ -877,8 +924,8 @@ class Login {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Set up pagination
-		$page = paginate((int)($_GET['paged'] ?? 1));
+		// Query vars
+		$paged = paginate((int)($_GET['paged'] ?? 1));
 		?>
 		<div class="heading-wrap">
 			<h1>Login Rules</h1>
@@ -901,7 +948,7 @@ class Login {
 				echo statusMessage('The rule was successfully deleted.', true);
 			
 			$count = $rs_query->select('login_rules', 'COUNT(*)');
-			$page['count'] = ceil($count / $page['per_page']);
+			$paged['count'] = ceil($count / $paged['per_page']);
 			?>
 			<div class="entry-count">
 				<?php echo $count . ' ' . ($count === 1 ? 'entry' : 'entries'); ?>
@@ -918,8 +965,8 @@ class Login {
 			<tbody>
 				<?php
 				$login_rules = $rs_query->select('login_rules', '*', '', 'attempts', 'ASC', array(
-					$page['start'],
-					$page['per_page']
+					$paged['start'],
+					$paged['per_page']
 				));
 				
 				foreach($login_rules as $login_rule) {
@@ -963,7 +1010,7 @@ class Login {
 		</table>
 		<?php
 		// Set up page navigation
-		echo pagerNav($page['current'], $page['count']);
+		echo pagerNav($paged['current'], $paged['count']);
 		
         include_once PATH . ADMIN . INC . '/modal-delete.php';
 	}
@@ -1207,15 +1254,30 @@ class Login {
 	 *
 	 * @access private
 	 * @param string $status (optional; default: '')
+	 * @param string $search (optional; default: '')
 	 * @return int
 	 */
-	private function getLoginCount($status = ''): int {
+	private function getLoginCount($status = '', $search = ''): int {
 		// Extend the Query class
 		global $rs_query;
 		
-		if(empty($status))
-			return $rs_query->select('login_attempts', 'COUNT(*)');
-		else
-			return $rs_query->select('login_attempts', 'COUNT(*)', array('status' => $status));
+		if(empty($status)) {
+			if(!empty($search)) {
+				return $rs_query->select('login_attempts', 'COUNT(*)', array(
+					'login' => array('LIKE', '%' . $search . '%')
+				));
+			} else {
+				return $rs_query->select('login_attempts', 'COUNT(*)');
+			}
+		} else {
+			if(!empty($search)) {
+				return $rs_query->select('login_attempts', 'COUNT(*)', array(
+					'login' => array('LIKE', '%' . $search . '%'),
+					'status' => $status
+				));
+			} else {
+				return $rs_query->select('login_attempts', 'COUNT(*)', array('status' => $status));
+			}
+		}
 	}
 }

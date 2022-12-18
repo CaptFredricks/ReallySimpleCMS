@@ -1,6 +1,6 @@
 <?php
 /**
- * Initialize the CMS.
+ * Initialize the CMS and load all core files.
  * @since 1.3.0[a]
  */
 
