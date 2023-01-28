@@ -331,7 +331,6 @@ class Settings {
 		// Remove the 'submit' value from the data array
 		array_pop($data);
 		
-		// Check whether a settings page has been specified
 		if(isset($data['page'])) {
 			// Remove the 'page' value from the data array
 			array_shift($data);
@@ -340,9 +339,8 @@ class Settings {
 			foreach($data as $name => $value)
 				$rs_query->update('settings', array('value' => $value), array('name' => $name));
 		} else {
-			// Make sure no required fields are empty
 			if(empty($data['site_title']) || empty($data['site_url']) || empty($data['admin_email']))
-				return statusMessage('R');
+				return exitNotice('REQ', -1);
 			
 			// Set the value of 'do_robots'
 			$data['do_robots'] = isset($data['do_robots']) ? 0 : 1;
@@ -392,7 +390,7 @@ class Settings {
 			}
 		}
 		
-		return statusMessage('Settings updated!', true);
+		return exitNotice('Settings updated!');
 	}
 	
 	/**

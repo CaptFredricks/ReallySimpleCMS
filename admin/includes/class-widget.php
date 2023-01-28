@@ -55,9 +55,8 @@ class Widget extends Post {
 			?>
 			<hr>
 			<?php
-			// Check whether any status messages have been returned and display them if so
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
-				echo statusMessage('The widget was successfully deleted.', true);
+				echo exitNotice('The widget was successfully deleted.');
 			
 			if(!is_null($search)) {
 				$count = $rs_query->select('posts', 'COUNT(*)', array(
@@ -380,9 +379,8 @@ class Widget extends Post {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Make sure no required fields are empty
 		if(empty($data['title']) || empty($data['slug']))
-			return statusMessage('R');
+			return exitNotice('REQ', -1);
 		
 		// Sanitize the slug
 		$slug = sanitize($data['slug']);
@@ -420,7 +418,7 @@ class Widget extends Post {
 			// Update the class variables
 			foreach($data as $key => $value) $this->$key = $value;
 			
-			return statusMessage('Widget updated! <a href="' . ADMIN_URI . '">Return to list</a>?', true);
+			return exitNotice('Widget updated! <a href="' . ADMIN_URI . '">Return to list</a>?');
 		}
 	}
 	

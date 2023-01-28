@@ -41,10 +41,11 @@ jQuery(document).ready($ => {
 	 * @since 1.1.0[b]{ss-04}
 	 */
 	$('body').on('click', '.comment .actions .reply', function(e) {
-		// Prevent the default action
 		e.preventDefault();
 		
-		// Show the reply box and submit button
+		let reply_to = $(this).children().data('replyto');
+		
+		$('.comments #reply-to').text('Replying to #' + reply_to + ':');
 		$('.comments #comments-reply .textarea-input').show();
 		$('.comments #comments-reply .submit-comment').show();
 		
@@ -55,7 +56,7 @@ jQuery(document).ready($ => {
 		$('html, body').animate({scrollTop: $('.comments').offset().top}, 0);
 		
 		// Set the replyto value
-		$('.comments #comments-reply input[name="replyto"]').val($(this).children().data('replyto'));
+		$('.comments #comments-reply input[name="replyto"]').val(reply_to);
 	});
 	
 	/**
@@ -122,7 +123,6 @@ jQuery(document).ready($ => {
 	 * @since 1.1.0[b]{ss-05}
 	 */
 	$('body').on('click', '.comment .actions .edit a', function(e) {
-		// Prevent the default action
 		e.preventDefault();
 		
 		// Fetch the comment's content
@@ -137,7 +137,8 @@ jQuery(document).ready($ => {
 						 '<textarea class="textarea-input" cols="60" rows="8">' +
 						 $(content).text().trim() + '</textarea>' +
 						 '<button type="button" class="cancel button">Cancel</button>' +
-						 '<button type="submit" class="update-comment button">Submit</button></div>');
+						 '<button type="submit" class="update-comment button">Submit</button></div>'
+						);
 	});
 	
 	/**

@@ -320,7 +320,15 @@ function populateUsers($args = array()): int {
 		'registered' => 'NOW()',
 		'role' => $args['role']
 	));
-	$usermeta = array('first_name' => '', 'last_name' => '', 'avatar' => 0, 'theme' => 'default');
+	
+	$usermeta = array(
+		'first_name' => '',
+		'last_name' => '',
+		'display_name' => $args['username'],
+		'avatar' => 0,
+		'theme' => 'default',
+		'dismissed_notices' => ''
+	);
 	
 	foreach($usermeta as $key => $value)
 		$rs_query->insert('usermeta', array('user' => $user, '_key' => $key, 'value' => $value));
@@ -1161,15 +1169,20 @@ function getOnlineUser($session): array {
 	// Extend the Query object
 	global $rs_query;
 	
-	$user = $rs_query->selectRow('users', array('id', 'username', 'role'), array('session' => $session));
-	$user['avatar'] = $rs_query->selectField('usermeta', 'value', array(
-		'user' => $user['id'],
-		'_key' => 'avatar'
+	$user = $rs_query->selectRow('users', array('id', 'username', 'role'), array(
+		'session' => $session
 	));
-	$user['theme'] = $rs_query->selectField('usermeta', 'value', array(
-		'user' => $user['id'],
-		'_key' => 'theme'
-	));
+	
+	$usermeta = array('display_name', 'avatar', 'theme', 'dismissed_notices');
+	
+	foreach($usermeta as $meta) {
+		$user[$meta] = $rs_query->selectField('usermeta', 'value', array(
+			'user' => $user['id'],
+			'_key' => $meta
+		));
+	}
+	
+	$user['dismissed_notices'] = unserialize($user['dismissed_notices']);
 	
 	return $user;
 }
@@ -1381,25 +1394,37 @@ function formatDate($date, $format = 'Y-m-d H:i:s'): string {
 }
 
 /**
+ * Generate a random hash.
+ * @since 2.0.5[a]
+ *
+ * @param int $length (optional; default: 20)
+ * @param bool $special_chars (optional; default: true)
+ * @param string $salt (optional; default: '')
+ * @return string
+ */
+function generateHash($length = 20, $special_chars = true, $salt = ''): string {
+	$chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+	
+	if($special_chars) $chars .= '!@#$%^&*()-_[]{}<>~`+=,.;:/?|';
+	
+	$hash = '';
+	
+	for($i = 0; $i < (int)$length; $i++)
+		$hash .= substr($chars, rand(0, strlen($chars) - 1), 1);
+	
+	if(!empty($salt)) $hash = substr(md5(md5($hash . $salt)), 0, (int)$length);
+	
+	return $hash;
+}
+
+/**
  * Generate a random password.
  * @since 1.3.0[a]
  *
  * @param int $length (optional; default: 16)
  * @param bool $special_chars (optional; default: true)
- * @param bool $extra_special_chars (optional; default: false)
  * @return string
  */
-function generatePassword($length = 16, $special_chars = true, $extra_special_chars = false): string {
-	$chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-	
-	if($special_chars) $chars .= '!@#$%^&*()';
-	if($extra_special_chars) $chars .= '-_[]{}<>~`+=,.;:/?|';
-	
-	$password = '';
-	
-	// Generate a random password
-	for($i = 0; $i < (int)$length; $i++)
-		$password .= substr($chars, rand(0, strlen($chars) - 1), 1);
-	
-	return $password;
+function generatePassword($length = 16, $special_chars = true): string {
+	return generateHash($length, $special_chars);
 }

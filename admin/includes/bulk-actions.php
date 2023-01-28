@@ -4,20 +4,23 @@
  * @since 1.2.7[b]
  */
 
-// Tell the CMS that it should only initialize the base files and functions
+// Only initialize the base files and functions
 define('BASE_INIT', true);
 
-// Include the initialization file
+// Initialization file
 require_once dirname(dirname(__DIR__)) . '/init.php';
 
 define('ADMIN_URI', $_POST['uri']);
 
-// Include admin functions
+// Admin functions
 require_once ADMIN_FUNC;
 
-$theme_path = trailingSlash(PATH . THEMES) . getSetting('theme');
+// Site-wide functions
+require_once FUNC;
 
-// Include the theme functions
+$theme_path = slash(PATH . THEMES) . getSetting('theme');
+
+// Theme functions
 if(file_exists($theme_path . '/functions.php')) require_once $theme_path . '/functions.php';
 
 // Fetch the user's session data if they're logged in
@@ -37,7 +40,6 @@ foreach($post_types as $key => $value) {
 }
 
 foreach($taxonomies as $key => $value) {
-	// Check whether the taxonomy's name matches the current page
 	if($value['labels']['name_lowercase'] === $_POST['page']) {
 		$taxonomy = $_POST['page'];
 		$tax = $key;

@@ -90,9 +90,8 @@ class Comment {
 			?>
 			<hr>
 			<?php
-			// Check whether any status messages have been returned and display them if so
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
-				echo statusMessage('The comment was successfully deleted.', true);
+				echo exitNotice('The comment was successfully deleted.');
 			?>
 			<ul class="status-nav">
 				<?php
@@ -450,9 +449,8 @@ class Comment {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Make sure no required fields are empty
 		if(empty($data['content']))
-			return statusMessage('R');
+			return exitNotice('REQ', -1);
 		
 		if($data['status'] !== 'approved' && $data['status'] !== 'unapproved')
 			$data['status'] = 'unapproved';
@@ -465,7 +463,7 @@ class Comment {
 		// Update the class variables
 		foreach($data as $key => $value) $this->$key = $value;
 		
-		return statusMessage('Comment updated! <a href="' . ADMIN_URI . '">Return to list</a>?', true);
+		return exitNotice('Comment updated! <a href="' . ADMIN_URI . '">Return to list</a>?');
 	}
 	
 	/**
@@ -518,7 +516,10 @@ class Comment {
 		// Extend the Query object
 		global $rs_query;
 		
-		$author = $rs_query->selectField('users', 'username', array('id' => $id));
+		$author = $rs_query->selectField('usermeta', 'value', array(
+			'user' => $id,
+			'_key' => 'display_name'
+		));
 		
 		return empty($author) ? '&mdash;' : $author;
 	}

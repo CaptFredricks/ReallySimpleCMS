@@ -70,9 +70,8 @@ class Menu extends Term {
 			?>
 			<hr>
 			<?php
-			// Check whether any status messages have been returned and display them if so
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
-				echo statusMessage('The menu was successfully deleted.', true);
+				echo exitNotice('The menu was successfully deleted.');
 			
 			if(!is_null($search)) {
 				$count = $rs_query->select('terms', 'COUNT(*)', array(
@@ -358,9 +357,8 @@ class Menu extends Term {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Make sure no required fields are empty
 		if(empty($data['name']) || empty($data['slug']))
-			return statusMessage('R');
+			return exitNotice('REQ', -1);
 		
 		$slug = sanitize($data['slug']);
 		
@@ -490,7 +488,7 @@ class Menu extends Term {
 			// Update the class variables
 			foreach($data as $key => $value) $this->$key = $value;
 			
-			return statusMessage('Menu updated! <a href="' . ADMIN_URI . '">Return to list</a>?', true);
+			return exitNotice('Menu updated! <a href="' . ADMIN_URI . '">Return to list</a>?');
 		}
 	}
 	
@@ -1095,9 +1093,8 @@ class Menu extends Term {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Make sure no required fields are empty
 		if(empty($data['title']))
-			return statusMessage('R');
+			return exitNotice('REQ', -1);
 		
 		$parent = (int)$rs_query->selectField('posts', 'parent', array('id' => $id));
 		

@@ -1,4 +1,8 @@
 <?php
+/**
+ * Admin comments page.
+ * @since 1.1.0[b]{ss-01}
+ */
 require_once __DIR__ . '/header.php';
 
 // Fetch the comment's id
@@ -7,7 +11,7 @@ $id = (int)($_GET['id'] ?? 0);
 // Create a Comment object
 $rs_comment = new Comment($id);
 ?>
-<div class="content">
+<article class="content">
 	<?php
 	// Fetch the current action
 	$action = $_GET['action'] ?? '';
@@ -44,6 +48,6 @@ $rs_comment = new Comment($id);
 				redirect('index.php');
 	}
 	?>
-</div>
+</article>
 <?php
 require_once __DIR__ . '/footer.php';

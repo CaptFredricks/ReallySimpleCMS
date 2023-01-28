@@ -188,10 +188,9 @@ class Post {
 			?>
 			<hr>
 			<?php
-			// Check whether any status messages have been returned and display them if so
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success') {
-				echo statusMessage('The ' . strtolower($this->type_data['labels']['name_singular']) .
-					' was successfully deleted.', true);
+				echo exitNotice('The ' . strtolower($this->type_data['labels']['name_singular']) .
+					' was successfully deleted.');
 			}
 			?>
 			<ul class="status-nav">
@@ -1273,9 +1272,8 @@ class Post {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Make sure no required fields are empty
 		if(empty($data['title']) || empty($data['slug']))
-			return statusMessage('R');
+			return exitNotice('REQ', -1);
 		
 		$slug = sanitize($data['slug']);
 		
@@ -1420,8 +1418,9 @@ class Post {
 				// Update the class variables
 				foreach($data as $key => $value) $this->$key = $value;
 				
-				return statusMessage($this->type_data['labels']['name_singular'] . ' updated! <a href="' . ADMIN_URI .
-					($this->type === 'post' ? '' : '?type=' . $this->type) . '">Return to list</a>?', true);
+				return exitNotice($this->type_data['labels']['name_singular'] .
+					' updated! <a href="' . ADMIN_URI . ($this->type === 'post' ? '' : '?type=' .
+					$this->type) . '">Return to list</a>?');
 				break;
 			case 'duplicate':
 				$insert_id = $rs_query->insert('posts', array(
@@ -1437,6 +1436,9 @@ class Post {
 				));
 				
 				foreach($old_postmeta as $meta) {
+					// Reset comments to zero
+					if($meta['_key'] === 'comment_count') $meta['value'] = 0;
+					
 					$rs_query->insert('postmeta', array(
 						'post' => $insert_id,
 						'_key' => $meta['_key'],
@@ -1561,7 +1563,10 @@ class Post {
 		// Extend the Query object
 		global $rs_query;
 		
-		return $rs_query->selectField('users', 'username', array('id' => $id));
+		return $rs_query->selectField('usermeta', 'value', array(
+			'user' => $id,
+			'_key' => 'display_name'
+		));
 	}
 	
 	/**
@@ -1580,8 +1585,14 @@ class Post {
 		$authors = $rs_query->select('users', array('id', 'username'), '', 'username');
 		
 		foreach($authors as $author) {
+			$display_name = $rs_query->selectField('usermeta', 'value', array(
+				'user' => $author['id'],
+				'_key' => 'display_name'
+			));
+			
 			$list .= '<option value="' . $author['id'] . '"' . ($author['id'] === (int)$id ? ' selected' : '') .
-				'>' . $author['username'] . '</option>';
+				'>' . ($display_name === $author['username'] ? $display_name :
+				$display_name . ' (' . $author['username'] . ')') . '</option>';
 		}
 		
 		return $list;

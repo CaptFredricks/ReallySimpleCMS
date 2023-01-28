@@ -1,62 +1,55 @@
 <?php
 /**
- * Install the CMS.
+ * Run the database installer.
  * @since 1.3.0[a]
  */
 
-// Include named constants
-require_once dirname(__DIR__).'/includes/constants.php';
+// Named constants
+require_once dirname(__DIR__) . '/includes/constants.php';
 
-// Make sure config file has been created already (if not, redirect to the setup page)
-if(!file_exists(DB_CONFIG)) header('Location: '.ADMIN.'/setup.php');
+// Make sure config file has been created already
+if(!file_exists(DB_CONFIG)) header('Location: ' . ADMIN . '/setup.php');
 
-// Include debugging functions
+// Debugging functions
 require_once DEBUG_FUNC;
 
-// Include the database configuration
+// Database configuration
 require_once DB_CONFIG;
 
-// Include the Query class
+// Query class
 require_once QUERY_CLASS;
 
 // Create a Query object
 $rs_query = new Query;
 
-// Include global functions
+// Global functions
 require_once GLOBAL_FUNC;
 
-// Include admin functions
+// Admin functions
 require_once ADMIN_FUNC;
 
 // Make sure the CMS isn't already installed
 if($rs_query->conn_status) {
-	// Include the database schema
+	// Database schema
 	require_once DB_SCHEMA;
 	
-	// Fetch the database schema
 	$schema = dbSchema();
-	
-	// Get a list of tables in the database
 	$tables = $rs_query->showTables();
 	
-	// Check whether the database is installed
 	if(!empty($tables)) {
-		// Create a flag for whether the database is installed
 		$installed = true;
 		
-		// Loop through the schema
 		foreach($schema as $key => $value) {
 			// Check whether the table exists in the database and create it if not
 			if(!$rs_query->tableExists($key)) $rs_query->doQuery($schema[$key]);
 		}
 		
-		// Warn the user that the database is already installed
-		exit(CMS_NAME.' is already installed!');
+		exit(CMS_NAME . ' is already installed!');
 	}
 }
 
-// Include the run install file
-require_once PATH.ADMIN.INC.'/run-install.php';
+// AJAX installation file
+require_once PATH . ADMIN . INC . '/run-install.php';
 
 // Set the current step of the installation process
 $step = (int)($_GET['step'] ?? 1);
@@ -69,7 +62,6 @@ $step = (int)($_GET['step'] ?? 1);
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="robots" content="noindex, nofollow">
 		<?php
-		// Include stylesheets
 		putStylesheet('button.min.css');
 		adminStylesheet('install.min.css');
 		putStylesheet('font-awesome.min.css', ICONS_VERSION);
@@ -105,7 +97,7 @@ $step = (int)($_GET['step'] ?? 1);
 				
 				// Display any validation errors
 				if(!is_null($error))
-					echo '<p class="status-message failure">'.$error.'</p>';
+					echo '<p class="status-message failure">' . $error . '</p>';
 				?>
 				<form class="data-form" action="?step=2" method="post">
 					<table class="form-table">
@@ -160,7 +152,6 @@ $step = (int)($_GET['step'] ?? 1);
 			?>
 		</div>
 		<?php
-		// Include scripts
 		putScript('jquery.min.js', JQUERY_VERSION);
 		adminScript('install.min.js');
 		?>

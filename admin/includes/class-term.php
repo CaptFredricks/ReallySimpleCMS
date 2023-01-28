@@ -140,10 +140,9 @@ class Term {
 			?>
 			<hr>
 			<?php
-			// Check whether any status messages have been returned and display them if so
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success') {
-				echo statusMessage('The ' . strtolower($this->tax_data['labels']['name_singular']) .
-					' was successfully deleted.', true);
+				echo exitNotice('The ' . strtolower($this->tax_data['labels']['name_singular']) .
+					' was successfully deleted.');
 			}
 			
 			if(!is_null($search)) {
@@ -422,9 +421,8 @@ class Term {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Make sure no required fields are empty
 		if(empty($data['name']) || empty($data['slug']))
-			return statusMessage('R');
+			return exitNotice('REQ', -1);
 		
 		$slug = sanitize($data['slug']);
 		
@@ -452,8 +450,8 @@ class Term {
 			// Update the class variables
 			foreach($data as $key => $value) $this->$key = $value;
 			
-			return statusMessage($this->tax_data['labels']['name_singular'] . ' updated! <a href="' .
-				$this->tax_data['menu_link'] . '">Return to list</a>?', true);
+			return exitNotice($this->tax_data['labels']['name_singular'] . ' updated! <a href="' .
+				$this->tax_data['menu_link'] . '">Return to list</a>?');
 		}
 	}
 	

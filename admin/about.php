@@ -1,8 +1,14 @@
-<?php require_once __DIR__ . '/header.php'; ?>
-<div class="content">
-	<div class="heading-wrap">
+<?php
+/**
+ * Admin about page.
+ * @since 1.3.2[b]
+ */
+require_once __DIR__ . '/header.php';
+?>
+<article class="content">
+	<section class="heading-wrap">
 		<h1>About <?php echo CMS_NAME; ?></h1>
-	</div>
+	</section>
 	<table class="data-table">
 		<tbody>
 			<?php
@@ -57,5 +63,5 @@
 			?>
 		</tbody>
 	</table>
-</div>
+</article>
 <?php require_once __DIR__ . '/footer.php'; ?>

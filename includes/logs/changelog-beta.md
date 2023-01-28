@@ -18,6 +18,96 @@
 - [a] = alpha
 - [b] = beta
 
+## Version 1.3.8[b] (2023-01-27)
+
+- Cleaned up internal documentation throughout the CMS
+- Removed some test code from the `Query` class
+- Updated a link in the admin footer
+- Users can now choose their display name
+- Renamed the Media 'author' column to 'uploader'
+- Added an introduction paragraph to the top of the admin dashboard page
+- The `generateHash` function is now globally accessible
+- The `generatePassword` function now uses the `generateHash` function to generate a password
+- Removed an optional parameter from the `generatePassword` function
+- Status messages are now called notices
+  - Added notices functionality to the dashboard page
+  - Overhauled notices throughout the entire admin area
+- Henceforth, minified versions of CSS and JS files will not be explicitly included in the changelog
+- When a user replies to a comment, a note indicating which comment is being replied to now displays above the comment box
+- Updated Font Awesome to v6.2.1
+- Updated jQuery to v3.6.3
+- New functions:
+  - Admin `Notice` class (`defaultMsg`, `isDismissed`, `msg`, `unhide`)
+  - Admin `Profile` class (`getDisplayNames`)
+  - Admin `functions.php` (`ctDraft`, `exitNotice`, `isDismissedNotice`)
+  - `theme-functions.php` file (`queryDelete`, `queryInsert`, `querySelect`, `querySelectField`, `querySelectRow`, `queryUpdate`)
+- Renamed functions:
+  - Admin `functions.php` (`statusMessage` -> `notice`)
+
+**Bug fixes:**
+- Undefined errors occur when bulk updating
+- Post comment counts match the original post even though the comments are not duplicated (they're now set to zero on the new post)
+
+**Modified files:**
+- admin/about.php
+- admin/categories.php
+- admin/comments.php
+- admin/header.php
+- admin/includes/ajax.php (N)
+- admin/includes/bulk-actions.php
+- admin/includes/class-comment.php
+- admin/includes/class-login.php
+- admin/includes/class-media.php
+- admin/includes/class-menu.php
+- admin/includes/class-notice.php (N)
+- admin/includes/class-post.php
+- admin/includes/class-profile.php
+- admin/includes/class-settings.php (M)
+- admin/includes/class-term.php
+- admin/includes/class-theme.php
+- admin/includes/class-user-role.php
+- admin/includes/class-user.php
+- admin/includes/class-widget.php
+- admin/includes/css/style.css
+- admin/includes/functions.php
+- admin/includes/js/script.js
+- admin/includes/load-media.php
+- admin/includes/run-install.php
+- admin/includes/upload.php (M)
+- admin/index.php
+- admin/install.php
+- admin/logins.php
+- admin/media.php
+- admin/menus.php
+- admin/posts.php
+- admin/profile.php
+- admin/settings.php
+- admin/setup.php
+- admin/terms.php
+- admin/themes.php
+- admin/users.php
+- admin/widgets.php
+- content/themes/carbon/category.php (M)
+- content/themes/carbon/functions.php (M)
+- content/themes/carbon/script.js
+- content/themes/carbon/style.css (M)
+- includes/ajax.php (M)
+- includes/class-comment.php
+- includes/class-post.php
+- includes/class-query.php (M)
+- includes/css/font-awesome-rules.min.css
+- includes/css/font-awesome.min.css
+- includes/fonts/fa-brands.ttf
+- includes/fonts/fa-regular.ttf
+- includes/fonts/fa-solid.ttf
+- includes/fonts/fa-v4compatibility.ttf
+- includes/functions.php
+- includes/global-functions.php
+- includes/js/jquery.min.js
+- includes/js/script.js
+- includes/theme-functions.php
+- includes/update-db.php
+
 ## Version 1.3.7.1[b] (2022-12-18)
 
 - Tweaked a previous entry in the changelog

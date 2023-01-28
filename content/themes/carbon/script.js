@@ -118,16 +118,18 @@ jQuery(document).ready($ => {
 	 * Reply to a comment on a comment feed.
 	 * @since 1.1.0[b]{ss-05}
 	 */
-	
 	$('body').off('click', '.comment .actions .reply');
 	$('body').on('click', '.comment .actions .reply', function(e) {
 		e.preventDefault();
 		
+		let reply_to = $(this).children().data('replyto');
+		
+		$('.comments #reply-to').text('Replying to #' + reply_to + ':');
 		$('.comments #comments-reply .textarea-input').show();
 		$('.comments #comments-reply .submit-comment').show();
 		$('.comments #comments-reply p').remove();
 		$('html, body').animate({scrollTop: $('.comments').offset().top - 50}, 0);
-		$('.comments #comments-reply input[name="replyto"]').val($(this).children().data('replyto'));
+		$('.comments #comments-reply input[name="replyto"]').val(reply_to);
 	});
 	
 	/**

@@ -70,7 +70,9 @@ class Query {
 	 * @param string|array $limit (optional; default: '')
 	 * @return int|array
 	 */
-	public function select($table, $data = '*', $where = array(), $order_by = '', $order = 'ASC', $limit = '') {
+	public function select($table, $data = '*', $where = array(), $order_by = '', $order = 'ASC', $limit = ''
+		): int|array {
+			
 		// Stop execution and throw an error if no table is specified
 		if(empty($table)) exit($this->errorMsg('table'));
 		
@@ -108,7 +110,6 @@ class Query {
 			// Default logic
 			$logic = 'AND';
 			
-			$x = $y = $z = 0;
 			foreach($where as $field => $value) {
 				if($field === 'logic') {
 					$logic = strtoupper($value);
@@ -180,6 +181,7 @@ class Query {
             }
 		} catch(PDOException $e) {
 			logError($e);
+			return -1;
 		}
 	}
 	
@@ -196,7 +198,9 @@ class Query {
 	 * @param string|array $limit (optional; default: '')
 	 * @return int|array
 	 */
-	public function selectRow($table, $data = '*', $where = array(), $order_by = '', $order = 'ASC', $limit = '') {
+	public function selectRow($table, $data = '*', $where = array(), $order_by = '', $order = 'ASC', $limit = ''
+		): int|array {
+			
 		$db_data = $this->select($table, $data, $where, $order_by, $order, $limit);
 		
 		if(is_array($db_data) && !empty($db_data))
@@ -270,6 +274,7 @@ class Query {
 			return $this->conn->lastInsertId();
 		} catch(PDOException $e) {
 			logError($e);
+			return -1;
 		}
 	}
 	

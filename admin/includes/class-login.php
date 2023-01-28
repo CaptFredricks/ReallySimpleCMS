@@ -168,13 +168,12 @@ class Login {
 			?>
 			<hr>
 			<?php
-			// Check whether any status messages have been returned
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success' && isset($_GET['blacklist'])) {
 				// Check whether a login or an IP address was blacklisted and display the appropriate message
 				if($_GET['blacklist'] === 'login')
-					echo statusMessage('The login was successfully blacklisted.', true);
+					echo exitNotice('The login was successfully blacklisted.');
 				elseif($_GET['blacklist'] === 'ip_address')
-					echo statusMessage('The IP address was successfully blacklisted.', true);
+					echo exitNotice('The IP address was successfully blacklisted.');
 			}
 			?>
 			<ul class="status-nav">
@@ -486,9 +485,8 @@ class Login {
 			?>
 			<hr>
 			<?php
-			// Check whether any status messages have been returned and display them if so
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
-				echo statusMessage('The login or IP address was successfully whitelisted.', true);
+				echo exitNotice('The login or IP address was successfully whitelisted.');
 			
 			if(!is_null($search)) {
 				$count = $rs_query->select('login_blacklist', 'COUNT(*)', array(
@@ -755,18 +753,15 @@ class Login {
 		// Extend the Query object and the user's session data
 		global $rs_query, $session;
 		
-		// Make sure no required fields are empty
 		if((empty($data['duration']) && $data['duration'] != 0) || empty($data['reason']))
-			return statusMessage('R');
+			return exitNotice('REQ', -1);
 		
-		// Don't let the user blacklist themselves
 		if($data['name'] === $session['username'] || $data['name'] === $_SERVER['REMOTE_ADDR'])
-			return statusMessage('You cannot blacklist yourself!');
+			return exitNotice('You cannot blacklist yourself!', -1);
 		
-		// Make sure the login or IP address is not already blacklisted
 		if($action !== 'edit' && $this->blacklistExits($data['name'])) {
-			return statusMessage('This ' . ($action === 'login' ? 'login ' : 'IP address') .
-				' is already blacklisted!');
+			return exitNotice('This ' . ($action === 'login' ? 'login ' : 'IP address') .
+				' is already blacklisted!', -1);
 		}
 		
 		// Check which action has been submitted
@@ -833,7 +828,7 @@ class Login {
 				break;
 			case 'create':
 				if(empty($data['name']))
-					return statusMessage('R');
+					return exitNotice('REQ', -1);
 				
 				$attempts = $rs_query->select('login_attempts', 'COUNT(*)', array(
 					'logic' => 'OR',
@@ -874,8 +869,8 @@ class Login {
 				// Update the class variables
 				foreach($data as $key => $value) $this->$key = $value;
 				
-				return statusMessage('Blacklist updated! <a href="' . ADMIN_URI .
-					'?page=blacklist">Return to list</a>?', true);
+				return exitNotice('Blacklist updated! <a href="' . ADMIN_URI .
+					'?page=blacklist">Return to list</a>?');
 				break;
 		}
 	}
@@ -943,9 +938,8 @@ class Login {
 			?>
 			<hr>
 			<?php
-			// Check whether any status messages have been returned and display them if so
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
-				echo statusMessage('The rule was successfully deleted.', true);
+				echo exitNotice('The rule was successfully deleted.');
 			
 			$count = $rs_query->select('login_rules', 'COUNT(*)');
 			$paged['count'] = ceil($count / $paged['per_page']);
@@ -1181,9 +1175,8 @@ class Login {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Make sure no required fields are empty
 		if(empty($data['attempts']) || (empty($data['duration']) && $data['duration'] != 0))
-			return statusMessage('R');
+			return exitNotice('REQ', -1);
 		
 		if($data['type'] !== 'login' && $data['type'] !== 'ip_address')
 			$data['type'] = 'login';
@@ -1208,7 +1201,7 @@ class Login {
 			// Update the class variables
 			foreach($data as $key => $value) $this->$key = $value;
 			
-			return statusMessage('Rule updated! <a href="' . ADMIN_URI . '?page=rules">Return to list</a>?', true);
+			return exitNotice('Rule updated! <a href="' . ADMIN_URI . '?page=rules">Return to list</a>?');
 		}
 	}
 	

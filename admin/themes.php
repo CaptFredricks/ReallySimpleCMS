@@ -1,10 +1,14 @@
 <?php
+/**
+ * Admin themes page.
+ * @since 2.3.0[a]
+ */
 require_once __DIR__ . '/header.php';
 
 // Create a Theme object
 $rs_theme = new Theme;
 ?>
-<div class="content">
+<article class="content">
 	<?php
 	// Fetch the current action
 	$action = $_GET['action'] ?? '';
@@ -34,6 +38,6 @@ $rs_theme = new Theme;
 				redirect('index.php');
 	}
 	?>
-</div>
+</article>
 <?php
 require_once __DIR__ . '/footer.php';

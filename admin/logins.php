@@ -1,4 +1,8 @@
 <?php
+/**
+ * Admin logins page.
+ * @since 1.2.0[b]{ss-01}
+ */
 require_once __DIR__ . '/header.php';
 
 // Fetch the current logins page
@@ -10,7 +14,7 @@ $id = (int)($_GET['id'] ?? 0);
 // Create a Login object
 $rs_login = new Login($page, $id);
 ?>
-<div class="content">
+<article class="content">
 	<?php
 	// Fetch the current action
 	$action = $_GET['action'] ?? '';
@@ -81,6 +85,6 @@ $rs_login = new Login($page, $id);
 			}
 	}
 	?>
-</div>
+</article>
 <?php
 require_once __DIR__ . '/footer.php';

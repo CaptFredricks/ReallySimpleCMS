@@ -90,9 +90,8 @@ class UserRole {
 			?>
 			<hr>
 			<?php
-			// Check whether any status messages have been returned and display them if so
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
-				echo statusMessage('The user role was successfully deleted.', true);
+				echo exitNotice('The user role was successfully deleted.');
 			
 			if(!is_null($search)) {
 				$count = $rs_query->select('user_roles', 'COUNT(*)', array(
@@ -351,13 +350,11 @@ class UserRole {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Make sure no required fields are empty
 		if(empty($data['name']))
-			return statusMessage('R');
+			return exitNotice('REQ', -1);
 		
-		// Make sure the name is not already being used
 		if($this->roleNameExists($data['name'], $id))
-			return statusMessage('That name is already in use. Please choose another one.');
+			return exitNotice('That name is already in use. Please choose another one.', -1);
 		
 		if($id === 0) {
 			// Insert user role
@@ -413,7 +410,7 @@ class UserRole {
 			// Update the class variables
 			foreach($data as $key => $value) $this->$key = $value;
 			
-			return statusMessage('User role updated! <a href="' . ADMIN_URI . '?page=user_roles">Return to list</a>?', true);
+			return exitNotice('User role updated! <a href="' . ADMIN_URI . '?page=user_roles">Return to list</a>?');
 		}
 	}
 	

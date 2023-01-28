@@ -271,15 +271,15 @@ if(version_compare(CMS_VERSION, '1.3.5', '>=')) {
 			
 			$rs_query->update('postmeta', array(
 				'_key' => 'filepath',
-				'value' => trailingSlash($year) . $meta['value']
+				'value' => slash($year) . $meta['value']
 			), array('id' => $meta['id']));
 			
-			if(!file_exists(trailingSlash(PATH . UPLOADS) . $year))
-				mkdir(trailingSlash(PATH . UPLOADS) . $year);
+			if(!file_exists(slash(PATH . UPLOADS) . $year))
+				mkdir(slash(PATH . UPLOADS) . $year);
 			
 			// Move the file
-			$from = trailingSlash(PATH . UPLOADS) . $meta['value'];
-			$to = trailingSlash(PATH . UPLOADS) . trailingSlash($year) . $meta['value'];
+			$from = slash(PATH . UPLOADS) . $meta['value'];
+			$to = slash(PATH . UPLOADS) . slash($year) . $meta['value'];
 			if(!rename($from, $to)) exit('Unable to migrate uploaded files!');
 		}
 		
@@ -299,6 +299,39 @@ if(version_compare(CMS_VERSION, '1.3.5', '>=')) {
 				$content = preg_replace('/\/content\/uploads/', '$0/' . $year, $post['content']);
 				$rs_query->update('posts', array('content' => $content), array('id' => $post['id']));
 			}
+		}
+	}
+}
+
+// Adding `display_name` and `dismissed_notices` usermeta to existing users
+if(version_compare(CMS_VERSION, '1.3.8', '>=')) {
+	$users = $rs_query->select('users', array('id', 'username'));
+	
+	foreach($users as $user) {
+		$dname = $rs_query->selectRow('usermeta', 'COUNT(*)', array(
+			'user' => $user['id'],
+			'_key' => 'display_name'
+		));
+		
+		if($dname === 0) {
+			$rs_query->insert('usermeta', array(
+				'user' => $user['id'],
+				'_key' => 'display_name',
+				'value' => $user['username']
+			));
+		}
+		
+		$dismissed = $rs_query->selectRow('usermeta', 'COUNT(*)', array(
+			'user' => $user['id'],
+			'_key' => 'dismissed_notices'
+		));
+		
+		if($dismissed === 0) {
+			$rs_query->insert('usermeta', array(
+				'user' => $user['id'],
+				'_key' => 'dismissed_notices',
+				'value' => ''
+			));
 		}
 	}
 }

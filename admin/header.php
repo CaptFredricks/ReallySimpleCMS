@@ -30,6 +30,7 @@ if(isset($_COOKIE['session']) && isValidSession($_COOKIE['session'])) {
 }
 
 $current_page = getCurrentPage();
+$notices = array();
 ?>
 <!DOCTYPE html>
 <html>
@@ -49,7 +50,7 @@ $current_page = getCurrentPage();
 				<span><?php putSetting('site_title'); ?></span>
 			</a>
 			<div class="user-dropdown">
-				<span>Welcome, <?php echo $session['username']; ?></span>
+				<span>Welcome, <?php echo $session['display_name']; ?></span>
 				<?php
 				echo getMedia($session['avatar'], array(
 					'class' => 'avatar',

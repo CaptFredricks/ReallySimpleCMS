@@ -276,6 +276,33 @@ jQuery(document).ready($ => {
 	});
 	
 	/**
+	 * Dismiss a status message.
+	 * @since 1.3.8[b]
+	 */
+	$('.notice .dismiss').on('click', function() {
+		$(this).parent().hide(250);
+		
+		let id = $(this).parent().data('id');
+		
+		// Permanently dismiss a notice if it has an id
+		if(id) {
+			let data = {
+				'dismiss_notice': true,
+				'notice_id': id
+			};
+			
+			$.ajax({
+				data: data,
+				method: 'POST',
+				success: result => {
+					console.log(result);
+				},
+				url: '/admin/includes/ajax.php'
+			});
+		}
+	});
+	
+	/**
 	 * Event handler to format a post slug.
 	 * @since 2.1.9[a]
 	 */

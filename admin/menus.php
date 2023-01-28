@@ -1,4 +1,8 @@
 <?php
+/**
+ * Admin menus page.
+ * @since 1.8.0[a]
+ */
 require_once __DIR__ . '/header.php';
 
 // Fetch the menu's id
@@ -7,7 +11,7 @@ $id = (int)($_GET['id'] ?? 0);
 // Create a Menu object
 $rs_menu = new Menu($id);
 ?>
-<div class="content">
+<article class="content">
 	<?php
 	// Fetch the current action
 	$action = $_GET['action'] ?? '';
@@ -34,6 +38,6 @@ $rs_menu = new Menu($id);
 				redirect('index.php');
 	}
 	?>
-</div>
+</article>
 <?php
 require_once __DIR__ . '/footer.php';

@@ -63,14 +63,12 @@ function getCurrentPage(): string {
 		
 		foreach($query_params as $query_param) {
 			if(str_contains($query_param, 'type')) {
-				// Set the current page
 				$current = str_replace(' ', '_',
 					$post_types[substr($query_param, strpos($query_param, '=') + 1)]['labels']['name_lowercase']
 				);
 			}
 			
 			if(str_contains($query_param, 'taxonomy')) {
-				// Set the current page
 				$current = str_replace(' ', '_',
 					$taxonomies[substr($query_param, strpos($query_param, '=') + 1)]['labels']['name_lowercase']
 				);
@@ -80,7 +78,6 @@ function getCurrentPage(): string {
 				// Fetch the current action
 				$action = substr($query_param, strpos($query_param, '=') + 1);
 				
-				// Create an array of pages to exclude
 				$exclude = array('themes', 'menus', 'widgets');
 				
 				foreach($taxonomies as $taxonomy) {
@@ -96,7 +93,7 @@ function getCurrentPage(): string {
 							break;
 						} else {
 							// Add the action's name to the current page
-							$current .= '-'.$action;
+							$current .= '-' . $action;
 							break;
 						}
 				}
@@ -146,7 +143,6 @@ function getCurrentPage(): string {
 		}
 	}
 	
-	// Return the current page
 	return $current === 'index' ? 'dashboard' : $current;
 }
 
@@ -194,7 +190,7 @@ function getPageTitle(): string {
  * @param string $version (optional; default: CMS_VERSION)
  */
 function adminScript($script, $version = CMS_VERSION): void {
-	echo '<script src="' . trailingSlash(ADMIN_SCRIPTS) . $script . (!empty($version) ? '?v=' .
+	echo '<script src="' . slash(ADMIN_SCRIPTS) . $script . (!empty($version) ? '?v=' .
 		$version : '') . '"></script>';
 }
 
@@ -206,7 +202,7 @@ function adminScript($script, $version = CMS_VERSION): void {
  * @param string $version (optional; default: CMS_VERSION)
  */
 function adminStylesheet($stylesheet, $version = CMS_VERSION): void {
-	echo '<link href="' . trailingSlash(ADMIN_STYLES) . $stylesheet . (!empty($version) ? '?v=' .
+	echo '<link href="' . slash(ADMIN_STYLES) . $stylesheet . (!empty($version) ? '?v=' .
 		$version : '') . '" rel="stylesheet">';
 }
 
@@ -218,7 +214,7 @@ function adminStylesheet($stylesheet, $version = CMS_VERSION): void {
  * @param string $version (optional; default: CMS_VERSION)
  */
 function adminThemeStylesheet($stylesheet, $version = CMS_VERSION): void {
-	echo '<link href="' . trailingSlash(ADMIN_THEMES) . $stylesheet . (!empty($version) ? '?v=' .
+	echo '<link href="' . slash(ADMIN_THEMES) . $stylesheet . (!empty($version) ? '?v=' .
 		$version : '') . '" rel="stylesheet">';
 }
 
@@ -245,7 +241,7 @@ function adminHeaderScripts(): void {
 		$filename = $session['theme'] . '.css';
 		
 		// Check whether the stylesheet exists
-		if(file_exists(trailingSlash(PATH . ADMIN_THEMES) . $filename)) {
+		if(file_exists(slash(PATH . ADMIN_THEMES) . $filename)) {
 			// Admin theme stylesheet
 			adminThemeStylesheet($filename);
 		}
@@ -276,7 +272,7 @@ function adminFooterScripts(): void {
  */
 function RSCopyright(): void {
 	?>
-	&copy; <?php echo date('Y'); ?> <a href="/"><?php echo CMS_NAME; ?></a> &bull; Created by <a href="https://jacefincham.com/" target="_blank" rel="noreferrer noopener">Jace Fincham</a>
+	&copy; <?php echo date('Y'); ?> <a href="https://github.com/CaptFredricks/ReallySimpleCMS"><?php echo CMS_NAME; ?></a> &bull; Created by <a href="https://jacefincham.com/" target="_blank" rel="noreferrer noopener">Jace Fincham</a>
 	<?php
 }
 
@@ -307,7 +303,7 @@ function adminNavMenuItem($item = array(), $submenu = array(), $icon = null): vo
 	$item_id = $item['id'] ?? 'menu-item';
 	
 	// Fetch the menu item link
-	$item_link = isset($item['link']) ? trailingSlash(ADMIN) . $item['link'] : 'javascript:void(0)';
+	$item_link = isset($item['link']) ? slash(ADMIN) . $item['link'] : 'javascript:void(0)';
 	
 	// Fetch the menu item caption
 	$item_caption = $item['caption'] ?? ucwords(str_replace(array('_', '-'), ' ', $item_id));
@@ -377,7 +373,7 @@ function adminNavMenuItem($item = array(), $submenu = array(), $icon = null): vo
 						$sub_item_id = $sub_item['id'] ?? $item_id;
 						
 						// Fetch the submenu item link
-						$sub_item_link = isset($sub_item['link']) ? trailingSlash(ADMIN) .
+						$sub_item_link = isset($sub_item['link']) ? slash(ADMIN) .
 							$sub_item['link'] : 'javascript:void(0)';
 						
 						// Fetch the submenu item caption
@@ -537,6 +533,23 @@ function adminNavMenu(): void {
 /*------------------------------------*\
     DASHBOARD
 \*------------------------------------*/
+
+/**
+ * Get the count for posts of status `draft`.
+ * @since 1.3.8[b]
+ *
+ * @param string $type (optional; default: 'post')
+ * @return int
+ */
+function ctDraft($type = 'post'): int {
+	// Extend the Query object
+	global $rs_query;
+	
+	return $rs_query->select('posts', 'COUNT(id)', array(
+		'status' => 'draft',
+		'type' => $type
+	));
+}
 
 /**
  * Get statistics for a specific set of table entries.
@@ -825,10 +838,10 @@ function formTag($tag_name, $args = null): string {
 	// Create an array of property names from the args array
 	$props = !is_null($args) ? array_keys($args) : array();
 	
-	$always_whitelist = array('id', 'class');
+	$always_whitelist = array('id', 'class', 'title');
 	
 	$whitelisted_props = array(
-		'a' => array_merge($always_whitelist, array('href', 'target', 'rel', 'title')),
+		'a' => array_merge($always_whitelist, array('href', 'target', 'rel')),
 		'br' => $always_whitelist,
 		'button' => $always_whitelist,
 		'div' => array_merge($always_whitelist, array('style')),
@@ -844,7 +857,7 @@ function formTag($tag_name, $args = null): string {
 		'label' => array_merge($always_whitelist, array('for')),
 		'option' => array('value', 'selected'),
 		'select' => array_merge($always_whitelist, array('name')),
-		'span' => array_merge($always_whitelist, array('style', 'title')),
+		'span' => array_merge($always_whitelist, array('style')),
 		'textarea' => array_merge($always_whitelist, array('name', 'cols', 'rows'))
 	);
 	
@@ -1051,11 +1064,9 @@ function uploadMediaFile($data): string {
 	// Extend the Query object
 	global $rs_query;
 	
-	// Make sure a file has been selected
 	if(empty($data['name']))
-		return statusMessage('A file must be selected for upload!');
+		return exitNotice('A file must be selected for upload!', -1);
 	
-	// Create an array of accepted MIME types
 	$accepted_mime = array(
 		'image/jpeg',
 		'image/png',
@@ -1067,9 +1078,8 @@ function uploadMediaFile($data): string {
 		'text/plain'
 	);
 	
-	// Check whether the uploaded file is among the accepted MIME types
 	if(!in_array($data['type'], $accepted_mime, true))
-		return statusMessage('The file could not be uploaded.');
+		return exitNotice('The file could not be uploaded.', -1);
 	
 	$basepath = PATH . UPLOADS;
 	
@@ -1159,7 +1169,7 @@ function uploadMediaFile($data): string {
 		));
 	}
 	
-	return statusMessage('Upload successful!', true) . ($status_msg ?? '');
+	return exitNotice('Upload successful!') . ($status_msg ?? '');
 }
 
 /**
@@ -1205,7 +1215,7 @@ function loadMedia($image_only = false): void {
 				if(!in_array($meta['mime_type'], $image_mime, true)) continue;
 				
 				list($width, $height) = getimagesize(
-					trailingSlash(PATH . UPLOADS) . $meta['filepath']
+					slash(PATH . UPLOADS) . $meta['filepath']
 				);
 			}
 			?>
@@ -1428,35 +1438,49 @@ function populateTables($user_data, $settings_data): void {
 }
 
 /**
- * Construct a status message.
+ * Display a notice.
  * @since 1.2.0[a]
  *
  * @param string $text
- * @param bool $success (optional; default: false)
+ * @param string $status (optional; default: 2)
+ * @param bool $can_dismiss (optional; default: true)
+ * @param bool $is_exit (optional; default: false)
  * @return string
  */
-function statusMessage($text, $success = false): string {
-	// Determine whether the status is success or failure
-	if($success === true) {
-		// Set the status message's class to success
-		$class = 'success';
-	} else {
-		// Set the status message's class to failure
-		$class = 'failure';
-		
-		switch($text) {
-			case 'E': case 'e':
-				// Status message for unexpected errors out of the user's control
-				$text = 'An unexpected error occurred. Please contact the system administrator.';
-				break;
-			case 'R': case 'r':
-				// Status message for required form fields that are left empty
-				$text = 'Required fields cannot be left blank!';
-				break;
-		}
-	}
+function notice($text, $status = 2, $can_dismiss = true, $is_exit = false): string {
+	$rs_notice = new Notice;
 	
-	return '<div class="status-message ' . $class . '">' . $text . '</div>';
+	return $rs_notice->msg($text, $status, $can_dismiss, $is_exit);
+}
+
+/**
+ * Display an exit status notice.
+ * @since 1.3.8[b]
+ *
+ * @param string $text
+ * @param string $status (optional; default: 1)
+ * @param bool $can_dismiss (optional; default: true)
+ * @param bool $is_exit (optional; default: false)
+ * @return string
+ */
+function exitNotice($text, $status = 1, $can_dismiss = true): string {
+	return notice($text, $status, $can_dismiss);
+}
+
+/**
+ * Check whether a notice has been dismissed.
+ * @since 1.3.8[b]
+ *
+ * @param string $text
+ * @param array $dismissed
+ * @return bool
+ */
+function isDismissedNotice($text, $dismissed): bool {
+	if($dismissed === false) return false;
+	
+	$rs_notice = new Notice;
+	
+	return $rs_notice->isDismissed($text, $dismissed);
 }
 
 /**

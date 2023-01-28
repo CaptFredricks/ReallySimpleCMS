@@ -112,9 +112,8 @@ class User {
 			?>
 			<hr>
 			<?php
-			// Check whether any status messages have been returned and display them if so
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
-				echo statusMessage('The user was successfully deleted.', true);
+				echo exitNotice('The user was successfully deleted.');
 			?>
 			<ul class="status-nav">
 				<?php
@@ -610,20 +609,19 @@ class User {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Make sure no required fields are empty
 		if(empty($data['username']) || empty($data['email']))
-			return statusMessage('R');
+			return exitNotice('REQ', -1);
 		
 		if(strlen($data['username']) < self::UN_LENGTH)
-			return statusMessage('Username must be at least ' . self::UN_LENGTH . ' characters long.');
+			return exitNotice('Username must be at least ' . self::UN_LENGTH . ' characters long.', -1);
 		
 		$username = sanitize($data['username'], '/[^a-z0-9_\.]/i', false);
 		
 		if($this->usernameExists($username, $id))
-			return statusMessage('That username has already been taken. Please choose another one.');
+			return exitNotice('That username has already been taken. Please choose another one.', -1);
 		
 		if($this->emailExists($data['email'], $id))
-			return statusMessage('That email is already taken by another user. Please choose another one.');
+			return exitNotice('That email is already taken by another user. Please choose another one.', -1);
 		
 		$usermeta = array(
 			'first_name' => $data['first_name'],
@@ -634,13 +632,13 @@ class User {
 		if($id === 0) {
 			// New user
 			if(empty($data['password']))
-				return statusMessage('R');
+				return exitNotice('REQ', -1);
 			
 			if(strlen($data['password']) < self::PW_LENGTH)
-				return statusMessage('Password must be at least ' . self::PW_LENGTH . ' characters long.');
+				return exitNotice('Password must be at least ' . self::PW_LENGTH . ' characters long.', -1);
 			
 			if(!isset($data['pass_saved']) || $data['pass_saved'] != 1)
-				return statusMessage('Please confirm that you\'ve saved your password to a safe location.');
+				return exitNotice('Please confirm that you\'ve saved your password to a safe location.', -1);
 			
 			$hashed_password = password_hash($data['password'], PASSWORD_BCRYPT, array('cost' => 10));
 			
@@ -677,7 +675,7 @@ class User {
 			// Update the class variables
 			foreach($data as $key => $value) $this->$key = $value;
 			
-			return statusMessage('User updated! <a href="' . ADMIN_URI . '">Return to list</a>?', true);
+			return exitNotice('User updated! <a href="' . ADMIN_URI . '">Return to list</a>?');
 		}
 	}
 	
@@ -901,21 +899,20 @@ class User {
 		// Extend the Query object and the user's session data
 		global $rs_query, $session;
 		
-		// Make sure no required fields are empty
 		if(empty($data['admin_pass']) || empty($data['new_pass']) || empty($data['confirm_pass']))
-			return statusMessage('R');
+			return exitNotice('REQ', -1);
 		
 		if(!$this->verifyPassword($data['admin_pass'], $session['id']))
-			return statusMessage('Admin password is incorrect.');
+			return exitNotice('Admin password is incorrect.', -1);
 		
 		if($data['new_pass'] !== $data['confirm_pass'])
-			return statusMessage('New and confirm passwords do not match.');
+			return exitNotice('New and confirm passwords do not match.', -1);
 		
 		if(strlen($data['new_pass']) < self::PW_LENGTH || strlen($data['confirm_pass']) < self::PW_LENGTH)
-			return statusMessage('New password must be at least ' . self::PW_LENGTH . ' characters long.');
+			return exitNotice('New password must be at least ' . self::PW_LENGTH . ' characters long.', -1);
 		
 		if(!isset($data['pass_saved']) || $data['pass_saved'] != 1)
-			return statusMessage('Please confirm that you\'ve saved your password to a safe location.');
+			return exitNotice('Please confirm that you\'ve saved your password to a safe location.', -1);
 		
 		// Hash the password (encrypts the password for security purposes)
 		$hashed_password = password_hash($data['new_pass'], PASSWORD_BCRYPT, array('cost' => 10));
@@ -931,7 +928,7 @@ class User {
 				setcookie('session', '', 1, '/');
 		}
 		
-		return statusMessage('Password updated! Return to <a href="' . ADMIN_URI . '">Return to list</a>?', true);
+		return exitNotice('Password updated! Return to <a href="' . ADMIN_URI . '">Return to list</a>?');
 	}
 	
 	/**

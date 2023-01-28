@@ -1,4 +1,8 @@
 <?php
+/**
+ * Admin posts page.
+ * @since 1.4.0[a]
+ */
 require_once __DIR__ . '/header.php';
 
 // Fetch the post's id
@@ -28,7 +32,7 @@ if($type === 'widget') redirect('widgets.php');
 // Create a Post object
 $rs_post = new Post($id, $post_types[$type] ?? array());
 ?>
-<div class="content">
+<article class="content">
 	<?php
 	// Create an id from the post type's label
 	$type_id = str_replace(' ', '_', $post_types[$type]['labels']['name_lowercase']);
@@ -73,6 +77,6 @@ $rs_post = new Post($id, $post_types[$type] ?? array());
 				redirect('index.php');
 	}
 	?>
-</div>
+</article>
 <?php
 require_once __DIR__ . '/footer.php';

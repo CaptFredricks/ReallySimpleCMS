@@ -71,6 +71,14 @@ class Profile extends User {
 						'value' => $meta['last_name']
 					));
 					
+					// Display name
+					echo formRow('Display Name', array(
+						'tag' => 'select',
+						'class' => 'select-input',
+						'name' => 'display_name',
+						'content' => $this->getDisplayNames()
+					));
+					
 					// Avatar
 					echo formRow('Avatar', array(
 						'tag' => 'div',
@@ -140,22 +148,25 @@ class Profile extends User {
 		// Extend the Query object and the user's session data
 		global $rs_query, $session;
 		
-		// Make sure no required fields are empty
 		if(empty($data['username']) || empty($data['email']))
-			return statusMessage('R');
+			return exitNotice('REQ', -1);
 		
 		if(strlen($data['username']) < self::UN_LENGTH)
-			return statusMessage('Username must be at least ' . self::UN_LENGTH . ' characters long.');
+			return exitNotice('Username must be at least ' . self::UN_LENGTH . ' characters long.', -1);
 		
 		if($this->usernameExists($data['username'], $session['id']))
-			return statusMessage('That username has already been taken. Please choose another one.');
+			return exitNotice('That username has already been taken. Please choose another one.', -1);
 		
 		if($this->emailExists($data['email'], $session['id']))
-			return statusMessage('That email is already taken by another user. Please choose another one.');
+			return exitNotice('That email is already taken by another user. Please choose another one.', -1);
+		
+		$username = $rs_query->selectField('users', 'username', array('id' => $session['id']));
+		$db_usermeta = $this->getUserMeta($session['id']);
 		
 		$usermeta = array(
 			'first_name' => $data['first_name'],
 			'last_name' => $data['last_name'],
+			'display_name' => $data['display_name'],
 			'avatar' => $data['avatar'],
 			'theme' => $data['theme']
 		);
@@ -166,6 +177,24 @@ class Profile extends User {
 		), array('id' => $session['id']));
 		
 		foreach($usermeta as $key => $value) {
+			if($key === 'display_name') {
+				// Update the display name
+				switch($data['display_name']) {
+					case $username:
+						$value = $data['username'];
+						break;
+					case $db_usermeta['first_name']:
+						$value = $data['first_name'];
+						break;
+					case $db_usermeta['first_name'] . ' ' . $db_usermeta['last_name']:
+						$value = $data['first_name'] . ' ' . $data['last_name'];
+						break;
+					case $db_usermeta['last_name'] . ' ' . $db_usermeta['first_name']:
+						$value = $data['last_name'] . ' ' . $data['first_name'];
+						break;
+				}
+			}
+			
 			$rs_query->update('usermeta', array('value' => $value), array(
 				'user' => $session['id'],
 				'_key' => $key
@@ -175,7 +204,56 @@ class Profile extends User {
 		// Update the class variables
 		foreach($data as $key => $value) $this->$key = $value;
 		
-		return statusMessage('Profile updated! This page will automatically refresh for all changes to take effect.', true);
+		return exitNotice('Profile updated! This page will automatically refresh for all changes to take effect.');
+	}
+	
+	/**
+	 * Construct a list of possible display names.
+	 * @since 1.3.8[b]
+	 *
+	 * @access private
+	 * @return string
+	 */
+	private function getDisplayNames(): string {
+		// Extend the Query object
+		global $rs_query;
+		
+		$list = '';
+		$meta = $this->getUserMeta($this->id);
+		
+		$display_names = array(array(
+			'name' => $this->username,
+			'extra' => 'username'
+		));
+		
+		if(!empty($meta['first_name'])) {
+			$display_names[] = array(
+				'name' => $meta['first_name'],
+				'extra' => 'first name only'
+			);
+			
+			if(!empty($meta['last_name'])) {
+				$display_names[] = array(
+					'name' => $meta['first_name'] . ' ' . $meta['last_name'],
+					'extra' => 'Western style'
+				);
+				
+				$display_names[] = array(
+					'name' => $meta['last_name'] . ' ' . $meta['first_name'],
+					'extra' => 'Eastern style'
+				);
+			}
+		}
+		
+		foreach($display_names as $dname) {
+			$list .= tag('option', array(
+				'value' => $dname['name'],
+				'selected' => ($dname['name'] === $meta['display_name']),
+				'content' => $dname['name'] . ' (' . $dname['extra'] . ')'
+			));
+		}
+		
+		return $list;
 	}
 	
 	/**
@@ -316,21 +394,20 @@ class Profile extends User {
 		// Extend the Query object
 		global $rs_query;
 		
-		// Make sure no required fields are empty
 		if(empty($data['current_pass']) || empty($data['new_pass']) || empty($data['confirm_pass']))
-			return statusMessage('R');
+			return exitNotice('REQ', -1);
 		
 		if(!$this->verifyPassword($data['current_pass'], $id))
-			return statusMessage('Current password is incorrect.');
+			return exitNotice('Current password is incorrect.', -1);
 		
 		if($data['new_pass'] !== $data['confirm_pass'])
-			return statusMessage('New and confirm passwords do not match.');
+			return exitNotice('New and confirm passwords do not match.', -1);
 		
 		if(strlen($data['new_pass']) < self::PW_LENGTH || strlen($data['confirm_pass']) < self::PW_LENGTH)
-			return statusMessage('New password must be at least ' . self::PW_LENGTH . ' characters long.');
+			return exitNotice('New password must be at least ' . self::PW_LENGTH . ' characters long.', -1);
 		
 		if(!isset($data['pass_saved']) || $data['pass_saved'] != 1)
-			return statusMessage('Please confirm that you\'ve saved your password to a safe location.');
+			return exitNotice('Please confirm that you\'ve saved your password to a safe location.', -1);
 		
 		$hashed_password = password_hash($data['new_pass'], PASSWORD_BCRYPT, array('cost' => 10));
 		
@@ -342,6 +419,6 @@ class Profile extends User {
 		// Delete the session cookie
 		setcookie('session', '', 1, '/');
 		
-		return statusMessage('Password updated! You will be required to log back in.', true);
+		return exitNotice('Password updated! You will be required to log back in.');
 	}
 }

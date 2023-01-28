@@ -1,13 +1,14 @@
 <?php
+/**
+ * Admin profile page.
+ * @since 2.0.0[a]
+ */
 require_once __DIR__ . '/header.php';
 
-// Fetch the user's session id
-$id = $session['id'];
-
 // Create a Profile object
-$rs_profile = new Profile($id);
+$rs_profile = new Profile($session['id']);
 ?>
-<div class="content">
+<article class="content">
 	<?php
 	// Fetch the current action
 	$action = $_GET['action'] ?? '';
@@ -22,6 +23,6 @@ $rs_profile = new Profile($id);
 			$rs_profile->editProfile();
 	}
 	?>
-</div>
+</article>
 <?php
 require_once __DIR__ . '/footer.php';

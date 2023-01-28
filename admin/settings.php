@@ -1,10 +1,14 @@
 <?php
+/**
+ * Admin settings page.
+ * @since 1.2.6[a]
+ */
 require_once __DIR__ . '/header.php';
 
 // Create a Settings object
 $rs_settings = new Settings;
 ?>
-<div class="content">
+<article class="content">
 	<?php
 	// Fetch the current settings page
 	$page = $_GET['page'] ?? '';
@@ -53,6 +57,6 @@ $rs_settings = new Settings;
 				redirect('index.php');
 	}
 	?>
-</div>
+</article>
 <?php
 require_once __DIR__ . '/footer.php';

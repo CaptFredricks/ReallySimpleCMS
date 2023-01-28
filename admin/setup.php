@@ -1,17 +1,17 @@
 <?php
 /**
- * Set up the CMS.
+ * Set up the basic CMS configuration.
  * @since 1.3.0[a]
  */
 
-// Include named constants
-require_once dirname(__DIR__).'/includes/constants.php';
+// Named constants
+require_once dirname(__DIR__) . '/includes/constants.php';
 
 // Make sure a config file doesn't already exist (this will be created in a moment)
 if(file_exists(DB_CONFIG)) exit('A configuration file already exists. If you wish to continue installation, please delete the existing file.');
 
 // Path to the admin stylesheets directory
-if(!defined('ADMIN_STYLES')) define('ADMIN_STYLES', ADMIN.INC.'/css');
+if(!defined('ADMIN_STYLES')) define('ADMIN_STYLES', ADMIN . INC . '/css');
 
 // Set the current step of the setup process
 $step = (int)($_GET['step'] ?? 0);
@@ -23,8 +23,8 @@ $step = (int)($_GET['step'] ?? 0);
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="robots" content="noindex, nofollow">
-		<link href="<?php echo STYLES.'/button.min.css'; ?>" rel="stylesheet">
-		<link href="<?php echo ADMIN_STYLES.'/install.min.css'; ?>" rel="stylesheet">
+		<link href="<?php echo STYLES . '/button.min.css'; ?>" rel="stylesheet">
+		<link href="<?php echo ADMIN_STYLES . '/install.min.css'; ?>" rel="stylesheet">
 	</head>
 	<body>
 		<h1><?php echo CMS_NAME; ?></h1>
@@ -72,10 +72,10 @@ $step = (int)($_GET['step'] ?? 0);
 					<?php
 					break;
 				case 2:
-					// Include the debugging functions
+					// Debugging functions
 					require_once DEBUG_FUNC;
 					
-					// Include the Query class
+					// Query class
 					require_once QUERY_CLASS;
 					
 					// Create a Query object
@@ -97,22 +97,18 @@ $step = (int)($_GET['step'] ?? 0);
 					define('DB_HOST', trim(strip_tags($_POST['db_host'])));
 					define('DB_CHAR', 'utf8');
 					
-					// Fetch data from the config setup file
-					$config_file = file(PATH.INC.'/config-setup.php');
+					$config_file = file(PATH . INC . '/config-setup.php');
 					
-					// Loop through the file
 					foreach($config_file as $line_num => $line) {
 						// Skip over unmatched lines
 						if(!preg_match('/^define\(\s*\'([A-Z_]+)\'/', $line, $match)) continue;
 						
-						// Matched constant names
 						$constant = $match[1];
 						
-						// Replace the sample text with the provided values
-						$config_file[$line_num] = "define('".$constant."', '".addcslashes(constant($constant), "\\'")."');".chr(10);
+						// Replace the sample text
+						$config_file[$line_num] = "define('" . $constant . "', '" . addcslashes(constant($constant), "\\'") . "');" . chr(10);
 					}
 					
-					// Destroy the line variable
 					unset($line);
 					
 					// Make sure the home directory can be written to
@@ -121,10 +117,8 @@ $step = (int)($_GET['step'] ?? 0);
 						<p><strong>Error!</strong> The <code>config.php</code> file cannot be created. Write permissions may be disabled on your server.</p>
 						<p>If that's the case, just copy the code below and create <code>config.php</code> in the <code>root</code> directory of <?php echo CMS_NAME; ?>.</p>
 						<?php
-						// Create an empty text
 						$text = '';
 						
-						// Loop through the file
 						foreach($config_file as $line)
 							$text .= htmlentities($line, ENT_COMPAT, 'UTF-8');
 						?>
@@ -133,7 +127,6 @@ $step = (int)($_GET['step'] ?? 0);
 						<div class="button-wrap"><a class="button" href="install.php">Run installation</a></div>
 						<?php
 					} else {
-						// File path for the config file
 						$config_file_path = DB_CONFIG;
 						
 						// Open the file stream

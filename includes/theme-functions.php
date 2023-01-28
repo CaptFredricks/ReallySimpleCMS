@@ -673,6 +673,121 @@ function putTermPosts($_term = null, $order_by = 'date', $order = 'DESC', $limit
 }
 
 /*------------------------------------*\
+    QUERIES
+\*------------------------------------*/
+
+/**
+ * Alias for the Query class' select function.
+ * @since 1.3.8[b]
+ *
+ * @see Query::select()
+ * @param string $table
+ * @param string|array $data (optional; default: '*')
+ * @param array $where (optional; default: array())
+ * @param string $order_by (optional; default: '')
+ * @param string $order (optional; default: 'ASC')
+ * @param string|array $limit (optional; default: '')
+ * @return int|array
+ */
+function querySelect($table, $data = '*', $where = array(), $order_by = '', $order = 'ASC', $limit = ''
+	): int|array {
+		
+	// Extend the Query object
+	global $rs_query;
+	
+	return $rs_query->select($table, $data, $where, $order_by, $order, $limit);
+}
+
+/**
+ * Alias for the Query class' selectRow function.
+ * @since 1.3.8[b]
+ *
+ * @see Query::selectRow()
+ * @param string $table
+ * @param string|array $data (optional; default: '*')
+ * @param array $where (optional; default: array())
+ * @param string $order_by (optional; default: '')
+ * @param string $order (optional; default: 'ASC')
+ * @param string|array $limit (optional; default: '')
+ * @return int|array
+ */
+function querySelectRow($table, $data = '*', $where = array(), $order_by = '', $order = 'ASC', $limit = ''
+	): int|array {
+		
+	// Extend the Query object
+	global $rs_query;
+	
+	return $rs_query->selectRow($table, $data, $where, $order_by, $order, $limit);
+}
+
+/**
+ * Alias for the Query class' selectField function.
+ * @since 1.3.8[b]
+ *
+ * @see Query::selectField()
+ * @param string $table
+ * @param string $field
+ * @param array $where (optional; default: array())
+ * @param string $order_by (optional; default: '')
+ * @param string $order (optional; default: 'ASC')
+ * @param string|array $limit (optional; default: '')
+ * @return string
+ */
+function querySelectField($table, $field, $where = array(), $order_by = '', $order = 'ASC', $limit = ''): string {
+	// Extend the Query object
+	global $rs_query;
+	
+	return $rs_query->selectField($table, $field, $where, $order_by, $order, $limit);
+}
+
+/**
+ * Alias for the Query class' insert function.
+ * @since 1.3.8[b]
+ *
+ * @see Query::insert()
+ * @param string $table
+ * @param array $data
+ * @return int
+ */
+function queryInsert($table, $data): int {
+	// Extend the Query object
+	global $rs_query;
+	
+	return $rs_query->insert($table, $data);
+}
+
+/**
+ * Alias for the Query class' update function.
+ * @since 1.3.8[b]
+ *
+ * @see Query::update()
+ * @param string $table
+ * @param array $data
+ * @param array $where (optional; default: array())
+ */
+function queryUpdate($table, $data, $where = array()): void {
+	// Extend the Query object
+	global $rs_query;
+	
+	$rs_query->update($table, $data, $where);
+}
+
+/**
+ * Alias for the Query class' delete function.
+ * @since 1.3.8[b]
+ *
+ * @see Query::delete()
+ * @param string $table
+ * @param array $where (optional; default: array())
+ */
+function queryDelete($table, $where = array()): void {
+	// Extend the Query object
+	global $rs_query;
+	
+	$rs_query->delete($table, $where);
+}
+
+/*------------------------------------*\
     MISCELLANEOUS
 \*------------------------------------*/
 
@@ -685,7 +800,7 @@ function putTermPosts($_term = null, $order_by = 'date', $order = 'DESC', $limit
  * @return bool
  */
 function templateExists($template, $dir): bool {
-    return file_exists(trailingSlash($dir).$template);
+    return file_exists(slash($dir) . $template);
 }
 
 /**
@@ -699,15 +814,15 @@ function getHeader($template = '') {
 	// Extend the user's session data
 	global $session;
 	
-	$theme_path = trailingSlash(PATH . THEMES) . getSetting('theme');
+	$theme_path = slash(PATH . THEMES) . getSetting('theme');
 	
 	// Check whether the template file exists
-	if(!file_exists($theme_path . '/header.php') && !file_exists(trailingSlash($theme_path) . $template . '.php')) {
+	if(!file_exists($theme_path . '/header.php') && !file_exists(slash($theme_path) . $template . '.php')) {
 		// Don't load anything
 		return null;
 	} else {
 		// Include the header template
-		require_once trailingSlash($theme_path) . (!empty($template) ? $template : 'header') . '.php';
+		require_once slash($theme_path) . (!empty($template) ? $template : 'header') . '.php';
 	}
 }
 
@@ -722,15 +837,15 @@ function getFooter($template = '') {
 	// Extend the user's session data
 	global $session;
 	
-	$theme_path = trailingSlash(PATH . THEMES) . getSetting('theme');
+	$theme_path = slash(PATH . THEMES) . getSetting('theme');
 	
 	// Check whether the template file exists
-	if(!file_exists($theme_path . '/footer.php') && !file_exists(trailingSlash($theme_path) . $template . '.php')) {
+	if(!file_exists($theme_path . '/footer.php') && !file_exists(slash($theme_path) . $template . '.php')) {
 		// Don't load anything
 		return null;
 	} else {
 		// Include the footer template
-		require_once trailingSlash($theme_path) . (!empty($template) ? $template : 'footer') . '.php';
+		require_once slash($theme_path) . (!empty($template) ? $template : 'footer') . '.php';
 	}
 }
 

@@ -1,4 +1,8 @@
 <?php
+/**
+ * Admin media page.
+ * @since 2.1.0[a]
+ */
 require_once __DIR__ . '/header.php';
 
 // Fetch the media's id
@@ -7,7 +11,7 @@ $id = (int)($_GET['id'] ?? 0);
 // Create a Media object
 $rs_media = new Media($id);
 ?>
-<div class="content">
+<article class="content">
 	<?php
 	// Fetch the current action
 	$action = $_GET['action'] ?? '';
@@ -39,6 +43,6 @@ $rs_media = new Media($id);
 				redirect('index.php');
 	}
 	?>
-</div>
+</article>
 <?php
 require_once __DIR__ . '/footer.php';

@@ -47,8 +47,10 @@
 	--global--active-menu-link-color: var(--global--link-color);
 	--global--submenu-hover-link-color: #daa660;
 	--global--table-color: #101010;
+	--global--info-color: #07f;
 	--global--success-color: #0d0;
 	--global--failure-color: #f00;
+	--global--warning-color: #fe0;
 }
 
 /*------------------------------------*\
@@ -510,25 +512,82 @@ h3 {
 	margin-top: -0.75em;
 }
 
+/* Notices */
+
+.notice,
 .status-message {
+	background-color: #c7def8;
 	color: #000;
+	display: flex;
 	font-weight: 200;
 	margin: 1em 0;
+	position: relative;
+}
+
+.notice span,
+.status-message span {
 	padding: 0.5em;
 }
 
-.status-message.success {
-	background-color: #e0f9af;
-    border-left: 5px solid #2c0;
-}
-
-.status-message.failure {
-	background-color: #f9d0c0;
-    border-left: 5px solid var(--global--failure-color);
-}
-
+.notice a,
 .status-message a {
 	color: var(--global--secondary-link-color);
+}
+
+.notice.success,
+.status-message.success {
+	background-color: #e0f9af;
+}
+
+.notice.success .icon,
+.status-message.success .icon {
+	background-color: #2c0;
+}
+
+.notice.failure,
+.status-message.failure {
+	background-color: #f9d0c0;
+}
+
+.notice.failure .icon,
+.status-message.failure .icon {
+	background-color: var(--global--failure-color);
+}
+
+.notice.warning,
+.status-message.warning {
+	background-color: #fffccb;
+}
+
+.notice.warning .icon,
+.status-message.warning .icon {
+	background-color: var(--global--warning-color);
+}
+
+.notice .icon,
+.status-message .icon {
+	background-color: var(--global--info-color);
+	display: inline-flex;
+	  align-items: center;
+}
+
+.notice:not(.warning) .icon,
+.status-message:not(.warning) .icon {
+	color: #fff;
+}
+
+.notice .text,
+.status-message .text {
+	margin-right: 0.75em;
+}
+
+.notice .dismiss,
+.status-message .dismiss {
+	cursor: pointer;
+	padding: 0.5em 0.75em;
+	position: absolute;
+	  top: 0;
+	  right: 0;
 }
 
 /* Subheadings */

@@ -55,14 +55,10 @@ class Media extends Post {
 			?>
 			<hr>
 			<?php
-			// Check whether any status messages have been returned
 			if(isset($_GET['exit_status'])) {
-				// Choose an appropriate status message based upon the exit status
 				if($_GET['exit_status'] === 'success') {
-					// Display a success status message
-					echo statusMessage('The media was successfully deleted.', true);
+					echo exitNotice('The media was successfully deleted.');
 				} elseif($_GET['exit_status'] === 'failure') {
-					// Check whether there are conflicts
 					if(isset($_GET['conflicts'])) {
 						// Create an array with the conflicts
 						$conflicts = explode(':', $_GET['conflicts']);
@@ -75,11 +71,9 @@ class Media extends Post {
 						if(in_array('posts', $conflicts, true))
 							$message[] = 'That media is currently a <strong><em>post\'s featured image</em></strong>. If you wish to delete it, unlink it from the post first.';
 						
-						// Display the failure status message
-						echo statusMessage(implode('<br>', $message));
+						echo exitNotice(implode('<br>', $message), -1);
 					} else {
-						// Display a success status message
-						echo statusMessage('The media could not be deleted!');
+						echo exitNotice('The media could not be deleted!', -1);
 					}
 				}
 			}
@@ -105,7 +99,7 @@ class Media extends Post {
 				$header_cols = array(
 					'thumbnail' => 'Thumbnail',
 					'file' => 'File',
-					'author' => 'Author',
+					'uploader' => 'Uploader',
 					'upload-date' => 'Upload Date',
 					'size' => 'Size',
 					'dimensions' => 'Dimensions',
@@ -528,17 +522,15 @@ class Media extends Post {
 		// Extend the Query object and the user's session data
 		global $rs_query, $session;
 		
-		// Make sure no required fields are empty
 		if(empty($data['title']))
-			return statusMessage('R');
+			return exitNotice('REQ', -1);
 		
 		$basepath = PATH . UPLOADS;
 		
 		switch($action) {
 			case 'upload':
-				// Make sure a file has been selected
 				if(empty($data['file']['name']))
-					return statusMessage('A file must be selected for upload!');
+					return exitNotice('A file must be selected for upload!', -1);
 				
 				$accepted_mime = array(
 					'image/jpeg',
@@ -551,9 +543,8 @@ class Media extends Post {
 					'text/plain'
 				);
 				
-				// Check whether the uploaded file is among the accepted MIME types
 				if(!in_array($data['file']['type'], $accepted_mime, true))
-					return statusMessage('The file could not be uploaded.');
+					return exitNotice('The file could not be uploaded.', -1);
 				
 				if(!file_exists($basepath)) mkdir($basepath);
 				
@@ -625,14 +616,12 @@ class Media extends Post {
 				// Update the content class variable
 				$this->content = $data['description'];
 				
-				return statusMessage('Media updated! <a href="' . ADMIN_URI . '">Return to list</a>?', true);
+				return exitNotice('Media updated! <a href="' . ADMIN_URI . '">Return to list</a>?');
 				break;
 			case 'replace':
-				// Make sure a file has been selected
 				if(empty($data['file']['name']))
-					return statusMessage('A file must be selected for upload!');
+					return exitNotice('A file must be selected for upload!', -1);
 				
-				// Create an array of accepted MIME types
 				$accepted_mime = array(
 					'image/jpeg',
 					'image/png',
@@ -644,9 +633,8 @@ class Media extends Post {
 					'text/plain'
 				);
 				
-				// Check whether the uploaded file is among the accepted MIME types
 				if(!in_array($data['file']['type'], $accepted_mime, true))
-					return statusMessage('The file could not be uploaded.');
+					return exitNotice('The file could not be uploaded.', -1);
 				
 				$meta = $this->getPostMeta($id);
 				
@@ -738,7 +726,7 @@ class Media extends Post {
 				// Update the class variables
 				foreach($data as $key => $value) $this->$key = $value;
 				
-				return statusMessage('Media replaced! <a href="' . ADMIN_URI . '">Return to list</a>?', true);
+				return exitNotice('Media replaced! <a href="' . ADMIN_URI . '">Return to list</a>?');
 				break;
 		}
 	}

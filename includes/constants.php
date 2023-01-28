@@ -15,14 +15,14 @@ define('PHP_MINIMUM', '7.4');
 define('PHP_RECOMMENDED', '8.0');
 
 // Current CMS version
-define('CMS_VERSION', '1.3.7');
+define('CMS_VERSION', '1.3.8');
 define('VERSION', CMS_VERSION); // deprecated
 
 // Current jQuery version
-define('JQUERY_VERSION', '3.6.0');
+define('JQUERY_VERSION', '3.6.3');
 
 // Current Font Awesome icons version
-define('ICONS_VERSION', '6.1.1');
+define('ICONS_VERSION', '6.2.1');
 
 /*------------------------------------*\
     DIRECTORIES

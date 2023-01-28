@@ -38,14 +38,18 @@ class Comment {
 		// Extend the Query object
 		global $rs_query;
 		
-		$author = (int)$rs_query->selectField('comments', 'author', array('id' => $id));
+		$author_id = (int)$rs_query->selectField('comments', 'author', array('id' => $id));
 		
-		if($author === 0)
-			$username = 'Anonymous';
-		else
-			$username = $rs_query->selectField('users', 'username', array('id' => $author));
+		if($author_id === 0) {
+			$author = 'Anonymous';
+		} else {
+			$author = $rs_query->selectField('usermeta', 'value', array(
+				'user' => $author_id,
+				'_key' => 'display_name'
+			));
+		}
 		
-		return $username;
+		return $author;
 	}
 	
 	/**
@@ -205,6 +209,7 @@ class Comment {
 			if(!is_null($session) || (is_null($session) && getSetting('allow_anon_comments'))) {
 				?>
 				<div id="comments-reply" class="textarea-wrap">
+					<div id="reply-to"></div>
 					<input type="hidden" name="post" value="<?php echo $rs_post->getPostId(); ?>">
 					<input type="hidden" name="replyto" value="0">
 					<textarea class="textarea-input" cols="60" rows="8" placeholder="Leave a comment"></textarea>

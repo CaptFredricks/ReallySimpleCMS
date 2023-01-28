@@ -1,4 +1,8 @@
 <?php
+/**
+ * Admin terms page.
+ * @since 1.0.4[b]
+ */
 require_once __DIR__ . '/header.php';
 
 // Fetch the term's id
@@ -29,7 +33,7 @@ if($taxonomy === 'category') redirect('categories.php');
 // Create a Term object
 $rs_term = new Term($id, $taxonomies[$taxonomy] ?? array());
 ?>
-<div class="content">
+<article class="content">
 	<?php
 	// Create an id from the taxonomy's label
 	$tax_id = str_replace(' ', '_', $taxonomies[$taxonomy]['labels']['name_lowercase']);
@@ -59,6 +63,6 @@ $rs_term = new Term($id, $taxonomies[$taxonomy] ?? array());
 				redirect('index.php');
 	}
 	?>
-</div>
+</article>
 <?php
 require_once __DIR__ . '/footer.php';

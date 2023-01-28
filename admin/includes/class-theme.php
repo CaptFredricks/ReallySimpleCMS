@@ -23,7 +23,6 @@ class Theme {
 		<div class="heading-wrap">
 			<h1>Themes</h1>
 			<?php
-			// Check whether the user has sufficient privileges to create themes
 			if(userHasPrivilege('can_create_themes'))
 				echo actionLink('create', array('classes' => 'button', 'caption' => 'Create New'));
 			
@@ -32,9 +31,8 @@ class Theme {
 			?>
 			<hr>
 			<?php
-			// Check whether any status messages have been returned and display them if so
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
-				echo statusMessage('The theme was successfully deleted.', true);
+				echo exitNotice('The theme was successfully deleted.');
 			?>
 		</div>
 		<ul class="data-list clear">
@@ -197,14 +195,13 @@ class Theme {
 	 * @return string
 	 */
 	private function validateData($data): string {
-		// Make sure no required fields are empty
 		if(empty($data['name']))
-			return statusMessage('R');
+			return exitNotice('REQ', -1);
 		
 		$name = sanitize($data['name'], '/[^a-z0-9\-]/');
 		
 		if($this->themeExists($name))
-			return statusMessage('That theme already exists. Please choose a different name.');
+			return exitNotice('That theme already exists. Please choose a different name.', -1);
 		
 		$theme_path = trailingSlash(PATH . THEMES) . $name;
 		

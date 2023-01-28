@@ -46,23 +46,17 @@ function getRecentPosts($count = 3, $terms = 0, $display_title = false): void {
 	global $rs_query;
 	?>
 	<div class="recent-posts clear">
-		<?php
-		// Check whether the title should be displayed
-		if($display_title) {
-			?>
+		<?php if($display_title) { ?>
 			<h3>Recent Posts</h3>
-			<?php
+		<?php
 		}
 		
-		// Check whether a term or terms have been specified
 		if($terms === 0) {
-			// Fetch the posts from the database
-			$posts = $rs_query->select('posts', '*', array(
+			$posts = querySelect('posts', '*', array(
 				'status' => 'published',
 				'type' => 'post'
 			), 'date', 'DESC', $count);
 		} else {
-			// Check whether the term value is null
 			if(is_null($terms)) {
 				// Fetch only the posts associated with the current term
 				$posts = getTermPosts($terms, 'date', 'DESC', $count);
@@ -93,10 +87,8 @@ function getRecentPosts($count = 3, $terms = 0, $display_title = false): void {
 			?>
 			<ul>
 				<?php
-				// Loop through the posts
 				foreach($posts as $post) {
-					// Fetch the post's metadata from the database
-					$feat_image = $rs_query->selectField('postmeta', 'value', array(
+					$feat_image = querySelectField('postmeta', 'value', array(
 						'post' => $post['id'],
 						'_key' => 'feat_image'
 					));

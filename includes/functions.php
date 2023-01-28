@@ -102,20 +102,12 @@ function headerScripts($exclude = '', $include_styles = array(), $include_script
 	if(defined('DEBUG_MODE') && DEBUG_MODE) $debug = true;
 	
 	// Button stylesheet
-	if(!in_array('button', $exclude, true)) {
-		if($debug)
-			putStylesheet('button.css');
-		else
-			putStylesheet('button.min.css');
-	}
+	if(!in_array('button', $exclude, true))
+		putStylesheet('button' . ($debug ? '' : '.min') . '.css');
 	
 	// Default stylesheet
-	if(!in_array('style', $exclude, true)) {
-		if($debug)
-			putStylesheet('style.css');
-		else
-			putStylesheet('style.min.css');
-	}
+	if(!in_array('style', $exclude, true))
+		putStylesheet('style' . ($debug ? '' : '.min') . '.css');
 	
 	if(!in_array('fa', $exclude, true)) {
 		// Font Awesome icons stylesheet
@@ -422,7 +414,7 @@ function adminBar(): void {
 			<?php endif; ?>
 		</ul>
 		<div class="user-dropdown">
-			<span>Welcome, <?php echo $session['username']; ?></span>
+			<span>Welcome, <?php echo $session['display_name']; ?></span>
 			<?php echo getMedia($session['avatar'], array(
 				'class' => 'avatar',
 				'width' => 20,
@@ -616,34 +608,6 @@ function registerWidget($title, $slug): void {
 			'type' => 'widget'
 		));
 	}
-}
-
-/**
- * Generate a random hash.
- * @since 2.0.5[a]
- *
- * @param int $length (optional; default: 20)
- * @param bool $special_chars (optional; default: true)
- * @param string $salt (optional; default: '')
- * @return string
- */
-function generateHash($length = 20, $special_chars = true, $salt = ''): string {
-	// Regular characters
-	$chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-	
-	// If desired, add the special characters
-	if($special_chars) $chars .= '!@#$%^&*()-_[]{}<>~`+=,.;:/?|';
-	
-	$hash = '';
-	
-	// Construct a randomized hash
-	for($i = 0; $i < (int)$length; $i++)
-		$hash .= substr($chars, rand(0, strlen($chars) - 1), 1);
-	
-	// Add any salt that's been provided and hash it with md5
-	if(!empty($salt)) $hash = substr(md5(md5($hash.$salt)), 0, (int)$length);
-	
-	return $hash;
 }
 
 /**

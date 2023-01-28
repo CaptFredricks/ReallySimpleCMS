@@ -175,7 +175,10 @@ class Post {
 		
 		$author = $rs_query->selectField('posts', 'author', array('slug' => $this->slug));
 		
-		return $rs_query->selectField('users', 'username', array('id' => $author));
+		return $rs_query->selectField('usermeta', 'value', array(
+			'user' => $author,
+			'_key' => 'display_name'
+		));
 	}
 	
 	/**

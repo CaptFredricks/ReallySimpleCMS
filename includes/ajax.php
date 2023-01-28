@@ -4,13 +4,13 @@
  * @since 1.1.0[b]{ss-03}
  */
 
-// Tell the CMS that it should only initialize the base files and functions
+// Only initialize the base files and functions
 define('BASE_INIT', true);
 
-// Include the initialization file
+// Initialization file
 require_once dirname(__DIR__) . '/init.php';
 
-// Include functions
+// Functions
 require_once FUNC;
 
 // Fetch the user's session data if they're logged in
