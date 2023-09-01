@@ -113,6 +113,7 @@
 - init.php (M)
 
 ## Version 1.2.0[b]{ss-01} (2020-12-05)
+*Feature Update: Login Tracking*
 
 - Tweaked a previous entry in the changelog
 - Added three new tables to the database schema:
@@ -256,6 +257,7 @@
 - includes/update.php (M)
 
 ## Version 1.1.0[b]{ss-01} (2020-09-20)
+*Feature Update: Comments*
 
 - Created a database schema for the `comments` table
 - Created a file that will handle safely updating things such as the database schema

@@ -11,10 +11,9 @@ class Menu {
 	 * @since 2.2.2[a]
 	 *
 	 * @access public
-	 * @param string $slug
+	 * @param string $slug -- The menu's slug.
 	 */
 	public function getMenu($slug): void {
-		// Extend the Query object and the post types and taxonomies arrays
 		global $rs_query, $post_types, $taxonomies;
 		
 		$id = $rs_query->selectField('terms', 'id', array('slug' => $slug));
@@ -22,7 +21,9 @@ class Menu {
 		<nav class="nav-menu menu-id-<?php echo $id; ?>">
 			<ul>
 				<?php
-				$relationships = $rs_query->select('term_relationships', 'post', array('term' => $id));
+				$relationships = $rs_query->select('term_relationships', 'post', array(
+					'term' => $id
+				));
 				$itemmeta = array();
 				$i = 0;
 				
@@ -103,11 +104,10 @@ class Menu {
 	 * @since 2.2.3[a]
 	 *
 	 * @access private
-	 * @param string $uri
+	 * @param string $uri -- The page URI.
 	 * @return bool
 	 */
 	private function isCurrentPage($uri): bool {
-		// Extend the Query object
 		global $rs_query;
 		
 		return $uri === $_SERVER['REQUEST_URI'];
@@ -118,11 +118,10 @@ class Menu {
 	 * @since 2.2.2[a]
 	 *
 	 * @access private
-	 * @param int $id
+	 * @param int $id -- The child menu item's id.
 	 * @return bool
 	 */
 	private function menuItemHasParent($id): bool {
-		// Extend the Query object
 		global $rs_query;
 		
 		return (int)$rs_query->selectField('posts', 'parent', array('id' => $id)) !== 0;
@@ -133,11 +132,10 @@ class Menu {
 	 * @since 2.2.2[a]
 	 *
 	 * @access private
-	 * @param int $id
+	 * @param int $id -- The parent menu item's id.
 	 * @return bool
 	 */
 	private function menuItemHasChildren($id): bool {
-		// Extend the Query object
 		global $rs_query;
 		
 		return $rs_query->select('posts', 'COUNT(*)', array('parent' => $id)) > 0;
@@ -148,11 +146,10 @@ class Menu {
 	 * @since 2.2.2[a]
 	 *
 	 * @access private
-	 * @param int $id
+	 * @param int $id -- The menu item's id.
 	 * @return array
 	 */
 	private function getMenuItemMeta($id): array {
-		// Extend the Query object
 		global $rs_query;
 		
 		$itemmeta = $rs_query->select('postmeta', array('_key', 'value'), array('post' => $id));
@@ -177,7 +174,6 @@ class Menu {
 	 * @return int
 	 */
 	private function getMenuItemParent($id): int {
-		// Extend the Query object
 		global $rs_query;
 		
 		return $rs_query->selectField('posts', 'id', array('id' => $id));

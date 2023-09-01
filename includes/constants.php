@@ -15,7 +15,7 @@ define('PHP_MINIMUM', '7.4');
 define('PHP_RECOMMENDED', '8.0');
 
 // Current CMS version
-define('CMS_VERSION', '1.3.8');
+define('CMS_VERSION', '1.3.9');
 define('VERSION', CMS_VERSION); // deprecated
 
 // Current jQuery version
@@ -53,7 +53,7 @@ define('THEMES', CONT . '/themes');
 define('UPLOADS', CONT . '/uploads');
 
 /*------------------------------------*\
-    FILES
+    CORE FILES
 \*------------------------------------*/
 
 // Path to the database configuration file
@@ -68,18 +68,22 @@ define('QUERY_CLASS', PATH . INC . '/class-query.php');
 // Path to the primary functions file
 define('FUNC', PATH . INC . '/functions.php');
 
-// Path to the admin functions file
-define('ADMIN_FUNC', PATH . ADMIN . INC . '/functions.php');
-
 // Path to the debugging functions file
 define('DEBUG_FUNC', PATH . INC . '/debug.php');
 
+// Path to the critical functions file
+define('CRIT_FUNC', PATH . INC . '/critical-functions.php');
+
 // Path to the global functions file
 define('GLOBAL_FUNC', PATH . INC . '/global-functions.php');
+
+// Path to the admin functions file
+define('ADMIN_FUNC', PATH . ADMIN . INC . '/functions.php');
 
 /*------------------------------------*\
     MISCELLANEOUS
 \*------------------------------------*/
 
-// The name of the CMS
-define('CMS_NAME', 'ReallySimpleCMS');
+// The name of the CMS engine
+define('CMS_ENGINE', 'ReallySimpleCMS');
+define('CMS_NAME', CMS_ENGINE); // deprecated

@@ -4,30 +4,6 @@
  * @since 1.0.0[a]
  */
 
-// Autoload classes
-spl_autoload_register(function($class_name) {
-	// Find all uppercase characters in the class name
-	preg_match_all('/[A-Z]/', $class_name, $matches, PREG_SET_ORDER);
-	
-	// Check whether the class name contains multiple uppercase characters
-	if(count($matches) > 1) {
-		// Remove the first match
-		array_shift($matches);
-		
-		// Loop through the matches
-		foreach($matches as $match) {
-			// Flatten the array
-			$match = implode($match);
-			
-			// Insert hyphens before every match
-			$class_name = substr_replace($class_name, '-', strpos($class_name, $match), 0);
-		}
-	}
-	
-	// Include the class
-	require_once PATH . INC . '/class-' . strtolower($class_name) . '.php';
-});
-
 // Generate a cookie hash based on the site's URL
 define('COOKIE_HASH', md5(getSetting('site_url')));
 

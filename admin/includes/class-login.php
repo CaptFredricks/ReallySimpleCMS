@@ -168,6 +168,10 @@ class Login {
 			?>
 			<hr>
 			<?php
+			// Notices
+			if(!getSetting('track_login_attempts'))
+				echo notice('Login tracking is currently disabled. You can enable it on the <a href="' . ADMIN . '/settings.php">settings page</a>.', 2, false, true);
+			
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success' && isset($_GET['blacklist'])) {
 				// Check whether a login or an IP address was blacklisted and display the appropriate message
 				if($_GET['blacklist'] === 'login')

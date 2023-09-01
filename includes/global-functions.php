@@ -960,18 +960,6 @@ function getUserPrivilegeId($name): int {
 \*------------------------------------*/
 
 /**
- * Redirect to a specified URL.
- * @since 1.7.2[a]
- *
- * @param string $url
- * @param int $status (optional; default: 302)
- */
-function redirect($url, $status = 302): void {
-	header('Location: ' . $url, true, $status);
-	exit;
-}
-
-/**
  * Check whether a directory is empty.
  * @since 2.3.0[a]
  *
@@ -1345,28 +1333,6 @@ function button($args = array(), $link = false): void {
 			(!empty($args['title']) ? ' title="' . $args['title'] . '"' : '') . '>' .
 			($args['label'] ?? 'Button') . '</button>';
 	}
-}
-
-/**
- * Remove a trailing slash from a string.
- * @since 1.3.6[b]
- *
- * @param string $text
- * @return string
- */
-function unslash($text): string {
-	return rtrim($text, '/\\');
-}
-
-/**
- * Add a trailing slash to a string.
- * @since 1.3.6[b]
- *
- * @param string $text
- * @return string
- */
-function slash($text): string {
-	return unslash($text) . '/';
 }
 
 /**

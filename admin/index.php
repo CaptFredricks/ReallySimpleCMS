@@ -27,6 +27,11 @@ require_once __DIR__ . '/header.php';
 				<p>Welcome to the administrative dashboard for <?php putSetting('site_title'); ?>.</p>
 				<?php
 				// Notices
+				$theme_path = slash(PATH . THEMES) . getSetting('theme');
+				
+				if(!file_exists($theme_path . '/index.php'))
+					echo notice('Your current theme is broken. View your themes on the <a href="' . ADMIN . '/themes.php">themes page</a>.', 0, false, true);
+				
 				if($session['dismissed_notices'] !== false) {
 					$hidden = count($session['dismissed_notices']);
 					

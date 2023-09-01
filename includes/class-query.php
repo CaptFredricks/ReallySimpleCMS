@@ -16,7 +16,7 @@ class Query {
 	private $conn;
 	
 	/**
-	 * The status of the database connection.
+	 * The database connection status.
 	 * @since 1.3.0[a]
 	 *
 	 * @access public
@@ -62,33 +62,33 @@ class Query {
 	 * @since 1.1.0[a]
 	 *
 	 * @access public
-	 * @param string $table
-	 * @param string|array $data (optional; default: '*')
-	 * @param array $where (optional; default: array())
-	 * @param string $order_by (optional; default: '')
-	 * @param string $order (optional; default: 'ASC')
-	 * @param string|array $limit (optional; default: '')
+	 * @param string $table -- The table name.
+	 * @param string|array $cols (optional) -- The column(s) to query.
+	 * @param array $where (optional) -- The where clause.
+	 * @param string $order_by (optional) -- The column to order results by.
+	 * @param string $order (optional) -- The sort order (ASC|DESC).
+	 * @param string|array $limit (optional) -- Limit the results.
 	 * @return int|array
 	 */
-	public function select($table, $data = '*', $where = array(), $order_by = '', $order = 'ASC', $limit = ''
+	public function select($table, $cols = '*', $where = array(), $order_by = '', $order = 'ASC', $limit = ''
 		): int|array {
 			
 		// Stop execution and throw an error if no table is specified
 		if(empty($table)) exit($this->errorMsg('table'));
 		
-		if(is_array($data)) {
+		if(is_array($cols)) {
 			// DISTINCT clause
-			if(in_array('DISTINCT', $data, true)) {
+			if(in_array('DISTINCT', $cols, true)) {
 				$distinct = true;
 				
 				// Remove 'DISTINCT' from the array
-				array_splice($data, array_search('DISTINCT', $data), 1);
+				array_splice($cols, array_search('DISTINCT', $cols), 1);
 			}
 			
-			$data = implode(', ', $data);
+			$cols = implode(', ', $cols);
 		}
 		
-		$sql = 'SELECT ' . (isset($distinct) ? 'DISTINCT ' : '') . $data . ' FROM `' . $table . '`';
+		$sql = 'SELECT ' . (isset($distinct) ? 'DISTINCT ' : '') . $cols . ' FROM `' . $table . '`';
 		
 		// WHERE clause
 		if(!empty($where)) {
@@ -165,19 +165,19 @@ class Query {
 			$sql .= ' LIMIT ' . $limit;
 		}
 		
-		$db_data = array();
-		
 		try {
 			$select_query = $this->conn->prepare($sql);
 			isset($values) ? $select_query->execute($values) : $select_query->execute();
 			
-			if(str_starts_with(strtoupper($data), 'COUNT(')) {
+			if(str_starts_with(strtoupper($cols), 'COUNT(')) {
                 return $select_query->fetchColumn();
             } else {
-     			while($row = $select_query->fetch(PDO::FETCH_ASSOC))
-     				$db_data[] = $row;
+				$data = array();
 				
-                return $db_data;
+     			while($row = $select_query->fetch(PDO::FETCH_ASSOC))
+     				$data[] = $row;
+				
+                return $data;
             }
 		} catch(PDOException $e) {
 			logError($e);

@@ -63,30 +63,30 @@ if(version_compare(CMS_VERSION, '1.1.0', '>=')) {
 
 // Tweaking settings
 if(version_compare(CMS_VERSION, '1.1.7', '>=')) {
-	// Setting: 'comment_status'
+	// Setting: `comment_status`
 	if($rs_query->selectRow('settings', 'COUNT(*)', array('name' => 'comment_status')) > 0) {
-		// Rename the setting to 'enable_comments'
+		// Rename the setting to `enable_comments`
 		$rs_query->update('settings',
 			array('name' => 'enable_comments'),
 			array('name' => 'comment_status')
 		);
 	} else {
-		// Check whether the 'enable_comments' setting exists
+		// Check whether the `enable_comments` setting exists
 		if(!$rs_query->selectRow('settings', 'COUNT(*)', array('name' => 'enable_comments')) > 0)
 			$rs_query->insert('settings', array('name' => 'enable_comments', 'value' => 1));
 	}
 	
-	// Setting: 'comment_approval'
+	// Setting: `comment_approval`
 	if($rs_query->selectRow('settings', 'COUNT(*)', array('name' => 'comment_approval')) > 0) {
-		// Rename the setting to 'auto_approve_comments'
+		// Rename the setting to `auto_approve_comments`
 		$rs_query->update('settings', array('name' => 'auto_approve_comments'), array('name' => 'comment_approval'));
 	} else {
-		// Check whether the 'auto_approve_comments' setting exists
+		// Check whether the `auto_approve_comments` setting exists
 		if(!$rs_query->selectRow('settings', 'COUNT(*)', array('name' => 'auto_approve_comments')) > 0)
 			$rs_query->insert('settings', array('name' => 'auto_approve_comments', 'value' => 0));
 	}
 	
-	// Setting: 'allow_anon_comments'
+	// Setting: `allow_anon_comments`
 	if(!$rs_query->selectRow('settings', 'COUNT(*)', array('name' => 'allow_anon_comments')) > 0)
 		$rs_query->insert('settings', array('name' => 'allow_anon_comments', 'value' => 0));
 }
@@ -331,6 +331,26 @@ if(version_compare(CMS_VERSION, '1.3.8', '>=')) {
 				'user' => $user['id'],
 				'_key' => 'dismissed_notices',
 				'value' => ''
+			));
+		}
+	}
+}
+
+// Adding `index_post` metadata to existing posts
+if(version_compare(CMS_VERSION, '1.3.9', '>=')) {
+	$posts = $rs_query->select('posts', 'id');
+	
+	foreach($posts as $post) {
+		$index = $rs_query->selectRow('postmeta', 'COUNT(*)', array(
+			'post' => $post['id'],
+			'_key' => 'index_post'
+		));
+		
+		if($index === 0) {
+			$rs_query->insert('postmeta', array(
+				'post' => $post['id'],
+				'_key' => 'index_post',
+				'value' => getSetting('do_robots')
 			));
 		}
 	}

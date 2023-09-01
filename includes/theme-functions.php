@@ -874,6 +874,9 @@ function metaTags(): void {
 		if(isPost())
 			!empty(getPostMeta('description')) ? putPostMeta('description') : putPostExcerpt();
 		?>">
+	<?php if(isPost() && !getPostMeta('index_post')): ?>
+		<meta name="robots" content="noindex, follow">
+	<?php endif; ?>
 	<meta property="og:title" content="<?php
 		if(isPost())
 			!empty(getPostMeta('title')) ? putPostMeta('title') : putPostTitle();

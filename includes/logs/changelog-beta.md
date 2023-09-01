@@ -18,6 +18,59 @@
 - [a] = alpha
 - [b] = beta
 
+## Version 1.3.9[b] (2023-09-01)
+
+- Tweaked the readme file
+- General code cleanup
+- Improving internal documentation
+- Renamed a parameter of the `Comment::loadComments` method
+- Renamed a parameter of the `Login::isBlacklisted` method
+- Added a new file that loads critical functions early on in the CMS initialization
+- Rearranged and updated some of the global constants
+- Added a new global constant for the new critical functions file
+- Streamlined and improved class autoloading to allow for interface support
+- Cleaned up the initialization file
+- Tweaked the core front end styles
+- Added notices if comments are disabled or if loging tracking is disabled
+- Added a notice if the site is using a broken theme
+- Broken themes can no longer be activated through the dashboard
+- Individual posts can now be noindexed
+- Added an interface for admin pages (non-functional)
+- New functions:
+  - `critical-functions.php` (`checkPHPVersion`, `formatPathFragment`, `getClassFilename`)
+- Renamed functions and methods:
+  - `Login` class (`statusMessage` -> `statusMsg`)
+
+**Bug fixes:**
+- Parent dropdown resets to 'none' after saving a page
+- The `exitNotice` method wasn't passing the `is_exit` parameter
+
+**Modified files:**
+- README.md (M)
+- admin/includes/class-comment.php
+- admin/includes/class-login.php
+- admin/includes/class-media.php
+- admin/includes/class-post.php
+- admin/includes/class-theme.php
+- admin/includes/css/style.css (M)
+- admin/includes/functions.php
+- admin/includes/interface-admin.php (N)
+- admin/index.php
+- includes/class-comment.php
+- includes/class-login.php
+- includes/class-menu.php
+- includes/class-query.php
+- includes/constants.php
+- includes/critical-functions.php (N)
+- includes/css/style.css
+- includes/debug.php
+- includes/functions.php
+- includes/global-functions.php
+- includes/load-theme.php
+- includes/theme-functions.php
+- includes/update-db.php
+- init.php
+
 ## Version 1.3.8[b] (2023-01-27)
 
 - Cleaned up internal documentation throughout the CMS
@@ -463,6 +516,7 @@
 - init.php
 
 ## Version 1.3.0[b] (2022-02-10)
+*Feature Update: QoL Improvements*
 
 - Tweaked the README file
 - Tweaked a previous entry in the changelog
@@ -896,6 +950,7 @@
 - includes/update.php
 
 ## Version 1.2.0[b] (2021-01-16)
+*Feature Update: Login Tracking*
 
 ### Dedicated to my grandmother, "Nam" (1940 - 2021)
 
@@ -1074,7 +1129,7 @@
 - Category pages fallback to the generic taxonomy template if a category template does not exist
 - Cleaned up some entries in the Alpha changelog
 - New functions:
-  - `includes.php` (`pageTitle`, `metaTags`)
+  - `functions.php` (`pageTitle`, `metaTags`)
 
 **Bug fixes:**
 - Sitemap links in the `sitemap-index.php` file are missing the `includes` directory before the filename
@@ -1174,6 +1229,7 @@
 - includes/js/script.js
 
 ## Version 1.1.0[b] (2020-10-22)
+*Feature Update: Comments*
 
 - For a full list of changes, see: `changelog-beta-snapshots.md`
 - Optimized and improved the action links functionality for all of the "List \<item>" pages
@@ -1578,6 +1634,7 @@
 - init.php (M)
 
 ## Version 1.0.0[b] (2020-06-21)
+*Feature Update: Custom Post Types*
 
 - Created content for the readme
 - Renamed `changelog.md` to `changelog-alpha.md`

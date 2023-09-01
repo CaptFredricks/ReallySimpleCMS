@@ -14,7 +14,6 @@ class Theme {
 	 * @access public
 	 */
 	public function listThemes(): void {
-		// Extend the Query object
 		global $rs_query;
 		
 		// Query vars
@@ -31,6 +30,7 @@ class Theme {
 			?>
 			<hr>
 			<?php
+			// Notices
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
 				echo exitNotice('The theme was successfully deleted.');
 			?>
@@ -54,14 +54,12 @@ class Theme {
 			foreach($themes as $theme) {
 				if(!is_null($search) && !str_contains($theme, $search)) continue;
 				
-				$theme_path = trailingSlash(PATH . THEMES) . $theme;
-				$is_broken = false;
-				
-				if(!file_exists($theme_path . '/index.php')) $is_broken = true;
+				$theme_path = slash(PATH . THEMES) . $theme;
+				$is_broken = $this->isBrokenTheme($theme_path);
 				
 				$actions = array(
 					// Activate
-					userHasPrivilege('can_edit_themes') ? actionLink('activate', array(
+					userHasPrivilege('can_edit_themes') && !$is_broken ? actionLink('activate', array(
 						'caption' => 'Activate',
 						'name' => $theme
 					)) : null,
@@ -157,13 +155,14 @@ class Theme {
 	 * @since 2.3.1[a]
 	 *
 	 * @access public
-	 * @param string $name
+	 * @param string $name -- The theme's name.
 	 */
-	public function activateTheme($name): void {
-		// Extend the Query object
+	public function activateTheme(string $name): void {
 		global $rs_query;
 		
-		if(!empty($name) && $this->themeExists($name) && !$this->isActiveTheme($name))
+		$theme_path = slash(PATH . THEMES) . $name;
+		
+		if(!empty($name) && $this->themeExists($name) && !$this->isActiveTheme($name) && !$this->isBrokenTheme($theme_path))
 			$rs_query->update('settings', array('value' => $name), array('name' => 'theme'));
 		
 		redirect(ADMIN_URI);
@@ -174,11 +173,11 @@ class Theme {
 	 * @since 2.3.1[a]
 	 *
 	 * @access public
-	 * @param string $name
+	 * @param string $name -- The theme's name.
 	 */
-	public function deleteTheme($name): void {
+	public function deleteTheme(string $name): void {
 		if(!empty($name) && $this->themeExists($name) && !$this->isActiveTheme($name)) {
-			$this->recursiveDelete(trailingSlash(PATH . THEMES) . $name);
+			$this->recursiveDelete(slash(PATH . THEMES) . $name);
 			
 			redirect(ADMIN_URI . '?exit_status=success');
 		}
@@ -191,10 +190,10 @@ class Theme {
 	 * @since 2.3.1[a]
 	 *
 	 * @access private
-	 * @param array $data
+	 * @param array $data -- The submission data.
 	 * @return string
 	 */
-	private function validateData($data): string {
+	private function validateData(array $data): string {
 		if(empty($data['name']))
 			return exitNotice('REQ', -1);
 		
@@ -203,7 +202,7 @@ class Theme {
 		if($this->themeExists($name))
 			return exitNotice('That theme already exists. Please choose a different name.', -1);
 		
-		$theme_path = trailingSlash(PATH . THEMES) . $name;
+		$theme_path = slash(PATH . THEMES) . $name;
 		
 		// Create the theme directory and index.php
 		mkdir($theme_path);
@@ -217,10 +216,10 @@ class Theme {
 	 * @since 2.3.1[a]
 	 *
 	 * @access private
-	 * @param string $name
+	 * @param string $name -- The theme's name.
 	 * @return bool
 	 */
-	private function themeExists($name): bool {
+	private function themeExists(string $name): bool {
 		// Fetch all installed themes
 		$themes = array_diff(scandir(PATH . THEMES), array('.', '..'));
 		
@@ -235,11 +234,23 @@ class Theme {
 	 * @since 2.3.1[a]
 	 *
 	 * @access private
-	 * @param string $name
+	 * @param string $name -- The theme's name.
 	 * @return bool
 	 */
-	private function isActiveTheme($name): bool {
+	private function isActiveTheme(string $name): bool {
 		return $name === getSetting('theme');
+	}
+	
+	/**
+	 * Check whether a theme is broken.
+	 * @since 1.3.9[b]
+	 *
+	 * @access private
+	 * @param string $path -- The theme's file path.
+	 * @return bool
+	 */
+	private function isBrokenTheme(string $path): bool {
+		return !file_exists($path . '/index.php');
 	}
 	
 	/**
@@ -249,7 +260,7 @@ class Theme {
 	 * @access private
 	 * @param string $dir
 	 */
-	private function recursiveDelete($dir): void {
+	private function recursiveDelete(string $dir): void {
 		// Fetch the directory's contents
 		$contents = array_diff(scandir($dir), array('.', '..'));
 		

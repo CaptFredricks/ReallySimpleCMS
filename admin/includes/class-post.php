@@ -120,11 +120,10 @@ class Post {
 	 * @since 1.0.1[b]
 	 *
 	 * @access public
-	 * @param int $id (optional; default: 0)
-	 * @param array $type_data (optional; default: array())
+	 * @param int $id (optional) -- The post's id.
+	 * @param array $type_data (optional) -- The post type data.
 	 */
-	public function __construct($id = 0, $type_data = array()) {
-		// Extend the Query object and the taxonomies array
+	public function __construct(int $id = 0, array $type_data = array()) {
 		global $rs_query, $taxonomies;
 		
 		// Create an array of columns to fetch from the database
@@ -156,7 +155,6 @@ class Post {
 	 * @access public
 	 */
 	public function listPosts(): void {
-		// Extend the Query object
 		global $rs_query;
 		
 		// Query vars
@@ -622,11 +620,10 @@ class Post {
 							<h2>Comments</h2>
 							<div class="row">
 								<?php
-								// Check whether comments are enabled for this post
-								$comments = isset($_POST['comments']) || (!isset($_POST['comments']) &&
-									$this->type_data['comments']) ? 'checked' : '';
-								
 								// Enable comments
+								$comments = isset($_POST['comments']) ||
+									(!isset($_POST['comments']) && $this->type_data['comments']);
+								
 								echo formTag('input', array(
 									'type' => 'checkbox',
 									'class' => 'checkbox-input',
@@ -707,6 +704,27 @@ class Post {
 							));
 							?>
 						</div>
+						<div class="row">
+							<?php
+							// Index post
+							$index = isset($_POST['index_post']) ||
+								(!isset($_POST['index_post']) && getSetting('do_robots'));
+							
+							echo formTag('input', array(
+								'type' => 'checkbox',
+								'class' => 'checkbox-input',
+								'name' => 'index_post',
+								'value' => ($index ? 1 : 0),
+								'checked' => $index,
+								'label' => array(
+									'class' => 'checkbox-label',
+									'content' => tag('span', array(
+										'content' => 'Index ' . strtolower($this->type_data['labels']['name_singular'])
+									))
+								)
+							));
+							?>
+						</div>
 					</div>
 				</div>
 			</form>
@@ -722,7 +740,6 @@ class Post {
 	 * @access public
 	 */
 	public function editPost(): void {
-		// Extend the Query object
 		global $rs_query;
 		
 		if(empty($this->id) || $this->id <= 0) {
@@ -1049,6 +1066,24 @@ class Post {
 										));
 										?>
 									</div>
+									<div class="row">
+										<?php
+										// Index post
+										echo formTag('input', array(
+											'type' => 'checkbox',
+											'class' => 'checkbox-input',
+											'name' => 'index_post',
+											'value' => $meta['index_post'],
+											'checked' => $meta['index_post'],
+											'label' => array(
+												'class' => 'checkbox-label',
+												'content' => tag('span', array(
+													'content' => 'Index ' . strtolower($this->type_data['labels']['name_singular'])
+												))
+											)
+										));
+										?>
+									</div>
 								</div>
 							</div>
 						</form>
@@ -1067,7 +1102,6 @@ class Post {
 	 * @access public
 	 */
 	public function duplicatePost(): void {
-		// Extend the Query object
 		global $rs_query;
 		
 		if(empty($this->id) || $this->id <= 0) {
@@ -1150,11 +1184,10 @@ class Post {
 	 * @since 1.2.9[b]
 	 *
 	 * @access public
-	 * @param string $status
-	 * @param int $id (optional; default: 0)
+	 * @param string $status -- The post's status.
+	 * @param int $id (optional) -- The post's id.
 	 */
-	public function updatePostStatus($status, $id = 0): void {
-		// Extend the Query object
+	public function updatePostStatus(string $status, int $id = 0): void {
 		global $rs_query;
 		
 		if($id !== 0) $this->id = $id;
@@ -1174,7 +1207,11 @@ class Post {
 							'status' => $status
 						), array('id' => $this->id));
 					} else {
-						$rs_query->update('posts', array('status' => $status), array('id' => $this->id));
+						$rs_query->update('posts', array(
+							'status' => $status
+						), array(
+							'id' => $this->id
+						));
 					}
 				} else {
 					$rs_query->update('posts', array(
@@ -1217,7 +1254,6 @@ class Post {
 	 * @access public
 	 */
 	public function deletePost(): void {
-		// Extend the Query object
 		global $rs_query;
 		
 		if(empty($this->id) || $this->id <= 0) {
@@ -1225,13 +1261,18 @@ class Post {
 		} else {
 			$rs_query->delete('posts', array('id' => $this->id));
 			$rs_query->delete('postmeta', array('post' => $this->id));
-			$relationships = $rs_query->select('term_relationships', '*', array('post' => $this->id));
+			
+			$relationships = $rs_query->select('term_relationships', '*', array(
+				'post' => $this->id
+			));
 			
 			foreach($relationships as $relationship) {
 				$rs_query->delete('term_relationships', array('id' => $relationship['id']));
+				
 				$count = $rs_query->selectRow('term_relationships', 'COUNT(*)', array(
 					'term' => $relationship['term']
 				));
+				
 				$rs_query->update('terms',
 					array('count' => $count),
 					array('id' => $relationship['term'])
@@ -1263,13 +1304,12 @@ class Post {
 	 * @since 1.4.7[a]
 	 *
 	 * @access private
-	 * @param array $data
-	 * @param string $action
-	 * @param int $id (optional; default: 0)
+	 * @param array $data -- The submission data.
+	 * @param string $action -- The current action.
+	 * @param int $id (optional) -- The post's id.
 	 * @return string
 	 */
-	private function validateData($data, $action, $id = 0): string {
-		// Extend the Query object
+	private function validateData(array $data, string $action, int $id = 0): string {
 		global $rs_query;
 		
 		if(empty($data['title']) || empty($data['slug']))
@@ -1292,16 +1332,14 @@ class Post {
 			$postmeta = array(
 				'title' => $data['meta_title'],
 				'description' => $data['meta_description'],
-				'feat_image' => $data['feat_image']
+				'feat_image' => $data['feat_image'],
+				'index_post' => (isset($data['index_post']) ? 1 : 0)
 			);
 			
 			if(isset($data['template'])) $postmeta['template'] = $data['template'];
 			
-			// Check whether comments are enabled for the post type
-			if($this->type_data['comments']) {
-				// Check whether comments are enabled for the specified post
+			if($this->type_data['comments'])
 				$postmeta['comment_status'] = isset($data['comments']) ? 1 : 0;
-			}
 		}
 		
 		switch($action) {
@@ -1469,12 +1507,11 @@ class Post {
 	 * @since 1.4.8[a]
 	 *
 	 * @access protected
-	 * @param string $slug
-	 * @param int $id (optional; default: 0)
+	 * @param string $slug -- The slug.
+	 * @param int $id (optional) -- The post's id.
 	 * @return bool
 	 */
-	protected function slugExists($slug, $id = 0): bool {
-		// Extend the Query object
+	protected function slugExists(string $slug, int $id = 0): bool {
 		global $rs_query;
 		
 		if($id === 0) {
@@ -1492,11 +1529,10 @@ class Post {
 	 * @since 1.4.9[a]
 	 *
 	 * @access private
-	 * @param int $id
+	 * @param int $id -- The post's id.
 	 * @return bool
 	 */
-	private function isTrash($id): bool {
-		// Extend the Query object
+	private function isTrash(int $id): bool {
 		global $rs_query;
 		
 		return $rs_query->selectField('posts', 'status', array('id' => $id)) === 'trash';
@@ -1507,12 +1543,11 @@ class Post {
 	 * @since 1.4.9[a]
 	 *
 	 * @access private
-	 * @param int $id
-	 * @param int $ancestor
+	 * @param int $id -- The post's id.
+	 * @param int $ancestor -- The post's ancestor.
 	 * @return bool
 	 */
-	private function isDescendant($id, $ancestor): bool {
-		// Extend the Query object
+	private function isDescendant(int $id, int $ancestor): bool {
 		global $rs_query;
 		
 		do {
@@ -1530,11 +1565,10 @@ class Post {
 	 * @since 1.4.10[a]
 	 *
 	 * @access protected
-	 * @param int $id
+	 * @param int $id -- The post's id.
 	 * @return array
 	 */
-	protected function getPostMeta($id): array {
-		// Extend the Query object
+	protected function getPostMeta(int $id): array {
 		global $rs_query;
 		
 		$postmeta = $rs_query->select('postmeta', array('_key', 'value'), array('post' => $id));
@@ -1556,11 +1590,10 @@ class Post {
 	 * @since 1.4.0[a]
 	 *
 	 * @access protected
-	 * @param int $id
+	 * @param int $id -- The post's id.
 	 * @return string
 	 */
-	protected function getAuthor($id): string {
-		// Extend the Query object
+	protected function getAuthor(int $id): string {
 		global $rs_query;
 		
 		return $rs_query->selectField('usermeta', 'value', array(
@@ -1574,11 +1607,10 @@ class Post {
 	 * @since 1.4.4[a]
 	 *
 	 * @access private
-	 * @param int $id (optional; default: 0)
+	 * @param int $id (optional) -- The post's id.
 	 * @return string
 	 */
-	private function getAuthorList($id = 0): string {
-		// Extend the Query object
+	private function getAuthorList(int $id = 0): string {
 		global $rs_query;
 		
 		$list = '';
@@ -1603,11 +1635,10 @@ class Post {
 	 * @since 1.5.0[a]
 	 *
 	 * @access private
-	 * @param int $id
+	 * @param int $id -- The post's id.
 	 * @return string
 	 */
-	private function getTerms($id): string {
-		// Extend the Query object
+	private function getTerms(int $id): string {
 		global $rs_query;
 		
 		$terms = array();
@@ -1631,11 +1662,10 @@ class Post {
 	 * @since 1.5.2[a]
 	 *
 	 * @access private
-	 * @param int $id (optional; default: 0)
+	 * @param int $id (optional) -- The post's id.
 	 * @return string
 	 */
-	private function getTermsList($id = 0): string {
-		// Extend the Query object
+	private function getTermsList(int $id = 0): string {
 		global $rs_query;
 		
 		$list = '<ul id="terms-list">';
@@ -1664,7 +1694,6 @@ class Post {
 					))
 				)
 			)) . '</li>';
-			//echo $relationship;
 		}
 		
 		$list .= '</ul>';
@@ -1677,11 +1706,10 @@ class Post {
 	 * @since 1.4.4[a]
 	 *
 	 * @access private
-	 * @param int $id
+	 * @param int $id -- The post's id.
 	 * @return string
 	 */
-	private function getParent($id): string {
-		// Extend the Query object
+	private function getParent(int $id): string {
 		global $rs_query;
 		
 		$parent = $rs_query->selectField('posts', 'title', array('id' => $id));
@@ -1694,13 +1722,12 @@ class Post {
 	 * @since 1.4.4[a]
 	 *
 	 * @access private
-	 * @param string $type
-	 * @param int $parent (optional; default: 0)
-	 * @param int $id (optional; default: 0)
+	 * @param string $type -- The post's type.
+	 * @param int $parent (optional) -- The post's parent id.
+	 * @param int $id (optional) -- The post's id.
 	 * @return string
 	 */
-	private function getParentList($type, $parent = 0, $id = 0): string {
-		// Extend the Query object
+	private function getParentList(string $type, int $parent = 0, int $id = 0): string {
 		global $rs_query;
 		
 		$list = '';
@@ -1733,14 +1760,13 @@ class Post {
 	 * @since 2.3.3[a]
 	 *
 	 * @access private
-	 * @param int $id (optional; default: 0)
+	 * @param int $id (optional) -- The post's id.
 	 * @return string
 	 */
-	private function getTemplateList($id = 0): string {
-		// Extend the Query object
+	private function getTemplateList(int $id = 0): string {
 		global $rs_query;
 		
-		$templates_path = trailingSlash(PATH . THEMES) . getSetting('theme') . '/templates';
+		$templates_path = slash(PATH . THEMES) . getSetting('theme') . '/templates';
 		
 		if(file_exists($templates_path)) {
 			// Fetch all templates in the directory
@@ -1770,14 +1796,13 @@ class Post {
 	 * @since 1.4.0[a]
 	 *
 	 * @access private
-	 * @param string $type
-	 * @param string $status (optional; default: '')
-	 * @param string $search (optional; default: '')
-	 * @param string $term (optional; default: '')
+	 * @param string $type -- The post's type.
+	 * @param string $status (optional) -- The post's status.
+	 * @param string $search (optional) -- The search query.
+	 * @param string $term (optional) -- The term the post is linked to.
 	 * @return int
 	 */
-	private function getPostCount($type, $status = '', $search = '', $term = ''): int {
-		// Extend the Query object
+	private function getPostCount(string $type, string $status = '', string $search = '', string $term = ''): int {
 		global $rs_query;
 		
 		if(empty($status))

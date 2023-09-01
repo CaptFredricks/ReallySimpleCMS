@@ -7,40 +7,24 @@
 // Named constants
 require_once __DIR__ . '/includes/constants.php';
 
-if(version_compare(PHP_VERSION, PHP_MINIMUM, '<'))
-	exit('<p>The minimum version of PHP that is supported by ' . CMS_NAME . ' is ' . PHP_MINIMUM . '; your server is running on ' . PHP_VERSION . '. Please upgrade to the minimum required version or higher to use this CMS.</p>');
+// Critical functions
+require_once CRIT_FUNC;
 
-// Check whether the configuration file exists
-if(!file_exists(DB_CONFIG)) {
-	// Redirect to the setup page
-	header('Location: ' . ADMIN . '/setup.php');
-	exit;
-}
+checkPHPVersion();
 
-// Debugging functions
-require_once DEBUG_FUNC;
+if(!file_exists(DB_CONFIG)) redirect(ADMIN . '/setup.php');
 
 // Database configuration
 require_once DB_CONFIG;
 
-// Query class
-require_once QUERY_CLASS;
+// Debugging functions
+require_once DEBUG_FUNC;
 
 // Global functions
 require_once GLOBAL_FUNC;
 
-// Check whether the 'DEBUG_MODE' constant has been defined and define it if not
-if(!defined('DEBUG_MODE')) define('DEBUG_MODE', false);
-
-// Check whether the CMS is in debug mode and update the 'display_errors' ini value accordingly
-if(DEBUG_MODE === true && !ini_get('display_errors'))
-	ini_set('display_errors', 1);
-elseif(DEBUG_MODE === false && ini_get('display_errors'))
-	ini_set('display_errors', 0);
-
 $rs_query = new Query;
 
-// Check whether the database connection is working
 if(!$rs_query->conn_status)
 	exit('<p>There is a problem with your database connection. Check your <code>config.php</code> file located in the <code>root</code> directory of your installation.</p>');
 
@@ -51,11 +35,9 @@ $schema = dbSchema();
 $tables = $rs_query->showTables();
 
 // Check whether the database is installed
-if(empty($tables)) {
-	header('Location: ' . ADMIN . '/install.php');
-	exit;
-}
+if(empty($tables)) redirect(ADMIN . '/install.php');
 
+// Ensure all required tables exist
 foreach($schema as $key => $value) {
 	if(!$rs_query->tableExists($key)) {
 		// Create the table
@@ -76,7 +58,7 @@ if((defined('MAINT_MODE') && MAINT_MODE) &&
 } else {
 	registerDefaultPostTypes();
 	registerDefaultTaxonomies();
-
+	
 	// Check whether only the base files and functions should be initialized
 	if(!defined('BASE_INIT') || (defined('BASE_INIT') && !BASE_INIT)) {
 		if(file_exists(PATH . INC . '/update.php')) require_once PATH . INC . '/update.php';

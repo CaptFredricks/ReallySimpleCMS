@@ -149,7 +149,7 @@ class Media extends Post {
 					$actions = array_filter($actions);
 					
 					// Get the media's filepath
-					$file_path = trailingSlash(PATH . UPLOADS) . $meta['filepath'];
+					$file_path = slash(PATH . UPLOADS) . $meta['filepath'];
 					
 					if(file_exists($file_path)) {
 						$path = pathinfo($file_path);
@@ -495,7 +495,7 @@ class Media extends Post {
 		
 		// If the file exists, delete it
 		if($filename) {
-			$file_path = trailingSlash(PATH . UPLOADS) . $filename;
+			$file_path = slash(PATH . UPLOADS) . $filename;
 			
 			if(file_exists($file_path)) unlink($file_path);
 			

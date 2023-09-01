@@ -90,6 +90,10 @@ class Comment {
 			?>
 			<hr>
 			<?php
+			// Notices
+			if(!getSetting('enable_comments'))
+				echo notice('Comments are currently disabled. You can enable them on the <a href="' . ADMIN . '/settings.php">settings page</a>.', 2, false, true);
+			
 			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success')
 				echo exitNotice('The comment was successfully deleted.');
 			?>

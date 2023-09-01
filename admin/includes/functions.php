@@ -16,27 +16,16 @@ if(!defined('ADMIN_THEMES')) define('ADMIN_THEMES', CONT . '/admin-themes');
 // Current admin page URI
 if(!defined('ADMIN_URI')) define('ADMIN_URI', $_SERVER['PHP_SELF']);
 
-// Autoload classes
-spl_autoload_register(function($class_name) {
-	// Find all uppercase characters in the class name
-	preg_match_all('/[A-Z]/', $class_name, $matches, PREG_SET_ORDER);
+/**
+ * Autoload a class.
+ * @since 1.0.2[a]
+ *
+ * @param string $class -- The name of the class.
+ */
+spl_autoload_register(function(string $class) {
+	$file = PATH . ADMIN . INC . getClassFilename($class);
 	
-	// Check whether the class name contains multiple uppercase characters
-	if(count($matches) > 1) {
-		// Remove the first match
-		array_shift($matches);
-		
-		foreach($matches as $match) {
-			// Flatten the array
-			$match = implode($match);
-			
-			// Insert hyphens before every match
-			$class_name = substr_replace($class_name, '-', strpos($class_name, $match), 0);
-		}
-	}
-	
-	// Include the class
-	require_once PATH . ADMIN . INC . '/class-' . strtolower($class_name) . '.php';
+	if(file_exists($file)) require $file;
 });
 
 /*------------------------------------*\
@@ -1464,7 +1453,7 @@ function notice($text, $status = 2, $can_dismiss = true, $is_exit = false): stri
  * @return string
  */
 function exitNotice($text, $status = 1, $can_dismiss = true): string {
-	return notice($text, $status, $can_dismiss);
+	return notice($text, $status, $can_dismiss, true);
 }
 
 /**
