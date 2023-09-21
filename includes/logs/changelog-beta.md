@@ -18,6 +18,14 @@
 - [a] = alpha
 - [b] = beta
 
+## Version 1.3.10.1[b] (2023-09-20)
+
+- Incremented the CMS version
+- Tweaked a previous entry in the changelog
+
+**Modified files:**
+- none
+
 ## Version 1.3.10[b] (2023-09-20)
 
 - Tweaked a previous entry in the changelog
@@ -31,10 +39,12 @@
 - Added support for database character sets and collations
 - Extensive cleanup of the setup and installation files
 - Tweaked styling of the database setup and installation pages
+- The `DB_CHAR` constant has been renamed to `DB_CHARSET`
+- Added a new database constant, `DB_COLLATE`, which stores the database collation
 - New functions:
   - `Query` class (`getAttr`, `hasCap`, `initCharset`, `setCharset`)
   - `AdminInterface` interface (`createRecord`, `deleteRecord`, `editRecord`, `listRecords`)
-    - Applied to the following classes: `Comment`, `Menu`, `Post`, `Term`
+    - Applied to the following classes: `Comment`, `Menu`, `Post`, `Term`, `UserRole`, `User`, `Widget`
 
 **Bug fixes:**
 - A minor styling tweak from the last version was not served in the minified version of the CSS file
@@ -45,7 +55,7 @@
 **Modified files:**
 - admin/about.php
 - admin/categories.php
-- admin/comments.php
+- admin/comments.php (M)
 - admin/includes/class-category.php (X)
 - admin/includes/class-comment.php
 - admin/includes/class-login.php
@@ -56,30 +66,30 @@
 - admin/includes/class-profile.php
 - admin/includes/class-settings.php
 - admin/includes/class-term.php
-- admin/includes/class-theme.php
+- admin/includes/class-theme.php (M)
 - admin/includes/class-user-role.php
 - admin/includes/class-user.php
 - admin/includes/class-widget.php
 - admin/includes/css/install.css
-- admin/includes/functions.php
+- admin/includes/functions.php (M)
 - admin/includes/interface-admin.php
-- admin/includes/js/install.js
+- admin/includes/js/install.js (M)
 - admin/includes/js/script.js (M)
 - admin/includes/run-install.php
 - admin/install.php
-- admin/menus.php
-- admin/posts.php
-- admin/settings.php
+- admin/menus.php (M)
+- admin/posts.php (M)
+- admin/settings.php (M)
 - admin/setup.php
-- admin/terms.php
-- admin/users.php
-- admin/widgets.php
-- includes/class-login.php
-- includes/class-post.php
+- admin/terms.php (M)
+- admin/users.php (M)
+- admin/widgets.php (M)
+- includes/class-login.php (M)
+- includes/class-post.php (M)
 - includes/class-query.php
-- includes/config-setup.php
-- includes/global-functions.php
-- init.php
+- includes/config-setup.php (M)
+- includes/global-functions.php (M)
+- init.php (M)
 
 ## Version 1.3.9[b] (2023-09-01)
 
