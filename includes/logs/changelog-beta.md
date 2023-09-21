@@ -18,13 +18,24 @@
 - [a] = alpha
 - [b] = beta
 
+## Version 1.3.10.2[b] (2023-09-21)
+
+- n/a
+
+**Bug fixes:**
+- Old installations using the `DB_CHAR` constant break on any pages that make use of it
+
+**Modified files:**
+- admin/setup.php (M)
+- includes/update.php
+
 ## Version 1.3.10.1[b] (2023-09-20)
 
 - Incremented the CMS version
 - Tweaked a previous entry in the changelog
 
 **Modified files:**
-- none
+- n/a
 
 ## Version 1.3.10[b] (2023-09-20)
 

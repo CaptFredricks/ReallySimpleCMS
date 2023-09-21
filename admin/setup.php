@@ -124,9 +124,10 @@ $step = (int)($_GET['step'] ?? 0);
 									addcslashes(constant($constant), "\\'") . "');" . chr(10);
 								break;
 							case 'DB_CHARSET':
-								if($rs_query->charset === 'utf8mb4' || (!$rs_query->charset && $rs_query->hasCap('utf8mb4')))
+								if($rs_query->charset === 'utf8mb4' || (!$rs_query->charset && $rs_query->hasCap('utf8mb4'))) {
 									$config_file[$line_num] = "define('" . $constant . "', '" .
 										"utf8mb4');" . chr(10);
+								}
 								break;
 						}
 					}
