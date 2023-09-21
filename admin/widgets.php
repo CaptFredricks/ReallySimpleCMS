@@ -19,22 +19,22 @@ $rs_widget = new Widget($id);
 	switch($action) {
 		case 'create':
 			// Create a new widget
-			userHasPrivilege('can_create_widgets') ? $rs_widget->createWidget() :
+			userHasPrivilege('can_create_widgets') ? $rs_widget->createRecord() :
 				redirect(ADMIN_URI);
 			break;
 		case 'edit':
 			// Edit an existing widget
-			userHasPrivilege('can_edit_widgets') ? $rs_widget->editWidget() :
+			userHasPrivilege('can_edit_widgets') ? $rs_widget->editRecord() :
 				redirect(ADMIN_URI);
 			break;
 		case 'delete':
 			// Delete an existing widget
-			userHasPrivilege('can_delete_widgets') ? $rs_widget->deleteWidget() :
+			userHasPrivilege('can_delete_widgets') ? $rs_widget->deleteRecord() :
 				redirect(ADMIN_URI);
 			break;
 		default:
 			// List all widgets
-			userHasPrivilege('can_view_widgets') ? $rs_widget->listWidgets() :
+			userHasPrivilege('can_view_widgets') ? $rs_widget->listRecords() :
 				redirect('index.php');
 	}
 	?>

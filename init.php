@@ -12,6 +12,7 @@ require_once CRIT_FUNC;
 
 checkPHPVersion();
 
+// Set up a new config file if it's missing
 if(!file_exists(DB_CONFIG)) redirect(ADMIN . '/setup.php');
 
 // Database configuration

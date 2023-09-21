@@ -21,14 +21,18 @@ class Notice {
 	 * @since 1.3.8[b]
 	 *
 	 * @access public
-	 * @param string $text
-	 * @param int $status (optional; default: 2)
-	 * @param bool $can_dismiss (optional; default: true)
-	 * @param bool $is_exit (optional; default: false)
+	 * @param string $text -- The notice's text.
+	 * @param int $status (optional) -- The notice's status.
+	 * @param bool $can_dismiss (optional) -- Whether the notice is dismissible.
+	 * @param bool $is_exit (optional) -- Whether the notice is for an exit status (i.e., for a form submission).
 	 * @return string
 	 */
-	public function msg($text, $status = 2, $can_dismiss = true, $is_exit = false): string {
-		// Extend the notices array
+	public function msg(
+		string $text,
+		int $status = 2,
+		bool $can_dismiss = true,
+		bool $is_exit = false
+	): string {
 		global $notices;
 		
 		if(!$is_exit) {
@@ -95,10 +99,9 @@ class Notice {
 	 * @since 1.3.8[b]
 	 *
 	 * @access public
-	 * @param int $user_id
+	 * @param int $user_id -- The user's id.
 	 */
-	public function unhide($user_id): void {
-		// Extend the Query object
+	public function unhide(int $user_id): void {
 		global $rs_query;
 		
 		$rs_query->update('usermeta', array('value' => ''), array(
@@ -112,11 +115,11 @@ class Notice {
 	 * @since 1.3.8[b]
 	 *
 	 * @access public
-	 * @param string $text
-	 * @param array $dismissed
+	 * @param string $text -- The notice's text.
+	 * @param array $dismissed -- The dismissed notices.
 	 * @return bool
 	 */
-	public function isDismissed($text, $dismissed): bool {
+	public function isDismissed(string $text, array $dismissed): bool {
 		return in_array(md5(strip_tags($text)), $dismissed, true);
 	}
 	
@@ -125,10 +128,10 @@ class Notice {
 	 * @since 1.3.8[b]
 	 *
 	 * @access private
-	 * @param string $msg_code
+	 * @param string $msg_code -- The message's "code" abbreviation.
 	 * @return null|string
 	 */
-	private function defaultMsg($msg_code): ?string {
+	private function defaultMsg(string $msg_code): ?string {
 		/**
 		 * The current defaults are:
 		 * ERR - for unexpected errors outside the user's control

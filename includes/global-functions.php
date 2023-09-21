@@ -7,6 +7,9 @@
 // Include the backward compatible functions file
 require_once PATH . INC . '/backward-compat.php';
 
+// Set the server timezone
+ini_set('date.timezone', date_default_timezone_get());
+
 // Array to hold all existing post types
 $post_types = array();
 

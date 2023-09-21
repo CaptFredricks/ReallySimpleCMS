@@ -6,7 +6,7 @@
  * User roles allow privileged users to perform actions throughout the CMS.
  * User roles can be created, modified, and deleted.
  */
-class UserRole {
+class UserRole implements AdminInterface {
 	/**
 	 * The currently queried user role's id.
 	 * @since 1.1.1[b]
@@ -39,13 +39,11 @@ class UserRole {
 	 * @since 1.1.1[b]
 	 *
 	 * @access public
-	 * @param int $id (optional; default: 0)
+	 * @param int $id (optional) -- The role's id.
 	 */
-	public function __construct($id = 0) {
-		// Extend the Query object
+	public function __construct(int $id = 0) {
 		global $rs_query;
 		
-		// Create an array of columns to fetch from the database
 		$cols = array_keys(get_object_vars($this));
 		
 		if($id !== 0) {
@@ -62,8 +60,7 @@ class UserRole {
 	 *
 	 * @access public
 	 */
-	public function listUserRoles(): void {
-		// Extend the Query object
+	public function listRecords(): void {
 		global $rs_query;
 		
 		// Query vars
@@ -99,7 +96,9 @@ class UserRole {
 					'_default' => 'no'
 				));
 			} else {
-				$count = $rs_query->select('user_roles', 'COUNT(*)', array('_default' => 'no'));
+				$count = $rs_query->select('user_roles', 'COUNT(*)', array(
+					'_default' => 'no'
+				));
 			}
 			
 			$paged['count'] = ceil($count / $paged['per_page']);
@@ -166,8 +165,11 @@ class UserRole {
 					);
 				}
 				
-				if(empty($roles))
-					echo tableRow(tdCell('There are no user roles to display.', '', count($header_cols)));
+				if(empty($roles)) {
+					echo tableRow(tdCell('There are no user roles to display.', '',
+						count($header_cols)
+					));
+				}
 				?>
 			</tbody>
 			<tfoot>
@@ -196,8 +198,11 @@ class UserRole {
 					);
 				}
 				
-				if(empty($roles))
-					echo tableRow(tdCell('There are no user roles to display.', '', count($header_cols)));
+				if(empty($roles)) {
+					echo tableRow(tdCell('There are no user roles to display.', '',
+						count($header_cols)
+					));
+				}
 				?>
 			</tbody>
 			<tfoot>
@@ -209,12 +214,12 @@ class UserRole {
 	}
 	
 	/**
-	 * Create a user role.
+	 * Create a new user role.
 	 * @since 1.7.2[a]
 	 *
 	 * @access public
 	 */
-	public function createUserRole(): void {
+	public function createRecord(): void {
 		// Validate the form data and return any messages
 		$message = isset($_POST['submit']) ? $this->validateUserRoleData($_POST) : '';
 		?>
@@ -256,13 +261,12 @@ class UserRole {
 	}
 	
 	/**
-	 * Edit a user role.
+	 * Edit an existing user role.
 	 * @since 1.7.2[a]
 	 *
 	 * @access public
 	 */
-	public function editUserRole(): void {
-		// Extend the Query object
+	public function editRecord(): void {
 		global $rs_query;
 		
 		if(empty($this->id) || $this->id <= 0) {
@@ -314,13 +318,12 @@ class UserRole {
 	}
 	
 	/**
-	 * Delete a user role.
+	 * Delete an existing user role.
 	 * @since 1.7.2[a]
 	 *
 	 * @access public
 	 */
-	public function deleteUserRole(): void {
-		// Extend the Query object
+	public function deleteRecord(): void {
 		global $rs_query;
 		
 		if(empty($this->id) || $this->id <= 0) {
@@ -342,12 +345,11 @@ class UserRole {
 	 * @since 1.7.2[a]
 	 *
 	 * @access private
-	 * @param array $data
-	 * @param int $id (optional; default: 0)
+	 * @param array $data -- The submission data.
+	 * @param int $id (optional) -- The role's id.
 	 * @return string
 	 */
-	private function validateUserRoleData($data, $id = 0): string {
-		// Extend the Query object
+	private function validateUserRoleData(array $data, int $id = 0): string {
 		global $rs_query;
 		
 		if(empty($data['name']))
@@ -357,7 +359,7 @@ class UserRole {
 			return exitNotice('That name is already in use. Please choose another one.', -1);
 		
 		if($id === 0) {
-			// Insert user role
+			// New user role
 			$insert_id = $rs_query->insert('user_roles', array('name' => $data['name']));
 			
 			if(!empty($data['privileges'])) {
@@ -371,7 +373,7 @@ class UserRole {
 			
 			redirect(ADMIN_URI . '?page=user_roles&id=' . $insert_id . '&action=edit');
 		} else {
-			// Update user role
+			// Existing user role
 			$rs_query->update('user_roles', array('name' => $data['name']), array('id' => $id));
 			
 			$relationships = $rs_query->select('user_relationships', '*', array('role' => $id));
@@ -384,21 +386,16 @@ class UserRole {
 				}
 			}
 			
-			// Check whether any privileges have been selected
 			if(!empty($data['privileges'])) {
 				foreach($data['privileges'] as $privilege) {
-					// Fetch any relationships between the current privilege and the role from the database
 					$relationship = $rs_query->selectRow('user_relationships', 'COUNT(*)', array(
 						'role' => $id,
 						'privilege' => $privilege
 					));
 					
-					// Check whether the relationship already exists
 					if($relationship) {
-						// Skip to the next privilege
 						continue;
 					} else {
-						// Insert a new user relationship into the database
 						$rs_query->insert('user_relationships', array(
 							'role' => $id,
 							'privilege' => $privilege
@@ -419,12 +416,11 @@ class UserRole {
 	 * @since 1.7.3[a]
 	 *
 	 * @access private
-	 * @param string $name
-	 * @param int $id
+	 * @param string $name -- The role's name.
+	 * @param int $id -- The role's id.
 	 * @return bool
 	 */
-	private function roleNameExists($name, $id): bool {
-		// Extend the Query object
+	private function roleNameExists(string $name, int $id): bool {
 		global $rs_query;
 		
 		if($id === 0) {
@@ -442,17 +438,17 @@ class UserRole {
 	 * @since 1.7.2[a]
 	 *
 	 * @access private
-	 * @param int $id
+	 * @param int $id -- The role's id.
 	 * @return string
 	 */
-	private function getPrivileges($id): string {
-		// Extend the Query object
+	private function getPrivileges(int $id): string {
 		global $rs_query;
 		
 		$privileges = array();
 		
-		// Fetch the user relationships from the database
-		$relationships = $rs_query->select('user_relationships', 'privilege', array('role' => $id), 'privilege');
+		$relationships = $rs_query->select('user_relationships', 'privilege', array(
+			'role' => $id
+		), 'privilege');
 		
 		foreach($relationships as $relationship) {
 			$privileges[] = $rs_query->selectField('user_privileges', 'name', array(
@@ -468,16 +464,15 @@ class UserRole {
 	 * @since 1.7.2[a]
 	 *
 	 * @access private
-	 * @param int $id (optional; default: 0)
+	 * @param int $id (optional) -- The role's id.
 	 * @return string
 	 */
-	private function getPrivilegesList($id = 0): string {
-		// Extend the Query object
+	private function getPrivilegesList(int $id = 0): string {
 		global $rs_query;
 		
 		$list = '<ul class="checkbox-list">';
 		
-		$privileges = $rs_query->select('user_privileges', '*', '', 'id');
+		$privileges = $rs_query->select('user_privileges', '*', array(), 'id');
 		
 		$list .= '<li>' . tag('input', array(
 			'type' => 'checkbox',

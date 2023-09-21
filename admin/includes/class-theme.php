@@ -106,7 +106,7 @@ class Theme {
 	}
 	
 	/**
-	 * Create a theme.
+	 * Create a new theme.
 	 * @since 2.3.1[a]
 	 *
 	 * @access public
@@ -169,7 +169,7 @@ class Theme {
 	}
 	
 	/**
-	 * Delete a theme.
+	 * Delete an existing theme.
 	 * @since 2.3.1[a]
 	 *
 	 * @access public
@@ -266,7 +266,8 @@ class Theme {
 		
 		foreach($contents as $content) {
 			// If the content is a directory, recursively delete its contents, otherwise delete the file
-			is_dir($dir . '/' . $content) ? recursiveDelete($dir . '/' . $content) : unlink($dir . '/' . $content);
+			is_dir($dir . '/' . $content) ? recursiveDelete($dir . '/' . $content) :
+				unlink($dir . '/' . $content);
 		}
 		
 		// Delete the directory

@@ -44,22 +44,22 @@ $rs_term = new Term($id, $taxonomies[$taxonomy] ?? array());
 	switch($action) {
 		case 'create':
 			// Create a new term
-			userHasPrivilege('can_create_' . $tax_id) ? $rs_term->createTerm() :
+			userHasPrivilege('can_create_' . $tax_id) ? $rs_term->createRecord() :
 				redirect($taxonomies[$taxonomy]['menu_link']);
 			break;
 		case 'edit':
 			// Edit an existing term
-			userHasPrivilege('can_edit_' . $tax_id) ? $rs_term->editTerm() :
+			userHasPrivilege('can_edit_' . $tax_id) ? $rs_term->editRecord() :
 				redirect($taxonomies[$taxonomy]['menu_link']);
 			break;
 		case 'delete':
 			// Delete an existing term
-			userHasPrivilege('can_delete_' . $tax_id) ? $rs_term->deleteTerm() :
+			userHasPrivilege('can_delete_' . $tax_id) ? $rs_term->deleteRecord() :
 				redirect($taxonomies[$taxonomy]['menu_link']);
 			break;
 		default:
 			// List all terms
-			userHasPrivilege('can_view_' . $tax_id) ? $rs_term->listTerms() :
+			userHasPrivilege('can_view_' . $tax_id) ? $rs_term->listRecords() :
 				redirect('index.php');
 	}
 	?>

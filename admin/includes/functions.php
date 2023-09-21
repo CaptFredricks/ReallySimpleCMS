@@ -709,13 +709,17 @@ function dashboardWidget($name): void {
 				<h2>Logins</h2>
 				<ul>
 					<?php
-					$login_success = $rs_query->select('login_attempts', 'COUNT(*)', array('status' => 'success'));
+					$login_success = $rs_query->select('login_attempts', 'COUNT(*)', array(
+						'status' => 'success'
+					));
 					?>
 					<li>
 						<a href="/admin/logins.php?status=success">Successful</a>: <strong class="value"><?php echo $login_success; ?></strong>
 					</li>
 					<?php
-					$login_failure = $rs_query->select('login_attempts', 'COUNT(*)', array('status' => 'failure'));
+					$login_failure = $rs_query->select('login_attempts', 'COUNT(*)', array(
+						'status' => 'failure'
+					));
 					?>
 					<li>
 						<a href="/admin/logins.php?status=failure">Failed</a>: <strong class="value"><?php echo $login_failure; ?></strong>

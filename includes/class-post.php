@@ -343,7 +343,9 @@ class Post {
 		global $rs_query;
 		
 		$terms = array();
-		$relationships = $rs_query->select('term_relationships', 'term', array('post' => $this->getPostId()));
+		$relationships = $rs_query->select('term_relationships', 'term', array(
+			'post' => $this->getPostId()
+		));
 		
 		foreach($relationships as $relationship) {
 			$slug = $rs_query->selectField('terms', 'slug', array(

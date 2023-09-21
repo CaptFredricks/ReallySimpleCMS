@@ -32,22 +32,22 @@ $rs_settings = new Settings;
 			switch($action) {
 				case 'create':
 					// Create a new user role
-					userHasPrivilege('can_create_user_roles') ? $rs_user_role->createUserRole() :
+					userHasPrivilege('can_create_user_roles') ? $rs_user_role->createRecord() :
 						redirect(ADMIN_URI . '?page=user_roles');
 					break;
 				case 'edit':
 					// Edit an existing user role
-					userHasPrivilege('can_edit_user_roles') ? $rs_user_role->editUserRole() :
+					userHasPrivilege('can_edit_user_roles') ? $rs_user_role->editRecord() :
 						redirect(ADMIN_URI . '?page=user_roles');
 					break;
 				case 'delete':
 					// Delete an existing user role
-					userHasPrivilege('can_delete_user_roles') ? $rs_user_role->deleteUserRole() :
+					userHasPrivilege('can_delete_user_roles') ? $rs_user_role->deleteRecord() :
 						redirect(ADMIN_URI . '?page=user_roles');
 					break;
 				default:
 					// List all user roles
-					userHasPrivilege('can_view_user_roles') ? $rs_user_role->listUserRoles() :
+					userHasPrivilege('can_view_user_roles') ? $rs_user_role->listRecords() :
 						redirect('index.php');
 			}
 			break;

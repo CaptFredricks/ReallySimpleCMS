@@ -7,23 +7,24 @@
 // Named constants
 require_once dirname(__DIR__) . '/includes/constants.php';
 
-// Make sure config file has been created already
-if(!file_exists(DB_CONFIG)) header('Location: ' . ADMIN . '/setup.php');
+// Critical functions
+require_once CRIT_FUNC;
 
-// Debugging functions
-require_once DEBUG_FUNC;
+checkPHPVersion();
+
+// Make sure config file has been created already
+if(!file_exists(DB_CONFIG)) redirect(ADMIN . '/setup.php');
 
 // Database configuration
 require_once DB_CONFIG;
 
-// Query class
-require_once QUERY_CLASS;
-
-// Create a Query object
-$rs_query = new Query;
+// Debugging functions
+require_once DEBUG_FUNC;
 
 // Global functions
 require_once GLOBAL_FUNC;
+
+$rs_query = new Query;
 
 // Admin functions
 require_once ADMIN_FUNC;
@@ -44,20 +45,20 @@ if($rs_query->conn_status) {
 			if(!$rs_query->tableExists($key)) $rs_query->doQuery($schema[$key]);
 		}
 		
-		exit(CMS_NAME . ' is already installed!');
+		exit(CMS_ENGINE . ' is already installed!');
 	}
 }
 
 // AJAX installation file
 require_once PATH . ADMIN . INC . '/run-install.php';
 
-// Set the current step of the installation process
+// The current step of the installation process
 $step = (int)($_GET['step'] ?? 1);
 ?>
 <!DOCTYPE html>
 <html>
 	<head>
-		<title><?php echo CMS_NAME; ?> Installation</title>
+		<title><?php echo CMS_ENGINE; ?> Installation</title>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="robots" content="noindex, nofollow">
@@ -69,33 +70,31 @@ $step = (int)($_GET['step'] ?? 1);
 		?>
 	</head>
 	<body>
-		<h1><?php echo CMS_NAME; ?></h1>
+		<h1><?php echo CMS_ENGINE; ?></h1>
 		<div class="wrapper">
 			<?php
 			/**
 			 * Display the installation form.
 			 * @since 1.3.0[a]
 			 *
-			 * @param string $error (optional; default: null)
+			 * @param string|null $error (optional) -- Any errors to display.
 			 */
-			function displayInstallForm($error = null): void {
+			function displayInstallForm(?string $error = null): void {
 				?>
-				<p>You're almost ready to begin using the <?php echo CMS_NAME; ?>. Fill in the form below to proceed with the installation.</p>
+				<p>You're almost ready to begin using the <?php echo CMS_ENGINE; ?>. Fill in the form below to proceed with the installation.</p>
 				<p>All of the settings below can be changed at a later date. They're required in order to set up the CMS, though.</p>
 				<?php
-				// Validate site title
-				$site_title = isset($_POST['site_title']) ? trim(strip_tags($_POST['site_title'])) : '';
+				$site_title = isset($_POST['site_title']) ?
+					trim(strip_tags($_POST['site_title'])) : '';
 				
-				// Validate username
-				$username = isset($_POST['username']) ? trim(strip_tags($_POST['username'])) : '';
+				$username = isset($_POST['username']) ?
+					trim(strip_tags($_POST['username'])) : '';
 				
-				// Validate admin email
-				$admin_email = isset($_POST['admin_email']) ? trim(strip_tags($_POST['admin_email'])) : '';
+				$admin_email = isset($_POST['admin_email']) ?
+					trim(strip_tags($_POST['admin_email'])) : '';
 				
-				// Validate search engine visibility (visible by default)
 				$do_robots = isset($_POST['do_robots']) ? (int)$_POST['do_robots'] : 1;
 				
-				// Display any validation errors
 				if(!is_null($error))
 					echo '<p class="status-message failure">' . $error . '</p>';
 				?>
@@ -132,21 +131,15 @@ $step = (int)($_GET['step'] ?? 1);
 			
 			switch($step) {
 				case 1:
-					// Show the installation form
 					displayInstallForm();
 					break;
 				case 2:
-					// Run the installation
 					list($error, $message) = runInstall($_POST);
 					
-					// Check whether an error was returned
-					if($error) {
-						// Display the form with the appropriate error message
+					if($error)
 						displayInstallForm($message);
-					} else {
-						// Display the success message
+					else
 						echo $message;
-					}
 					break;
 			}
 			?>

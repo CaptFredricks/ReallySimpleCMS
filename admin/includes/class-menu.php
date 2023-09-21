@@ -6,7 +6,7 @@
  * Menus are used for website navigation on the front end of the website.
  * Menus can be created, modified, and deleted. Menus are stored in the 'terms' table under the 'nav_menu' taxonomy. Menu items are stored in the 'posts' table as the 'nav_menu_item' post type.
  */
-class Menu extends Term {
+class Menu extends Term implements AdminInterface {
 	/**
 	 * The number of members in a menu item's family tree.
 	 * @since 1.8.7[a]
@@ -21,15 +21,12 @@ class Menu extends Term {
 	 * @since 1.1.1[b]
 	 *
 	 * @access public
-	 * @param int $id (optional; default: 0)
+	 * @param int $id (optional) -- The menu's id.
 	 */
-	public function __construct($id = 0) {
-		// Extend the Query object
+	public function __construct(int $id = 0) {
 		global $rs_query;
 		
-		// Create an array of columns to fetch from the database
 		$cols = array_keys(get_object_vars($this));
-		
 		$exclude = array('members');
 		$cols = array_diff($cols, $exclude);
 		
@@ -50,8 +47,7 @@ class Menu extends Term {
 	 *
 	 * @access public
 	 */
-	public function listMenus(): void {
-		// Extend the Query object
+	public function listRecords(): void {
 		global $rs_query;
 		
 		// Query vars
@@ -79,7 +75,9 @@ class Menu extends Term {
 					'taxonomy' => getTaxonomyId('nav_menu')
 				));
 			} else {
-				$count = $rs_query->select('terms', 'COUNT(*)', array('taxonomy' => getTaxonomyId('nav_menu')));
+				$count = $rs_query->select('terms', 'COUNT(*)', array(
+					'taxonomy' => getTaxonomyId('nav_menu')
+				));
 			}
 			
 			$paged['count'] = ceil($count / $paged['per_page']);
@@ -155,12 +153,12 @@ class Menu extends Term {
 	}
 	
 	/**
-	 * Create a menu.
+	 * Create a new menu.
 	 * @since 1.8.0[a]
 	 *
 	 * @access public
 	 */
-	public function createMenu(): void {
+	public function createRecord(): void {
 		// Validate the form data and return any messages
 		$message = isset($_POST['submit']) ? $this->validateMenuData($_POST) : '';
 		?>
@@ -225,13 +223,12 @@ class Menu extends Term {
 	}
 	
 	/**
-	 * Edit a menu.
+	 * Edit an existing menu.
 	 * @since 1.8.0[a]
 	 *
 	 * @access public
 	 */
-	public function editMenu(): void {
-		// Extend the Query object
+	public function editRecord(): void {
 		global $rs_query;
 		
 		if(empty($this->id) || $this->id <= 0) {
@@ -318,20 +315,24 @@ class Menu extends Term {
 	}
 	
 	/**
-	 * Delete a menu.
+	 * Delete an existing menu.
 	 * @since 1.8.1[a]
 	 *
 	 * @access public
 	 */
-	public function deleteMenu(): void {
-		// Extend the Query object
+	public function deleteRecord(): void {
 		global $rs_query;
 		
 		if(empty($this->id) || $this->id <= 0) {
 			redirect(ADMIN_URI);
 		} else {
-			$rs_query->delete('terms', array('id' => $this->id, 'taxonomy' => getTaxonomyId('nav_menu')));
-			$relationships = $rs_query->select('term_relationships', 'post', array('term' => $this->id));
+			$rs_query->delete('terms', array(
+				'id' => $this->id,
+				'taxonomy' => getTaxonomyId('nav_menu')
+			));
+			$relationships = $rs_query->select('term_relationships', 'post', array(
+				'term' => $this->id
+			));
 			$rs_query->delete('term_relationships', array('term' => $this->id));
 			
 			// Delete all menu items associated with the menu
@@ -349,12 +350,11 @@ class Menu extends Term {
 	 * @since 1.8.0[a]
 	 *
 	 * @access private
-	 * @param array $data
-	 * @param int $id (optional; default: 0)
+	 * @param array $data -- The submission data.
+	 * @param int $id (optional) -- The menu's id.
 	 * @return string
 	 */
-	private function validateMenuData($data, $id = 0): string {
-		// Extend the Query object
+	private function validateMenuData(array $data, int $id = 0): string {
 		global $rs_query;
 		
 		if(empty($data['name']) || empty($data['slug']))
@@ -390,10 +390,15 @@ class Menu extends Term {
 						));
 					}
 					
-					$rs_query->insert('term_relationships', array('term' => $menu_id, 'post' => $menu_item_id));
+					$rs_query->insert('term_relationships', array(
+						'term' => $menu_id,
+						'post' => $menu_item_id
+					));
 				}
 				
-				$rs_query->update('terms', array('count' => count($menu_items)), array('id' => $menu_id));
+				$rs_query->update('terms', array('count' => count($menu_items)), array(
+					'id' => $menu_id
+				));
 			}
 			
 			if(!empty($data['custom_title']) && !empty($data['custom_link'])) {
@@ -409,7 +414,9 @@ class Menu extends Term {
 					'slug' => 'menu-item-' . $menu_item_id
 				), array('id' => $menu_item_id));
 				
-				$count = $rs_query->select('term_relationships', 'COUNT(*)', array('term' => $menu_id));
+				$count = $rs_query->select('term_relationships', 'COUNT(*)', array(
+					'term' => $menu_id
+				));
 				$itemmeta = array('custom_link' => $data['custom_link'], 'menu_index' => $count);
 				
 				foreach($itemmeta as $key => $value) {
@@ -420,7 +427,10 @@ class Menu extends Term {
 					));
 				}
 				
-				$rs_query->insert('term_relationships', array('term' => $menu_id, 'post' => $menu_item_id));
+				$rs_query->insert('term_relationships', array(
+					'term' => $menu_id,
+					'post' => $menu_item_id
+				));
 				$rs_query->update('terms', array('count' => ($count + 1)), array('id' => $menu_id));
 			}
 			
@@ -438,7 +448,9 @@ class Menu extends Term {
 				for($i = 0; $i < count($menu_items); $i++) {
 					list($item_type, $item_id) = explode('-', $menu_items[$i]);
 					
-					$count = $rs_query->select('term_relationships', 'COUNT(*)', array('term' => $id));
+					$count = $rs_query->select('term_relationships', 'COUNT(*)', array(
+						'term' => $id
+					));
 					$itemmeta = $this->createMenuItem($item_type, $item_id, $count);
 					$menu_item_id = array_shift($itemmeta);
 					
@@ -450,7 +462,10 @@ class Menu extends Term {
 						));
 					}
 					
-					$rs_query->insert('term_relationships', array('term' => $id, 'post' => $menu_item_id));
+					$rs_query->insert('term_relationships', array(
+						'term' => $id,
+						'post' => $menu_item_id
+					));
 				}
 				
 				$count = $rs_query->select('term_relationships', 'COUNT(*)', array('term' => $id));
@@ -481,7 +496,10 @@ class Menu extends Term {
 					));
 				}
 				
-				$rs_query->insert('term_relationships', array('term' => $id, 'post' => $menu_item_id));
+				$rs_query->insert('term_relationships', array(
+					'term' => $id,
+					'post' => $menu_item_id
+				));
 				$rs_query->update('terms', array('count' => ($count + 1)), array('id' => $id));
 			}
 			
@@ -497,16 +515,17 @@ class Menu extends Term {
 	 * @since 1.8.0[a]
 	 *
 	 * @access private
-	 * @param string $slug
-	 * @param int $id
+	 * @param string $slug -- The menu's slug.
+	 * @param int $id -- The menu's id.
 	 * @return bool
 	 */
-	private function slugExists($slug, $id): bool {
-		// Extend the Query object
+	private function slugExists(string $slug, int $id): bool {
 		global $rs_query;
 		
 		if($id === 0) {
-			return $rs_query->selectRow('terms', 'COUNT(slug)', array('slug' => $slug)) > 0;
+			return $rs_query->selectRow('terms', 'COUNT(slug)', array(
+				'slug' => $slug
+			)) > 0;
 		} else {
 			return $rs_query->selectRow('terms', 'COUNT(slug)', array(
 				'slug' => $slug,
@@ -520,10 +539,9 @@ class Menu extends Term {
 	 * @since 1.8.0[a]
 	 *
 	 * @access private
-	 * @param int $id (optional; default: 0)
+	 * @param int $id (optional) -- The menu's id.
 	 */
-	private function getMenuItems($id = 0): void {
-		// Extend the Query object
+	private function getMenuItems(int $id = 0): void {
 		global $rs_query;
 		?>
 		<ul class="item-list">
@@ -540,7 +558,7 @@ class Menu extends Term {
 			}
 			
 			// Sort the array in ascending index order
-			asort($itemmeta);
+			uasort($itemmeta, fn($a, $b) => $a['menu_index'] > $b['menu_index']);
 			
 			foreach($itemmeta as $meta) {
 				$menu_item = $rs_query->selectRow('posts', array(
@@ -550,9 +568,11 @@ class Menu extends Term {
 					'parent'
 				), array('id' => $meta['post']));
 				
-				if(isset($meta['post_link']))
-					$type = $rs_query->selectField('posts', 'type', array('id' => $meta['post_link']));
-				elseif(isset($meta['term_link']))
+				if(isset($meta['post_link'])) {
+					$type = $rs_query->selectField('posts', 'type', array(
+						'id' => $meta['post_link']
+					));
+				} elseif(isset($meta['term_link']))
 					$type = 'term';
 				elseif(isset($meta['custom_link']))
 					$type = 'custom';
@@ -654,7 +674,6 @@ class Menu extends Term {
 	 * @access private
 	 */
 	private function getMenuItemsSidebar(): void {
-		// Extend the Query object and the post types and taxonomies arrays
 		global $rs_query, $post_types, $taxonomies;
 		
 		foreach($post_types as $post_type) {
@@ -743,11 +762,10 @@ class Menu extends Term {
 	 * @since 1.8.3[a]
 	 *
 	 * @access private
-	 * @param int $id
-	 * @param int $menu
+	 * @param int $id -- The menu item's id.
+	 * @param int $menu -- The menu's id.
 	 */
-	private function moveUpMenuItem($id, $menu): void {
-		// Extend the Query object
+	private function moveUpMenuItem(int $id, int $menu): void {
 		global $rs_query;
 		
 		if($this->hasSiblings($id, $menu) && !$this->isFirstSibling($id, $menu)) {
@@ -812,11 +830,10 @@ class Menu extends Term {
 	 * @since 1.8.3[a]
 	 *
 	 * @access private
-	 * @param int $id
-	 * @param int $menu
+	 * @param int $id -- The menu item's id.
+	 * @param int $menu -- The menu's id.
 	 */
-	private function moveDownMenuItem($id, $menu): void {
-		// Extend the Query object
+	private function moveDownMenuItem(int $id, int $menu): void {
 		global $rs_query;
 		
 		if($this->hasSiblings($id, $menu) && !$this->isLastSibling($id, $menu)) {
@@ -887,13 +904,12 @@ class Menu extends Term {
 	 * @since 2.3.2[a]
 	 *
 	 * @access private
-	 * @param string $type
-	 * @param int $id
-	 * @param int $index
+	 * @param string $type -- The menu item's type.
+	 * @param int $id -- The menu item's id.
+	 * @param int $index -- The menu item's index.
 	 * @return array
 	 */
-	private function createMenuItem($type, $id, $index): array {
-		// Extend the Query object
+	private function createMenuItem(string $type, int $id, int $index): array {
 		global $rs_query;
 		
 		if($type === 'post') {
@@ -936,17 +952,21 @@ class Menu extends Term {
 	 * @since 1.8.1[a]
 	 *
 	 * @access private
-	 * @param int $id
+	 * @param int $id -- The menu item's id.
 	 */
-	private function editMenuItem($id): void {
-		// Extend the Query object
+	private function editMenuItem(int $id): void {
 		global $rs_query;
 		
 		// Validate the form data and return any messages
 		$message = isset($_POST['item_submit']) ? $this->validateMenuItemData($_POST, $id) : '';
 		
-		$menu_item = $rs_query->selectRow('posts', '*', array('id' => $id, 'type' => 'nav_menu_item'));
+		$menu_item = $rs_query->selectRow('posts', '*', array(
+			'id' => $id,
+			'type' => 'nav_menu_item'
+		));
+		
 		$meta = $this->getMenuItemMeta($id);
+		
 		$type = isset($meta['post_link']) ? 'post' : (isset($meta['term_link']) ? 'term' :
 			(isset($meta['custom_link']) ? 'custom' : ''));
 		?>
@@ -1000,8 +1020,10 @@ class Menu extends Term {
 					'tag' => 'select',
 					'class' => 'select-input',
 					'name' => 'parent',
-					'content' => '<option value="0">(none)</option>' .
-						$this->getParentList($menu_item['parent'], $menu_item['id'])
+					'content' => tag('option', array(
+						'value' => '0',
+						'content' => '(none)'
+					)) . $this->getParentList($menu_item['parent'], $menu_item['id'])
 				));
 				
 				// Separator
@@ -1035,11 +1057,10 @@ class Menu extends Term {
 	 * @since 1.8.1[a]
 	 *
 	 * @access public
-	 * @param int $id
-	 * @param int $menu
+	 * @param int $id -- The menu item's id.
+	 * @param int $menu -- The menu's id.
 	 */
-	public function deleteMenuItem($id, $menu): void {
-		// Extend the Query object
+	public function deleteMenuItem(int $id, int $menu): void {
 		global $rs_query;
 		
 		$parent = (int)$rs_query->selectField('posts', 'parent', array('id' => $id));
@@ -1057,7 +1078,9 @@ class Menu extends Term {
 		
 		// Check whether the index is less than the last index
 		if($current_index < $count - 1) {
-			$relationships = $rs_query->select('term_relationships', 'post', array('term' => $menu));
+			$relationships = $rs_query->select('term_relationships', 'post', array(
+				'term' => $menu
+			));
 			
 			foreach($relationships as $relationship) {
 				$index = (int)$rs_query->selectField('postmeta', 'value', array(
@@ -1085,12 +1108,11 @@ class Menu extends Term {
 	 * @since 1.8.1[a]
 	 *
 	 * @access private
-	 * @param array $data
-	 * @param int $id
+	 * @param array $data -- The submission data.
+	 * @param int $id -- The menu item's id.
 	 * @return nullable (null|string)
 	 */
-	private function validateMenuItemData($data, $id): ?string {
-		// Extend the Query object
+	private function validateMenuItemData(array $data, int $id): ?string {
 		global $rs_query;
 		
 		if(empty($data['title']))
@@ -1252,12 +1274,11 @@ class Menu extends Term {
 	 * @since 1.8.12[a]
 	 *
 	 * @access private
-	 * @param int $id
-	 * @param int $menu
+	 * @param int $id -- The menu item's id.
+	 * @param int $menu -- The menu's id.
 	 * @return bool
 	 */
-	private function isFirstSibling($id, $menu): bool {
-		// Extend the Query object
+	private function isFirstSibling(int $id, int $menu): bool {
 		global $rs_query;
 		
 		$current_index = (int)$rs_query->selectField('postmeta', 'value', array(
@@ -1284,12 +1305,11 @@ class Menu extends Term {
 	 * @since 1.8.12[a]
 	 *
 	 * @access private
-	 * @param int $id
-	 * @param int $menu
+	 * @param int $id -- The menu item's id.
+	 * @param int $menu -- The menu's id.
 	 * @return bool
 	 */
-	private function isLastSibling($id, $menu): bool {
-		// Extend the Query object
+	private function isLastSibling(int $id, int $menu): bool {
 		global $rs_query;
 		
 		$current_index = (int)$rs_query->selectField('postmeta', 'value', array(
@@ -1316,13 +1336,12 @@ class Menu extends Term {
 	 * @since 1.8.12[a]
 	 *
 	 * @access private
-	 * @param int $previous
-	 * @param int $id
-	 * @param int $menu
+	 * @param int $previous -- The previous menu item's id.
+	 * @param int $id -- The menu item's id.
+	 * @param int $menu -- The menu's id.
 	 * @return bool
 	 */
-	private function isPreviousSibling($previous, $id, $menu): bool {
-		// Extend the Query object
+	private function isPreviousSibling(int $previous, int $id, int $menu): bool {
 		global $rs_query;
 		
 		$siblings = $this->getSiblings($id, $menu);
@@ -1360,13 +1379,12 @@ class Menu extends Term {
 	 * @since 1.8.12[a]
 	 *
 	 * @access private
-	 * @param int $next
-	 * @param int $id
-	 * @param int $menu
+	 * @param int $next -- The next menu item's id.
+	 * @param int $id -- The menu item's id.
+	 * @param int $menu -- The menu's id.
 	 * @return bool
 	 */
-	private function isNextSibling($next, $id, $menu): bool {
-		// Extend the Query object
+	private function isNextSibling(int $next, int $id, int $menu): bool {
 		global $rs_query;
 		
 		$siblings = $this->getSiblings($id, $menu);
@@ -1404,12 +1422,11 @@ class Menu extends Term {
 	 * @since 1.8.6[a]
 	 *
 	 * @access private
-	 * @param int $id
-	 * @param int $ancestor
+	 * @param int $id -- The menu item's id.
+	 * @param int $ancestor -- The menu item's ancestor.
 	 * @return bool
 	 */
-	private function isDescendant($id, $ancestor): bool {
-		// Extend the Query object
+	private function isDescendant(int $id, int $ancestor): bool {
 		global $rs_query;
 		
 		do {
@@ -1427,11 +1444,11 @@ class Menu extends Term {
 	 * @since 1.8.12[a]
 	 *
 	 * @access private
-	 * @param int $id
-	 * @param int $menu
+	 * @param int $id -- The menu item's id.
+	 * @param int $menu -- The menu's id.
 	 * @return bool
 	 */
-	private function hasSiblings($id, $menu): bool {
+	private function hasSiblings(int $id, int $menu): bool {
 		return count($this->getSiblings($id, $menu)) > 0;
 	}
 	
@@ -1440,12 +1457,11 @@ class Menu extends Term {
 	 * @since 2.3.2[a]
 	 *
 	 * @access private
-	 * @param int $id
-	 * @param int $exclude
+	 * @param int $id -- The menu's id.
+	 * @param int $exclude -- The menu item to exclude.
 	 * @return array
 	 */
-	private function getMenuRelationships($id, $exclude): array {
-		// Extend the Query object
+	private function getMenuRelationships(int $id, int $exclude): array {
 		global $rs_query;
 		
 		$relationships = $rs_query->select('term_relationships', 'post', array('term' => $id));
@@ -1476,12 +1492,11 @@ class Menu extends Term {
 	 * @since 1.8.1[a]
 	 *
 	 * @access private
-	 * @param int $id
-	 * @param string $type
+	 * @param int $id -- The menu item's id.
+	 * @param string $type -- The menu item's type.
 	 * @return string
 	 */
-	private function getMenuItemsList($id, $type): string {
-		// Extend the Query object
+	private function getMenuItemsList(int $id, string $type): string {
 		global $rs_query;
 		
 		$list = '';
@@ -1494,16 +1509,22 @@ class Menu extends Term {
 			));
 			
 			foreach($posts as $post) {
-				$list .= '<option value="' . $post['id'] . '"' . ($post['id'] === $id ? ' selected' : '') . '>' .
-					$post['title'] . '</option>';
+				$list .= tag('option', array(
+					'value' => $post['id'],
+					'selected' => ($post['id'] === $id),
+					'content' => $post['title']
+				));
 			}
 		} elseif($type === 'term') {
 			$taxonomy = $rs_query->selectField('terms', 'taxonomy', array('id' => $id));
 			$terms = $rs_query->select('terms', array('id', 'name'), array('taxonomy' => $taxonomy));
 			
 			foreach($terms as $term) {
-				$list .= '<option value="' . $term['id'] . '"' . ($term['id'] === $id ? ' selected' : '') . '>' .
-					$term['name'] . '</option>';
+				$list .= tag('option', array(
+					'value' => $term['id'],
+					'selected' => ($term['id'] === $id),
+					'content' => $term['name']
+				));
 			}
 		}
 		
@@ -1515,11 +1536,10 @@ class Menu extends Term {
 	 * @since 1.8.6[a]
 	 *
 	 * @access private
-	 * @param int $id
+	 * @param int $id -- The menu item's id.
 	 * @return int
 	 */
-	private function getMenuItemDepth($id): int {
-		// Extend the Query object
+	private function getMenuItemDepth(int $id): int {
 		global $rs_query;
 		
 		$depth = -1;
@@ -1538,11 +1558,10 @@ class Menu extends Term {
 	 * @since 1.8.1[a]
 	 *
 	 * @access private
-	 * @param int $id
+	 * @param int $id -- The menu item's id.
 	 * @return array
 	 */
-	private function getMenuItemMeta($id): array {
-		// Extend the Query object
+	private function getMenuItemMeta(int $id): array {
 		global $rs_query;
 		
 		$itemmeta = $rs_query->select('postmeta', array('_key', 'value'), array('post' => $id));
@@ -1564,11 +1583,10 @@ class Menu extends Term {
 	 * @since 1.8.12[a]
 	 *
 	 * @access private
-	 * @param int $id
+	 * @param int $id -- The menu item's id.
 	 * @return int
 	 */
-	private function getParent($id): int {
-		// Extend the Query object
+	private function getParent(int $id): int {
 		global $rs_query;
 		
 		return (int)$rs_query->selectField('posts', 'parent', array('id' => $id));
@@ -1579,12 +1597,11 @@ class Menu extends Term {
 	 * @since 1.8.6[a]
 	 *
 	 * @access private
-	 * @param int $parent
-	 * @param int $id
+	 * @param int $parent -- The menu item's parent.
+	 * @param int $id -- The menu item's id.
 	 * @return string
 	 */
-	private function getParentList($parent, $id): string {
-		// Extend the Query object
+	private function getParentList(int $parent, int $id): string {
 		global $rs_query;
 		
 		$list = '';
@@ -1617,8 +1634,11 @@ class Menu extends Term {
 			// Skip all descendant menu items
 			if($this->isDescendant($menu_item['id'], $id)) continue;
 			
-			$list .= '<option value="' . $menu_item['id'] . '"' . ($menu_item['id'] === $parent ? ' selected' :
-				'') . '>' . $menu_item['title'] . '</option>';
+			$list .= tag('option', array(
+				'value' => $menu_item['id'],
+				'selected' => ($menu_item['id'] === $parent),
+				'content' => $menu_item['title']
+			));
 		}
 		
 		return $list;
@@ -1629,12 +1649,11 @@ class Menu extends Term {
 	 * @since 2.3.3[a]
 	 *
 	 * @access private
-	 * @param int $id
-	 * @param int $menu
+	 * @param int $id -- The menu item's id.
+	 * @param int $menu -- The menu's id.
 	 * @return array
 	 */
-	private function getSiblings($id, $menu): array {
-		// Extend the Query object
+	private function getSiblings(int $id, int $menu): array {
 		global $rs_query;
 		
 		$menu_items = $this->getMenuRelationships($menu, $id);
@@ -1656,12 +1675,11 @@ class Menu extends Term {
 	 * @since 1.8.12[a]
 	 *
 	 * @access private
-	 * @param int $id
-	 * @param int $menu
+	 * @param int $id -- The menu item's id.
+	 * @param int $menu -- The menu's id.
 	 * @return int
 	 */
-	private function getPreviousSibling($id, $menu): int {
-		// Extend the Query object
+	private function getPreviousSibling(int $id, int $menu): int {
 		global $rs_query;
 		
 		$siblings = $this->getSiblings($id, $menu);
@@ -1675,12 +1693,11 @@ class Menu extends Term {
 	 * @since 1.8.12[a]
 	 *
 	 * @access private
-	 * @param int $id
-	 * @param int $menu
+	 * @param int $id -- The menu item's id.
+	 * @param int $menu -- The menu's id.
 	 * @return int
 	 */
-	private function getNextSibling($id, $menu): int {
-		// Extend the Query object
+	private function getNextSibling(int $id, int $menu): int {
 		global $rs_query;
 		
 		$siblings = $this->getSiblings($id, $menu);
@@ -1694,11 +1711,10 @@ class Menu extends Term {
 	 * @since 1.8.7[a]
 	 *
 	 * @access private
-	 * @param int $id
+	 * @param int $id -- The menu item's id.
 	 * @return int
 	 */
-	private function getFamilyTree($id): int {
-		// Extend the Query object
+	private function getFamilyTree(int $id): int {
 		global $rs_query;
 		
 		$menu_item_id = $rs_query->selectField('posts', 'id', array('id' => $id));
@@ -1719,10 +1735,9 @@ class Menu extends Term {
 	 * @since 1.8.7[a]
 	 *
 	 * @access private
-	 * @param int $id
+	 * @param int $id -- The menu item's id.
 	 */
-	private function getDescendants($id): void {
-		// Extend the Query object
+	private function getDescendants(int $id): void {
 		global $rs_query;
 		
 		$children = $rs_query->select('posts', 'id', array('parent' => $id));

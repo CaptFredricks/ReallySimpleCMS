@@ -6,7 +6,7 @@
  * Posts are the basis of the front end of the website. Currently, there are two post types: post (default, used for blog posts) and page (used for content pages).
  * Posts can be created, modified, and deleted.
  */
-class Post {
+class Post implements AdminInterface {
 	/**
 	 * The currently queried post's id.
 	 * @since 1.0.1[b]
@@ -126,9 +126,7 @@ class Post {
 	public function __construct(int $id = 0, array $type_data = array()) {
 		global $rs_query, $taxonomies;
 		
-		// Create an array of columns to fetch from the database
 		$cols = array_keys(get_object_vars($this));
-		
 		$exclude = array('type_data', 'tax_data');
 		$cols = array_diff($cols, $exclude);
 		
@@ -154,7 +152,7 @@ class Post {
 	 *
 	 * @access public
 	 */
-	public function listPosts(): void {
+	public function listRecords(): void {
 		global $rs_query;
 		
 		// Query vars
@@ -295,7 +293,9 @@ class Post {
 					
 				if(!empty($term)) {
 					$term_id = (int)$rs_query->selectField('terms', 'id', array('slug' => $term));
-					$relationships = $rs_query->select('term_relationships', 'post', array('term' => $term_id));
+					$relationships = $rs_query->select('term_relationships', 'post', array(
+						'term' => $term_id
+					));
 					
 					if(count($relationships) > 1) {
 						$post_ids = array('IN');
@@ -331,7 +331,6 @@ class Post {
 				
 				foreach($posts as $post) {
 					$meta = $this->getPostMeta($post['id']);
-					
 					$type_name = str_replace(' ', '_', $this->type_data['labels']['name_lowercase']);
 					
 					$actions = array(
@@ -427,12 +426,12 @@ class Post {
 	}
 	
 	/**
-	 * Create a post.
+	 * Create a new post.
 	 * @since 1.4.1[a]
 	 *
 	 * @access public
 	 */
-	public function createPost(): void {
+	public function createRecord(): void {
 		$type = $this->type_data['name'];
 		
 		// Validate the form data and return any messages
@@ -734,12 +733,12 @@ class Post {
 	}
 	
 	/**
-	 * Edit a post.
+	 * Edit an existing post.
 	 * @since 1.4.9[a]
 	 *
 	 * @access public
 	 */
-	public function editPost(): void {
+	public function editRecord(): void {
 		global $rs_query;
 		
 		if(empty($this->id) || $this->id <= 0) {
@@ -1253,7 +1252,7 @@ class Post {
 	 *
 	 * @access public
 	 */
-	public function deletePost(): void {
+	public function deleteRecord(): void {
 		global $rs_query;
 		
 		if(empty($this->id) || $this->id <= 0) {
@@ -1324,7 +1323,9 @@ class Post {
 			// Fetch the old post data for duplication
 			$old_post = $rs_query->selectRow('posts', '*', array('id' => $id));
 			$old_postmeta = $rs_query->select('postmeta', '*', array('post' => $id));
-			$old_term_relationships = $rs_query->select('term_relationships', '*', array('post' => $id));
+			$old_term_relationships = $rs_query->select('term_relationships', '*', array(
+				'post' => $id
+			));
 		} else {
 			if($data['status'] !== 'draft' && $data['status'] !== 'published')
 				$data['status'] = 'draft';
@@ -1467,7 +1468,7 @@ class Post {
 					'date' => null,
 					'modified' => $old_post['modified'],
 					'content' => $old_post['content'],
-					'status' => 'draft', // set new post to a draft so the user has a chance to make changes before it goes live
+					'status' => 'draft', // Set new post to a draft so the user has a chance to make changes before it goes live
 					'slug' => $slug,
 					'parent' => $old_post['parent'],
 					'type' => $old_post['type']
@@ -1614,7 +1615,7 @@ class Post {
 		global $rs_query;
 		
 		$list = '';
-		$authors = $rs_query->select('users', array('id', 'username'), '', 'username');
+		$authors = $rs_query->select('users', array('id', 'username'), array(), 'username');
 		
 		foreach($authors as $author) {
 			$display_name = $rs_query->selectField('usermeta', 'value', array(
@@ -1802,7 +1803,12 @@ class Post {
 	 * @param string $term (optional) -- The term the post is linked to.
 	 * @return int
 	 */
-	private function getPostCount(string $type, string $status = '', string $search = '', string $term = ''): int {
+	private function getPostCount(
+		string $type,
+		string $status = '',
+		string $search = '',
+		string $term = ''
+	): int {
 		global $rs_query;
 		
 		if(empty($status))
@@ -1812,7 +1818,9 @@ class Post {
 		
 		if(!empty($term)) {
 			$term_id = (int)$rs_query->selectField('terms', 'id', array('slug' => $term));
-			$relationships = $rs_query->select('term_relationships', 'post', array('term' => $term_id));
+			$relationships = $rs_query->select('term_relationships', 'post', array(
+				'term' => $term_id
+			));
 			
 			if(count($relationships) > 1) {
 				$post_ids = array('IN');

@@ -6,19 +6,17 @@
  * Widgets are used to add small blocks of content to the front end of the website outside of the content area.
  * Widgets can be created, modified, and deleted. They are stored in the 'posts' table as their own post type.
  */
-class Widget extends Post {
+class Widget extends Post implements AdminInterface {
 	/**
 	 * Class constructor.
 	 * @since 1.1.1[b]
 	 *
 	 * @access public
-	 * @param int $id (optional; default: 0)
+	 * @param int $id (optional) -- The widget's id.
 	 */
-	public function __construct($id = 0) {
-		// Extend the Query object
+	public function __construct(int $id = 0) {
 		global $rs_query;
 		
-		// Create an array of columns to fetch from the database
 		$cols = array_keys(get_object_vars($this));
 		
 		if($id !== 0) {
@@ -35,8 +33,7 @@ class Widget extends Post {
 	 *
 	 * @access public
 	 */
-	public function listWidgets(): void {
-		// Extend the Query object
+	public function listRecords(): void {
 		global $rs_query;
 		
 		// Query vars
@@ -163,12 +160,12 @@ class Widget extends Post {
 	}
 	
 	/**
-	 * Create a widget.
+	 * Create a new widget.
 	 * @since 1.6.0[a]
 	 *
 	 * @access public
 	 */
-	public function createWidget(): void {
+	public function createRecord(): void {
 		// Validate the form data and return any messages
 		$message = isset($_POST['submit']) ? $this->validateData($_POST) : '';
 		?>
@@ -241,13 +238,12 @@ class Widget extends Post {
 	}
 	
 	/**
-	 * Edit a widget.
+	 * Edit an existing widget.
 	 * @since 1.6.1[a]
 	 *
 	 * @access public
 	 */
-	public function editWidget(): void {
-		// Extend the Query object
+	public function editRecord(): void {
 		global $rs_query;
 		
 		if(empty($this->id) || $this->id <= 0) {
@@ -332,29 +328,31 @@ class Widget extends Post {
 	 * @since 1.2.9[b]
 	 *
 	 * @access public
-	 * @param string $status
-	 * @param int $id (optional; default: 0)
+	 * @param string $status -- The widget's status.
+	 * @param int $id (optional) -- The widget's id.
 	 */
-	public function updateWidgetStatus($status, $id = 0): void {
-		// Extend the Query object
+	public function updateWidgetStatus(string $status, int $id = 0): void {
 		global $rs_query;
 		
 		if($id !== 0) $this->id = $id;
 		
 		if(empty($this->id) || $this->id <= 0)
 			redirect(ADMIN_URI);
-		else
-			$rs_query->update('posts', array('status' => $status), array('id' => $this->id, 'type' => 'widget'));
+		else {
+			$rs_query->update('posts', array('status' => $status), array(
+				'id' => $this->id,
+				'type' => 'widget'
+			));
+		}
 	}
 	
 	/**
-	 * Delete a widget.
+	 * Delete an existing widget.
 	 * @since 1.6.1[a]
 	 *
 	 * @access public
 	 */
-	public function deleteWidget(): void {
-		// Extend the Query object
+	public function deleteRecord(): void {
 		global $rs_query;
 		
 		if(empty($this->id) || $this->id <= 0) {
@@ -371,18 +369,16 @@ class Widget extends Post {
 	 * @since 1.6.2[a]
 	 *
 	 * @access private
-	 * @param array $data
-	 * @param int $id (optional; default: 0)
+	 * @param array $data -- The submission data.
+	 * @param int $id (optional) -- The widget's id.
 	 * @return string
 	 */
-	private function validateData($data, $id = 0): string {
-		// Extend the Query object
+	private function validateData(array $data, int $id = 0): string {
 		global $rs_query;
 		
 		if(empty($data['title']) || empty($data['slug']))
 			return exitNotice('REQ', -1);
 		
-		// Sanitize the slug
 		$slug = sanitize($data['slug']);
 		
 		// Make sure the slug is unique

@@ -6,7 +6,7 @@
  * Terms are data that interact with posts, such as categories. They can also interact with custom post types.
  * Terms can be created, modified, and deleted. They are stored in the 'terms' database table.
  */
-class Term {
+class Term implements AdminInterface {
 	/**
 	 * The currently queried term's id.
 	 * @since 1.0.5[b]
@@ -75,16 +75,13 @@ class Term {
 	 * @since 1.0.5[b]
 	 *
 	 * @access public
-	 * @param int $id (optional; default: 0)
-	 * @param array $tax_data (optional; default: array())
+	 * @param int $id (optional) -- The term's id.
+	 * @param array $tax_data (optional) -- The taxonomy data.
 	 */
-	public function __construct($id = 0, $tax_data = array()) {
-		// Extend the Query object and post types array
+	public function __construct(int $id = 0, array $tax_data = array()) {
 		global $rs_query, $post_types;
 		
-		// Create an array of columns to fetch from the database
 		$cols = array_keys(get_object_vars($this));
-		
 		$exclude = array('tax_data', 'type_data');
 		$cols = array_diff($cols, $exclude);
 		
@@ -110,8 +107,7 @@ class Term {
 	 *
 	 * @access public
 	 */
-	public function listTerms(): void {
-		// Extend the Query object
+	public function listRecords(): void {
 		global $rs_query;
 		
 		// Query vars
@@ -247,12 +243,12 @@ class Term {
 	}
 	
 	/**
-	 * Create a term.
+	 * Create a new term.
 	 * @since 1.0.5[b]
 	 *
 	 * @access public
 	 */
-	public function createTerm(): void {
+	public function createRecord(): void {
 		// Validate the form data and return any messages
 		$message = isset($_POST['submit']) ? $this->validateData($_POST) : '';
 		?>
@@ -309,13 +305,12 @@ class Term {
 	}
 	
 	/**
-	 * Edit a term.
+	 * Edit an existing term.
 	 * @since 1.0.5[b]
 	 *
 	 * @access public
 	 */
-	public function editTerm(): void {
-		// Extend the Query object
+	public function editRecord(): void {
 		global $rs_query;
 		
 		if(empty($this->id) || $this->id <= 0) {
@@ -389,13 +384,12 @@ class Term {
 	}
 	
 	/**
-	 * Delete a term.
+	 * Delete an existing term.
 	 * @since 1.0.5[b]
 	 *
 	 * @access public
 	 */
-	public function deleteTerm(): void {
-		// Extend the Query object
+	public function deleteRecord(): void {
 		global $rs_query;
 		
 		if(empty($this->id) || $this->id <= 0) {
@@ -413,12 +407,11 @@ class Term {
 	 * @since 1.5.2[a]
 	 *
 	 * @access private
-	 * @param array $data
-	 * @param int $id (optional; default: 0)
+	 * @param array $data -- The submission data.
+	 * @param int $id (optional) -- The term's id.
 	 * @return string
 	 */
-	private function validateData($data, $id = 0): string {
-		// Extend the Query object
+	private function validateData(array $data, int $id = 0): string {
 		global $rs_query;
 		
 		if(empty($data['name']) || empty($data['slug']))
@@ -460,16 +453,17 @@ class Term {
 	 * @since 1.5.2[a]
 	 *
 	 * @access private
-	 * @param string $slug
-	 * @param int $id
+	 * @param string $slug -- The term's slug.
+	 * @param int $id -- The term's id.
 	 * @return bool
 	 */
-	private function slugExists($slug, $id): bool {
-		// Extend the Query object
+	private function slugExists(string $slug, int $id): bool {
 		global $rs_query;
 		
 		if($id === 0) {
-			return $rs_query->selectRow('terms', 'COUNT(slug)', array('slug' => $slug)) > 0;
+			return $rs_query->selectRow('terms', 'COUNT(slug)', array(
+				'slug' => $slug
+			)) > 0;
 		} else {
 			return $rs_query->selectRow('terms', 'COUNT(slug)', array(
 				'slug' => $slug,
@@ -483,12 +477,11 @@ class Term {
 	 * @since 1.5.0[a]
 	 *
 	 * @access private
-	 * @param int $id
-	 * @param int $ancestor
+	 * @param int $id -- The term's id.
+	 * @param int $ancestor -- The term's ancestor.
 	 * @return bool
 	 */
-	private function isDescendant($id, $ancestor): bool {
-		// Extend the Query object
+	private function isDescendant(int $id, int $ancestor): bool {
 		global $rs_query;
 		
 		do {
@@ -506,11 +499,10 @@ class Term {
 	 * @since 1.0.5[b]
 	 *
 	 * @access private
-	 * @param int $id
+	 * @param int $id -- The term's id.
 	 * @return string
 	 */
-	private function getTaxonomy($id): string {
-		// Extend the Query object
+	private function getTaxonomy(int $id): string {
 		global $rs_query;
 		
 		return $rs_query->selectField('taxonomies', 'name', array('id' => $id));
@@ -521,11 +513,10 @@ class Term {
 	 * @since 1.5.0[a]
 	 *
 	 * @access private
-	 * @param int $id
+	 * @param int $id -- The term's id.
 	 * @return string
 	 */
-	private function getParent($id): string {
-		// Extend the Query object
+	private function getParent(int $id): string {
 		global $rs_query;
 		
 		$parent = $rs_query->selectField('terms', 'name', array('id' => $id));
@@ -538,16 +529,14 @@ class Term {
 	 * @since 1.5.0[a]
 	 *
 	 * @access private
-	 * @param int $parent (optional; default: 0)
-	 * @param int $id (optional; default: 0)
+	 * @param int $parent (optional) -- The term's parent.
+	 * @param int $id (optional) -- The term's id.
 	 * @return string
 	 */
-	private function getParentList($parent = 0, $id = 0): string {
-		// Extend the Query object
+	private function getParentList(int $parent = 0, int $id = 0): string {
 		global $rs_query;
 		
 		$list = '';
-		
 		$terms = $rs_query->select('terms', array('id', 'name'), array(
 			'taxonomy' => getTaxonomyId($this->tax_data['name'])
 		));
@@ -561,8 +550,11 @@ class Term {
 				if($this->isDescendant($term['id'], $id)) continue;
 			}
 			
-			$list .= '<option value="' . $term['id'] . '"' . ($term['id'] === $parent ? ' selected' : '') .
-				'>' . $term['name'] . '</option>';
+			$list .= tag('option', array(
+				'value' => $term['id'],
+				'selected' => ($term['id'] === $parent),
+				'content' => $term['name']
+			));
 		}
 		
 		return $list;

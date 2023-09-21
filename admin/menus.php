@@ -19,22 +19,22 @@ $rs_menu = new Menu($id);
 	switch($action) {
 		case 'create':
 			// Create a new menu
-			userHasPrivilege('can_create_menus') ? $rs_menu->createMenu() :
+			userHasPrivilege('can_create_menus') ? $rs_menu->createRecord() :
 				redirect(ADMIN_URI);
 			break;
 		case 'edit':
 			// Edit an existing menu
-			userHasPrivilege('can_edit_menus') ? $rs_menu->editMenu() :
+			userHasPrivilege('can_edit_menus') ? $rs_menu->editRecord() :
 				redirect(ADMIN_URI);
 			break;
 		case 'delete':
 			// Delete an existing menu
-			userHasPrivilege('can_delete_menus') ? $rs_menu->deleteMenu() :
+			userHasPrivilege('can_delete_menus') ? $rs_menu->deleteRecord() :
 				redirect(ADMIN_URI);
 			break;
 		default:
 			// List all menus
-			userHasPrivilege('can_view_menus') ? $rs_menu->listMenus() :
+			userHasPrivilege('can_view_menus') ? $rs_menu->listRecords() :
 				redirect('index.php');
 	}
 	?>

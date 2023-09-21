@@ -6,7 +6,7 @@
  * Comments are left by users as feedback for a post on the front end of the site.
  * Comments can be created (front end only), moderated, and deleted.
  */
-class Comment {
+class Comment implements AdminInterface {
 	/**
 	 * The currently queried comment's id.
 	 * @since 1.1.0[b]{ss-02}
@@ -48,17 +48,17 @@ class Comment {
 	 * @since 1.1.0[b]{ss-02}
 	 *
 	 * @access public
-	 * @param int $id (optional; default: 0)
+	 * @param int $id (optional) -- The comment's id.
 	 */
-	public function __construct($id = 0) {
-		// Extend the Query object
+	public function __construct(int $id = 0) {
 		global $rs_query;
 		
-		// Create an array of columns to fetch from the database
 		$cols = array_keys(get_object_vars($this));
 		
 		if($id !== 0) {
-			$comment = $rs_query->selectRow('comments', $cols, array('id' => $id));
+			$comment = $rs_query->selectRow('comments', $cols, array(
+				'id' => $id
+			));
 			
 			// Set the class variable values
 			foreach($comment as $key => $value) $this->$key = $comment[$key];
@@ -71,8 +71,7 @@ class Comment {
 	 *
 	 * @access public
 	 */
-	public function listComments(): void {
-		// Extend the Query object
+	public function listRecords(): void {
 		global $rs_query;
 		
 		// Query vars
@@ -254,13 +253,22 @@ class Comment {
 	}
 	
 	/**
-	 * Edit a comment.
+	 * Create a new comment.
+	 * @since 1.3.10[b]
+	 *
+	 * @access public
+	 */
+	public function createRecord(): void {
+		// Unused because comments are only created on the front end
+	}
+	
+	/**
+	 * Edit an existing comment.
 	 * @since 1.1.0[b]{ss-02}
 	 *
 	 * @access public
 	 */
-	public function editComment(): void {
-		// Extend the Query object
+	public function editRecord(): void {
 		global $rs_query;
 		
 		if(empty($this->id) || $this->id <= 0) {
@@ -331,11 +339,10 @@ class Comment {
 	 * @since 1.2.9[b]
 	 *
 	 * @access public
-	 * @param string $status
-	 * @param int $id (optional; default: 0)
+	 * @param string $status -- The comment's status.
+	 * @param int $id (optional) -- The comment's id.
 	 */
 	public function updateCommentStatus($status, $id = 0): void {
-		// Extend the Query object
 		global $rs_query;
 		
 		if($id !== 0) $this->id = $id;
@@ -398,13 +405,12 @@ class Comment {
 	}
 	
 	/**
-	 * Delete a comment.
+	 * Delete an existing comment.
 	 * @since 1.1.0[b]{ss-02}
 	 *
 	 * @access public
 	 */
-	public function deleteComment(): void {
-		// Extend the Query object
+	public function deleteRecord(): void {
 		global $rs_query;
 		
 		if(empty($this->id) || $this->id <= 0) {
@@ -434,7 +440,6 @@ class Comment {
 	 * @access public
 	 */
 	public function deleteSpamComments() {
-		// Extend the Query object
 		global $rs_query;
 		
 		$rs_query->delete('comments', array('status' => 'spam'));
@@ -445,12 +450,11 @@ class Comment {
 	 * @since 1.1.0[b]{ss-02}
 	 *
 	 * @access private
-	 * @param array $data
-	 * @param int $id
+	 * @param array $data -- The submission data.
+	 * @param int $id -- The comment's id.
 	 * @return string
 	 */
-	private function validateData($data, $id): string {
-		// Extend the Query object
+	private function validateData(array $data, int $id): string {
 		global $rs_query;
 		
 		if(empty($data['content']))
@@ -475,14 +479,15 @@ class Comment {
 	 * @since 1.1.0[b]{ss-02}
 	 *
 	 * @access private
-	 * @param int $id
+	 * @param int $id -- The post's id.
 	 * @return string
 	 */
-	private function getPost($id): string {
-		// Extend the Query object
+	private function getPost(int $id): string {
 		global $rs_query;
 		
-		$title = $rs_query->selectField('posts', array('title'), array('id' => $id));
+		$title = $rs_query->selectField('posts', array('title'), array(
+			'id' => $id
+		));
 		
 		return '<a href="' . $this->getPostPermalink($id) . '">' . $title . '</a>';
 	}
@@ -492,18 +497,19 @@ class Comment {
 	 * @since 1.1.0[b]{ss-02}
 	 *
 	 * @access private
-	 * @param int $id
+	 * @param int $id -- The post's id.
 	 * @return string
 	 */
-	private function getPostPermalink($id): string {
-		// Extend the Query object
+	private function getPostPermalink(int $id): string {
 		global $rs_query;
 		
 		$post = $rs_query->selectRow('posts', array(
 			'slug',
 			'parent',
 			'type'
-		), array('id' => $id));
+		), array(
+			'id' => $id
+		));
 		
 		return getPermalink($post['type'], $post['parent'], $post['slug']);
 	}
@@ -513,11 +519,10 @@ class Comment {
 	 * @since 1.1.0[b]{ss-02}
 	 *
 	 * @access private
-	 * @param int $id
+	 * @param int $id -- The author's id.
 	 * @return string
 	 */
-	private function getAuthor($id): string {
-		// Extend the Query object
+	private function getAuthor(int $id): string {
 		global $rs_query;
 		
 		$author = $rs_query->selectField('usermeta', 'value', array(
@@ -533,12 +538,11 @@ class Comment {
 	 * @since 1.1.7[b]
 	 *
 	 * @access private
-	 * @param string $status (optional; default: '')
-	 * @param string $search (optional; default: '')
+	 * @param string $status (optional) -- The comment's status.
+	 * @param string $search (optional) -- The search query.
 	 * @return int
 	 */
-	private function getCommentCount($status = '', $search = ''): int {
-		// Extend the Query object
+	private function getCommentCount(string $status = '', string $search = ''): int {
 		global $rs_query;
 		
 		if(empty($status))

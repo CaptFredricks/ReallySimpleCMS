@@ -12,13 +12,11 @@ class Media extends Post {
 	 * @since 1.1.1[b]
 	 *
 	 * @access public
-	 * @param int $id (optional; default: 0)
+	 * @param int $id (optional) -- The media's id.
 	 */
-	public function __construct($id = 0) {
-		// Extend the Query object
+	public function __construct(int $id = 0) {
 		global $rs_query;
 		
-		// Create an array of columns to fetch from the database
 		$cols = array_keys(get_object_vars($this));
 		
 		if($id !== 0) {
@@ -36,7 +34,6 @@ class Media extends Post {
 	 * @access public
 	 */
 	public function listMedia(): void {
-		// Extend the Query object
 		global $rs_query;
 		
 		// Query vars
@@ -209,7 +206,6 @@ class Media extends Post {
 	 * @access public
 	 */
 	public function uploadMedia(): void {
-		// Check whether the form has been submitted
 		if(isset($_POST['submit'])) {
 			// Merge the $_POST and $_FILES arrays
 			$data = array_merge($_POST, $_FILES);
@@ -286,7 +282,6 @@ class Media extends Post {
 	 * @access public
 	 */
 	public function editMedia(): void {
-		// Extend the Query object
 		global $rs_query;
 		
 		if(empty($this->id) || $this->id <= 0) {
@@ -373,7 +368,6 @@ class Media extends Post {
 	 * @access public
 	 */
 	public function replaceMedia(): void {
-		// Extend the Query object
 		global $rs_query;
 		
 		if(empty($this->id) || $this->id <= 0) {
@@ -460,7 +454,6 @@ class Media extends Post {
 	 * @access public
 	 */
 	public function deleteMedia(): void {
-		// Extend the Query object
 		global $rs_query;
 		
 		// Create an empty array to hold conflicts
@@ -513,13 +506,12 @@ class Media extends Post {
 	 * @since 2.1.0[a]
 	 *
 	 * @access private
-	 * @param array $data
-	 * @param string $action
-	 * @param int $id (optional; default: 0)
+	 * @param array $data -- The submission data.
+	 * @param string $action -- The current action.
+	 * @param int $id (optional) -- The media's id.
 	 * @return string
 	 */
-	private function validateData($data, $action, $id = 0): string {
-		// Extend the Query object and the user's session data
+	private function validateData(array $data, string $action, int $id = 0): string {
 		global $rs_query, $session;
 		
 		if(empty($data['title']))

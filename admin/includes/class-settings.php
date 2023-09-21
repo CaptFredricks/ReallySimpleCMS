@@ -14,7 +14,6 @@ class Settings {
 	 * @access public
 	 */
 	public function generalSettings(): void {
-		// Extend the Query object
 		global $rs_query;
 		
 		// Validate the form data and return any messages
@@ -196,7 +195,6 @@ class Settings {
 	 * @access public
 	 */
 	public function designSettings(): void {
-		// Extend the Query object
 		global $rs_query;
 		
 		// Validate the form data and return any messages
@@ -207,13 +205,13 @@ class Settings {
 		foreach($db_settings as $db_setting)
 			$setting[$db_setting['name']] = $db_setting['value'];
 		
-		// Check whether the site logo has been set and fetch its dimensions if so
+		// Get the site logo dimensions
 		if(!empty($setting['site_logo']))
-			list($logo_width, $logo_height) = getimagesize(PATH.getMediaSrc($setting['site_logo']));
+			list($logo_width, $logo_height) = getimagesize(PATH . getMediaSrc($setting['site_logo']));
 		
-		// Check whether the site icon has been set and fetch its dimensions if so
+		// Get the site icon dimensions
 		if(!empty($setting['site_icon']))
-			list($icon_width, $icon_height) = getimagesize(PATH.getMediaSrc($setting['site_icon']));
+			list($icon_width, $icon_height) = getimagesize(PATH . getMediaSrc($setting['site_icon']));
 		?>
 		<div class="heading-wrap">
 			<h1>Design Settings</h1>
@@ -321,31 +319,28 @@ class Settings {
 	 * @since 1.3.7[a]
 	 *
 	 * @access private
-	 * @param array $data
+	 * @param array $data -- The submission data.
 	 * @return string
 	 */
-	private function validateSettingsData($data): string {
-		// Extend the Query object
+	private function validateSettingsData(array $data): string {
 		global $rs_query;
 		
-		// Remove the 'submit' value from the data array
+		// Remove the `submit` value from the data array
 		array_pop($data);
 		
 		if(isset($data['page'])) {
-			// Remove the 'page' value from the data array
+			// Remove the `page` value from the data array
 			array_shift($data);
 			
-			// Update the settings in the database
 			foreach($data as $name => $value)
 				$rs_query->update('settings', array('value' => $value), array('name' => $name));
 		} else {
 			if(empty($data['site_title']) || empty($data['site_url']) || empty($data['admin_email']))
 				return exitNotice('REQ', -1);
 			
-			// Set the value of 'do_robots'
+			// Set the value of `do_robots`
 			$data['do_robots'] = isset($data['do_robots']) ? 0 : 1;
 			
-			// Create an array of togglable settings
 			$settings = array(
 				'enable_comments',
 				'auto_approve_comments',
@@ -354,28 +349,20 @@ class Settings {
 				'delete_old_login_attempts'
 			);
 			
-			// Loop through the settings and assign them values
 			foreach($settings as $setting)
 				$data[$setting] = isset($data[$setting]) ? 1 : 0;
 			
-			// Fetch current value of 'do_robots' in the database
 			$do_robots = $rs_query->selectField('settings', 'value', array('name' => 'do_robots'));
 			
-			// Update the settings in the database
 			foreach($data as $name => $value)
 				$rs_query->update('settings', array('value' => $value), array('name' => $name));
 			
-			// File path for the robots.txt file
-			$file_path = PATH.'/robots.txt';
-			
-			// Fetch the robots.txt file
+			$file_path = PATH . '/robots.txt';
 			$file = file($file_path, FILE_IGNORE_NEW_LINES);
 			
-			// Check whether 'do_robots' has changed
+			// Check whether `do_robots` has changed
 			if($data['do_robots'] !== (int)$do_robots) {
-				// Check whether the second line is what we want to change
 				if(str_starts_with($file[1], 'Disallow:')) {
-					// Check whether 'do_robots' is set
 					if($data['do_robots'] === 0) {
 						// Block robots from crawling the site
 						$file[1] = 'Disallow: /';
@@ -398,16 +385,14 @@ class Settings {
 	 * @since 1.7.0[a]
 	 *
 	 * @access private
-	 * @param int $default
+	 * @param int $default -- The default user role.
 	 * @return string
 	 */
-	private function getUserRoles($default): string {
-		// Extend the Query object
+	private function getUserRoles(int $default): string {
 		global $rs_query;
 		
 		$list = '';
-		
-		$roles = $rs_query->select('user_roles', '*', '', 'id');
+		$roles = $rs_query->select('user_roles', '*', array(), 'id');
 		
 		foreach($roles as $role) {
 			$list .= tag('option', array(
@@ -425,11 +410,10 @@ class Settings {
 	 * @since 1.3.7[a]
 	 *
 	 * @access private
-	 * @param int $home_page
+	 * @param int $home_page -- The home page's id.
 	 * @return string
 	 */
-	private function getPageList($home_page): string {
-		// Extend the Query object
+	private function getPageList(int $home_page): string {
 		global $rs_query;
 		
 		$list = '';

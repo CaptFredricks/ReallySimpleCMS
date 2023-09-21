@@ -12,7 +12,6 @@ if(isset($_GET['type'])) {
 	$type = $_GET['type'];
 } else {
 	if($id === 0) {
-		// Default to 'post'
 		$type = 'post';
 	} else {
 		if(!postExists($id)) {
@@ -43,12 +42,12 @@ $rs_post = new Post($id, $post_types[$type] ?? array());
 	switch($action) {
 		case 'create':
 			// Create a new post
-			userHasPrivilege('can_create_' . $type_id) ? $rs_post->createPost() :
+			userHasPrivilege('can_create_' . $type_id) ? $rs_post->createRecord() :
 				redirect($post_types[$type]['menu_link']);
 			break;
 		case 'edit':
 			// Edit an existing post
-			userHasPrivilege('can_edit_' . $type_id) ? $rs_post->editPost() :
+			userHasPrivilege('can_edit_' . $type_id) ? $rs_post->editRecord() :
 				redirect($post_types[$type]['menu_link']);
 			break;
 		case 'duplicate':
@@ -68,12 +67,12 @@ $rs_post = new Post($id, $post_types[$type] ?? array());
 			break;
 		case 'delete':
 			// Delete an existing post
-			userHasPrivilege('can_delete_' . $type_id) ? $rs_post->deletePost() :
+			userHasPrivilege('can_delete_' . $type_id) ? $rs_post->deleteRecord() :
 				redirect($post_types[$type]['menu_link']);
 			break;
 		default:
 			// List all posts
-			userHasPrivilege('can_view_' . $type_id) ? $rs_post->listPosts() :
+			userHasPrivilege('can_view_' . $type_id) ? $rs_post->listRecords() :
 				redirect('index.php');
 	}
 	?>

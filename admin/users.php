@@ -19,17 +19,17 @@ $rs_user = new User($id);
 	switch($action) {
 		case 'create':
 			// Create a new user
-			userHasPrivilege('can_create_users') ? $rs_user->createUser() :
+			userHasPrivilege('can_create_users') ? $rs_user->createRecord() :
 				redirect(ADMIN_URI);
 			break;
 		case 'edit':
 			// Edit an existing user
-			userHasPrivilege('can_edit_users') ? $rs_user->editUser() :
+			userHasPrivilege('can_edit_users') ? $rs_user->editRecord() :
 				redirect(ADMIN_URI);
 			break;
 		case 'delete':
 			// Delete an existing user
-			userHasPrivilege('can_delete_users') ? $rs_user->deleteUser() :
+			userHasPrivilege('can_delete_users') ? $rs_user->deleteRecord() :
 				redirect(ADMIN_URI);
 			break;
 		case 'reset_password':
@@ -44,7 +44,7 @@ $rs_user = new User($id);
 			break;
 		default:
 			// List all users
-			userHasPrivilege('can_view_users') ? $rs_user->listUsers() :
+			userHasPrivilege('can_view_users') ? $rs_user->listRecords() :
 				redirect('index.php');
 	}
 	?>

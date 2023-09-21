@@ -259,7 +259,12 @@ jQuery(document).ready($ => {
 	 * @since 1.3.7[b]
 	 */
 	$('#search-toggle').on('click', function() {
-		$('.search-form').toggleClass('is-visible');
+		let form = $('.search-form');
+		
+		$(form).toggleClass('is-visible');
+		
+		if($(form).hasClass('is-visible'))
+			$('#record-search').focus();
 	});
 	
 	/**

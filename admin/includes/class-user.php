@@ -6,7 +6,7 @@
  * Users have various privileges on the website not afforded to visitors, depending on their access level.
  * Users can be created, modified, and deleted.
  */
-class User {
+class User implements AdminInterface {
 	/**
 	 * Set the minimum username length.
 	 * @since 1.1.0[a]
@@ -66,13 +66,11 @@ class User {
 	 * @since 1.1.1[b]
 	 *
 	 * @access public
-	 * @param int $id (optional; default: 0)
+	 * @param int $id (optional) -- The user's id.
 	 */
-	public function __construct($id = 0) {
-		// Extend the Query object
+	public function __construct(int $id = 0) {
 		global $rs_query;
 		
-		// Create an array of columns to fetch from the database
 		$cols = array_keys(get_object_vars($this));
 		
 		if($id !== 0) {
@@ -89,8 +87,7 @@ class User {
 	 *
 	 * @access public
 	 */
-	public function listUsers(): void {
-		// Extend the Query object and the user's session data
+	public function listRecords(): void {
 		global $rs_query, $session;
 		
 		// Query vars
@@ -186,10 +183,12 @@ class User {
 								$paged['per_page']
 							));
 						} else {
-							$users = $rs_query->select('users', '*', '', 'username', 'ASC', array(
-								$paged['start'],
-								$paged['per_page']
-							));
+							$users = $rs_query->select('users', '*',
+								array(), 'username', 'ASC', array(
+									$paged['start'],
+									$paged['per_page']
+								)
+							);
 						}
 						break;
 					case 'online':
@@ -305,12 +304,12 @@ class User {
 	}
 	
 	/**
-	 * Create a user.
+	 * Create a new user.
 	 * @since 1.1.2[a]
 	 *
 	 * @access public
 	 */
-	public function createUser(): void {
+	public function createRecord(): void {
 		// Validate the form data and return any messages
 		$message = isset($_POST['submit']) ? $this->validateData($_POST) : '';
 		?>
@@ -429,13 +428,12 @@ class User {
 	}
 	
 	/**
-	 * Edit a user.
+	 * Edit an existing user.
 	 * @since 1.2.1[a]
 	 *
 	 * @access public
 	 */
-	public function editUser(): void {
-		// Extend the Query object and the user's session data
+	public function editRecord(): void {
 		global $rs_query, $session;
 		
 		if(empty($this->id) || $this->id <= 0) {
@@ -559,31 +557,29 @@ class User {
 	 * @since 1.3.2[b]
 	 *
 	 * @access public
-	 * @param int $role
-	 * @param int $id
+	 * @param int $role -- The user's role.
+	 * @param int $id -- The user's id.
 	 */
-	public function updateUserRole($role, $id): void {
-		// Extend the Query class and the user's session data
+	public function updateUserRole(int $role, int $id): void {
 		global $rs_query, $session;
 		
-		$this->id = (int)$id;
+		$this->id = $id;
 		
 		if(empty($this->id) || $this->id <= 0) {
 			redirect(ADMIN_URI);
 		} else {
 			if($this->id !== $session['id'])
-				$rs_query->update('users', array('role' => (int)$role), array('id' => $this->id));
+				$rs_query->update('users', array('role' => $role), array('id' => $this->id));
 		}
 	}
 	
 	/**
-	 * Delete a user.
+	 * Delete an existing user.
 	 * @since 1.2.3[a]
 	 *
 	 * @access public
 	 */
-	public function deleteUser(): void {
-		// Extend the Query object and the user's session data
+	public function deleteRecord(): void {
 		global $rs_query, $session;
 		
 		if(empty($this->id) || $this->id <= 0 || $this->id === $session['id']) {
@@ -601,12 +597,11 @@ class User {
 	 * @since 1.2.0[a]
 	 *
 	 * @access private
-	 * @param array $data
-	 * @param int $id (optional; default: 0)
+	 * @param array $data -- The submission data.
+	 * @param int $id (optional) -- The user's id.
 	 * @return string
 	 */
-	private function validateData($data, $id = 0): string {
-		// Extend the Query object
+	private function validateData(array $data, int $id = 0): string {
 		global $rs_query;
 		
 		if(empty($data['username']) || empty($data['email']))
@@ -684,19 +679,18 @@ class User {
 	 * @since 1.2.0[a]
 	 *
 	 * @access protected
-	 * @param string $username
-	 * @param int $id
+	 * @param string $username -- The username.
+	 * @param int $id -- The user's id.
 	 * @return bool
 	 */
-	protected function usernameExists($username, $id): bool {
-		// Extend the Query object
+	protected function usernameExists(string $username, int $id): bool {
 		global $rs_query;
 		
 		if($id === 0) {
-			// Return true if the username appears in the database
-			return $rs_query->selectRow('users', 'COUNT(username)', array('username' => $username)) > 0;
+			return $rs_query->selectRow('users', 'COUNT(username)', array(
+				'username' => $username
+			)) > 0;
 		} else {
-			// Return true if the username appears in the database (not counting the current user)
 			return $rs_query->selectRow('users', 'COUNT(username)', array(
 				'username' => $username,
 				'id' => array('<>', $id)
@@ -709,19 +703,16 @@ class User {
 	 * @since 2.0.6[a]
 	 *
 	 * @access protected
-	 * @param string $email
-	 * @param int $id
+	 * @param string $email -- The user's email.
+	 * @param int $id -- The user's id.
 	 * @return bool
 	 */
-	protected function emailExists($email, $id): bool {
-		// Extend the Query object
+	protected function emailExists(string $email, int $id): bool {
 		global $rs_query;
 		
 		if($id === 0) {
-			// Return true if the email appears in the database
 			return $rs_query->selectRow('users', 'COUNT(email)', array('email' => $email)) > 0;
 		} else {
-			// Return true if the email appears in the database (not counting the current user)
 			return $rs_query->selectRow('users', 'COUNT(email)', array(
 				'email' => $email,
 				'id' => array('<>', $id)
@@ -734,11 +725,10 @@ class User {
 	 * @since 2.4.3[a]
 	 *
 	 * @access private
-	 * @param int $id
+	 * @param int $id -- The user's id.
 	 * @return bool
 	 */
-	private function userHasContent($id): bool {
-		// Extend the Query object
+	private function userHasContent(int $id): bool {
 		global $rs_query;
 		
 		return $rs_query->selectRow('posts', 'COUNT(author)', array('author' => $id)) > 0;
@@ -749,11 +739,10 @@ class User {
 	 * @since 1.2.2[a]
 	 *
 	 * @access protected
-	 * @param int $id
+	 * @param int $id -- The user's id.
 	 * @return array
 	 */
-	protected function getUserMeta($id): array {
-		// Extend the Query object
+	protected function getUserMeta(int $id): array {
 		global $rs_query;
 		
 		$usermeta = $rs_query->select('usermeta', array('_key', 'value'), array('user' => $id));
@@ -775,11 +764,10 @@ class User {
 	 * @since 1.7.0[a]
 	 *
 	 * @access private
-	 * @param int $id
+	 * @param int $id -- The user's id.
 	 * @return string
 	 */
-	private function getRole($id): string {
-		// Extend the Query object
+	private function getRole(int $id): string {
 		global $rs_query;
 		
 		return $rs_query->selectField('user_roles', 'name', array('id' => $id));
@@ -790,16 +778,15 @@ class User {
 	 * @since 1.7.0[a]
 	 *
 	 * @access private
-	 * @param int $id (optional; default: 0)
+	 * @param int $id (optional) -- The user's id.
 	 * @return string
 	 */
-	private function getRoleList($id = 0): string {
-		// Extend the Query object
+	private function getRoleList(int $id = 0): string {
 		global $rs_query;
 		
 		$list = '';
 		
-		$roles = $rs_query->select('user_roles', '*', '', 'id');
+		$roles = $rs_query->select('user_roles', '*', array(), 'id');
 		
 		foreach($roles as $role)
 			$list .= '<option value="' . $role['id'] . '"' . ($role['id'] === $id ? ' selected' : '') . '>' .
@@ -891,12 +878,11 @@ class User {
 	 * @since 1.2.3[a]
 	 *
 	 * @access private
-	 * @param array $data
-	 * @param int $id
+	 * @param array $data -- The submission data.
+	 * @param int $id -- The user's id.
 	 * @return string
 	 */
-	private function validatePasswordData($data, $id): string {
-		// Extend the Query object and the user's session data
+	private function validatePasswordData(array $data, int $id): string {
 		global $rs_query, $session;
 		
 		if(empty($data['admin_pass']) || empty($data['new_pass']) || empty($data['confirm_pass']))
@@ -936,12 +922,11 @@ class User {
 	 * @since 1.2.4[a]
 	 *
 	 * @access protected
-	 * @param string $password
-	 * @param int $id
+	 * @param string $password -- The user's password.
+	 * @param int $id -- The user's id.
 	 * @return bool
 	 */
-	protected function verifyPassword($password, $id): bool {
-		// Extend the Query object
+	protected function verifyPassword(string $password, int $id): bool {
 		global $rs_query;
 		
 		$db_password = $rs_query->selectField('users', 'password', array('id' => $id));
@@ -956,7 +941,6 @@ class User {
 	 * @access public
 	 */
 	public function reassignContent(): void {
-		// Extend the user's session data
 		global $session;
 		
 		if(empty($this->id) || $this->id <= 0 || $this->id === $session['id']) {
@@ -1004,11 +988,10 @@ class User {
 	 * @since 2.4.3[a]
 	 *
 	 * @access private
-	 * @param array $data
-	 * @param int $id
+	 * @param array $data -- The submission data.
+	 * @param int $id -- The user's id.
 	 */
-	private function validateReassignContentData($data, $id): void {
-		// Extend the Query object and the user's session data
+	private function validateReassignContentData(array $data, int $id): void {
 		global $rs_query;
 		
 		// Reassign all posts to the new author
@@ -1025,11 +1008,10 @@ class User {
 	 * @since 2.4.3[a]
 	 *
 	 * @access private
-	 * @param int $id
+	 * @param int $id -- The user's id.
 	 * @return string
 	 */
-	private function getUsername($id): string {
-		// Extend the Query object
+	private function getUsername(int $id): string {
 		global $rs_query;
 		
 		return $rs_query->selectField('users', 'username', array('id' => $id));
@@ -1040,11 +1022,10 @@ class User {
 	 * @since 2.4.3[a]
 	 *
 	 * @access private
-	 * @param int $exclude
+	 * @param int $id -- The user's id.
 	 * @return string
 	 */
-	private function getUserList($id): string {
-		// Extend the Query object
+	private function getUserList(int $id): string {
 		global $rs_query;
 		
 		$list = '';
@@ -1062,12 +1043,11 @@ class User {
 	 * @since 1.3.2[b]
 	 *
 	 * @access private
-	 * @param string $status (optional; default: '')
-	 * @param string $search (optional; default: '')
+	 * @param string $status (optional) -- The user's status.
+	 * @param string $search (optional) -- The search query.
 	 * @return int
 	 */
-	private function getUserCount($status = '', $search = ''): int {
-		// Extend the Query class
+	private function getUserCount(string $status = '', string $search = ''): int {
 		global $rs_query;
 		
 		switch($status) {
@@ -1078,7 +1058,9 @@ class User {
 						'session' => array('IS NOT NULL')
 					));
 				} else {
-					return $rs_query->select('users', 'COUNT(*)', array('session' => array('IS NOT NULL')));
+					return $rs_query->select('users', 'COUNT(*)', array(
+						'session' => array('IS NOT NULL')
+					));
 				}
 				break;
 			case 'offline':
@@ -1088,7 +1070,9 @@ class User {
 						'session' => array('IS NULL')
 					));
 				} else {
-					return $rs_query->select('users', 'COUNT(*)', array('session' => array('IS NULL')));
+					return $rs_query->select('users', 'COUNT(*)', array(
+						'session' => array('IS NULL')
+					));
 				}
 				break;
 			default:
@@ -1109,7 +1093,6 @@ class User {
 	 * @access private
 	 */
 	private function bulkActions(): void {
-		// Extend the Query class
 		global $rs_query;
 		?>
 		<div class="bulk-actions">
@@ -1118,7 +1101,7 @@ class User {
 				?>
 				<select class="actions">
 					<?php
-					$roles = $rs_query->select('user_roles', array('id', 'name'), '', 'id');
+					$roles = $rs_query->select('user_roles', array('id', 'name'), array(), 'id');
 					
 					foreach($roles as $role) {
 						echo formTag('option', array(

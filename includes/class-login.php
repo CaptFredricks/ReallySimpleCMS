@@ -273,7 +273,9 @@ class Login {
 			'status' => 'failure'
 		));
 		
-		$login_rules = $rs_query->select('login_rules', '*', array('type' => 'ip_address'), 'attempts', 'DESC');
+		$login_rules = $rs_query->select('login_rules', '*', array(
+			'type' => 'ip_address'
+		), 'attempts', 'DESC');
 		
 		foreach($login_rules as $login_rule) {
 			// Check whether the failed logins exceed the rule's threshold
@@ -334,7 +336,9 @@ class Login {
 			'status' => 'failure'
 		));
 		
-		$login_rules = $rs_query->select('login_rules', '*', array('type' => 'login'), 'attempts', 'DESC');
+		$login_rules = $rs_query->select('login_rules', '*', array(
+			'type' => 'login'
+		), 'attempts', 'DESC');
 		
 		foreach($login_rules as $login_rule) {
 			// Check whether the failed logins exceed the rule's threshold

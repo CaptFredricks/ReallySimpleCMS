@@ -15,20 +15,21 @@ if(isset($_POST['submit_ajax']) && $_POST['submit_ajax']) {
 	// Named constants
 	require_once dirname(dirname(__DIR__)) . '/includes/constants.php';
 	
-	// Debugging functions
-	require_once DEBUG_FUNC;
+	// Critical functions
+	require_once CRIT_FUNC;
+	
+	checkPHPVersion();
 	
 	// Database configuration
 	require_once DB_CONFIG;
 	
-	// Query class
-	require_once QUERY_CLASS;
-	
-	// Create a Query object
-	$rs_query = new Query;
+	// Debugging functions
+	require_once DEBUG_FUNC;
 	
 	// Global functions
 	require_once GLOBAL_FUNC;
+	
+	$rs_query = new Query;
 	
 	// Admin functions
 	require_once ADMIN_FUNC;
@@ -47,11 +48,10 @@ if(isset($_POST['submit_ajax']) && $_POST['submit_ajax']) {
  * Run the installation.
  * @since 1.2.6[b]
  *
- * @param array $data
+ * @param array $data -- The submitted data.
  * @return array
  */
-function runInstall($data): array {
-	// Extend the Query object
+function runInstall(array $data): array {
 	global $rs_query;
 	
 	// Site title
@@ -93,7 +93,8 @@ function runInstall($data): array {
 		'email' => $data['admin_email']
 	);
 	
-	$site_url = (!empty($_SERVER['HTTPS']) ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'];
+	$site_url = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ?
+		'https://' : 'http://') . $_SERVER['HTTP_HOST'];
 	
 	$settings_data = array(
 		'site_title' => $data['site_title'],
@@ -111,20 +112,19 @@ function runInstall($data): array {
 		// Open the file stream
 		$handle = fopen($file_path, 'w');
 		
-		// Address all user-agents (robots)
-		fwrite($handle, 'User-agent: *' . chr(10));
-		
-		// Check whether robots are being blocked
-		if((int)$data['do_robots'] === 0) {
-			// Block robots from crawling the site
-			fwrite($handle, 'Disallow: /');
-		} else {
-			// Allow crawling to all directories except for /admin/
-			fwrite($handle, 'Disallow: /admin/');
+		if($handle !== false) {
+			fwrite($handle, 'User-agent: *' . chr(10));
+			
+			if((int)$data['do_robots'] === 0) {
+				// Block robots from crawling the site
+				fwrite($handle, 'Disallow: /');
+			} else {
+				// Allow crawling to all directories except for /admin/
+				fwrite($handle, 'Disallow: /admin/');
+			}
+			
+			fclose($handle);
 		}
-		
-		// Close the file
-		fclose($handle);
 		
 		// Set file permissions
 		chmod($file_path, 0666);

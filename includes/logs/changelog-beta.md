@@ -18,6 +18,69 @@
 - [a] = alpha
 - [b] = beta
 
+## Version 1.3.10[b] (2023-09-20)
+
+- Tweaked a previous entry in the changelog
+- When the record search button is clicked, the form field now receives focus
+- Admin classes cleanup
+- Implemented the new admin interface
+- Removed the admin `Category` class
+- Added various new data to the admin about page
+- Extensive cleanup of the `Query` class
+- All variations of the `select` query can now make use of the `BETWEEN` and `NOT BETWEEN` operators
+- Added support for database character sets and collations
+- Extensive cleanup of the setup and installation files
+- Tweaked styling of the database setup and installation pages
+- New functions:
+  - `Query` class (`getAttr`, `hasCap`, `initCharset`, `setCharset`)
+  - `AdminInterface` interface (`createRecord`, `deleteRecord`, `editRecord`, `listRecords`)
+    - Applied to the following classes: `Comment`, `Menu`, `Post`, `Term`
+
+**Bug fixes:**
+- A minor styling tweak from the last version was not served in the minified version of the CSS file
+- The timezone is not properly set in the `php.ini` config file
+- The database setup and installation pages can't be viewed due to certain functions being moved away from `global-functions.php`
+- Menu items appear at the top when first added to a menu
+
+**Modified files:**
+- admin/about.php
+- admin/categories.php
+- admin/comments.php
+- admin/includes/class-category.php (X)
+- admin/includes/class-comment.php
+- admin/includes/class-login.php
+- admin/includes/class-media.php
+- admin/includes/class-menu.php
+- admin/includes/class-notice.php
+- admin/includes/class-post.php
+- admin/includes/class-profile.php
+- admin/includes/class-settings.php
+- admin/includes/class-term.php
+- admin/includes/class-theme.php
+- admin/includes/class-user-role.php
+- admin/includes/class-user.php
+- admin/includes/class-widget.php
+- admin/includes/css/install.css
+- admin/includes/functions.php
+- admin/includes/interface-admin.php
+- admin/includes/js/install.js
+- admin/includes/js/script.js (M)
+- admin/includes/run-install.php
+- admin/install.php
+- admin/menus.php
+- admin/posts.php
+- admin/settings.php
+- admin/setup.php
+- admin/terms.php
+- admin/users.php
+- admin/widgets.php
+- includes/class-login.php
+- includes/class-post.php
+- includes/class-query.php
+- includes/config-setup.php
+- includes/global-functions.php
+- init.php
+
 ## Version 1.3.9[b] (2023-09-01)
 
 - Tweaked the readme file
@@ -31,7 +94,7 @@
 - Streamlined and improved class autoloading to allow for interface support
 - Cleaned up the initialization file
 - Tweaked the core front end styles
-- Added notices if comments are disabled or if loging tracking is disabled
+- Added notices if comments are disabled or if logging tracking is disabled
 - Added a notice if the site is using a broken theme
 - Broken themes can no longer be activated through the dashboard
 - Individual posts can now be noindexed
@@ -47,15 +110,15 @@
 
 **Modified files:**
 - README.md (M)
-- admin/includes/class-comment.php
-- admin/includes/class-login.php
-- admin/includes/class-media.php
+- admin/includes/class-comment.php (M)
+- admin/includes/class-login.php (M)
+- admin/includes/class-media.php (M)
 - admin/includes/class-post.php
 - admin/includes/class-theme.php
 - admin/includes/css/style.css (M)
 - admin/includes/functions.php
 - admin/includes/interface-admin.php (N)
-- admin/index.php
+- admin/index.php (M)
 - includes/class-comment.php
 - includes/class-login.php
 - includes/class-menu.php
@@ -66,8 +129,8 @@
 - includes/debug.php
 - includes/functions.php
 - includes/global-functions.php
-- includes/load-theme.php
-- includes/theme-functions.php
+- includes/load-theme.php (M)
+- includes/theme-functions.php (M)
 - includes/update-db.php
 - init.php
 

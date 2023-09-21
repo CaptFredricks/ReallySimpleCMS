@@ -19,7 +19,7 @@ $rs_comment = new Comment($id);
 	switch($action) {
 		case 'edit':
 			// Edit an existing comment
-			userHasPrivilege('can_edit_comments') ? $rs_comment->editComment() :
+			userHasPrivilege('can_edit_comments') ? $rs_comment->editRecord() :
 				redirect(ADMIN_URI);
 			break;
 		case 'approve':
@@ -39,12 +39,12 @@ $rs_comment = new Comment($id);
 			break;
 		case 'delete':
 			// Delete an existing comment
-			userHasPrivilege('can_delete_comments') ? $rs_comment->deleteComment() :
+			userHasPrivilege('can_delete_comments') ? $rs_comment->deleteRecord() :
 				redirect(ADMIN_URI);
 			break;
 		default:
 			// List all comments
-			userHasPrivilege('can_view_comments') ? $rs_comment->listComments() :
+			userHasPrivilege('can_view_comments') ? $rs_comment->listRecords() :
 				redirect('index.php');
 	}
 	?>

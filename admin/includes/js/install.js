@@ -6,6 +6,10 @@ jQuery(document).ready($ => {
 	// Turn on strict mode
 	'use strict';
 	
+	/**
+	 * Run the database installation.
+	 * @since 1.2.6[b]
+	 */
 	$('body').on('submit', '.data-form', function(e) {
 		e.preventDefault();
 		

@@ -20,4 +20,7 @@ define('DB_PASS', 'database_password');
 define('DB_HOST', 'localhost');
 
 // Database charset
-define('DB_CHAR', 'utf8');
+define('DB_CHARSET', 'utf8');
+
+// Database collation
+define('DB_COLLATE', '');

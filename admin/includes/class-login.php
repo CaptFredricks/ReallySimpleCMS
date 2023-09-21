@@ -84,11 +84,10 @@ class Login {
 	 * @since 1.2.0[b]{ss-01}
 	 *
 	 * @access public
-	 * @param string $page
-	 * @param int $id
+	 * @param string $page -- The admin page.
+	 * @param int $id -- The login's id.
 	 */
-	public function __construct($page, $id) {
-		// Extend the Query object
+	public function __construct(string $page, int $id) {
 		global $rs_query;
 		
 		if(getSetting('delete_old_login_attempts')) {
@@ -150,7 +149,6 @@ class Login {
 	 * @access public
 	 */
 	public function loginAttempts(): void {
-		// Extend the Query object
 		global $rs_query;
 		
 		// Query vars
@@ -236,10 +234,12 @@ class Login {
 							$paged['per_page']
 						));
 					} else {
-						$login_attempts = $rs_query->select('login_attempts', '*', '', 'date', 'DESC', array(
-							$paged['start'],
-							$paged['per_page']
-						));
+						$login_attempts = $rs_query->select('login_attempts', '*',
+							array(), 'date', 'DESC', array(
+								$paged['start'],
+								$paged['per_page']
+							)
+						);
 					}
 				} else {
 					if(!is_null($search)) {
@@ -316,7 +316,6 @@ class Login {
 	 * @access public
 	 */
 	public function blacklistLogin(): void {
-		// Extend the Query object
 		global $rs_query;
 		
 		if(empty($this->id) || $this->id <= 0) {
@@ -389,7 +388,6 @@ class Login {
 	 * @access public
 	 */
 	public function blacklistIPAddress(): void {
-		// Extend the Query object
 		global $rs_query;
 		
 		if(empty($this->id) || $this->id <= 0) {
@@ -462,7 +460,6 @@ class Login {
 	 * @access public
 	 */
 	public function loginBlacklist(): void {
-		// Extend the Query object
 		global $rs_query;
 		
 		// Query vars
@@ -524,10 +521,12 @@ class Login {
 						$paged['per_page']
 					));
 				} else {
-					$blacklisted_logins = $rs_query->select('login_blacklist', '*', '', 'blacklisted', 'DESC', array(
-						$paged['start'],
-						$paged['per_page']
-					));
+					$blacklisted_logins = $rs_query->select('login_blacklist', '*',
+						array(), 'blacklisted', 'DESC', array(
+							$paged['start'],
+							$paged['per_page']
+						)
+					);
 				}
 				
 				foreach($blacklisted_logins as $blacklisted_login) {
@@ -539,10 +538,12 @@ class Login {
 					if(date('Y-m-d H:i:s') >= $expiration && $blacklisted_login['duration'] !== 0) {
 						$rs_query->delete('login_blacklist', array('name' => $blacklisted_login['name']));
 						
-						$bl_logins = $rs_query->select('login_blacklist', '*', '', 'blacklisted', 'DESC', array(
-							$paged['start'],
-							$paged['per_page']
-						));
+						$bl_logins = $rs_query->select('login_blacklist', '*',
+							array(), 'blacklisted', 'DESC', array(
+								$paged['start'],
+								$paged['per_page']
+							)
+						);
 						
 						if(empty($bl_logins)) {
 							echo tableRow(tdCell('There are no blacklisted logins to display.', '',
@@ -675,7 +676,6 @@ class Login {
 	 * @access public
 	 */
 	public function editBlacklist(): void {
-		// Extend the Query object
 		global $rs_query;
 		
 		if(empty($this->id) || $this->id <= 0) {
@@ -749,12 +749,11 @@ class Login {
 	 * @since 1.2.0[b]{ss-01}
 	 *
 	 * @access private
-	 * @param array $data
-	 * @param string $action
+	 * @param array $data -- The submission data.
+	 * @param string $action -- The current action.
 	 * @return string
 	 */
-	private function validateBlacklistData($data, $action): string {
-		// Extend the Query object and the user's session data
+	private function validateBlacklistData(array $data, string $action): string {
 		global $rs_query, $session;
 		
 		if((empty($data['duration']) && $data['duration'] != 0) || empty($data['reason']))
@@ -771,7 +770,9 @@ class Login {
 		// Check which action has been submitted
 		switch($action) {
 			case 'login':
-				$attempts = $rs_query->select('login_attempts', 'COUNT(*)', array('login' => $data['name']));
+				$attempts = $rs_query->select('login_attempts', 'COUNT(*)', array(
+					'login' => $data['name']
+				));
 				
 				$rs_query->insert('login_blacklist', array(
 					'name' => $data['name'],
@@ -789,7 +790,9 @@ class Login {
 				
 				// Log the user out if they're logged in
 				if(!is_null($session)) {
-					$rs_query->update('users', array('session' => null), array('session' => $session));
+					$rs_query->update('users', array('session' => null), array(
+						'session' => $session
+					));
 					
 					if($_COOKIE['session'] === $session)
 						setcookie('session', '', 1, '/');
@@ -798,7 +801,9 @@ class Login {
 				redirect(ADMIN_URI . '?exit_status=success&blacklist=login');
 				break;
 			case 'ip_address':
-				$attempts = $rs_query->select('login_attempts', 'COUNT(*)', array('ip_address' => $data['name']));
+				$attempts = $rs_query->select('login_attempts', 'COUNT(*)', array(
+					'ip_address' => $data['name']
+				));
 				
 				$rs_query->insert('login_blacklist', array(
 					'name' => $data['name'],
@@ -821,7 +826,9 @@ class Login {
 					
 					// Log the user out if they're logged in
 					if(!is_null($session)) {
-						$rs_query->update('users', array('session' => null), array('session' => $session));
+						$rs_query->update('users', array('session' => null), array(
+							'session' => $session
+						));
 						
 						if($_COOKIE['session'] === $session)
 							setcookie('session', '', 1, '/');
@@ -856,7 +863,9 @@ class Login {
 				
 				// Log the user out if they're logged in
 				if(!is_null($session)) {
-					$rs_query->update('users', array('session' => null), array('session' => $session));
+					$rs_query->update('users', array('session' => null), array(
+						'session' => $session
+					));
 					
 					if($_COOKIE['session'] === $session)
 						setcookie('session', '', 1, '/');
@@ -886,7 +895,6 @@ class Login {
 	 * @access public
 	 */
 	public function whitelistLoginIP(): void {
-		// Extend the Query object
 		global $rs_query;
 		
 		if(empty($this->id) || $this->id <= 0) {
@@ -903,11 +911,10 @@ class Login {
 	 * @since 1.2.0[b]{ss-02}
 	 *
 	 * @access private
-	 * @param string $name
+	 * @param string $name -- The blacklist's name.
 	 * @return bool
 	 */
-	private function blacklistExits($name): bool {
-		// Extend the Query object
+	private function blacklistExits(string $name): bool {
 		global $rs_query;
 		
 		return $rs_query->selectRow('login_blacklist', 'COUNT(name)', array('name' => $name)) > 0;
@@ -920,7 +927,6 @@ class Login {
 	 * @access public
 	 */
 	public function loginRules(): void {
-		// Extend the Query object
 		global $rs_query;
 		
 		// Query vars
@@ -962,10 +968,12 @@ class Login {
 			</thead>
 			<tbody>
 				<?php
-				$login_rules = $rs_query->select('login_rules', '*', '', 'attempts', 'ASC', array(
-					$paged['start'],
-					$paged['per_page']
-				));
+				$login_rules = $rs_query->select('login_rules', '*',
+					array(), 'attempts', 'ASC', array(
+						$paged['start'],
+						$paged['per_page']
+					)
+				);
 				
 				foreach($login_rules as $login_rule) {
 					$actions = array(
@@ -1082,7 +1090,6 @@ class Login {
 	 * @access public
 	 */
 	public function editRule(): void {
-		// Extend the Query object
 		global $rs_query;
 		
 		if(empty($this->id) || $this->id <= 0) {
@@ -1154,7 +1161,6 @@ class Login {
 	 * @access public
 	 */
 	public function deleteRule(): void {
-		// Extend the Query object
 		global $rs_query;
 		
 		if(empty($this->id) || $this->id <= 0) {
@@ -1171,12 +1177,11 @@ class Login {
 	 * @since 1.2.0[b]{ss-05}
 	 *
 	 * @access private
-	 * @param array $data
-	 * @param int $id (optional; default: 0)
+	 * @param array $data -- The submission data.
+	 * @param int $id (optional) -- The login rule's id.
 	 * @return string
 	 */
-	private function validateRuleData($data, $id = 0): string {
-		// Extend the Query object
+	private function validateRuleData(array $data, int $id = 0): string {
 		global $rs_query;
 		
 		if(empty($data['attempts']) || (empty($data['duration']) && $data['duration'] != 0))
@@ -1214,11 +1219,11 @@ class Login {
 	 * @since 1.2.0[b]{ss-05}
 	 *
 	 * @access private
-	 * @param int $seconds
+	 * @param int $seconds -- The number of seconds.
 	 * @return string
 	 */
-	private function formatDuration($seconds): string {
-		if((int)$seconds !== 0) {
+	private function formatDuration(int $seconds): string {
+		if($seconds !== 0) {
 			$time_start = new DateTime('@0');
 			$time_end = new DateTime('@' . $seconds);
 			$duration = $time_start->diff($time_end);
@@ -1250,12 +1255,11 @@ class Login {
 	 * @since 1.3.2[b]
 	 *
 	 * @access private
-	 * @param string $status (optional; default: '')
-	 * @param string $search (optional; default: '')
+	 * @param string $status (optional) -- The login's status.
+	 * @param string $search (optional) -- The search query.
 	 * @return int
 	 */
-	private function getLoginCount($status = '', $search = ''): int {
-		// Extend the Query class
+	private function getLoginCount(string $status = '', string $search = ''): int {
 		global $rs_query;
 		
 		if(empty($status)) {

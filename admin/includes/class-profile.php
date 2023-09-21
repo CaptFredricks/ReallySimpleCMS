@@ -13,7 +13,6 @@ class Profile extends User {
 	 * @access public
 	 */
 	public function editProfile(): void {
-		// Extend the Query object
 		global $rs_query;
 		
 		// Validate the form data and return any messages
@@ -141,11 +140,10 @@ class Profile extends User {
 	 * @since 2.0.6[a]
 	 *
 	 * @access private
-	 * @param array $data
+	 * @param array $data -- The submission data.
 	 * @return string
 	 */
-	private function validateData($data): string {
-		// Extend the Query object and the user's session data
+	private function validateData(array $data): string {
 		global $rs_query, $session;
 		
 		if(empty($data['username']) || empty($data['email']))
@@ -215,7 +213,6 @@ class Profile extends User {
 	 * @return string
 	 */
 	private function getDisplayNames(): string {
-		// Extend the Query object
 		global $rs_query;
 		
 		$list = '';
@@ -261,11 +258,10 @@ class Profile extends User {
 	 * @since 2.0.7[a]
 	 *
 	 * @access private
-	 * @param string $current
+	 * @param string $current -- The current theme.
 	 * @return string
 	 */
-	private function getThemesList($current): string {
-		// Extend the Query object
+	private function getThemesList(string $current): string {
 		global $rs_query;
 		
 		$list = tag('option', array(
@@ -303,7 +299,6 @@ class Profile extends User {
 	 * @access public
 	 */
 	public function resetPassword(): void {
-		// Check whether the form has been submitted
 		if(isset($_POST['submit'])) {
 			// Validate the form data and return any messages
 			$message = $this->validatePasswordData($_POST, $this->id);
@@ -386,12 +381,11 @@ class Profile extends User {
 	 * @since 2.0.7[a]
 	 *
 	 * @access private
-	 * @param array $data
-	 * @param int $id
+	 * @param array $data -- The submission data.
+	 * @param int $id -- The user's id.
 	 * @return string
 	 */
-	private function validatePasswordData($data, $id): string {
-		// Extend the Query object
+	private function validatePasswordData(array $data, int $id): string {
 		global $rs_query;
 		
 		if(empty($data['current_pass']) || empty($data['new_pass']) || empty($data['confirm_pass']))
