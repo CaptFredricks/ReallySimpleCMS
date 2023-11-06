@@ -18,6 +18,13 @@
 - [a] = alpha
 - [b] = beta
 
+## Version 1.3.11.1[b] (2023-11-06)
+
+- Incremented the CMS version
+
+**Modified files:**
+- n/a
+
 ## Version 1.3.11[b] (2023-11-06)
 
 - Only admins can now see the Software and Database sections of the admin About page
