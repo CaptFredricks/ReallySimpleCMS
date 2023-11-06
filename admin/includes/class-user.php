@@ -788,9 +788,13 @@ class User implements AdminInterface {
 		
 		$roles = $rs_query->select('user_roles', '*', array(), 'id');
 		
-		foreach($roles as $role)
-			$list .= '<option value="' . $role['id'] . '"' . ($role['id'] === $id ? ' selected' : '') . '>' .
-				$role['name'] . '</option>';
+		foreach($roles as $role) {
+			$list .= tag('option', array(
+				'value' => $role['id'],
+				'selected' => ($role['id'] === $id),
+				'content' => $role['name']
+			));
+		}
 		
 		return $list;
 	}
@@ -1030,10 +1034,16 @@ class User implements AdminInterface {
 		
 		$list = '';
 		
-		$users = $rs_query->select('users', array('id', 'username'), array('id' => array('<>', $id)), 'username');
+		$users = $rs_query->select('users', array('id', 'username'), array(
+			'id' => array('<>', $id)
+		), 'username');
 		
-		foreach($users as $user)
-			$list .= '<option value="' . $user['id'] . '">' . $user['username'] . '</option>';
+		foreach($users as $user) {
+			$list .= tag('option', array(
+				'value' => $user['id'],
+				'content' => $user['username']
+			));
+		}
 		
 		return $list;
 	}

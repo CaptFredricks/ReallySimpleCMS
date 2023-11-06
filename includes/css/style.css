@@ -429,7 +429,7 @@ small {
 }
 
 #admin-bar .user-dropdown .avatar::before {
-	background-image: url('/includes/img/blank.png');
+	background-image: url('/resources/img/blank.png');
 	background-size: 100%;
 	content: '';
 	height: 100%;
@@ -458,7 +458,7 @@ small {
 }
 
 #admin-bar .user-dropdown-menu .avatar-large::before {
-	background-image: url('/includes/img/blank.png');
+	background-image: url('/resources/img/blank.png');
 	background-size: 100%;
 	content: '';
 	height: 100%;

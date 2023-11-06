@@ -283,7 +283,10 @@ class Term implements AdminInterface {
 						'tag' => 'select',
 						'class' => 'select-input',
 						'name' => 'parent',
-						'content' => '<option value="0">(none)</option>' . $this->getParentList()
+						'content' => tag('option', array(
+							'value' => 0,
+							'content' => '(none)'
+						)) . $this->getParentList()
 					));
 					
 					// Separator
@@ -359,8 +362,10 @@ class Term implements AdminInterface {
 								'tag' => 'select',
 								'class' => 'select-input',
 								'name' => 'parent',
-								'content' => '<option value="0">(none)</option>' .
-									$this->getParentList($this->parent, $this->id)
+								'content' => tag('option', array(
+									'value' => 0,
+									'content' => '(none)'
+								)) . $this->getParentList($this->parent, $this->id)
 							));
 							
 							// Separator

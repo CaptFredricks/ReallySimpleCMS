@@ -49,7 +49,7 @@ if($rs_query->conn_status) {
 	}
 }
 
-// AJAX installation file
+// Installation engine
 require_once PATH . ADMIN . INC . '/run-install.php';
 
 // The current step of the installation process

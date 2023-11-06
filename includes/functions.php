@@ -15,11 +15,11 @@ define('COOKIE_HASH', md5(getSetting('site_url')));
  * Fetch a theme-specific script file.
  * @since 2.0.7[a]
  *
- * @param string $script
- * @param string $version (optional; default: CMS_VERSION)
+ * @param string $script -- The script to load.
+ * @param string $version (optional) -- The script's version.
  * @return string
  */
-function getThemeScript($script, $version = CMS_VERSION): string {
+function getThemeScript(string $script, string $version = CMS_VERSION): string {
 	$theme_path = slash(THEMES) . getSetting('theme');
 	
 	return '<script src="' . slash($theme_path) . $script .
@@ -30,10 +30,10 @@ function getThemeScript($script, $version = CMS_VERSION): string {
  * Output a theme-specific script file.
  * @since 1.3.0[b]
  *
- * @param string $script
- * @param string $version (optional; default: CMS_VERSION)
+ * @param string $script -- The script to load.
+ * @param string $version (optional) -- The script's version.
  */
-function putThemeScript($script, $version = CMS_VERSION): void {
+function putThemeScript(string $script, string $version = CMS_VERSION): void {
 	echo getThemeScript($script, $version);
 }
 
@@ -41,11 +41,11 @@ function putThemeScript($script, $version = CMS_VERSION): void {
  * Fetch a theme-specific stylesheet.
  * @since 2.0.7[a]
  *
- * @param string $stylesheet
- * @param string $version (optional; default: CMS_VERSION)
+ * @param string $stylesheet -- The stylesheet to load.
+ * @param string $version (optional) -- The stylesheet's version.
  * @return string
  */
-function getThemeStylesheet($stylesheet, $version = CMS_VERSION): string {
+function getThemeStylesheet(string $stylesheet, string $version = CMS_VERSION): string {
 	$theme_path = slash(THEMES) . getSetting('theme');
 	
 	return '<link href="' . slash($theme_path) . $stylesheet .
@@ -56,10 +56,10 @@ function getThemeStylesheet($stylesheet, $version = CMS_VERSION): string {
  * Output a theme-specific stylesheet.
  * @since 1.3.0[b]
  *
- * @param string $stylesheet
- * @param string $version (optional; default: CMS_VERSION)
+ * @param string $stylesheet -- The stylesheet to load.
+ * @param string $version (optional) -- The stylesheet's version.
  */
-function putThemeStylesheet($stylesheet, $version = CMS_VERSION): void {
+function putThemeStylesheet(string $stylesheet, string $version = CMS_VERSION): void {
 	echo getThemeStylesheet($stylesheet, $version);
 }
 
@@ -67,11 +67,15 @@ function putThemeStylesheet($stylesheet, $version = CMS_VERSION): void {
  * Load all header scripts and stylesheets.
  * @since 2.4.2[a]
  *
- * @param string|array $exclude (optional; default: '')
- * @param string|array $include_styles (optional; default: array())
- * @param string|array $include_scripts (optional; default: array())
+ * @param string|array $exclude (optional) -- The script(s) to exclude.
+ * @param array $include_styles (optional) -- Any additional stylesheets to include.
+ * @param array $include_scripts (optional) -- Any additional scripts to include.
  */
-function headerScripts($exclude = '', $include_styles = array(), $include_scripts = array()): void {
+function headerScripts(
+	string|array $exclude = '',
+	array $include_styles = array(),
+	array $include_scripts = array()
+): void {
 	if(!is_array($exclude)) $exclude = explode(' ', $exclude);
 	
 	$debug = false;
@@ -93,23 +97,19 @@ function headerScripts($exclude = '', $include_styles = array(), $include_script
 		putStylesheet('font-awesome-rules.min.css');
 	}
 	
-	// Check whether any custom stylesheets have been included
-	if(!empty($include_styles)) {
-		if(is_array($include_styles)) {
-			foreach($include_styles as $style)
-				putThemeStylesheet($style[0] . '.css', $style[1] ?? THEME_VERSION);
-		}
+	// Additional custom stylesheets
+	if(!empty($include_styles) && is_array($include_styles)) {
+		foreach($include_styles as $style)
+			putThemeStylesheet($style[0] . '.css', $style[1] ?? THEME_VERSION);
 	}
 	
 	// jQuery library
 	if(!in_array('jquery', $exclude, true)) putScript('jquery.min.js', JQUERY_VERSION);
 	
-	// Check whether any custom scripts have been included
-	if(!empty($include_scripts)) {
-		if(is_array($include_scripts)) {
-			foreach($include_scripts as $script)
-				putThemeScript($script[0] . '.js', $script[1] ?? THEME_VERSION);
-		}
+	// Additional custom scripts
+	if(!empty($include_scripts) && is_array($include_scripts)) {
+		foreach($include_scripts as $script)
+			putThemeScript($script[0] . '.js', $script[1] ?? THEME_VERSION);
 	}
 }
 
@@ -117,30 +117,33 @@ function headerScripts($exclude = '', $include_styles = array(), $include_script
  * Load all footer scripts and stylesheets.
  * @since 2.4.2[a]
  *
- * @param string|array $exclude (optional; default: '')
- * @param string|array $include_styles (optional; default: array())
- * @param string|array $include_scripts (optional; default: array())
+ * @param string|array $exclude (optional) -- The script(s) to exclude.
+ * @param array $include_styles (optional) -- Any additional stylesheets to include.
+ * @param array $include_scripts (optional) -- Any additional scripts to include.
  */
-function footerScripts($exclude = '', $include_styles = array(), $include_scripts = array()): void {
+function footerScripts(
+	string|array $exclude = '',
+	array $include_styles = array(),
+	array $include_scripts = array()
+): void {
 	if(!is_array($exclude)) $exclude = explode(' ', $exclude);
 	
-	// Check whether any custom stylesheets have been included
-	if(!empty($include_styles)) {
-		if(is_array($include_styles)) {
-			foreach($include_styles as $style)
-				putThemeStylesheet($style[0] . '.css', $style[1] ?? THEME_VERSION);
-		}
+	$debug = false;
+	if(defined('DEBUG_MODE') && DEBUG_MODE) $debug = true;
+	
+	// Additional custom stylesheets
+	if(!empty($include_styles) && is_array($include_styles)) {
+		foreach($include_styles as $style)
+			putThemeStylesheet($style[0] . '.css', $style[1] ?? THEME_VERSION);
 	}
 	
 	// Default scripts
 	if(!in_array('script', $exclude, true)) putScript('script.js');
 	
-	// Check whether any custom scripts have been included
-	if(!empty($include_scripts)) {
-		if(is_array($include_scripts)) {
-			foreach($include_scripts as $script)
-				putThemeScript($script[0] . '.js', $script[1] ?? THEME_VERSION);
-		}
+	// Additional custom scripts
+	if(!empty($include_scripts) && is_array($include_scripts)) {
+		foreach($include_scripts as $script)
+			putThemeScript($script[0] . '.js', $script[1] ?? THEME_VERSION);
 	}
 }
 
@@ -148,11 +151,10 @@ function footerScripts($exclude = '', $include_styles = array(), $include_script
  * Construct a list of CSS classes for the body tag.
  * @since 2.2.3[a]
  *
- * @param array $addtl_classes (optional; default: array())
+ * @param array $addtl_classes (optional) -- Additional classes to include.
  * @return string
  */
-function bodyClasses($addtl_classes = array()): string {
-	// Extend the Post and Term objects and the user's session data
+function bodyClasses(array $addtl_classes = array()): string {
 	global $rs_post, $rs_term, $session;
 	
 	$classes = array();
@@ -191,7 +193,6 @@ function bodyClasses($addtl_classes = array()): string {
  * @since 2.2.7[a]
  */
 function adminBar(): void {
-	// Extend the Post and Term objects, the user's session data, and the post types and taxonomies arrays
 	global $rs_post, $rs_term, $session, $post_types, $taxonomies;
 	?>
 	<div id="admin-bar">
@@ -415,14 +416,52 @@ function adminBar(): void {
 \*------------------------------------*/
 
 /**
+ * Determine the type of page being viewed (e.g., post, term, etc.).
+ * @since 1.3.11[b]
+ */
+function guessPageType(): void {
+	global $rs_query, $rs_post, $rs_term;
+	
+	if(isset($_GET['preview']) && $_GET['preview'] === 'true' && isset($_GET['id']) && $_GET['id'] > 0) {
+		$rs_post = new Post;
+	} else {
+		$raw_uri = $_SERVER['REQUEST_URI'];
+		
+		// Check whether the current page is the home page
+		if($raw_uri === '/' || str_starts_with($raw_uri, '/?')) {
+			$home_page = $rs_query->selectField('settings', 'value', array('name' => 'home_page'));
+			$slug = $rs_query->selectField('posts', 'slug', array('id' => $home_page));
+		} else {
+			$uri = explode('/', $raw_uri);
+			$uri = array_filter($uri);
+			
+			// Remove the query string
+			if(str_starts_with(end($uri), '?'))
+				array_pop($uri);
+			
+			$slug = array_pop($uri);
+		}
+		
+		// Check whether the current page is a post or a term
+		if($rs_query->selectRow('posts', 'COUNT(slug)', array('slug' => $slug)) > 0) {
+			$rs_post = new Post;
+		} elseif($rs_query->selectRow('terms', 'COUNT(slug)', array('slug' => $slug)) > 0) {
+			$rs_term = new Term;
+		} else {
+			// Catastrophic failure, abort
+			redirect('/404.php');
+		}
+	}
+}
+
+/**
  * Check whether a post type exists in the database.
  * @since 1.0.5[b]
  *
- * @param string $type
+ * @param string $type -- The post's type.
  * @return bool
  */
-function postTypeExists($type): bool {
-	// Extend the Query object
+function postTypeExists(string $type): bool {
 	global $rs_query;
 	
 	$type = sanitize($type);
@@ -434,11 +473,10 @@ function postTypeExists($type): bool {
  * Check whether a taxonomy exists in the database.
  * @since 1.0.5[b]
  *
- * @param string $taxonomy
+ * @param string $taxonomy -- The taxonomy's name.
  * @return bool
  */
-function taxonomyExists($taxonomy): bool {
-	// Extend the Query object
+function taxonomyExists(string $taxonomy): bool {
 	global $rs_query;
 	
 	$taxonomy = sanitize($taxonomy);
@@ -450,10 +488,10 @@ function taxonomyExists($taxonomy): bool {
  * Create a Post object based on a provided slug.
  * @since 2.2.3[a]
  *
- * @param string $slug
+ * @param string $slug -- The post's slug.
  * @return object
  */
-function getPost($slug): object {
+function getPost(string $slug): object {
 	return new Post($slug);
 }
 
@@ -461,10 +499,10 @@ function getPost($slug): object {
  * Create a Term object based on a provided slug.
  * @since 1.0.6[b]
  *
- * @param string $slug
+ * @param string $slug -- The term's slug.
  * @return object
  */
-function getTerm($slug): object {
+function getTerm(string $slug): object {
 	return new Term($slug);
 }
 
@@ -473,10 +511,10 @@ function getTerm($slug): object {
  * @since 2.4.1[a]
  *
  * @see getTerm()
- * @param string $slug
+ * @param string $slug -- The category's slug.
  * @return object
  */
-function getCategory($slug): object {
+function getCategory(string $slug): object {
 	return getTerm($slug);
 }
 
@@ -484,9 +522,9 @@ function getCategory($slug): object {
  * Fetch a nav menu.
  * @since 2.2.3[a]
  *
- * @param string $slug
+ * @param string $slug -- The menu's slug.
  */
-function getMenu($slug): void {
+function getMenu(string $slug): void {
 	$rs_menu = new Menu;
 	$rs_menu->getMenu($slug);
 }
@@ -495,11 +533,10 @@ function getMenu($slug): void {
  * Fetch a widget.
  * @since 2.2.1[a]
  *
- * @param string $slug
- * @param bool $display_title (optional; default: false)
+ * @param string $slug -- The widget's slug.
+ * @param bool $display_title (optional) -- Whether to display the widget's title.
  */
-function getWidget($slug, $display_title = false): void {
-	// Extend the Query object
+function getWidget(string $slug, bool $display_title = false): void {
 	global $rs_query;
 	
 	$widget = $rs_query->selectRow('posts', array('title', 'content', 'status'), array(
@@ -541,11 +578,10 @@ function getWidget($slug, $display_title = false): void {
  * Register a menu.
  * @since 1.0.0[b]
  *
- * @param string $name
- * @param string $slug
+ * @param string $name -- The menu's name.
+ * @param string $slug -- The menu's slug.
  */
-function registerMenu($name, $slug): void {
-	// Extend the Query object
+function registerMenu(string $name, string $slug): void {
 	global $rs_query;
 	
 	$slug = sanitize($slug);
@@ -564,11 +600,10 @@ function registerMenu($name, $slug): void {
  * Register a widget.
  * @since 1.0.0[b]
  *
- * @param string $title
- * @param string $slug
+ * @param string $title -- The widget's title.
+ * @param string $slug -- The widget's slug.
  */
-function registerWidget($title, $slug): void {
-	// Extend the Query object
+function registerWidget(string $title, string $slug): void {
 	global $rs_query;
 	
 	$slug = sanitize($slug);
@@ -590,11 +625,11 @@ function registerWidget($title, $slug): void {
  * Format an email message with HTML and CSS.
  * @since 2.0.5[a]
  *
- * @param string $heading
- * @param array $fields
+ * @param string $heading -- The email heading.
+ * @param array $fields -- The email fields.
  * @return string
  */
-function formatEmail($heading, $fields): string {
+function formatEmail(string $heading, array $fields): string {
 	$content = '<div style="background-color: #ededed; padding: 3rem 0;">';
 	$content .= '<div style="background-color: #fdfdfd; border: 1px solid #cdcdcd; border-top-color: #ededed; color: #101010 !important; margin: 0 auto; padding: 0.75rem 1.5rem; width: 60%;">';
 	$content .= !empty($heading) ? '<h2 style="text-align: center;">' . $heading . '</h2>' : '';

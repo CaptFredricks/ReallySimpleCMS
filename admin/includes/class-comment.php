@@ -80,15 +80,22 @@ class Comment implements AdminInterface {
 		$paged = paginate((int)($_GET['paged'] ?? 1));
 		?>
 		<div class="heading-wrap">
-			<h1>Comments</h1>
 			<?php
+			// Page title
+			echo domTag('h1', array(
+				'content' => 'Comments'
+			));
+			
+			// Search
 			recordSearch(array(
 				'status' => $status
 			));
+			
+			// Info
 			adminInfo();
-			?>
-			<hr>
-			<?php
+			
+			echo domTag('hr');
+			
 			// Notices
 			if(!getSetting('enable_comments'))
 				echo notice('Comments are currently disabled. You can enable them on the <a href="' . ADMIN . '/settings.php">settings page</a>.', 2, false, true);
@@ -115,31 +122,35 @@ class Comment implements AdminInterface {
 					}
 				}
 				
+				// Statuses
 				foreach($count as $key => $value) {
-					?>
-					<li>
-						<a href="<?php
-							echo ADMIN_URI . ($key === 'all' ? '' : '?status=' . $key);
-							?>"><?php echo ucfirst($key); ?> <span class="count">(<?php echo $value; ?>)</span></a>
-					</li>
-					<?php
-					if($key !== array_key_last($count)) {
-						?> &bull; <?php
-					}
+					echo domTag('li', array(
+						'content' => domTag('a', array(
+							'href' => ADMIN_URI . ($key === 'all' ? '' : '?status=' . $key),
+							'content' => ucfirst($key) . ' ' . domTag('span', array(
+								'class' => 'count',
+								'content' => '(' . $value . ')'
+							))
+						))
+					));
+					
+					if($key !== array_key_last($count)) echo ' &bull; ';
 				}
 				?>
 			</ul>
-			<?php $paged['count'] = ceil($count[$status] / $paged['per_page']); ?>
-			<div class="entry-count status">
-				<?php echo $count[$status] . ' ' . ($count[$status] === 1 ? 'entry' : 'entries');
-				?>
-			</div>
+			<?php
+			// Record count
+			echo domTag('div', array(
+				'class' => 'entry-count status',
+				'content' => $count[$status] . ' ' . ($count[$status] === 1 ? 'entry' : 'entries')
+			));
+			?>
 		</div>
 		<table class="data-table has-bulk-select">
 			<thead>
 				<?php
 				$table_header_cols = array(
-					tag('input', array(
+					domTag('input', array(
 						'type' => 'checkbox',
 						'class' => 'checkbox bulk-selector'
 					)),
@@ -207,8 +218,10 @@ class Comment implements AdminInterface {
 							'id' => $comment['id']
 						)) : null,
 						// View
-						'<a href="' . $this->getPostPermalink($comment['post']) . '#comment-' . $comment['id'] .
-							'">View</a>'
+						domTag('a', array(
+							'href' => $this->getPostPermalink($comment['post']) . '#comment-' . $comment['id'],
+							'content' => 'View'
+						))
 					);
 					
 					// Filter out any empty actions
@@ -216,15 +229,22 @@ class Comment implements AdminInterface {
 					
 					echo tableRow(
 						// Bulk select
-						tdCell(tag('input', array(
+						tdCell(domTag('input', array(
 							'type' => 'checkbox',
 							'class' => 'checkbox',
 							'value' => $comment['id']
 						)), 'bulk-select'),
 						// Comment
 						tdCell(trimWords($comment['content']) . ($comment['status'] === 'unapproved' &&
-							$status === 'all' ? ' &mdash; <em>pending approval</em>' : '') . '<div class="actions">' .
-							implode(' &bull; ', $actions) . '</div>', 'content'),
+							$status === 'all' ? ' &mdash; ' .
+							domTag('em', array(
+								'content' => 'pending approval'
+							)) : '') .
+							domTag('div', array(
+								'class' => 'actions',
+								'content' => implode(' &bull; ', $actions)
+							)), 'content'
+						),
 						// Post
 						tdCell($this->getPost($comment['post']), 'post'),
 						// Author
@@ -246,7 +266,8 @@ class Comment implements AdminInterface {
 		// Bulk actions
 		if(!empty($comments)) $this->bulkActions();
 		
-		// Set up page navigation
+		// Page navigation
+		$paged['count'] = ceil($count[$status] / $paged['per_page']);
 		echo pagerNav($paged['current'], $paged['count']);
 		
         include_once PATH . ADMIN . INC . '/modal-delete.php';
@@ -278,8 +299,13 @@ class Comment implements AdminInterface {
 			$message = isset($_POST['submit']) ? $this->validateData($_POST, $this->id) : '';
 			?>
 			<div class="heading-wrap">
-				<h1>Edit Comment</h1>
-				<?php echo $message; ?>
+				<?php
+				echo domTag('h1', array(
+					'content' => 'Edit Comment'
+				));
+				
+				echo $message;
+				?>
 			</div>
 			<div class="data-form-wrap clear">
 				<form class="data-form" action="" method="post" autocomplete="off">
@@ -300,15 +326,15 @@ class Comment implements AdminInterface {
 							'tag' => 'select',
 							'class' => 'select-input',
 							'name' => 'status',
-							'content' => tag('option', array(
+							'content' => domTag('option', array(
 								'value' => 'approved',
 								'selected' => ($this->status === 'approved' ? 1 : 0),
 								'content' => 'Approved'
-							)) . tag('option', array(
+							)) . domTag('option', array(
 								'value' => 'unapproved',
 								'selected' => ($this->status === 'unapproved' ? 1 : 0),
 								'content' => 'Unapproved'
-							)) . tag('option', array(
+							)) . domTag('option', array(
 								'value' => 'spam',
 								'selected' => ($this->status === 'spam' ? 1 : 0),
 								'content' => 'Spam'
@@ -485,11 +511,14 @@ class Comment implements AdminInterface {
 	private function getPost(int $id): string {
 		global $rs_query;
 		
-		$title = $rs_query->selectField('posts', array('title'), array(
+		$title = $rs_query->selectField('posts', 'title', array(
 			'id' => $id
 		));
 		
-		return '<a href="' . $this->getPostPermalink($id) . '">' . $title . '</a>';
+		return domTag('a', array(
+			'href' => $this->getPostPermalink($id),
+			'content' => $title
+		));
 	}
 	
 	/**
@@ -603,7 +632,7 @@ class Comment implements AdminInterface {
 				));
 				
 				if($status === 'spam') {
-					//
+					// Clear spam
 					button(array(
 						'class' => 'bulk-delete-spam',
 						'title' => 'Delete all spam',

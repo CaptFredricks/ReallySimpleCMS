@@ -191,7 +191,7 @@ class Post implements AdminInterface {
 			?>
 			<ul class="status-nav">
 				<?php
-				$keys = array('all', 'published', 'draft', 'trash');
+				$keys = array('all', 'published', 'draft', 'private', 'trash');
 				$count = array();
 				
 				foreach($keys as $key) {
@@ -241,7 +241,7 @@ class Post implements AdminInterface {
 				<?php
 				if($this->type_data['hierarchical']) {
 					$table_header_cols = array(
-						tag('input', array(
+						domTag('input', array(
 							'type' => 'checkbox',
 							'class' => 'checkbox bulk-selector'
 						)),
@@ -258,7 +258,7 @@ class Post implements AdminInterface {
 						array_splice($table_header_cols, 5, 0, 'Comments');
 				} else {
 					$table_header_cols = array(
-						tag('input', array(
+						domTag('input', array(
 							'type' => 'checkbox',
 							'class' => 'checkbox bulk-selector'
 						)),
@@ -333,6 +333,15 @@ class Post implements AdminInterface {
 					$meta = $this->getPostMeta($post['id']);
 					$type_name = str_replace(' ', '_', $this->type_data['labels']['name_lowercase']);
 					
+					switch($post['status']) {
+						case 'draft':
+							$is_published = false;
+							break;
+						case 'published': case 'private':
+							$is_published = true;
+							break;
+					}
+					
 					$actions = array(
 						// Edit
 						userHasPrivilege('can_edit_' . $type_name
@@ -364,9 +373,12 @@ class Post implements AdminInterface {
 							'id' => $post['id']
 						)) : null) : (
 						// View/preview
-						'<a href="' . ($post['status'] === 'published' ? (isHomePage($post['id']) ? '/' :
-							getPermalink($post['type'], $post['parent'], $post['slug'])) . '">View' :
-							('/?id=' . $post['id'] . '&preview=true') . '">Preview') . '</a>')
+						domTag('a', array(
+							'href' => ($is_published ? (isHomePage($post['id']) ? '/' :
+								getPermalink($post['type'], $post['parent'], $post['slug'])) :
+								('/?id=' . $post['id'] . '&preview=true')),
+							'content' => ($is_published ? 'View' : 'Preview')
+						)))
 					);
 					
 					// Filter out any empty actions
@@ -374,17 +386,28 @@ class Post implements AdminInterface {
 					
 					echo tableRow(
 						// Bulk select
-						tdCell(tag('input', array(
+						tdCell(domTag('input', array(
 							'type' => 'checkbox',
 							'class' => 'checkbox',
 							'value' => $post['id']
 						)), 'bulk-select'),
 						// Title
 						tdCell((isHomePage($post['id']) ?
-							'<i class="fa-solid fa-house-chimney" style="cursor: help;" title="Home Page"></i> ' :
-							'') . '<strong>' . $post['title'] . '</strong>' . ($post['status'] !== 'published' &&
-							$status === 'all' ? ' &mdash; <em>' . $post['status'] . '</em>' : '') .
-							'<div class="actions">' . implode(' &bull; ', $actions) . '</div>', 'title'),
+							domTag('i', array(
+								'class' => 'fa-solid fa-house-chimney',
+								'style' => 'cursor: help;',
+								'title' => 'Home Page'
+							)) . ' ' : '') .
+							domTag('strong', array(
+								'content' => $post['title']
+							)) . ($post['status'] !== 'published' && $status === 'all' ? ' &mdash; ' .
+							domTag('em', array(
+								'content' => $post['status']
+							)) : '') .
+							domTag('div', array(
+								'class' => 'actions',
+								'content' => implode(' &bull; ', $actions)
+							)), 'title'),
 						// Author
 						tdCell($this->getAuthor($post['author']), 'author'),
 						// Terms (hierarchical post types only)
@@ -394,7 +417,8 @@ class Post implements AdminInterface {
 						tdCell(is_null($post['date']) ? '&mdash;' :
 							formatDate($post['date'], 'd M Y @ g:i A'), 'publish-date'),
 						// Parent (hierarchical post types only)
-						$this->type_data['hierarchical'] ? tdCell($this->getParent($post['parent']), 'parent') : '',
+						$this->type_data['hierarchical'] ?
+							tdCell($this->getParent($post['parent']), 'parent') : '',
 						// Comments
 						getSetting('enable_comments') && $this->type_data['comments'] ?
 							tdCell(($meta['comment_status'] ? $meta['comment_count'] : '&mdash;'), 'comments') : '',
@@ -446,14 +470,14 @@ class Post implements AdminInterface {
 				<div class="content">
 					<?php
 					// Type (hidden)
-					echo formTag('input', array(
+					echo domTag('input', array(
 						'type' => 'hidden',
 						'name' => 'type',
 						'value' => $type
 					));
 					
 					// Title
-					echo formTag('input', array(
+					echo domTag('input', array(
 						'id' => 'title-field',
 						'class' => 'text-input required invalid init',
 						'name' => 'title',
@@ -464,25 +488,26 @@ class Post implements AdminInterface {
 					<div class="permalink">
 						<?php
 						// Permalink
-						echo formTag('label', array(
+						echo domTag('label', array(
 							'for' => 'slug',
-							'content' => '<strong>Permalink:</strong> ' . getSetting('site_url') .
-								getPermalink($this->type_data['name'])
+							'content' => domTag('strong', array(
+								'content' => 'Permalink: '
+							)) . getSetting('site_url') . getPermalink($this->type_data['name'])
 						));
-						echo formTag('input', array(
+						echo domTag('input', array(
 							'id' => 'slug-field',
 							'class' => 'text-input required invalid init',
 							'name' => 'slug',
 							'value' => ($_POST['slug'] ?? '')
 						));
-						echo formTag('span', array(
+						echo domTag('span', array(
 							'content' => '/'
 						));
 						?>
 					</div>
 					<?php
 					// Insert media button
-					echo formTag('input', array(
+					echo domTag('input', array(
 						'type' => 'button',
 						'class' => 'button-input button modal-launch',
 						'value' => 'Insert Media',
@@ -491,7 +516,7 @@ class Post implements AdminInterface {
 					));
 					
 					// Content
-					echo formTag('textarea', array(
+					echo domTag('textarea', array(
 						'class' => 'textarea-input',
 						'name' => 'content',
 						'rows' => 25,
@@ -505,25 +530,19 @@ class Post implements AdminInterface {
 						<div class="row">
 							<?php
 							// Status
-							echo formTag('label', array('for' => 'status', 'content' => 'Status'));
-							echo formTag('select', array(
+							echo domTag('label', array('for' => 'status', 'content' => 'Status'));
+							echo domTag('select', array(
 								'class' => 'select-input',
 								'name' => 'status',
-								'content' => tag('option', array(
-									'value' => 'draft',
-									'content' => 'Draft'
-								)) . tag('option', array(
-									'value' => 'published',
-									'content' => 'Published'
-								))
+								'content' => $this->getStatusList()
 							));
 							?>
 						</div>
 						<div class="row">
 							<?php
 							// Author
-							echo formTag('label', array('for' => 'author', 'content' => 'Author'));
-							echo formTag('select', array(
+							echo domTag('label', array('for' => 'author', 'content' => 'Author'));
+							echo domTag('select', array(
 								'class' => 'select-input',
 								'name' => 'author',
 								'content' => $this->getAuthorList()
@@ -533,14 +552,14 @@ class Post implements AdminInterface {
 						<div class="row">
 							<?php
 							// Publish date
-							echo formTag('label', array('for' => 'date', 'content' => 'Publish on'));
-							echo formTag('br');
-							echo formTag('input', array(
+							echo domTag('label', array('for' => 'date', 'content' => 'Publish on'));
+							echo domTag('br');
+							echo domTag('input', array(
 								'type' => 'date',
 								'class' => 'date-input',
 								'name' => 'date[]'
 							));
-							echo formTag('input', array(
+							echo domTag('input', array(
 								'type' => 'time',
 								'class' => 'date-input',
 								'name' => 'date[]'
@@ -550,7 +569,7 @@ class Post implements AdminInterface {
 						<div id="submit" class="row">
 							<?php
 							// Submit button
-							echo formTag('input', array(
+							echo domTag('input', array(
 								'type' => 'submit',
 								'class' => 'submit-input button',
 								'name' => 'submit',
@@ -567,11 +586,11 @@ class Post implements AdminInterface {
 							<div class="row">
 								<?php
 								// Parent
-								echo formTag('label', array('for' => 'parent', 'content' => 'Parent'));
-								echo formTag('select', array(
+								echo domTag('label', array('for' => 'parent', 'content' => 'Parent'));
+								echo domTag('select', array(
 									'class' => 'select-input',
 									'name' => 'parent',
-									'content' => tag('option', array(
+									'content' => domTag('option', array(
 										'value' => 0,
 										'content' => '(none)'
 									)) . $this->getParentList($type)
@@ -581,14 +600,14 @@ class Post implements AdminInterface {
 							<div class="row">
 								<?php
 								// Template
-								echo formTag('label', array(
+								echo domTag('label', array(
 									'for' => 'template',
 									'content' => 'Template'
 								));
-								echo formTag('select', array(
+								echo domTag('select', array(
 									'class' => 'select-input',
 									'name' => 'template',
-									'content' => tag('option', array(
+									'content' => domTag('option', array(
 										'value' => 'default',
 										'content' => 'Default'
 									)) . $this->getTemplateList()
@@ -623,7 +642,7 @@ class Post implements AdminInterface {
 								$comments = isset($_POST['comments']) ||
 									(!isset($_POST['comments']) && $this->type_data['comments']);
 								
-								echo formTag('input', array(
+								echo domTag('input', array(
 									'type' => 'checkbox',
 									'class' => 'checkbox-input',
 									'name' => 'comments',
@@ -631,7 +650,7 @@ class Post implements AdminInterface {
 									'checked' => $comments,
 									'label' => array(
 										'class' => 'checkbox-label',
-										'content' => tag('span', array(
+										'content' => domTag('span', array(
 											'content' => 'Enable comments'
 										))
 									)
@@ -648,26 +667,33 @@ class Post implements AdminInterface {
 							<div class="image-wrap">
 								<?php
 								// Featured image thumbnail
-								echo formTag('img', array('src' => '//:0', 'data-field' => 'thumb'));
+								echo domTag('img', array('src' => '//:0', 'data-field' => 'thumb'));
 								
 								// Remove image button
-								echo formTag('span', array(
+								echo domTag('span', array(
 									'class' => 'image-remove',
 									'title' => 'Remove',
-									'content' => tag('i', array('class' => 'fa-solid fa-xmark'))
+									'content' => domTag('i', array('class' => 'fa-solid fa-xmark'))
 								));
 								?>
 							</div>
 							<?php
 							// Featured image (hidden)
-							echo formTag('input', array(
+							echo domTag('input', array(
 								'type' => 'hidden',
 								'name' => 'feat_image',
 								'value' => ($_POST['feat_image'] ?? 0),
 								'data-field' => 'id'
 							));
+							
+							// Choose image
+							echo domTag('a', array(
+								'class' => 'modal-launch',
+								'href' => 'javascript:void(0)',
+								'data-type' => 'image',
+								'content' => 'Choose Image',
+							));
 							?>
-							<a class="modal-launch" href="javascript:void(0)" data-type="image">Choose Image</a>
 						</div>
 					</div>
 				</div>
@@ -677,9 +703,9 @@ class Post implements AdminInterface {
 						<div class="row">
 							<?php
 							// Meta title
-							echo formTag('label', array('for' => 'meta_title', 'content' => 'Title'));
-							echo formTag('br');
-							echo formTag('input', array(
+							echo domTag('label', array('for' => 'meta_title', 'content' => 'Title'));
+							echo domTag('br');
+							echo domTag('input', array(
 								'class' => 'text-input',
 								'name' => 'meta_title',
 								'value' => ($_POST['meta_title'] ?? '')
@@ -689,12 +715,12 @@ class Post implements AdminInterface {
 						<div class="row">
 							<?php
 							// Meta description
-							echo formTag('label', array(
+							echo domTag('label', array(
 								'for' => 'meta_description',
 								'content' => 'Description'
 							));
-							echo formTag('br');
-							echo formTag('textarea', array(
+							echo domTag('br');
+							echo domTag('textarea', array(
 								'class' => 'textarea-input',
 								'name' => 'meta_description',
 								'cols' => 30,
@@ -709,7 +735,7 @@ class Post implements AdminInterface {
 							$index = isset($_POST['index_post']) ||
 								(!isset($_POST['index_post']) && getSetting('do_robots'));
 							
-							echo formTag('input', array(
+							echo domTag('input', array(
 								'type' => 'checkbox',
 								'class' => 'checkbox-input',
 								'name' => 'index_post',
@@ -717,7 +743,7 @@ class Post implements AdminInterface {
 								'checked' => $index,
 								'label' => array(
 									'class' => 'checkbox-label',
-									'content' => tag('span', array(
+									'content' => domTag('span', array(
 										'content' => 'Index ' . strtolower($this->type_data['labels']['name_singular'])
 									))
 								)
@@ -772,38 +798,37 @@ class Post implements AdminInterface {
 							<div class="content">
 								<?php
 								// Title
-								echo formTag('input', array(
+								echo domTag('input', array(
 									'id' => 'title-field',
 									'class' => 'text-input required invalid init',
 									'name' => 'title',
 									'value' => $this->title,
-									'placeholder' => $this->type_data['labels']['name_singular'] .
-										' title'
+									'placeholder' => $this->type_data['labels']['name_singular'] . ' title'
 								));
 								?>
 								<div class="permalink">
 									<?php
 									// Permalink
-									echo formTag('label', array(
+									echo domTag('label', array(
 										'for' => 'slug',
-										'content' => '<strong>Permalink:</strong> ' .
-											getSetting('site_url') .
-											getPermalink($this->type, $this->parent)
+										'content' => domTag('strong', array(
+											'content' => 'Permalink: '
+										)) . getSetting('site_url') . getPermalink($this->type, $this->parent)
 									));
-									echo formTag('input', array(
+									echo domTag('input', array(
 										'id' => 'slug-field',
 										'class' => 'text-input required invalid init',
 										'name' => 'slug',
 										'value' => $this->slug
 									));
-									echo formTag('span', array(
+									echo domTag('span', array(
 										'content' => '/'
 									));
 									?>
 								</div>
 								<?php
 								// Insert media button
-								echo formTag('input', array(
+								echo domTag('input', array(
 									'type' => 'button',
 									'class' => 'button-input button modal-launch',
 									'value' => 'Insert Media',
@@ -812,7 +837,7 @@ class Post implements AdminInterface {
 								));
 								
 								// Content
-								echo formTag('textarea', array(
+								echo domTag('textarea', array(
 									'class' => 'textarea-input',
 									'name' => 'content',
 									'rows' => 25,
@@ -826,33 +851,25 @@ class Post implements AdminInterface {
 									<div class="row">
 										<?php
 										// Status
-										echo formTag('label', array(
+										echo domTag('label', array(
 											'for' => 'status',
 											'content' => 'Status'
 										));
-										echo formTag('select', array(
+										echo domTag('select', array(
 											'class' => 'select-input',
 											'name' => 'status',
-											'content' => tag('option', array(
-												'value' => 'draft',
-												'selected' => ($this->status === 'draft' ? 1 : 0),
-												'content' => 'Draft'
-											)) . tag('option', array(
-												'value' => 'published',
-												'selected' => ($this->status === 'published' ? 1 : 0),
-												'content' => 'Published'
-											))
+											'content' => $this->getStatusList()
 										));
 										?>
 									</div>
 									<div class="row">
 										<?php
 										// Author
-										echo formTag('label', array(
+										echo domTag('label', array(
 											'for' => 'author',
 											'content' => 'Author'
 										));
-										echo formTag('select', array(
+										echo domTag('select', array(
 											'class' => 'select-input',
 											'name' => 'author',
 											'content' => $this->getAuthorList($this->author)
@@ -862,12 +879,12 @@ class Post implements AdminInterface {
 									<div class="row">
 										<?php
 										// Publish date
-										echo formTag('label', array(
+										echo domTag('label', array(
 											'for' => 'date',
 											'content' => 'Published on'
 										));
-										echo formTag('br');
-										echo formTag('input', array(
+										echo domTag('br');
+										echo domTag('input', array(
 											'type' => 'date',
 											'class' => 'date-input',
 											'name' => 'date[]',
@@ -877,7 +894,7 @@ class Post implements AdminInterface {
 												formatDate($this->modified, 'Y-m-d')
 											)
 										));
-										echo formTag('input', array(
+										echo domTag('input', array(
 											'type' => 'time',
 											'class' => 'date-input',
 											'name' => 'date[]',
@@ -890,18 +907,36 @@ class Post implements AdminInterface {
 									</div>
 									<div id="submit" class="row">
 										<?php
+										switch($this->status) {
+											case 'draft':
+												$is_published = false;
+												break;
+											case 'published': case 'private':
+												$is_published = true;
+												break;
+										}
+										
 										// View/preview link
-										echo $this->status === 'published' ? '<a href="' .
-											(isHomePage($this->id) ? '/' : getPermalink(
-												$this->type,
-												$this->parent,
-												$this->slug
-											)) . '" target="_blank" rel="noreferrer noopener">View</a>' :
-											'<a href="/?id=' . $this->id .
-											'&preview=true" target="_blank" rel="noreferrer noopener">Preview</a>';
+										echo $is_published ?
+											domTag('a', array(
+												'href' => (isHomePage($this->id) ? '/' : getPermalink(
+													$this->type,
+													$this->parent,
+													$this->slug
+												)),
+												'target' => '_blank',
+												'rel' => 'noreferrer noopener',
+												'content' => 'View'
+											)) :
+											domTag('a', array(
+												'href' => '/?id=' . $this->id . '&preview=true',
+												'target' => '_blank',
+												'rel' => 'noreferrer noopener',
+												'content' => 'Preview'
+											));
 										
 										// Submit button
-										echo formTag('input', array(
+										echo domTag('input', array(
 											'type' => 'submit',
 											'class' => 'submit-input button',
 											'name' => 'submit',
@@ -918,14 +953,14 @@ class Post implements AdminInterface {
 										<div class="row">
 											<?php
 											// Parent
-											echo formTag('label', array(
+											echo domTag('label', array(
 												'for' => 'parent',
 												'content' => 'Parent'
 											));
-											echo formTag('select', array(
+											echo domTag('select', array(
 												'class' => 'select-input',
 												'name' => 'parent',
-												'content' => tag('option', array(
+												'content' => domTag('option', array(
 													'value' => 0,
 													'content' => '(none)'
 												)) .
@@ -940,14 +975,14 @@ class Post implements AdminInterface {
 										<div class="row">
 											<?php
 											// Template
-											echo formTag('label', array(
+											echo domTag('label', array(
 												'for' => 'template',
 												'content' => 'Template'
 											));
-											echo formTag('select', array(
+											echo domTag('select', array(
 												'class' => 'select-input',
 												'name' => 'template',
-												'content' => tag('option', array(
+												'content' => domTag('option', array(
 													'value' => 'default',
 													'content' => 'Default'
 												)). $this->getTemplateList($this->id)
@@ -979,7 +1014,7 @@ class Post implements AdminInterface {
 										<div class="row">
 											<?php
 											// Enable comments
-											echo formTag('input', array(
+											echo domTag('input', array(
 												'type' => 'checkbox',
 												'class' => 'checkbox-input',
 												'name' => 'comments',
@@ -987,7 +1022,9 @@ class Post implements AdminInterface {
 												'checked' => $meta['comment_status'],
 												'label' => array(
 													'class' => 'checkbox-label',
-													'content' => '<span>Enable comments</span>'
+													'content' => domTag('span', array(
+														'content' => 'Enable comments'
+													))
 												)
 											));
 											?>
@@ -1008,10 +1045,10 @@ class Post implements AdminInterface {
 											));
 											
 											// Remove image button
-											echo formTag('span', array(
+											echo domTag('span', array(
 												'class' => 'image-remove',
 												'title' => 'Remove',
-												'content' => tag('i', array(
+												'content' => domTag('i', array(
 													'class' => 'fa-solid fa-xmark'
 												))
 											));
@@ -1019,14 +1056,21 @@ class Post implements AdminInterface {
 										</div>
 										<?php
 										// Featured image (hidden)
-										echo formTag('input', array(
+										echo domTag('input', array(
 											'type' => 'hidden',
 											'name' => 'feat_image',
 											'value' => $meta['feat_image'],
 											'data-field' => 'id'
 										));
+										
+										// Choose image
+										echo domTag('a', array(
+											'class' => 'modal-launch',
+											'href' => 'javascript:void(0)',
+											'data-type' => 'image',
+											'content' => 'Choose Image',
+										));
 										?>
-										<a class="modal-launch" href="javascript:void(0)" data-type="image">Choose Image</a>
 									</div>
 								</div>
 							</div>
@@ -1036,12 +1080,12 @@ class Post implements AdminInterface {
 									<div class="row">
 										<?php
 										// Meta title
-										echo formTag('label', array(
+										echo domTag('label', array(
 											'for' => 'meta_title',
 											'content' => 'Title'
 										));
-										echo formTag('br');
-										echo formTag('input', array(
+										echo domTag('br');
+										echo domTag('input', array(
 											'class' => 'text-input',
 											'name' => 'meta_title',
 											'value' => ($meta['title'] ?? '')
@@ -1051,12 +1095,12 @@ class Post implements AdminInterface {
 									<div class="row">
 										<?php
 										// Meta description
-										echo formTag('label', array(
+										echo domTag('label', array(
 											'for' => 'meta_description',
 											'content' => 'Description'
 										));
-										echo formTag('br');
-										echo formTag('textarea', array(
+										echo domTag('br');
+										echo domTag('textarea', array(
 											'class' => 'textarea-input',
 											'name' => 'meta_description',
 											'cols' => 30,
@@ -1068,7 +1112,7 @@ class Post implements AdminInterface {
 									<div class="row">
 										<?php
 										// Index post
-										echo formTag('input', array(
+										echo domTag('input', array(
 											'type' => 'checkbox',
 											'class' => 'checkbox-input',
 											'name' => 'index_post',
@@ -1076,7 +1120,7 @@ class Post implements AdminInterface {
 											'checked' => $meta['index_post'],
 											'label' => array(
 												'class' => 'checkbox-label',
-												'content' => tag('span', array(
+												'content' => domTag('span', array(
 													'content' => 'Index ' . strtolower($this->type_data['labels']['name_singular'])
 												))
 											)
@@ -1197,7 +1241,7 @@ class Post implements AdminInterface {
 			$type = $rs_query->selectField('posts', 'type', array('id' => $this->id));
 			
 			if($type === $this->type_data['name']) {
-				if($status === 'published') {
+				if($status === 'published' || $status === 'private') {
 					$db_status = $rs_query->selectField('posts', 'status', array('id' => $this->id));
 					
 					if($db_status !== $status) {
@@ -1327,8 +1371,19 @@ class Post implements AdminInterface {
 				'post' => $id
 			));
 		} else {
-			if($data['status'] !== 'draft' && $data['status'] !== 'published')
+			$valid_statuses = array('draft', 'published', 'private');
+			
+			if(!in_array($data['status'], $valid_statuses, true))
 				$data['status'] = 'draft';
+			
+			switch($data['status']) {
+				case 'draft':
+					$is_published = false;
+					break;
+				case 'published': case 'private':
+					$is_published = true;
+					break;
+			}
 			
 			$postmeta = array(
 				'title' => $data['meta_title'],
@@ -1356,7 +1411,7 @@ class Post implements AdminInterface {
 				$insert_id = $rs_query->insert('posts', array(
 					'title' => $data['title'],
 					'author' => $data['author'],
-					'date' => ($data['status'] === 'published' ? $data['date'] : null),
+					'date' => ($is_published ? $data['date'] : null),
 					'modified' => $data['date'],
 					'content' => $data['content'],
 					'status' => $data['status'],
@@ -1403,7 +1458,7 @@ class Post implements AdminInterface {
 				$rs_query->update('posts', array(
 					'title' => $data['title'],
 					'author' => $data['author'],
-					'date' => ($data['status'] === 'published' ? $data['date'] : null),
+					'date' => ($is_published ? $data['date'] : null),
 					'modified' => 'NOW()',
 					'content' => $data['content'],
 					'status' => $data['status'],
@@ -1587,6 +1642,30 @@ class Post implements AdminInterface {
 	}
 	
 	/**
+	 * Construct a list of statuses.
+	 * @since 1.3.11[b]
+	 *
+	 * @access private
+	 * @return string
+	 */
+	private function getStatusList(): string {
+		global $rs_query;
+		
+		$list = '';
+		$statuses = array('draft', 'published', 'private');
+		
+		foreach($statuses as $status) {
+			$list .= domTag('option', array(
+				'value' => $status,
+				'selected' => ($status === $this->status),
+				'content' => ucfirst($status)
+			));
+		}
+		
+		return $list;
+	}
+	
+	/**
 	 * Fetch a post's author.
 	 * @since 1.4.0[a]
 	 *
@@ -1623,9 +1702,12 @@ class Post implements AdminInterface {
 				'_key' => 'display_name'
 			));
 			
-			$list .= '<option value="' . $author['id'] . '"' . ($author['id'] === (int)$id ? ' selected' : '') .
-				'>' . ($display_name === $author['username'] ? $display_name :
-				$display_name . ' (' . $author['username'] . ')') . '</option>';
+			$list .= domTag('option', array(
+				'value' => $author['id'],
+				'selected' => ($author['id'] === $id),
+				'content' => ($display_name === $author['username'] ? $display_name :
+					$display_name . ' (' . $author['username'] . ')')
+			));
 		}
 		
 		return $list;
@@ -1651,8 +1733,10 @@ class Post implements AdminInterface {
 				'taxonomy' => getTaxonomyId($this->tax_data['name'])
 			));
 			
-			$terms[] = '<a href="' . getPermalink($this->tax_data['name'], $term['parent'], $term['slug']) .
-				'">' . $term['name'] . '</a>';
+			$terms[] = domTag('a', array(
+				'href' => getPermalink($this->tax_data['name'], $term['parent'], $term['slug']),
+				'content' => $term['name']
+			));
 		}
 		
 		return empty($terms) ? '&mdash;' : implode(', ', $terms);
@@ -1680,7 +1764,7 @@ class Post implements AdminInterface {
 				'post' => $id
 			));
 			
-			$list .= '<li>' . tag('input', array(
+			$list .= '<li>' . domTag('input', array(
 				'type' => 'checkbox',
 				'class' => 'checkbox-input',
 				'name' => 'terms[]',
@@ -1690,7 +1774,7 @@ class Post implements AdminInterface {
 				),
 				'label' => array(
 					'class' => 'checkbox-label',
-					'content' => tag('span', array(
+					'content' => domTag('span', array(
 						'content' => $term['name']
 					))
 				)
@@ -1746,7 +1830,7 @@ class Post implements AdminInterface {
 				if($this->isDescendant($post['id'], $id)) continue;
 			}
 			
-			$list .= tag('option', array(
+			$list .= domTag('option', array(
 				'value' => $post['id'],
 				'selected' => ($post['id'] === $parent),
 				'content' => $post['title']
@@ -1776,7 +1860,7 @@ class Post implements AdminInterface {
 			$current = $rs_query->selectField('postmeta', 'value', array('post' => $id, '_key' => 'template'));
 			
 			foreach($templates as $template) {
-				$list[] = tag('option', array(
+				$list[] = domTag('option', array(
 					'value' => $template,
 					'selected' => (isset($current) && $current === $template),
 					'content' => ucwords(substr(
@@ -1865,18 +1949,19 @@ class Post implements AdminInterface {
 			$type_name = str_replace(' ', '_', $this->type_data['labels']['name_lowercase']);
 			
 			if(userHasPrivilege('can_edit_' . $type_name)) {
-				echo formTag('select', array(
+				$statuses = array('published', 'draft', 'private', 'trash');
+				$content = '';
+				
+				foreach($statuses as $status) {
+					$content .= domTag('option', array(
+						'value' => $status,
+						'content' => ucfirst($status)
+					));
+				}
+				
+				echo domTag('select', array(
 					'class' => 'actions',
-					'content' => tag('option', array(
-						'value' => 'published',
-						'content' => 'Publish'
-					)) . tag('option', array(
-						'value' => 'draft',
-						'content' => 'Draft'
-					)) . tag('option', array(
-						'value' => 'trash',
-						'content' => 'Trash'
-					))
+					'content' => $content
 				));
 				
 				// Update status

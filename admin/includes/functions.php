@@ -39,26 +39,22 @@ spl_autoload_register(function(string $class) {
  * @return string
  */
 function getCurrentPage(): string {
-	// Extend the Query object and the post types and taxonomies arrays
 	global $rs_query, $post_types, $taxonomies;
 	
-	// Extract the current page from the filename
-	$current = basename($_SERVER['PHP_SELF'], '.php');
+	$current_page = basename($_SERVER['PHP_SELF'], '.php');
 	
-	// Check whether the server request contains a query string
 	if(!empty($_SERVER['QUERY_STRING'])) {
-		// Fetch the query string and separate it by its parameters
 		$query_params = explode('&', $_SERVER['QUERY_STRING']);
 		
 		foreach($query_params as $query_param) {
 			if(str_contains($query_param, 'type')) {
-				$current = str_replace(' ', '_',
+				$current_page = str_replace(' ', '_',
 					$post_types[substr($query_param, strpos($query_param, '=') + 1)]['labels']['name_lowercase']
 				);
 			}
 			
 			if(str_contains($query_param, 'taxonomy')) {
-				$current = str_replace(' ', '_',
+				$current_page = str_replace(' ', '_',
 					$taxonomies[substr($query_param, strpos($query_param, '=') + 1)]['labels']['name_lowercase']
 				);
 			}
@@ -69,20 +65,16 @@ function getCurrentPage(): string {
 				
 				$exclude = array('themes', 'menus', 'widgets');
 				
-				foreach($taxonomies as $taxonomy) {
-					// Assign each taxonomy's name to the array
+				foreach($taxonomies as $taxonomy)
 					$exclude[] = str_replace(' ', '_', $taxonomy['labels']['name_lowercase']);
-				}
 				
 				switch($action) {
 					case 'create':
 					case 'upload':
-						// Check whether the current page should be excluded
-						if(in_array($current, $exclude, true)) {
+						if(in_array($current_page, $exclude, true)) {
 							break;
 						} else {
-							// Add the action's name to the current page
-							$current .= '-' . $action;
+							$current_page .= '-' . $action;
 							break;
 						}
 				}
@@ -92,47 +84,37 @@ function getCurrentPage(): string {
 				// Fetch the current page
 				$page = substr($query_param, strpos($query_param, '=') + 1);
 				
-				// Replace any underscores with dashes
-				$current = str_replace('_', '-', $page);
+				$current_page = str_replace('_', '-', $page);
 				break;
 			}
 		}
 		
-		// Check whether the current page is the "Edit Post" page
-		if($current === 'posts' && isset($_GET['id'])) {
-			// Fetch the number of times the post appears in the database
+		if($current_page === 'posts' && isset($_GET['id'])) {
 			$count = $rs_query->selectRow('posts', 'COUNT(*)', array('id' => $_GET['id']));
 			
 			if($count === 0) {
 				redirect('posts.php');
 			} else {
-				// Fetch the post's type from the database
 				$type = $rs_query->selectField('posts', 'type', array('id' => $_GET['id']));
 				
-				// Set the current page
-				$current = str_replace(' ', '_', $post_types[$type]['labels']['name_lowercase']);
+				$current_page = str_replace(' ', '_', $post_types[$type]['labels']['name_lowercase']);
 			}
-		} // Check whether the current page is the "Edit Term" page
-		elseif($current === 'terms' && isset($_GET['id'])) {
-			// Fetch the number of times the term appears in the database
+		}
+		elseif($current_page === 'terms' && isset($_GET['id'])) {
 			$count = $rs_query->selectRow('terms', 'COUNT(*)', array('id' => $_GET['id']));
 			
 			if($count === 0) {
 				redirect('categories.php');
 			} else {
-				// Fetch the term's taxonomy id from the database
 				$tax_id = $rs_query->selectField('terms', 'taxonomy', array('id' => $_GET['id']));
-				
-				// Fetch the term's taxonomy from the database
 				$taxonomy = $rs_query->selectField('taxonomies', 'name', array('id' => $tax_id));
 				
-				// Set the current page
-				$current = str_replace(' ', '_', $taxonomies[$taxonomy]['labels']['name_lowercase']);
+				$current_page = str_replace(' ', '_', $taxonomies[$taxonomy]['labels']['name_lowercase']);
 			}
 		}
 	}
 	
-	return $current === 'index' ? 'dashboard' : $current;
+	return $current_page === 'index' ? 'dashboard' : $current_page;
 }
 
 /**
@@ -142,29 +124,24 @@ function getCurrentPage(): string {
  * @return string
  */
 function getPageTitle(): string {
-	// Extend the Query object and the post types and taxonomies arrays
 	global $rs_query, $post_types, $taxonomies;
 	
 	// Perform some checks based on what the current page is
 	if(basename($_SERVER['PHP_SELF']) === 'index.php')
 		$title = 'Dashboard';
 	elseif(isset($_GET['type'])) {
-		// Fetch the post type's label
 		$title = $post_types[$_GET['type']]['label'] ?? 'Posts';
-	} elseif(basename($_SERVER['PHP_SELF']) === 'posts.php' && isset($_GET['action']) && $_GET['action'] === 'edit') {
-		// Fetch the post's type from the database
+	} elseif(basename($_SERVER['PHP_SELF']) === 'posts.php' && isset($_GET['action']) &&
+		$_GET['action'] === 'edit') {
+			
 		$type = $rs_query->selectField('posts', 'type', array('id' => $_GET['id']));
 		
-		// Replace any underscores or hyphens with spaces and capitalize each word
 		$title = ucwords(str_replace(array('_', '-'), ' ', $type.'s'));
 	} elseif(isset($_GET['taxonomy'])) {
-		// Fetch the taxonomy's label
 		$title = $taxonomies[$_GET['taxonomy']]['label'] ?? 'Terms';
 	} elseif(isset($_GET['page']) && $_GET['page'] === 'user_roles') {
-		// Replace any underscores with spaces and capitalize each word
 		$title = ucwords(str_replace('_', ' ', $_GET['page']));
 	} else {
-		// Extract the page title from the filename and capitalize it
 		$title = ucfirst(basename($_SERVER['PHP_SELF'], '.php'));
 	}
 	
@@ -175,34 +152,34 @@ function getPageTitle(): string {
  * Output an admin script file.
  * @since 1.2.0[a]
  *
- * @param string $script
- * @param string $version (optional; default: CMS_VERSION)
+ * @param string $script -- The script to load.
+ * @param string $version (optional) -- The script's version.
  */
-function adminScript($script, $version = CMS_VERSION): void {
-	echo '<script src="' . slash(ADMIN_SCRIPTS) . $script . (!empty($version) ? '?v=' .
-		$version : '') . '"></script>';
+function adminScript(string $script, string $version = CMS_VERSION): void {
+	echo '<script src="' . slash(ADMIN_SCRIPTS) . $script .
+		(!empty($version) ? '?v=' . $version : '') . '"></script>';
 }
 
 /**
  * Output an admin stylesheet.
  * @since 1.2.0[a]
  *
- * @param string $stylesheet
- * @param string $version (optional; default: CMS_VERSION)
+ * @param string $stylesheet -- The stylesheet to load.
+ * @param string $version (optional) -- The stylesheet's version.
  */
-function adminStylesheet($stylesheet, $version = CMS_VERSION): void {
-	echo '<link href="' . slash(ADMIN_STYLES) . $stylesheet . (!empty($version) ? '?v=' .
-		$version : '') . '" rel="stylesheet">';
+function adminStylesheet(string $stylesheet, string $version = CMS_VERSION): void {
+	echo '<link href="' . slash(ADMIN_STYLES) . $stylesheet .
+		(!empty($version) ? '?v=' . $version : '') . '" rel="stylesheet">';
 }
 
 /**
  * Output an admin theme's stylesheet.
  * @since 2.3.1[a]
  *
- * @param string $stylesheet
- * @param string $version (optional; default: CMS_VERSION)
+ * @param string $stylesheet -- The stylesheet to load.
+ * @param string $version (optional) -- The stylesheet's version.
  */
-function adminThemeStylesheet($stylesheet, $version = CMS_VERSION): void {
+function adminThemeStylesheet(string $stylesheet, string $version = CMS_VERSION): void {
 	echo '<link href="' . slash(ADMIN_THEMES) . $stylesheet . (!empty($version) ? '?v=' .
 		$version : '') . '" rel="stylesheet">';
 }
@@ -212,7 +189,6 @@ function adminThemeStylesheet($stylesheet, $version = CMS_VERSION): void {
  * @since 2.0.7[a]
  */
 function adminHeaderScripts(): void {
-	// Extend the user's session data
 	global $session;
 	
 	$debug = false;
@@ -224,16 +200,12 @@ function adminHeaderScripts(): void {
 	// Admin stylesheet
 	adminStylesheet('style' . ($debug ? '' : '.min') . '.css');
 	
-	// Check whether the user has a custom admin theme selected
 	if($session['theme'] !== 'default') {
-		// Filename for the admin theme stylesheet
 		$filename = $session['theme'] . '.css';
 		
-		// Check whether the stylesheet exists
-		if(file_exists(slash(PATH . ADMIN_THEMES) . $filename)) {
-			// Admin theme stylesheet
+		// Admin theme stylesheet
+		if(file_exists(slash(PATH . ADMIN_THEMES) . $filename))
 			adminThemeStylesheet($filename);
-		}
 	}
 	
 	// Font Awesome icons stylesheet
@@ -261,7 +233,7 @@ function adminFooterScripts(): void {
  */
 function RSCopyright(): void {
 	?>
-	&copy; <?php echo date('Y'); ?> <a href="https://github.com/CaptFredricks/ReallySimpleCMS"><?php echo CMS_NAME; ?></a> &bull; Created by <a href="https://jacefincham.com/" target="_blank" rel="noreferrer noopener">Jace Fincham</a>
+	&copy; <?php echo date('Y'); ?> <a href="https://github.com/CaptFredricks/ReallySimpleCMS"><?php echo CMS_ENGINE; ?></a> &bull; Created by <a href="https://jacefincham.com/" target="_blank" rel="noreferrer noopener">Jace Fincham</a>
 	<?php
 }
 
@@ -274,42 +246,28 @@ function RSVersion(): void {
 }
 
 /**
- * Create a nav menu item for the admin navigation.
+ * Create a menu item for the admin navigation.
  * @since 1.2.5[a]
  *
- * @param array $item (optional; default: array())
- * @param array $submenu (optional; default: array())
- * @param string|array $icon (optional; default: null)
+ * @param array $item (optional) -- The menu item.
+ * @param array $submenu (optional) -- The submenu, if applicable.
+ * @param mixed $icon (optional) -- The menu icon.
  */
-function adminNavMenuItem($item = array(), $submenu = array(), $icon = null): void {
-	// Fetch the current page
-	$current = getCurrentPage();
+function adminNavMenuItem(array $item = array(), array $submenu = array(), mixed $icon = null): void {
+	$current_page = getCurrentPage();
 	
-	// Return if the menu item is not an array
 	if(!empty($item) && !is_array($item)) return;
 	
-	// Fetch the menu item id
 	$item_id = $item['id'] ?? 'menu-item';
-	
-	// Fetch the menu item link
 	$item_link = isset($item['link']) ? slash(ADMIN) . $item['link'] : 'javascript:void(0)';
-	
-	// Fetch the menu item caption
 	$item_caption = $item['caption'] ?? ucwords(str_replace(array('_', '-'), ' ', $item_id));
 	
-	// Check whether the item id matches the current page
-	if($item_id === $current) {
-		// Give the menu item a CSS class
+	if($item_id === $current_page) {
 		$item_class = 'current-menu-item';
-	} // Otherwise, check whether the submenu is empty
-	elseif(!empty($submenu)) {
+	} elseif(!empty($submenu)) {
 		foreach($submenu as $sub_item) {
-			// Check whether the submenu item id matches the current page
-			if(!empty($sub_item['id']) && $sub_item['id'] === $current) {
-				// Give the menu item a CSS class
+			if(!empty($sub_item['id']) && $sub_item['id'] === $current_page) {
 				$item_class = 'child-is-current';
-				
-				// Break out of the loop
 				break;
 			}
 		}
@@ -348,27 +306,20 @@ function adminNavMenuItem($item = array(), $submenu = array(), $icon = null): vo
 		</a>
 		<?php
 		if(!empty($submenu)) {
-			// Return if the submenu is not an array
 			if(!is_array($submenu)) return;
 			?>
 			<ul class="submenu">
 				<?php
 				foreach($submenu as $sub_item) {
-					// Break out of the loop if the menu item is not an array
 					if(!empty($sub_item) && !is_array($sub_item)) break;
 					
 					if(!empty($sub_item)) {
-						// Fetch the submenu item id
 						$sub_item_id = $sub_item['id'] ?? $item_id;
-						
-						// Fetch the submenu item link
 						$sub_item_link = isset($sub_item['link']) ? slash(ADMIN) .
 							$sub_item['link'] : 'javascript:void(0)';
-						
-						// Fetch the submenu item caption
 						$sub_item_caption = $sub_item['caption'] ?? ucwords(str_replace('-', ' ', $sub_item_id));
 						?>
-						<li<?php echo $sub_item_id === $current ? ' class="current-submenu-item"' : ''; ?>>
+						<li<?php echo $sub_item_id === $current_page ? ' class="current-submenu-item"' : ''; ?>>
 							<a href="<?php echo $sub_item_link; ?>"><?php echo $sub_item_caption; ?></a>
 						</li>
 						<?php
@@ -388,7 +339,6 @@ function adminNavMenuItem($item = array(), $submenu = array(), $icon = null): vo
  * @since 1.0.0[b]
  */
 function adminNavMenu(): void {
-	// Extend the post types and taxonomies arrays
 	global $post_types, $taxonomies;
 	
 	// Dashboard
@@ -527,11 +477,10 @@ function adminNavMenu(): void {
  * Get the count for posts of status `draft`.
  * @since 1.3.8[b]
  *
- * @param string $type (optional; default: 'post')
+ * @param string $type (optional) -- The post's type.
  * @return int
  */
-function ctDraft($type = 'post'): int {
-	// Extend the Query object
+function ctDraft(string $type = 'post'): int {
 	global $rs_query;
 	
 	return $rs_query->select('posts', 'COUNT(id)', array(
@@ -544,20 +493,18 @@ function ctDraft($type = 'post'): int {
  * Get statistics for a specific set of table entries.
  * @since 1.2.5[a]
  *
- * @param string $table
- * @param string $field (optional; default: '')
- * @param string $value (optional; default: '')
+ * @param string $table -- The table name.
+ * @param string $col (optional) -- The column to query.
+ * @param string $value (optional) -- The column's value.
  * @return int
  */
-function getStatistics($table, $field = '', $value = ''): int {
-	// Extend the Query object
+function getStatistics(string $table, string $col = '', string $value = ''): int {
 	global $rs_query;
 	
-	// Fetch the entry counts for the specified tables
-	if(empty($field) || empty($value))
+	if(empty($col) || empty($value))
 		return $rs_query->select($table, 'COUNT(*)');
 	else
-		return $rs_query->select($table, 'COUNT(*)', array($field => $value));
+		return $rs_query->select($table, 'COUNT(*)', array($col => $value));
 }
 
 /**
@@ -565,37 +512,23 @@ function getStatistics($table, $field = '', $value = ''): int {
  * @since 1.2.4[a]
  */
 function statsBarGraph(): void {
-	// Extend the post types and taxonomies arrays
 	global $post_types, $taxonomies;
 	
-	// Create empty arrays to hold the bar data and the stats data
 	$bars = $stats = array();
 	
 	foreach($post_types as $key => $value) {
-		// Skip any post type that has 'show_in_stats_graph' set to false
 		if(!$post_types[$key]['show_in_stats_graph']) continue;
 		
-		// Assign each post type to the bar data array
 		$bars[$key] = $value;
-		
-		// Assign the post type's stats to its dataset
 		$bars[$key]['stats'] = getStatistics('posts', 'type', $bars[$key]['name']);
-		
-		// Assign the post type's stats to the stats array
 		$stats[] = $bars[$key]['stats'];
 	}
 	
 	foreach($taxonomies as $key => $value) {
-		// Skip any taxonomy that has 'show_in_stats_graph' set to false
 		if(!$taxonomies[$key]['show_in_stats_graph']) continue;
 		
-		// Assign each post type to the bar data array
 		$bars[$key] = $value;
-		
-		// Assign the post type's stats to its dataset
 		$bars[$key]['stats'] = getStatistics('terms', 'taxonomy', getTaxonomyId($bars[$key]['name']));
-		
-		// Assign the post type's stats to the stats array
 		$stats[] = $bars[$key]['stats'];
 	}
 	
@@ -607,7 +540,7 @@ function statsBarGraph(): void {
 	<div id="stats-graph">
 		<ul class="graph-y">
 			<?php
-			// Loop through the Y axis values
+			// Y axis values
 			for($i = 5; $i >= 0; $i--) {
 				?>
 				<li><span class="value"><?php echo $i * $num; ?></span></li>
@@ -627,7 +560,7 @@ function statsBarGraph(): void {
 			?>
 			<ul class="graph-overlay">
 				<?php
-				// Loop through the overlay items
+				// Overlay items
 				for($j = 5; $j >= 0; $j--) {
 					?>
 					<li></li>
@@ -657,10 +590,9 @@ function statsBarGraph(): void {
  * Construct a widget for the admin dashboard.
  * @since 1.2.1[b]
  *
- * @param string $name
+ * @param string $name -- The widget's name.
  */
-function dashboardWidget($name): void {
-	// Extend the Query object
+function dashboardWidget(string $name): void {
 	global $rs_query;
 	?>
 	<div class="dashboard-widget">
@@ -747,10 +679,10 @@ function dashboardWidget($name): void {
  * Construct a table row. Also known as an HTML `tr` tag.
  * @since 1.4.0[a]
  *
- * @param array $cells (optional; unlimited)
+ * @param string|array $cells (optional) -- The table cells.
  * @return string
  */
-function tableRow(...$cells): string {
+function tableRow(string|array ...$cells): string {
 	return '<tr>' . (!empty($cells) ? implode('', $cells) : '') . '</tr>';
 }
 
@@ -758,14 +690,14 @@ function tableRow(...$cells): string {
  * Construct a table cell, either of the header or data variety.
  * @since 1.2.1[a]
  *
- * @param string $tag
- * @param string $content
- * @param string $class (optional; default: '')
- * @param int $colspan (optional; default: 1)
- * @param int $rowspan (optional; default: 1)
+ * @param string $tag -- The HTML tag.
+ * @param string $content -- The cell's content.
+ * @param string $class (optional) -- The cell's CSS class(es).
+ * @param int $colspan (optional) -- The cell's colspan.
+ * @param int $rowspan (optional) -- The cell's rowspan.
  * @return string
  */
-function tableCell($tag, $content, $class = '', $colspan = 1, $rowspan = 1): string {
+function tableCell(string $tag, string $content, string $class = '', int $colspan = 1, int $rowspan = 1): string {
 	if($tag !== 'th' && $tag !== 'td') $tag = 'td';
 	
 	return '<' . $tag . ' class="column' . (!empty($class) ? ' ' . $class : '') . '"' .
@@ -777,13 +709,13 @@ function tableCell($tag, $content, $class = '', $colspan = 1, $rowspan = 1): str
  * Construct a table header cell. Also known as an HTML `th` tag.
  * @since 1.3.2[b]
  *
- * @param string $content
- * @param string $class (optional; default: '')
- * @param int $colspan (optional; default: 1)
- * @param int $rowspan (optional; default: 1)
+ * @param string $content -- The cell's content.
+ * @param string $class (optional) -- The cell's CSS class(es).
+ * @param int $colspan (optional) -- The cell's colspan.
+ * @param int $rowspan (optional) -- The cell's rowspan.
  * @return string
  */
-function thCell($content, $class = '', $colspan = 1, $rowspan = 1): string {
+function thCell(string $content, string $class = '', int $colspan = 1, int $rowspan = 1): string {
 	return tableCell('th', $content, $class, $colspan, $rowspan);
 }
 
@@ -791,13 +723,13 @@ function thCell($content, $class = '', $colspan = 1, $rowspan = 1): string {
  * Construct a table data cell. Also known as an HTML `td` tag.
  * @since 1.3.2[b]
  *
- * @param string $content
- * @param string $class (optional; default: '')
- * @param int $colspan (optional; default: 1)
- * @param int $rowspan (optional; default: 1)
+ * @param string $content -- The cell's content.
+ * @param string $class (optional) -- The cell's CSS class(es).
+ * @param int $colspan (optional) -- The cell's colspan.
+ * @param int $rowspan (optional) -- The cell's rowspan.
  * @return string
  */
-function tdCell($content, $class = '', $colspan = 1, $rowspan = 1): string {
+function tdCell(string $content, string $class = '', int $colspan = 1, int $rowspan = 1): string {
 	return tableCell('td', $content, $class, $colspan, $rowspan);
 }
 
@@ -805,10 +737,10 @@ function tdCell($content, $class = '', $colspan = 1, $rowspan = 1): string {
  * Construct a table header row.
  * @since 1.2.1[a]
  *
- * @param array $items
+ * @param array $items -- The row items.
  * @return string
  */
-function tableHeaderRow($items): string {
+function tableHeaderRow(array $items): string {
 	if(count(array_filter(array_keys($items), 'is_string')) > 0) {
 		foreach($items as $key => $value)
 			$row[] = thCell($value, 'col-' . $key);
@@ -822,13 +754,13 @@ function tableHeaderRow($items): string {
 /**
  * Construct a form HTML tag.
  * @since 1.2.0[a]
+ * @deprecated since 1.3.11[b]
  *
- * @param string $tag_name
- * @param array $args (optional; default: null)
+ * @param string $tag_name -- The tag's name.
+ * @param array|null $args (optional) -- The tag's args.
  * @return string
  */
-function formTag($tag_name, $args = null): string {
-	// Create an array of property names from the args array
+function formTag(string $tag_name, ?array $args = null): string {
 	$props = !is_null($args) ? array_keys($args) : array();
 	
 	$always_whitelist = array('id', 'class', 'title');
@@ -856,17 +788,14 @@ function formTag($tag_name, $args = null): string {
 	
 	$whitelisted_tags = array_keys($whitelisted_props);
 	
-	// Check whether the specified tag has been whitelisted
 	if(in_array($tag_name, $whitelisted_tags, true)) {
 		$tag = '<' . $tag_name;
 		
-		// Add the 'type' param to input tags
 		if($tag_name === 'input')
 			if(!in_array('type', $props, true)) $tag .= ' type="text"';
 		
 		if(!is_null($args)) {
 			foreach($args as $key => $value) {
-				// Check whether the property has been whitelisted
 				if(in_array($key, $whitelisted_props[$tag_name], true) ||
 					str_starts_with($key, 'data-')) {
 						
@@ -881,8 +810,7 @@ function formTag($tag_name, $args = null): string {
 					}
 				}
 				if($tag_name === 'input' && $key === '*') {
-					// Add the property to the tag
-					$tag .= ' '.$value;
+					$tag .= ' ' . $value;
 				}
 			}
 		}
@@ -891,12 +819,8 @@ function formTag($tag_name, $args = null): string {
 		
 		$self_closing = array('br', 'hr', 'img', 'input');
 		
-		// Check whether the tag should have a closing portion
 		if(!in_array($tag_name, $self_closing, true)) {
-			// Add any provided content
 			$tag .= $args['content'] ?? '';
-			
-			// Closing tag
 			$tag .= '</' . $tag_name . '>';
 		}
 	} else {
@@ -920,12 +844,13 @@ function formTag($tag_name, $args = null): string {
 /**
  * Alias for the formTag function.
  * @since 1.2.7[b]
+ * @deprecated since 1.3.11[b]
  *
- * @param string $tag_name
- * @param array $args (optional; default: null)
+ * @param string $tag_name -- The tag's name.
+ * @param array|null $args (optional) -- The tag's args.
  * @return string
  */
-function tag($tag_name, $args = null): string {
+function tag(string $tag_name, ?array $args = null): string {
 	return formTag($tag_name, $args);
 }
 
@@ -933,22 +858,19 @@ function tag($tag_name, $args = null): string {
  * Construct a form row.
  * @since 1.1.2[a]
  *
- * @param string|array $label (optional; default: '')
- * @param array $args (optional; unlimited)
+ * @param string|array $label (optional) -- The row's label.
+ * @param array $args (optional) -- The row's args.
  * @return string
  */
-function formRow($label = '', ...$args): string {
+function formRow(string|array $label = '', array ...$args): string {
 	if(!empty($label)) {
 		if(is_array($label)) {
-			// Pop the second value from the array
 			$required = array_pop($label);
-			
-			// Convert the label array to a string
 			$label = implode('', $label);
 		}
 		
 		for($i = 0; $i < count($args); $i++) {
-			// Break out of the loop if the 'name' key is found
+			// Break out of the loop if the `name` key is found
 			if(is_array($args[$i]) && array_key_exists('name', $args[$i])) break;
 		}
 		
@@ -966,14 +888,11 @@ function formRow($label = '', ...$args): string {
 			// Check whether the args are a multidimensional array
 			if(count($args) !== count($args, COUNT_RECURSIVE)) {
 				foreach($args as $arg) {
-					// Fetch the arg's HTML tag and remove it from the args array
 					$tag = array_shift($arg);
 					
-					// Construct the form tag and add it to the row
 					$row_content[] = tag($tag, $arg);
 				}
 			} else {
-				// Add any content to the row
 				foreach($args as $arg) $row_content[] = $arg;
 			}
 		}
@@ -984,14 +903,11 @@ function formRow($label = '', ...$args): string {
 			// Check whether the args are a multidimensional array
 			if(count($args) !== count($args, COUNT_RECURSIVE)) {
 				foreach($args as $arg) {
-					// Fetch the arg's HTML tag and remove it from the args array
 					$tag = array_shift($arg);
 					
-					// Construct the form tag and add it to the row
 					$row_content[] = tag($tag, $arg);
 				}
 			} else {
-				// Add any content to the row
 				foreach($args as $arg) $row_content[] = $arg;
 			}
 		}
@@ -1004,9 +920,9 @@ function formRow($label = '', ...$args): string {
  * Record search form.
  * @since 1.3.7[b]
  *
- * @param array $args (optional; default: array())
+ * @param array $args (optional) -- The args.
  */
-function recordSearch($args = array()): void {
+function recordSearch(array $args = array()): void {
 	button(array(
 		'id' => 'search-toggle',
 		'title' => 'Record search',
@@ -1050,11 +966,10 @@ function recordSearch($args = array()): void {
  * Upload media to the media library.
  * @since 2.1.6[a]
  *
- * @param array $data
+ * @param array $data -- The submission data.
  * @return string
  */
-function uploadMediaFile($data): string {
-	// Extend the Query object
+function uploadMediaFile(array $data): string {
 	global $rs_query;
 	
 	if(empty($data['name']))
@@ -1094,7 +1009,7 @@ function uploadMediaFile($data): string {
 	
 	$filepath = slash($year) . $filename;
 	
-	// Move the uploaded file to the uploads directory
+	// Move the file to the uploads directory
 	move_uploaded_file(
 		$data['tmp_name'],
 		slash($basepath) . $filepath
@@ -1106,13 +1021,9 @@ function uploadMediaFile($data): string {
 		'alt_text' => ''
 	);
 	
-	// Set the media's title
 	$title = ucwords(str_replace('-', ' ', $slug));
-	
-	// Fetch the user's data
 	$session = getOnlineUser($_COOKIE['session']);
 	
-	// Insert the new media into the database
 	$insert_id = $rs_query->insert('posts', array(
 		'title' => $title,
 		'author' => $session['id'],
@@ -1169,10 +1080,9 @@ function uploadMediaFile($data): string {
  * Load the media library.
  * @since 2.1.2[a]
  *
- * @param bool $image_only (optional; default: false)
+ * @param bool $image_only (optional) -- Whether to display only images.
  */
-function loadMedia($image_only = false): void {
-	// Extend the Query object
+function loadMedia(bool $image_only = false): void {
 	global $rs_query;
 	
 	$mediaa = $rs_query->select('posts', '*', array('type' => 'media'), 'date', 'DESC');
@@ -1183,7 +1093,6 @@ function loadMedia($image_only = false): void {
 		<?php
 	} else {
 		foreach($mediaa as $media) {
-			// Fetch the media's metadata from the database
 			$mediameta = $rs_query->select('postmeta',
 				array('_key', 'value'),
 				array('post' => $media['id'])
@@ -1192,14 +1101,10 @@ function loadMedia($image_only = false): void {
 			$meta = array();
 			
 			foreach($mediameta as $metadata) {
-				// Get the meta values
 				$values = array_values($metadata);
 				
-				// Loop through the individual metadata entries
-				for($i = 0; $i < count($metadata); $i += 2) {
-					// Assign the metadata to the meta array
+				for($i = 0; $i < count($metadata); $i += 2)
 					$meta[$values[$i]] = $values[$i + 1];
-				}
 			}
 			
 			if($image_only) {
@@ -1278,12 +1183,11 @@ function loadMedia($image_only = false): void {
  * Construct a link to a media item.
  * @since 1.2.9[b]
  *
- * @param int $id
- * @param array $args (optional; default: array())
+ * @param int $id -- The media's id.
+ * @param array $args (optional) -- The args.
  * @return string
  */
-function mediaLink($id, $args = array()): string {
-	// Extend the Query object
+function mediaLink(int $id, array $args = array()): string {
 	global $rs_query;
 	
 	$modified = $rs_query->selectField('posts', 'modified', array('id' => $id));
@@ -1311,28 +1215,23 @@ function mediaLink($id, $args = array()): string {
  * Construct a unique filename.
  * @since 2.1.0[a]
  *
- * @param string $filename
+ * @param string $filename -- The filename.
  * @return string
  */
-function getUniqueFilename($filename): string {
-	// Extend the Query object
+function getUniqueFilename(string $filename): string {
 	global $rs_query;
 	
-	// Fetch the number of conflicting filenames in the database
 	$count = $rs_query->select('postmeta', 'COUNT(*)', array(
 		'_key' => 'filepath',
 		'value' => array('LIKE', '%' . $filename . '%')
 	));
 	
 	if($count > 0) {
-		// Split the filename into separate parts
 		$file_parts = pathinfo($filename);
 		
 		do {
-			// Construct a unique filename
 			$unique_filename = $file_parts['filename'] . '-' . ($count + 1) . '.' .
 				$file_parts['extension'];
-			
 			$count++;
 		} while($rs_query->selectRow('postmeta', 'COUNT(*)', array(
 			'_key' => 'filepath',
@@ -1349,14 +1248,11 @@ function getUniqueFilename($filename): string {
  * Convert a string value or file size to bytes.
  * @since 2.1.3[a]
  *
- * @param string $val
+ * @param string $val -- The value as a string.
  * @return string
  */
-function getSizeInBytes($val): string {
-	// Get the unit's multiple value
+function getSizeInBytes(string $val): string {
 	$multiple = substr($val, -1, 1);
-	
-	// Trim the last character off of the value
 	$val = substr($val, 0, strlen($val) - 1);
 	
 	switch($multiple) {
@@ -1377,18 +1273,14 @@ function getSizeInBytes($val): string {
  * Convert a file size in bytes to its equivalent in kilobytes, metabytes, etc.
  * @since 2.1.0[a]
  *
- * @param int $bytes
- * @param int $decimals (optional; default: 1)
+ * @param int $bytes -- The number of bytes.
+ * @param int $decimals (optional) -- The number of decimal places.
  * @return string
  */
-function getFileSize($bytes, $decimals = 1): string {
-	// Multiples for the units of bytes
+function getFileSize(int $bytes, int $decimals = 1): string {
 	$multiples = 'BKMGTP';
-	
-	// Calculate the factor for each unit
 	$factor = floor((strlen($bytes) - 1) / 3);
 	
-	// Return the converted file size
 	return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . ' ' . $multiples[(int)$factor] .
 		($factor > 0 ? 'B' : '');
 }
@@ -1401,32 +1293,31 @@ function getFileSize($bytes, $decimals = 1): string {
  * Populate the database tables.
  * @since 1.7.0[a]
  *
- * @param array $user_data
- * @param array $settings_data
+ * @param array $user_data -- The user data.
+ * @param array $settings_data -- The settings data.
  */
-function populateTables($user_data, $settings_data): void {
-	// Populate the `user_roles` table
+function populateTables(array $user_data, array $settings_data): void {
+	// Populate `user_roles`
 	populateUserRoles();
 	
-	// Populate the `user_privileges` and `user_relationships` tables
+	// Populate `user_privileges` and `user_relationships`
 	populateUserPrivileges();
 	
-	// Populate the `users` table
+	// Populate `users`
 	$user = populateUsers($user_data);
 	
-	// Populate the `posts` table
+	// Populate `posts`
 	$post = populatePosts($user);
 	
-	// Add the home page to the settings data array
 	$settings_data['home_page'] = $post['home_page'];
 	
-	// Populate the `settings` table
+	// Populate `settings`
 	populateSettings($settings_data);
 	
-	// Populate the `taxonomies` table
+	// Populate `taxonomies`
 	populateTaxonomies();
 	
-	// Populate the `terms` table
+	// Populate `terms`
 	populateTerms($post['blog_post']);
 }
 
@@ -1434,13 +1325,13 @@ function populateTables($user_data, $settings_data): void {
  * Display a notice.
  * @since 1.2.0[a]
  *
- * @param string $text
- * @param string $status (optional; default: 2)
- * @param bool $can_dismiss (optional; default: true)
- * @param bool $is_exit (optional; default: false)
+ * @param string $text -- The notice's text.
+ * @param int $status (optional) -- The notice's status.
+ * @param bool $can_dismiss (optional) -- Whether the notice can be dismissed.
+ * @param bool $is_exit (optional) -- Whether the notice is an exit status.
  * @return string
  */
-function notice($text, $status = 2, $can_dismiss = true, $is_exit = false): string {
+function notice(string $text, int $status = 2, bool $can_dismiss = true, bool $is_exit = false): string {
 	$rs_notice = new Notice;
 	
 	return $rs_notice->msg($text, $status, $can_dismiss, $is_exit);
@@ -1450,13 +1341,12 @@ function notice($text, $status = 2, $can_dismiss = true, $is_exit = false): stri
  * Display an exit status notice.
  * @since 1.3.8[b]
  *
- * @param string $text
- * @param string $status (optional; default: 1)
- * @param bool $can_dismiss (optional; default: true)
- * @param bool $is_exit (optional; default: false)
+ * @param string $text -- The notice's text.
+ * @param int $status (optional) -- The notice's status.
+ * @param bool $can_dismiss (optional) -- Whether the notice can be dismissed.
  * @return string
  */
-function exitNotice($text, $status = 1, $can_dismiss = true): string {
+function exitNotice(string $text, int $status = 1, bool $can_dismiss = true): string {
 	return notice($text, $status, $can_dismiss, true);
 }
 
@@ -1464,11 +1354,11 @@ function exitNotice($text, $status = 1, $can_dismiss = true): string {
  * Check whether a notice has been dismissed.
  * @since 1.3.8[b]
  *
- * @param string $text
- * @param array $dismissed
+ * @param string $text -- The notice's text.
+ * @param array|bool $dismissed -- All dismissed notices.
  * @return bool
  */
-function isDismissedNotice($text, $dismissed): bool {
+function isDismissedNotice(string $text, array|bool $dismissed): bool {
 	if($dismissed === false) return false;
 	
 	$rs_notice = new Notice;
@@ -1480,24 +1370,18 @@ function isDismissedNotice($text, $dismissed): bool {
  * Enable pagination.
  * @since 1.2.1[a]
  *
- * @param int $current (optional; default: 1)
- * @param int $per_page (optional; default: 20)
+ * @param int $current_page (optional) -- The current page.
+ * @param int $per_page (optional) -- The results per page.
  * @return array
  */
-function paginate($current = 1, $per_page = 20): array {
-	// Set the current page
-	$page['current'] = $current;
-	
-	// Set the number of results per page
+function paginate(int $current_page = 1, int $per_page = 20): array {
+	$page['current'] = $current_page;
 	$page['per_page'] = $per_page;
 	
-	if($page['current'] === 1) {
-		// Set the starting value to zero
+	if($page['current'] === 1)
 		$page['start'] = 0;
-	} else {
-		// Set the starting value to offset based on the number of results per page
+	else
 		$page['start'] = ($page['current'] * $page['per_page']) - $page['per_page'];
-	}
 	
 	return $page;
 }
@@ -1506,23 +1390,18 @@ function paginate($current = 1, $per_page = 20): array {
  * Construct pager navigation.
  * @since 1.2.1[a]
  *
- * @param int $page
- * @param int $page_count
+ * @param int $page -- The page.
+ * @param int $page_count -- The total page count.
  */
-function pagerNav($page, $page_count): void {
-	// Fetch the query string from the URL
+function pagerNav(int $page, int $page_count): void {
 	$query_string = $_SERVER['QUERY_STRING'];
-	
-	// Split the query string into an array
 	$query_params = explode('&', $query_string);
 	
 	for($i = 0; $i < count($query_params); $i++) {
-		// Remove the parameter if it contains 'paged'
 		if(str_contains($query_params[$i], 'paged'))
 			unset($query_params[$i]);
 	}
 	
-	// Put the query string back together
 	$query_string = implode('&', $query_params);
 	?>
 	<div class="pager">
@@ -1569,12 +1448,12 @@ function pagerNav($page, $page_count): void {
  * Construct an action link.
  * @since 1.2.0[b]{ss-01}
  *
- * @param string $action
- * @param null|string|array $args (optional; default: null)
- * @param null|string|array $more_args (optional; default: null)
+ * @param string $action -- The action.
+ * @param mixed $args (optional) -- The args.
+ * @param mixed $more_args (optional) -- Any additional args.
  * @return string
  */
-function actionLink($action, $args = null, $more_args = null): string {
+function actionLink(string $action, mixed $args = null, mixed $more_args = null): string {
 	if(!is_null($args)) {
 		if(!is_array($args)) $args = (array)$args;
 		if(!is_array($more_args)) $more_args = (array)$more_args;
@@ -1688,11 +1567,10 @@ function adminInfo(): void {
  * Check whether a post exists in the database.
  * @since 1.0.5[b]
  *
- * @param int $id
+ * @param int $id -- The post's id.
  * @return bool
  */
-function postExists($id): bool {
-	// Extend the Query object
+function postExists(int $id): bool {
 	global $rs_query;
 	
 	return $rs_query->selectRow('posts', 'COUNT(id)', array('id' => $id)) > 0;
@@ -1702,11 +1580,10 @@ function postExists($id): bool {
  * Check whether a term exists in the database.
  * @since 1.3.7[b]
  *
- * @param int $id
+ * @param int $id -- The term's id.
  * @return bool
  */
-function termExists($id): bool {
-	// Extend the Query object
+function termExists(int $id): bool {
 	global $rs_query;
 	
 	return $rs_query->selectRow('terms', 'COUNT(id)', array('id' => $id)) > 0;
@@ -1716,15 +1593,13 @@ function termExists($id): bool {
  * Construct a unique slug.
  * @since 1.0.9[b]
  *
- * @param string $slug
- * @param string $table
+ * @param string $slug -- The slug.
+ * @param string $table -- The database table.
  * @return string
  */
-function getUniqueSlug($slug, $table): string {
-	// Extend the Query object
+function getUniqueSlug(string $slug, string $table): string {
 	global $rs_query;
 	
-	// Fetch the number of conflicting slugs in the database
 	$count = $rs_query->selectRow($table, 'COUNT(slug)', array('slug' => $slug));
 	
 	if($count > 0) {
@@ -1745,10 +1620,10 @@ function getUniqueSlug($slug, $table): string {
  * Construct a unique post slug.
  * @since 1.0.9[b]
  *
- * @param string $slug
+ * @param string $slug -- The post's slug.
  * @return string
  */
-function getUniquePostSlug($slug): string {
+function getUniquePostSlug(string $slug): string {
 	return getUniqueSlug($slug, 'posts');
 }
 
@@ -1756,9 +1631,9 @@ function getUniquePostSlug($slug): string {
  * Construct a unique term slug.
  * @since 1.0.9[b]
  *
- * @param string $slug
+ * @param string $slug -- The term's slug.
  * @return string
  */
-function getUniqueTermSlug($slug): string {
+function getUniqueTermSlug(string $slug): string {
 	return getUniqueSlug($slug, 'terms');
 }

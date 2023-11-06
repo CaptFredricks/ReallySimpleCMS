@@ -18,7 +18,7 @@
 				<div class="upload-wrap">
 					<h2>Select a file to upload</h2>
 					<div class="upload-result"></div>
-					<form id="media-upload" action="<?php echo ADMIN . INC . '/upload.php'; ?>" method="post" enctype="multipart/form-data">
+					<form id="media-upload" action="<?php echo ADMIN . INC . '/ajax-upload.php'; ?>" method="post" enctype="multipart/form-data">
 						<input type="file" name="media_upload">
 						<input type="submit" class="submit-input button" name="upload_submit" value="Upload">
 					</form>

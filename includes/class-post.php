@@ -38,38 +38,59 @@ class Post {
 	 * @since 2.2.3[a]
 	 *
 	 * @access public
-	 * @param string $slug (optional; default: '')
+	 * @param string $slug (optional) -- The post's slug.
 	 */
-	public function __construct($slug = '') {
-		// Extend the Query object and the post types and taxonomies arrays
-		global $rs_query, $post_types, $taxonomies;
+	public function __construct(string $slug = '') {
+		global $rs_query, $session, $post_types, $taxonomies;
 		
 		if(!empty($slug)) {
 			$this->slug = $slug;
-			$status = $this->getPostStatus();
+			$status = $this->getPostStatus(); // This line does nothing ??
 		} else {
 			$raw_uri = $_SERVER['REQUEST_URI'];
 			
-			// Check whether the current page is the home page
+			// Home page
 			if($raw_uri === '/' || (str_starts_with($raw_uri, '/?') && !isset($_GET['preview']))) {
 				$home_page = $rs_query->selectField('settings', 'value', array('name' => 'home_page'));
 				$this->slug = $this->getPostSlug($home_page);
 				$status = $this->getPostStatus();
 				
-				if($status !== 'published') {
-					if($status === 'draft')
+				switch($status) {
+					case 'draft': case 'trash':
+						$is_published = false;
+						break;
+					case 'published': case 'private':
+						$is_published = true;
+						break;
+				}
+				
+				if(!$is_published) {
+					if($status === 'draft' && isset($session))
 						redirect('/?id=' . $home_page . '&preview=true');
 					else
 						redirect('/404.php');
+				} else {
+					if($status === 'private' && !isset($session))
+						redirect('/404.php');
 				}
-			} else {
+			} // All other pages
+			 else {
 				// Check whether the current post is a preview and the id is valid
 				if(isset($_GET['preview']) && $_GET['preview'] === 'true' && isset($_GET['id']) && $_GET['id'] > 0) {
 					$this->slug = $this->getPostSlug($_GET['id']);
 					$status = $this->getPostStatus();
 					
+					switch($status) {
+						case 'draft': case 'trash':
+							$is_published = false;
+							break;
+						case 'published': case 'private':
+							$is_published = true;
+							break;
+					}
+					
 					if($status !== 'draft') {
-						if($status === 'published') {
+						if($is_published) {
 							// Redirect to the proper URL
 							redirect($this->getPostPermalink(
 								$this->getPostType(),
@@ -81,8 +102,7 @@ class Post {
 						}
 					}
 					
-					// Check whether the user is logged in and redirect to the 404 (Not Found) page if not
-					if(!isset($_COOKIE['session'])) redirect('/404.php');
+					if(!isset($session)) redirect('/404.php');
 				} else {
 					$uri = explode('/', $raw_uri);
 					
@@ -99,12 +119,24 @@ class Post {
 					$id = $this->getPostId();
 					$status = $this->getPostStatus();
 					
-					if($status !== 'published') {
-						if(!empty($id) && $status === 'draft')
+					switch($status) {
+						case 'draft':
+							$is_published = false;
+							break;
+						case 'published': case 'private':
+							$is_published = true;
+							break;
+					}
+					
+					if(!$is_published) {
+						if($status === 'draft' && isset($session) && !empty($id))
 							redirect('/?id=' . $id . '&preview=true');
 						else
 							redirect('/404.php');
 					} else {
+						if($status === 'private' && !isset($session))
+							redirect('/404.php');
+						
 						if(isHomePage($id)) {
 							redirect('/');
 						} else {
@@ -142,7 +174,6 @@ class Post {
 	 * @return int
 	 */
 	public function getPostId(): int {
-		// Extend the Query object
 		global $rs_query;
 		
 		return (int)$rs_query->selectField('posts', 'id', array('slug' => $this->slug));
@@ -156,7 +187,6 @@ class Post {
 	 * @return string
 	 */
 	public function getPostTitle(): string {
-		// Extend the Query object
 		global $rs_query;
 		
 		return $rs_query->selectField('posts', 'title', array('slug' => $this->slug));
@@ -170,7 +200,6 @@ class Post {
 	 * @return string
 	 */
 	public function getPostAuthor(): string {
-		// Extend the Query object
 		global $rs_query;
 		
 		$author = $rs_query->selectField('posts', 'author', array('slug' => $this->slug));
@@ -189,7 +218,6 @@ class Post {
 	 * @return string
 	 */
 	public function getPostDate(): string {
-		// Extend the Query object
 		global $rs_query;
 		
 		$date = $rs_query->selectField('posts', 'date', array('slug' => $this->slug));
@@ -208,7 +236,6 @@ class Post {
 	 * @return string
 	 */
 	public function getPostModDate(): string {
-		// Extend the Query object
 		global $rs_query;
 		
 		$modified = $rs_query->selectField('posts', 'modified', array('slug' => $this->slug));
@@ -224,7 +251,6 @@ class Post {
 	 * @return string
 	 */
 	public function getPostContent(): string {
-		// Extend the Query object
 		global $rs_query;
 		
 		return $rs_query->selectField('posts', 'content', array('slug' => $this->slug));
@@ -238,7 +264,6 @@ class Post {
 	 * @return string
 	 */
 	public function getPostStatus(): string {
-		// Extend the Query object
 		global $rs_query;
 		
 		return $rs_query->selectField('posts', 'status', array('slug' => $this->slug));
@@ -253,7 +278,6 @@ class Post {
 	 * @return string
 	 */
     public function getPostSlug($id): string {
-		// Extend the Query object
 		global $rs_query;
 		
 		return $rs_query->selectField('posts', 'slug', array('id' => $id));
@@ -267,7 +291,6 @@ class Post {
 	 * @return int
 	 */
 	public function getPostParent(): int {
-		// Extend the Query object
 		global $rs_query;
 		
 		return (int)$rs_query->selectField('posts', 'parent', array('slug' => $this->slug));
@@ -281,7 +304,6 @@ class Post {
 	 * @return string
 	 */
 	public function getPostType(): string {
-		// Extend the Query object
 		global $rs_query;
 		
 		return $rs_query->selectField('posts', 'type', array('slug' => $this->slug));
@@ -295,7 +317,6 @@ class Post {
 	 * @return string
 	 */
 	public function getPostFeaturedImage(): string {
-		// Extend the Query object
 		global $rs_query;
 		
 		$featured_image = (int)$rs_query->selectField('postmeta', 'value', array(
@@ -311,11 +332,10 @@ class Post {
 	 * @since 2.2.3[a]
 	 *
 	 * @access public
-	 * @param string $key
+	 * @param string $key -- The meta database key.
 	 * @return string
 	 */
-	public function getPostMeta($key): string {
-		// Extend the Query object
+	public function getPostMeta(string $key): string {
 		global $rs_query;
 		
 		$field = $rs_query->selectField('postmeta', 'value', array(
@@ -335,11 +355,10 @@ class Post {
 	 * @since 2.4.1[a]
 	 *
 	 * @access public
-	 * @param bool $linked (optional; default: true)
+	 * @param bool $linked (optional) -- Whether to link the terms.
 	 * @return array
 	 */
-	public function getPostTerms($linked = true): array {
-		// Extend the Query object
+	public function getPostTerms(bool $linked = true): array {
 		global $rs_query;
 		
 		$terms = array();
@@ -355,8 +374,10 @@ class Post {
 			
 			$rs_term = getTerm($slug);
 			
-			$terms[] = $linked ? '<a href="' . $rs_term->getTermUrl() . '">' . $rs_term->getTermName() . '</a>' :
-				$rs_term->getTermName();
+			$terms[] = $linked ? domTag('a', array(
+					'href' => $rs_term->getTermUrl(),
+					'content' => $rs_term->getTermName()
+				)) : $rs_term->getTermName();
 		}
 		
 		return $terms;
@@ -367,9 +388,9 @@ class Post {
 	 * @since 1.1.0[b]{ss-03}
 	 *
 	 * @access public
-	 * @param bool $feed_only (optional; default: false)
+	 * @param bool $feed_only (optional) -- Whether to only display the comment feed.
 	 */
-	public function getPostComments($feed_only = false): void {
+	public function getPostComments(bool $feed_only = false): void {
 		$rs_comment = new Comment($this->getPostId());
 		
 		if(!$feed_only) $rs_comment->getCommentReplyBox();
@@ -382,12 +403,12 @@ class Post {
 	 * @since 2.2.5[a]
 	 *
 	 * @access public
-	 * @param string $type
-	 * @param int $parent
-	 * @param string $slug (optional; default: '')
+	 * @param string $type -- The post's type.
+	 * @param int $parent -- The post's parent.
+	 * @param string $slug (optional) -- The post's slug.
 	 * @return string
 	 */
-	public function getPostPermalink($type, $parent, $slug = ''): string {
+	public function getPostPermalink(string $type, int $parent, string $slug = ''): string {
 		return getPermalink($type, $parent, $slug);
 	}
 	
@@ -418,7 +439,6 @@ class Post {
 	 * @return bool
 	 */
 	public function postHasFeaturedImage(): bool {
-		// Extend the Query object
 		global $rs_query;
 		
 		return (int)$rs_query->selectField('postmeta', 'value', array(

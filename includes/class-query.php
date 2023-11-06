@@ -201,7 +201,13 @@ class Query {
 		}
 		
 		// ORDER BY clause
-		if(!empty($order_by)) $sql .= ' ORDER BY ' . $order_by . ' ' . strtoupper($order);
+		if(!empty($order_by)) {
+			$order = strtoupper($order);
+			
+			if($order !== 'ASC' && $order !== 'DESC') $order = 'ASC';
+			
+			$sql .= ' ORDER BY ' . $order_by . ' ' . $order;
+		}
 		
 		// LIMIT clause
 		if(!empty($limit)) {
@@ -663,44 +669,58 @@ class Query {
 		if(!isset($collate)) $collate = $this->collate;
 		
 		if($this->hasCap('collation') && !empty($charset)) {
-			$sql = 'SET NAMES ' . $charset;
-			
-			if(!empty($collate)) $sql .= ' COLLATE ' . $collate . ';';
-			
-			$query = $this->conn->prepare($sql);
-			$query->execute();
+			$change_charset = $change_collate = false;
 			
 			if(file_exists(DB_CONFIG)) {
 				$config_file = file(DB_CONFIG);
 				
 				foreach($config_file as $line_num => $line) {
 					// Skip over unmatched lines
-					if(!preg_match('/^define\(\s*\'([A-Z_]+)\'/', $line, $match)) continue;
+					if(!preg_match('/^define\(\s*\'([A-Z_]+)\',\s+\'([a-z0-9_]*)\'/', $line, $match))
+						continue;
 					
 					$constant = $match[1];
+					$value = $match[2];
 					
 					switch($constant) {
 						case 'DB_CHARSET':
-							$config_file[$line_num] = "define('" . $constant . "', '" .
-								$charset . "');" . chr(10);
+							if($value !== $charset) {
+								$change_charset = true;
+								
+								$config_file[$line_num] = "define('" . $constant . "', '" .
+									$charset . "');" . chr(10);
+							}
 							break;
 						case 'DB_COLLATE':
-							$config_file[$line_num] = "define('" . $constant . "', '" .
-								$collate . "');" . chr(10);
+							if($value !== $collate) {
+								$change_collate = true;
+								
+								$config_file[$line_num] = "define('" . $constant . "', '" .
+									$collate . "');" . chr(10);
+							}
 							break;
 					}
 				}
 				
 				unset($line);
 				
-				// Open the file stream
-				$handle = fopen(DB_CONFIG, 'w');
-				
-				// Write to the file
-				if($handle !== false) {
-					foreach($config_file as $line) fwrite($handle, $line);
+				if($change_charset || $change_collate) {
+					// Open the file stream
+					$handle = fopen(DB_CONFIG, 'w');
 					
-					fclose($handle);
+					// Write to the file
+					if($handle !== false) {
+						foreach($config_file as $line) fwrite($handle, $line);
+						
+						fclose($handle);
+					}
+					
+					$sql = 'SET NAMES ' . $charset;
+					
+					if(!empty($collate)) $sql .= ' COLLATE ' . $collate . ';';
+					
+					$query = $this->conn->prepare($sql);
+					$query->execute();
 				}
 			}
 		}

@@ -4,7 +4,10 @@
  * @since 1.2.0[a]
  */
 
-// Include the backward compatible functions file
+// DOMtags
+include_once PATH . INC . '/dom-tags.php';
+
+// Backward compatible functions
 require_once PATH . INC . '/backward-compat.php';
 
 // Set the server timezone
@@ -1100,13 +1103,12 @@ function putSetting($name): void {
  * Construct a permalink.
  * @since 2.2.2[a]
  *
- * @param string $type
- * @param int $parent (optional; default: 0)
- * @param string $slug (optional; default: '')
+ * @param string $type -- The post's type.
+ * @param int $parent (optional) -- The post's parent.
+ * @param string $slug (optional) -- The post's slug.
  * @return string
  */
-function getPermalink($type, $parent = 0, $slug = ''): string {
-	// Extend the Query object and the post types and taxonomies arrays
+function getPermalink(string $type, int $parent = 0, string $slug = ''): string {
 	global $rs_query, $post_types, $taxonomies;
 	
 	if(array_key_exists($type, $post_types)) {

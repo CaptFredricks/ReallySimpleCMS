@@ -54,7 +54,7 @@ switch($_POST['page']) {
 		if(!empty($_POST['selected']))
 			foreach($_POST['selected'] as $id) $rs_post->updatePostStatus($_POST['action'], $id);
 		
-		echo $rs_post->listPosts();
+		echo $rs_post->listRecords();
 		break;
 	case 'comments':
 		$rs_comment = new Comment;
@@ -70,7 +70,7 @@ switch($_POST['page']) {
 					foreach($_POST['selected'] as $id) $rs_comment->updateCommentStatus($_POST['action'], $id);
 		}
 		
-		echo $rs_comment->listComments();
+		echo $rs_comment->listRecords();
 		break;
 	case 'widgets':
 		$rs_widget = new Widget;
@@ -79,7 +79,7 @@ switch($_POST['page']) {
 		if(!empty($_POST['selected']))
 			foreach($_POST['selected'] as $id) $rs_widget->updateWidgetStatus($_POST['action'], $id);
 		
-		echo $rs_widget->listWidgets();
+		echo $rs_widget->listRecords();
 		break;
 	case 'users':
 		$rs_user = new User;
@@ -88,6 +88,6 @@ switch($_POST['page']) {
 		if(!empty($_POST['selected']))
 			foreach($_POST['selected'] as $id) $rs_user->updateUserRole($_POST['action'], $id);
 		
-		echo $rs_user->listUsers();
+		echo $rs_user->listRecords();
 		break;
 }

@@ -70,8 +70,10 @@ function getClassFilename(string $name): string {
 	}
 	
 	$name = formatPathFragment($name);
+	$path = slash(implode('/', $path));
+	$path = !str_starts_with($path, '/') ? '/' . $path : $path;
 	
-	return slash(implode('/', $path)) . ($is_interface ? 'interface-' : 'class-') . $name . '.php';
+	return $path . ($is_interface ? 'interface-' : 'class-') . $name . '.php';
 }
 
 /**

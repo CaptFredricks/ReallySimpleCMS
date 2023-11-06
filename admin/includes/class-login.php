@@ -1044,7 +1044,13 @@ class Login {
 						'tag' => 'select',
 						'class' => 'select-input',
 						'name' => 'type',
-						'content' => '<option value="login">Login</option><option value="ip_address">IP Address</option>'
+						'content' => tag('option', array(
+							'value' => 'login',
+							'content' => 'Login'
+						)) . tag('option', array(
+							'value' => 'ip_address',
+							'content' => 'IP Address'
+						))
 					));
 					
 					// Attempts
@@ -1111,13 +1117,23 @@ class Login {
 							'tag' => 'select',
 							'class' => 'select-input',
 							'name' => 'type',
-							'content' => '<option value="' . $this->type . '">' . ($this->type === 'ip_address' ?
-								'IP Address' : ucfirst($this->type)) . '</option>' . ($this->type === 'login' ?
-								'<option value="ip_address">IP Address</option>' :
-								'<option value="login">Login</option>')
+							'content' => tag('option', array(
+								'value' => $this->type,
+								'content' => ($this->type === 'ip_address' ?
+									'IP Address' : ucfirst($this->type))
+							)) . ($this->type === 'login' ?
+								tag('option', array(
+									'value' => 'ip_address',
+									'content' => 'IP Address'
+								)) :
+								tag('option', array(
+									'value' => 'login',
+									'content' => 'Login'
+								))
+							)
 						));
 						
-						
+						// Attempts
 						echo formRow(array('Attempts', true), array(
 							'tag' => 'input',
 							'class' => 'text-input required invalid init',
@@ -1126,7 +1142,7 @@ class Login {
 							'value' => $this->attempts
 						));
 						
-						
+						// Duration
 						echo formRow(array('Duration (seconds)', true), array(
 							'tag' => 'input',
 							'class' => 'text-input required invalid init',

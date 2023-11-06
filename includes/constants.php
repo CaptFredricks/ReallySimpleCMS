@@ -9,14 +9,13 @@
 \*------------------------------------*/
 
 // Minimum supported PHP version
-define('PHP_MINIMUM', '7.4');
+define('PHP_MINIMUM', '8.0');
 
 // Recommended PHP version
-define('PHP_RECOMMENDED', '8.0');
+define('PHP_RECOMMENDED', '8.1');
 
 // Current CMS version
 define('CMS_VERSION', '1.3.10');
-define('VERSION', CMS_VERSION); // deprecated
 
 // Current jQuery version
 define('JQUERY_VERSION', '3.6.3');

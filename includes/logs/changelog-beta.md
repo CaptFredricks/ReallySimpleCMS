@@ -18,6 +18,63 @@
 - [a] = alpha
 - [b] = beta
 
+## Version 1.3.11[b] (2023-11-06)
+
+- Only admins can now see the Software and Database sections of the admin About page
+- Removed a deprecated constant
+- The minimum PHP version that the CMS supports is now `8.0` and the recommended version is `8.1` or higher
+- Code cleanup in several admin files and the front end `functions.php`
+- Renamed `upload.php` to `ajax-upload.php`
+- Added DOMtags library (all files associated with it will not be added to the changelog henceforth)
+  - Replaced raw HTML with DOMtags in many places on the admin dashboard
+- Began process of moving static resources to their own directory
+- Added exception handling for the `order_by` clause in queries
+- The update script files are now only run if the current session is from a logged in user
+- Code cleanup in the `init.php` file
+- Added a new post status: `private`, which allows for privately publishing pages (they will be accessible to logged in visitors only)
+- Improved validation in the admin `Post` class
+- The `formTag` and `tag` functions are now deprecated
+- New functions:
+  - Admin `Post` class (`getStatusList`)
+  - `functions.php` (`guessPageType`)
+
+**Bug fixes:**
+- A method in the admin `Comment` class is trying to pass the wrong data type as one of its args
+- Leading slashes aren't always added to files being autoloaded
+- Two scripts are leading to corruptions in `config.php`:
+  - The `update.php` script that updates old database constants runs even if no change needs to be made
+  - The `Query::setCharset` method runs even if no change needs to be made
+- Renamed class methods are still being called in the `bulk-actions.php` file
+
+**Modified files:**
+- admin/about.php
+- admin/includes/ajax-upload.php (R,M)
+- admin/includes/bulk-actions.php
+- admin/includes/class-comment.php
+- admin/includes/class-login.php
+- admin/includes/class-post.php
+- admin/includes/class-term.php
+- admin/includes/class-user.php
+- admin/includes/css/style.css (M)
+- admin/includes/functions.php
+- admin/includes/modal-upload.php (M)
+- admin/install.php (M)
+- includes/class-dom-tag.php (N, *DOMtags*)
+- includes/class-post.php
+- includes/class-query.php
+- includes/constants.php (M)
+- includes/critical-functions.php (M)
+- includes/css/font-awesome-rules.min.css (M)
+- includes/css/style.css (M)
+- includes/dom-tags.php (N, *DOMtags*)
+- includes/dom-tags/class-\*.php (N, *DOMtags*)
+- includes/dom-tags/interface-dom-tag.php (N, *DOMtags*)
+- includes/functions.php
+- includes/global-functions.php
+- includes/logs/changelog-dom-tags.md (N, *DOMtags*)
+- includes/update.php
+- init.php
+
 ## Version 1.3.10.2[b] (2023-09-21)
 
 - n/a
@@ -44,7 +101,7 @@
 - Admin classes cleanup
 - Implemented the new admin interface
 - Removed the admin `Category` class
-- Added various new data to the admin about page
+- Added various new data to the admin About page
 - Extensive cleanup of the `Query` class
 - All variations of the `select` query can now make use of the `BETWEEN` and `NOT BETWEEN` operators
 - Added support for database character sets and collations
@@ -272,7 +329,7 @@
   - Admin `functions.php` (`recordSearch`, `termExists`)
 
 **Bug fixes:**
-- Duplicate values are being added to the sql data in the `Query::select` function, breaking some queries
+- Duplicate values are being added to the SQL data in the `Query::select` function, breaking some queries
 - Comment counts are not being updated for posts when using bulk update
 
 **Modified files:**
@@ -1442,7 +1499,7 @@
 - admin/includes/class-post.php
 - admin/includes/functions.php
 - content/themes/carbon/header-tax.php (R)
-- content/themes/carbon/taxonomy.php (R/M)
+- content/themes/carbon/taxonomy.php (R,M)
 - includes/functions.php
 - includes/globals.php
 - includes/load-template.php
