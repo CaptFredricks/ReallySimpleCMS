@@ -151,10 +151,10 @@ function footerScripts(
  * Construct a list of CSS classes for the body tag.
  * @since 2.2.3[a]
  *
- * @param array $addtl_classes (optional) -- Additional classes to include.
+ * @param string|array $addtl_classes (optional) -- Additional classes to include.
  * @return string
  */
-function bodyClasses(array $addtl_classes = array()): string {
+function bodyClasses(string|array $addtl_classes = array()): string {
 	global $rs_post, $rs_term, $session;
 	
 	$classes = array();

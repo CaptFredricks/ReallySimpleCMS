@@ -18,6 +18,16 @@
 - [a] = alpha
 - [b] = beta
 
+## Version 1.3.11.2[b] (2023-11-06)
+
+- Tweaked a previous entry in the changelog
+
+**Bug fixes:**
+- The `bodyClasses` function throws an error when the first parameter is a string
+
+**Modified files:**
+- includes/functions.php (M)
+
 ## Version 1.3.11.1[b] (2023-11-06)
 
 - Incremented the CMS version
@@ -56,7 +66,7 @@
 **Modified files:**
 - admin/about.php
 - admin/includes/ajax-upload.php (R,M)
-- admin/includes/bulk-actions.php
+- admin/includes/bulk-actions.php (M)
 - admin/includes/class-comment.php
 - admin/includes/class-login.php
 - admin/includes/class-post.php
