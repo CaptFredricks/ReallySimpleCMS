@@ -1024,8 +1024,10 @@ function isAdmin(): bool {
  * @return bool
  */
 function isLogin(): bool {
+	$login_slug = getSetting('login_slug');
+	
 	return str_starts_with($_SERVER['REQUEST_URI'], '/login.php') ||
-		str_contains($_SERVER['REQUEST_URI'], getSetting('login_slug'));
+		(!empty($login_slug) && str_contains($_SERVER['REQUEST_URI'], $login_slug));
 }
 
 /**

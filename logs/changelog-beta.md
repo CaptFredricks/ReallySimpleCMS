@@ -18,6 +18,24 @@
 - [a] = alpha
 - [b] = beta
 
+## Version 1.3.12.1[b] (2023-12-13)
+
+- Tweaked a previous entry in the changelog
+- Tweaked title tags on all front end pages
+- The maintenance page now has a more descriptive title tag
+- Removed some redundant code in the initialization file
+
+**Bug fixes:**
+- The front end doesn't properly display due to a faulty logic check during initialization
+
+**Modified files:**
+- 404.php (M)
+- includes/global-functions.php (M)
+- includes/maintenance.php (M)
+- includes/theme-functions.php (M)
+- init.php (M)
+- login.php (M)
+
 ## Version 1.3.12[b] (2023-12-13)
 
 - Added the following to the admin about page:
@@ -44,21 +62,22 @@
   - `user_roles` table (`_default` -> `is_default`)
   - The database will automatically update to accommodate these changes
 - Changed the format of snapshot versions from `x.x.x[x]{ss-xx}` to `x.x.x[x]_snap-xx`
-- Added extra validation to the `Query::selectField` method
 - New functions:
   - `debug.php` (`deprecated`, `errorHandler`)
+  - `functions.php` (`handleSecureLogin`)
 
 **Bug fixes:**
 - Custom post types and taxonomies are not loaded due to improper initialization order in `init.php`
+- If an integer value is returned in the database fetch, it triggers a fatal error in `Query::selectField`
 
 **Modified files:**
 - .htaccess (M)
 - admin/about.php
-- admin/header.php
+- admin/header.php (M)
 - admin/includes/ajax.php (M)
 - admin/includes/class-comment.php
 - admin/includes/class-login.php (M)
-- admin/includes/class-media.php (M)
+- admin/includes/class-media.php
 - admin/includes/class-menu.php
 - admin/includes/class-notice.php
 - admin/includes/class-post.php
@@ -73,7 +92,7 @@
 - includes/class-comment.php
 - includes/class-login.php
 - includes/class-menu.php (M)
-- includes/class-post.php
+- includes/class-post.php (M)
 - includes/class-query.php (M)
 - includes/constants.php
 - includes/debug.php

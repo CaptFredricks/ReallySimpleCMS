@@ -858,7 +858,7 @@ function pageTitle(): void {
 		!empty(getPostMeta('title')) ? putPostMeta('title') : putPostTitle();
 	else
 		putTermName();
-	?> &rtrif; <?php putSetting('site_title');
+	?> ▸ <?php putSetting('site_title');
 }
 
 /**

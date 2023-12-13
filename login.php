@@ -22,7 +22,7 @@ $action = $_GET['action'] ?? '';
 <!DOCTYPE html>
 <html>
 	<head>
-		<title><?php echo empty($action) ? 'Log In' : ucwords(str_replace('_', ' ', $action)); ?> &rtrif; <?php putSetting('site_title'); ?></title>
+		<title><?php echo empty($action) ? 'Log In' : ucwords(str_replace('_', ' ', $action)); ?> ▸ <?php putSetting('site_title'); ?></title>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="robots" content="noindex, nofollow">
@@ -35,13 +35,13 @@ $action = $_GET['action'] ?? '';
 			<h1>
 				<a href="/">
 					<?php
+					// Title/logo
 					if(!empty(getSetting('site_logo'))) {
-						// Display the site logo
-						?>
-						<img src="<?php echo getMediaSrc(getSetting('site_logo')); ?>" title="<?php putSetting('site_title'); ?>">
-						<?php
+						echo domTag('img', array(
+							'src' => getMediaSrc(getSetting('site_logo')),
+							'title' => getSetting('site_title')
+						));
 					} else {
-						// Display the site title
 						putSetting('site_title');
 					}
 					?>

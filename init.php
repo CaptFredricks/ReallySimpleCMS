@@ -65,15 +65,12 @@ if((defined('MAINT_MODE') && MAINT_MODE) &&
 		if(file_exists(PATH . INC . '/update.php') && isset($session))
 			require_once PATH . INC . '/update.php';
 		
+		// Site-wide functions
+		require_once FUNC;
+		
 		if(isLogin()) {
-			// Site-wide functions
-			require_once FUNC;
-			
 			handleSecureLogin();
 		} elseif(!isAdmin() && !is404()) {
-			// Site-wide functions
-			require_once FUNC;
-			
 			// Initialize the theme
 			require_once PATH . INC . '/theme-functions.php';
 			require_once PATH . INC . '/load-theme.php';

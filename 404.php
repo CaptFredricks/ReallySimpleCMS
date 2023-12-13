@@ -10,16 +10,14 @@ require_once __DIR__ . '/init.php';
 // Include functions
 require_once FUNC;
 
-// Check whether the session cookie is set and the user's session is valid
-if(isset($_COOKIE['session']) && isValidSession($_COOKIE['session'])) {
-	// Fetch the user's data
+// Fetch the user's session data if they're logged in
+if(isset($_COOKIE['session']) && isValidSession($_COOKIE['session']))
 	$session = getOnlineUser($_COOKIE['session']);
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>Not Found &rtrif; <?php putSetting('site_title'); ?></title>
+		<title>Not Found ▸ <?php putSetting('site_title'); ?></title>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="robots" content="noindex, nofollow">
