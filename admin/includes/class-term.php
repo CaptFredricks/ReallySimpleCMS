@@ -283,7 +283,7 @@ class Term implements AdminInterface {
 						'tag' => 'select',
 						'class' => 'select-input',
 						'name' => 'parent',
-						'content' => tag('option', array(
+						'content' => domTag('option', array(
 							'value' => 0,
 							'content' => '(none)'
 						)) . $this->getParentList()
@@ -362,7 +362,7 @@ class Term implements AdminInterface {
 								'tag' => 'select',
 								'class' => 'select-input',
 								'name' => 'parent',
-								'content' => tag('option', array(
+								'content' => domTag('option', array(
 									'value' => 0,
 									'content' => '(none)'
 								)) . $this->getParentList($this->parent, $this->id)
@@ -555,7 +555,7 @@ class Term implements AdminInterface {
 				if($this->isDescendant($term['id'], $id)) continue;
 			}
 			
-			$list .= tag('option', array(
+			$list .= domTag('option', array(
 				'value' => $term['id'],
 				'selected' => ($term['id'] === $parent),
 				'content' => $term['name']

@@ -290,7 +290,10 @@ class Query {
 		
 		$data = $this->selectRow($table, $col, $where, $order_by, $order, $limit);
 		
-		return implode('', $data);
+		if(is_array($data))
+			return implode('', $data);
+		else
+			return $data;
 	}
 	
 	/**

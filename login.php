@@ -35,7 +35,6 @@ $action = $_GET['action'] ?? '';
 			<h1>
 				<a href="/">
 					<?php
-					// Check whether a site logo has been set
 					if(!empty(getSetting('site_logo'))) {
 						// Display the site logo
 						?>
@@ -51,19 +50,20 @@ $action = $_GET['action'] ?? '';
 			<?php
 			switch($action) {
 				case 'logout':
-					// Log the user out if the session cookie is set, otherwise redirect them to the login form
-					isset($_COOKIE['session']) ? $rs_login->userLogout($_COOKIE['session']) : redirect('login.php');
+					$login_slug = getSetting('login_slug');
+					
+					// Log the user out if the session cookie is set
+					// Otherwise, redirect them to the login form
+					isset($_COOKIE['session']) ? $rs_login->userLogout($_COOKIE['session']) :
+						redirect('/login.php' . (!empty($login_slug) ? '?secure_login=' . $login_slug : ''));
 					break;
 				case 'forgot_password':
-					// Display the 'Forgot Password' form
 					$rs_login->forgotPasswordForm();
 					break;
 				case 'reset_password':
-					// Display the 'Reset Password' form
 					$rs_login->resetPasswordForm();
 					break;
 				default:
-					// Display the 'Log In' form
 					$rs_login->logInForm();
 			}
 			?>

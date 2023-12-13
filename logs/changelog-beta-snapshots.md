@@ -12,11 +12,16 @@
 - x.X.x (feature update release)
 - x.x.X (standard/minor release)
 - x.x.x.X (bug fix/emergency patch release)
-- x.x.x{ss-xx} (snapshot release)
+- x.x.x_snap-xx (snapshot release)
 
 **Other**
 - [a] = alpha
 - [b] = beta
+
+## Version 1.4.0-beta_snap-xx (xxxx-xx-xx)
+
+- Changed the format of snapshot versions from `x.x.x[x]_snap-xx` to `x.x.x-xxxx_snap-xx`
+- Coming soon!
 
 ## Version 1.2.0[b]{ss-05} (2020-12-28)
 
@@ -242,6 +247,7 @@
 - Added an additional CSS class to data table columns to ensure that they don't conflict with other page elements
 - Tweaked the schema for the `comments` database table
 - Cleaned up code in the `Post` class
+- Changed the format of snapshot versions from `x.x.x[x][ss-xx]` to `x.x.x[x]{ss-xx}`
 - New functions:
   - Admin `Comment` class (`listComments`, `editComment`, `approveComment`, `unapproveComment`, `deleteComment`, `validateData`, `getPost`, `getPostPermalink`, `getAuthor`)
 
@@ -256,7 +262,7 @@
 - includes/schema.php (M)
 - includes/update.php (M)
 
-## Version 1.1.0[b]{ss-01} (2020-09-20)
+## Version 1.1.0[b][ss-01] (2020-09-20)
 *Feature Update: Comments*
 
 - Created a database schema for the `comments` table

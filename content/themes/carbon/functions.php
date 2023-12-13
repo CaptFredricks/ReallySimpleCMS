@@ -90,7 +90,7 @@ function getRecentPosts($count = 3, $terms = 0, $display_title = false): void {
 				foreach($posts as $post) {
 					$feat_image = querySelectField('postmeta', 'value', array(
 						'post' => $post['id'],
-						'_key' => 'feat_image'
+						'datakey' => 'feat_image'
 					));
 					?>
 					<li class="post id-<?php echo $post['id']; ?> clear">

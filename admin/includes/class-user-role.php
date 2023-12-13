@@ -93,11 +93,11 @@ class UserRole implements AdminInterface {
 			if(!is_null($search)) {
 				$count = $rs_query->select('user_roles', 'COUNT(*)', array(
 					'name' => array('LIKE', '%' . $search . '%'),
-					'_default' => 'no'
+					'is_default' => 0
 				));
 			} else {
 				$count = $rs_query->select('user_roles', 'COUNT(*)', array(
-					'_default' => 'no'
+					'is_default' => 0
 				));
 			}
 			
@@ -120,14 +120,14 @@ class UserRole implements AdminInterface {
 				if(!is_null($search)) {
 					$roles = $rs_query->select('user_roles', '*', array(
 						'name' => array('LIKE', '%' . $search . '%'),
-						'_default' => 'no'
+						'is_default' => 0
 					), 'id', 'ASC', array(
 						$paged['start'],
 						$paged['per_page']
 					));
 				} else {
 					$roles = $rs_query->select('user_roles', '*',
-						array('_default' => 'no'), 'id', 'ASC',
+						array('is_default' => 0), 'id', 'ASC',
 						array(
 							$paged['start'],
 							$paged['per_page']
@@ -187,7 +187,7 @@ class UserRole implements AdminInterface {
 			</thead>
 			<tbody>
 				<?php
-				$roles = $rs_query->select('user_roles', '*', array('_default' => 'yes'), 'id');
+				$roles = $rs_query->select('user_roles', '*', array('is_default' => 1), 'id');
 				
 				foreach($roles as $role) {
 					echo tableRow(
@@ -474,12 +474,12 @@ class UserRole implements AdminInterface {
 		
 		$privileges = $rs_query->select('user_privileges', '*', array(), 'id');
 		
-		$list .= '<li>' . tag('input', array(
+		$list .= '<li>' . domTag('input', array(
 			'type' => 'checkbox',
 			'id' => 'select-all',
 			'class' => 'checkbox-input',
 			'label' => array(
-				'content' => tag('span', array(
+				'content' => domTag('span', array(
 					'content' => 'SELECT ALL'
 				))
 			)
@@ -491,14 +491,14 @@ class UserRole implements AdminInterface {
 				'privilege' => $privilege['id']
 			));
 			
-			$list .= '<li>' . tag('input', array(
+			$list .= '<li>' . domTag('input', array(
 				'type' => 'checkbox',
 				'class' => 'checkbox-input',
 				'name' => 'privileges[]',
 				'value' => $privilege['id'],
 				'checked' => $relationship,
 				'label' => array(
-					'content' => tag('span', array(
+					'content' => domTag('span', array(
 						'content' => $privilege['name']
 					))
 				)

@@ -13,6 +13,25 @@
 - x.x.X (standard/minor release)
 - x.x.x.X (bug fix/emergency patch release)
 
+## Version 1.0.4.1 (2023-12-13)
+
+- Removed a reference to ReallySimpleCMS, a separate project, in the README
+
+**Modified files:**
+- README.md
+
+## Version 1.0.4 (2023-12-13)
+
+- Tweaked a previous entry in the changelog
+- Whitelisted the global `style` property
+- Whitelisted the `autofocus` property for the `input` tag
+- Whitelisted the `alt` and `height` properties for the `img` tag
+
+**Modified files:**
+- class-dom-tag.php (M)
+- dom-tags/class-image-tag.php (M)
+- dom-tags/class-input-tag.php (M)
+
 ## Version 1.0.3 (2023-11-06)
 
 **Bug fixes:**
@@ -32,7 +51,7 @@
 ## Version 1.0.2 (2023-09-30)
 
 - Added author data to core files
-- Added support for the following tags and their parameters:
+- Added support for the following tags and their properties:
   - `b`, `strong`
 
 **Bug fixes:**
@@ -44,9 +63,9 @@
 
 ## Version 1.0.1 (2023-09-21)
 
-- Added support for the following tags and their parameters:
+- Added support for the following tags and their properties:
   - `abbr`, `h1-h6`, `section`
-- Whitelisted the `pattern` and `required` parameters for the `input` tag
+- Whitelisted the `pattern` and `required` properties for the `input` tag
 - Dom tags can now be created without directly invoking the individual classes
 - New functions:
   - `dom-tags.php` (`domTag`)
@@ -62,7 +81,7 @@
 ## Version 1.0.0 (2023-02-15)
 
 - Set up core files and initial tags
-- The following tags and their parameters are supported:
+- The following tags and their properties are supported:
   - `a`, `br`, `button`, `div`, `em`, `fieldset`, `form`, `hr`, `i`, `img`, `input`, `label`, `li`, `ol`, `option`, `p`, `select`, `span`, `textarea`, `ul`
 
 **Modified files:**

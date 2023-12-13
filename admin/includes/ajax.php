@@ -32,7 +32,7 @@ if(isset($_POST)) {
 		
 		$rs_query->update('usermeta', array('value' => $dismissed), array(
 			'user' => $session['id'],
-			'_key' => 'dismissed_notices'
+			'datakey' => 'dismissed_notices'
 		));
 	}
 }

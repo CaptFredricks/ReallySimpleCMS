@@ -161,7 +161,7 @@ function populatePosts($author): array {
 		foreach($metadata as $key => $value) {
 			$rs_query->insert('postmeta', array(
 				'post' => $post[key($postmeta)],
-				'_key' => $key,
+				'datakey' => $key,
 				'value' => $value
 			));
 		}
@@ -182,8 +182,12 @@ function populateUserRoles(): void {
 	
 	$roles = array('User', 'Editor', 'Moderator', 'Administrator');
 	
-	foreach($roles as $role)
-		$rs_query->insert('user_roles', array('name' => $role, '_default' => 'yes'));
+	foreach($roles as $role) {
+		$rs_query->insert('user_roles', array(
+			'name' => $role,
+			'is_default' => 1
+		));
+	}
 }
 
 /**
@@ -336,8 +340,13 @@ function populateUsers($args = array()): int {
 		'dismissed_notices' => ''
 	);
 	
-	foreach($usermeta as $key => $value)
-		$rs_query->insert('usermeta', array('user' => $user, '_key' => $key, 'value' => $value));
+	foreach($usermeta as $key => $value) {
+		$rs_query->insert('usermeta', array(
+			'user' => $user,
+			'datakey' => $key,
+			'value' => $value
+		));
+	}
 	
 	return $user;
 }
@@ -369,6 +378,7 @@ function populateSettings($args = array()): void {
 		'allow_anon_comments' => 0,
 		'track_login_attempts' => 0,
 		'delete_old_login_attempts' => 0,
+		'login_slug' => '',
 		'site_logo' => 0,
 		'site_icon' => 0,
 		'theme' => 'carbon',
@@ -1014,7 +1024,8 @@ function isAdmin(): bool {
  * @return bool
  */
 function isLogin(): bool {
-	return str_starts_with($_SERVER['REQUEST_URI'], '/login.php');
+	return str_starts_with($_SERVER['REQUEST_URI'], '/login.php') ||
+		str_contains($_SERVER['REQUEST_URI'], getSetting('login_slug'));
 }
 
 /**
@@ -1031,23 +1042,23 @@ function is404(): bool {
  * Fetch a script file.
  * @since 1.3.3[a]
  *
- * @param string $script
- * @param string $version (optional; default: CMS_VERSION)
+ * @param string $script -- The script to load.
+ * @param string $version (optional) -- The script's version.
  * @return string
  */
-function getScript($script, $version = CMS_VERSION): string {
-	return '<script src="' . slash(SCRIPTS) . $script . (!empty($version) ? '?v=' . $version : '') .
-		'"></script>';
+function getScript(string $script, string $version = CMS_VERSION): string {
+	return '<script src="' . slash(SCRIPTS) . $script .
+		(!empty($version) ? '?v=' . $version : '') . '"></script>';
 }
 
 /**
  * Output a script file.
  * @since 1.3.0[b]
  *
- * @param string $script
- * @param string $version (optional; default: CMS_VERSION)
+ * @param string $script -- The script to load.
+ * @param string $version (optional) -- The script's version.
  */
-function putScript($script, $version = CMS_VERSION): void {
+function putScript(string $script, string $version = CMS_VERSION): void {
 	echo getScript($script, $version);
 }
 
@@ -1055,23 +1066,23 @@ function putScript($script, $version = CMS_VERSION): void {
  * Fetch a stylesheet.
  * @since 1.3.3[a]
  *
- * @param string $stylesheet
- * @param string $version (optional; default: CMS_VERSION)
+ * @param string $stylesheet -- The stylesheet to load.
+ * @param string $version (optional) -- The stylesheet's version.
  * @return string
  */
-function getStylesheet($stylesheet, $version = CMS_VERSION): string {
-	return '<link href="' . slash(STYLES) . $stylesheet . (!empty($version) ? '?v=' . $version : '') .
-		'" rel="stylesheet">';
+function getStylesheet(string $stylesheet, string $version = CMS_VERSION): string {
+	return '<link href="' . slash(STYLES) . $stylesheet .
+		(!empty($version) ? '?v=' . $version : '') . '" rel="stylesheet">';
 }
 
 /**
  * Output a stylesheet.
  * @since 1.3.0[b]
  *
- * @param string $stylesheet
- * @param string $version (optional; default: CMS_VERSION)
+ * @param string $stylesheet -- The stylesheet to load.
+ * @param string $version (optional) -- The stylesheet's version.
  */
-function putStylesheet($stylesheet, $version = CMS_VERSION): void {
+function putStylesheet(string $stylesheet, string $version = CMS_VERSION): void {
 	echo getStylesheet($stylesheet, $version);
 }
 
@@ -1141,11 +1152,10 @@ function getPermalink(string $type, int $parent = 0, string $slug = ''): string 
  * Check whether a user's session is valid.
  * @since 2.0.1[a]
  *
- * @param string $session
+ * @param string $session -- The session data.
  * @return bool
  */
-function isValidSession($session): bool {
-	// Extend the Query object
+function isValidSession(string $session): bool {
 	global $rs_query;
 	
 	return $rs_query->selectRow('users', 'COUNT(*)', array('session' => $session)) > 0;
@@ -1155,11 +1165,10 @@ function isValidSession($session): bool {
  * Fetch an online user's data.
  * @since 2.0.1[a]
  *
- * @param string $session
+ * @param string $session -- The session data.
  * @return array
  */
-function getOnlineUser($session): array {
-	// Extend the Query object
+function getOnlineUser(string $session): array {
 	global $rs_query;
 	
 	$user = $rs_query->selectRow('users', array('id', 'username', 'role'), array(
@@ -1171,7 +1180,7 @@ function getOnlineUser($session): array {
 	foreach($usermeta as $meta) {
 		$user[$meta] = $rs_query->selectField('usermeta', 'value', array(
 			'user' => $user['id'],
-			'_key' => $meta
+			'datakey' => $meta
 		));
 	}
 	
@@ -1193,7 +1202,7 @@ function getMediaSrc($id): string {
 	
 	$media = $rs_query->selectField('postmeta', 'value', array(
 		'post' => $id,
-		'_key' => 'filepath'
+		'datakey' => 'filepath'
 	));
 	
 	if(!empty($media))
@@ -1225,7 +1234,7 @@ function getMedia($id, $args = array()): string {
 	
 	$mime_type = $rs_query->selectField('postmeta', 'value', array(
 		'post' => $id,
-		'_key' => 'mime_type'
+		'datakey' => 'mime_type'
 	));
 	
 	// Determine what kind of HTML tag to construct based on the media's MIME type
@@ -1233,7 +1242,7 @@ function getMedia($id, $args = array()): string {
 		// Image tag
 		$alt_text = $rs_query->selectField('postmeta', 'value', array(
 			'post' => $id,
-			'_key' => 'alt_text'
+			'datakey' => 'alt_text'
 		));
 		$props = array_merge(array('src' => $src, 'alt' => $alt_text), $args);
 		$tag = '<img';
@@ -1306,12 +1315,12 @@ function trimWords($text, $num_words = 50, $more = '&hellip;'): string {
  * Sanitize a string of text.
  * @since 1.0.0[b]
  *
- * @param string $text
- * @param string $regex (optional; default: '/[^a-z0-9_\-]/')
- * @param bool $lc (optional; default: true)
+ * @param string $text -- The text to sanitize.
+ * @param string $regex (optional) -- The regex pattern.
+ * @param bool $lc (optional) -- Whether to format in lowercase.
  * @return string
  */
-function sanitize($text, $regex = '/[^a-z0-9_\-]/', $lc = true): string {
+function sanitize(string $text, string $regex = '/[^a-z0-9_\-]/', bool $lc = true): string {
 	$text = strip_tags($text);
 	
 	if($lc) $text = strtolower($text);
@@ -1356,11 +1365,11 @@ function trailingSlash($text): string {
  * Format a date string.
  * @since 1.2.1[a]
  *
- * @param string $date
- * @param string $format (optional; default: 'Y-m-d H:i:s')
+ * @param string $date -- The raw date.
+ * @param string $format (optional) -- The date format.
  * @return string
  */
-function formatDate($date, $format = 'Y-m-d H:i:s'): string {
+function formatDate(string $date, string $format = 'Y-m-d H:i:s'): string {
 	return date_format(date_create($date), $format);
 }
 

@@ -1,4 +1,5 @@
 # START ReallySimpleCMS
+Options -Indexes
 <IfModule mod_rewrite.c>
 RewriteEngine On
 RewriteBase /

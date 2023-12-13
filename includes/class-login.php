@@ -34,6 +34,15 @@ class Login {
 	private $ip_address;
 	
 	/**
+	 * The login URI.
+	 * @since 1.3.12[b]
+	 *
+	 * @access private
+	 * @var string
+	 */
+	private $login_uri;
+	
+	/**
 	 * Class constructor.
 	 * @since 1.1.4[b]
 	 *
@@ -42,6 +51,13 @@ class Login {
 	public function __construct() {
 		$this->https = !empty($_SERVER['HTTPS']) ? true : false;
 		$this->ip_address = $_SERVER['REMOTE_ADDR'];
+		
+		$login_slug = getSetting('login_slug');
+		
+		if($login_slug !== '')
+			$this->login_uri = '/login.php?secure_login=' . $login_slug;
+		else
+			$this->login_uri = '/login.php';
 	}
 	
 	/**
@@ -62,7 +78,7 @@ class Login {
 		// Validate the form data and display any error messages
 		echo isset($_POST['submit']) ? $this->validateLoginData($_POST) : '';
 		?>
-		<form class="data-form" action="login.php" method="post">
+		<form class="data-form" action="" method="post">
 			<p class="login-field">
 				<label for="login">Username or Email<br><input type="text" name="login" autofocus></label>
 			</p>
@@ -528,7 +544,7 @@ class Login {
 		// Delete the session cookie
 		setcookie('session', '', 1, '/');
 		
-		redirect('../login.php');
+		redirect($this->login_uri);
 	}
 	
 	/**
@@ -551,10 +567,32 @@ class Login {
 		echo isset($_POST['submit']) ? $this->validateForgotPasswordData($_POST) : '';
 		?>
 		<form class="data-form" action="" method="post">
-			<p>Enter your username or email below and you will receive a link to reset your password in an email.</p>
-			<p>Remembered your password? <a href="login.php">Log in</a> instead.</p>
-			<p><label for="login">Username or Email<br><input type="text" name="login" autofocus></label></p>
-			<input type="submit" class="button" name="submit" value="Get New Password">
+			<?php
+			echo domTag('p', array(
+				'content' => 'Enter your username or email below and you will receive a link to reset your password in an email.'
+			)) . domTag('p', array(
+				'content' => 'Remembered your password? ' .
+					domTag('a', array(
+						'href' => $this->login_uri,
+						'content' => 'Log in'
+					)) . ' instead.'
+			)) . domTag('p', array(
+				'content' => domTag('label', array(
+					'for' => 'login',
+					'content' => 'Username or Email' . domTag('br') .
+						domTag('input', array(
+							'type' => 'text',
+							'name' => 'login',
+							'autofocus' => 1
+						))
+				))
+			)) . domTag('input', array(
+				'type' => 'submit',
+				'class' => 'button',
+				'name' => 'submit',
+				'value' => 'Get New Password'
+			));
+			?>
 		</form>
 		<?php
 	}
@@ -617,7 +655,7 @@ class Login {
 		// Make sure the email can be sent
 		if(mail($email, $subject, $content, implode("\r\n", $headers))) {
 			$rs_query->update('users', array('security_key' => $key), array('id' => $id));
-			redirect('login.php?pw_forgot=confirm');
+			redirect('/login.php?pw_forgot=confirm');
 		} else {
 			return $this->statusMsg(CMS_NAME . ' encountered an error and could not send an email. Please contact this website\'s administrator or web host.');
 		}
@@ -643,7 +681,7 @@ class Login {
 			));
 			
 			// Redirect to remove the 'login' and 'key' values from the query string
-			redirect('login.php?action=reset_password');
+			redirect('/login.php?action=reset_password');
 		}
 		
 		if(isset($_COOKIE[$cookie_name])) {
@@ -654,10 +692,10 @@ class Login {
 				// Delete the cookie
 				setcookie($cookie_name, '', 1, '/login.php');
 				
-				redirect('login.php?action=forgot_password&error=invalid_key');
+				redirect('/login.php?action=forgot_password&error=invalid_key');
 			}
 		} else {
-			redirect('login.php?action=forgot_password&error=expired_key');
+			redirect('/login.php?action=forgot_password&error=expired_key');
 		}
 		
 		// Validate the form data and display any error messages
@@ -701,9 +739,9 @@ class Login {
 			// Delete the cookie
 			setcookie('pw-reset-' . COOKIE_HASH, '', 1, '/login.php');
 			
-			redirect('login.php?pw_reset=confirm');
+			redirect('/login.php?pw_reset=confirm');
 		} else {
-			redirect('login.php?action=forgot_password&error=invalid_key');
+			redirect('/login.php?action=forgot_password&error=invalid_key');
 		}
 	}
 	

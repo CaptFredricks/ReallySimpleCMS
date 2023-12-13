@@ -65,16 +65,24 @@ if((defined('MAINT_MODE') && MAINT_MODE) &&
 		if(file_exists(PATH . INC . '/update.php') && isset($session))
 			require_once PATH . INC . '/update.php';
 		
-		if(!isAdmin() && !isLogin() && !is404()) {
+		if(isLogin()) {
 			// Site-wide functions
 			require_once FUNC;
 			
-			// Determine the type of page being viewed (e.g., post, term, etc.)
-			guessPageType();
+			handleSecureLogin();
+		} elseif(!isAdmin() && !is404()) {
+			// Site-wide functions
+			require_once FUNC;
 			
-			// Initialize the theme, sitemaps, and page template
+			// Initialize the theme
 			require_once PATH . INC . '/theme-functions.php';
 			require_once PATH . INC . '/load-theme.php';
+			
+			// Determine the type of page being viewed (e.g., post, term, etc.)
+			// This must fire AFTER theme loads to include custom post types, taxonomies, etc.
+			guessPageType();
+			
+			// Initialize sitemaps and page template
 			include_once PATH . INC . '/sitemap-index.php';
 			require_once PATH . INC . '/load-template.php';
 		}

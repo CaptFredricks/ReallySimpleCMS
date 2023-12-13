@@ -1044,10 +1044,10 @@ class Login {
 						'tag' => 'select',
 						'class' => 'select-input',
 						'name' => 'type',
-						'content' => tag('option', array(
+						'content' => domTag('option', array(
 							'value' => 'login',
 							'content' => 'Login'
-						)) . tag('option', array(
+						)) . domTag('option', array(
 							'value' => 'ip_address',
 							'content' => 'IP Address'
 						))
@@ -1117,16 +1117,16 @@ class Login {
 							'tag' => 'select',
 							'class' => 'select-input',
 							'name' => 'type',
-							'content' => tag('option', array(
+							'content' => domTag('option', array(
 								'value' => $this->type,
 								'content' => ($this->type === 'ip_address' ?
 									'IP Address' : ucfirst($this->type))
 							)) . ($this->type === 'login' ?
-								tag('option', array(
+								domTag('option', array(
 									'value' => 'ip_address',
 									'content' => 'IP Address'
 								)) :
-								tag('option', array(
+								domTag('option', array(
 									'value' => 'login',
 									'content' => 'Login'
 								))

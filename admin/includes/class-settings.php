@@ -93,7 +93,7 @@ class Settings {
 						'checked' => !$setting['do_robots'],
 						'label' => array(
 							'class' => 'checkbox-label',
-							'content' => tag('span', array(
+							'content' => domTag('span', array(
 								'content' => 'Discourage search engines from indexing this site'
 							))
 						)
@@ -109,7 +109,7 @@ class Settings {
 						'checked' => $setting['enable_comments'],
 						'label' => array(
 							'class' => 'checkbox-label conditional-toggle',
-							'content' => tag('span', array(
+							'content' => domTag('span', array(
 								'content' => 'Enable comments'
 							))
 						)
@@ -122,7 +122,7 @@ class Settings {
 						'checked' => $setting['auto_approve_comments'],
 						'label' => array(
 							'class' => 'checkbox-label conditional-field',
-							'content' => tag('span', array(
+							'content' => domTag('span', array(
 								'content' => 'Approve comments automatically'
 							))
 						)
@@ -135,7 +135,7 @@ class Settings {
 						'checked' => $setting['allow_anon_comments'],
 						'label' => array(
 							'class' => 'checkbox-label conditional-field',
-							'content' => tag('span', array(
+							'content' => domTag('span', array(
 								'content' => 'Allow comments from anonymous (logged out) users'
 							))
 						)
@@ -151,7 +151,7 @@ class Settings {
 						'checked' => $setting['track_login_attempts'],
 						'label' => array(
 							'class' => 'checkbox-label conditional-toggle',
-							'content' => tag('span', array(
+							'content' => domTag('span', array(
 								'content' => 'Keep track of login attempts'
 							))
 						)
@@ -164,10 +164,18 @@ class Settings {
 						'checked' => $setting['delete_old_login_attempts'],
 						'label' => array(
 							'class' => 'checkbox-label conditional-field',
-							'content' => tag('span', array(
+							'content' => domTag('span', array(
 								'content' => 'Delete login attempts from more than 30 days ago'
 							))
 						)
+					));
+					
+					// Login slug
+					echo formRow('Login Slug', array(
+						'tag' => 'input',
+						'class' => 'text-input',
+						'name' => 'login_slug',
+						'value' => $setting['login_slug']
 					));
 					
 					// Separator
@@ -226,7 +234,7 @@ class Settings {
 			<form class="data-form" action="" method="post" autocomplete="off">
 				<?php
 				// Page ID (hidden)
-				echo formTag('input', array(
+				echo domTag('input', array(
 					'type' => 'hidden',
 					'name' => 'page',
 					'value' => 'design'
@@ -241,10 +249,10 @@ class Settings {
 						'style' => 'width: ' . ($logo_width ?? 0) . 'px;',
 						'content' => getMedia($setting['site_logo'], array(
 							'data-field' => 'thumb'
-						)) . tag('span', array(
+						)) . domTag('span', array(
 							'class' => 'image-remove',
 							'title' => 'Remove',
-							'content' => tag('i', array('class' => 'fa-solid fa-xmark'))
+							'content' => domTag('i', array('class' => 'fa-solid fa-xmark'))
 						))
 					), array(
 						'tag' => 'input',
@@ -267,10 +275,10 @@ class Settings {
 						'style' => 'width: ' . ($icon_width ?? 0) . 'px;',
 						'content' => getMedia($setting['site_icon'], array(
 							'data-field' => 'thumb'
-						)) . tag('span', array(
+						)) . domTag('span', array(
 							'class' => 'image-remove',
 							'title' => 'Remove',
-							'content' => tag('i', array('class' => 'fa-solid fa-xmark'))
+							'content' => domTag('i', array('class' => 'fa-solid fa-xmark'))
 						))
 					), array(
 						'tag' => 'input',
@@ -395,7 +403,7 @@ class Settings {
 		$roles = $rs_query->select('user_roles', '*', array(), 'id');
 		
 		foreach($roles as $role) {
-			$list .= tag('option', array(
+			$list .= domTag('option', array(
 				'value' => $role['id'],
 				'selected' => ($role['id'] === $default),
 				'content' => $role['name']
@@ -425,7 +433,7 @@ class Settings {
 		
 		// Check whether the home page exists and add a blank option if not
 		if(array_search($home_page, array_column($pages, 'id'), true) === false) {
-			$list .= tag('option', array(
+			$list .= domTag('option', array(
 				'value' => 0,
 				'selected' => 1,
 				'content' => '(none)'
@@ -433,7 +441,7 @@ class Settings {
 		}
 		
 		foreach($pages as $page) {
-			$list .= tag('option', array(
+			$list .= domTag('option', array(
 				'value' => $page['id'],
 				'selected' => ($page['id'] === $home_page),
 				'content' => $page['title']

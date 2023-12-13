@@ -461,7 +461,7 @@ class Media extends Post {
 		
 		// Fetch the number of times the media is used as an avatar from the database
 		$count = $rs_query->select('usermeta', 'COUNT(*)', array(
-			'_key' => 'avatar',
+			'datakey' => 'avatar',
 			'value' => $this->id
 		));
 		
@@ -470,7 +470,7 @@ class Media extends Post {
 		
 		// Fetch the number of times the media is used as a featured image from the database
 		$count = $rs_query->select('postmeta', 'COUNT(*)', array(
-			'_key' => 'feat_image',
+			'datakey' => 'feat_image',
 			'value' => $this->id
 		));
 		
@@ -483,7 +483,7 @@ class Media extends Post {
 		
 		$filename = $rs_query->selectField('postmeta', 'value', array(
 			'post' => $this->id,
-			'_key' => 'filepath'
+			'datakey' => 'filepath'
 		));
 		
 		// If the file exists, delete it
@@ -580,7 +580,7 @@ class Media extends Post {
 				foreach($mediameta as $key => $value) {
 					$rs_query->insert('postmeta', array(
 						'post' => $insert_id,
-						'_key' => $key,
+						'datakey' => $key,
 						'value' => $value
 					));
 				}
@@ -599,7 +599,7 @@ class Media extends Post {
 				foreach($mediameta as $key => $value)
 					$rs_query->update('postmeta', array('value' => $value), array(
 						'post' => $id,
-						'_key' => $key
+						'datakey' => $key
 					));
 				
 				// Update the class variables
@@ -711,7 +711,7 @@ class Media extends Post {
 				foreach($mediameta as $key => $value) {
 					$rs_query->update('postmeta', array('value' => $value), array(
 						'post' => $id,
-						'_key' => $key
+						'datakey' => $key
 					));
 				}
 				

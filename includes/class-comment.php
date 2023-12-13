@@ -22,7 +22,7 @@ class Comment {
 	 * @access public
 	 * @param int $post (optional) -- The post the comment belongs to.
 	 */
-	public function __construct($post = 0) {
+	public function __construct(int $post = 0) {
 		$this->post = $post;
 	}
 	
@@ -34,7 +34,7 @@ class Comment {
 	 * @param int $id -- The comment's id.
 	 * @return string
 	 */
-	public function getCommentAuthor($id): string {
+	public function getCommentAuthor(int $id): string {
 		global $rs_query;
 		
 		$author_id = $this->getCommentAuthorId($id);
@@ -44,7 +44,7 @@ class Comment {
 		} else {
 			$author = $rs_query->selectField('usermeta', 'value', array(
 				'user' => $author_id,
-				'_key' => 'display_name'
+				'datakey' => 'display_name'
 			));
 		}
 		
@@ -59,7 +59,7 @@ class Comment {
 	 * @param int $id -- The comment's id.
 	 * @return int
 	 */
-	public function getCommentAuthorId($id): int {
+	public function getCommentAuthorId(int $id): int {
 		global $rs_query;
 		
 		return (int)$rs_query->selectField('comments', 'author', array('id' => $id));
@@ -73,7 +73,7 @@ class Comment {
 	 * @param int $id -- The comment's id.
 	 * @return string
 	 */
-	public function getCommentDate($id): string {
+	public function getCommentDate(int $id): string {
 		global $rs_query;
 		
 		$date = $rs_query->selectField('comments', 'date', array('id' => $id));
@@ -89,7 +89,7 @@ class Comment {
 	 * @param int $id -- The comment's id.
 	 * @return string
 	 */
-	public function getCommentContent($id): string {
+	public function getCommentContent(int $id): string {
 		global $rs_query;
 		
 		return $rs_query->selectField('comments', 'content', array('id' => $id));
@@ -103,7 +103,7 @@ class Comment {
 	 * @param int $id -- The comment's id.
 	 * @return int
 	 */
-	public function getCommentUpvotes($id): int {
+	public function getCommentUpvotes(int $id): int {
 		global $rs_query;
 		
 		return (int)$rs_query->selectField('comments', 'upvotes', array('id' => $id));
@@ -117,7 +117,7 @@ class Comment {
 	 * @param int $id -- The comment's id.
 	 * @return int
 	 */
-	public function getCommentDownvotes($id): int {
+	public function getCommentDownvotes(int $id): int {
 		global $rs_query;
 		
 		return (int)$rs_query->selectField('comments', 'downvotes', array('id' => $id));
@@ -131,7 +131,7 @@ class Comment {
 	 * @param int $id -- The comment's id.
 	 * @return string
 	 */
-	public function getCommentStatus($id): string {
+	public function getCommentStatus(int $id): string {
 		global $rs_query;
 		
 		return $rs_query->selectField('comments', 'status', array('id' => $id));
@@ -145,7 +145,7 @@ class Comment {
 	 * @param int $id -- The comment's id.
 	 * @return int
 	 */
-	public function getCommentParent($id): int {
+	public function getCommentParent(int $id): int {
 		global $rs_query;
 		
 		return (int)$rs_query->selectField('comments', 'parent', array('id' => $id));
@@ -159,7 +159,7 @@ class Comment {
 	 * @param int $id -- The comment's id.
 	 * @return string
 	 */
-	public function getCommentPermalink($id): string {
+	public function getCommentPermalink(int $id): string {
 		global $rs_query;
 		
 		$post = $rs_query->selectRow('posts', array('slug', 'parent', 'type'), array(
@@ -177,7 +177,7 @@ class Comment {
 	 * @param int $post -- The post's id.
 	 * @return int
 	 */
-	public function getCommentCount($post): int {
+	public function getCommentCount(int $post): int {
 		global $rs_query;
 		
 		return $rs_query->select('comments', 'COUNT(*)', array('post' => $post));
@@ -233,7 +233,7 @@ class Comment {
 	 * @param int $offset (optional) -- The offset (starting point).
 	 * @param int $count (optional) -- The number of comments to load.
 	 */
-	public function loadComments($offset = 0, $count = 10): void {
+	public function loadComments(int $offset = 0, int $count = 10): void {
 		global $rs_query, $rs_post, $session, $post_types;
 		
 		$per_page = 10;
@@ -329,11 +329,11 @@ class Comment {
 	 * @param array $data -- The comment data.
 	 * @return string
 	 */
-	public function createComment($data): string {
+	public function createComment(array $data): string {
 		global $rs_query, $session;
 		
 		if(!empty($data['content'])) {
-			$status = getSetting('auto_approve_comments') ? 'approved' : 'unapproved';
+			$status = getSetting('auto_approve_comments') ? 'approved' : 'pending';
 			
 			$rs_query->insert('comments', array(
 				'post' => $data['post'],
@@ -351,7 +351,7 @@ class Comment {
 			
 			$rs_query->update('postmeta', array('value' => $approved), array(
 				'post' => $data['post'],
-				'_key' => 'comment_count'
+				'datakey' => 'comment_count'
 			));
 			
 			return '<p style="margin-top: 0;">Your comment was submitted' .
@@ -366,7 +366,7 @@ class Comment {
 	 * @access public
 	 * @param array $data -- The comment data.
 	 */
-	public function updateComment($data): void {
+	public function updateComment(array $data): void {
 		global $rs_query;
 		
 		$rs_query->update('comments', array(
@@ -383,7 +383,7 @@ class Comment {
 	 * @access public
 	 * @param int $id -- The comment's id.
 	 */
-	public function deleteComment($id): void {
+	public function deleteComment(int $id): void {
 		global $rs_query;
 		
 		$post = $rs_query->selectField('comments', 'post', array('id' => $id));
@@ -396,7 +396,7 @@ class Comment {
 		
 		$rs_query->update('postmeta', array('value' => $count), array(
 			'post' => $post,
-			'_key' => 'comment_count'
+			'datakey' => 'comment_count'
 		));
 	}
 	
@@ -409,7 +409,7 @@ class Comment {
 	 * @param string $type -- The vote type (upvotes).
 	 * @return int
 	 */
-	public function incrementVotes($id, $type): int {
+	public function incrementVotes(int $id, string $type): int {
 		global $rs_query;
 		
 		$votes = $rs_query->selectField('comments', $type, array('id' => $id));
@@ -427,7 +427,7 @@ class Comment {
 	 * @param string $type -- The vote type (downvotes).
 	 * @return int
 	 */
-	public function decrementVotes($id, $type): int {
+	public function decrementVotes(int $id, string $type): int {
 		global $rs_query;
 		
 		$votes = $rs_query->selectField('comments', $type, array('id' => $id));

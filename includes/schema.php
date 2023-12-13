@@ -6,7 +6,10 @@
  * @return array
  */
 function dbSchema(): array {
-	// Comments table
+	/**
+	 * `comments` table -- Stores post comments.
+	 * @since 1.1.0[b]_snap-01
+	 */
 	$tables['comments'] = "CREATE TABLE comments (
 		id bigint(20) unsigned PRIMARY KEY auto_increment,
 		post bigint(20) unsigned NOT NULL default '0',
@@ -15,14 +18,17 @@ function dbSchema(): array {
 		content longtext NOT NULL default '',
 		upvotes bigint(20) NOT NULL default '0',
 		downvotes bigint(20) NOT NULL default '0',
-		status varchar(20) NOT NULL default 'unapproved',
+		status varchar(20) NOT NULL default 'pending',
 		parent bigint(20) unsigned NOT NULL default '0',
 		KEY post (post),
 		KEY author (author),
 		KEY parent (parent)
 	);";
 	
-	// Login_attempts table
+	/**
+	 * `login_attempts` table -- Stores all login attempts.
+	 * @since 1.2.0[b]_snap-01
+	 */
 	$tables['login_attempts'] = "CREATE TABLE login_attempts (
 		id bigint(20) unsigned PRIMARY KEY auto_increment,
 		login varchar(100) NOT NULL,
@@ -34,7 +40,10 @@ function dbSchema(): array {
 		KEY login_ip (login, ip_address)
 	);";
 	
-	// Login_blacklist table
+	/**
+	 * `login_blacklist` table -- Stores all blacklisted logins.
+	 * @since 1.2.0[b]_snap-01
+	 */
 	$tables['login_blacklist'] = "CREATE TABLE login_blacklist (
 		id bigint(20) unsigned PRIMARY KEY auto_increment,
 		name varchar(150) NOT NULL,
@@ -45,7 +54,10 @@ function dbSchema(): array {
 		KEY name (name)
 	);";
 	
-	// Login_rules table
+	/**
+	 * `login_rules` table -- Stores all login rules.
+	 * @since 1.2.0[b]_snap-01
+	 */
 	$tables['login_rules'] = "CREATE TABLE login_rules (
 		id bigint(20) unsigned PRIMARY KEY auto_increment,
 		type varchar(255) NOT NULL default 'login',
@@ -54,17 +66,23 @@ function dbSchema(): array {
 		KEY type (type)
 	);";
 	
-	// Postmeta table
+	/**
+	 * `postmeta` table -- Stores metadata for posts.
+	 * @since 1.3.5[a]
+	 */
 	$tables['postmeta'] = "CREATE TABLE postmeta (
 		id bigint(20) unsigned PRIMARY KEY auto_increment,
 		post bigint(20) unsigned NOT NULL default '0',
-		_key varchar(255) NOT NULL,
+		datakey varchar(255) NOT NULL,
 		value longtext NOT NULL default '',
 		KEY post (post),
-		KEY _key (_key)
+		KEY datakey (datakey)
 	);";
 	
-	// Posts table
+	/**
+	 * `posts` table -- Stores posts of all types, including custom ones.
+	 * @since 1.3.5[a]
+	 */
 	$tables['posts'] = "CREATE TABLE posts (
 		id bigint(20) unsigned PRIMARY KEY auto_increment,
 		title varchar(255) NOT NULL,
@@ -81,7 +99,10 @@ function dbSchema(): array {
 		KEY parent (parent)
 	);";
 	
-	// Redirects table
+	/**
+	 * `redirects` table -- Stores post redirects (unused).
+	 * @since 1.3.5[a]
+	 */
 	$tables['redirects'] = "CREATE TABLE redirects (
 		id bigint(20) unsigned PRIMARY KEY auto_increment,
 		post bigint(20) unsigned NOT NULL default '0',
@@ -89,7 +110,10 @@ function dbSchema(): array {
 		KEY post (post)
 	);";
 	
-	// Settings table
+	/**
+	 * `settings` table -- Stores site-wide settings.
+	 * @since 1.3.5[a]
+	 */
 	$tables['settings'] = "CREATE TABLE settings (
 		id bigint(20) unsigned PRIMARY KEY auto_increment,
 		name varchar(255) NOT NULL,
@@ -97,14 +121,20 @@ function dbSchema(): array {
 		KEY name (name)
 	);";
 	
-	// Taxonomies table
+	/**
+	 * `taxonomies` table -- Stores taxonomy data.
+	 * @since 1.4.10[a]
+	 */
 	$tables['taxonomies'] = "CREATE TABLE taxonomies (
 		id bigint(20) unsigned PRIMARY KEY auto_increment,
 		name varchar(255) NOT NULL,
 		KEY name (name)
 	);";
 	
-	// Term_relationships table
+	/**
+	 * `term_relationships` table -- Stores relationships between `terms` and `posts`.
+	 * @since 1.4.10[a]
+	 */
 	$tables['term_relationships'] = "CREATE TABLE term_relationships (
 		id bigint(20) unsigned PRIMARY KEY auto_increment,
 		term bigint(20) unsigned NOT NULL default '0',
@@ -113,7 +143,10 @@ function dbSchema(): array {
 		KEY post (post)
 	);";
 	
-	// Terms table
+	/**
+	 * `terms` table -- Stores terms of all types, including custom ones.
+	 * @since 1.4.10[a]
+	 */
 	$tables['terms'] = "CREATE TABLE terms (
 		id bigint(20) unsigned PRIMARY KEY auto_increment,
 		name varchar(255) NOT NULL,
@@ -125,14 +158,20 @@ function dbSchema(): array {
 		KEY taxonomy (taxonomy)
 	);";
 	
-	// User_privileges table
+	/**
+	 * `user_privileges` table -- Stores user privilege data.
+	 * @since 1.3.5[a]
+	 */
 	$tables['user_privileges'] = "CREATE TABLE user_privileges (
 		id bigint(20) unsigned PRIMARY KEY auto_increment,
 		name varchar(255) NOT NULL,
 		KEY name (name)
 	);";
 	
-	// User_relationships table
+	/**
+	 * `user_relationships` table -- Stores relationships between `user_roles` and `user_privileges`.
+	 * @since 1.3.5[a]
+	 */
 	$tables['user_relationships'] = "CREATE TABLE user_relationships (
 		id bigint(20) unsigned PRIMARY KEY auto_increment,
 		role bigint(20) unsigned NOT NULL default '0',
@@ -141,25 +180,35 @@ function dbSchema(): array {
 		KEY privilege (privilege)
 	);";
 	
-	// User_roles table
+	/**
+	 * `user_roles` table -- Stores user role data.
+	 * @since 1.3.5[a]
+	 */
 	$tables['user_roles'] = "CREATE TABLE user_roles (
 		id bigint(20) unsigned PRIMARY KEY auto_increment,
 		name varchar(255) NOT NULL,
 		_default varchar(5) NOT NULL default 'no',
+		is_default tinyint(1) unsigned NOT NULL default '0',
 		KEY name (name)
 	);";
 	
-	// Usermeta table
+	/**
+	 * `usermeta` table -- Stores metadata for users.
+	 * @since 1.3.5[a]
+	 */
 	$tables['usermeta'] = "CREATE TABLE usermeta (
 		id bigint(20) unsigned PRIMARY KEY auto_increment,
 		user bigint(20) unsigned NOT NULL default '0',
-		_key varchar(255) NOT NULL,
+		datakey varchar(255) NOT NULL,
 		value longtext NOT NULL default '',
 		KEY user (user),
-		KEY _key (_key)
+		KEY datakey (datakey)
 	);";
 	
-	// Users table
+	/**
+	 * `users` table -- Stores user data.
+	 * @since 1.3.5[a]
+	 */
 	$tables['users'] = "CREATE TABLE users (
 		id bigint(20) unsigned PRIMARY KEY auto_increment,
 		username varchar(100) NOT NULL,
@@ -167,9 +216,9 @@ function dbSchema(): array {
 		email varchar(100) NOT NULL,
 		registered datetime default NULL,
 		last_login datetime default NULL,
-		session varchar(255) default NULL,
+		session varchar(50) default NULL,
 		role bigint(20) unsigned NOT NULL default '0',
-		security_key varchar(255) default NULL,
+		security_key varchar(50) default NULL,
 		KEY username (username),
 		KEY role (role)
 	);";

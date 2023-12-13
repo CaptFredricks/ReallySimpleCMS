@@ -152,7 +152,7 @@ class Menu {
 	private function getMenuItemMeta($id): array {
 		global $rs_query;
 		
-		$itemmeta = $rs_query->select('postmeta', array('_key', 'value'), array('post' => $id));
+		$itemmeta = $rs_query->select('postmeta', array('datakey', 'value'), array('post' => $id));
 		$meta = array();
 		
 		foreach($itemmeta as $metadata) {

@@ -2,94 +2,9 @@
 /**
  * This file handles structural changes to the database that would otherwise break the system.
  * The goal is to ensure that no existing data is lost during the update.
+ * Old scripts will be removed after at least two major releases.
  * @since 1.3.5[b]
  */
-
-// Adding comments
-if(version_compare(CMS_VERSION, '1.1.0', '>=')) {
-	$schema = dbSchema();
-	
-	// Try to create the `comments` table
-	if(!$rs_query->tableExists('comments'))
-		$rs_query->doQuery($schema['comments']);
-	
-	foreach($post_types as $post_type) {
-		// Check whether the post type has comments enabled
-		if($post_type['comments']) {
-			$posts = $rs_query->select('posts', 'id', array('type' => $post_type['name']));
-			
-			foreach($posts as $post) {
-				// Check whether the 'comment_status' metadata needs to be created
-				if(!$rs_query->selectRow('postmeta', 'COUNT(*)', array(
-					'post' => $post['id'],
-					'_key' => 'comment_status'
-				)) > 0) {
-					
-					$rs_query->insert('postmeta', array(
-						'post' => $post['id'],
-						'_key' => 'comment_status',
-						'value' => '1'
-					));
-				}
-				
-				// Check whether the 'comment_count' metadata needs to be created
-				if(!$rs_query->selectRow('postmeta', 'COUNT(*)', array(
-					'post' => $post['id'],
-					'_key' => 'comment_count'
-				)) > 0) {
-					
-					$rs_query->insert('postmeta', array(
-						'post' => $post['id'],
-						'_key' => 'comment_count',
-						'value' => '0'
-					));
-				}
-			}
-		}
-	}
-	
-	// Check whether the proper user privileges exist for comments
-	if($rs_query->select('user_privileges', 'COUNT(*)', array(
-		'name' => array('LIKE', '%_comments')
-	)) !== 3) {
-		
-		$rs_query->dropTables(array('user_privileges', 'user_relationships'));
-		$rs_query->doQuery($schema['user_privileges']);
-		$rs_query->doQuery($schema['user_relationships']);
-		
-		populateUserPrivileges();
-	}
-}
-
-// Tweaking settings
-if(version_compare(CMS_VERSION, '1.1.7', '>=')) {
-	// Setting: `comment_status`
-	if($rs_query->selectRow('settings', 'COUNT(*)', array('name' => 'comment_status')) > 0) {
-		// Rename the setting to `enable_comments`
-		$rs_query->update('settings',
-			array('name' => 'enable_comments'),
-			array('name' => 'comment_status')
-		);
-	} else {
-		// Check whether the `enable_comments` setting exists
-		if(!$rs_query->selectRow('settings', 'COUNT(*)', array('name' => 'enable_comments')) > 0)
-			$rs_query->insert('settings', array('name' => 'enable_comments', 'value' => 1));
-	}
-	
-	// Setting: `comment_approval`
-	if($rs_query->selectRow('settings', 'COUNT(*)', array('name' => 'comment_approval')) > 0) {
-		// Rename the setting to `auto_approve_comments`
-		$rs_query->update('settings', array('name' => 'auto_approve_comments'), array('name' => 'comment_approval'));
-	} else {
-		// Check whether the `auto_approve_comments` setting exists
-		if(!$rs_query->selectRow('settings', 'COUNT(*)', array('name' => 'auto_approve_comments')) > 0)
-			$rs_query->insert('settings', array('name' => 'auto_approve_comments', 'value' => 0));
-	}
-	
-	// Setting: `allow_anon_comments`
-	if(!$rs_query->selectRow('settings', 'COUNT(*)', array('name' => 'allow_anon_comments')) > 0)
-		$rs_query->insert('settings', array('name' => 'allow_anon_comments', 'value' => 0));
-}
 
 // Adding logins
 if(version_compare(CMS_VERSION, '1.2.0', '>=')) {
@@ -205,7 +120,7 @@ if(version_compare(CMS_VERSION, '1.2.0', '>=')) {
 			content longtext NOT NULL default '',
 			upvotes bigint(20) NOT NULL default '0',
 			downvotes bigint(20) NOT NULL default '0',
-			status varchar(20) NOT NULL default 'unapproved',
+			status varchar(20) NOT NULL default 'pending',
 			parent bigint(20) unsigned NOT NULL default '0',
 			KEY post (post),
 			KEY author (author),
@@ -258,7 +173,7 @@ if(version_compare(CMS_VERSION, '1.2.9', '>=')) {
 
 // Tweaking media metadata
 if(version_compare(CMS_VERSION, '1.3.5', '>=')) {
-	if($rs_query->select('postmeta', 'COUNT(*)', array('_key' => 'filename')) > 0) {
+	if($rs_query->select('postmeta', 'COUNT(*)', array('datakey' => 'filename')) > 0) {
 		$mediaa = $rs_query->select('posts', array('id', 'date'), array('type' => 'media'));
 		
 		foreach($mediaa as $media) {
@@ -266,11 +181,11 @@ if(version_compare(CMS_VERSION, '1.3.5', '>=')) {
 			
 			$meta = $rs_query->selectRow('postmeta', array('id', 'value'), array(
 				'post' => $media['id'],
-				'_key' => 'filename'
+				'datakey' => 'filename'
 			));
 			
 			$rs_query->update('postmeta', array(
-				'_key' => 'filepath',
+				'datakey' => 'filepath',
 				'value' => slash($year) . $meta['value']
 			), array('id' => $meta['id']));
 			
@@ -310,26 +225,26 @@ if(version_compare(CMS_VERSION, '1.3.8', '>=')) {
 	foreach($users as $user) {
 		$dname = $rs_query->selectRow('usermeta', 'COUNT(*)', array(
 			'user' => $user['id'],
-			'_key' => 'display_name'
+			'datakey' => 'display_name'
 		));
 		
 		if($dname === 0) {
 			$rs_query->insert('usermeta', array(
 				'user' => $user['id'],
-				'_key' => 'display_name',
+				'datakey' => 'display_name',
 				'value' => $user['username']
 			));
 		}
 		
 		$dismissed = $rs_query->selectRow('usermeta', 'COUNT(*)', array(
 			'user' => $user['id'],
-			'_key' => 'dismissed_notices'
+			'datakey' => 'dismissed_notices'
 		));
 		
 		if($dismissed === 0) {
 			$rs_query->insert('usermeta', array(
 				'user' => $user['id'],
-				'_key' => 'dismissed_notices',
+				'datakey' => 'dismissed_notices',
 				'value' => ''
 			));
 		}
@@ -343,15 +258,136 @@ if(version_compare(CMS_VERSION, '1.3.9', '>=')) {
 	foreach($posts as $post) {
 		$index = $rs_query->selectRow('postmeta', 'COUNT(*)', array(
 			'post' => $post['id'],
-			'_key' => 'index_post'
+			'datakey' => 'index_post'
 		));
 		
 		if($index === 0) {
 			$rs_query->insert('postmeta', array(
 				'post' => $post['id'],
-				'_key' => 'index_post',
+				'datakey' => 'index_post',
 				'value' => getSetting('do_robots')
 			));
 		}
+	}
+}
+
+// Various tweaks
+if(version_compare(CMS_VERSION, '1.3.12', '>=')) {
+	// Changing `unapproved` comments to `pending`
+	$comments = $rs_query->select('comments', 'COUNT(status)', array(
+		'status' => 'unapproved'
+	));
+	
+	if($comments > 0) {
+		$rs_query->update('comments', array(
+			'status' => 'pending'
+		), array(
+			'status' => 'unapproved'
+		));
+	}
+	
+	// Adding `login_slug` setting
+	$settings = $rs_query->selectRow('settings', 'COUNT(name)', array(
+		'name' => 'login_slug'
+	));
+	
+	if($settings === 0) {
+		$rs_query->insert('settings', array(
+			'name' => 'login_slug',
+			'value' => ''
+		));
+	}
+	
+	// Updating table schemas and columns
+	
+	// `postmeta` table
+	if($rs_query->columnExists('postmeta', '_key')) {
+		$table = 'postmeta';
+		
+		// Add new columns
+		$rs_query->doQuery("ALTER TABLE `{$table}` ADD datakey varchar(255) NOT NULL;");
+		$rs_query->doQuery("ALTER TABLE `{$table}` ADD value_temp longtext NOT NULL default '';");
+		
+		$postmeta = $rs_query->select($table, array('id', '_key', 'value'));
+		
+		// Move the data to the new columns
+		foreach($postmeta as $pmeta) {
+			$rs_query->update($table, array(
+				'datakey' => $pmeta['_key'],
+				'value_temp' => $pmeta['value']
+			), array(
+				'id' => $pmeta['id']
+			));
+		}
+		
+		// Replace the old index
+		$rs_query->doQuery("ALTER TABLE `{$table}` DROP INDEX _key;");
+		$rs_query->doQuery("CREATE INDEX datakey ON `{$table}` (datakey);");
+		
+		// Replace the old columns
+		$rs_query->doQuery("ALTER TABLE `{$table}` DROP COLUMN _key;");
+		$rs_query->doQuery("ALTER TABLE `{$table}` DROP COLUMN value;");
+		$rs_query->doQuery("ALTER TABLE `{$table}` CHANGE `value_temp` `value` longtext NOT NULL default '';");
+	}
+	
+	// `usermeta` table
+	if($rs_query->columnExists('usermeta', '_key')) {
+		$table = 'usermeta';
+		
+		// Add new columns
+		$rs_query->doQuery("ALTER TABLE `{$table}` ADD datakey varchar(255) NOT NULL;");
+		$rs_query->doQuery("ALTER TABLE `{$table}` ADD value_temp longtext NOT NULL default '';");
+		
+		$usermeta = $rs_query->select($table, array('id', '_key', 'value'));
+		
+		// Move the data to the new columns
+		foreach($usermeta as $umeta) {
+			$rs_query->update($table, array(
+				'datakey' => $umeta['_key'],
+				'value_temp' => $umeta['value']
+			), array(
+				'id' => $umeta['id']
+			));
+		}
+		
+		// Replace the old index
+		$rs_query->doQuery("ALTER TABLE `{$table}` DROP INDEX _key;");
+		$rs_query->doQuery("CREATE INDEX datakey ON `{$table}` (datakey);");
+		
+		// Replace the old columns
+		$rs_query->doQuery("ALTER TABLE `{$table}` DROP COLUMN _key;");
+		$rs_query->doQuery("ALTER TABLE `{$table}` DROP COLUMN value;");
+		$rs_query->doQuery("ALTER TABLE `{$table}` CHANGE `value_temp` `value` longtext NOT NULL default '';");
+	}
+	
+	// `user_roles` table
+	if($rs_query->columnExists('user_roles', '_default')) {
+		$table = 'user_roles';
+		
+		// Add new column
+		$rs_query->doQuery("ALTER TABLE `{$table}` ADD is_default tinyint(1) unsigned NOT NULL default '0';");
+		
+		$user_roles = $rs_query->select($table, array('id', '_default'));
+		
+		// Move the data to the new column
+		foreach($user_roles as $role) {
+			switch($role['_default']) {
+				case 'yes':
+					$is_default = 1;
+					break;
+				case 'no':
+					$is_default = 0;
+					break;
+			}
+			
+			$rs_query->update($table, array(
+				'is_default' => $is_default
+			), array(
+				'id' => $role['id']
+			));
+		}
+		
+		// Replace the old column
+		$rs_query->doQuery("ALTER TABLE `{$table}` DROP COLUMN _default;");
 	}
 }

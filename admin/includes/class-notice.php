@@ -71,21 +71,21 @@ class Notice {
 				return '';
 		}
 		
-		$message = tag('span', array(
+		$message = domTag('span', array(
 			'class' => 'icon',
-			'content' => tag('i', array(
+			'content' => domTag('i', array(
 				'class' => $icon
 			))
-		)) . ' ' . tag('span', array(
+		)) . ' ' . domTag('span', array(
 				'class' => 'text',
 				'content' => $text
 		));
 		
-		return tag('div', array(
+		return domTag('div', array(
 			'class' => 'notice ' . $sclass,
-			'content' => $message . ($can_dismiss ? tag('span', array(
+			'content' => $message . ($can_dismiss ? domTag('span', array(
 				'class' => 'dismiss',
-				'content' => tag('i', array(
+				'content' => domTag('i', array(
 					'class' => 'fa-solid fa-xmark',
 					'title' => 'Dismiss'
 				))
@@ -106,7 +106,7 @@ class Notice {
 		
 		$rs_query->update('usermeta', array('value' => ''), array(
 			'user' => $user_id,
-			'_key' => 'dismissed_notices'
+			'datakey' => 'dismissed_notices'
 		));
 	}
 	

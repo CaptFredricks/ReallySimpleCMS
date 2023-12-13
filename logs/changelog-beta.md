@@ -12,11 +12,80 @@
 - x.X.x (feature update release)
 - x.x.X (standard/minor release)
 - x.x.x.X (bug fix/emergency patch release)
-- x.x.x{ss-xx} (snapshot release)
+- x.x.x_snap-xx (snapshot release)
 
 **Other**
 - [a] = alpha
 - [b] = beta
+
+## Version 1.3.12[b] (2023-12-13)
+
+- Added the following to the admin about page:
+  - Added a link to the changelog on the GitHub repo
+  - Added DOMtags version information
+  - Added links to sources and documentation for included libraries
+- Comments with `unapproved` status are now changed to `pending`
+- Removed old scripts from the `update-db.php` file for versions prior to `1.2.0[b]`
+- Cleaned up code in the `dashboardWidget` and `statsBarGraph` functions
+- Updated jQuery to v3.7.1
+- Added a new global constant for the `resources` directory
+- Moved core and admin CSS and JS files to the `resources` directory
+- Moved the `logs` directory to the root
+- Tweaked the directives in the `.htaccess` file
+- Added functionality to tag deprecated functions that outputs a notice when in debug mode
+- Removed several very old functions from the `deprecated.php` file
+  - This file itself is now deprecated in favor of the new deprecation system
+- Added a new setting that defines the path of the login URL
+  - This adds an extra layer of security to keep `/login.php` from being directly accessed
+- Added a new global constant for the DOMtags version
+- Cleaned up the database schema file
+- Renamed the following database columns:
+  - `postmeta` and `usermeta` tables (`_key` -> `datakey`)
+  - `user_roles` table (`_default` -> `is_default`)
+  - The database will automatically update to accommodate these changes
+- Changed the format of snapshot versions from `x.x.x[x]{ss-xx}` to `x.x.x[x]_snap-xx`
+- Added extra validation to the `Query::selectField` method
+- New functions:
+  - `debug.php` (`deprecated`, `errorHandler`)
+
+**Bug fixes:**
+- Custom post types and taxonomies are not loaded due to improper initialization order in `init.php`
+
+**Modified files:**
+- .htaccess (M)
+- admin/about.php
+- admin/header.php
+- admin/includes/ajax.php (M)
+- admin/includes/class-comment.php
+- admin/includes/class-login.php (M)
+- admin/includes/class-media.php (M)
+- admin/includes/class-menu.php
+- admin/includes/class-notice.php
+- admin/includes/class-post.php
+- admin/includes/class-profile.php
+- admin/includes/class-settings.php
+- admin/includes/class-term.php (M)
+- admin/includes/class-user-role.php
+- admin/includes/class-user.php
+- admin/includes/class-widget.php
+- admin/includes/functions.php
+- content/themes/carbon/functions.php (M)
+- includes/class-comment.php
+- includes/class-login.php
+- includes/class-menu.php (M)
+- includes/class-post.php
+- includes/class-query.php (M)
+- includes/constants.php
+- includes/debug.php
+- includes/deprecated.php (D)
+- includes/functions.php
+- includes/global-functions.php
+- includes/schema.php
+- includes/update-db.php
+- init.php
+- login.php
+- resources/css/font-awesome-rules.min.css (M)
+- resources/js/jquery.min.js
 
 ## Version 1.3.11.2[b] (2023-11-06)
 
@@ -44,13 +113,13 @@
 - Renamed `upload.php` to `ajax-upload.php`
 - Added DOMtags library (all files associated with it will not be added to the changelog henceforth)
   - Replaced raw HTML with DOMtags in many places on the admin dashboard
+  - The `formTag` and `tag` functions are now deprecated in favor of the new `domTag` function
 - Began process of moving static resources to their own directory
 - Added exception handling for the `order_by` clause in queries
 - The update script files are now only run if the current session is from a logged in user
 - Code cleanup in the `init.php` file
 - Added a new post status: `private`, which allows for privately publishing pages (they will be accessible to logged in visitors only)
 - Improved validation in the admin `Post` class
-- The `formTag` and `tag` functions are now deprecated
 - New functions:
   - Admin `Post` class (`getStatusList`)
   - `functions.php` (`guessPageType`)

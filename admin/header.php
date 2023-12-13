@@ -24,9 +24,14 @@ ob_start();
 if(isset($_COOKIE['session']) && isValidSession($_COOKIE['session'])) {
 	$session = getOnlineUser($_COOKIE['session']);
 } else {
+	$login_slug = getSetting('login_slug');
+	$redirect = ($_SERVER['REQUEST_URI'] !== '/admin/' ? 'redirect=' . urlencode($_SERVER['PHP_SELF']) : '');
+	
 	// Redirect them to the login page if their session is invalid
-	redirect('../login.php' . ($_SERVER['REQUEST_URI'] !== '/admin/' ? '?redirect=' .
-		urlencode($_SERVER['PHP_SELF']) : ''));
+	if(!empty($login_slug))
+		redirect('/login.php?secure_login=' . $login_slug . (!empty($redirect) ? '&' . $redirect : ''));
+	else
+		redirect('/login.php' . (!empty($redirect) ? '?' . $redirect : ''));
 }
 
 $current_page = getCurrentPage();

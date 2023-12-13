@@ -416,6 +416,28 @@ function adminBar(): void {
 \*------------------------------------*/
 
 /**
+ * Prevent direct access to `/login.php` if a login slug has been set.
+ * @since 1.3.12[b]
+ */
+function handleSecureLogin(): void {
+	$login_slug = getSetting('login_slug');
+	
+	// Check for secure login
+	if(!empty($login_slug)) {
+		if(!isset($_GET['secure_login'])) {
+			if(str_starts_with($_SERVER['REQUEST_URI'], '/login.php')) {
+				if(!isset($_GET['action']) && !isset($_GET['pw_reset']) && !isset($_GET['pw_forgot']))
+					redirect('/404.php');
+			} elseif(str_contains($_SERVER['REQUEST_URI'], $login_slug))
+				redirect('/login.php?secure_login=' . $login_slug);
+		} else {
+			if($_GET['secure_login'] !== $login_slug)
+				redirect('/404.php');
+		}
+	}
+}
+
+/**
  * Determine the type of page being viewed (e.g., post, term, etc.).
  * @since 1.3.11[b]
  */

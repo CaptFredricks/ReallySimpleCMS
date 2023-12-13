@@ -74,7 +74,7 @@ class Widget extends Post implements AdminInterface {
 			<thead>
 				<?php
 				$table_header_cols = array(
-					tag('input', array(
+					domTag('input', array(
 						'type' => 'checkbox',
 						'class' => 'checkbox bulk-selector'
 					)),
@@ -126,7 +126,7 @@ class Widget extends Post implements AdminInterface {
 					
 					echo tableRow(
 						// Bulk select
-						tdCell(tag('input', array(
+						tdCell(domTag('input', array(
 							'type' => 'checkbox',
 							'class' => 'checkbox',
 							'value' => $widget['id']
@@ -210,10 +210,10 @@ class Widget extends Post implements AdminInterface {
 						'tag' => 'select',
 						'class' => 'select-input',
 						'name' => 'status',
-						'content' => tag('option', array(
+						'content' => domTag('option', array(
 							'value' => 'active',
 							'content' => 'Active'
-						)) . tag('option', array(
+						)) . domTag('option', array(
 							'value' => 'inactive',
 							'content' => 'Inactive'
 						))
@@ -293,11 +293,11 @@ class Widget extends Post implements AdminInterface {
 							'tag' => 'select',
 							'class' => 'select-input',
 							'name' => 'status',
-							'content' => tag('option', array(
+							'content' => domTag('option', array(
 								'value' => 'active',
 								'selected' => ($this->status === 'active' ? 1 : 0),
 								'content' => 'Active'
-							)) . tag('option', array(
+							)) . domTag('option', array(
 								'value' => 'inactive',
 								'selected' => ($this->status === 'inactive' ? 1 : 0),
 								'content' => 'Inactive'
@@ -429,12 +429,12 @@ class Widget extends Post implements AdminInterface {
 		<div class="bulk-actions">
 			<?php
 			if(userHasPrivilege('can_edit_widgets')) {
-				echo formTag('select', array(
+				echo domTag('select', array(
 					'class' => 'actions',
-					'content' => tag('option', array(
+					'content' => domTag('option', array(
 						'value' => 'active',
 						'content' => 'Active'
-					)) . tag('option', array(
+					)) . domTag('option', array(
 						'value' => 'inactive',
 						'content' => 'Inactive'
 					))

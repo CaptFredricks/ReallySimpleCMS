@@ -17,7 +17,7 @@ require_once __DIR__ . '/header.php';
 			
 			echo tableRow(
 				thCell('Creator/Lead Developer'),
-				tdCell(tag('a', array(
+				tdCell(domTag('a', array(
 					'href' => 'https://jacefincham.com/',
 					'target' => '_blank',
 					'rel' => 'noreferrer noopener',
@@ -28,6 +28,16 @@ require_once __DIR__ . '/header.php';
 			echo tableRow(
 				thCell('Project Start'),
 				tdCell('2019')
+			);
+			
+			echo tableRow(
+				thCell('Latest Changes'),
+				tdCell(domTag('a', array(
+					'href' => 'https://github.com/CaptFredricks/ReallySimpleCMS/blob/master/logs/changelog-beta.md',
+					'target' => '_blank',
+					'rel' => 'noreferrer noopener',
+					'content' => 'Changelog'
+				)))
 			);
 			
 			if(userHasPrivilege('can_edit_settings')) {
@@ -97,12 +107,32 @@ require_once __DIR__ . '/header.php';
 				
 				echo tableRow(
 					thCell('jQuery Version'),
-					tdCell(JQUERY_VERSION)
+					tdCell(JQUERY_VERSION . ' (' . domTag('a', array(
+						'href' => 'https://code.jquery.com/jquery-3.7.1.min.js',
+						'target' => '_blank',
+						'rel' => 'noreferrer noopener',
+						'content' => 'Source Code'
+					)) . ')')
 				);
 				
 				echo tableRow(
-					thCell('Font Awesome Icons Version'),
-					tdCell(ICONS_VERSION)
+					thCell('DOMtags Version'),
+					tdCell(DOMTAGS_VERSION . ' (' . domTag('a', array(
+						'href' => 'https://github.com/CaptFredricks/DOMtags',
+						'target' => '_blank',
+						'rel' => 'noreferrer noopener',
+						'content' => 'GitHub Repo'
+					)) . ')')
+				);
+				
+				echo tableRow(
+					thCell('Font Awesome Version'),
+					tdCell(ICONS_VERSION . ' (' . domTag('a', array(
+						'href' => 'https://fontawesome.com/docs',
+						'target' => '_blank',
+						'rel' => 'noreferrer noopener',
+						'content' => 'Documentation'
+					)) . ')')
 				);
 				
 				// DATABASE

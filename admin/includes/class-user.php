@@ -132,12 +132,16 @@ class User implements AdminInterface {
 				}
 				
 				foreach($count as $key => $value) {
-					?>
-					<li>
-						<a href="<?php echo ADMIN_URI . ($key === 'all' ? '' : '?status=' . $key);
-						?>"><?php echo ucfirst($key); ?> <span class="count">(<?php echo $value; ?>)</span></a>
-					</li>
-					<?php
+					echo domTag('li', array(
+						'content' => domTag('a', array(
+							'href' => ADMIN_URI . ($key === 'all' ? '' : '?status=' . $key),
+							'content' => ucfirst($key) . ' ' . domTag('span', array(
+								'class' => 'count',
+								'content' => '(' . $value . ')'
+							))
+						))
+					));
+					
 					if($key !== array_key_last($count)) {
 						?> &bull; <?php
 					}
@@ -155,7 +159,7 @@ class User implements AdminInterface {
 			<thead>
 				<?php
 				$table_header_cols = array(
-					tag('input', array(
+					domTag('input', array(
 						'type' => 'checkbox',
 						'class' => 'checkbox bulk-selector'
 					)),
@@ -234,15 +238,17 @@ class User implements AdminInterface {
 					
 					$actions = array(
 						// Edit
-						userHasPrivilege('can_edit_users'
-							) || $user['id'] === $session['id'] ? ($user['id'] === $session['id'] ? '<a href="' .
-								ADMIN . '/profile.php">Edit</a>' : actionLink('edit', array(
+						userHasPrivilege('can_edit_users') || $user['id'] === $session['id'] ?
+							($user['id'] === $session['id'] ? domTag('a', array(
+								'href' => ADMIN . '/profile.php',
+								'content' => 'Edit'
+							)) : actionLink('edit', array(
 								'caption' => 'Edit',
 								'id' => $user['id']
 							))) : null,
 						// Delete
-						userHasPrivilege('can_delete_users'
-							) && $user['id'] !== $session['id'] ? ($this->userHasContent($user['id']) ? actionLink('reassign_content', array(
+						userHasPrivilege('can_delete_users') && $user['id'] !== $session['id'] ?
+							($this->userHasContent($user['id']) ? actionLink('reassign_content', array(
 								'caption' => 'Delete', 'id' => $user['id']
 							)) : actionLink('delete', array(
 								'classes' => 'modal-launch delete-item',
@@ -257,7 +263,7 @@ class User implements AdminInterface {
 					
 					echo tableRow(
 						// Bulk select
-						tdCell(tag('input', array(
+						tdCell(domTag('input', array(
 							'type' => 'checkbox',
 							'class' => 'checkbox',
 							'value' => $user['id']
@@ -267,8 +273,12 @@ class User implements AdminInterface {
 							'class' => 'avatar',
 							'width' => 32,
 							'height' => 32
-						)) . '<strong>' . $user['username'] . '</strong><div class="actions">' .
-							implode(' &bull; ', $actions) . '</div>', 'username'),
+						)) . domTag('strong', array(
+							'content' => $user['username']
+						)) . domTag('div', array(
+							'class' => 'actions',
+							'content' => implode(' &bull; ', $actions)
+						)), 'username'),
 						// Full name
 						tdCell(empty($meta['first_name']) && empty($meta['last_name']) ? '&mdash;' :
 							$meta['first_name'] . ' ' . $meta['last_name'], 'full-name'),
@@ -281,7 +291,8 @@ class User implements AdminInterface {
 						// Status
 						tdCell(is_null($user['session']) ? 'Offline' : 'Online', 'status'),
 						// Last login
-						tdCell(is_null($user['last_login']) ? 'Never' : formatDate($user['last_login'], 'd M Y @ g:i A'), 'last-login')
+						tdCell(is_null($user['last_login']) ? 'Never' :
+							formatDate($user['last_login'], 'd M Y @ g:i A'), 'last-login')
 					);
 				}
 				
@@ -369,22 +380,29 @@ class User implements AdminInterface {
 					), array(
 						'tag' => 'label',
 						'class' => 'checkbox-label hidden required invalid init',
-						'content' => tag('br', array('class' => 'spacer')) . tag('input', array(
+						'content' => domTag('br', array(
+							'class' => 'spacer'
+						)) . domTag('input', array(
 							'type' => 'checkbox',
 							'class' => 'checkbox-input',
 							'name' => 'pass_saved',
 							'value' => 1
-						)) . tag('span', array('content' => 'I have copied the password to a safe place.'))
+						)) . domTag('span', array(
+							'content' => 'I have copied the password to a safe place.'
+						))
 					));
 					
 					// Avatar
 					echo formRow('Avatar', array(
 						'tag' => 'div',
 						'class' => 'image-wrap',
-						'content' => tag('img', array('src' => '//:0', 'data-field' => 'thumb')) . tag('span', array(
+						'content' => domTag('img', array(
+							'src' => '//:0',
+							'data-field' => 'thumb'
+						)) . domTag('span', array(
 							'class' => 'image-remove',
 							'title' => 'Remove',
-							'content' => tag('i', array('class' => 'fa-solid fa-xmark'))
+							'content' => domTag('i', array('class' => 'fa-solid fa-xmark'))
 						))
 					), array(
 						'tag' => 'input',
@@ -499,10 +517,10 @@ class User implements AdminInterface {
 								'style' => 'width: ' . ($width ?? 0) . 'px;',
 								'content' => getMedia($meta['avatar'], array(
 									'data-field' => 'thumb'
-								)) . tag('span', array(
+								)) . domTag('span', array(
 									'class' => 'image-remove',
 									'title' => 'Remove',
-									'content' => tag('i', array('class' => 'fa-solid fa-xmark'))
+									'content' => domTag('i', array('class' => 'fa-solid fa-xmark'))
 								))
 							), array(
 								'tag' => 'input',
@@ -650,7 +668,7 @@ class User implements AdminInterface {
 			foreach($usermeta as $key => $value) {
 				$rs_query->insert('usermeta', array(
 					'user' => $insert_id,
-					'_key' => $key,
+					'datakey' => $key,
 					'value' => $value
 				));
 			}
@@ -664,8 +682,12 @@ class User implements AdminInterface {
 				'role' => $data['role']
 			), array('id' => $id));
 			
-			foreach($usermeta as $key => $value)
-				$rs_query->update('usermeta', array('value' => $value), array('user' => $id, '_key' => $key));
+			foreach($usermeta as $key => $value) {
+				$rs_query->update('usermeta', array('value' => $value), array(
+					'user' => $id,
+					'datakey' => $key
+				));
+			}
 			
 			// Update the class variables
 			foreach($data as $key => $value) $this->$key = $value;
@@ -745,7 +767,7 @@ class User implements AdminInterface {
 	protected function getUserMeta(int $id): array {
 		global $rs_query;
 		
-		$usermeta = $rs_query->select('usermeta', array('_key', 'value'), array('user' => $id));
+		$usermeta = $rs_query->select('usermeta', array('datakey', 'value'), array('user' => $id));
 		
 		$meta = array();
 		
@@ -789,7 +811,7 @@ class User implements AdminInterface {
 		$roles = $rs_query->select('user_roles', '*', array(), 'id');
 		
 		foreach($roles as $role) {
-			$list .= tag('option', array(
+			$list .= domTag('option', array(
 				'value' => $role['id'],
 				'selected' => ($role['id'] === $id),
 				'content' => $role['name']
@@ -843,12 +865,16 @@ class User implements AdminInterface {
 						), array(
 							'tag' => 'label',
 							'class' => 'checkbox-label hidden required invalid init',
-							'content' => formTag('br', array('class' => 'spacer')).formTag('input', array(
+							'content' => domTag('br', array(
+								'class' => 'spacer'
+							)) . domTag('input', array(
 								'type' => 'checkbox',
 								'class' => 'checkbox-input',
 								'name' => 'pass_saved',
 								'value' => 1
-							)).formTag('span', array('content' => 'I have copied the password to a safe place.'))
+							)) . domTag('span', array(
+								'content' => 'I have copied the password to a safe place.'
+							))
 						));
 						
 						// Confirm new user password
@@ -1039,7 +1065,7 @@ class User implements AdminInterface {
 		), 'username');
 		
 		foreach($users as $user) {
-			$list .= tag('option', array(
+			$list .= domTag('option', array(
 				'value' => $user['id'],
 				'content' => $user['username']
 			));
@@ -1114,7 +1140,7 @@ class User implements AdminInterface {
 					$roles = $rs_query->select('user_roles', array('id', 'name'), array(), 'id');
 					
 					foreach($roles as $role) {
-						echo formTag('option', array(
+						echo domTag('option', array(
 							'value' => $role['id'],
 							'content' => $role['name']
 						));

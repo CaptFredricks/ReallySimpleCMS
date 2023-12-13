@@ -206,7 +206,7 @@ class Post {
 		
 		return $rs_query->selectField('usermeta', 'value', array(
 			'user' => $author,
-			'_key' => 'display_name'
+			'datakey' => 'display_name'
 		));
 	}
 	
@@ -321,7 +321,7 @@ class Post {
 		
 		$featured_image = (int)$rs_query->selectField('postmeta', 'value', array(
 			'post' => $this->getPostId(),
-			'_key' => 'feat_image'
+			'datakey' => 'feat_image'
 		));
 		
 		return getMedia($featured_image, array('class' => 'featured-image'));
@@ -340,7 +340,7 @@ class Post {
 		
 		$field = $rs_query->selectField('postmeta', 'value', array(
 			'post' => $this->getPostId(),
-			'_key' => $key
+			'datakey' => $key
 		));
 		
 		// Escape double quotes in meta descriptions
@@ -443,7 +443,7 @@ class Post {
 		
 		return (int)$rs_query->selectField('postmeta', 'value', array(
 			'post' => $this->getPostId(),
-			'_key' => 'feat_image'
+			'datakey' => 'feat_image'
 		)) !== 0;
 	}
 }

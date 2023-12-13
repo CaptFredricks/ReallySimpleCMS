@@ -40,6 +40,7 @@ class DomTag {
 						case 'checked':
 						case 'disabled':
 						case 'required':
+						case 'autofocus':
 						case 'selected':
 							$tag .= $value ? ' ' . $key : '';
 							break;

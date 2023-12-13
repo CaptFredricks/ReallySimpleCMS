@@ -209,13 +209,16 @@ class Post implements AdminInterface {
 				}
 				
 				foreach($count as $key => $value) {
-					?>
-					<li>
-						<a href="<?php
-							echo ADMIN_URI . '?type=' . $type . ($key === 'all' ? '' : '&status=' . $key);
-							?>"><?php echo ucfirst($key); ?> <span class="count">(<?php echo $value; ?>)</span></a>
-					</li>
-					<?php
+					echo domTag('li', array(
+						'content' => domTag('a', array(
+							'href' => ADMIN_URI . '?type=' . $type . ($key === 'all' ? '' : '&status=' . $key),
+							'content' => ucfirst($key) . ' ' . domTag('span', array(
+								'class' => 'count',
+								'content' => '(' . $value . ')'
+							))
+						))
+					));
+					
 					if($key !== array_key_last($count)) {
 						?> &bull; <?php
 					}
@@ -344,34 +347,34 @@ class Post implements AdminInterface {
 					
 					$actions = array(
 						// Edit
-						userHasPrivilege('can_edit_' . $type_name
-						) && $status !== 'trash' ? actionLink('edit', array(
-							'caption' => 'Edit',
-							'id' => $post['id']
-						)) : null,
+						userHasPrivilege('can_edit_' . $type_name) && $status !== 'trash' ?
+							actionLink('edit', array(
+								'caption' => 'Edit',
+								'id' => $post['id']
+							)) : null,
 						// Duplicate
-						userHasPrivilege('can_create_' . $type_name
-						) && $status !== 'trash' ? actionLink('duplicate', array(
-							'caption' => 'Duplicate',
-							'id' => $post['id']
-						)) : null,
+						userHasPrivilege('can_create_' . $type_name) && $status !== 'trash' ?
+							actionLink('duplicate', array(
+								'caption' => 'Duplicate',
+								'id' => $post['id']
+							)) : null,
 						// Trash/restore
-						userHasPrivilege('can_edit_' . $type_name
-						) ? ($status === 'trash' ? actionLink('restore', array(
-							'caption' => 'Restore',
-							'id' => $post['id']
-						)) : actionLink('trash', array(
-							'caption' => 'Trash',
-							'id' => $post['id']
-						))) : null,
+						userHasPrivilege('can_edit_' . $type_name) ? ($status === 'trash' ?
+							actionLink('restore', array(
+								'caption' => 'Restore',
+								'id' => $post['id']
+							)) : actionLink('trash', array(
+								'caption' => 'Trash',
+								'id' => $post['id']
+							))) : null,
 						// Delete
-						$status === 'trash' ? (userHasPrivilege('can_delete_' . $type_name
-						) ? actionLink('delete', array(
-							'classes' => 'modal-launch delete-item',
-							'data_item' => strtolower($this->type_data['labels']['name_singular']),
-							'caption' => 'Delete',
-							'id' => $post['id']
-						)) : null) : (
+						$status === 'trash' ? (userHasPrivilege('can_delete_' . $type_name) ?
+							actionLink('delete', array(
+								'classes' => 'modal-launch delete-item',
+								'data_item' => strtolower($this->type_data['labels']['name_singular']),
+								'caption' => 'Delete',
+								'id' => $post['id']
+							)) : null) : (
 						// View/preview
 						domTag('a', array(
 							'href' => ($is_published ? (isHomePage($post['id']) ? '/' :
@@ -1325,7 +1328,7 @@ class Post implements AdminInterface {
 			$rs_query->delete('comments', array('post' => $this->id));
 			
 			$menu_items = $rs_query->select('postmeta', 'post', array(
-				'_key' => 'post_link',
+				'datakey' => 'post_link',
 				'value' => $this->id
 			));
 			
@@ -1425,7 +1428,7 @@ class Post implements AdminInterface {
 				foreach($postmeta as $key => $value) {
 					$rs_query->insert('postmeta', array(
 						'post' => $insert_id,
-						'_key' => $key,
+						'datakey' => $key,
 						'value' => $value
 					));
 				}
@@ -1469,7 +1472,7 @@ class Post implements AdminInterface {
 				foreach($postmeta as $key => $value) {
 					$rs_query->update('postmeta', array('value' => $value), array(
 						'post' => $id,
-						'_key' => $key
+						'datakey' => $key
 					));
 				}
 				
@@ -1531,11 +1534,11 @@ class Post implements AdminInterface {
 				
 				foreach($old_postmeta as $meta) {
 					// Reset comments to zero
-					if($meta['_key'] === 'comment_count') $meta['value'] = 0;
+					if($meta['datakey'] === 'comment_count') $meta['value'] = 0;
 					
 					$rs_query->insert('postmeta', array(
 						'post' => $insert_id,
-						'_key' => $meta['_key'],
+						'datakey' => $meta['datakey'],
 						'value' => $meta['value']
 					));
 				}
@@ -1627,7 +1630,7 @@ class Post implements AdminInterface {
 	protected function getPostMeta(int $id): array {
 		global $rs_query;
 		
-		$postmeta = $rs_query->select('postmeta', array('_key', 'value'), array('post' => $id));
+		$postmeta = $rs_query->select('postmeta', array('datakey', 'value'), array('post' => $id));
 		$meta = array();
 		
 		foreach($postmeta as $metadata) {
@@ -1678,7 +1681,7 @@ class Post implements AdminInterface {
 		
 		return $rs_query->selectField('usermeta', 'value', array(
 			'user' => $id,
-			'_key' => 'display_name'
+			'datakey' => 'display_name'
 		));
 	}
 	
@@ -1699,7 +1702,7 @@ class Post implements AdminInterface {
 		foreach($authors as $author) {
 			$display_name = $rs_query->selectField('usermeta', 'value', array(
 				'user' => $author['id'],
-				'_key' => 'display_name'
+				'datakey' => 'display_name'
 			));
 			
 			$list .= domTag('option', array(
@@ -1857,7 +1860,7 @@ class Post implements AdminInterface {
 			// Fetch all templates in the directory
 			$templates = array_diff(scandir($templates_path), array('.', '..'));
 			
-			$current = $rs_query->selectField('postmeta', 'value', array('post' => $id, '_key' => 'template'));
+			$current = $rs_query->selectField('postmeta', 'value', array('post' => $id, 'datakey' => 'template'));
 			
 			foreach($templates as $template) {
 				$list[] = domTag('option', array(

@@ -85,10 +85,10 @@ class Profile extends User {
 						'style' => 'width: ' . ($width ?? 0) . 'px;',
 						'content' => getMedia($meta['avatar'], array(
 							'data-field' => 'thumb'
-						)) . tag('span', array(
+						)) . domTag('span', array(
 							'class' => 'image-remove',
 							'title' => 'Remove',
-							'content' => formTag('i', array('class' => 'fa-solid fa-xmark'))
+							'content' => domTag('i', array('class' => 'fa-solid fa-xmark'))
 						))
 					), array(
 						'tag' => 'input',
@@ -195,7 +195,7 @@ class Profile extends User {
 			
 			$rs_query->update('usermeta', array('value' => $value), array(
 				'user' => $session['id'],
-				'_key' => $key
+				'datakey' => $key
 			));
 		}
 		
@@ -243,7 +243,7 @@ class Profile extends User {
 		}
 		
 		foreach($display_names as $dname) {
-			$list .= tag('option', array(
+			$list .= domTag('option', array(
 				'value' => $dname['name'],
 				'selected' => ($dname['name'] === $meta['display_name']),
 				'content' => $dname['name'] . ' (' . $dname['extra'] . ')'
@@ -264,7 +264,7 @@ class Profile extends User {
 	private function getThemesList(string $current): string {
 		global $rs_query;
 		
-		$list = tag('option', array(
+		$list = domTag('option', array(
 			'value' => 'default',
 			'content' => 'Default'
 		));
@@ -281,7 +281,7 @@ class Profile extends User {
 			$theme = pathinfo($theme);
 			
 			if($theme['extension'] === 'css') {
-				$list .= tag('option', array(
+				$list .= domTag('option', array(
 					'value' => $theme['filename'],
 					'selected' => ($theme['filename'] === $current),
 					'content' => ucwords(str_replace('-', ' ', $theme['filename']))
@@ -343,12 +343,14 @@ class Profile extends User {
 					), array(
 						'tag' => 'label',
 						'class' => 'checkbox-label hidden required invalid init',
-						'content' => tag('br', array('class' => 'spacer')) . tag('input', array(
+						'content' => domTag('br', array('class' => 'spacer')) . domTag('input', array(
 							'type' => 'checkbox',
 							'class' => 'checkbox-input',
 							'name' => 'pass_saved',
 							'value' => 1
-						)) . tag('span', array('content' => 'I have copied the password to a safe place.'))
+						)) . domTag('span', array(
+							'content' => 'I have copied the password to a safe place.'
+						))
 					));
 					
 					// New password (confirmation)

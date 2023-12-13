@@ -32,7 +32,7 @@ class InputTag extends \DomTag implements DomTagInterface {
 		return array_merge(
 			array('type'),
 			parent::ALWAYS_WL,
-			array('name', 'maxlength', 'pattern', 'value', 'placeholder', 'checked', 'disabled', 'required')
+			array('name', 'maxlength', 'pattern', 'value', 'placeholder', 'checked', 'disabled', 'required', 'autofocus')
 		);
 	}
 }

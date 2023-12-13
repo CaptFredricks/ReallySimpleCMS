@@ -171,7 +171,7 @@ class Menu extends Term implements AdminInterface {
 				<div class="content">
 					<?php
 					// Name
-					echo formTag('input', array(
+					echo domTag('input', array(
 						'id' => 'name-field',
 						'class' => 'text-input required invalid init',
 						'name' => 'name',
@@ -180,7 +180,7 @@ class Menu extends Term implements AdminInterface {
 					));
 					
 					// Slug
-					echo formTag('input', array(
+					echo domTag('input', array(
 						'id' => 'slug-field',
 						'class' => 'text-input required invalid init',
 						'name' => 'slug',
@@ -201,7 +201,7 @@ class Menu extends Term implements AdminInterface {
 						<div id="submit" class="row">
 							<?php
 							// Submit button
-							echo formTag('input', array(
+							echo domTag('input', array(
 								'type' => 'submit',
 								'class' => 'submit-input button',
 								'name' => 'submit',
@@ -262,7 +262,7 @@ class Menu extends Term implements AdminInterface {
 					<div class="content">
 						<?php
 						// Name
-						echo formTag('input', array(
+						echo domTag('input', array(
 							'id' => 'name-field',
 							'class' => 'text-input required invalid init',
 							'name' => 'name',
@@ -271,7 +271,7 @@ class Menu extends Term implements AdminInterface {
 						));
 						
 						// Slug
-						echo formTag('input', array(
+						echo domTag('input', array(
 							'id' => 'slug-field',
 							'class' => 'text-input required invalid init',
 							'name' => 'slug',
@@ -292,7 +292,7 @@ class Menu extends Term implements AdminInterface {
 							<div id="submit" class="row">
 								<?php
 								// Submit button
-								echo formTag('input', array(
+								echo domTag('input', array(
 									'type' => 'submit',
 									'class' => 'submit-input button',
 									'name' => 'submit',
@@ -385,7 +385,7 @@ class Menu extends Term implements AdminInterface {
 					foreach($itemmeta as $key => $value) {
 						$rs_query->insert('postmeta', array(
 							'post' => $menu_item_id,
-							'_key' => $key,
+							'datakey' => $key,
 							'value' => $value
 						));
 					}
@@ -422,7 +422,7 @@ class Menu extends Term implements AdminInterface {
 				foreach($itemmeta as $key => $value) {
 					$rs_query->insert('postmeta', array(
 						'post' => $menu_item_id,
-						'_key' => $key,
+						'datakey' => $key,
 						'value' => $value
 					));
 				}
@@ -457,7 +457,7 @@ class Menu extends Term implements AdminInterface {
 					foreach($itemmeta as $key => $value) {
 						$rs_query->insert('postmeta', array(
 							'post' => $menu_item_id,
-							'_key' => $key,
+							'datakey' => $key,
 							'value' => $value
 						));
 					}
@@ -491,7 +491,7 @@ class Menu extends Term implements AdminInterface {
 				foreach($itemmeta as $key => $value) {
 					$rs_query->insert('postmeta', array(
 						'post' => $menu_item_id,
-						'_key' => $key,
+						'datakey' => $key,
 						'value' => $value
 					));
 				}
@@ -690,7 +690,7 @@ class Menu extends Term implements AdminInterface {
 					
 					foreach($posts as $post) {
 						?>
-						<li><?php echo formTag('input', array(
+						<li><?php echo domTag('input', array(
 							'type' => 'checkbox',
 							'class' => 'checkbox-input',
 							'name' => 'menu_items[]',
@@ -722,7 +722,7 @@ class Menu extends Term implements AdminInterface {
 					
 					foreach($terms as $term) {
 						?>
-						<li><?php echo formTag('input', array(
+						<li><?php echo domTag('input', array(
 							'type' => 'checkbox',
 							'class' => 'checkbox-input',
 							'name' => 'menu_items[]',
@@ -744,14 +744,14 @@ class Menu extends Term implements AdminInterface {
 			<legend>Custom</legend>
 			<?php
 			// Custom menu item title
-			echo formTag('label', array('for' => 'custom_title', 'content' => 'Title'));
-			echo formTag('input', array('class' => 'text-input', 'name' => 'custom_title'));
+			echo domTag('label', array('for' => 'custom_title', 'content' => 'Title'));
+			echo domTag('input', array('class' => 'text-input', 'name' => 'custom_title'));
 			?>
 			<div class="clear" style="height: 2px;"></div>
 			<?php
 			// Custom menu item link
-			echo formTag('label', array('for' => 'custom_link', 'content' => 'Link'));
-			echo formTag('input', array('class' => 'text-input', 'name' => 'custom_link'));
+			echo domTag('label', array('for' => 'custom_link', 'content' => 'Link'));
+			echo domTag('input', array('class' => 'text-input', 'name' => 'custom_link'));
 			?>
 		</fieldset>
 		<?php
@@ -771,17 +771,17 @@ class Menu extends Term implements AdminInterface {
 		if($this->hasSiblings($id, $menu) && !$this->isFirstSibling($id, $menu)) {
 			$current_index = (int)$rs_query->selectField('postmeta', 'value', array(
 				'post' => $id,
-				'_key' => 'menu_index'
+				'datakey' => 'menu_index'
 			));
 			
 			$previous_index = (int)$rs_query->selectField('postmeta', 'value', array(
 				'post' => $this->getPreviousSibling($id, $menu),
-				'_key' => 'menu_index'
+				'datakey' => 'menu_index'
 			));
 			
 			$rs_query->update('postmeta', array('value' => $previous_index), array(
 				'post' => $id,
-				'_key' => 'menu_index'
+				'datakey' => 'menu_index'
 			));
 			
 			$relationships = $rs_query->select('term_relationships', 'post', array('term' => $menu));
@@ -789,7 +789,7 @@ class Menu extends Term implements AdminInterface {
 			foreach($relationships as $relationship) {
 				$indexes[] = $rs_query->selectRow('postmeta', array('value', 'post'), array(
 					'post' => $relationship['post'],
-					'_key' => 'menu_index'
+					'datakey' => 'menu_index'
 				));
 			}
 			
@@ -809,7 +809,7 @@ class Menu extends Term implements AdminInterface {
 					// Update each menu item's index
 					$rs_query->update('postmeta', array('value' => ($previous_index + $i)), array(
 						'post' => $index['post'],
-						'_key' => 'menu_index'
+						'datakey' => 'menu_index'
 					));
 					$i++;
 				} else {
@@ -818,7 +818,7 @@ class Menu extends Term implements AdminInterface {
 						'value' => ((int)$index['value'] + $this->getFamilyTree($id))
 					), array(
 						'post' => $index['post'],
-						'_key' => 'menu_index'
+						'datakey' => 'menu_index'
 					));
 				}
 			}
@@ -841,19 +841,19 @@ class Menu extends Term implements AdminInterface {
 			
 			$current_index = (int)$rs_query->selectField('postmeta', 'value', array(
 				'post' => $id,
-				'_key' => 'menu_index'
+				'datakey' => 'menu_index'
 			));
 			
 			$next_index = (int)$rs_query->selectField('postmeta', 'value', array(
 				'post' => $next_sibling,
-				'_key' => 'menu_index'
+				'datakey' => 'menu_index'
 			));
 			
 			$rs_query->update('postmeta', array(
 				'value' => ($current_index + $this->getFamilyTree($next_sibling))
 			), array(
 				'post' => $id,
-				'_key' => 'menu_index'
+				'datakey' => 'menu_index'
 			));
 			
 			$relationships = $rs_query->select('term_relationships', 'post', array('term' => $menu));
@@ -861,7 +861,7 @@ class Menu extends Term implements AdminInterface {
 			foreach($relationships as $relationship) {
 				$indexes[] = $rs_query->selectRow('postmeta', array('value', 'post'), array(
 					'post' => $relationship['post'],
-					'_key' => 'menu_index'
+					'datakey' => 'menu_index'
 				));
 			}
 			
@@ -883,7 +883,7 @@ class Menu extends Term implements AdminInterface {
 						'value' => ($current_index + $this->getFamilyTree($this->getNextSibling($id, $menu)) + $i)
 					), array(
 						'post' => $index['post'],
-						'_key' => 'menu_index'
+						'datakey' => 'menu_index'
 					));
 					$i++;
 				} else {
@@ -892,7 +892,7 @@ class Menu extends Term implements AdminInterface {
 						'value' => ((int)$index['value'] - $this->getFamilyTree($id))
 					), array(
 						'post' => $index['post'],
-						'_key' => 'menu_index'
+						'datakey' => 'menu_index'
 					));
 				}
 			}
@@ -1020,7 +1020,7 @@ class Menu extends Term implements AdminInterface {
 					'tag' => 'select',
 					'class' => 'select-input',
 					'name' => 'parent',
-					'content' => tag('option', array(
+					'content' => domTag('option', array(
 						'value' => '0',
 						'content' => '(none)'
 					)) . $this->getParentList($menu_item['parent'], $menu_item['id'])
@@ -1039,7 +1039,7 @@ class Menu extends Term implements AdminInterface {
 				), array(
 					'tag' => 'div',
 					'class' => 'actions',
-					'content' => formTag('a', array(
+					'content' => domTag('a', array(
 						'class' => 'button',
 						'href' => ADMIN_URI . '?id=' . $_GET['id'] . '&action=edit&item_id=' .
 							$menu_item['id'] . '&item_action=delete',
@@ -1069,7 +1069,7 @@ class Menu extends Term implements AdminInterface {
 		
 		$current_index = (int)$rs_query->selectField('postmeta', 'value', array(
 			'post' => $id,
-			'_key' => 'menu_index'
+			'datakey' => 'menu_index'
 		));
 		
 		$rs_query->delete('posts', array('id' => $id, 'type' => 'nav_menu_item'));
@@ -1085,7 +1085,7 @@ class Menu extends Term implements AdminInterface {
 			foreach($relationships as $relationship) {
 				$index = (int)$rs_query->selectField('postmeta', 'value', array(
 					'post' => $relationship['post'],
-					'_key' => 'menu_index'
+					'datakey' => 'menu_index'
 				));
 				
 				if($index < $current_index) {
@@ -1093,7 +1093,7 @@ class Menu extends Term implements AdminInterface {
 				} else {
 					$rs_query->update('postmeta', array('value' => ($index - 1)), array(
 						'post' => $relationship['post'],
-						'_key' => 'menu_index'
+						'datakey' => 'menu_index'
 					));
 				}
 			}
@@ -1129,17 +1129,17 @@ class Menu extends Term implements AdminInterface {
 		if(!empty($data['post_link'])) {
 			$rs_query->update('postmeta', array('value' => $data['post_link']), array(
 				'post' => $id,
-				'_key' => 'post_link'
+				'datakey' => 'post_link'
 			));
 		} elseif(!empty($data['term_link'])) {
 			$rs_query->update('postmeta', array('value' => $data['term_link']), array(
 				'post' => $id,
-				'_key' => 'term_link'
+				'datakey' => 'term_link'
 			));
 		} elseif(!empty($data['custom_link'])) {
 			$rs_query->update('postmeta', array('value' => $data['custom_link']), array(
 				'post' => $id,
-				'_key' => 'custom_link'
+				'datakey' => 'custom_link'
 			));
 		}
 		
@@ -1150,13 +1150,13 @@ class Menu extends Term implements AdminInterface {
 		foreach($relationships as $relationship) {
 			$indexes[] = $rs_query->selectRow('postmeta', array('post', 'value'), array(
 				'post' => $relationship['post'],
-				'_key' => 'menu_index'
+				'datakey' => 'menu_index'
 			));
 		}
 		
 		$current_index = (int)$rs_query->selectField('postmeta', 'value', array(
 			'post' => $id,
-			'_key' => 'menu_index'
+			'datakey' => 'menu_index'
 		));
 		
 		if((int)$data['parent'] === 0 && $parent !== 0) {
@@ -1166,7 +1166,7 @@ class Menu extends Term implements AdminInterface {
 				'value' => ($count - $this->getFamilyTree($id))
 			), array(
 				'post' => $id,
-				'_key' => 'menu_index'
+				'datakey' => 'menu_index'
 			));
 			
 			$i = 1;
@@ -1181,7 +1181,7 @@ class Menu extends Term implements AdminInterface {
 						'value' => ($count - $this->getFamilyTree($id) + $i)
 					), array(
 						'post' => $index['post'],
-						'_key' => 'menu_index'
+						'datakey' => 'menu_index'
 					));
 					$i++;
 				} else {
@@ -1189,20 +1189,20 @@ class Menu extends Term implements AdminInterface {
 						'value' => ((int)$index['value'] - $this->getFamilyTree($id))
 					), array(
 						'post' => $index['post'],
-						'_key' => 'menu_index'
+						'datakey' => 'menu_index'
 					));
 				}
 			}
 		} elseif((int)$data['parent'] !== 0) {
 			$parent_index = (int)$rs_query->selectField('postmeta', 'value', array(
 				'post' => $data['parent'],
-				'_key' => 'menu_index'
+				'datakey' => 'menu_index'
 			));
 			
 			if($current_index > $parent_index) {
 				$rs_query->update('postmeta', array('value' => ($parent_index + 1)), array(
 					'post' => $id,
-					'_key' => 'menu_index'
+					'datakey' => 'menu_index'
 				));
 				
 				$i = 1;
@@ -1217,7 +1217,7 @@ class Menu extends Term implements AdminInterface {
 					if($this->isDescendant($index['post'], $id)) {
 						$rs_query->update('postmeta', array('value' => ($parent_index + 1 + $i)), array(
 							'post' => $index['post'],
-							'_key' => 'menu_index'
+							'datakey' => 'menu_index'
 						));
 						$i++;
 					} else {
@@ -1225,7 +1225,7 @@ class Menu extends Term implements AdminInterface {
 							'value' => ((int)$index['value'] + $this->getFamilyTree($id))
 						), array(
 							'post' => $index['post'],
-							'_key' => 'menu_index'
+							'datakey' => 'menu_index'
 						));
 					}
 				}
@@ -1236,7 +1236,7 @@ class Menu extends Term implements AdminInterface {
 				
 				$rs_query->update('postmeta', array('value' => $new_index), array(
 					'post' => $id,
-					'_key' => 'menu_index'
+					'datakey' => 'menu_index'
 				));
 				
 				$i = 1;
@@ -1251,7 +1251,7 @@ class Menu extends Term implements AdminInterface {
 					if($this->isDescendant($index['post'], $id)) {
 						$rs_query->update('postmeta', array('value' => ($new_index + $i)), array(
 							'post' => $index['post'],
-							'_key' => 'menu_index'
+							'datakey' => 'menu_index'
 						));
 						$i++;
 					} else {
@@ -1259,7 +1259,7 @@ class Menu extends Term implements AdminInterface {
 							'value' => ((int)$index['value'] - $this->getFamilyTree($id))
 						), array(
 							'post' => $index['post'],
-							'_key' => 'menu_index'
+							'datakey' => 'menu_index'
 						));
 					}
 				}
@@ -1283,7 +1283,7 @@ class Menu extends Term implements AdminInterface {
 		
 		$current_index = (int)$rs_query->selectField('postmeta', 'value', array(
 			'post' => $id,
-			'_key' => 'menu_index'
+			'datakey' => 'menu_index'
 		));
 		
 		$siblings = $this->getSiblings($id, $menu);
@@ -1291,7 +1291,7 @@ class Menu extends Term implements AdminInterface {
 		foreach($siblings as $sibling) {
 			$index = (int)$rs_query->selectField('postmeta', 'value', array(
 				'post' => $sibling,
-				'_key' => 'menu_index'
+				'datakey' => 'menu_index'
 			));
 			
 			if($index < $current_index) return false;
@@ -1314,7 +1314,7 @@ class Menu extends Term implements AdminInterface {
 		
 		$current_index = (int)$rs_query->selectField('postmeta', 'value', array(
 			'post' => $id,
-			'_key' => 'menu_index'
+			'datakey' => 'menu_index'
 		));
 		
 		$siblings = $this->getSiblings($id, $menu);
@@ -1322,7 +1322,7 @@ class Menu extends Term implements AdminInterface {
 		foreach($siblings as $sibling) {
 			$index = (int)$rs_query->selectField('postmeta', 'value', array(
 				'post' => $sibling,
-				'_key' => 'menu_index'
+				'datakey' => 'menu_index'
 			));
 			
 			if($index > $current_index) return false;
@@ -1349,18 +1349,18 @@ class Menu extends Term implements AdminInterface {
 		if(in_array($previous, $siblings, true)) {
 			$previous_index = (int)$rs_query->selectField('postmeta', 'value', array(
 				'post' => $previous,
-				'_key' => 'menu_index'
+				'datakey' => 'menu_index'
 			));
 			$current_index = (int)$rs_query->selectField('postmeta', 'value', array(
 				'post' => $id,
-				'_key' => 'menu_index'
+				'datakey' => 'menu_index'
 			));
 			
 			if($previous_index < $current_index) {
 				foreach($siblings as $sibling) {
 					$index = (int)$rs_query->selectField('postmeta', 'value', array(
 						'post' => $sibling,
-						'_key' => 'menu_index'
+						'datakey' => 'menu_index'
 					));
 					
 					// Check whether the sibling's index falls in between the previous index and the current index
@@ -1392,18 +1392,18 @@ class Menu extends Term implements AdminInterface {
 		if(in_array($next, $siblings, true)) {
 			$next_index = (int)$rs_query->selectField('postmeta', 'value', array(
 				'post' => $next,
-				'_key' => 'menu_index'
+				'datakey' => 'menu_index'
 			));
 			$current_index = (int)$rs_query->selectField('postmeta', 'value', array(
 				'post' => $id,
-				'_key' => 'menu_index'
+				'datakey' => 'menu_index'
 			));
 			
 			if($next_index > $current_index) {
 				foreach($siblings as $sibling) {
 					$index = (int)$rs_query->selectField('postmeta', 'value', array(
 						'post' => $sibling,
-						'_key' => 'menu_index'
+						'datakey' => 'menu_index'
 					));
 					
 					// Check whether the sibling's index falls in between the current index and the next index
@@ -1509,7 +1509,7 @@ class Menu extends Term implements AdminInterface {
 			));
 			
 			foreach($posts as $post) {
-				$list .= tag('option', array(
+				$list .= domTag('option', array(
 					'value' => $post['id'],
 					'selected' => ($post['id'] === $id),
 					'content' => $post['title']
@@ -1520,7 +1520,7 @@ class Menu extends Term implements AdminInterface {
 			$terms = $rs_query->select('terms', array('id', 'name'), array('taxonomy' => $taxonomy));
 			
 			foreach($terms as $term) {
-				$list .= tag('option', array(
+				$list .= domTag('option', array(
 					'value' => $term['id'],
 					'selected' => ($term['id'] === $id),
 					'content' => $term['name']
@@ -1564,7 +1564,7 @@ class Menu extends Term implements AdminInterface {
 	private function getMenuItemMeta(int $id): array {
 		global $rs_query;
 		
-		$itemmeta = $rs_query->select('postmeta', array('_key', 'value'), array('post' => $id));
+		$itemmeta = $rs_query->select('postmeta', array('datakey', 'value'), array('post' => $id));
 		$meta = array();
 		
 		foreach($itemmeta as $metadata) {
@@ -1618,7 +1618,7 @@ class Menu extends Term implements AdminInterface {
 			));
 			$menu_items[$i]['menu_index'] = $rs_query->selectField('postmeta', 'value', array(
 				'post' => $relationship['post'],
-				'_key' => 'menu_index'
+				'datakey' => 'menu_index'
 			));
 			$menu_items[$i] = array_reverse($menu_items[$i]);
 			$i++;
@@ -1634,7 +1634,7 @@ class Menu extends Term implements AdminInterface {
 			// Skip all descendant menu items
 			if($this->isDescendant($menu_item['id'], $id)) continue;
 			
-			$list .= tag('option', array(
+			$list .= domTag('option', array(
 				'value' => $menu_item['id'],
 				'selected' => ($menu_item['id'] === $parent),
 				'content' => $menu_item['title']

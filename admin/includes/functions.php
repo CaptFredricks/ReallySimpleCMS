@@ -5,10 +5,10 @@
  */
 
 // Path to the admin stylesheets directory
-if(!defined('ADMIN_STYLES')) define('ADMIN_STYLES', ADMIN . INC . '/css');
+if(!defined('ADMIN_STYLES')) define('ADMIN_STYLES', RES . '/css' . ADMIN);
 
 // Path to the admin scripts directory
-if(!defined('ADMIN_SCRIPTS')) define('ADMIN_SCRIPTS', ADMIN . INC . '/js');
+if(!defined('ADMIN_SCRIPTS')) define('ADMIN_SCRIPTS', RES . '/js' . ADMIN);
 
 // Path to the admin themes directory
 if(!defined('ADMIN_THEMES')) define('ADMIN_THEMES', CONT . '/admin-themes');
@@ -532,51 +532,69 @@ function statsBarGraph(): void {
 		$stats[] = $bars[$key]['stats'];
 	}
 	
+	// Max count value
 	$max_count = max($stats);
 	$num = ceil($max_count / 25);
 	$num *= 5;
+	
+	echo domTag('input', array(
+		'type' => 'hidden',
+		'id' => 'max-ct',
+		'value' => $num * 5
+	));
 	?>
-	<input type="hidden" id="max-ct" value="<?php echo $num * 5; ?>">
 	<div id="stats-graph">
 		<ul class="graph-y">
 			<?php
 			// Y axis values
 			for($i = 5; $i >= 0; $i--) {
-				?>
-				<li><span class="value"><?php echo $i * $num; ?></span></li>
-				<?php
+				echo domTag('li', array(
+					'content' => domTag('span', array(
+						'class' => 'value',
+						'content' => $i * $num
+					))
+				));
 			}
 			?>
 		</ul>
 		<ul class="graph-content">
 			<?php
+			// Bars
 			foreach($bars as $bar) {
-				?>
-				<li style="width: <?php echo 1 / count($bars) * 100; ?>%;">
-					<a class="bar" href="<?php echo $bar['menu_link']; ?>" title="<?php echo $bar['label']; ?>: <?php echo $bar['stats'].($bar['stats'] === 1 ? ' entry' : ' entries'); ?>"><?php echo $bar['stats']; ?></a>
-				</li>
-				<?php
+				echo domTag('li', array(
+					'style' => 'width: ' . (1 / count($bars) * 100) . '%;',
+					'content' => domTag('a', array(
+						'class' => 'bar',
+						'href' => $bar['menu_link'],
+						'title' => $bar['label'] . ': ' . $bar['stats'] .
+							($bar['stats'] === 1 ? ' entry' : ' entries'),
+						'content' => $bar['stats']
+					))
+				));
 			}
 			?>
 			<ul class="graph-overlay">
 				<?php
 				// Overlay items
-				for($j = 5; $j >= 0; $j--) {
-					?>
-					<li></li>
-					<?php
-				}
+				for($j = 5; $j >= 0; $j--)
+					echo domTag('li');
 				?>
 			</ul>
 		</ul>
 		<ul class="graph-x">
 			<?php
+			// X axis values
 			foreach($bars as $bar) {
-				?>
-				<li style="width: <?php echo 1 / count($bars) * 100; ?>%;">
-					<a class="value" href="<?php echo $bar['menu_link']; ?>" title="<?php echo $bar['label']; ?>: <?php echo $bar['stats'].($bar['stats'] === 1 ? ' entry' : ' entries'); ?>"><?php echo $bar['label']; ?></a>
-				</li>
-				<?php
+				echo domTag('li', array(
+					'style' => 'width: ' . (1 / count($bars) * 100) . '%;',
+					'content' => domTag('a', array(
+						'class' => 'value',
+						'href' => $bar['menu_link'],
+						'title' => $bar['label'] . ': ' . $bar['stats'] .
+							($bar['stats'] === 1 ? ' entry' : ' entries'),
+						'content' => $bar['label']
+					))
+				));
 			}
 			?>
 		</ul>
@@ -602,14 +620,25 @@ function dashboardWidget(string $name): void {
 				?>
 				<h2>Comments</h2>
 				<ul>
-					<?php $approved = $rs_query->select('comments', 'COUNT(*)', array('status' => 'approved')); ?>
-					<li>
-						<a href="/admin/comments.php?status=approved">Approved</a>: <strong class="value"><?php echo $approved; ?></strong>
-					</li>
-					<?php $pending = $rs_query->select('comments', 'COUNT(*)', array('status' => 'unapproved')); ?>
-					<li>
-						<a href="/admin/comments.php?status=unapproved">Pending</a>: <strong class="value"><?php echo $pending; ?></strong>
-					</li>
+					<?php
+					$comment_statuses = array('approved', 'pending');
+					
+					foreach($comment_statuses as $comment_status) {
+						$count = $rs_query->select('comments', 'COUNT(*)', array(
+							'status' => $comment_status
+						));
+						
+						echo domTag('li', array(
+							'content' => domTag('a', array(
+								'href' => '/admin/comments.php?status=' . $comment_status,
+								'content' => ucfirst($comment_status)
+							)) . ': ' . domTag('strong', array(
+								'class' => 'value',
+								'content' => $count
+							))
+						));
+					}
+					?>
 				</ul>
 				<?php
 				break;
@@ -618,21 +647,29 @@ function dashboardWidget(string $name): void {
 				<h2>Users</h2>
 				<ul>
 					<?php
-					$online = $rs_query->select('users', 'COUNT(*)', array(
-						'session' => array('IS NOT NULL')
-					));
+					$user_statuses = array('online', 'offline');
+					
+					foreach($user_statuses as $user_status) {
+						if($user_status === 'online')
+							$session = array('IS NOT NULL');
+						elseif($user_status === 'offline')
+							$session = array('IS NULL');
+						
+						$count = $rs_query->select('users', 'COUNT(*)', array(
+							'session' => $session
+						));
+						
+						echo domTag('li', array(
+							'content' => domTag('a', array(
+								'href' => '/admin/users.php?status=' . $user_status,
+								'content' => ucfirst($user_status)
+							)) . ': ' . domTag('strong', array(
+								'class' => 'value',
+								'content' => $count
+							))
+						));
+					}
 					?>
-					<li>
-						<a href="/admin/users.php?status=online">Online</a>: <strong class="value"><?php echo $online; ?></strong>
-					</li>
-					<?php
-					$offline = $rs_query->select('users', 'COUNT(*)', array(
-						'session' => array('IS NULL')
-					));
-					?>
-					<li>
-						<a href="/admin/users.php?status=offline">Offline</a>: <strong class="value"><?php echo $offline; ?></strong>
-					</li>
 				</ul>
 				<?php
 				break;
@@ -641,27 +678,38 @@ function dashboardWidget(string $name): void {
 				<h2>Logins</h2>
 				<ul>
 					<?php
-					$login_success = $rs_query->select('login_attempts', 'COUNT(*)', array(
-						'status' => 'success'
-					));
+					$login_statuses = array('success', 'failure', 'blacklisted');
+					
+					foreach($login_statuses as $login_status) {
+						if($login_status === 'blacklisted') {
+							$count = $rs_query->select('login_blacklist', 'COUNT(*)');
+							
+							echo domTag('li', array(
+								'content' => domTag('a', array(
+									'href' => '/admin/logins.php?page=blacklist',
+									'content' => ucfirst($login_status)
+								)) . ': ' . domTag('strong', array(
+									'class' => 'value',
+									'content' => $count
+								))
+							));
+						} else {
+							$count = $rs_query->select('login_attempts', 'COUNT(*)', array(
+								'status' => $login_status
+							));
+							
+							echo domTag('li', array(
+								'content' => domTag('a', array(
+									'href' => '/admin/logins.php?status=' . $login_status,
+									'content' => ($login_status === 'success' ? 'Successful' : 'Failed')
+								)) . ': ' . domTag('strong', array(
+									'class' => 'value',
+									'content' => $count
+								))
+							));
+						}
+					}
 					?>
-					<li>
-						<a href="/admin/logins.php?status=success">Successful</a>: <strong class="value"><?php echo $login_success; ?></strong>
-					</li>
-					<?php
-					$login_failure = $rs_query->select('login_attempts', 'COUNT(*)', array(
-						'status' => 'failure'
-					));
-					?>
-					<li>
-						<a href="/admin/logins.php?status=failure">Failed</a>: <strong class="value"><?php echo $login_failure; ?></strong>
-					</li>
-					<?php
-					$blacklisted = $rs_query->select('login_blacklist', 'COUNT(*)');
-					?>
-					<li>
-						<a href="/admin/logins.php?page=blacklist">Blacklisted</a>: <strong class="value"><?php echo $blacklisted; ?></strong>
-					</li>
 				</ul>
 				<?php
 				break;
@@ -752,7 +800,7 @@ function tableHeaderRow(array $items): string {
 }
 
 /**
- * Construct a form HTML tag.
+ * Construct a form HTML tag. Phased out in favor of DOMtags.
  * @since 1.2.0[a]
  * @deprecated since 1.3.11[b]
  *
@@ -761,6 +809,8 @@ function tableHeaderRow(array $items): string {
  * @return string
  */
 function formTag(string $tag_name, ?array $args = null): string {
+	deprecated();
+	
 	$props = !is_null($args) ? array_keys($args) : array();
 	
 	$always_whitelist = array('id', 'class', 'title');
@@ -851,6 +901,8 @@ function formTag(string $tag_name, ?array $args = null): string {
  * @return string
  */
 function tag(string $tag_name, ?array $args = null): string {
+	deprecated();
+	
 	return formTag($tag_name, $args);
 }
 
@@ -859,10 +911,10 @@ function tag(string $tag_name, ?array $args = null): string {
  * @since 1.1.2[a]
  *
  * @param string|array $label (optional) -- The row's label.
- * @param array $args (optional) -- The row's args.
+ * @param string|array $args (optional) -- The row's args.
  * @return string
  */
-function formRow(string|array $label = '', array ...$args): string {
+function formRow(string|array $label = '', string|array ...$args): string {
 	if(!empty($label)) {
 		if(is_array($label)) {
 			$required = array_pop($label);
@@ -874,10 +926,10 @@ function formRow(string|array $label = '', array ...$args): string {
 			if(is_array($args[$i]) && array_key_exists('name', $args[$i])) break;
 		}
 		
-		$row_label = tag('label', array(
+		$row_label = domTag('label', array(
 			'for' => (!empty($args[$i]['name']) ? $args[$i]['name'] : ''),
 			'content' => $label . ' ' . (!empty($required) && $required === true ?
-				tag('span', array(
+				domTag('span', array(
 					'class' => 'required',
 					'content' => '*'
 				)) : ''
@@ -890,7 +942,7 @@ function formRow(string|array $label = '', array ...$args): string {
 				foreach($args as $arg) {
 					$tag = array_shift($arg);
 					
-					$row_content[] = tag($tag, $arg);
+					$row_content[] = domTag($tag, $arg);
 				}
 			} else {
 				foreach($args as $arg) $row_content[] = $arg;
@@ -905,7 +957,7 @@ function formRow(string|array $label = '', array ...$args): string {
 				foreach($args as $arg) {
 					$tag = array_shift($arg);
 					
-					$row_content[] = tag($tag, $arg);
+					$row_content[] = domTag($tag, $arg);
 				}
 			} else {
 				foreach($args as $arg) $row_content[] = $arg;
@@ -933,7 +985,7 @@ function recordSearch(array $args = array()): void {
 		<?php
 		foreach($args as $key => $value) {
 			if(!empty($args[$key])) {
-				echo formTag('input', array(
+				echo domTag('input', array(
 					'type' => 'hidden',
 					'name' => $key,
 					'value' => $args[$key]
@@ -942,13 +994,13 @@ function recordSearch(array $args = array()): void {
 		}
 		
 		// Search field
-		echo formTag('input', array(
+		echo domTag('input', array(
 			'id' => 'record-search',
 			'name' => 'search'
 		));
 		
 		// Submit button
-		echo formTag('input', array(
+		echo domTag('input', array(
 			'type' => 'submit',
 			'class' => 'submit-input button',
 			'value' => 'Search'
@@ -1036,7 +1088,7 @@ function uploadMediaFile(array $data): string {
 	foreach($mediameta as $key => $value) {
 		$rs_query->insert('postmeta', array(
 			'post' => $insert_id,
-			'_key' => $key,
+			'datakey' => $key,
 			'value' => $value
 		));
 	}
@@ -1045,27 +1097,27 @@ function uploadMediaFile(array $data): string {
 	if(in_array($data['type'], array('image/jpeg', 'image/png', 'image/gif', 'image/x-icon'), true)) {
 		list($width, $height) = getimagesize(slash($basepath) . $filepath);
 		
-		$status_msg = tag('div', array(
+		$status_msg = domTag('div', array(
 			// ID
 			'class' => 'hidden',
 			'data-field' => 'id',
 			'content' => $insert_id
-		)) . tag('div', array(
+		)) . domTag('div', array(
 			// Title
 			'class' => 'hidden',
 			'data-field' => 'title',
 			'content' => $title
-		)) . tag('div', array(
+		)) . domTag('div', array(
 			// Filepath
 			'class' => 'hidden',
 			'data-field' => 'filepath',
 			'content' => slash(UPLOADS) . $filepath
-		)) . tag('div', array(
+		)) . domTag('div', array(
 			// MIME type
 			'class' => 'hidden',
 			'data-field' => 'mime_type',
 			'content' => $data['type']
-		)) . tag('div', array(
+		)) . domTag('div', array(
 			// Width
 			'class' => 'hidden',
 			'data-field' => 'width',
@@ -1094,7 +1146,7 @@ function loadMedia(bool $image_only = false): void {
 	} else {
 		foreach($mediaa as $media) {
 			$mediameta = $rs_query->select('postmeta',
-				array('_key', 'value'),
+				array('datakey', 'value'),
 				array('post' => $media['id'])
 			);
 			
@@ -1126,27 +1178,27 @@ function loadMedia(bool $image_only = false): void {
 						<?php
 						$file = pathinfo($meta['filepath']);
 						
-						echo formTag('div', array(
+						echo domTag('div', array(
 							// ID
 							'class' => 'hidden',
 							'data-field' => 'id',
 							'content' => $media['id']
-						)) . formTag('div', array(
+						)) . domTag('div', array(
 							// Thumb
 							'class' => 'hidden',
 							'data-field' => 'thumb',
 							'content' => getMedia($media['id'])
-						)) . formTag('div', array(
+						)) . domTag('div', array(
 							// Title
 							'class' => 'hidden',
 							'data-field' => 'title',
 							'content' => $media['title']
-						)) . formTag('div', array(
+						)) . domTag('div', array(
 							// Date
 							'class' => 'hidden',
 							'data-field' => 'date',
 							'content' => formatDate($media['date'], 'd M Y @ g:i A')
-						)) . formTag('div', array(
+						)) . domTag('div', array(
 							// Filepath
 							'class' => 'hidden',
 							'data-field' => 'filepath',
@@ -1154,17 +1206,17 @@ function loadMedia(bool $image_only = false): void {
 								'link_text' => $file['basename'],
 								'newtab' => 1
 							))
-						)) . formTag('div', array(
+						)) . domTag('div', array(
 							// MIME type
 							'class' => 'hidden',
 							'data-field' => 'mime_type',
 							'content' => $meta['mime_type']
-						)) . formTag('div', array(
+						)) . domTag('div', array(
 							// Alt text
 							'class' => 'hidden',
 							'data-field' => 'alt_text',
 							'content' => $meta['alt_text']
-						)) . formTag('div', array(
+						)) . domTag('div', array(
 							// Width
 							'class' => 'hidden',
 							'data-field' => 'width',
@@ -1202,7 +1254,7 @@ function mediaLink(int $id, array $args = array()): string {
 	if(empty($args['link_text']))
 		$args['link_text'] = $rs_query->selectField('posts', 'title', array('id' => $id));
 	
-	return tag('a', array(
+	return domTag('a', array(
 		'class' => (!empty($args['class']) ? $args['class'] : ''),
 		'href' => $src,
 		'target' => ($newtab ? '_blank' : ''),
@@ -1222,7 +1274,7 @@ function getUniqueFilename(string $filename): string {
 	global $rs_query;
 	
 	$count = $rs_query->select('postmeta', 'COUNT(*)', array(
-		'_key' => 'filepath',
+		'datakey' => 'filepath',
 		'value' => array('LIKE', '%' . $filename . '%')
 	));
 	
@@ -1234,7 +1286,7 @@ function getUniqueFilename(string $filename): string {
 				$file_parts['extension'];
 			$count++;
 		} while($rs_query->selectRow('postmeta', 'COUNT(*)', array(
-			'_key' => 'filepath',
+			'datakey' => 'filepath',
 			'value' => array('LIKE', '%' . $unique_filename)
 		)) > 0);
 		
@@ -1407,13 +1459,13 @@ function pagerNav(int $page, int $page_count): void {
 	<div class="pager">
 		<?php
 		if($page > 1) {
-			echo formTag('a', array(
+			echo domTag('a', array(
 				'class' => 'pager-nav button',
 				'href' => ADMIN_URI . '?' . (!empty($query_string) ? $query_string . '&' : '') .
 					'paged=1',
 				'title' => 'First Page',
 				'content' => '&laquo;'
-			)) . formTag('a', array(
+			)) . domTag('a', array(
 				'class' => 'pager-nav button',
 				'href' => ADMIN_URI . '?' . (!empty($query_string) ? $query_string . '&' : '') .
 					'paged=' . ($page - 1),
@@ -1425,13 +1477,13 @@ function pagerNav(int $page, int $page_count): void {
 		if($page_count > 0) echo ' Page ' . $page . ' of ' . $page_count . ' ';
 		
 		if($page < $page_count) {
-			echo formTag('a', array(
+			echo domTag('a', array(
 				'class' => 'pager-nav button',
 				'href' => ADMIN_URI . '?' . (!empty($query_string) ? $query_string . '&' : '') .
 					'paged=' . ($page + 1),
 				'title' => 'Next Page',
 				'content' => '&rsaquo;'
-			)) . formTag('a', array(
+			)) . domTag('a', array(
 				'class' => 'pager-nav button',
 				'href' => ADMIN_URI . '?' . (!empty($query_string) ? $query_string . '&' : '') .
 					'paged=' . $page_count,

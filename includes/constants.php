@@ -15,10 +15,13 @@ define('PHP_MINIMUM', '8.0');
 define('PHP_RECOMMENDED', '8.1');
 
 // Current CMS version
-define('CMS_VERSION', '1.3.11');
+define('CMS_VERSION', '1.3.12');
 
 // Current jQuery version
-define('JQUERY_VERSION', '3.6.3');
+define('JQUERY_VERSION', '3.7.1');
+
+// Current DOMtags version
+define('DOMTAGS_VERSION', '1.0.4');
 
 // Current Font Awesome icons version
 define('ICONS_VERSION', '6.2.1');
@@ -30,20 +33,23 @@ define('ICONS_VERSION', '6.2.1');
 // Absolute path to the root directory
 define('PATH', dirname(__DIR__));
 
-// Path to the admin directory
+// Path to the `admin` directory
 define('ADMIN', '/admin');
 
-// Path to the includes directory
+// Path to the `includes` directory
 define('INC', '/includes');
 
-// Path to the content directory
+// Path to the `resources` directory
+define('RES', '/resources');
+
+// Path to the `content` directory
 define('CONT', '/content');
 
 // Path to the stylesheets directory
-define('STYLES', INC . '/css');
+define('STYLES', RES . '/css');
 
 // Path to the scripts directory
-define('SCRIPTS', INC . '/js');
+define('SCRIPTS', RES . '/js');
 
 // Path to the themes directory
 define('THEMES', CONT . '/themes');

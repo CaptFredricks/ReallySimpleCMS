@@ -105,7 +105,7 @@ class Comment implements AdminInterface {
 			?>
 			<ul class="status-nav">
 				<?php
-				$keys = array('all', 'approved', 'unapproved', 'spam');
+				$keys = array('all', 'approved', 'pending', 'spam');
 				$count = array();
 				
 				foreach($keys as $key) {
@@ -235,7 +235,7 @@ class Comment implements AdminInterface {
 							'value' => $comment['id']
 						)), 'bulk-select'),
 						// Comment
-						tdCell(trimWords($comment['content']) . ($comment['status'] === 'unapproved' &&
+						tdCell(trimWords($comment['content']) . ($comment['status'] === 'pending' &&
 							$status === 'all' ? ' &mdash; ' .
 							domTag('em', array(
 								'content' => 'pending approval'
@@ -331,9 +331,9 @@ class Comment implements AdminInterface {
 								'selected' => ($this->status === 'approved' ? 1 : 0),
 								'content' => 'Approved'
 							)) . domTag('option', array(
-								'value' => 'unapproved',
-								'selected' => ($this->status === 'unapproved' ? 1 : 0),
-								'content' => 'Unapproved'
+								'value' => 'pending',
+								'selected' => ($this->status === 'pending' ? 1 : 0),
+								'content' => 'Pending'
 							)) . domTag('option', array(
 								'value' => 'spam',
 								'selected' => ($this->status === 'spam' ? 1 : 0),
@@ -389,7 +389,7 @@ class Comment implements AdminInterface {
 			
 			$rs_query->update('postmeta', array('value' => $count), array(
 				'post' => $this->post,
-				'_key' => 'comment_count'
+				'datakey' => 'comment_count'
 			));
 		}
 	}
@@ -413,7 +413,7 @@ class Comment implements AdminInterface {
 	 * @access public
 	 */
 	public function unapproveComment(): void {
-		$this->updateCommentStatus('unapproved');
+		$this->updateCommentStatus('pending');
 		
 		redirect(ADMIN_URI);
 	}
@@ -452,7 +452,7 @@ class Comment implements AdminInterface {
 			
 			$rs_query->update('postmeta', array('value' => $count), array(
 				'post' => $this->post,
-				'_key' => 'comment_count'
+				'datakey' => 'comment_count'
 			));
 			
 			redirect(ADMIN_URI . '?exit_status=success');
@@ -486,8 +486,8 @@ class Comment implements AdminInterface {
 		if(empty($data['content']))
 			return exitNotice('REQ', -1);
 		
-		if($data['status'] !== 'approved' && $data['status'] !== 'unapproved')
-			$data['status'] = 'unapproved';
+		if($data['status'] !== 'approved' && $data['status'] !== 'pending')
+			$data['status'] = 'pending';
 		
 		$rs_query->update('comments', array(
 			'content' => $data['content'],
@@ -556,7 +556,7 @@ class Comment implements AdminInterface {
 		
 		$author = $rs_query->selectField('usermeta', 'value', array(
 			'user' => $id,
-			'_key' => 'display_name'
+			'datakey' => 'display_name'
 		));
 		
 		return empty($author) ? '&mdash;' : $author;
@@ -601,15 +601,15 @@ class Comment implements AdminInterface {
 		<div class="bulk-actions">
 			<?php
 			if(userHasPrivilege('can_edit_comments')) {
-				echo formTag('select', array(
+				echo domTag('select', array(
 					'class' => 'actions',
-					'content' => tag('option', array(
+					'content' => domTag('option', array(
 						'value' => 'approved',
 						'content' => 'Approve'
-					)) . tag('option', array(
-						'value' => 'unapproved',
+					)) . domTag('option', array(
+						'value' => 'pending',
 						'content' => 'Unapprove'
-					)) . tag('option', array(
+					)) . domTag('option', array(
 						'value' => 'spam',
 						'content' => 'Spam'
 					))
