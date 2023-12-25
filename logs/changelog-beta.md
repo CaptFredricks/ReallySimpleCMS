@@ -18,6 +18,13 @@
 - [a] = alpha
 - [b] = beta
 
+## Version 1.3.13.1[b] (2023-12-25)
+
+- Incremented the CMS version
+
+**Modified files:**
+- n/a
+
 ## Version 1.3.13[b] (2023-12-24)
 
 - Cleaned up documentation in multiple files
