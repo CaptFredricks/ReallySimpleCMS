@@ -18,6 +18,42 @@
 - [a] = alpha
 - [b] = beta
 
+## Version 1.3.13[b] (2023-12-24)
+
+- Cleaned up documentation in multiple files
+  - A new, detailed comment about the loading order of core files has been added to the top of the file
+- Reamed the `backward-compat.php` file to `polyfill-functions.php`
+- Post types and taxonomies now support having a slug that differs from their name
+- Post types now support having multiple associated taxonomies
+- Cleaned up code in the admin `Post` class
+- Tweaked styling of the Carbon theme
+- Cleaned up code in various functions
+- New functions:
+  - Admin `Post` class (`pageHeading`)
+  - `critical-functions.php` (`checkDBStatus`)
+- Renamed functions:
+  - Admin `Post` class (`validateData` -> `validateSubmission`)
+
+**Modified files:**
+- admin/includes/bulk-actions.php (M)
+- admin/includes/class-post.php
+- admin/includes/functions.php
+- admin/posts.php
+- content/themes/carbon/category.php (M)
+- content/themes/carbon/footer.php (M)
+- content/themes/carbon/functions.php
+- content/themes/carbon/style.css (M)
+- includes/class-post.php
+- includes/class-term.php
+- includes/critical-functions.php
+- includes/functions.php
+- includes/global-functions.php
+- includes/polyfill-functions.php (R,M)
+- includes/schema.php (M)
+- includes/theme-functions.php
+- index.php (M)
+- init.php
+
 ## Version 1.3.12.1[b] (2023-12-13)
 
 - Tweaked a previous entry in the changelog

@@ -31,7 +31,7 @@ class Post {
 	 * @access private
 	 * @var array
 	 */
-	private $taxonomy_data = array();
+	private $tax_data = array();
 	
 	/**
 	 * Class constructor. Sets the default queried post slug.
@@ -157,9 +157,13 @@ class Post {
 		if(array_key_exists($this->getPostType(), $post_types)) {
 			$this->type_data = $post_types[$this->getPostType()];
 			
-			// Check whether the current post type has a taxonomy associated with it and the taxonomy is valid
-			if(!empty($this->type_data['taxonomy']) && array_key_exists($this->type_data['taxonomy'], $taxonomies))
-				$this->taxonomy_data = $taxonomies[$this->type_data['taxonomy']];
+			// Fetch any associated taxonomy data
+			if(!empty($this->type_data['taxonomies'])) {
+				foreach($this->type_data['taxonomies'] as $tax) {
+					if(array_key_exists($tax, $taxonomies))
+						$this->tax_data[] = $taxonomies[$tax];
+				}
+			}
 		} else {
 			// Unrecognized post type, abort
 			redirect('/404.php');
@@ -274,10 +278,10 @@ class Post {
 	 * @since 2.2.0[a]
 	 *
 	 * @access public
-	 * @param int $id
+	 * @param int $id -- The post's id.
 	 * @return string
 	 */
-    public function getPostSlug($id): string {
+    public function getPostSlug(int $id): string {
 		global $rs_query;
 		
 		return $rs_query->selectField('posts', 'slug', array('id' => $id));
@@ -355,10 +359,11 @@ class Post {
 	 * @since 2.4.1[a]
 	 *
 	 * @access public
+	 * @param string $taxonomy -- The term's taxonomy.
 	 * @param bool $linked (optional) -- Whether to link the terms.
 	 * @return array
 	 */
-	public function getPostTerms(bool $linked = true): array {
+	public function getPostTerms(string $taxonomy, bool $linked = true): array {
 		global $rs_query;
 		
 		$terms = array();
@@ -369,7 +374,7 @@ class Post {
 		foreach($relationships as $relationship) {
 			$slug = $rs_query->selectField('terms', 'slug', array(
 				'id' => $relationship['term'],
-				'taxonomy' => getTaxonomyId($this->type_data['taxonomy'])
+				'taxonomy' => getTaxonomyId($taxonomy)
 			));
 			
 			$rs_term = getTerm($slug);

@@ -4,19 +4,13 @@
  * @since 1.2.0[a]
  */
 
-// DOMtags
-include_once PATH . INC . '/dom-tags.php';
-
-// Backward compatible functions
-require_once PATH . INC . '/backward-compat.php';
+require_once PATH . INC . '/dom-tags.php';
+require_once PATH . INC . '/polyfill-functions.php';
 
 // Set the server timezone
 ini_set('date.timezone', date_default_timezone_get());
 
-// Array to hold all existing post types
 $post_types = array();
-
-// Array to hold all existing taxonomies
 $taxonomies = array();
 
 /*------------------------------------*\
@@ -435,22 +429,22 @@ function populateTerms($post): void {
  * Set all post type labels.
  * @since 1.0.1[b]
  *
- * @param string $post_type
- * @param array $labels (optional; default: array())
+ * @param string $name -- The post type's name.
+ * @param array $labels (optional) -- Any predefined labels.
  * @return array
  */
-function getPostTypeLabels($post_type, $labels = array()): array {
-	$name = ucwords(str_replace(
+function getPostTypeLabels(string $name, array $labels = array()): array {
+	$name_default = ucwords(str_replace(
 		array('_', '-'), ' ',
-		($post_type === 'media' ? $post_type : $post_type . 's')
+		($name === 'media' ? $name : $name . 's')
 	));
-	$name_singular = ucwords(str_replace(array('_', '-'), ' ', $post_type));
+	$name_singular = ucwords(str_replace(array('_', '-'), ' ', $name));
 	
 	$defaults = array(
-		'name' => $name,
-		'name_lowercase' => strtolower($name),
+		'name' => $name_default,
+		'name_lowercase' => strtolower($name_default),
 		'name_singular' => $name_singular,
-		'list_items' => 'List ' . $name,
+		'list_items' => 'List ' . $name_default,
 		'create_item' => 'Create ' . $name_singular,
 		'edit_item' => 'Edit ' . $name_singular,
 		'duplicate_item' => 'Duplicate ' . $name_singular
@@ -464,11 +458,10 @@ function getPostTypeLabels($post_type, $labels = array()): array {
  * Register a post type.
  * @since 1.0.0[b]
  *
- * @param string $name
- * @param array $args (optional; default: array())
+ * @param string $name -- The post type's name.
+ * @param array $args (optional) -- The args.
  */
-function registerPostType($name, $args = array()): void {
-	// Extend the Query object and the post types and taxonomies arrays
+function registerPostType(string $name, array $args = array()): void {
 	global $rs_query, $post_types, $taxonomies;
 	
 	if(!is_array($post_types)) $post_types = array();
@@ -478,10 +471,11 @@ function registerPostType($name, $args = array()): void {
 	if(empty($name) || strlen($name) > 20)
 		exit('A post type\'s name must be between 1 and 20 characters long.');
 	
-	// Check whether the name is already registered and don't bother to proceed if it is
+	// If the name is already registered, abort
 	if(isset($post_types[$name]) || isset($taxonomies[$name])) return;
 	
 	$defaults = array(
+		'slug' => $name,
 		'labels' => array(),
 		'public' => true,
 		'hierarchical' => false,
@@ -493,7 +487,7 @@ function registerPostType($name, $args = array()): void {
 		'menu_link' => 'posts.php?type=' . $name,
 		'menu_icon' => null,
 		'comments' => false,
-		'taxonomy' => ''
+		'taxonomies' => array()
 	);
 	$args = array_merge($defaults, $args);
 	
@@ -507,7 +501,7 @@ function registerPostType($name, $args = array()): void {
 	if(is_null($args['show_in_nav_menus'])) $args['show_in_nav_menus'] = $args['public'];
 	
 	$default_post_types = array('page', 'media', 'post', 'nav_menu_item', 'widget');
-	$args['default'] = in_array($name, $default_post_types, true) ? true : false;
+	$args['is_default'] = in_array($name, $default_post_types, true) ? true : false;
 	$args['name'] = $name;
 	$args['labels'] = getPostTypeLabels($name, $args['labels']);
 	$args['label'] = $args['labels']['name'];
@@ -578,16 +572,15 @@ function registerPostType($name, $args = array()): void {
  * Unregister a post type.
  * @since 1.0.5[b]
  *
- * @param string $name
+ * @param string $name -- The post type's name.
  */
-function unregisterPostType($name): void {
-	// Extend the Query object and the post types array
+function unregisterPostType(string $name): void {
 	global $rs_query, $post_types;
 	
 	$name = sanitize($name);
 	
 	// Delete the existing post type as long as it's not one of the defaults
-	if((postTypeExists($name) || array_key_exists($name, $post_types)) && !$post_types[$name]['default']) {
+	if((postTypeExists($name) || array_key_exists($name, $post_types)) && !$post_types[$name]['is_default']) {
 		$rs_query->delete('posts', array('type' => $name));
 		
 		$type = str_replace(' ', '_', $post_types[$name]['labels']['name_lowercase']);
@@ -625,7 +618,9 @@ function registerDefaultPostTypes(): void {
 		'menu_link' => 'posts.php',
 		'menu_icon' => 'newspaper',
 		'comments' => true,
-		'taxonomy' => 'category'
+		'taxonomies' => array(
+			'category'
+		)
 	));
 	
 	// Media
@@ -659,22 +654,22 @@ function registerDefaultPostTypes(): void {
  * Set all taxonomy labels.
  * @since 1.0.4[b]
  *
- * @param string $taxonomy
- * @param array $labels (optional; default: array())
+ * @param string $name -- The taxonomy's name.
+ * @param array $labels (optional) -- Any predefined labels.
  * @return array
  */
-function getTaxonomyLabels($taxonomy, $labels = array()): array {
-	$name = ucwords(str_replace(
+function getTaxonomyLabels(string $name, array $labels = array()): array {
+	$name_default = ucwords(str_replace(
 		array('_', '-'), ' ',
-		($taxonomy === 'category' ? 'Categories' : $taxonomy . 's')
+		($name === 'category' ? 'Categories' : $name . 's')
 	));
-	$name_singular = ucwords(str_replace(array('_', '-'), ' ', $taxonomy));
+	$name_singular = ucwords(str_replace(array('_', '-'), ' ', $name));
 	
 	$defaults = array(
-		'name' => $name,
-		'name_lowercase' => strtolower($name),
+		'name' => $name_default,
+		'name_lowercase' => strtolower($name_default),
 		'name_singular' => $name_singular,
-		'list_items' => 'List ' . $name,
+		'list_items' => 'List ' . $name_default,
 		'create_item' => 'Create ' . $name_singular,
 		'edit_item' => 'Edit ' . $name_singular,
 	);
@@ -687,12 +682,11 @@ function getTaxonomyLabels($taxonomy, $labels = array()): array {
  * Register a taxonomy.
  * @since 1.0.1[b]
  *
- * @param string $name
- * @param string $post_type
- * @param array $args (optional; default: array())
+ * @param string $name -- The taxonomy's name.
+ * @param string $post_type -- The associated post type.
+ * @param array $args (optional) -- The args.
  */
-function registerTaxonomy($name, $post_type, $args = array()): void {
-	// Extend the Query object and the taxonomies and post types arrays
+function registerTaxonomy(string $name, string $post_type, array $args = array()): void {
 	global $rs_query, $taxonomies, $post_types;
 	
 	if(!is_array($taxonomies)) $taxonomies = array();
@@ -702,7 +696,7 @@ function registerTaxonomy($name, $post_type, $args = array()): void {
 	if(empty($name) || strlen($name) > 20)
 		exit('A taxonomy\'s name must be between 1 and 20 characters long.');
 	
-	// Check whether the name is already registered and don't bother to proceed if it is
+	// If the name is already registered, abort
 	if(isset($taxonomies[$name]) || isset($post_types[$name])) return;
 	
 	$taxonomy = $rs_query->selectRow('taxonomies', '*', array('name' => $name));
@@ -711,6 +705,7 @@ function registerTaxonomy($name, $post_type, $args = array()): void {
 		$rs_query->insert('taxonomies', array('name' => $name));
 	
 	$defaults = array(
+		'slug' => $name,
 		'labels' => array(),
 		'public' => true,
 		'hierarchical' => false,
@@ -737,7 +732,7 @@ function registerTaxonomy($name, $post_type, $args = array()): void {
 	if(is_null($args['show_in_nav_menus'])) $args['show_in_nav_menus'] = $args['public'];
 	
 	$default_taxonomies = array('category', 'nav_menu');
-	$args['default'] = in_array($name, $default_taxonomies, true) ? true : false;
+	$args['is_default'] = in_array($name, $default_taxonomies, true) ? true : false;
 	$args['post_type'] = $post_type;
 	$args['name'] = $name;
 	$args['labels'] = getTaxonomyLabels($name, $args['labels']);
@@ -818,16 +813,15 @@ function registerTaxonomy($name, $post_type, $args = array()): void {
  * Unregister a taxonomy.
  * @since 1.0.5[b]
  *
- * @param string $name
+ * @param string $name -- The taxonomy's name.
  */
-function unregisterTaxonomy($name): void {
-	// Extend the Query object and the taxonomies array
+function unregisterTaxonomy(string $name): void {
 	global $rs_query, $taxonomies;
 	
 	$name = sanitize($name);
 	
 	// Delete the existing taxonomy as long as it's not one of the defaults
-	if((taxonomyExists($name) || array_key_exists($name, $taxonomies)) && !$taxonomies[$name]['default']) {
+	if((taxonomyExists($name) || array_key_exists($name, $taxonomies)) && !$taxonomies[$name]['is_default']) {
 		$terms = $rs_query->select('terms', 'id', array('taxonomy' => getTaxonomyId($name)));
 		
 		foreach($terms as $term) {
@@ -1116,22 +1110,30 @@ function putSetting($name): void {
  * Construct a permalink.
  * @since 2.2.2[a]
  *
- * @param string $type -- The post's type.
+ * @param string $name -- The post's name.
  * @param int $parent (optional) -- The post's parent.
  * @param string $slug (optional) -- The post's slug.
  * @return string
  */
-function getPermalink(string $type, int $parent = 0, string $slug = ''): string {
+function getPermalink(string $name, int $parent = 0, string $slug = ''): string {
 	global $rs_query, $post_types, $taxonomies;
 	
-	if(array_key_exists($type, $post_types)) {
+	if(array_key_exists($name, $post_types)) {
 		$table = 'posts';
 		
-		if($type !== 'post' && $type !== 'page')
-			$base = str_replace('_', '-', $type);
-	} elseif(array_key_exists($type, $taxonomies)) {
+		if($name !== 'post' && $name !== 'page') {
+			if($post_types[$name]['slug'] !== $name)
+				$base = str_replace('_', '-', $post_types[$name]['slug']);
+			else
+				$base = str_replace('_', '-', $name);
+		}
+	} elseif(array_key_exists($name, $taxonomies)) {
 		$table = 'terms';
-		$base = str_replace('_', '-', $type);
+		
+		if($taxonomies[$name]['slug'] !== $name)
+			$base = str_replace('_', '-', $taxonomies[$name]['slug']);
+		else
+			$base = str_replace('_', '-', $name);
 	}
 	
 	$permalink = array();
@@ -1279,11 +1281,10 @@ function getMedia($id, $args = array()): string {
  * Fetch a taxonomy's id.
  * @since 1.5.0[a]
  *
- * @param string $name
+ * @param string $name -- The taxonomy's name.
  * @return int
  */
-function getTaxonomyId($name): int {
-	// Extend the Query object
+function getTaxonomyId(string $name): int {
 	global $rs_query;
 	
 	$name = sanitize($name);

@@ -26,9 +26,25 @@ spl_autoload_register(function(string $class) {
  * @since 1.3.9[b]
  */
 function checkPHPVersion(): void {
-	if(version_compare(PHP_VERSION, PHP_MINIMUM, '<')) {
-		exit('<p>The minimum version of PHP that is supported by ' . CMS_ENGINE . ' is ' . PHP_MINIMUM . '; your server is running on ' . PHP_VERSION . '. Please upgrade to the minimum required version or higher to use this software.</p>');
-	}
+	$notice = 'The minimum version of PHP that is supported by ' . CMS_ENGINE . ' is ' . PHP_MINIMUM .
+		'; your server is running on ' . PHP_VERSION . '. ' .
+		'Please upgrade to the minimum required version or higher to use this software.';
+	
+	if(version_compare(PHP_VERSION, PHP_MINIMUM, '<'))
+		exit('<p>' . $notice . '</p>');
+}
+
+/**
+ * Make sure the database can be connected to.
+ * @since 1.0.0-alpha
+ */
+function checkDBStatus(): void {
+	global $rs_query;
+	
+	$notice = 'There is a problem with your database connection. Check your <code>config.php</code> file located in the <code>root</code> directory of your installation.';
+	
+	if(!$rs_query->conn_status)
+		exit('<p>' . $notice . '</p>');
 }
 
 /**

@@ -116,35 +116,71 @@ class Post implements AdminInterface {
 	private $tax_data = array();
 	
 	/**
+	 * The current action.
+	 * @since 1.3.13[b]
+	 *
+	 * @access private
+	 * @var string
+	 */
+	private $action;
+	
+	/**
+	 * The pagination.
+	 * @since 1.3.13[b]
+	 *
+	 * @access private
+	 * @var array
+	 */
+	private $paged = array();
+	
+	/**
+	 * The associated database table.
+	 * @since 1.3.13[b]
+	 *
+	 * @access private
+	 * @var string
+	 */
+	private $table = 'posts';
+	
+	/**
 	 * Class constructor.
 	 * @since 1.0.1[b]
 	 *
 	 * @access public
-	 * @param int $id (optional) -- The post's id.
+	 * @param int $id -- The post's id.
+	 * @param string $action -- The current action.
 	 * @param array $type_data (optional) -- The post type data.
 	 */
-	public function __construct(int $id = 0, array $type_data = array()) {
+	public function __construct(int $id, string $action, array $type_data = array()) {
 		global $rs_query, $taxonomies;
 		
+		$exclude = array('type_data', 'tax_data', 'action', 'paged', 'table');
 		$cols = array_keys(get_object_vars($this));
-		$exclude = array('type_data', 'tax_data');
 		$cols = array_diff($cols, $exclude);
+		$this->action = $action;
 		
-		if($id !== 0) {
-			$post = $rs_query->selectRow('posts', $cols, array('id' => $id));
+		if($id > 0) {
+			$post = $rs_query->selectRow($this->table, $cols, array(
+				'id' => $id
+			));
 			
-			// Set the class variable values
 			foreach($post as $key => $value) $this->$key = $post[$key];
 		}
 		
 		$this->type_data = $type_data;
 		
 		// Fetch any associated taxonomy data
-		if(!empty($this->type_data['taxonomy']) &&
-			array_key_exists($this->type_data['taxonomy'], $taxonomies)) {
-				$this->tax_data = $taxonomies[$this->type_data['taxonomy']];
+		if(!empty($this->type_data['taxonomies'])) {
+			foreach($this->type_data['taxonomies'] as $tax) {
+				if(array_key_exists($tax, $taxonomies))
+					$this->tax_data[] = $taxonomies[$tax];
+			}
 		}
 	}
+	
+	/*------------------------------------*\
+		LISTS & FORMS
+	\*------------------------------------*/
 	
 	/**
 	 * Construct a list of all posts in the database.
@@ -160,85 +196,10 @@ class Post implements AdminInterface {
 		$status = $_GET['status'] ?? 'all';
 		$search = $_GET['search'] ?? null;
 		$term = $_GET['term'] ?? '';
-		$paged = paginate((int)($_GET['paged'] ?? 1));
+		$this->paged = paginate((int)($_GET['paged'] ?? 1));
+		
+		$this->pageHeading();
 		?>
-		<div class="heading-wrap">
-			<h1><?php echo $this->type_data['label']; ?></h1>
-			<?php
-			// Check whether the user has sufficient privileges to create posts of the current type
-			if(userHasPrivilege('can_create_' . str_replace(' ', '_',
-				$this->type_data['labels']['name_lowercase']))) {
-					
-				echo actionLink('create', array(
-					'type' => ($type === 'post' ? null : $type),
-					'classes' => 'button',
-					'caption' => 'Create New'
-				));
-			}
-			
-			recordSearch(array(
-				'type' => $type,
-				'status' => $status
-			));
-			adminInfo();
-			?>
-			<hr>
-			<?php
-			if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success') {
-				echo exitNotice('The ' . strtolower($this->type_data['labels']['name_singular']) .
-					' was successfully deleted.');
-			}
-			?>
-			<ul class="status-nav">
-				<?php
-				$keys = array('all', 'published', 'draft', 'private', 'trash');
-				$count = array();
-				
-				foreach($keys as $key) {
-					if($key === 'all') {
-						if(!is_null($search) && $key === $status)
-							$count[$key] = $this->getPostCount($type, '', $search);
-						else
-							$count[$key] = $this->getPostCount($type);
-					} else {
-						if(!is_null($search) && $key === $status)
-							$count[$key] = $this->getPostCount($type, $key, $search);
-						else
-							$count[$key] = $this->getPostCount($type, $key);
-					}
-				}
-				
-				foreach($count as $key => $value) {
-					echo domTag('li', array(
-						'content' => domTag('a', array(
-							'href' => ADMIN_URI . '?type=' . $type . ($key === 'all' ? '' : '&status=' . $key),
-							'content' => ucfirst($key) . ' ' . domTag('span', array(
-								'class' => 'count',
-								'content' => '(' . $value . ')'
-							))
-						))
-					));
-					
-					if($key !== array_key_last($count)) {
-						?> &bull; <?php
-					}
-				}
-				?>
-			</ul>
-			<?php $paged['count'] = ceil($count[$status] / $paged['per_page']); ?>
-			<div class="entry-count status">
-				<?php
-				if(!empty($term)) {
-					$t = str_replace('-', '_', $term);
-					$count[$t] = $this->getPostCount($type, '', '', $term);
-					
-					echo $count[$t] . ' ' . ($count[$t] === 1 ? 'entry' : 'entries');
-				} else {
-					echo $count[$status] . ' ' . ($count[$status] === 1 ? 'entry' : 'entries');
-				}
-				?>
-			</div>
-		</div>
 		<table class="data-table has-bulk-select">
 			<thead>
 				<?php
@@ -256,7 +217,7 @@ class Post implements AdminInterface {
 						'Meta Desc.'
 					);
 					
-					// Insert the comments label into the array if comments are enabled
+					// Add a label for comments if they're enabled
 					if(getSetting('enable_comments') && $this->type_data['comments'])
 						array_splice($table_header_cols, 5, 0, 'Comments');
 				} else {
@@ -272,13 +233,19 @@ class Post implements AdminInterface {
 						'Meta Desc.'
 					);
 					
-					// Insert the comments label into the array if comments are enabled
+					// Add a label for comments if they're enabled
 					if(getSetting('enable_comments') && $this->type_data['comments'])
 						array_splice($table_header_cols, 4, 0, 'Comments');
 					
-					// Insert the taxonomy label into the array if the post type has an associated taxonomy
-					if(!empty($this->tax_data))
-						array_splice($table_header_cols, 3, 0, $this->tax_data['label']);
+					// Add labels for any associated taxonomies
+					if(!empty($this->tax_data)) {
+						$i = 3;
+						
+						foreach($this->tax_data as $tax) {
+							array_splice($table_header_cols, $i, 0, $tax['label']);
+							$i++;
+						}
+					}
 				}
 				
 				echo tableHeaderRow($table_header_cols);
@@ -312,24 +279,24 @@ class Post implements AdminInterface {
 					}
 					
 					// Term results
-					$posts = $rs_query->select('posts', '*', array(
+					$posts = $rs_query->select($this->table, '*', array(
 						'id' => $post_ids,
 						'status' => $db_status,
 						'type' => $type
-					), $order_by, $order, array($paged['start'], $paged['per_page']));
+					), $order_by, $order, array($this->paged['start'], $this->paged['per_page']));
 				} elseif(!is_null($search)) {
 					// Search results
-					$posts = $rs_query->select('posts', '*', array(
+					$posts = $rs_query->select($this->table, '*', array(
 						'title' => array('LIKE', '%' . $search . '%'),
 						'status' => $db_status,
 						'type' => $type
-					), $order_by, $order, array($paged['start'], $paged['per_page']));
+					), $order_by, $order, array($this->paged['start'], $this->paged['per_page']));
 				} else {
 					// All results
-					$posts = $rs_query->select('posts', '*', array(
+					$posts = $rs_query->select($this->table, '*', array(
 						'status' => $db_status,
 						'type' => $type
-					), $order_by, $order, array($paged['start'], $paged['per_page']));
+					), $order_by, $order, array($this->paged['start'], $this->paged['per_page']));
 				}
 				
 				foreach($posts as $post) {
@@ -345,6 +312,17 @@ class Post implements AdminInterface {
 							break;
 					}
 					
+					// Terms
+					$terms = array();
+					
+					if(!$this->type_data['hierarchical'] && !empty($this->tax_data)) {
+						foreach($this->tax_data as $tax)
+							$terms[] = tdCell($this->getTerms($tax['name'], $post['id']), 'terms');
+					}
+					
+					$term_cols = implode('', $terms);
+					
+					// Action links
 					$actions = array(
 						// Edit
 						userHasPrivilege('can_edit_' . $type_name) && $status !== 'trash' ?
@@ -414,8 +392,7 @@ class Post implements AdminInterface {
 						// Author
 						tdCell($this->getAuthor($post['author']), 'author'),
 						// Terms (hierarchical post types only)
-						!$this->type_data['hierarchical'] && !empty($this->type_data['taxonomy']) ?
-							tdCell($this->getTerms($post['id']), 'terms') : '',
+						$term_cols,
 						// Publish date
 						tdCell(is_null($post['date']) ? '&mdash;' :
 							formatDate($post['date'], 'd M Y @ g:i A'), 'publish-date'),
@@ -447,7 +424,7 @@ class Post implements AdminInterface {
 		if(!empty($posts)) $this->bulkActions();
 		
 		// Set up page navigation
-		echo pagerNav($paged['current'], $paged['count']);
+		echo pagerNav($this->paged['current'], $this->paged['count']);
 		
         include_once PATH . ADMIN . INC . '/modal-delete.php';
 	}
@@ -461,13 +438,8 @@ class Post implements AdminInterface {
 	public function createRecord(): void {
 		$type = $this->type_data['name'];
 		
-		// Validate the form data and return any messages
-		$message = isset($_POST['submit']) ? $this->validateData($_POST, $_GET['action']) : '';
+		$this->pageHeading();
 		?>
-		<div class="heading-wrap">
-			<h1><?php echo $this->type_data['labels']['create_item']; ?></h1>
-			<?php echo $message; ?>
-		</div>
 		<div class="data-form-wrap clear">
 			<form class="data-form" action="" method="post" autocomplete="off">
 				<div class="content">
@@ -621,17 +593,19 @@ class Post implements AdminInterface {
 						<?php
 					} else {
 						if(!empty($this->tax_data)) {
-							?>
-							<div class="block">
-								<h2><?php echo $this->tax_data['label']; ?></h2>
-								<div class="row">
-									<?php
-									// Terms list
-									echo $this->getTermsList();
-									?>
+							foreach($this->tax_data as $tax) {
+								?>
+								<div class="block">
+									<h2><?php echo $tax['label']; ?></h2>
+									<div class="row">
+										<?php
+										// Terms list
+										echo $this->getTermsList($tax['name']);
+										?>
+									</div>
 								</div>
-							</div>
-							<?php
+								<?php
+							}
 						}
 					}
 					
@@ -784,18 +758,13 @@ class Post implements AdminInterface {
 					redirect(ADMIN_URI . ($this->type !== 'post' ? '?type=' . $this->type . '&' : '?') .
 						'status=trash');
 				} else {
-					// Validate the form data and return any messages
-					$message = isset($_POST['submit']) ? $this->validateData($_POST, $_GET['action'], $this->id) : '';
-					
 					$meta = $this->getPostMeta($this->id);
 					
 					if(!empty($meta['feat_image']))
 						list($width, $height) = getimagesize(PATH . getMediaSrc($meta['feat_image']));
+					
+					$this->pageHeading();
 					?>
-					<div class="heading-wrap">
-						<h1><?php echo $this->type_data['labels']['edit_item']; ?></h1>
-						<?php echo $message; ?>
-					</div>
 					<div class="data-form-wrap clear">
 						<form class="data-form" action="" method="post" autocomplete="off">
 							<div class="content">
@@ -996,17 +965,19 @@ class Post implements AdminInterface {
 									<?php
 								} else {
 									if(!empty($this->tax_data)) {
-										?>
-										<div class="block">
-											<h2><?php echo $this->tax_data['label']; ?></h2>
-											<div class="row">
-												<?php
-												// Terms list
-												echo $this->getTermsList($this->id);
-												?>
+										foreach($this->tax_data as $tax) {
+											?>
+											<div class="block">
+												<h2><?php echo $tax['label']; ?></h2>
+												<div class="row">
+													<?php
+													// Terms list
+													echo $this->getTermsList($tax['name'], $this->id);
+													?>
+												</div>
 											</div>
-										</div>
-										<?php
+											<?php
+										}
 									}
 								}
 								
@@ -1164,13 +1135,8 @@ class Post implements AdminInterface {
 					redirect(ADMIN_URI . ($this->type !== 'post' ? '?type=' . $this->type . '&' : '?') .
 						'status=trash');
 				} else {
-					// Validate the form data and return any messages
-					$message = isset($_POST['submit']) ? $this->validateData($_POST, $_GET['action'], $this->id) : '';
+					$this->pageHeading();
 					?>
-					<div class="heading-wrap">
-						<h1><?php echo $this->type_data['labels']['duplicate_item']; ?></h1>
-						<?php echo $message; ?>
-					</div>
 					<div class="data-form-wrap clear">
 						<form class="data-form" action="" method="post" autocomplete="off">
 							<table class="form-table">
@@ -1241,26 +1207,26 @@ class Post implements AdminInterface {
 		if(empty($this->id) || $this->id <= 0) {
 			redirect(ADMIN_URI);
 		} else {
-			$type = $rs_query->selectField('posts', 'type', array('id' => $this->id));
+			$type = $rs_query->selectField($this->table, 'type', array('id' => $this->id));
 			
 			if($type === $this->type_data['name']) {
 				if($status === 'published' || $status === 'private') {
-					$db_status = $rs_query->selectField('posts', 'status', array('id' => $this->id));
+					$db_status = $rs_query->selectField($this->table, 'status', array('id' => $this->id));
 					
 					if($db_status !== $status) {
-						$rs_query->update('posts', array(
+						$rs_query->update($this->table, array(
 							'date' => 'NOW()',
 							'status' => $status
 						), array('id' => $this->id));
 					} else {
-						$rs_query->update('posts', array(
+						$rs_query->update($this->table, array(
 							'status' => $status
 						), array(
 							'id' => $this->id
 						));
 					}
 				} else {
-					$rs_query->update('posts', array(
+					$rs_query->update($this->table, array(
 						'date' => null,
 						'status' => $status
 					), array('id' => $this->id));
@@ -1305,7 +1271,7 @@ class Post implements AdminInterface {
 		if(empty($this->id) || $this->id <= 0) {
 			redirect(ADMIN_URI);
 		} else {
-			$rs_query->delete('posts', array('id' => $this->id));
+			$rs_query->delete($this->table, array('id' => $this->id));
 			$rs_query->delete('postmeta', array('post' => $this->id));
 			
 			$relationships = $rs_query->select('term_relationships', '*', array(
@@ -1334,7 +1300,7 @@ class Post implements AdminInterface {
 			
 			// Set any menu items associated with the post to invalid
 			foreach($menu_items as $menu_item) {
-				$rs_query->update('posts',
+				$rs_query->update($this->table,
 					array('status' => 'invalid'),
 					array('id' => $menu_item['post'])
 				);
@@ -1345,17 +1311,20 @@ class Post implements AdminInterface {
 		}
 	}
 	
+	/*------------------------------------*\
+		VALIDATION
+	\*------------------------------------*/
+	
 	/**
 	 * Validate the form data.
 	 * @since 1.4.7[a]
 	 *
 	 * @access private
 	 * @param array $data -- The submission data.
-	 * @param string $action -- The current action.
 	 * @param int $id (optional) -- The post's id.
 	 * @return string
 	 */
-	private function validateData(array $data, string $action, int $id = 0): string {
+	private function validateSubmission(array $data, int $id = 0): string {
 		global $rs_query;
 		
 		if(empty($data['title']) || empty($data['slug']))
@@ -1366,9 +1335,9 @@ class Post implements AdminInterface {
 		if($this->slugExists($slug, $id))
 			$slug = getUniquePostSlug($slug);
 		
-		if($action === 'duplicate') {
+		if($this->action === 'duplicate') {
 			// Fetch the old post data for duplication
-			$old_post = $rs_query->selectRow('posts', '*', array('id' => $id));
+			$old_post = $rs_query->selectRow($this->table, '*', array('id' => $id));
 			$old_postmeta = $rs_query->select('postmeta', '*', array('post' => $id));
 			$old_term_relationships = $rs_query->select('term_relationships', '*', array(
 				'post' => $id
@@ -1401,7 +1370,7 @@ class Post implements AdminInterface {
 				$postmeta['comment_status'] = isset($data['comments']) ? 1 : 0;
 		}
 		
-		switch($action) {
+		switch($this->action) {
 			case 'create':
 				// Check whether a date has been provided and is valid
 				if(!empty($data['date'][0]) && !empty($data['date'][1]) && $data['date'][0] >= '1000-01-01')
@@ -1411,7 +1380,7 @@ class Post implements AdminInterface {
 				
 				if(!$this->type_data['hierarchical']) $data['parent'] = 0;
 				
-				$insert_id = $rs_query->insert('posts', array(
+				$insert_id = $rs_query->insert($this->table, array(
 					'title' => $data['title'],
 					'author' => $data['author'],
 					'date' => ($is_published ? $data['date'] : null),
@@ -1458,7 +1427,7 @@ class Post implements AdminInterface {
 				
 				if(!$this->type_data['hierarchical']) $data['parent'] = 0;
 				
-				$rs_query->update('posts', array(
+				$rs_query->update($this->table, array(
 					'title' => $data['title'],
 					'author' => $data['author'],
 					'date' => ($is_published ? $data['date'] : null),
@@ -1520,7 +1489,7 @@ class Post implements AdminInterface {
 					$this->type) . '">Return to list</a>?');
 				break;
 			case 'duplicate':
-				$insert_id = $rs_query->insert('posts', array(
+				$insert_id = $rs_query->insert($this->table, array(
 					'title' => $data['title'],
 					'author' => $old_post['author'],
 					'date' => null,
@@ -1561,6 +1530,132 @@ class Post implements AdminInterface {
 		}
 	}
 	
+	/*------------------------------------*\
+		MISCELLANEOUS
+	\*------------------------------------*/
+	
+	/**
+	 * Construct the page heading.
+	 * @since 1.3.13[b]
+	 *
+	 * @access public
+	 */
+	public function pageHeading(): void {
+		switch($this->action) {
+			case 'create':
+				$title = $this->type_data['labels']['create_item'];
+				$message = isset($_POST['submit']) ? $this->validateSubmission($_POST) : '';
+				break;
+			case 'edit':
+				$title = $this->type_data['labels']['edit_item'];
+				$message = isset($_POST['submit']) ? $this->validateSubmission($_POST, $this->id) : '';
+				break;
+			case 'duplicate':
+				$title = $this->type_data['labels']['duplicate_item'];
+				$message = isset($_POST['submit']) ? $this->validateSubmission($_POST, $this->id) : '';
+				break;
+			default:
+				$title = $this->type_data['label'];
+				$type = $this->type_data['name'];
+				$status = $_GET['status'] ?? 'all';
+				$search = $_GET['search'] ?? null;
+				$term = $_GET['term'] ?? '';
+		}
+		?>
+		<div class="heading-wrap">
+			<?php
+			// Page title
+			echo domTag('h1', array(
+				'content' => $title
+			));
+			
+			if(!empty($this->action)) {
+				// Status messages
+				echo $message;
+			} else {
+				// Create button
+				if(userHasPrivilege('can_create_' . str_replace(' ', '_',
+					$this->type_data['labels']['name_lowercase']))
+				) {
+					echo actionLink('create', array(
+						'type' => ($type === 'post' ? null : $type),
+						'classes' => 'button',
+						'caption' => 'Create New'
+					));
+				}
+				
+				// Search
+				recordSearch(array(
+					'type' => $type,
+					'status' => $status
+				));
+				
+				// Info
+				adminInfo();
+				?>
+				<hr>
+				<?php
+				if(isset($_GET['exit_status']) && $_GET['exit_status'] === 'success') {
+					echo exitNotice('The ' . strtolower($this->type_data['labels']['name_singular']) .
+						' was successfully deleted.');
+				}
+				?>
+				<ul class="status-nav">
+					<?php
+					$keys = array('all', 'published', 'draft', 'private', 'trash');
+					$count = array();
+					
+					foreach($keys as $key) {
+						if($key === 'all') {
+							if(!is_null($search) && $key === $status)
+								$count[$key] = $this->getPostCount($type, '', $search);
+							else
+								$count[$key] = $this->getPostCount($type);
+						} else {
+							if(!is_null($search) && $key === $status)
+								$count[$key] = $this->getPostCount($type, $key, $search);
+							else
+								$count[$key] = $this->getPostCount($type, $key);
+						}
+					}
+					
+					foreach($count as $key => $value) {
+						echo domTag('li', array(
+							'content' => domTag('a', array(
+								'href' => ADMIN_URI . '?type=' . $type . ($key === 'all' ? '' : '&status=' . $key),
+								'content' => ucfirst($key) . ' ' . domTag('span', array(
+									'class' => 'count',
+									'content' => '(' . $value . ')'
+								))
+							))
+						));
+						
+						if($key !== array_key_last($count)) {
+							?> &bull; <?php
+						}
+					}
+					?>
+				</ul>
+				<div class="entry-count status">
+					<?php
+					if(!empty($term)) {
+						$t = str_replace('-', '_', $term);
+						$count[$t] = $this->getPostCount($type, '', '', $term);
+						
+						echo $count[$t] . ' ' . ($count[$t] === 1 ? 'entry' : 'entries');
+					} else {
+						echo $count[$status] . ' ' . ($count[$status] === 1 ? 'entry' : 'entries');
+					}
+					?>
+				</div>
+				<?php
+				$this->paged['count'] = ceil($count[$status] / $this->paged['per_page']);
+			}
+			?>
+		</div>
+		<?php
+	}
+	
 	/**
 	 * Check whether a slug exists in the database.
 	 * @since 1.4.8[a]
@@ -1574,9 +1669,9 @@ class Post implements AdminInterface {
 		global $rs_query;
 		
 		if($id === 0) {
-			return $rs_query->selectRow('posts', 'COUNT(slug)', array('slug' => $slug)) > 0;
+			return $rs_query->selectRow($this->table, 'COUNT(slug)', array('slug' => $slug)) > 0;
 		} else {
-			return $rs_query->selectRow('posts', 'COUNT(slug)', array(
+			return $rs_query->selectRow($this->table, 'COUNT(slug)', array(
 				'slug' => $slug,
 				'id' => array('<>', $id)
 			)) > 0;
@@ -1594,7 +1689,7 @@ class Post implements AdminInterface {
 	private function isTrash(int $id): bool {
 		global $rs_query;
 		
-		return $rs_query->selectField('posts', 'status', array('id' => $id)) === 'trash';
+		return $rs_query->selectField($this->table, 'status', array('id' => $id)) === 'trash';
 	}
 	
 	/**
@@ -1610,7 +1705,7 @@ class Post implements AdminInterface {
 		global $rs_query;
 		
 		do {
-			$parent = $rs_query->selectField('posts', 'parent', array('id' => $id));
+			$parent = $rs_query->selectField($this->table, 'parent', array('id' => $id));
 			$id = (int)$parent;
 			
 			if($id === $ancestor) return true;
@@ -1721,10 +1816,11 @@ class Post implements AdminInterface {
 	 * @since 1.5.0[a]
 	 *
 	 * @access private
+	 * @param string $taxonomy -- The term's taxonomy.
 	 * @param int $id -- The post's id.
 	 * @return string
 	 */
-	private function getTerms(int $id): string {
+	private function getTerms(string $taxonomy, int $id): string {
 		global $rs_query;
 		
 		$terms = array();
@@ -1733,13 +1829,15 @@ class Post implements AdminInterface {
 		foreach($relationships as $relationship) {
 			$term = $rs_query->selectRow('terms', '*', array(
 				'id' => $relationship['term'],
-				'taxonomy' => getTaxonomyId($this->tax_data['name'])
+				'taxonomy' => getTaxonomyId($taxonomy)
 			));
 			
-			$terms[] = domTag('a', array(
-				'href' => getPermalink($this->tax_data['name'], $term['parent'], $term['slug']),
-				'content' => $term['name']
-			));
+			if($term) {
+				$terms[] = domTag('a', array(
+					'href' => getPermalink($taxonomy, $term['parent'], $term['slug']),
+					'content' => $term['name']
+				));
+			}
 		}
 		
 		return empty($terms) ? '&mdash;' : implode(', ', $terms);
@@ -1750,15 +1848,16 @@ class Post implements AdminInterface {
 	 * @since 1.5.2[a]
 	 *
 	 * @access private
+	 * @param string $taxonomy -- The term's taxonomy.
 	 * @param int $id (optional) -- The post's id.
 	 * @return string
 	 */
-	private function getTermsList(int $id = 0): string {
-		global $rs_query;
+	private function getTermsList(string $taxonomy, int $id = 0): string {
+		global $rs_query, $taxonomies;
 		
 		$list = '<ul id="terms-list">';
 		$terms = $rs_query->select('terms', array('id', 'name', 'slug'), array(
-			'taxonomy' => getTaxonomyId($this->tax_data['name'])
+			'taxonomy' => getTaxonomyId($taxonomy)
 		), 'name');
 		
 		foreach($terms as $term) {
@@ -1767,21 +1866,23 @@ class Post implements AdminInterface {
 				'post' => $id
 			));
 			
-			$list .= '<li>' . domTag('input', array(
-				'type' => 'checkbox',
-				'class' => 'checkbox-input',
-				'name' => 'terms[]',
-				'value' => $term['id'],
-				'checked' => ($relationship || ($id === 0 &&
-					$term['slug'] === $this->tax_data['default_term']['slug'])
-				),
-				'label' => array(
-					'class' => 'checkbox-label',
-					'content' => domTag('span', array(
-						'content' => $term['name']
-					))
-				)
-			)) . '</li>';
+			$list .= domTag('li', array(
+				'content' => domTag('input', array(
+					'type' => 'checkbox',
+					'class' => 'checkbox-input',
+					'name' => 'terms[]',
+					'value' => $term['id'],
+					'checked' => ($relationship || ($id === 0 &&
+						$term['slug'] === $taxonomies[$taxonomy]['default_term']['slug'])
+					),
+					'label' => array(
+						'class' => 'checkbox-label',
+						'content' => domTag('span', array(
+							'content' => $term['name']
+						))
+					)
+				))
+			));
 		}
 		
 		$list .= '</ul>';
@@ -1800,7 +1901,7 @@ class Post implements AdminInterface {
 	private function getParent(int $id): string {
 		global $rs_query;
 		
-		$parent = $rs_query->selectField('posts', 'title', array('id' => $id));
+		$parent = $rs_query->selectField($this->table, 'title', array('id' => $id));
 		
 		return empty($parent) ? '&mdash;' : $parent;
 	}
@@ -1819,7 +1920,7 @@ class Post implements AdminInterface {
 		global $rs_query;
 		
 		$list = '';
-		$posts = $rs_query->select('posts', array('id', 'title'), array(
+		$posts = $rs_query->select($this->table, array('id', 'title'), array(
 			'status' => array('<>', 'trash'),
 			'type' => $type
 		));
@@ -1920,19 +2021,19 @@ class Post implements AdminInterface {
 				$post_ids = 0;
 			}
 			
-			return $rs_query->select('posts', 'COUNT(*)', array(
+			return $rs_query->select($this->table, 'COUNT(*)', array(
 				'id' => $post_ids,
 				'status' => $db_status,
 				'type' => $type
 			));
 		} elseif(!empty($search)) {
-			return $rs_query->select('posts', 'COUNT(*)', array(
+			return $rs_query->select($this->table, 'COUNT(*)', array(
 				'title' => array('LIKE', '%' . $search . '%'),
 				'status' => $db_status,
 				'type' => $type
 			));
 		} else {
-			return $rs_query->select('posts', 'COUNT(*)', array(
+			return $rs_query->select($this->table, 'COUNT(*)', array(
 				'status' => $db_status,
 				'type' => $type
 			));

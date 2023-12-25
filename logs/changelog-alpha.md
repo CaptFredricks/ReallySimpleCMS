@@ -12,7 +12,7 @@
 - x.X.x (feature update release)
 - x.x.X (standard/minor release)
 - x.x.x.X (bug fix/emergency patch release)
-- x.x.x{ss-xx} (snapshot release)
+- x.x.x_snap-xx (snapshot release)
 
 **Other**
 - [a] = alpha
@@ -2263,12 +2263,13 @@
 - Added a line of documentation to `init.php`
 - Removed `PATH` from the `UPLOADS` filepath
 - Added `__DIR__` to the admin `index.php` require statements
+- Changed the format of versions from `Alpha x.x.x` to `x.x.x[a]`
 
 **Modified files:**
 - admin/index.php (M)
 - init.php (M)
 
-## Version 1.3.5[a] (2019-03-26)
+## Version Alpha 1.3.5 (2019-03-26)
 
 - Moved `Query` object initialization to `init.php`
 - Added `config.php` to `.gitignore` (prevents issues arising with db configs on different clients)
@@ -2292,7 +2293,7 @@
 - init.php
 - login.php
 
-## Version 1.3.4[a] (2019-03-24)
+## Version Alpha 1.3.4 (2019-03-24)
 
 - Created `LICENSE` and `README` files
 - Created a `.gitignore` file (added `LICENSE` and `todo.txt`)
@@ -2302,7 +2303,7 @@
 - LICENSE.md (N)
 - README.md (N)
 
-## Version 1.3.3[a] (2019-03-22)
+## Version Alpha 1.3.3 (2019-03-22)
 
 - Created content directory
 - Created CSS and JS files in the content directory for later use
@@ -2339,14 +2340,14 @@
 - init.php
 - login.php (N)
 
-## Version 1.3.2[a] (2019-03-20)
+## Version Alpha 1.3.2 (2019-03-20)
 
 - Moved `change.log` to its own directory (`includes/logs`)
 
 **Modified files:**
 - n/a
 
-## Version 1.3.1[a] (2019-03-19)
+## Version Alpha 1.3.1 (2019-03-19)
 
 - Fixed a file path issue in the `functions.php` file
 - A trailing slash can now be easily added to the end of specified text strings
@@ -2370,7 +2371,7 @@
 - admin/setup.php (M)
 - includes/config-setup.php (M)
 
-## Version 1.3.0[a] (2019-03-18)
+## Version Alpha 1.3.0 (2019-03-18)
 
 - Created a file that initialize the CMS
 - Added `__DIR__` to require statements
@@ -2404,7 +2405,7 @@
 - index.php (M)
 - init.php (N)
 
-## Version 1.2.6[a] (2019-03-12)
+## Version Alpha 1.2.6 (2019-03-12)
 
 - Created a database schema
 - Created an admin "General Settings" page
@@ -2415,7 +2416,7 @@
 - admin/settings.php (N)
 - includes/schema.php (N)
 
-## Version 1.2.5[a] (2019-03-08)
+## Version Alpha 1.2.5 (2019-03-08)
 
 - Statistics data can now be dynamically fetched for the dashboard stats graph
 - Text strings can now be trimmed down to a specific number of words.
@@ -2430,7 +2431,7 @@
 - admin/includes/functions.php
 - admin/index.php
 
-## Version 1.2.4[a] (2019-02-26)
+## Version Alpha 1.2.4 (2019-02-26)
 
 - The admin user's password is now verified with what's in the database when they reset another user's password
 - Created function that retrieves a user's avatar
@@ -2448,7 +2449,7 @@
 - includes/class-query.php (M)
 - includes/globals.php (M)
 
-## Version 1.2.3[a] (2019-02-22)
+## Version Alpha 1.2.3 (2019-02-22)
 
 - Users can now be edited and deleted
 - Admin users can now reset the passwords of other users
@@ -2459,7 +2460,7 @@
 - admin/includes/class-user.php
 - admin/users.php
 
-## Version 1.2.2[a] (2019-02-21)
+## Version Alpha 1.2.2 (2019-02-21)
 
 - Added more documentation
 - User metadata can now be dynamically fetched from the database
@@ -2472,7 +2473,7 @@
 - includes/class-query.php (M)
 - includes/globals.php (M)
 
-## Version 1.2.1[a] (2019-02-20)
+## Version Alpha 1.2.1 (2019-02-20)
 
 - Added more documentation
 - A list of all users in the database can now be viewed
@@ -2491,7 +2492,7 @@
 - admin/users.php
 - includes/class-query.php (M)
 
-## Version 1.2.0[a] (2019-02-19)
+## Version Alpha 1.2.0 (2019-02-19)
 
 - Added CMS copyright and version to the admin footer
 - Created a file to hold globally-scoped functions
@@ -2512,7 +2513,7 @@
 - includes/config.php (M)
 - includes/globals.php (N)
 
-## Version 1.1.2[a] (2019-02-18)
+## Version Alpha 1.1.2 (2019-02-18)
 
 - Form rows can now be created dynamically
 - Started work on the "Create User" form
@@ -2525,7 +2526,7 @@
 - admin/includes/functions.php
 - admin/users.php
 
-## Version 1.1.1[a] (2019-02-11)
+## Version Alpha 1.1.1 (2019-02-11)
 
 - Minor updates to the `Query::select` function
 - Single rows can now be queried from the database using the `Query` class
@@ -2535,7 +2536,7 @@
 **Modified files:**
 - includes/class-query.php
 
-## Version 1.1.0[a] (2019-02-07)
+## Version Alpha 1.1.0 (2019-02-07)
 
 - Rebuilt the functions for the `SELECT`, `INSERT`, and `UPDATE` statements
 - Created a file to store deprecated functions (for potential future use)
@@ -2555,7 +2556,7 @@
 - includes/deprecated.php (N)
 - includes/functions.php (M)
 
-## Version 1.0.3[a] (2019-02-04)
+## Version Alpha 1.0.3 (2019-02-04)
 
 - Renamed some functions in the `Query` class
 - Added error checking for SQL queries
@@ -2569,7 +2570,7 @@
 - includes/class-query.php
 - includes/functions.php (M)
 
-## Version 1.0.2[a] (2019-01-17)
+## Version Alpha 1.0.2 (2019-01-17)
 
 - Created and tested basic functionality for the `UPDATE` query statement
 - Created a class for retrieving post data
@@ -2592,7 +2593,7 @@
 - includes/functions.php (M)
 - index.php (M)
 
-## Version 1.0.1[a] (2019-01-15)
+## Version Alpha 1.0.1 (2019-01-15)
 
 - Created a changelog for tracking project milestones (`change.log` will henceforth be omitted from list of modified files)
 - Created a file with basic debugging functions
@@ -2608,7 +2609,7 @@
 - includes/debug.php (N)
 - includes/functions.php (M)
 
-## Version 1.0.0[a] (2019-01-14)
+## Version Alpha 1.0.0 (2019-01-14)
 
 - Set up the database and tables
 - Created most of the necessary core files

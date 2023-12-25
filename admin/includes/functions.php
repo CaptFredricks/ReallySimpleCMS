@@ -344,17 +344,33 @@ function adminNavMenu(): void {
 	// Dashboard
 	adminNavMenuItem(array('id' => 'dashboard', 'link' => 'index.php'), array(), 'gauge-high');
 	
-	// Pages/posts/media/CPTs
+	// Post types
 	foreach($post_types as $post_type) {
 		if(!$post_type['show_in_admin_menu']) continue;
 		
 		$id = str_replace(' ', '_', $post_type['labels']['name_lowercase']);
 		
-		if(!empty($post_type['taxonomy']) && array_key_exists($post_type['taxonomy'], $taxonomies))
-			$tax_id = str_replace(' ', '_', $taxonomies[$post_type['taxonomy']]['labels']['name_lowercase']);
-		
 		if(userHasPrivilege('can_view_' . $id)) {
-			adminNavMenuItem(array('id' => $id), array( // Submenu
+			// Taxonomies
+			$taxes = array();
+			
+			if(!empty($post_type['taxonomies'])) {
+				foreach($post_type['taxonomies'] as $tax) {
+					if(array_key_exists($tax, $taxonomies)) {
+						$tax_id = str_replace(' ', '_', $taxonomies[$tax]['labels']['name_lowercase']);
+						
+						if(userHasPrivilege('can_view_' . $tax_id) && $taxonomies[$tax]['show_in_admin_menu']) {
+							$taxes[] = array(
+								'id' => $tax_id,
+								'link' => $taxonomies[$tax]['menu_link'],
+								'caption' => $taxonomies[$tax]['labels']['list_items']
+							);
+						}
+					}
+				}
+			}
+			
+			$submenu = array(
 				array( // List <post_type>
 					'link' => $post_type['menu_link'],
 					'caption' => $post_type['labels']['list_items']
@@ -365,16 +381,11 @@ function adminNavMenu(): void {
 					'link' => $post_type['menu_link'] . ($post_type['name'] === 'media' ? '?action=upload' :
 						($post_type['name'] === 'post' ? '?action=create' : '&action=create')),
 					'caption' => $post_type['labels']['create_item']
-				) : null),
-				(!empty($post_type['taxonomy']) && array_key_exists($post_type['taxonomy'], $taxonomies) &&
-					userHasPrivilege('can_view_' . $tax_id) &&
-					$taxonomies[$post_type['taxonomy']]['show_in_admin_menu'] ?
-				array( // Taxonomy
-					'id' => $tax_id,
-					'link' => $taxonomies[$post_type['taxonomy']]['menu_link'],
-					'caption' => $taxonomies[$post_type['taxonomy']]['labels']['list_items']
 				) : null)
-			), $post_type['menu_icon']);
+			);
+			$submenu = array_merge($submenu, $taxes);
+			
+			adminNavMenuItem(array('id' => $id), $submenu, $post_type['menu_icon']);
 		}
 	}
 	

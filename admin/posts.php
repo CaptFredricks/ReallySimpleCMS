@@ -3,10 +3,11 @@
  * Admin posts page.
  * @since 1.4.0[a]
  */
+
 require_once __DIR__ . '/header.php';
 
-// Fetch the post's id
 $id = (int)($_GET['id'] ?? 0);
+$action = $_GET['action'] ?? '';
 
 if(isset($_GET['type'])) {
 	$type = $_GET['type'];
@@ -28,16 +29,12 @@ if($type === 'media') redirect('media.php');
 if($type === 'nav_menu_item') redirect('menus.php');
 if($type === 'widget') redirect('widgets.php');
 
-// Create a Post object
-$rs_post = new Post($id, $post_types[$type] ?? array());
+$rs_post = new Post($id, $action, $post_types[$type] ?? array());
 ?>
 <article class="content">
 	<?php
 	// Create an id from the post type's label
 	$type_id = str_replace(' ', '_', $post_types[$type]['labels']['name_lowercase']);
-	
-	// Fetch the current action
-	$action = $_GET['action'] ?? '';
 	
 	switch($action) {
 		case 'create':

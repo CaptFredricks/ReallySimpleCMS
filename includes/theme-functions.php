@@ -272,24 +272,25 @@ function putPostMeta($key): void { echo getPostMeta($key); }
  * @since 1.2.8[b]
  *
  * @see Post::getPostTerms()
+ * @param string $taxonomy -- The term's taxonomy.
  * @param bool $linked (optional; default: true)
  * @return array
  */
-function getPostTerms($linked = true): array {
-	// Extend the Post object
+function getPostTerms(string $taxonomy = 'category', bool $linked = true): array {
 	global $rs_post;
 	
-	return $rs_post->getPostTerms($linked);
+	return $rs_post->getPostTerms($taxonomy, $linked);
 }
 
 /**
  * Display the post's terms.
  * @since 1.2.8[b]
  *
+ * @param string $taxonomy (optional) -- The term's taxonomy.
  * @param bool $linked (optional; default: true)
  */
-function putPostTerms($linked = true): void {
-	echo empty(getPostTerms()) ? 'None' : implode(', ', getPostTerms($linked));
+function putPostTerms(string $taxonomy = 'category', bool $linked = true): void {
+	echo empty(getPostTerms($taxonomy)) ? 'None' : implode(', ', getPostTerms($taxonomy, $linked));
 }
 
 /**
@@ -609,19 +610,18 @@ function putTermTaxName(): void { echo getTermTaxName(); }
  * Fetch all posts associated with the current term.
  * @since 2.4.1[a]
  *
- * @param null|int|string $_term (optional; default: null)
- * @param string $order_by (optional; default: 'date')
- * @param string $order (optional; default: 'DESC')
- * @param int $limit (optional; default: 0)
+ * @param mixed $_term (optional) -- The term.
+ * @param string $order_by (optional) -- The column to order by.
+ * @param string $order (optional) -- The sort order.
+ * @param int $limit (optional) -- The post limit.
  * @return array
  */
-function getTermPosts($_term = null, $order_by = 'date', $order = 'DESC', $limit = 0): array {
-	// Extend the Query object
+function getTermPosts(mixed $_term = null, string $order_by = 'date', string $order = 'DESC', int $limit = 0): array {
 	global $rs_query;
 	
 	$posts = array();
 	
-	if(!is_null($_term)) {
+	if(!is_null($_term) && $_term !== 0) {
 		if(is_int($_term))
 			$term = $_term;
 		else
@@ -649,12 +649,12 @@ function getTermPosts($_term = null, $order_by = 'date', $order = 'DESC', $limit
  * Display all posts associated with the current term.
  * @since 1.3.0[b]
  *
- * @param null|int|string $_term (optional; default: null)
- * @param string $order_by (optional; default: 'date')
- * @param string $order (optional; default: 'DESC')
- * @param int $limit (optional; default: 0)
+ * @param mixed $_term (optional) -- The term.
+ * @param string $order_by (optional) -- The column to order by.
+ * @param string $order (optional) -- The sort order.
+ * @param int $limit (optional) -- The post limit.
  */
-function putTermPosts($_term = null, $order_by = 'date', $order = 'DESC', $limit = 0): void {
+function putTermPosts(mixed $_term = null, string $order_by = 'date', string $order = 'DESC', int $limit = 0): void {
 	$posts = getTermPosts($_term, $order_by, $order, $limit);
 	
 	if(empty($posts)) {

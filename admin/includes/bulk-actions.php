@@ -48,7 +48,7 @@ foreach($taxonomies as $key => $value) {
 
 switch($_POST['page']) {
 	case $post_type:
-		$rs_post = new Post(0, $post_types[$type]);
+		$rs_post = new Post(0, '', $post_types[$type]);
 		
 		// Update all selected posts
 		if(!empty($_POST['selected']))

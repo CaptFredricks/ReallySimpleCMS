@@ -20,10 +20,9 @@ class Term {
 	 * @since 2.4.0[a]
 	 *
 	 * @access public
-	 * @param string $slug (optional; default: '')
+	 * @param string $slug (optional) -- The term's slug.
 	 */
-	public function __construct($slug = '') {
-		// Extend the Query object and the taxonomies array
+	public function __construct(string $slug = '') {
 		global $rs_query, $taxonomies;
 		
 		if(!empty($slug)) {
@@ -65,7 +64,6 @@ class Term {
 	 * @return int
 	 */
 	public function getTermId(): int {
-		// Extend the Query object
 		global $rs_query;
 		
 		return (int)$rs_query->selectField('terms', 'id', array('slug' => $this->slug));
@@ -79,7 +77,6 @@ class Term {
 	 * @return string
 	 */
 	public function getTermName(): string {
-		// Extend the Query object
 		global $rs_query;
 		
 		return $rs_query->selectField('terms', 'name', array('slug' => $this->slug));
@@ -90,11 +87,10 @@ class Term {
 	 * @since 2.4.0[a]
 	 *
 	 * @access public
-	 * @param int $id
+	 * @param int $id -- The term's id.
 	 * @return string
 	 */
-    public function getTermSlug($id): string {
-		// Extend the Query object
+    public function getTermSlug(int $id): string {
 		global $rs_query;
 		
 		return $rs_query->selectField('terms', 'slug', array('id' => $id));
@@ -108,7 +104,6 @@ class Term {
 	 * @return string
 	 */
 	public function getTermTaxonomy(): string {
-		// Extend the Query object
 		global $rs_query;
 		
 		$taxonomy = $rs_query->selectField('terms', 'taxonomy', array('slug' => $this->slug));
@@ -124,7 +119,6 @@ class Term {
 	 * @return int
 	 */
 	public function getTermParent(): int {
-		// Extend the Query object
 		global $rs_query;
 		
 		return (int)$rs_query->selectField('terms', 'parent', array('slug' => $this->slug));
@@ -138,6 +132,6 @@ class Term {
 	 * @return string
 	 */
 	public function getTermUrl(): string {
-		return getSetting('site_url').getPermalink($this->getTermTaxonomy(), $this->getTermParent(), $this->slug);
+		return getSetting('site_url') . getPermalink($this->getTermTaxonomy(), $this->getTermParent(), $this->slug);
     }
 }

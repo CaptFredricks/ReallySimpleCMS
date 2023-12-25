@@ -200,211 +200,392 @@ function adminBar(): void {
 			<li>
 				<a href="javascript:void(0)"><i class="fa-solid fa-gauge-high"></i> <span>Admin</span></a>
 				<ul class="sub-menu">
-					<li><a href="/admin/">Dashboard</a></li>
 					<?php
+					// Dashboard
+					echo domTag('li', array(
+						'content' => domTag('a', array(
+							'href' => '/admin/',
+							'content' => 'Dashboard'
+						))
+					));
+					
+					// Post types
 					foreach($post_types as $post_type) {
-						// Skip any post type that the user doesn't have sufficient privileges to view or that has 'show_in_admin_bar' set to false
 						if(!userHasPrivilege('can_view_' . str_replace(' ', '_',
 							$post_type['labels']['name_lowercase'])) || !$post_type['show_in_admin_bar']) continue;
-						?>
-						<li>
-							<a href="/admin/<?php echo $post_type['menu_link']; ?>"><?php echo $post_type['label']; ?></a>
-							<?php
-							// Check whether the post type has a valid taxonomy associated with it and has 'show_in_admin_bar' set to true
-							if(!empty($post_type['taxonomy']) &&
-								array_key_exists($post_type['taxonomy'], $taxonomies) &&
-								userHasPrivilege('can_view_' . str_replace(' ', '_',
-								$taxonomies[$post_type['taxonomy']]['labels']['name_lowercase'])) &&
-								$taxonomies[$post_type['taxonomy']]['show_in_admin_bar']) {
-								?>
-								<ul class="sub-menu">
-									<li>
-										<a href="/admin/<?php echo $taxonomies[$post_type['taxonomy']]['menu_link']; ?>"><?php echo $taxonomies[$post_type['taxonomy']]['label']; ?></a>
-									</li>
-								</ul>
-								<?php
+						
+						// Taxonomies
+						$taxes = array();
+						
+						if(!empty($post_type['taxonomies'])) {
+							foreach($post_type['taxonomies'] as $tax) {
+								if(array_key_exists($tax, $taxonomies)) {
+									if(userHasPrivilege('can_view_' . str_replace(' ', '_',
+										$taxonomies[$tax]['labels']['name_lowercase'])) &&
+										$taxonomies[$tax]['show_in_admin_bar']
+									) {
+										$taxes[] = domTag('li', array(
+											'content' => domTag('a', array(
+												'href' => '/admin/' . $taxonomies[$tax]['menu_link'],
+												'content' => $taxonomies[$tax]['label']
+											))
+										));
+									}
+								}
 							}
-							?>
-						</li>
-						<?php
+							
+							$submenu = domTag('ul', array(
+								'class' => 'sub-menu',
+								'content' => implode('', $taxes)
+							));
+						}
+						
+						echo domTag('li', array(
+							'content' => domTag('a', array(
+								'href' => '/admin/' . $post_type['menu_link'],
+								'content' => $post_type['label']
+							)) . (!empty($submenu) ? $submenu : null)
+						));
+						
+						unset($submenu);
 					}
 					
+					// Comments
 					if(userHasPrivilege('can_view_comments')) {
-						?>
-						<li><a href="/admin/comments.php">Comments</a></li>
-						<?php
+						echo domTag('li', array(
+							'content' => domTag('a', array(
+								'href' => '/admin/comments.php',
+								'content' => 'Comments'
+							))
+						));
 					}
 					
+					// Customization (themes/menus/widgets)
 					if(userHasPrivileges(array(
 						'can_view_themes',
 						'can_view_menus',
 						'can_view_widgets'
-					), 'OR')): ?>
-						<li>
-							<a href="javascript:void(0)">Customization</a>
-							<ul class="sub-menu">
-								<?php if(userHasPrivilege('can_view_themes')): ?>
-									<li><a href="/admin/themes.php">Themes</a></li>
-								<?php endif; ?>
-								<?php if(userHasPrivilege('can_view_menus')): ?>
-									<li><a href="/admin/menus.php">Menus</a></li>
-								<?php endif; ?>
-								<?php if(userHasPrivilege('can_view_widgets')): ?>
-									<li><a href="/admin/widgets.php">Widgets</a></li>
-								<?php endif; ?>
-							</ul>
-						</li>
-					<?php endif; ?>
-					<?php if(userHasPrivilege('can_view_users')): ?>
-						<li><a href="/admin/users.php">Users</a></li>
-					<?php endif; ?>
-					<?php if(userHasPrivileges(array(
+					), 'OR')) {
+						$submenu = domTag('ul', array(
+							'class' => 'sub-menu',
+							'content' => (userHasPrivilege('can_view_themes') ? domTag('li', array(
+								'content' => domTag('a', array(
+									'href' => '/admin/themes.php',
+									'content' => 'Themes'
+								))
+							)) : null) . (userHasPrivilege('can_view_menus') ? domTag('li', array(
+								'content' => domTag('a', array(
+									'href' => '/admin/menus.php',
+									'content' => 'Menus'
+								))
+							)) : null) . (userHasPrivilege('can_view_widgets') ? domTag('li', array(
+								'content' => domTag('a', array(
+									'href' => '/admin/widgets.php',
+									'content' => 'Widgets'
+								))
+							)) : null)
+						));
+						
+						echo domTag('li', array(
+							'content' => domTag('a', array(
+								'href' => 'javascript:void(0)',
+								'content' => 'Customization'
+							)) . $submenu
+						));
+					}
+					
+					// Users
+					if(userHasPrivilege('can_view_users')) {
+						echo domTag('li', array(
+							'content' => domTag('a', array(
+								'href' => '/admin/users.php',
+								'content' => 'Users'
+							))
+						));
+					}
+					
+					// Logins
+					if(userHasPrivileges(array(
 						'can_view_login_attempts',
 						'can_view_login_blacklist',
 						'can_view_login_rules'
-					), 'OR')): ?>
-						<li>
-							<a href="javascript:void(0)">Logins</a>
-							<ul class="sub-menu">
-								<?php if(userHasPrivilege('can_view_login_attempts')): ?>
-									<li><a href="/admin/logins.php">Attempts</a></li>
-								<?php endif; ?>
-								<?php if(userHasPrivilege('can_view_login_blacklist')): ?>
-									<li><a href="/admin/logins.php?page=blacklist">Blacklist</a></li>
-								<?php endif; ?>
-								<?php if(userHasPrivilege('can_view_login_rules')): ?>
-									<li><a href="/admin/logins.php?page=rules">Rules</a></li>
-								<?php endif; ?>
-							</ul>
-						</li>
-					<?php endif; ?>
-					<?php if(userHasPrivileges(array(
+					), 'OR')) {
+						$submenu = domTag('ul', array(
+							'class' => 'sub-menu',
+							'content' => (userHasPrivilege('can_view_login_attempts') ? domTag('li', array(
+								'content' => domTag('a', array(
+									'href' => '/admin/logins.php',
+									'content' => 'Attempts'
+								))
+							)) : null) . (userHasPrivilege('can_view_login_blacklist') ? domTag('li', array(
+								'content' => domTag('a', array(
+									'href' => '/admin/logins.php?page=blacklist',
+									'content' => 'Blacklist'
+								))
+							)) : null) . (userHasPrivilege('can_view_login_rules') ? domTag('li', array(
+								'content' => domTag('a', array(
+									'href' => '/admin/logins.php?page=rules',
+									'content' => 'Rules'
+								))
+							)) : null)
+						));
+						
+						echo domTag('li', array(
+							'content' => domTag('a', array(
+								'href' => 'javascript:void(0)',
+								'content' => 'Logins'
+							)) . $submenu
+						));
+					}
+					
+					// Settings
+					if(userHasPrivileges(array(
 						'can_edit_settings',
 						'can_view_user_roles'
-					), 'OR')): ?>
-						<li>
-							<a href="javascript:void(0)">Settings</a>
-							<ul class="sub-menu">
-								<?php if(userHasPrivilege('can_edit_settings')): ?>
-									<li><a href="/admin/settings.php">General</a></li>
-								<?php endif; ?>
-								<?php if(userHasPrivilege('can_edit_settings')): ?>
-									<li><a href="/admin/settings.php?page=design">Design</a></li>
-								<?php endif; ?>
-								<?php if(userHasPrivilege('can_view_user_roles')): ?>
-									<li><a href="/admin/settings.php?page=user_roles">User Roles</a></li>
-								<?php endif; ?>
-							</ul>
-						</li>
-					<?php endif; ?>
-					<li><a href="/admin/about.php">About</a></li>
+					), 'OR')) {
+						$submenu = domTag('ul', array(
+							'class' => 'sub-menu',
+							'content' => (userHasPrivilege('can_edit_settings') ? domTag('li', array(
+								'content' => domTag('a', array(
+									'href' => '/admin/settings.php',
+									'content' => 'General'
+								))
+							)) : null) . (userHasPrivilege('can_edit_settings') ? domTag('li', array(
+								'content' => domTag('a', array(
+									'href' => '/admin/settings.php?page=design',
+									'content' => 'Design'
+								))
+							)) : null) . (userHasPrivilege('can_view_user_roles') ? domTag('li', array(
+								'content' => domTag('a', array(
+									'href' => '/admin/settings.php?page=user_roles',
+									'content' => 'User Roles'
+								))
+							)) : null)
+						));
+						
+						echo domTag('li', array(
+							'content' => domTag('a', array(
+								'href' => 'javascript:void(0)',
+								'content' => 'Settings'
+							)) . $submenu
+						));
+					}
+					
+					// About
+					echo domTag('li', array(
+						'content' => domTag('a', array(
+							'href' => '/admin/about.php',
+							'content' => 'About'
+						))
+					));
+					
+					unset($submenu);
+					?>
 				</ul>
 			</li>
 			<li>
 				<a href="javascript:void(0)"><i class="fa-solid fa-plus"></i> <span>New</span></a>
 				<ul class="sub-menu">
 					<?php
+					// Post types
 					foreach($post_types as $post_type) {
-						// Skip any post type that the user doesn't have sufficient privileges to create or that has 'show_in_admin_bar' set to false
 						if(!userHasPrivilege(($post_type['name'] === 'media' ? 'can_upload_media' :
 							'can_create_' . str_replace(' ', '_', $post_type['labels']['name_lowercase']))) ||
 							!$post_type['show_in_admin_bar']) continue;
-						?>
-						<li>
-							<a href="/admin/<?php echo $post_type['menu_link'].($post_type['name'] === 'media' ? '?action=upload' : ($post_type['name'] === 'post' ? '?action=create' : '&action=create')); ?>"><?php echo $post_type['labels']['name_singular']; ?></a>
-							<?php
-							// Check whether the post type has a valid taxonomy associated with it and has 'show_in_admin_bar' set to true
-							if(!empty($post_type['taxonomy']) &&
-								array_key_exists($post_type['taxonomy'], $taxonomies) &&
-								userHasPrivilege('can_create_' . str_replace(' ', '_',
-								$taxonomies[$post_type['taxonomy']]['labels']['name_lowercase'])) &&
-								$taxonomies[$post_type['taxonomy']]['show_in_admin_bar']) {
-								?>
-								<ul class="sub-menu">
-									<li>
-										<a href="/admin/<?php echo $taxonomies[$post_type['taxonomy']]['menu_link'] . ($post_type['taxonomy'] === 'category' ? '?action=create' : '&action=create'); ?>"><?php echo $taxonomies[$post_type['taxonomy']]['labels']['name_singular']; ?></a>
-									</li>
-								</ul>
-								<?php
+						
+						// Taxonomies
+						$taxes = array();
+						
+						if(!empty($post_type['taxonomies'])) {
+							foreach($post_type['taxonomies'] as $tax) {
+								if(array_key_exists($tax, $taxonomies)) {
+									if(userHasPrivilege('can_create_' . str_replace(' ', '_',
+										$taxonomies[$tax]['labels']['name_lowercase'])) &&
+										$taxonomies[$tax]['show_in_admin_bar']
+									) {
+										$taxes[] = domTag('li', array(
+											'content' => domTag('a', array(
+												'href' => '/admin/' . $taxonomies[$tax]['menu_link'] . (
+													$tax === 'category' ? '?action=create' : '&action=create'
+												),
+												'content' => $taxonomies[$tax]['labels']['name_singular']
+											))
+										));
+									}
+								}
 							}
-							?>
-						</li>
-						<?php
+							
+							$submenu = domTag('ul', array(
+								'class' => 'sub-menu',
+								'content' => implode('', $taxes)
+							));
+						}
+						
+						echo domTag('li', array(
+							'content' => domTag('a', array(
+								'href' => '/admin/' . $post_type['menu_link'] . ($post_type['name'] === 'media' ?
+									'?action=upload' : ($post_type['name'] === 'post' ? '?action=create' : '&action=create')
+								),
+								'content' => $post_type['labels']['name_singular']
+							)) . (!empty($submenu) ? $submenu : null)
+						));
+						
+						unset($submenu);
 					}
 					
+					// Customization (themes/menus/widgets)
 					if(userHasPrivileges(array(
 						'can_create_themes',
 						'can_create_menus',
 						'can_create_widgets'
-					), 'OR')): ?>
-						<li>
-							<a href="javascript:void(0)">Customization</a>
-							<ul class="sub-menu">
-								<?php if(userHasPrivilege('can_create_themes')): ?>
-									<li><a href="/admin/themes.php?action=create">Theme</a></li>
-								<?php endif; ?>
-								<?php if(userHasPrivilege('can_create_menus')): ?>
-									<li><a href="/admin/menus.php?action=create">Menu</a></li>
-								<?php endif; ?>
-								<?php if(userHasPrivilege('can_create_widgets')): ?>
-									<li><a href="/admin/widgets.php?action=create">Widget</a></li>
-								<?php endif; ?>
-							</ul>
-						</li>
-					<?php endif; ?>
-					<?php if(userHasPrivilege('can_create_users')): ?>
-						<li><a href="/admin/users.php?action=create">User</a></li>
-					<?php endif; ?>
-					<?php if(userHasPrivilege('can_create_login_rules')): ?>
-						<li>
-							<a href="javascript:void(0)">Login</a>
-							<ul class="sub-menu">
-								<li><a href="/admin/logins.php?page=rules&action=create">Rule</a></li>
-							</ul>
-						</li>
-					<?php endif; ?>
-					<?php if(userHasPrivilege('can_create_user_roles')): ?>
-						<li>
-							<a href="javascript:void(0)">Settings</a>
-							<ul class="sub-menu">
-								<li><a href="/admin/settings.php?page=user_roles&action=create">User Roles</a></li>
-							</ul>
-						</li>
-					<?php endif; ?>
+					), 'OR')) {
+						$submenu = domTag('ul', array(
+							'class' => 'sub-menu',
+							'content' => (userHasPrivilege('can_create_themes') ? domTag('li', array(
+								'content' => domTag('a', array(
+									'href' => '/admin/themes.php?action=create',
+									'content' => 'Theme'
+								))
+							)) : null) . (userHasPrivilege('can_create_menus') ? domTag('li', array(
+								'content' => domTag('a', array(
+									'href' => '/admin/menus.php?action=create',
+									'content' => 'Menu'
+								))
+							)) : null) . (userHasPrivilege('can_create_widgets') ? domTag('li', array(
+								'content' => domTag('a', array(
+									'href' => '/admin/widgets.php?action=create',
+									'content' => 'Widget'
+								))
+							)) : null)
+						));
+						
+						echo domTag('li', array(
+							'content' => domTag('a', array(
+								'href' => 'javascript:void(0)',
+								'content' => 'Customization'
+							)) . $submenu
+						));
+					}
+					
+					// Users
+					if(userHasPrivilege('can_create_users')) {
+						echo domTag('li', array(
+							'content' => domTag('a', array(
+								'href' => '/admin/users.php?action=create',
+								'content' => 'User'
+							))
+						));
+					}
+					
+					// Logins
+					if(userHasPrivilege('can_create_login_rules')) {
+						$submenu = domTag('ul', array(
+							'class' => 'sub-menu',
+							'content' => domTag('li', array(
+								'content' => domTag('a', array(
+									'href' => '/admin/logins.php?page=rules&action=create',
+									'content' => 'Rule'
+								))
+							))
+						));
+						
+						echo domTag('li', array(
+							'content' => domTag('a', array(
+								'href' => 'javascript:void(0)',
+								'content' => 'Login'
+							)) . $submenu
+						));
+					}
+					
+					// Settings
+					if(userHasPrivilege('can_create_user_roles')) {
+						$submenu = domTag('ul', array(
+							'class' => 'sub-menu',
+							'content' => domTag('li', array(
+								'content' => domTag('a', array(
+									'href' => '/admin/settings.php?page=user_roles&action=create',
+									'content' => 'User Roles'
+								))
+							))
+						));
+						
+						echo domTag('li', array(
+							'content' => domTag('a', array(
+								'href' => 'javascript:void(0)',
+								'content' => 'Settings'
+							)) . $submenu
+						));
+					}
+					?>
 				</ul>
 			</li>
-			<?php if(!is_null($rs_post)): ?>
-				<li>
-					<a href="/admin/posts.php?id=<?php
-						// Create an edit link for pages and other post types
-						echo $rs_post->getPostId();
-					?>&action=edit"><i class="fa-solid fa-feather-pointed"></i> <span>Edit</span></a>
-				</li>
-			<?php elseif(!is_null($rs_term)): ?>
-				<li>
-					<a href="/admin/<?php
-						// Create an edit link for categories and other terms
-						echo ($rs_term->getTermTaxonomy() === 'category' ? 'categories.php' : 'terms.php') .
-							'?id=' . $rs_term->getTermId();
-					?>&action=edit"><i class="fa-solid fa-feather-pointed"></i> <span>Edit</span></a>
-				</li>
-			<?php endif; ?>
+			<?php
+			// Edit link
+			if(!is_null($rs_post)) {
+				echo domTag('li', array(
+					'content' => domTag('a', array(
+						'href' => '/admin/posts.php?id=' . $rs_post->getPostId() . '&action=edit',
+						'content' => domTag('i', array(
+							'class' => 'fa-solid fa-feather-pointed'
+						)) . ' ' . domTag('span', array(
+							'content' => 'Edit'
+						))
+					))
+				));
+			} elseif(!is_null($rs_term)) {
+				echo domTag('li', array(
+					'content' => domTag('a', array(
+						'href' => '/admin/' . ($rs_term->getTermTaxonomy() === 'category' ? 'categories.php' : 'terms.php') .
+							'?id=' . $rs_term->getTermId() . '&action=edit',
+						'content' => domTag('i', array(
+							'class' => 'fa-solid fa-feather-pointed'
+						)) . ' ' . domTag('span', array(
+							'content' => 'Edit'
+						))
+					))
+				));
+			}
+			?>
 		</ul>
 		<div class="user-dropdown">
-			<span>Welcome, <?php echo $session['display_name']; ?></span>
-			<?php echo getMedia($session['avatar'], array(
+			<?php
+			// Display name
+			echo domTag('span', array(
+				'content' => 'Welcome, ' . $session['display_name']
+			));
+			
+			// Avatar
+			echo getMedia($session['avatar'], array(
 				'class' => 'avatar',
 				'width' => 20,
 				'height' => 20
-			)); ?>
+			));
+			?>
 			<ul class="user-dropdown-menu">
-				<?php echo getMedia($session['avatar'], array(
+				<?php
+				// Avatar (large)
+				echo getMedia($session['avatar'], array(
 					'class' => 'avatar-large',
 					'width' => 100,
 					'height' => 100
-				)); ?>
-				<li><a href="/admin/profile.php">My Profile</a></li>
-				<li><a href="/login.php?action=logout">Log Out</a></li>
+				));
+				
+				// Profile
+				echo domTag('li', array(
+					'content' => domTag('a', array(
+						'href' => '/admin/profile.php',
+						'content' => 'My Profile'
+					))
+				));
+				
+				// Log out
+				echo domTag('li', array(
+					'content' => domTag('a', array(
+						'href' => '/login.php?action=logout',
+						'content' => 'Log Out'
+					))
+				));
+				?>
 			</ul>
 		</div>
 	</div>
