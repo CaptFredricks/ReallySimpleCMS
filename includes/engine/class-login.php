@@ -1,14 +1,18 @@
 <?php
 /**
  * Core class used to implement the Login object.
- * @since 2.0.0[a]
+ * This class controls the login/logout process for the user.
+ * @since 2.0.0-alpha
  *
- * Controls the login/logout process for the user.
+ * @package ReallySimpleCMS
+ * @subpackage Engine
  */
+namespace Engine;
+
 class Login {
 	/**
 	 * The minimum password length.
-	 * @since 2.0.7[a]
+	 * @since 2.0.7-alpha
 	 *
 	 * @access private
 	 * @var int
@@ -17,7 +21,7 @@ class Login {
 	
 	/**
 	 * Whether HTTPS is enabled on the server.
-	 * @since 1.1.4[b]
+	 * @since 1.1.4-beta
 	 *
 	 * @access private
 	 * @var bool
@@ -26,7 +30,7 @@ class Login {
 	
 	/**
 	 * The current user's IP address.
-	 * @since 1.2.0[b]{ss-01}
+	 * @since 1.2.0-beta_snap-01
 	 *
 	 * @access private
 	 * @var string
@@ -35,7 +39,7 @@ class Login {
 	
 	/**
 	 * The login URI.
-	 * @since 1.3.12[b]
+	 * @since 1.3.12-beta
 	 *
 	 * @access private
 	 * @var string
@@ -44,7 +48,7 @@ class Login {
 	
 	/**
 	 * Class constructor.
-	 * @since 1.1.4[b]
+	 * @since 1.1.4-beta
 	 *
 	 * @access public
 	 */
@@ -62,7 +66,7 @@ class Login {
 	
 	/**
 	 * Construct the "Log In" form.
-	 * @since 2.0.3[a]
+	 * @since 2.0.3-alpha
 	 *
 	 * @access public
 	 */
@@ -110,7 +114,7 @@ class Login {
 	
 	/**
 	 * Validate the "Log In" form data and log the user in.
-	 * @since 2.0.0[a]
+	 * @since 2.0.0-alpha
 	 *
 	 * @access private
 	 * @param array $data -- The form data.
@@ -223,7 +227,7 @@ class Login {
 	
 	/**
 	 * Check whether the login or IP address is blacklisted.
-	 * @since 1.2.0[b]{ss-01}
+	 * @since 1.2.0-beta_snap-01
 	 *
 	 * @access private
 	 * @param string $login -- The login or IP address.
@@ -237,7 +241,7 @@ class Login {
 	
 	/**
 	 * Check whether a password is valid.
-	 * @since 2.0.0[a]
+	 * @since 2.0.0-alpha
 	 *
 	 * @access private
 	 * @param string $login -- The username or email.
@@ -258,7 +262,7 @@ class Login {
 	
 	/**
 	 * Check whether a captcha value is valid.
-	 * @since 2.0.0[a]
+	 * @since 2.0.0-alpha
 	 *
 	 * @access private
 	 * @param string $captcha -- The captcha value.
@@ -270,7 +274,7 @@ class Login {
 	
 	/**
 	 * Check whether the login or IP address should be blacklisted.
-	 * @since 1.2.0[b]{ss-05}
+	 * @since 1.2.0-beta_snap-05
 	 *
 	 * @access private
 	 * @param string $ip_address -- The IP address.
@@ -402,7 +406,7 @@ class Login {
 	
 	/**
 	 * Check whether a session already exists in the database.
-	 * @since 2.0.2[a]
+	 * @since 2.0.2-alpha
 	 *
 	 * @access private
 	 * @param string $session -- The session value.
@@ -416,7 +420,7 @@ class Login {
 	
 	/**
 	 * Check whether an email already exists in the database.
-	 * @since 2.0.2[a]
+	 * @since 2.0.2-alpha
 	 *
 	 * @access private
 	 * @param string $email -- The email.
@@ -430,7 +434,7 @@ class Login {
 	
 	/**
 	 * Check whether a username already exists in the database.
-	 * @since 2.0.0[a]
+	 * @since 2.0.0-alpha
 	 *
 	 * @access private
 	 * @param string $username -- The username.
@@ -444,7 +448,7 @@ class Login {
 	
 	/**
 	 * Fetch a blacklist's duration.
-	 * @since 1.2.0[b]{ss-01}
+	 * @since 1.2.0-beta_snap-01
 	 *
 	 * @access private
 	 * @param string $name -- The blacklist's name.
@@ -484,7 +488,7 @@ class Login {
 	
 	/**
 	 * Sanitize user input data.
-	 * @since 2.0.1[a]
+	 * @since 2.0.1-alpha
 	 *
 	 * @access private
 	 * @param string $data -- The data to sanitize.
@@ -506,7 +510,7 @@ class Login {
 	
 	/**
 	 * Construct a status message.
-	 * @since 2.0.0[a]
+	 * @since 2.0.0-alpha
 	 *
 	 * @access private
 	 * @param string $text -- The message's text.
@@ -531,7 +535,7 @@ class Login {
 	
 	/**
 	 * Log the user out.
-	 * @since 2.0.1[a]
+	 * @since 2.0.1-alpha
 	 *
 	 * @access public
 	 * @param string $session -- The session value.
@@ -549,7 +553,7 @@ class Login {
 	
 	/**
 	 * Construct the "Forgot Password" form.
-	 * @since 2.0.3[a]
+	 * @since 2.0.3-alpha
 	 *
 	 * @access public
 	 */
@@ -599,7 +603,7 @@ class Login {
 	
 	/**
 	 * Validate the forgotten password data.
-	 * @since 2.0.5[a]
+	 * @since 2.0.5-alpha
 	 *
 	 * @access private
 	 * @param array $data -- The form data.
@@ -650,20 +654,20 @@ class Login {
 		// Set the content headers (to allow for HTML-formatted emails)
 		$headers[] = "MIME-Version: 1.0";
 		$headers[] = "Content-type: text/html; charset=iso-8859-1";
-		$headers[] = "From: " . CMS_NAME . " <rscms@" . $_SERVER['HTTP_HOST'] . ">";
+		$headers[] = "From: " . CMS_ENGINE . " <rscms@" . $_SERVER['HTTP_HOST'] . ">";
 		
 		// Make sure the email can be sent
 		if(mail($email, $subject, $content, implode("\r\n", $headers))) {
 			$rs_query->update('users', array('security_key' => $key), array('id' => $id));
 			redirect('/login.php?pw_forgot=confirm');
 		} else {
-			return $this->statusMsg(CMS_NAME . ' encountered an error and could not send an email. Please contact this website\'s administrator or web host.');
+			return $this->statusMsg(CMS_ENGINE . ' encountered an error and could not send an email. Please contact this website\'s administrator or web host.');
 		}
 	}
 	
 	/**
 	 * Construct the "Reset Password" form.
-	 * @since 2.0.5[a]
+	 * @since 2.0.5-alpha
 	 *
 	 * @access public
 	 */
@@ -712,7 +716,7 @@ class Login {
 	
 	/**
 	 * Validate the reset password data.
-	 * @since 2.0.5[a]
+	 * @since 2.0.5-alpha
 	 *
 	 * @access private
 	 * @param array $data -- The form data.
@@ -747,7 +751,7 @@ class Login {
 	
 	/**
 	 * Check whether a reset password cookie is valid.
-	 * @since 2.0.6[a]
+	 * @since 2.0.6-alpha
 	 *
 	 * @access private
 	 * @param string $login -- The user's login.

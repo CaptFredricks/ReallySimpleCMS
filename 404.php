@@ -1,13 +1,12 @@
 <?php
 /**
  * Error page for HTTP 404 (Not Found) error responses.
- * @since 2.2.0[a]
+ * @since 2.2.0-alpha
+ *
+ * @package ReallySimpleCMS
  */
 
-// Include the initialization file
 require_once __DIR__ . '/init.php';
-
-// Include functions
 require_once FUNC;
 
 // Fetch the user's session data if they're logged in

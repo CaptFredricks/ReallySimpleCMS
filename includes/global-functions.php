@@ -1,11 +1,12 @@
 <?php
 /**
  * Global variables and functions (front end and back end accessible).
- * @since 1.2.0[a]
+ * @since 1.2.0-alpha
+ *
+ * @package ReallySimpleCMS
  */
 
 require_once PATH . INC . '/dom-tags.php';
-require_once PATH . INC . '/polyfill-functions.php';
 
 // Set the server timezone
 ini_set('date.timezone', date_default_timezone_get());
@@ -19,15 +20,13 @@ $taxonomies = array();
 
 /**
  * Populate a database table.
- * @since 1.0.8[b]
+ * @since 1.0.8-beta
  *
- * @param string $table
+ * @param string $table -- The table.
  */
-function populateTable($table): void {
-	// Extend the Query class
+function populateTable(string $table): void {
 	global $rs_query;
 	
-	// Fetch the database schema
 	$schema = dbSchema();
 	
 	switch($table) {
@@ -96,22 +95,23 @@ function populateTable($table): void {
 				}
 			}
 			
-			populateUserRoles();
-			populateUserPrivileges();
+			if($table === 'user_roles')
+				populateUserRoles();
+			else
+				populateUserPrivileges();
 			break;
 	}
 }
 
 /**
  * Populate the `posts` database table.
- * @since 1.3.7[a]
- * @deprecated from 1.7.0[a] to 1.0.8[b]
+ * @since 1.3.7-alpha
+ * @deprecated from 1.7.0-alpha to 1.0.8-beta
  *
- * @param int $author
+ * @param int $author -- The author's id.
  * @return array
  */
-function populatePosts($author): array {
-	// Extend the Query class
+function populatePosts(int $author): array {
 	global $rs_query;
 	
 	// Create a sample page
@@ -168,10 +168,9 @@ function populatePosts($author): array {
 
 /**
  * Populate the `user_roles` database table.
- * @since 1.0.8[b]
+ * @since 1.0.8-beta
  */
 function populateUserRoles(): void {
-	// Extend the Query object
 	global $rs_query;
 	
 	$roles = array('User', 'Editor', 'Moderator', 'Administrator');
@@ -186,13 +185,13 @@ function populateUserRoles(): void {
 
 /**
  * Populate the `user_privileges` and `user_relationships` database tables.
- * @since 1.0.8[b]
+ * @since 1.0.8-beta
  */
 function populateUserPrivileges(): void {
-	// Extend the Query object
 	global $rs_query;
 	
 	$admin_pages = array(
+		'update',
 		'pages',
 		'posts',
 		'categories',
@@ -213,6 +212,12 @@ function populateUserPrivileges(): void {
 	foreach($admin_pages as $admin_page) {
 		foreach($privileges as $privilege) {
 			switch($admin_page) {
+				case 'update':
+					if($privilege === 'can_edit_')
+						$privilege = 'can_update_core';
+					else
+						continue 2;
+					break;
 				case 'media':
 					if($privilege === 'can_create_') $privilege = 'can_upload_';
 					break;
@@ -232,26 +237,29 @@ function populateUserPrivileges(): void {
 					break;
 			}
 			
-			$rs_query->insert('user_privileges', array('name' => $privilege . $admin_page));
+			$rs_query->insert('user_privileges', array(
+				'name' => $admin_page === 'update' ? $privilege : $privilege . $admin_page
+			));
 		}
 	}
 	
 	/**
 	 * List of privileges:
-	 * 1 => 'can_view_pages', 2 => 'can_create_pages', 3 => 'can_edit_pages', 4 => 'can_delete_pages',
-	 * 5 => 'can_view_posts', 6 => 'can_create_posts', 7 => 'can_edit_posts', 8 => 'can_delete_posts',
-	 * 9 => 'can_view_categories', 10 => 'can_create_categories', 11 => 'can_edit_categories', 12 => 'can_delete_categories',
-	 * 13 => 'can_view_media', 14 => 'can_upload_media', 15 => 'can_edit_media', 16 => 'can_delete_media',
-	 * 17 => 'can_view_comments', 18 => 'can_edit_comments', 19 => 'can_delete_comments',
-	 * 20 => 'can_view_themes', 21 => 'can_create_themes', 22 => 'can_edit_themes', 23 => 'can_delete_themes',
-	 * 24 => 'can_view_menus', 25 => 'can_create_menus', 26 => 'can_edit_menus', 27 => 'can_delete_menus',
-	 * 28 => 'can_view_widgets', 29 => 'can_create_widgets', 30 => 'can_edit_widgets', 31 => 'can_delete_widgets',
-	 * 32 => 'can_view_users', 33 => 'can_create_users', 34 => 'can_edit_users', 35 => 'can_delete_users',
-	 * 36 => 'can_view_login_attempts',
-	 * 37 => 'can_view_login_blacklist', 38 => 'can_create_login_blacklist', 39 => 'can_edit_login_blacklist', 40 => 'can_delete_login_blacklist',
-	 * 41 => 'can_view_login_rules', 42 => 'can_create_login_rules', 43 => 'can_edit_login_rules', 44 => 'can_delete_login_rules',
-	 * 45 => 'can_edit_settings',
-	 * 46 => 'can_view_user_roles', 47 => 'can_create_user_roles', 48 => 'can_edit_user_roles', 49 => 'can_delete_user_roles'
+	 * 1 => 'can_update_core',
+	 * 2 => 'can_view_pages', 3 => 'can_create_pages', 4 => 'can_edit_pages', 5 => 'can_delete_pages',
+	 * 6 => 'can_view_posts', 7 => 'can_create_posts', 8 => 'can_edit_posts', 9 => 'can_delete_posts',
+	 * 10 => 'can_view_categories', 11 => 'can_create_categories', 12 => 'can_edit_categories', 13 => 'can_delete_categories',
+	 * 14 => 'can_view_media', 15 => 'can_upload_media', 16 => 'can_edit_media', 17 => 'can_delete_media',
+	 * 18 => 'can_view_comments', 19 => 'can_edit_comments', 20 => 'can_delete_comments',
+	 * 21 => 'can_view_themes', 22 => 'can_create_themes', 23 => 'can_edit_themes', 24 => 'can_delete_themes',
+	 * 25 => 'can_view_menus', 26 => 'can_create_menus', 27 => 'can_edit_menus', 28 => 'can_delete_menus',
+	 * 29 => 'can_view_widgets', 30 => 'can_create_widgets', 31 => 'can_edit_widgets', 32 => 'can_delete_widgets',
+	 * 33 => 'can_view_users', 34 => 'can_create_users', 35 => 'can_edit_users', 36 => 'can_delete_users',
+	 * 37 => 'can_view_login_attempts',
+	 * 38 => 'can_view_login_blacklist', 39 => 'can_create_login_blacklist', 40 => 'can_edit_login_blacklist', 41 => 'can_delete_login_blacklist',
+	 * 42 => 'can_view_login_rules', 43 => 'can_create_login_rules', 44 => 'can_edit_login_rules', 45 => 'can_delete_login_rules',
+	 * 46 => 'can_edit_settings',
+	 * 47 => 'can_view_user_roles', 48 => 'can_create_user_roles', 49 => 'can_edit_user_roles', 50 => 'can_delete_user_roles'
 	 */
 	
 	$roles = $rs_query->select('user_roles', 'id', array('id' => array('IN', 1, 2, 3, 4)), 'id');
@@ -265,15 +273,15 @@ function populateUserPrivileges(): void {
 			case 2:
 				// Editor
 				$privileges = array(
-					1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 32, 46
+					2, 3, 4, 6, 7, 8, 10, 11, 12, 14, 15, 16, 33, 47
 				);
 				break;
 			case 3:
 				// Moderator
 				$privileges = array(
-					1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-					15, 16, 17, 18, 19, 20, 24, 25, 26, 28, 29, 30,
-					32, 33, 34, 36, 37, 38, 39, 40, 41, 42, 43, 46
+					2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+					16, 17, 18, 19, 20, 21, 25, 26, 27, 29, 30, 31,
+					33, 34, 35, 37, 38, 39, 40, 41, 42, 43, 44, 47
 				);
 				break;
 			case 4:
@@ -282,7 +290,7 @@ function populateUserPrivileges(): void {
 					1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
 					15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
 					27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38,
-					39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49
+					39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50
 				);
 				break;
 		}
@@ -294,14 +302,13 @@ function populateUserPrivileges(): void {
 
 /**
  * Populate the `users` database table.
- * @since 1.3.1[a]
- * @deprecated from 1.7.0[a] to 1.0.8[b]
+ * @since 1.3.1-alpha
+ * @deprecated from 1.7.0-alpha to 1.0.8-beta
  *
- * @param array $args (optional; default: array())
+ * @param array $args (optional) -- The args.
  * @return int
  */
-function populateUsers($args = array()): int {
-	// Extend the Query class
+function populateUsers(array $args = array()): int {
 	global $rs_query;
 	
 	$defaults = array(
@@ -347,18 +354,17 @@ function populateUsers($args = array()): int {
 
 /**
  * Populate the `settings` database table.
- * @since 1.3.0[a]
- * @deprecated from 1.7.0[a] to 1.0.8[b]
+ * @since 1.3.0-alpha
+ * @deprecated from 1.7.0-alpha to 1.0.8-beta
  *
- * @param array $args (optional; default: array())
+ * @param array $args (optional) -- The args.
  */
-function populateSettings($args = array()): void {
-	// Extend the Query class
+function populateSettings(array $args = array()): void {
 	global $rs_query;
 	
 	$defaults = array(
 		'site_title' => 'My Website',
-		'description' => 'A new ' . CMS_NAME . ' website!',
+		'description' => 'A new ' . CMS_ENGINE . ' website!',
 		'site_url' => (!empty($_SERVER['HTTPS']) ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'],
 		'admin_email' => 'admin@rscmswebsite.com',
 		'default_user_role' => getUserRoleId('User'),
@@ -387,11 +393,10 @@ function populateSettings($args = array()): void {
 
 /**
  * Populate the `taxonomies` database table.
- * @since 1.5.0[a]
- * @deprecated from 1.7.0[a] to 1.0.8[b]
+ * @since 1.5.0-alpha
+ * @deprecated from 1.7.0-alpha to 1.0.8-beta
  */
 function populateTaxonomies(): void {
-	// Extend the Query class
 	global $rs_query;
 	
 	$taxonomies = array('category', 'nav_menu');
@@ -402,13 +407,12 @@ function populateTaxonomies(): void {
 
 /**
  * Populate the `terms` database table.
- * @since 1.5.0[a]
- * @deprecated from 1.7.0[a] to 1.0.8[b]
+ * @since 1.5.0-alpha
+ * @deprecated from 1.7.0-alpha to 1.0.8-beta
  *
- * @param int $post
+ * @param int $post -- The post's id.
  */
-function populateTerms($post): void {
-	// Extend the Query class
+function populateTerms(int $post): void {
 	global $rs_query;
 	
 	$term = $rs_query->insert('terms', array(
@@ -427,7 +431,7 @@ function populateTerms($post): void {
 
 /**
  * Set all post type labels.
- * @since 1.0.1[b]
+ * @since 1.0.1-beta
  *
  * @param string $name -- The post type's name.
  * @param array $labels (optional) -- Any predefined labels.
@@ -456,7 +460,7 @@ function getPostTypeLabels(string $name, array $labels = array()): array {
 
 /**
  * Register a post type.
- * @since 1.0.0[b]
+ * @since 1.0.0-beta
  *
  * @param string $name -- The post type's name.
  * @param array $args (optional) -- The args.
@@ -570,7 +574,7 @@ function registerPostType(string $name, array $args = array()): void {
 
 /**
  * Unregister a post type.
- * @since 1.0.5[b]
+ * @since 1.0.5-beta
  *
  * @param string $name -- The post type's name.
  */
@@ -604,7 +608,7 @@ function unregisterPostType(string $name): void {
 
 /**
  * Register default post types.
- * @since 1.0.1[b]
+ * @since 1.0.1-beta
  */
 function registerDefaultPostTypes(): void {
 	// Page
@@ -652,7 +656,7 @@ function registerDefaultPostTypes(): void {
 
 /**
  * Set all taxonomy labels.
- * @since 1.0.4[b]
+ * @since 1.0.4-beta
  *
  * @param string $name -- The taxonomy's name.
  * @param array $labels (optional) -- Any predefined labels.
@@ -680,7 +684,7 @@ function getTaxonomyLabels(string $name, array $labels = array()): array {
 
 /**
  * Register a taxonomy.
- * @since 1.0.1[b]
+ * @since 1.0.1-beta
  *
  * @param string $name -- The taxonomy's name.
  * @param string $post_type -- The associated post type.
@@ -811,7 +815,7 @@ function registerTaxonomy(string $name, string $post_type, array $args = array()
 
 /**
  * Unregister a taxonomy.
- * @since 1.0.5[b]
+ * @since 1.0.5-beta
  *
  * @param string $name -- The taxonomy's name.
  */
@@ -850,7 +854,7 @@ function unregisterTaxonomy(string $name): void {
 
 /**
  * Register default taxonomies.
- * @since 1.0.4[b]
+ * @since 1.0.4-beta
  */
 function registerDefaultTaxonomies(): void {
 	// Category
@@ -884,7 +888,7 @@ function registerDefaultTaxonomies(): void {
 
 /**
  * Check whether a user has a specified privilege.
- * @since 1.7.2[a]
+ * @since 1.7.2-alpha
  *
  * @param string $privilege
  * @param int $role (optional; default: null)
@@ -906,7 +910,7 @@ function userHasPrivilege($privilege, $role = null): bool {
 
 /**
  * Check whether a user has a specified group of privileges.
- * @since 1.2.0[b]{ss-02}
+ * @since 1.2.0-beta_snap-02
  *
  * @param array $privileges (optional; default: array())
  * @param string $logic (optional; default: 'AND')
@@ -935,7 +939,7 @@ function userHasPrivileges($privileges = array(), $logic = 'AND', $role = null):
 
 /**
  * Fetch a user role's id.
- * @since 1.0.5[b]
+ * @since 1.0.5-beta
  *
  * @param string $name
  * @return int
@@ -951,7 +955,7 @@ function getUserRoleId($name): int {
 
 /**
  * Fetch a user privilege's id.
- * @since 1.0.5[b]
+ * @since 1.0.5-beta
  *
  * @param string $name
  * @return int
@@ -971,7 +975,7 @@ function getUserPrivilegeId($name): int {
 
 /**
  * Check whether a directory is empty.
- * @since 2.3.0[a]
+ * @since 2.3.0-alpha
  *
  * @param string $dir
  * @return nullable (null|bool)
@@ -989,7 +993,7 @@ function isEmptyDir($dir): ?bool {
 
 /**
  * Check whether a post is the website's home page.
- * @since 1.4.0[a]
+ * @since 1.4.0-alpha
  *
  * @param int $id
  * @return bool
@@ -1003,7 +1007,7 @@ function isHomePage($id): bool {
 
 /**
  * Check whether the user is viewing a page on the admin dashboard.
- * @since 1.0.6[b]
+ * @since 1.0.6-beta
  *
  * @return bool
  */
@@ -1013,7 +1017,7 @@ function isAdmin(): bool {
 
 /**
  * Check whether the user is viewing the log in page.
- * @since 1.0.6[b]
+ * @since 1.0.6-beta
  *
  * @return bool
  */
@@ -1026,7 +1030,7 @@ function isLogin(): bool {
 
 /**
  * Check whether the user is viewing the 404 not found page.
- * @since 1.0.6[b]
+ * @since 1.0.6-beta
  *
  * @return bool
  */
@@ -1036,7 +1040,7 @@ function is404(): bool {
 
 /**
  * Fetch a script file.
- * @since 1.3.3[a]
+ * @since 1.3.3-alpha
  *
  * @param string $script -- The script to load.
  * @param string $version (optional) -- The script's version.
@@ -1049,7 +1053,7 @@ function getScript(string $script, string $version = CMS_VERSION): string {
 
 /**
  * Output a script file.
- * @since 1.3.0[b]
+ * @since 1.3.0-beta
  *
  * @param string $script -- The script to load.
  * @param string $version (optional) -- The script's version.
@@ -1060,7 +1064,7 @@ function putScript(string $script, string $version = CMS_VERSION): void {
 
 /**
  * Fetch a stylesheet.
- * @since 1.3.3[a]
+ * @since 1.3.3-alpha
  *
  * @param string $stylesheet -- The stylesheet to load.
  * @param string $version (optional) -- The stylesheet's version.
@@ -1073,7 +1077,7 @@ function getStylesheet(string $stylesheet, string $version = CMS_VERSION): strin
 
 /**
  * Output a stylesheet.
- * @since 1.3.0[b]
+ * @since 1.3.0-beta
  *
  * @param string $stylesheet -- The stylesheet to load.
  * @param string $version (optional) -- The stylesheet's version.
@@ -1084,7 +1088,7 @@ function putStylesheet(string $stylesheet, string $version = CMS_VERSION): void 
 
 /**
  * Retrieve a setting from the database.
- * @since 1.2.5[a]
+ * @since 1.2.5-alpha
  *
  * @param string $name
  * @return string
@@ -1098,7 +1102,7 @@ function getSetting($name): string {
 
 /**
  * Output a setting from the database.
- * @since 1.3.0[b]
+ * @since 1.3.0-beta
  *
  * @param string $name
  */
@@ -1108,7 +1112,7 @@ function putSetting($name): void {
 
 /**
  * Construct a permalink.
- * @since 2.2.2[a]
+ * @since 2.2.2-alpha
  *
  * @param string $name -- The post's name.
  * @param int $parent (optional) -- The post's parent.
@@ -1154,7 +1158,7 @@ function getPermalink(string $name, int $parent = 0, string $slug = ''): string 
 
 /**
  * Check whether a user's session is valid.
- * @since 2.0.1[a]
+ * @since 2.0.1-alpha
  *
  * @param string $session -- The session data.
  * @return bool
@@ -1167,7 +1171,7 @@ function isValidSession(string $session): bool {
 
 /**
  * Fetch an online user's data.
- * @since 2.0.1[a]
+ * @since 2.0.1-alpha
  *
  * @param string $session -- The session data.
  * @return array
@@ -1195,7 +1199,7 @@ function getOnlineUser(string $session): array {
 
 /**
  * Fetch the source of a specified media item.
- * @since 2.1.5[a]
+ * @since 2.1.5-alpha
  *
  * @param int $id
  * @return string
@@ -1217,7 +1221,7 @@ function getMediaSrc($id): string {
 
 /**
  * Fetch a specified media item.
- * @since 2.2.0[a]
+ * @since 2.2.0-alpha
  *
  * @param int $id
  * @param array $args (optional; default: array())
@@ -1279,7 +1283,7 @@ function getMedia($id, $args = array()): string {
 
 /**
  * Fetch a taxonomy's id.
- * @since 1.5.0[a]
+ * @since 1.5.0-alpha
  *
  * @param string $name -- The taxonomy's name.
  * @return int
@@ -1294,7 +1298,7 @@ function getTaxonomyId(string $name): int {
 
 /**
  * Trim text down to a specified number of words.
- * @since 1.2.5[a]
+ * @since 1.2.5-alpha
  *
  * @param string $text
  * @param int $num_words (optional; default: 50)
@@ -1316,7 +1320,7 @@ function trimWords($text, $num_words = 50, $more = '&hellip;'): string {
 
 /**
  * Sanitize a string of text.
- * @since 1.0.0[b]
+ * @since 1.0.0-beta
  *
  * @param string $text -- The text to sanitize.
  * @param string $regex (optional) -- The regex pattern.
@@ -1333,7 +1337,7 @@ function sanitize(string $text, string $regex = '/[^a-z0-9_\-]/', bool $lc = tru
 
 /**
  * Create a button.
- * @since 1.2.7[b]
+ * @since 1.2.7-beta
  *
  * @param array $args (optional; default: array())
  * @param bool $link (optional; default: false)
@@ -1354,8 +1358,8 @@ function button($args = array(), $link = false): void {
 
 /**
  * Add a trailing slash to a string.
- * @since 1.3.1[a]
- * @deprecated since 1.3.6[b]
+ * @since 1.3.1-alpha
+ * @deprecated since 1.3.6-beta
  *
  * @param string $text
  * @return string
@@ -1366,7 +1370,7 @@ function trailingSlash($text): string {
 
 /**
  * Format a date string.
- * @since 1.2.1[a]
+ * @since 1.2.1-alpha
  *
  * @param string $date -- The raw date.
  * @param string $format (optional) -- The date format.
@@ -1378,7 +1382,7 @@ function formatDate(string $date, string $format = 'Y-m-d H:i:s'): string {
 
 /**
  * Generate a random hash.
- * @since 2.0.5[a]
+ * @since 2.0.5-alpha
  *
  * @param int $length (optional; default: 20)
  * @param bool $special_chars (optional; default: true)
@@ -1402,7 +1406,7 @@ function generateHash($length = 20, $special_chars = true, $salt = ''): string {
 
 /**
  * Generate a random password.
- * @since 1.3.0[a]
+ * @since 1.3.0-alpha
  *
  * @param int $length (optional; default: 16)
  * @param bool $special_chars (optional; default: true)

@@ -1,14 +1,19 @@
 <?php
 /**
  * Core class used to implement the Menu object.
- * @since 2.2.3[a]
+ * This class loads data from the terms, term relationships, posts, and postmeta tables of the database
+ *  for use on the front end of the CMS.
+ * @since 2.2.3-alpha
  *
- * This class loads data from the terms, term relationships, posts, and postmeta tables of the database for use on the front end of the CMS.
+ * @package ReallySimpleCMS
+ * @subpackage Engine
  */
+namespace Engine;
+
 class Menu {
 	/**
 	 * Construct a nav menu.
-	 * @since 2.2.2[a]
+	 * @since 2.2.2-alpha
 	 *
 	 * @access public
 	 * @param string $slug -- The menu's slug.
@@ -101,7 +106,7 @@ class Menu {
 	
 	/**
 	 * Check whether a menu item's URI matches the current page URI.
-	 * @since 2.2.3[a]
+	 * @since 2.2.3-alpha
 	 *
 	 * @access private
 	 * @param string $uri -- The page URI.
@@ -115,7 +120,7 @@ class Menu {
 	
 	/**
 	 * Check whether a menu item has a parent.
-	 * @since 2.2.2[a]
+	 * @since 2.2.2-alpha
 	 *
 	 * @access private
 	 * @param int $id -- The child menu item's id.
@@ -129,7 +134,7 @@ class Menu {
 
 	/**
 	 * Check whether a menu item has children.
-	 * @since 2.2.2[a]
+	 * @since 2.2.2-alpha
 	 *
 	 * @access private
 	 * @param int $id -- The parent menu item's id.
@@ -143,7 +148,7 @@ class Menu {
 
 	/**
 	 * Fetch a menu item's metadata.
-	 * @since 2.2.2[a]
+	 * @since 2.2.2-alpha
 	 *
 	 * @access private
 	 * @param int $id -- The menu item's id.
@@ -167,7 +172,7 @@ class Menu {
 
 	/**
 	 * Fetch a menu item's parent.
-	 * @since 2.2.2[a]
+	 * @since 2.2.2-alpha
 	 *
 	 * @access private
 	 * @param int $id
@@ -181,7 +186,7 @@ class Menu {
 
 	/**
 	 * Fetch all descendants of a menu item.
-	 * @since 2.2.2[a]
+	 * @since 2.2.2-alpha
 	 *
 	 * @access private
 	 * @param int $id

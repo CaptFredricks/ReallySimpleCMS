@@ -3,11 +3,13 @@
  * This file handles structural changes to the database that would otherwise break the system.
  * The goal is to ensure that no existing data is lost during the update.
  * Old scripts will be removed after at least two major releases.
- * @since 1.3.5[b]
+ * @since 1.3.5-beta
+ *
+ * @package ReallySimpleCMS
  */
 
 // Adding logins
-if(version_compare(CMS_VERSION, '1.2.0', '>=')) {
+if(version_compare(CMS_VERSION, '1.2.0-beta', '>=')) {
 	$schema = dbSchema();
 	
 	// Try to create the `login_attempts` table
@@ -148,7 +150,7 @@ if(version_compare(CMS_VERSION, '1.2.0', '>=')) {
 }
 
 // Tweaking post dates
-if(version_compare(CMS_VERSION, '1.2.9', '>=')) {
+if(version_compare(CMS_VERSION, '1.2.9-beta', '>=')) {
 	$posts = $rs_query->select('posts', array('id', 'date', 'modified', 'status'));
 	
 	foreach($posts as $post) {
@@ -172,7 +174,7 @@ if(version_compare(CMS_VERSION, '1.2.9', '>=')) {
 }
 
 // Tweaking media metadata
-if(version_compare(CMS_VERSION, '1.3.5', '>=')) {
+if(version_compare(CMS_VERSION, '1.3.5-beta', '>=')) {
 	if($rs_query->select('postmeta', 'COUNT(*)', array('datakey' => 'filename')) > 0) {
 		$mediaa = $rs_query->select('posts', array('id', 'date'), array('type' => 'media'));
 		
@@ -219,7 +221,7 @@ if(version_compare(CMS_VERSION, '1.3.5', '>=')) {
 }
 
 // Adding `display_name` and `dismissed_notices` usermeta to existing users
-if(version_compare(CMS_VERSION, '1.3.8', '>=')) {
+if(version_compare(CMS_VERSION, '1.3.8-beta', '>=')) {
 	$users = $rs_query->select('users', array('id', 'username'));
 	
 	foreach($users as $user) {
@@ -252,7 +254,7 @@ if(version_compare(CMS_VERSION, '1.3.8', '>=')) {
 }
 
 // Adding `index_post` metadata to existing posts
-if(version_compare(CMS_VERSION, '1.3.9', '>=')) {
+if(version_compare(CMS_VERSION, '1.3.9-beta', '>=')) {
 	$posts = $rs_query->select('posts', 'id');
 	
 	foreach($posts as $post) {
@@ -272,7 +274,7 @@ if(version_compare(CMS_VERSION, '1.3.9', '>=')) {
 }
 
 // Various tweaks
-if(version_compare(CMS_VERSION, '1.3.12', '>=')) {
+if(version_compare(CMS_VERSION, '1.3.12-beta', '>=')) {
 	// Changing `unapproved` comments to `pending`
 	$comments = $rs_query->select('comments', 'COUNT(status)', array(
 		'status' => 'unapproved'
@@ -389,5 +391,39 @@ if(version_compare(CMS_VERSION, '1.3.12', '>=')) {
 		
 		// Replace the old column
 		$rs_query->doQuery("ALTER TABLE `{$table}` DROP COLUMN _default;");
+	}
+}
+
+// Update privileges
+if(version_compare(CMS_VERSION, '1.3.13-beta', '>=')) {
+	if($rs_query->selectRow('user_privileges', 'COUNT(*)', array('name' => 'can_update_core')) === 0) {
+		if($rs_query->selectRow('user_roles', 'COUNT(*)', array('id' => array('>', 4))) > 0) {
+			$roles = $rs_query->select('user_roles', '*', array(
+				'id' => array('>', 4)
+			));
+			
+			$relationships = $rs_query->select('user_relationships', '*', array(
+				'role' => array('>', 4)
+			));
+			
+			$tables = array('user_privileges', 'user_relationships', 'user_roles');
+			
+			foreach($tables as $table)
+				populateTable($table);
+			
+			foreach($roles as $role) {
+				$rs_query->insert('user_roles', array(
+					'name' => $role['name'],
+					'is_default' => $role['is_default']
+				));
+			}
+			
+			foreach($relationships as $relationship) {
+				$rs_query->insert('user_relationships', array(
+					'role' => $relationship['role'],
+					'privilege' => $relationship['privilege']
+				));
+			}
+		}
 	}
 }

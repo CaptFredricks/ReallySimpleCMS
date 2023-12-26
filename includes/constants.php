@@ -1,7 +1,9 @@
 <?php
 /**
  * Named constants for the CMS.
- * @since 2.3.0[a]
+ * @since 2.3.0-alpha
+ *
+ * @package ReallySimpleCMS
  */
 
 /*------------------------------------*\
@@ -15,7 +17,8 @@ define('PHP_MINIMUM', '8.0');
 define('PHP_RECOMMENDED', '8.1');
 
 // Current CMS version
-define('CMS_VERSION', '1.3.13');
+#define('CMS_VERSION', '1.3.13-beta');
+define('CMS_VERSION', '1.3.12-beta');
 
 // Current jQuery version
 define('JQUERY_VERSION', '3.7.1');
@@ -91,4 +94,3 @@ define('ADMIN_FUNC', PATH . ADMIN . INC . '/functions.php');
 
 // The name of the CMS engine
 define('CMS_ENGINE', 'ReallySimpleCMS');
-define('CMS_NAME', CMS_ENGINE); // deprecated

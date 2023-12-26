@@ -1,23 +1,18 @@
 <?php
 /**
  * Admin dashboard header.
- * @since 1.0.2[a]
+ * @since 1.0.2-alpha
+ *
+ * @package ReallySimpleCMS
  */
 
-// Initialization file
 require_once dirname(__DIR__) . '/init.php';
-
-// Admin functions
 require_once ADMIN_FUNC;
-
-// Site-wide functions
 require_once FUNC;
 
-// Theme functions
 if(file_exists(slash(PATH . THEMES) . getSetting('theme') . '/functions.php'))
 	require_once slash(PATH . THEMES) . getSetting('theme') . '/functions.php';
 
-// Start output buffering
 ob_start();
 
 // Fetch the user's session data if they're logged in
@@ -40,7 +35,7 @@ $notices = array();
 <!DOCTYPE html>
 <html>
 	<head>
-		<title><?php echo getPageTitle(); ?> &rtrif; <?php putSetting('site_title'); ?> &mdash; <?php echo CMS_NAME; ?></title>
+		<title><?php echo getPageTitle(); ?> &rtrif; <?php putSetting('site_title'); ?> &mdash; <?php echo CMS_ENGINE; ?></title>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="robots" content="noindex, nofollow">

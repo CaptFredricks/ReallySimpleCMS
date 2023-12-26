@@ -1,7 +1,9 @@
 <?php
 /**
  * Initialize the system and load all core files.
- * @since 1.3.0[a]
+ * @since 1.3.0-alpha
+ *
+ * @package ReallySimpleCMS
  *
  * LOADING ORDER:
  * - constants.php -- The defined constants.
@@ -33,7 +35,7 @@ require_once DB_CONFIG;
 require_once DEBUG_FUNC;
 require_once GLOBAL_FUNC;
 
-$rs_query = new Query;
+$rs_query = new \Engine\Query;
 checkDBStatus();
 
 require_once DB_SCHEMA;

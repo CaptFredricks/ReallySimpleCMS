@@ -1,10 +1,11 @@
 <?php
 /**
  * Maintenance screen used by the CMS if it's in maintenance mode.
- * @since 1.3.6[b]
- *
  * Maintenance mode is useful for making potentially breaking changes on the website,
  *  and the CMS will only display it to logged out viewers.
+ * @since 1.3.6-beta
+ *
+ * @package ReallySimpleCMS
  */
 ?>
 <!DOCTYPE html>
@@ -21,6 +22,6 @@
 			<p>This site is currently down for scheduled maintenance.</p>
 			<p>Check back again later to see if the maintenance has ended.</p>
 		</div>
-		<p class="copyright">&copy; <?php echo date('Y'); ?> <?php echo CMS_NAME; ?>. All rights reserved.</p>
+		<p class="copyright">&copy; <?php echo date('Y'); ?> <?php echo CMS_ENGINE; ?>. All rights reserved.</p>
 	</body>
 </html>

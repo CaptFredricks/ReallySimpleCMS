@@ -1,7 +1,9 @@
 <?php
 /**
  * Define constants for the database connection.
- * @since 1.3.0[a]
+ * @since 1.3.0-alpha
+ *
+ * @package ReallySimpleCMS
  */
 
 // Set default timezone

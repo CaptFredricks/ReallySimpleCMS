@@ -13,15 +13,66 @@
 - x.x.X (standard/minor release)
 - x.x.x.X (bug fix/emergency patch release)
 - x.x.x_snap-xx (snapshot release)
+- [a] | -alpha (Alpha version)
+- [b] | -beta (Beta version)
 
-**Other**
-- [a] = alpha
-- [b] = beta
-
-## Version 1.4.0-beta_snap-xx (xxxx-xx-xx)
+## Version 1.4.0-beta_snap-01 (2023-12-26)
+*Feature Update: Auto Update*
 
 - Changed the format of snapshot versions from `x.x.x[x]_snap-xx` to `x.x.x-xxxx_snap-xx`
-- Coming soon!
+- Changed the format of regular versions from `x.x.x[a|b]` to `x.x.x-alpha|beta`
+- Updated documentation in various files
+- Added new API fetch files
+- The `polyfill-functions.php` file is now loaded in the `critical-functions.php` file
+- Created a new file to hold backward compatibility functions
+- Removed the `deprecated.php` file
+- Moved core classes to a new `engine` directory and namespaced them
+- Removed a deprecated constant
+
+**Bug fixes:**
+- An external link on the admin footer doesn't open in a new tab
+
+**Modified files:**
+- 404.php (M)
+- admin/about.php (M)
+- admin/footer.php (M)
+- admin/header.php (M)
+- admin/includes/functions.php
+- admin/index.php (M)
+- admin/update.php (N)
+- includes/ajax.php
+- includes/backward-compat.php (N)
+- includes/captcha.php (M)
+- includes/config-setup.php (M)
+- includes/constants.php (M)
+- includes/critical-functions.php (M)
+- includes/debug.php (M)
+- includes/deprecated.php (X)
+- includes/engine/class-api-fetch.php (N)
+- includes/engine/class-comment.php (M)
+- includes/engine/class-curl-fetch.php (N)
+- includes/engine/class-login.php (M)
+- includes/engine/class-menu.php (M)
+- includes/engine/class-post.php (M)
+- includes/engine/class-query.php
+- includes/engine/class-term.php (M)
+- includes/fallback-theme.php (M)
+- includes/functions.php
+- includes/global-functions.php
+- includes/load-template.php (M)
+- includes/load-theme.php (M)
+- includes/maintenance.php (M)
+- includes/polyfill-functions.php (M)
+- includes/schema.php (M)
+- includes/sitemap-index.php (M)
+- includes/sitemap-posts.php (M)
+- includes/sitemap-terms.php (M)
+- includes/theme-functions.php (M)
+- includes/update-db.php
+- includes/update.php
+- index.php (M)
+- init.php (M)
+- login.php (M)
 
 ## Version 1.2.0[b]{ss-05} (2020-12-28)
 

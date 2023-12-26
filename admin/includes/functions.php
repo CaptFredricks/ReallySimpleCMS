@@ -1,7 +1,9 @@
 <?php
 /**
  * Administrative functions.
- * @since 1.0.2[a]
+ * @since 1.0.2-alpha
+ *
+ * @package ReallySimpleCMS
  */
 
 // Path to the admin stylesheets directory
@@ -18,7 +20,7 @@ if(!defined('ADMIN_URI')) define('ADMIN_URI', $_SERVER['PHP_SELF']);
 
 /**
  * Autoload a class.
- * @since 1.0.2[a]
+ * @since 1.0.2-alpha
  *
  * @param string $class -- The name of the class.
  */
@@ -34,7 +36,7 @@ spl_autoload_register(function(string $class) {
 
 /**
  * Fetch the current admin page.
- * @since 1.5.4[a]
+ * @since 1.5.4-alpha
  *
  * @return string
  */
@@ -119,7 +121,7 @@ function getCurrentPage(): string {
 
 /**
  * Fetch an admin page's title.
- * @since 2.1.11[a]
+ * @since 2.1.11-alpha
  *
  * @return string
  */
@@ -150,7 +152,7 @@ function getPageTitle(): string {
 
 /**
  * Output an admin script file.
- * @since 1.2.0[a]
+ * @since 1.2.0-alpha
  *
  * @param string $script -- The script to load.
  * @param string $version (optional) -- The script's version.
@@ -162,7 +164,7 @@ function adminScript(string $script, string $version = CMS_VERSION): void {
 
 /**
  * Output an admin stylesheet.
- * @since 1.2.0[a]
+ * @since 1.2.0-alpha
  *
  * @param string $stylesheet -- The stylesheet to load.
  * @param string $version (optional) -- The stylesheet's version.
@@ -174,7 +176,7 @@ function adminStylesheet(string $stylesheet, string $version = CMS_VERSION): voi
 
 /**
  * Output an admin theme's stylesheet.
- * @since 2.3.1[a]
+ * @since 2.3.1-alpha
  *
  * @param string $stylesheet -- The stylesheet to load.
  * @param string $version (optional) -- The stylesheet's version.
@@ -186,7 +188,7 @@ function adminThemeStylesheet(string $stylesheet, string $version = CMS_VERSION)
 
 /**
  * Load all admin header scripts and stylesheets.
- * @since 2.0.7[a]
+ * @since 2.0.7-alpha
  */
 function adminHeaderScripts(): void {
 	global $session;
@@ -220,7 +222,7 @@ function adminHeaderScripts(): void {
 
 /**
  * Load all admin footer scripts and stylesheets.
- * @since 2.0.7[a]
+ * @since 2.0.7-alpha
  */
 function adminFooterScripts(): void {
 	// Admin script file
@@ -229,25 +231,38 @@ function adminFooterScripts(): void {
 
 /**
  * Display the copyright information on the admin dashboard.
- * @since 1.2.0[a]
+ * @since 1.2.0-alpha
  */
 function RSCopyright(): void {
-	?>
-	&copy; <?php echo date('Y'); ?> <a href="https://github.com/CaptFredricks/ReallySimpleCMS"><?php echo CMS_ENGINE; ?></a> &bull; Created by <a href="https://jacefincham.com/" target="_blank" rel="noreferrer noopener">Jace Fincham</a>
-	<?php
+	echo domTag('span', array(
+		'content' => '&copy; ' . date('Y') . ' ' . domTag('a', array(
+			'href' => 'https://github.com/CaptFredricks/ReallySimpleCMS',
+			'target' => '_blank',
+			'rel' => 'noreferrer noopener',
+			'content' => CMS_ENGINE
+		)) . ' &bull; Created by ' . domTag('a', array(
+			'href' => 'https://jacefincham.com/',
+			'target' => '_blank',
+			'rel' => 'noreferrer noopener',
+			'content' => 'Jace Fincham'
+		)) . '. All Rights Reserved.'
+	));
 }
 
 /**
  * Display the CMS version on the admin dashboard.
- * @since 1.2.0[a]
+ * @since 1.2.0-alpha
  */
 function RSVersion(): void {
-	echo 'Version ' . CMS_VERSION . ' (&beta;)';
+	echo domTag('a', array(
+		'href' => ADMIN . '/update.php',
+		'content' => 'Version ' . CMS_VERSION
+	));
 }
 
 /**
  * Create a menu item for the admin navigation.
- * @since 1.2.5[a]
+ * @since 1.2.5-alpha
  *
  * @param array $item (optional) -- The menu item.
  * @param array $submenu (optional) -- The submenu, if applicable.
@@ -336,13 +351,21 @@ function adminNavMenuItem(array $item = array(), array $submenu = array(), mixed
 
 /**
  * Construct the admin nav menu.
- * @since 1.0.0[b]
+ * @since 1.0.0-beta
  */
 function adminNavMenu(): void {
 	global $post_types, $taxonomies;
 	
 	// Dashboard
-	adminNavMenuItem(array('id' => 'dashboard', 'link' => 'index.php'), array(), 'gauge-high');
+	adminNavMenuItem(array(
+		'id' => 'dashboard',
+		'link' => 'index.php'
+	), array(
+		(userHasPrivilege('can_update_core') ? array(
+			'id' => 'update',
+			'link' => 'update.php'
+		) : null)
+	), 'gauge-high');
 	
 	// Post types
 	foreach($post_types as $post_type) {
@@ -486,7 +509,7 @@ function adminNavMenu(): void {
 
 /**
  * Get the count for posts of status `draft`.
- * @since 1.3.8[b]
+ * @since 1.3.8-beta
  *
  * @param string $type (optional) -- The post's type.
  * @return int
@@ -502,7 +525,7 @@ function ctDraft(string $type = 'post'): int {
 
 /**
  * Get statistics for a specific set of table entries.
- * @since 1.2.5[a]
+ * @since 1.2.5-alpha
  *
  * @param string $table -- The table name.
  * @param string $col (optional) -- The column to query.
@@ -520,7 +543,7 @@ function getStatistics(string $table, string $col = '', string $value = ''): int
 
 /**
  * Create and display a bar graph of site statistics.
- * @since 1.2.4[a]
+ * @since 1.2.4-alpha
  */
 function statsBarGraph(): void {
 	global $post_types, $taxonomies;
@@ -617,7 +640,7 @@ function statsBarGraph(): void {
 
 /**
  * Construct a widget for the admin dashboard.
- * @since 1.2.1[b]
+ * @since 1.2.1-beta
  *
  * @param string $name -- The widget's name.
  */
@@ -736,7 +759,7 @@ function dashboardWidget(string $name): void {
 
 /**
  * Construct a table row. Also known as an HTML `tr` tag.
- * @since 1.4.0[a]
+ * @since 1.4.0-alpha
  *
  * @param string|array $cells (optional) -- The table cells.
  * @return string
@@ -747,7 +770,7 @@ function tableRow(string|array ...$cells): string {
 
 /**
  * Construct a table cell, either of the header or data variety.
- * @since 1.2.1[a]
+ * @since 1.2.1-alpha
  *
  * @param string $tag -- The HTML tag.
  * @param string $content -- The cell's content.
@@ -766,7 +789,7 @@ function tableCell(string $tag, string $content, string $class = '', int $colspa
 
 /**
  * Construct a table header cell. Also known as an HTML `th` tag.
- * @since 1.3.2[b]
+ * @since 1.3.2-beta
  *
  * @param string $content -- The cell's content.
  * @param string $class (optional) -- The cell's CSS class(es).
@@ -780,7 +803,7 @@ function thCell(string $content, string $class = '', int $colspan = 1, int $rows
 
 /**
  * Construct a table data cell. Also known as an HTML `td` tag.
- * @since 1.3.2[b]
+ * @since 1.3.2-beta
  *
  * @param string $content -- The cell's content.
  * @param string $class (optional) -- The cell's CSS class(es).
@@ -794,7 +817,7 @@ function tdCell(string $content, string $class = '', int $colspan = 1, int $rows
 
 /**
  * Construct a table header row.
- * @since 1.2.1[a]
+ * @since 1.2.1-alpha
  *
  * @param array $items -- The row items.
  * @return string
@@ -812,8 +835,8 @@ function tableHeaderRow(array $items): string {
 
 /**
  * Construct a form HTML tag. Phased out in favor of DOMtags.
- * @since 1.2.0[a]
- * @deprecated since 1.3.11[b]
+ * @since 1.2.0-alpha
+ * @deprecated since 1.3.11-beta
  *
  * @param string $tag_name -- The tag's name.
  * @param array|null $args (optional) -- The tag's args.
@@ -904,8 +927,8 @@ function formTag(string $tag_name, ?array $args = null): string {
 
 /**
  * Alias for the formTag function.
- * @since 1.2.7[b]
- * @deprecated since 1.3.11[b]
+ * @since 1.2.7-beta
+ * @deprecated since 1.3.11-beta
  *
  * @param string $tag_name -- The tag's name.
  * @param array|null $args (optional) -- The tag's args.
@@ -919,7 +942,7 @@ function tag(string $tag_name, ?array $args = null): string {
 
 /**
  * Construct a form row.
- * @since 1.1.2[a]
+ * @since 1.1.2-alpha
  *
  * @param string|array $label (optional) -- The row's label.
  * @param string|array $args (optional) -- The row's args.
@@ -981,7 +1004,7 @@ function formRow(string|array $label = '', string|array ...$args): string {
 
 /**
  * Record search form.
- * @since 1.3.7[b]
+ * @since 1.3.7-beta
  *
  * @param array $args (optional) -- The args.
  */
@@ -1027,7 +1050,7 @@ function recordSearch(array $args = array()): void {
 
 /**
  * Upload media to the media library.
- * @since 2.1.6[a]
+ * @since 2.1.6-alpha
  *
  * @param array $data -- The submission data.
  * @return string
@@ -1141,7 +1164,7 @@ function uploadMediaFile(array $data): string {
 
 /**
  * Load the media library.
- * @since 2.1.2[a]
+ * @since 2.1.2-alpha
  *
  * @param bool $image_only (optional) -- Whether to display only images.
  */
@@ -1244,7 +1267,7 @@ function loadMedia(bool $image_only = false): void {
 
 /**
  * Construct a link to a media item.
- * @since 1.2.9[b]
+ * @since 1.2.9-beta
  *
  * @param int $id -- The media's id.
  * @param array $args (optional) -- The args.
@@ -1276,7 +1299,7 @@ function mediaLink(int $id, array $args = array()): string {
 
 /**
  * Construct a unique filename.
- * @since 2.1.0[a]
+ * @since 2.1.0-alpha
  *
  * @param string $filename -- The filename.
  * @return string
@@ -1309,7 +1332,7 @@ function getUniqueFilename(string $filename): string {
 
 /**
  * Convert a string value or file size to bytes.
- * @since 2.1.3[a]
+ * @since 2.1.3-alpha
  *
  * @param string $val -- The value as a string.
  * @return string
@@ -1334,7 +1357,7 @@ function getSizeInBytes(string $val): string {
 
 /**
  * Convert a file size in bytes to its equivalent in kilobytes, metabytes, etc.
- * @since 2.1.0[a]
+ * @since 2.1.0-alpha
  *
  * @param int $bytes -- The number of bytes.
  * @param int $decimals (optional) -- The number of decimal places.
@@ -1354,7 +1377,7 @@ function getFileSize(int $bytes, int $decimals = 1): string {
 
 /**
  * Populate the database tables.
- * @since 1.7.0[a]
+ * @since 1.7.0-alpha
  *
  * @param array $user_data -- The user data.
  * @param array $settings_data -- The settings data.
@@ -1386,7 +1409,7 @@ function populateTables(array $user_data, array $settings_data): void {
 
 /**
  * Display a notice.
- * @since 1.2.0[a]
+ * @since 1.2.0-alpha
  *
  * @param string $text -- The notice's text.
  * @param int $status (optional) -- The notice's status.
@@ -1402,7 +1425,7 @@ function notice(string $text, int $status = 2, bool $can_dismiss = true, bool $i
 
 /**
  * Display an exit status notice.
- * @since 1.3.8[b]
+ * @since 1.3.8-beta
  *
  * @param string $text -- The notice's text.
  * @param int $status (optional) -- The notice's status.
@@ -1415,7 +1438,7 @@ function exitNotice(string $text, int $status = 1, bool $can_dismiss = true): st
 
 /**
  * Check whether a notice has been dismissed.
- * @since 1.3.8[b]
+ * @since 1.3.8-beta
  *
  * @param string $text -- The notice's text.
  * @param array|bool $dismissed -- All dismissed notices.
@@ -1431,7 +1454,7 @@ function isDismissedNotice(string $text, array|bool $dismissed): bool {
 
 /**
  * Enable pagination.
- * @since 1.2.1[a]
+ * @since 1.2.1-alpha
  *
  * @param int $current_page (optional) -- The current page.
  * @param int $per_page (optional) -- The results per page.
@@ -1451,7 +1474,7 @@ function paginate(int $current_page = 1, int $per_page = 20): array {
 
 /**
  * Construct pager navigation.
- * @since 1.2.1[a]
+ * @since 1.2.1-alpha
  *
  * @param int $page -- The page.
  * @param int $page_count -- The total page count.
@@ -1509,7 +1532,7 @@ function pagerNav(int $page, int $page_count): void {
 
 /**
  * Construct an action link.
- * @since 1.2.0[b]{ss-01}
+ * @since 1.2.0-beta_snap-01
  *
  * @param string $action -- The action.
  * @param mixed $args (optional) -- The args.
@@ -1553,7 +1576,7 @@ function actionLink(string $action, mixed $args = null, mixed $more_args = null)
 
 /**
  * Display information about each admin page's function.
- * @since 1.2.0[b]
+ * @since 1.2.0-beta
  */
 function adminInfo(): void {
 	?>
@@ -1628,7 +1651,7 @@ function adminInfo(): void {
 
 /**
  * Check whether a post exists in the database.
- * @since 1.0.5[b]
+ * @since 1.0.5-beta
  *
  * @param int $id -- The post's id.
  * @return bool
@@ -1641,7 +1664,7 @@ function postExists(int $id): bool {
 
 /**
  * Check whether a term exists in the database.
- * @since 1.3.7[b]
+ * @since 1.3.7-beta
  *
  * @param int $id -- The term's id.
  * @return bool
@@ -1654,7 +1677,7 @@ function termExists(int $id): bool {
 
 /**
  * Construct a unique slug.
- * @since 1.0.9[b]
+ * @since 1.0.9-beta
  *
  * @param string $slug -- The slug.
  * @param string $table -- The database table.
@@ -1681,7 +1704,7 @@ function getUniqueSlug(string $slug, string $table): string {
 
 /**
  * Construct a unique post slug.
- * @since 1.0.9[b]
+ * @since 1.0.9-beta
  *
  * @param string $slug -- The post's slug.
  * @return string
@@ -1692,7 +1715,7 @@ function getUniquePostSlug(string $slug): string {
 
 /**
  * Construct a unique term slug.
- * @since 1.0.9[b]
+ * @since 1.0.9-beta
  *
  * @param string $slug -- The term's slug.
  * @return string

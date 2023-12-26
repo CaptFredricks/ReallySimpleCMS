@@ -1,13 +1,15 @@
 <?php
 /**
  * Admin dashboard page.
- * @since 1.0.2[a]
+ * @since 1.0.2-alpha
+ *
+ * @package ReallySimpleCMS
  */
+
 require_once __DIR__ . '/header.php';
 ?>
 <article class="content">
 	<?php
-	// Fetch the current action
 	$action = $_GET['action'] ?? '';
 	
 	switch($action) {

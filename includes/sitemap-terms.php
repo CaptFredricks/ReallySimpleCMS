@@ -1,7 +1,9 @@
 <?php
 /**
  * Generate sitemaps for all public terms.
- * @since 1.1.2[b]
+ * @since 1.1.2-beta
+ *
+ * @package ReallySimpleCMS
  */
 
 // Stop execution if the file is accessed directly

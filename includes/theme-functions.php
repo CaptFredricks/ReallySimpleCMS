@@ -1,7 +1,9 @@
 <?php
 /**
  * Theme-specific functions.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
+ *
+ * @package ReallySimpleCMS
  */
 
 /*------------------------------------*\
@@ -10,7 +12,7 @@
 
 /**
  * Check whether the currently viewed page is a post.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  *
  * @return bool
  */
@@ -23,7 +25,7 @@ function isPost(): bool {
 
 /**
  * Alias for the Post class' getPostId function.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  *
  * @see Post::getPostId()
  * @return int
@@ -37,13 +39,13 @@ function getPostId(): int {
 
 /**
  * Display the post's id.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  */
 function putPostId(): void { echo getPostId(); }
 
 /**
  * Alias for the Post class' getPostTitle function.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  *
  * @see Post::getPostTitle()
  * @return string
@@ -57,13 +59,13 @@ function getPostTitle(): string {
 
 /**
  * Display the post's title.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  */
 function putPostTitle(): void { echo getPostTitle(); }
 
 /**
  * Alias for the Post class' getPostAuthor function.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  *
  * @see Post::getPostAuthor()
  * @return string
@@ -77,13 +79,13 @@ function getPostAuthor(): string {
 
 /**
  * Display the post's author.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  */
 function putPostAuthor(): void { echo getPostAuthor(); }
 
 /**
  * Alias for the Post class' getPostDate function.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  *
  * @see Post::getPostDate()
  * @return string
@@ -97,13 +99,13 @@ function getPostDate(): string {
 
 /**
  * Display the post's publish date.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  */
 function putPostDate(): void { echo getPostDate(); }
 
 /**
  * Alias for the Post class' getPostModDate function.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  *
  * @see Post::getPostModDate()
  * @return string
@@ -117,13 +119,13 @@ function getPostModDate(): string {
 
 /**
  * Display the post's modified date.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  */
 function putPostModDate(): void { echo getPostModDate(); }
 
 /**
  * Alias for the Post class' getPostContent function.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  *
  * @see Post::getPostContent()
  * @return string
@@ -137,13 +139,13 @@ function getPostContent(): string {
 
 /**
  * Display the post's content.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  */
 function putPostContent(): void { echo getPostContent(); }
 
 /**
  * Alias for the Post class' getPostStatus function.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  *
  * @see Post::getPostStatus()
  * @return string
@@ -157,13 +159,13 @@ function getPostStatus(): string {
 
 /**
  * Display the post's status.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  */
 function putPostStatus(): void { echo getPostStatus(); }
 
 /**
  * Alias for the Post class' getPostSlug function.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  *
  * @see Post::getPostSlug()
  * @param int $id
@@ -178,7 +180,7 @@ function getPostSlug($id): string {
 
 /**
  * Display the post's slug.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  *
  * @param int $id
  */
@@ -186,7 +188,7 @@ function putPostSlug($id): void { echo getPostSlug($id); }
 
 /**
  * Alias for the Post class' getPostParent function.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  *
  * @see Post::getPostParent()
  * @return int
@@ -200,13 +202,13 @@ function getPostParent(): int {
 
 /**
  * Display the post's parent.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  */
 function putPostParent(): void { echo getPostParent(); }
 
 /**
  * Alias for the Post class' getPostType function.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  *
  * @see Post::getPostType()
  * @return string
@@ -220,13 +222,13 @@ function getPostType(): string {
 
 /**
  * Display the post's type.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  */
 function putPostType(): void { echo getPostType(); }
 
 /**
  * Alias for the Post class' getPostFeaturedImage function.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  *
  * @see Post::getPostFeaturedImage()
  * @return string
@@ -240,13 +242,13 @@ function getPostFeaturedImage(): string {
 
 /**
  * Display the post's featured image.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  */
 function putPostFeaturedImage(): void { echo getPostFeaturedImage(); }
 
 /**
  * Alias for the Post class' getPostMeta function.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  *
  * @see Post::getPostMeta()
  * @param string $key
@@ -261,7 +263,7 @@ function getPostMeta($key): string {
 
 /**
  * Display the post's metadata.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  *
  * @param string $key
  */
@@ -269,7 +271,7 @@ function putPostMeta($key): void { echo getPostMeta($key); }
 
 /**
  * Alias for the Post class' getPostTerms function.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  *
  * @see Post::getPostTerms()
  * @param string $taxonomy -- The term's taxonomy.
@@ -284,7 +286,7 @@ function getPostTerms(string $taxonomy = 'category', bool $linked = true): array
 
 /**
  * Display the post's terms.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  *
  * @param string $taxonomy (optional) -- The term's taxonomy.
  * @param bool $linked (optional; default: true)
@@ -295,7 +297,7 @@ function putPostTerms(string $taxonomy = 'category', bool $linked = true): void 
 
 /**
  * Alias for the Post class' getPostComments function.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  *
  * @see Post::getPostComments()
  * @param bool $feed_only (optional; default: false)
@@ -309,7 +311,7 @@ function getPostComments($feed_only = false): void {
 
 /**
  * Alias for the Post class' getPostUrl function.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  *
  * @see Post::getPostUrl()
  * @return string
@@ -323,13 +325,13 @@ function getPostUrl(): string {
 
 /**
  * Display the post's full URL.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  */
 function putPostUrl(): void { echo getPostUrl(); }
 
 /**
  * Alias for the Post class' postHasFeaturedImage function.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  *
  * @see Post::postHasFeaturedImage()
  * @return bool
@@ -343,7 +345,7 @@ function postHasFeaturedImage(): bool {
 
 /**
  * Construct the post's excerpt text.
- * @since 1.2.9[b]
+ * @since 1.2.9-beta
  *
  * @param int $num_words (optional; default: 25)
  * @return string
@@ -354,7 +356,7 @@ function getPostExcerpt($num_words = 25): string {
 
 /**
  * Display the post's excerpt text.
- * @since 1.2.9[b]
+ * @since 1.2.9-beta
  *
  * @param int $num_words (optional; default: 25)
  */
@@ -366,7 +368,7 @@ function putPostExcerpt($num_words = 25): void { echo getPostExcerpt($num_words)
 
 /**
  * Check whether the currently viewed page is a term.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  *
  * @return bool
  */
@@ -379,7 +381,7 @@ function isTerm(): bool {
 
 /**
  * Alias for the Term class' getTermId function.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  *
  * @see Term::getTermId()
  * @return int
@@ -393,13 +395,13 @@ function getTermId(): int {
 
 /**
  * Display the term's id.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  */
 function putTermId(): void { echo getTermId(); }
 
 /**
  * Alias for the Term class' getTermName function.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  *
  * @see Term::getTermName()
  * @return string
@@ -413,13 +415,13 @@ function getTermName(): string {
 
 /**
  * Display the term's name.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  */
 function putTermName(): void { echo getTermName(); }
 
 /**
  * Alias for the Term class' getTermSlug function.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  *
  * @see Term::getTermSlug()
  * @param int $id
@@ -434,7 +436,7 @@ function getTermSlug($id): string {
 
 /**
  * Display the term's slug.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  *
  * @param int $id
  */
@@ -442,7 +444,7 @@ function putTermSlug($id): void { echo getTermSlug($id); }
 
 /**
  * Alias for the Term class' getTermTaxonomy function.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  *
  * @see Term::getTermTaxonomy()
  * @return string
@@ -456,13 +458,13 @@ function getTermTaxonomy(): string {
 
 /**
  * Display the term's taxonomy.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  */
 function putTermTaxonomy(): void { echo getTermTaxonomy(); }
 
 /**
  * Alias for the Term class' getTermParent function.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  *
  * @see Term::getTermParent()
  * @return int
@@ -476,13 +478,13 @@ function getTermParent(): int {
 
 /**
  * Display the term's parent.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  */
 function putTermParent(): void { echo getTermParent(); }
 
 /**
  * Alias for the Term class' getTermUrl function.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  *
  * @see Term::getTermUrl()
  * @return string
@@ -496,13 +498,13 @@ function getTermUrl(): string {
 
 /**
  * Display the term's full URL.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  */
 function putTermUrl(): void { echo getTermUrl(); }
 
 /**
  * Alias for the getTermId function.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  *
  * @see getTermId()
  * @return int
@@ -511,7 +513,7 @@ function getCategoryId(): int { return getTermId(); }
 
 /**
  * Alias for the putTermId function.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  *
  * @see putTermId()
  */
@@ -519,7 +521,7 @@ function putCategoryId(): void { putTermId(); }
 
 /**
  * Alias for the getTermName function.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  *
  * @see getTermName()
  * @return string
@@ -528,7 +530,7 @@ function getCategoryName(): string { return getTermName(); }
 
 /**
  * Alias for the putTermName function.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  *
  * @see putTermName()
  */
@@ -536,7 +538,7 @@ function putCategoryName(): void { putTermName(); }
 
 /**
  * Alias for the getTermSlug function.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  *
  * @see getTermSlug()
  * @param int $id
@@ -546,7 +548,7 @@ function getCategorySlug($id): string { return getTermSlug($id); }
 
 /**
  * Alias for the putTermSlug function.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  *
  * @see putTermSlug()
  * @param int $id
@@ -555,7 +557,7 @@ function putCategorySlug($id): void { putTermSlug($id); }
 
 /**
  * Alias for the getTermParent function.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  *
  * @see getTermParent()
  * @return int
@@ -564,7 +566,7 @@ function getCategoryParent(): int { return getTermParent(); }
 
 /**
  * Alias for the putTermParent function.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  *
  * @see putTermParent()
  */
@@ -572,7 +574,7 @@ function putCategoryParent(): void { putTermParent(); }
 
 /**
  * Alias for the getTermUrl function.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  *
  * @see getTermUrl()
  * @return string
@@ -581,7 +583,7 @@ function getCategoryUrl(): string { return getTermUrl(); }
 
 /**
  * Alias for the putTermUrl function.
- * @since 1.2.8[b]
+ * @since 1.2.8-beta
  *
  * @see putTermUrl()
  */
@@ -589,7 +591,7 @@ function putCategoryUrl(): void { putTermUrl(); }
 
 /**
  * Fetch a user-friendly version of the term's taxonomy name.
- * @since 1.3.0[b]
+ * @since 1.3.0-beta
  *
  * @return string
  */
@@ -602,13 +604,13 @@ function getTermTaxName(): string {
 
 /**
  * Display a user-friendly version of the term's taxonomy name.
- * @since 1.3.0[b]
+ * @since 1.3.0-beta
  */
 function putTermTaxName(): void { echo getTermTaxName(); }
 
 /**
  * Fetch all posts associated with the current term.
- * @since 2.4.1[a]
+ * @since 2.4.1-alpha
  *
  * @param mixed $_term (optional) -- The term.
  * @param string $order_by (optional) -- The column to order by.
@@ -647,7 +649,7 @@ function getTermPosts(mixed $_term = null, string $order_by = 'date', string $or
 
 /**
  * Display all posts associated with the current term.
- * @since 1.3.0[b]
+ * @since 1.3.0-beta
  *
  * @param mixed $_term (optional) -- The term.
  * @param string $order_by (optional) -- The column to order by.
@@ -678,7 +680,7 @@ function putTermPosts(mixed $_term = null, string $order_by = 'date', string $or
 
 /**
  * Alias for the Query class' select function.
- * @since 1.3.8[b]
+ * @since 1.3.8-beta
  *
  * @see Query::select()
  * @param string $table
@@ -700,7 +702,7 @@ function querySelect($table, $data = '*', $where = array(), $order_by = '', $ord
 
 /**
  * Alias for the Query class' selectRow function.
- * @since 1.3.8[b]
+ * @since 1.3.8-beta
  *
  * @see Query::selectRow()
  * @param string $table
@@ -722,7 +724,7 @@ function querySelectRow($table, $data = '*', $where = array(), $order_by = '', $
 
 /**
  * Alias for the Query class' selectField function.
- * @since 1.3.8[b]
+ * @since 1.3.8-beta
  *
  * @see Query::selectField()
  * @param string $table
@@ -742,7 +744,7 @@ function querySelectField($table, $field, $where = array(), $order_by = '', $ord
 
 /**
  * Alias for the Query class' insert function.
- * @since 1.3.8[b]
+ * @since 1.3.8-beta
  *
  * @see Query::insert()
  * @param string $table
@@ -758,7 +760,7 @@ function queryInsert($table, $data): int {
 
 /**
  * Alias for the Query class' update function.
- * @since 1.3.8[b]
+ * @since 1.3.8-beta
  *
  * @see Query::update()
  * @param string $table
@@ -774,7 +776,7 @@ function queryUpdate($table, $data, $where = array()): void {
 
 /**
  * Alias for the Query class' delete function.
- * @since 1.3.8[b]
+ * @since 1.3.8-beta
  *
  * @see Query::delete()
  * @param string $table
@@ -793,7 +795,7 @@ function queryDelete($table, $where = array()): void {
 
 /**
  * Check whether a page template exists.
- * @since 2.3.3[a]
+ * @since 2.3.3-alpha
  *
  * @param string $template
  * @param string $dir
@@ -805,7 +807,7 @@ function templateExists($template, $dir): bool {
 
 /**
  * Fetch the theme's header template.
- * @since 1.5.5[a]
+ * @since 1.5.5-alpha
  *
  * @param string $template (optional; default: '')
  * @return null (when no template exists)
@@ -828,7 +830,7 @@ function getHeader($template = '') {
 
 /**
  * Fetch the theme's footer template.
- * @since 1.5.5[a]
+ * @since 1.5.5-alpha
  *
  * @param string $template (optional; default: '')
  * @return null (when no template exists)
@@ -851,7 +853,7 @@ function getFooter($template = '') {
 
 /**
  * Construct and display the page title.
- * @since 1.1.3[b]
+ * @since 1.1.3-beta
  */
 function pageTitle(): void {
 	if(isPost())
@@ -863,7 +865,7 @@ function pageTitle(): void {
 
 /**
  * Set up all of the meta tags for the <head> section.
- * @since 1.1.3[b]
+ * @since 1.1.3-beta
  */
 function metaTags(): void {
 	?>

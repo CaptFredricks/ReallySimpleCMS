@@ -1,14 +1,18 @@
 <?php
 /**
  * Core class used to implement the Query object.
- * @since 1.0.0[a]
- *
  * This class is the heart of the CMS, providing the primary interface with the database.
+ * @since 1.0.0-alpha
+ *
+ * @package ReallySimpleCMS
+ * @subpackage Engine
  */
+namespace Engine;
+
 class Query {
 	/**
 	 * The database connection.
-	 * @since 1.0.0[a]
+	 * @since 1.0.0-alpha
 	 *
 	 * @access private
 	 * @var object
@@ -17,7 +21,7 @@ class Query {
 	
 	/**
 	 * The database connection status.
-	 * @since 1.3.0[a]
+	 * @since 1.3.0-alpha
 	 *
 	 * @access public
 	 * @var bool
@@ -26,7 +30,7 @@ class Query {
 	
 	/**
 	 * The database character set.
-	 * @since 1.3.10[b]
+	 * @since 1.3.10-beta
 	 *
 	 * @access public
 	 * @var string
@@ -35,7 +39,7 @@ class Query {
 	
 	/**
 	 * The database collation.
-	 * @since 1.3.10[b]
+	 * @since 1.3.10-beta
 	 *
 	 * @access public
 	 * @var string
@@ -44,7 +48,7 @@ class Query {
 	
 	/**
 	 * The database server version.
-	 * @since 1.3.10[b]
+	 * @since 1.3.10-beta
 	 *
 	 * @access public
 	 * @var string
@@ -53,7 +57,7 @@ class Query {
 	
 	/**
 	 * The database client version.
-	 * @since 1.3.10[b]
+	 * @since 1.3.10-beta
 	 *
 	 * @access public
 	 * @var string
@@ -62,14 +66,14 @@ class Query {
 	
 	/**
 	 * Class constructor. Initializes the database connection.
-	 * @since 1.0.0[a]
+	 * @since 1.0.0-alpha
 	 *
 	 * @access public
 	 */
 	public function __construct() {
 		try {
 			// Create a PDO object and plug in the database constant values
-			$this->conn = new PDO('mysql' .
+			$this->conn = new \PDO('mysql' .
 				':dbname=' . DB_NAME .
 				';host=' . DB_HOST,
 				DB_USER,
@@ -77,10 +81,10 @@ class Query {
 			);
 			
 			// Turn off emulation of prepared statements
-			$this->conn->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+			$this->conn->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
 			
 			// Turn on error reporting
-			$this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			$this->conn->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 			
 			// Fetch the database software info
 			$this->server_version = $this->getAttr('SERVER_VERSION');
@@ -98,7 +102,7 @@ class Query {
 	
 	/**
 	 * Select one or more rows from the database and return them.
-	 * @since 1.1.0[a]
+	 * @since 1.1.0-alpha
 	 *
 	 * @access public
 	 * @param string $table -- The table name.
@@ -225,12 +229,12 @@ class Query {
             } else {
 				$data = array();
 				
-     			while($row = $select_query->fetch(PDO::FETCH_ASSOC))
+     			while($row = $select_query->fetch(\PDO::FETCH_ASSOC))
      				$data[] = $row;
 				
                 return $data;
             }
-		} catch(PDOException $e) {
+		} catch(\PDOException $e) {
 			logError($e);
 			return -1;
 		}
@@ -238,7 +242,7 @@ class Query {
 	
 	/**
 	 * Select only a single row from the database and return it.
-	 * @since 1.1.1[a]
+	 * @since 1.1.1-alpha
 	 *
 	 * @access public
 	 * @param string $table -- The table name.
@@ -267,7 +271,7 @@ class Query {
 	
 	/**
 	 * Select only a single field from the database and return it.
-	 * @since 1.8.10[a]
+	 * @since 1.8.10-alpha
 	 *
 	 * @access public
 	 * @param string $table -- The table name.
@@ -298,7 +302,7 @@ class Query {
 	
 	/**
 	 * Insert a row into the database.
-	 * @since 1.1.0[a]
+	 * @since 1.1.0-alpha
 	 *
 	 * @access public
 	 * @param string $table -- The table name.
@@ -331,7 +335,7 @@ class Query {
 			$insert_query->execute($values);
 			
 			return $this->conn->lastInsertId();
-		} catch(PDOException $e) {
+		} catch(\PDOException $e) {
 			logError($e);
 			return -1;
 		}
@@ -339,7 +343,7 @@ class Query {
 	
 	/**
 	 * Update an existing row in the database.
-	 * @since 1.1.0[a]
+	 * @since 1.1.0-alpha
 	 *
 	 * @access public
 	 * @param string $table -- The table name.
@@ -407,14 +411,14 @@ class Query {
 		try {
 			$update_query = $this->conn->prepare($sql);
 			$update_query->execute($values);
-		} catch(PDOException $e) {
+		} catch(\PDOException $e) {
 			logError($e);
 		}
 	}
 	
 	/**
 	 * Delete a row from the database.
-	 * @since 1.0.3[a]
+	 * @since 1.0.3-alpha
 	 *
 	 * @access public
 	 * @param string $table -- The table name.
@@ -468,14 +472,14 @@ class Query {
 		try {
 			$delete_query = $this->conn->prepare($sql);
 			isset($values) ? $delete_query->execute($values) : $delete_query->execute();
-		} catch(PDOException $e) {
+		} catch(\PDOException $e) {
 			logError($e);
 		}
 	}
 	
 	/**
 	 * Run a generic SQL query. Does not return data.
-	 * @since 1.3.0[a]
+	 * @since 1.3.0-alpha
 	 *
 	 * @access public
 	 * @param string $sql -- The SQL statement to execute.
@@ -484,14 +488,14 @@ class Query {
 		try {
 			$query = $this->conn->prepare($sql);
 			$query->execute();
-		} catch(PDOException $e) {
+		} catch(\PDOException $e) {
 			logError($e);
 		}
 	}
 	
 	/**
 	 * Show tables in the database.
-	 * @since 1.3.3[a]
+	 * @since 1.3.3-alpha
 	 *
 	 * @access public
 	 * @param string $table (optional) -- The table name.
@@ -510,7 +514,7 @@ class Query {
 			while($row = $query->fetch()) $data[] = $row;
 			
 			return $data;
-		} catch(PDOException $e) {
+		} catch(\PDOException $e) {
 			logError($e);
 			return -1;
 		}
@@ -518,7 +522,7 @@ class Query {
 	
 	/**
 	 * Show indexes in a table.
-	 * @since 1.2.1[b]
+	 * @since 1.2.1-beta
 	 *
 	 * @access public
 	 * @param string $table -- The table name.
@@ -536,7 +540,7 @@ class Query {
 			while($row = $query->fetch()) $data[] = $row;
 			
 			return $data;
-		} catch(PDOException $e) {
+		} catch(\PDOException $e) {
 			logError($e);
 			return -1;
 		}
@@ -544,7 +548,7 @@ class Query {
 	
 	/**
 	 * Check whether a table already exists in the database.
-	 * @since 1.0.8[b]
+	 * @since 1.0.8-beta
 	 *
 	 * @access public
 	 * @param string $table -- The table name.
@@ -556,7 +560,7 @@ class Query {
 	
 	/**
 	 * Check whether a column exists in a database table.
-	 * @since 1.3.5[b]
+	 * @since 1.3.5-beta
 	 *
 	 * @access public
 	 * @param string $table -- The table name.
@@ -574,7 +578,7 @@ class Query {
 			$query->execute();
 			
 			return !empty($query->fetch());
-		} catch(PDOException $e) {
+		} catch(\PDOException $e) {
 			logError($e);
 			return -1;
 		}
@@ -582,7 +586,7 @@ class Query {
 	
 	/**
 	 * Drop a table from the database.
-	 * @since 1.2.0[b]
+	 * @since 1.2.0-beta
 	 *
 	 * @access public
 	 * @param string $table -- The table name.
@@ -595,7 +599,7 @@ class Query {
 	
 	/**
 	 * Drop multiple tables from the database.
-	 * @since 1.2.0[b]
+	 * @since 1.2.0-beta
 	 *
 	 * @access public
 	 * @param array $tables -- The table names.
@@ -615,7 +619,7 @@ class Query {
 	
 	/**
 	 * Fetch a PDO attribute.
-	 * @since 1.3.10[b]
+	 * @since 1.3.10-beta
 	 *
 	 * @access private
 	 * @param string $attr -- The attribute's name.
@@ -627,7 +631,7 @@ class Query {
 	
 	/**
 	 * Initialize the charset and collation.
-	 * @since 1.3.10[b]
+	 * @since 1.3.10-beta
 	 *
 	 * @access private
 	 */
@@ -661,7 +665,7 @@ class Query {
 	
 	/**
 	 * Set the charset and collation.
-	 * @since 1.3.10[b]
+	 * @since 1.3.10-beta
 	 *
 	 * @access private
 	 * @param string|null $charset (optional) -- The character set.
@@ -731,7 +735,7 @@ class Query {
 	
 	/**
 	 * Check whether the database supports a particular capability.
-	 * @since 1.3.10[b]
+	 * @since 1.3.10-beta
 	 *
 	 * @access public
 	 * @param string $cap -- The capability.
@@ -764,7 +768,7 @@ class Query {
 	
 	/**
 	 * Return an error message for poorly executed queries.
-	 * @since 1.0.3[a]
+	 * @since 1.0.3-alpha
 	 *
 	 * @access private
 	 * @param string $type -- The type of error.

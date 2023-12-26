@@ -1,7 +1,9 @@
 <?php
 /**
  * Site-wide functions.
- * @since 1.0.0[a]
+ * @since 1.0.0-alpha
+ *
+ * @package ReallySimpleCMS
  */
 
 // Generate a cookie hash based on the site's URL
@@ -13,7 +15,7 @@ define('COOKIE_HASH', md5(getSetting('site_url')));
 
 /**
  * Fetch a theme-specific script file.
- * @since 2.0.7[a]
+ * @since 2.0.7-alpha
  *
  * @param string $script -- The script to load.
  * @param string $version (optional) -- The script's version.
@@ -28,7 +30,7 @@ function getThemeScript(string $script, string $version = CMS_VERSION): string {
 
 /**
  * Output a theme-specific script file.
- * @since 1.3.0[b]
+ * @since 1.3.0-beta
  *
  * @param string $script -- The script to load.
  * @param string $version (optional) -- The script's version.
@@ -39,7 +41,7 @@ function putThemeScript(string $script, string $version = CMS_VERSION): void {
 
 /**
  * Fetch a theme-specific stylesheet.
- * @since 2.0.7[a]
+ * @since 2.0.7-alpha
  *
  * @param string $stylesheet -- The stylesheet to load.
  * @param string $version (optional) -- The stylesheet's version.
@@ -54,7 +56,7 @@ function getThemeStylesheet(string $stylesheet, string $version = CMS_VERSION): 
 
 /**
  * Output a theme-specific stylesheet.
- * @since 1.3.0[b]
+ * @since 1.3.0-beta
  *
  * @param string $stylesheet -- The stylesheet to load.
  * @param string $version (optional) -- The stylesheet's version.
@@ -65,7 +67,7 @@ function putThemeStylesheet(string $stylesheet, string $version = CMS_VERSION): 
 
 /**
  * Load all header scripts and stylesheets.
- * @since 2.4.2[a]
+ * @since 2.4.2-alpha
  *
  * @param string|array $exclude (optional) -- The script(s) to exclude.
  * @param array $include_styles (optional) -- Any additional stylesheets to include.
@@ -115,7 +117,7 @@ function headerScripts(
 
 /**
  * Load all footer scripts and stylesheets.
- * @since 2.4.2[a]
+ * @since 2.4.2-alpha
  *
  * @param string|array $exclude (optional) -- The script(s) to exclude.
  * @param array $include_styles (optional) -- Any additional stylesheets to include.
@@ -149,7 +151,7 @@ function footerScripts(
 
 /**
  * Construct a list of CSS classes for the body tag.
- * @since 2.2.3[a]
+ * @since 2.2.3-alpha
  *
  * @param string|array $addtl_classes (optional) -- Additional classes to include.
  * @return string
@@ -190,7 +192,7 @@ function bodyClasses(string|array $addtl_classes = array()): string {
 
 /**
  * Construct an admin bar for logged in users.
- * @since 2.2.7[a]
+ * @since 2.2.7-alpha
  */
 function adminBar(): void {
 	global $rs_post, $rs_term, $session, $post_types, $taxonomies;
@@ -598,7 +600,7 @@ function adminBar(): void {
 
 /**
  * Prevent direct access to `/login.php` if a login slug has been set.
- * @since 1.3.12[b]
+ * @since 1.3.12-beta
  */
 function handleSecureLogin(): void {
 	$login_slug = getSetting('login_slug');
@@ -620,13 +622,13 @@ function handleSecureLogin(): void {
 
 /**
  * Determine the type of page being viewed (e.g., post, term, etc.).
- * @since 1.3.11[b]
+ * @since 1.3.11-beta
  */
 function guessPageType(): void {
 	global $rs_query, $rs_post, $rs_term;
 	
 	if(isset($_GET['preview']) && $_GET['preview'] === 'true' && isset($_GET['id']) && $_GET['id'] > 0) {
-		$rs_post = new Post;
+		$rs_post = new \Engine\Post;
 	} else {
 		$raw_uri = $_SERVER['REQUEST_URI'];
 		
@@ -647,9 +649,9 @@ function guessPageType(): void {
 		
 		// Check whether the current page is a post or a term
 		if($rs_query->selectRow('posts', 'COUNT(slug)', array('slug' => $slug)) > 0) {
-			$rs_post = new Post;
+			$rs_post = new \Engine\Post;
 		} elseif($rs_query->selectRow('terms', 'COUNT(slug)', array('slug' => $slug)) > 0) {
-			$rs_term = new Term;
+			$rs_term = new \Engine\Term;
 		} else {
 			// Catastrophic failure, abort
 			redirect('/404.php');
@@ -659,7 +661,7 @@ function guessPageType(): void {
 
 /**
  * Check whether a post type exists in the database.
- * @since 1.0.5[b]
+ * @since 1.0.5-beta
  *
  * @param string $type -- The post's type.
  * @return bool
@@ -674,7 +676,7 @@ function postTypeExists(string $type): bool {
 
 /**
  * Check whether a taxonomy exists in the database.
- * @since 1.0.5[b]
+ * @since 1.0.5-beta
  *
  * @param string $taxonomy -- The taxonomy's name.
  * @return bool
@@ -689,29 +691,29 @@ function taxonomyExists(string $taxonomy): bool {
 
 /**
  * Create a Post object based on a provided slug.
- * @since 2.2.3[a]
+ * @since 2.2.3-alpha
  *
  * @param string $slug -- The post's slug.
  * @return object
  */
 function getPost(string $slug): object {
-	return new Post($slug);
+	return new \Engine\Post($slug);
 }
 
 /**
  * Create a Term object based on a provided slug.
- * @since 1.0.6[b]
+ * @since 1.0.6-beta
  *
  * @param string $slug -- The term's slug.
  * @return object
  */
 function getTerm(string $slug): object {
-	return new Term($slug);
+	return new \Engine\Term($slug);
 }
 
 /**
  * Alias for the getTerm function.
- * @since 2.4.1[a]
+ * @since 2.4.1-alpha
  *
  * @see getTerm()
  * @param string $slug -- The category's slug.
@@ -723,18 +725,18 @@ function getCategory(string $slug): object {
 
 /**
  * Fetch a nav menu.
- * @since 2.2.3[a]
+ * @since 2.2.3-alpha
  *
  * @param string $slug -- The menu's slug.
  */
 function getMenu(string $slug): void {
-	$rs_menu = new Menu;
+	$rs_menu = new \Engine\Menu;
 	$rs_menu->getMenu($slug);
 }
 
 /**
  * Fetch a widget.
- * @since 2.2.1[a]
+ * @since 2.2.1-alpha
  *
  * @param string $slug -- The widget's slug.
  * @param bool $display_title (optional) -- Whether to display the widget's title.
@@ -779,7 +781,7 @@ function getWidget(string $slug, bool $display_title = false): void {
 
 /**
  * Register a menu.
- * @since 1.0.0[b]
+ * @since 1.0.0-beta
  *
  * @param string $name -- The menu's name.
  * @param string $slug -- The menu's slug.
@@ -801,7 +803,7 @@ function registerMenu(string $name, string $slug): void {
 
 /**
  * Register a widget.
- * @since 1.0.0[b]
+ * @since 1.0.0-beta
  *
  * @param string $title -- The widget's title.
  * @param string $slug -- The widget's slug.
@@ -826,7 +828,7 @@ function registerWidget(string $title, string $slug): void {
 
 /**
  * Format an email message with HTML and CSS.
- * @since 2.0.5[a]
+ * @since 2.0.5-alpha
  *
  * @param string $heading -- The email heading.
  * @param array $fields -- The email fields.

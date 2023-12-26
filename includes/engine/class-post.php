@@ -1,14 +1,18 @@
 <?php
 /**
  * Core class used to implement the Post object.
- * @since 1.0.2[a]
- *
  * This class loads data from the posts table of the database for use on the front end of the CMS.
+ * @since 1.0.2-alpha
+ *
+ * @package ReallySimpleCMS
+ * @subpackage Engine
  */
+namespace Engine;
+
 class Post {
 	/**
 	 * The currently queried post's slug.
-	 * @since 2.2.3[a]
+	 * @since 2.2.3-alpha
 	 *
 	 * @access private
 	 * @var string
@@ -17,7 +21,7 @@ class Post {
 	
 	/**
 	 * The currently queried post's type data.
-	 * @since 1.0.6[b]
+	 * @since 1.0.6-beta
 	 *
 	 * @access private
 	 * @var array
@@ -26,7 +30,7 @@ class Post {
 	
 	/**
 	 * The currently queried post's taxonomy data.
-	 * @since 1.0.6[b]
+	 * @since 1.0.6-beta
 	 *
 	 * @access private
 	 * @var array
@@ -35,7 +39,7 @@ class Post {
 	
 	/**
 	 * Class constructor. Sets the default queried post slug.
-	 * @since 2.2.3[a]
+	 * @since 2.2.3-alpha
 	 *
 	 * @access public
 	 * @param string $slug (optional) -- The post's slug.
@@ -172,7 +176,7 @@ class Post {
 	
 	/**
 	 * Fetch the post's id.
-	 * @since 2.2.0[a]
+	 * @since 2.2.0-alpha
 	 *
 	 * @access public
 	 * @return int
@@ -185,7 +189,7 @@ class Post {
 	
 	/**
 	 * Fetch the post's title.
-	 * @since 2.2.0[a]
+	 * @since 2.2.0-alpha
 	 *
 	 * @access public
 	 * @return string
@@ -198,7 +202,7 @@ class Post {
 	
 	/**
 	 * Fetch the post's author.
-	 * @since 2.2.0[a]
+	 * @since 2.2.0-alpha
 	 *
 	 * @access public
 	 * @return string
@@ -216,7 +220,7 @@ class Post {
 	
 	/**
 	 * Fetch the post's publish date.
-	 * @since 2.2.0[a]
+	 * @since 2.2.0-alpha
 	 *
 	 * @access public
 	 * @return string
@@ -234,7 +238,7 @@ class Post {
 	
 	/**
 	 * Fetch the post's modified date.
-	 * @since 2.2.0[a]
+	 * @since 2.2.0-alpha
 	 *
 	 * @access public
 	 * @return string
@@ -249,7 +253,7 @@ class Post {
 	
 	/**
 	 * Fetch the post's content.
-	 * @since 2.2.0[a]
+	 * @since 2.2.0-alpha
 	 *
 	 * @access public
 	 * @return string
@@ -262,7 +266,7 @@ class Post {
 	
 	/**
 	 * Fetch the post's status.
-	 * @since 2.2.0[a]
+	 * @since 2.2.0-alpha
 	 *
 	 * @access public
 	 * @return string
@@ -275,7 +279,7 @@ class Post {
 	
 	/**
 	 * Fetch the post's slug.
-	 * @since 2.2.0[a]
+	 * @since 2.2.0-alpha
 	 *
 	 * @access public
 	 * @param int $id -- The post's id.
@@ -289,7 +293,7 @@ class Post {
 	
 	/**
 	 * Fetch the post's parent.
-	 * @since 2.2.0[a]
+	 * @since 2.2.0-alpha
 	 *
 	 * @access public
 	 * @return int
@@ -302,7 +306,7 @@ class Post {
 	
 	/**
 	 * Fetch the post's type.
-	 * @since 2.2.0[a]
+	 * @since 2.2.0-alpha
 	 *
 	 * @access public
 	 * @return string
@@ -315,7 +319,7 @@ class Post {
 	
 	/**
 	 * Fetch the post's featured image.
-	 * @since 2.2.0[a]
+	 * @since 2.2.0-alpha
 	 *
 	 * @access public
 	 * @return string
@@ -333,7 +337,7 @@ class Post {
 	
 	/**
 	 * Fetch the post's metadata.
-	 * @since 2.2.3[a]
+	 * @since 2.2.3-alpha
 	 *
 	 * @access public
 	 * @param string $key -- The meta database key.
@@ -356,7 +360,7 @@ class Post {
 	
 	/**
 	 * Fetch the post's terms.
-	 * @since 2.4.1[a]
+	 * @since 2.4.1-alpha
 	 *
 	 * @access public
 	 * @param string $taxonomy -- The term's taxonomy.
@@ -390,13 +394,13 @@ class Post {
 	
 	/**
 	 * Fetch the post's comments.
-	 * @since 1.1.0[b]{ss-03}
+	 * @since 1.1.0-beta_snap-03
 	 *
 	 * @access public
 	 * @param bool $feed_only (optional) -- Whether to only display the comment feed.
 	 */
 	public function getPostComments(bool $feed_only = false): void {
-		$rs_comment = new Comment($this->getPostId());
+		$rs_comment = new \Engine\Comment($this->getPostId());
 		
 		if(!$feed_only) $rs_comment->getCommentReplyBox();
 		
@@ -405,7 +409,7 @@ class Post {
 	
 	/**
 	 * Fetch the post's permalink.
-	 * @since 2.2.5[a]
+	 * @since 2.2.5-alpha
 	 *
 	 * @access public
 	 * @param string $type -- The post's type.
@@ -419,7 +423,7 @@ class Post {
 	
 	/**
 	 * Fetch the post's full URL.
-	 * @since 2.2.3[a]
+	 * @since 2.2.3-alpha
 	 *
 	 * @access public
 	 * @return string
@@ -438,7 +442,7 @@ class Post {
 	
 	/**
 	 * Check whether a post has a featured image.
-	 * @since 2.2.4[a]
+	 * @since 2.2.4-alpha
 	 *
 	 * @access public
 	 * @return bool

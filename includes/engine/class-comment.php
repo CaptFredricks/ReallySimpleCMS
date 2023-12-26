@@ -1,14 +1,18 @@
 <?php
 /**
  * Core class used to implement the Comment object.
- * @since 1.1.0[b]{ss-03}
- *
  * This class loads data from the comments table of the database for use on the front end of the CMS.
+ * @since 1.1.0-beta_snap-03
+ *
+ * @package ReallySimpleCMS
+ * @subpackage Engine
  */
+namespace Engine;
+
 class Comment {
 	/**
 	 * The post the current comment belongs to.
-	 * @since 1.1.0[b]{ss-03}
+	 * @since 1.1.0-beta_snap-03
 	 *
 	 * @access private
 	 * @var int
@@ -17,7 +21,7 @@ class Comment {
 	
 	/**
 	 * Class constructor.
-	 * @since 1.1.0[b]{ss-03}
+	 * @since 1.1.0-beta_snap-03
 	 *
 	 * @access public
 	 * @param int $post (optional) -- The post the comment belongs to.
@@ -28,7 +32,7 @@ class Comment {
 	
 	/**
 	 * Fetch a comment's author.
-	 * @since 1.1.0[b]{ss-03}
+	 * @since 1.1.0-beta_snap-03
 	 *
 	 * @access public
 	 * @param int $id -- The comment's id.
@@ -53,7 +57,7 @@ class Comment {
 	
 	/**
 	 * Fetch a comment's author id.
-	 * @since 1.1.0[b]{ss-04}
+	 * @since 1.1.0-beta_snap-04
 	 *
 	 * @access public
 	 * @param int $id -- The comment's id.
@@ -67,7 +71,7 @@ class Comment {
 	
 	/**
 	 * Fetch a comment's submission date.
-	 * @since 1.1.0[b]{ss-03}
+	 * @since 1.1.0-beta_snap-03
 	 *
 	 * @access public
 	 * @param int $id -- The comment's id.
@@ -83,7 +87,7 @@ class Comment {
 	
 	/**
 	 * Fetch a comment's content.
-	 * @since 1.1.0[b]{ss-03}
+	 * @since 1.1.0-beta_snap-03
 	 *
 	 * @access public
 	 * @param int $id -- The comment's id.
@@ -97,7 +101,7 @@ class Comment {
 	
 	/**
 	 * Fetch a comment's number of upvotes.
-	 * @since 1.1.0[b]{ss-03}
+	 * @since 1.1.0-beta_snap-03
 	 *
 	 * @access public
 	 * @param int $id -- The comment's id.
@@ -111,7 +115,7 @@ class Comment {
 	
 	/**
 	 * Fetch a comment's number of downvotes.
-	 * @since 1.1.0[b]{ss-03}
+	 * @since 1.1.0-beta_snap-03
 	 *
 	 * @access public
 	 * @param int $id -- The comment's id.
@@ -125,7 +129,7 @@ class Comment {
 	
 	/**
 	 * Fetch a comment's status.
-	 * @since 1.1.0[b]{ss-03}
+	 * @since 1.1.0-beta_snap-03
 	 *
 	 * @access public
 	 * @param int $id -- The comment's id.
@@ -139,7 +143,7 @@ class Comment {
 	
 	/**
 	 * Fetch a comment's parent.
-	 * @since 1.1.0[b]{ss-04}
+	 * @since 1.1.0-beta_snap-04
 	 *
 	 * @access public
 	 * @param int $id -- The comment's id.
@@ -153,7 +157,7 @@ class Comment {
 	
 	/**
 	 * Fetch a comment's permalink.
-	 * @since 1.1.0[b]{ss-03}
+	 * @since 1.1.0-beta_snap-03
 	 *
 	 * @access public
 	 * @param int $id -- The comment's id.
@@ -171,7 +175,7 @@ class Comment {
 	
 	/**
 	 * Fetch the number of comments assigned to the current post.
-	 * @since 1.1.0[b]{ss-04}
+	 * @since 1.1.0-beta_snap-04
 	 *
 	 * @access public
 	 * @param int $post -- The post's id.
@@ -185,7 +189,7 @@ class Comment {
 	
 	/**
 	 * Construct the reply box for a comment feed.
-	 * @since 1.1.0[b]{ss-04}
+	 * @since 1.1.0-beta_snap-04
 	 *
 	 * @access public
 	 */
@@ -213,7 +217,7 @@ class Comment {
 	
 	/**
 	 * Construct a comment feed.
-	 * @since 1.1.0[b]{ss-03}
+	 * @since 1.1.0-beta_snap-03
 	 *
 	 * @access public
 	 */
@@ -227,7 +231,7 @@ class Comment {
 	
 	/**
 	 * Load a specified number of comments.
-	 * @since 1.2.2[b]
+	 * @since 1.2.2-beta
 	 *
 	 * @access public
 	 * @param int $offset (optional) -- The offset (starting point).
@@ -323,7 +327,7 @@ class Comment {
 	
 	/**
 	 * Create a new comment.
-	 * @since 1.1.0[b]{ss-04}
+	 * @since 1.1.0-beta_snap-04
 	 *
 	 * @access public
 	 * @param array $data -- The comment data.
@@ -361,7 +365,7 @@ class Comment {
 	
 	/**
 	 * Update an existing comment.
-	 * @since 1.1.0[b]{ss-05}
+	 * @since 1.1.0-beta_snap-05
 	 *
 	 * @access public
 	 * @param array $data -- The comment data.
@@ -378,7 +382,7 @@ class Comment {
 	
 	/**
 	 * Delete a comment.
-	 * @since 1.1.0[b]{ss-04}
+	 * @since 1.1.0-beta_snap-04
 	 *
 	 * @access public
 	 * @param int $id -- The comment's id.
@@ -402,7 +406,7 @@ class Comment {
 	
 	/**
 	 * Increment (increase) the vote count.
-	 * @since 1.1.0[b]{ss-03}
+	 * @since 1.1.0-beta_snap-03
 	 *
 	 * @access public
 	 * @param int $id -- The comment's id.
@@ -420,7 +424,7 @@ class Comment {
 	
 	/**
 	 * Decrement (decrease) the vote count.
-	 * @since 1.1.0[b]{ss-03}
+	 * @since 1.1.0-beta_snap-03
 	 *
 	 * @access public
 	 * @param int $id -- The comment's id.

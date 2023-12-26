@@ -1,7 +1,9 @@
 <?php
 /**
  * Debugging functions.
- * @since 1.0.1[a]
+ * @since 1.0.1-alpha
+ *
+ * @package ReallySimpleCMS
  */
 
 if(!defined('DEBUG_MODE')) define('DEBUG_MODE', false);
@@ -14,7 +16,7 @@ elseif(DEBUG_MODE === false && ini_get('display_errors'))
 
 /**
  * Generate an error log.
- * @since 1.0.1[a]
+ * @since 1.0.1-alpha
  *
  * @param object $exception -- The exception.
  */
@@ -25,7 +27,7 @@ function logError(object $exception): void {
 
 /**
  * Create a custom error handler.
- * @since 1.3.12[b]
+ * @since 1.3.12-beta
  *
  * @param int $errno -- The error level.
  * @param string $message -- The error message.
@@ -51,7 +53,7 @@ function errorHandler(int $errno, string $message): bool {
 
 /**
  * Output a deprecation notice.
- * @since 1.3.12[b]
+ * @since 1.3.12-beta
  */
 function deprecated(): void {
 	set_error_handler('errorHandler');

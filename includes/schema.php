@@ -1,7 +1,14 @@
 <?php
 /**
- * Construct the database schema.
- * @since 1.2.6[a]
+ * The database schema. This outlines all of the database tables and how they should be constructed.
+ * @since 1.2.6-alpha
+ *
+ * @package ReallySimpleCMS
+ */
+
+/**
+ * Construct the schema.
+ * @since 1.2.6-alpha
  *
  * @return array
  */

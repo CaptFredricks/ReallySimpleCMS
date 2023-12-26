@@ -1,8 +1,11 @@
 <?php
 /**
  * Admin about page.
- * @since 1.3.2[b]
+ * @since 1.3.2-beta
+ *
+ * @package ReallySimpleCMS
  */
+
 require_once __DIR__ . '/header.php';
 ?>
 <article class="content">
@@ -46,7 +49,7 @@ require_once __DIR__ . '/header.php';
 				
 				echo tableRow(
 					thCell('CMS Version'),
-					tdCell(CMS_VERSION . ' (Beta)')
+					tdCell(CMS_VERSION)
 				);
 				
 				echo tableRow(
@@ -190,4 +193,5 @@ require_once __DIR__ . '/header.php';
 		</tbody>
 	</table>
 </article>
-<?php require_once __DIR__ . '/footer.php'; ?>
+<?php
+require_once __DIR__ . '/footer.php';

@@ -1,7 +1,9 @@
 <?php
 /**
  * Try to load a custom page template. Default to the current theme's index.php file if none are found.
- * @since 2.3.3[a]
+ * @since 2.3.3-alpha
+ *
+ * @package ReallySimpleCMS
  */
 
 if(!is_null($theme_path)) {

@@ -1,12 +1,16 @@
 <?php
 /**
  * Functions that must be loaded early in the initialization.
- * @since 1.3.9[b]
+ * @since 1.3.9-beta
+ *
+ * @package ReallySimpleCMS
  */
+
+require_once PATH . INC . '/polyfill-functions.php';
 
 /**
  * Autoload a class.
- * @since 1.0.2[a]
+ * @since 1.0.2-alpha
  *
  * @param string $class -- The name of the class.
  */
@@ -23,7 +27,7 @@ spl_autoload_register(function(string $class) {
 
 /**
  * Make sure the server is running the required PHP version.
- * @since 1.3.9[b]
+ * @since 1.3.9-beta
  */
 function checkPHPVersion(): void {
 	$notice = 'The minimum version of PHP that is supported by ' . CMS_ENGINE . ' is ' . PHP_MINIMUM .
@@ -36,7 +40,7 @@ function checkPHPVersion(): void {
 
 /**
  * Make sure the database can be connected to.
- * @since 1.0.0-alpha
+ * @since 1.3.13-beta
  */
 function checkDBStatus(): void {
 	global $rs_query;
@@ -49,7 +53,7 @@ function checkDBStatus(): void {
 
 /**
  * Redirect to a specified URL.
- * @since 1.7.2[a]
+ * @since 1.7.2-alpha
  *
  * @param string $url -- The URL to redirect to.
  * @param int $status (optional) -- The HTTP status code.
@@ -61,7 +65,7 @@ function redirect(string $url, int $status = 302): void {
 
 /**
  * Construct a class' filename.
- * @since 1.3.9[b]
+ * @since 1.3.9-beta
  *
  * @param string $name -- The name of the class.
  * @return string
@@ -94,7 +98,7 @@ function getClassFilename(string $name): string {
 
 /**
  * Format a fragment of a file path.
- * @since 1.3.9[b]
+ * @since 1.3.9-beta
  *
  * @param string $frag -- The file path fragment.
  * @return string
@@ -117,7 +121,7 @@ function formatPathFragment(string $frag): string {
 
 /**
  * Remove a trailing slash from a string.
- * @since 1.3.6[b]
+ * @since 1.3.6-beta
  *
  * @param string $text -- The text string.
  * @return string
@@ -128,7 +132,7 @@ function unslash(string $text): string {
 
 /**
  * Add a trailing slash to a string.
- * @since 1.3.6[b]
+ * @since 1.3.6-beta
  *
  * @param string $text -- The text string.
  * @return string

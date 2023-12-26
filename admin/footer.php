@@ -1,7 +1,9 @@
 <?php
 /**
  * Admin dashboard footer.
- * @since 1.0.2[a]
+ * @since 1.0.2-alpha
+ *
+ * @package ReallySimpleCMS
  */
 ?>
 		</div>
@@ -13,5 +15,4 @@
 	</body>
 </html>
 <?php
-// End output buffering
 ob_end_flush();

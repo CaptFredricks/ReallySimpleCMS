@@ -1,14 +1,18 @@
 <?php
 /**
  * Core class used to implement the Term object.
- * @since 2.4.0[a]
- *
  * This class loads data from the terms table of the database for use on the front end of the CMS.
+ * @since 2.4.0-alpha
+ *
+ * @package ReallySimpleCMS
+ * @subpackage Engine
  */
+namespace Engine;
+
 class Term {
 	/**
 	 * The currently queried term's slug.
-	 * @since 2.4.0[a]
+	 * @since 2.4.0-alpha
 	 *
 	 * @access private
 	 * @var string
@@ -17,7 +21,7 @@ class Term {
 	
 	/**
 	 * Class constructor. Sets the default queried term slug.
-	 * @since 2.4.0[a]
+	 * @since 2.4.0-alpha
 	 *
 	 * @access public
 	 * @param string $slug (optional) -- The term's slug.
@@ -58,7 +62,7 @@ class Term {
 	
 	/**
 	 * Fetch the term's id.
-	 * @since 2.4.0[a]
+	 * @since 2.4.0-alpha
 	 *
 	 * @access public
 	 * @return int
@@ -71,7 +75,7 @@ class Term {
 	
 	/**
 	 * Fetch the term's name.
-	 * @since 2.4.0[a]
+	 * @since 2.4.0-alpha
 	 *
 	 * @access public
 	 * @return string
@@ -84,7 +88,7 @@ class Term {
 	
 	/**
 	 * Fetch the term's slug.
-	 * @since 2.4.0[a]
+	 * @since 2.4.0-alpha
 	 *
 	 * @access public
 	 * @param int $id -- The term's id.
@@ -98,7 +102,7 @@ class Term {
 	
 	/**
 	 * Fetch the term's taxonomy.
-	 * @since 2.4.0[a]
+	 * @since 2.4.0-alpha
 	 *
 	 * @access public
 	 * @return string
@@ -113,7 +117,7 @@ class Term {
 	
 	/**
 	 * Fetch the term's parent.
-	 * @since 2.4.0[a]
+	 * @since 2.4.0-alpha
 	 *
 	 * @access public
 	 * @return int
@@ -126,7 +130,7 @@ class Term {
 	
 	/**
 	 * Fetch the term's full URL.
-	 * @since 2.4.0[a]
+	 * @since 2.4.0-alpha
 	 *
 	 * @access public
 	 * @return string

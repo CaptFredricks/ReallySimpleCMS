@@ -1,16 +1,15 @@
 <?php
 /**
  * Generate a sitemap index.
- * @since 1.1.2[b]
+ * @since 1.1.2-beta
+ *
+ * @package ReallySimpleCMS
  */
 
 // Stop execution if the file is accessed directly
 if(!defined('PATH')) exit('You do not have permission to access this directory.');
 
-// Include the posts sitemap generator
 include_once PATH . INC . '/sitemap-posts.php';
-
-// Include the terms sitemap generator
 include_once PATH . INC . '/sitemap-terms.php';
 
 $sitemaps = array();
@@ -19,11 +18,8 @@ $sitemaps = array();
 if(is_writable(PATH)) {
 	$sitemap_file_path = PATH . '/sitemap.xml';
 	$robots_file_path = PATH . '/robots.txt';
-	
-	// Open the directory handle
 	$handle = opendir(PATH);
 	
-	// Loop through the directory's contents
 	while(($entry = readdir($handle)) !== false) {
 		// Check whether the current entry is a sitemap and assign it to the sitemaps array if so
 		if(str_starts_with($entry, 'sitemap-')) $sitemaps[] = $entry;
@@ -47,7 +43,6 @@ if(is_writable(PATH)) {
 	
 	// Check whether the sitemap index already exists and whether the sitemap count matches the count in the root directory
 	if(!file_exists($sitemap_file_path) || file_exists($sitemap_file_path) && $count !== count($sitemaps)) {
-		// Open the file stream in write mode
 		$handle = fopen($sitemap_file_path, 'w');
 		
 		fwrite($handle, '<?xml version="1.0" encoding="UTF-8"?>' .
@@ -67,18 +62,12 @@ if(is_writable(PATH)) {
 		chmod($sitemap_file_path, 0666);
 		
 		if(file_exists($robots_file_path)) {
-			// Open the file stream in read mode
 			$handle = fopen($robots_file_path, 'r');
-			
-			// Fetch the contents of the file
 			$contents = fread($handle, filesize($robots_file_path));
-			
-			// Close the file
 			fclose($handle);
 			
 			// Check whether a sitemap is defined in robots.txt
 			if(!str_contains($contents, 'Sitemap:')) {
-				// Open the file stream in append mode
 				$handle = fopen($robots_file_path, 'a');
 				
 				fwrite($handle, chr(10) . chr(10) . 'Sitemap: ' .
@@ -86,7 +75,6 @@ if(is_writable(PATH)) {
 				fclose($handle);
 			}
 		} else {
-			// Open the file stream in write mode
 			$handle = fopen($robots_file_path, 'w');
 			
 			fwrite($handle, 'Sitemap: ' . (!empty($_SERVER['HTTPS']) ? 'https://' : 'http://') .

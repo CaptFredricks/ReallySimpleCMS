@@ -1,7 +1,9 @@
 <?php
 /**
  * Try to load a front end theme. Default to a basic fallback theme if none are found.
- * @since 2.3.0[a]
+ * @since 2.3.0-alpha
+ *
+ * @package ReallySimpleCMS
  */
 
 // Check whether the themes directory exists and create it if not
