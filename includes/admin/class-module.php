@@ -7,28 +7,34 @@
  * @package ReallySimpleCMS
  * @subpackage Admin
  *
- * ## VARIABLES [4] ##
+ * ## OBJECT VAR ##
+ * - $rs_ad_module
+ *
+ * ## VARIABLES [5] ##
  * - private string $name
  * - private array $mod_data
+ * - private array $admin_page
  * - private string $action
  * - private array $paged
  *
- * ## METHODS [9] ##
+ * ## METHODS [14] ##
  * - public __construct(string $name, string $action, array $mod_data)
- * LISTS, FORMS, & ACTIONS:
+ * { LISTS, FORMS, & ACTIONS [5] }
  * - public listRecords(): void
- * - public 
+ * - public installModule(): void
+ * - public activateModule(): void
+ * - public deactivateModule(): void
  * - public updateModule(): void
- * - public 
- * VALIDATION:
- * - ## private validateSubmission(array $data): string
- * MISCELLANEOUS:
+ * { VALIDATION [1] }
+ * - private validateSubmission(array $data): string
+ * { MISCELLANEOUS [7] }
  * - public pageHeading(): void
  * - private exitNotice(string $exit_status, int $status_code): string
  * - private bulkActions(): void
  * - private isActive(string $name): bool
  * - private getResults(string $status, ?string $search): array
  * - private getEntryCount(string $status, ?string $search): int
+ * - private getActionLinks(array $module): string
  */
 namespace Admin;
 
@@ -50,6 +56,15 @@ class Module {
 	 * @var array
 	 */
 	private $mod_data = array();
+	
+	/**
+	 * The admin page's data.
+	 * @since 1.4.0-beta_snap-04
+	 *
+	 * @access private
+	 * @var array
+	 */
+	private $admin_page = array();
 	
 	/**
 	 * The current action.
@@ -79,9 +94,12 @@ class Module {
 	 * @param array $mod_data (optional) -- The module data.
 	 */
 	public function __construct(string $name, string $action, array $mod_data = array()) {
+		global $rs_admin_pages;
+		
 		$this->name = $name;
 		$this->action = $action;
 		$this->mod_data = $mod_data;
+		$this->admin_page = $rs_admin_pages[basename($_SERVER['PHP_SELF'], '.php')];
 	}
 	
 	/*------------------------------------*\
@@ -126,28 +144,6 @@ class Module {
 				$modules = $this->getResults($status, $search);
 				
 				foreach($modules as $module) {
-					// Action links
-					$actions = array(
-						// Activate/deactivate
-						$this->isActive($module['name']) ? actionLink('deactivate', array(
-							'caption' => 'Deactivate',
-							'name' => $module['name']
-						)) : actionLink('activate', array(
-							'caption' => 'Activate',
-							'name' => $module['name']
-						)),
-						// Delete
-						!$this->isActive($module['name']) ? actionLink('delete', array(
-							'classes' => 'modal-launch delete-item',
-							'data_item' => 'module',
-							'caption' => 'Delete',
-							'name' => $module['name']
-						)) : null
-					);
-					
-					// Filter out any empty actions
-					$actions = array_filter($actions);
-					
 					echo tableRow(
 						// Bulk select
 						tdCell(domTag('input', array(
@@ -162,7 +158,7 @@ class Module {
 								'content' => 'inactive'
 							)) : '') . domTag('br') . domTag('div', array(
 							'class' => 'actions',
-							'content' => !$module['is_required'] ? implode(' &bull; ', $actions) : domTag('em', array(
+							'content' => !$module['is_required'] ? $this->getActionLinks($module) : domTag('em', array(
 								'content' => 'required modules cannot be modified'
 							))
 						)), 'name'),
@@ -188,7 +184,7 @@ class Module {
 				}
 				
 				if(empty($modules))
-					echo tableRow(tdCell('There are no modules to display.', '', count($header_cols)));
+					echo tableRow(tdCell($this->admin_page['labels']['no_items'], '', count($header_cols)));
 				?>
 			</tbody>
 			<tfoot>
@@ -206,6 +202,151 @@ class Module {
 	}
 	
 	/**
+	 * Install a module.
+	 * @since 1.4.0-beta_snap-04
+	 *
+	 * @access public
+	 */
+	public function installModule(): void {
+		global $rs_modules;
+		
+		$this->pageHeading();
+		
+		$api_fetch = new \Engine\ApiFetch('modules');
+		$modules = json_decode($api_fetch->getModules(), true);
+		$modules = array_merge([], ...$modules);
+		
+		$list = array(
+			domTag('option', array(
+				'value' => '',
+				'content' => 'Select one...'
+			))
+		);
+		
+		foreach($modules as $key => $val) {
+			if(array_key_exists($key, $rs_modules)) continue;
+			
+			$list[] = domTag('option', array(
+				'value' => $key,
+				'content' => $val
+			));
+		}
+		?>
+		<div class="data-form-wrap clear">
+			<form class="data-form" action="" method="post" autocomplete="off" enctype="multipart/form-data">
+				<table class="form-table">
+					<?php
+					// Upload
+					
+					// Available modules
+					echo formRow('Available Modules', array(
+						'tag' => 'select',
+						'id' => 'install-field',
+						'class' => 'select-input',
+						'name' => 'install',
+						'content' => implode('', $list)
+					));
+					
+					// Separator
+					echo formRow('', array(
+						'tag' => 'hr',
+						'class' => 'separator'
+					));
+					
+					// Submit button
+					echo formRow('', array(
+						'tag' => 'input',
+						'type' => 'submit',
+						'class' => 'submit-input button',
+						'name' => 'submit',
+						'value' => $this->admin_page['labels']['create_button']
+					));
+					?>
+				</table>
+			</form>
+		</div>
+		<?php
+	}
+	
+	/**
+	 * Activate a registered module.
+	 * @since 1.4.0-beta_snap-04
+	 *
+	 * @access public
+	 */
+	public function activateModule(): void {
+		global $rs_query, $rs_modules;
+		
+		$active_modules = array();
+		$db_active_modules = getSetting('active_modules');
+		
+		if(!empty($this->name) && moduleExists($this->name) && !isActiveModule($this->name)) {
+			foreach($rs_modules as $module) {
+				if($module['is_required'] === true || $module['name'] === $this->name)
+					$active_modules[] = $module['name'];
+			}
+			
+			$active_modules = serialize($active_modules);
+			
+			if($active_modules !== $db_active_modules) {
+				$rs_query->update(getTable('s'), array(
+					'value' => $active_modules
+				), array(
+					'name' => 'active_modules'
+				));
+			}
+			
+			redirect(ADMIN_URI . getQueryString(array(
+				'exit_status' => 'activate_success'
+			)));
+		}
+		
+		redirect(ADMIN_URI . getQueryString(array(
+			'exit_status' => 'activate_failure'
+		)));
+	}
+	
+	/**
+	 * Deactivate a registered module.
+	 * @since 1.4.0-beta_snap-04
+	 *
+	 * @access public
+	 */
+	public function deactivateModule(): void {
+		global $rs_query, $rs_modules;
+		
+		$active_modules = array();
+		$db_active_modules = getSetting('active_modules');
+		
+		if(!empty($this->name) && moduleExists($this->name) && isActiveModule($this->name)) {
+			foreach($rs_modules as $module) {
+				if($module['name'] === $this->name)
+					continue;
+				elseif($module['is_required'] === true)
+					$active_modules[] = $module['name'];
+			}
+			
+			$active_modules = serialize($active_modules);
+			
+			if($active_modules !== $db_active_modules) {
+				$rs_query->update(getTable('s'), array(
+					'value' => $active_modules
+				), array(
+					'name' => 'active_modules'
+				));
+			}
+			
+			redirect(ADMIN_URI . getQueryString(array(
+				'exit_status' => 'deactivate_success'
+			)));
+		}
+		
+		redirect(ADMIN_URI . getQueryString(array(
+			'exit_status' => 'deactivate_failure'
+		)));
+	}
+	
+	/**
 	 * Update a module.
 	 * @since 1.4.0-beta_snap-03
 	 *
@@ -216,7 +357,7 @@ class Module {
 		?>
 		<div class="data-form-wrap clear">
 			<?php
-			echo domTag('p', array(
+			domTagPr('p', array(
 				'content' => 'Updating ' . domTag('strong', array(
 					'content' => $this->mod_data['label']
 				)) . ' from ' . domTag('strong', array(
@@ -233,6 +374,59 @@ class Module {
 	}
 	
 	/*------------------------------------*\
+		VALIDATION
+	\*------------------------------------*/
+	
+	/**
+	 * Validate the form data.
+	 * @since 1.4.0-beta_snap-04
+	 *
+	 * @access private
+	 * @param array $data -- The submission data.
+	 * @return string
+	 */
+	private function validateSubmission(array $data): string {
+		global $rs_query, $rs_modules;
+		
+		if(empty($data['install'])) {
+			return exitNotice('You must select a module to install!', -1);
+			exit;
+		}
+		
+		if(moduleExists($data['install'])) {
+			return exitNotice('Module is already installed.', -1);
+			exit;
+		}
+		
+		$api_fetch = new \Engine\ApiFetch($data['install']);
+		$download = pathinfo($api_fetch->getDownload());
+		$modules_file_path = slash(PATH . MODULES);
+		$filename = strtok($download['basename'], '?');
+		$zip_file = $modules_file_path . $filename;
+		$file = file_put_contents($zip_file, fopen($api_fetch->getDownload(), 'r'), LOCK_EX);
+		
+		if($file !== false) {
+			$zip = new \ZipArchive;
+			$res = $zip->open($zip_file);
+			
+			if($res === true) {
+				$zip->extractTo($modules_file_path);
+				$zip->close();
+			} else {
+				var_dump($res);
+				exit;
+			}
+		}
+		
+		// Remove zip file
+		unlink($zip_file);
+		
+		redirect(ADMIN_URI . getQueryString(array(
+			'exit_status' => 'install_success'
+		)));
+	}
+	
+	/*------------------------------------*\
 		MISCELLANEOUS
 	\*------------------------------------*/
 	
@@ -243,13 +437,15 @@ class Module {
 	 * @access public
 	 */
 	public function pageHeading(): void {
+		$labels = $this->admin_page['labels'];
+		
 		switch($this->action) {
 			case 'install':
-				$title = 'Install Module';
+				$title = $labels['create_item'];
 				$message = isset($_POST['submit']) ? $this->validateSubmission($_POST) : '';
 				break;
 			default:
-				$title = 'Modules';
+				$title = $labels['name'];
 				$status = $_GET['status'] ?? 'all';
 				$search = $_GET['search'] ?? null;
 		}
@@ -257,7 +453,7 @@ class Module {
 		<div class="heading-wrap">
 			<?php
 			// Page title
-			echo domTag('h1', array(
+			domTagPr('h1', array(
 				'content' => $title
 			));
 			
@@ -270,12 +466,12 @@ class Module {
 					echo $this->exitNotice($_GET['exit_status']);
 			} else {
 				// Install button
-				if(userHasPrivilege('can_create_themes')) {
+				//if(userHasPrivilege('can_install_modules')) {
 					echo actionLink('install', array(
 						'classes' => 'button',
-						'caption' => 'Install New'
+						'caption' => $labels['create_button']
 					));
-				}
+				//}
 				
 				// Search
 				recordSearch(array(
@@ -285,7 +481,7 @@ class Module {
 				//Info
 				adminInfo();
 				
-				echo domTag('hr');
+				domTagPr('hr');
 				
 				// Exit notices
 				if(isset($_GET['exit_status'])) {
@@ -310,7 +506,7 @@ class Module {
 					
 					// Statuses
 					foreach($count as $key => $value) {
-						echo domTag('li', array(
+						domTagPr('li', array(
 							'content' => domTag('a', array(
 								'href' => ADMIN_URI . ($key === 'all' ? '' : '?status=' . $key),
 								'content' => ucfirst($key) . ' ' . domTag('span', array(
@@ -326,7 +522,7 @@ class Module {
 				</ul>
 				<?php
 				// Record count
-				echo domTag('div', array(
+				domTagPr('div', array(
 					'class' => 'entry-count status',
 					'content' => $count[$status] . ' ' . ($count[$status] === 1 ? 'entry' : 'entries')
 				));
@@ -352,6 +548,8 @@ class Module {
 			'install_success' => 'The module was successfully installed.',
 			'activate_success' => 'The module was successfully activated.',
 			'activate_failure' => 'The module could not be activated.',
+			'deactivate_success' => 'The module was successfully deactivated.',
+			'deactivate_failure' => 'The module could not be deactivated.',
 			'del_success' => 'The module was successfully deleted.',
 			'del_failure' => 'The module could not be deleted.',
 			default => 'The action was completed successfully.'
@@ -366,6 +564,8 @@ class Module {
 	 */
 	private function bulkActions(): void {
 		global $rs_modules;
+		
+		$labels = $this->admin_page['labels'];
 		?>
 		<div class="bulk-actions">
 			<?php
@@ -380,7 +580,7 @@ class Module {
 					));
 				}
 				
-				echo domTag('select', array(
+				domTagPr('select', array(
 					'class' => 'actions',
 					'content' => implode('', $list)
 				));
@@ -389,16 +589,16 @@ class Module {
 				button(array(
 					'class' => 'bulk-update',
 					'title' => 'Bulk status update',
-					'label' => 'Update'
+					'label' => $labels['bulk_update']
 				));
 			#}
 			
-			#if(userHasPrivilege('can_delete_modules')) {
-				// Delete
+			#if(userHasPrivilege('can_uninstall_modules')) {
+				// Uninstall
 				button(array(
 					'class' => 'bulk-delete',
-					'title' => 'Bulk delete',
-					'label' => 'Delete'
+					'title' => 'Bulk ' . $this->admin_page['actions']['uninstall'],
+					'label' => $labels['bulk_delete']
 				));
 			#}
 			?>
@@ -436,7 +636,7 @@ class Module {
 	 * @return array
 	 */
 	private function getResults(string $status, ?string $search): array {
-		global $rs_modules;
+		global $rs_update, $rs_modules;
 		
 		$modules = array();
 		
@@ -465,8 +665,11 @@ class Module {
 					break;
 				default:
 					foreach($rs_modules as $module) {
-						if(str_contains(strtolower($module['label']), $search))
+						if($rs_update->isUpdateAvailable($module['name'], $module['version']) &&
+							str_contains(strtolower($module['label']), $search))
+						{
 							$modules[] = $module;
+						}
 					}
 			}
 		} else {
@@ -491,6 +694,10 @@ class Module {
 					}
 					break;
 				case 'update':
+					foreach($rs_modules as $module) {
+						if($rs_update->isUpdateAvailable($module['name'], $module['version']))
+							$modules[] = $module;
+					}
 					break;
 				default:
 					$modules = $rs_modules;
@@ -511,5 +718,59 @@ class Module {
 	 */
 	private function getEntryCount(string $status, ?string $search): int {
 		return count($this->getResults($status, $search));
+	}
+	
+	/**
+	 * Fetch all associated action links.
+	 * @since 1.4.0-beta_snap-04
+	 *
+	 * @access private
+	 * @param array $module -- The module's data.
+	 * @return string
+	 */
+	private function getActionLinks(array $module): string {
+		$actions = $this->admin_page['actions'];
+		$action_list = array();
+		
+		foreach($actions as $key => $value) {
+			if($value === 'install') continue;
+			
+			$privileged = match($value) {
+				#'activate', 'deactivate' => userHasPrivilege('can_edit_modules'),
+				#'uninstall' => userHasPrivilege('can_uninstall_modules'),
+				default => null
+			};
+			
+			$action_list[] = array(
+				'privileged' => $privileged,
+				'link' => $value,
+				'caption' => ucfirst($value)
+			);
+		}
+		
+		list($uninstall, $activate, $deactivate) = $action_list;
+		
+		$action_links = array(
+			// Activate/deactivate
+			$this->isActive($module['name']) ? actionLink($deactivate['link'], array(
+				'caption' => $deactivate['caption'],
+				'name' => $module['name']
+			)) : actionLink($activate['link'], array(
+				'caption' => $activate['caption'],
+				'name' => $module['name']
+			)),
+			// Uninstall
+			!$this->isActive($module['name']) ? actionLink($uninstall['link'], array(
+				'classes' => 'modal-launch delete-item',
+				'data_item' => 'module',
+				'caption' => $uninstall['caption'],
+				'name' => $module['name']
+			)) : null
+		);
+		
+		// Filter out any empty actions
+		$action_links = array_filter($action_links);
+		
+		return implode(' &bull; ', $action_links);
 	}
 }

@@ -5,11 +5,13 @@
  *
  * @package ReallySimpleCMS
  *
- * ## FUNCTIONS [4] ##
- * - registerModule(string $name): void
+ * ## FUNCTIONS [6] ##
+ * - registerModule(string $name, array $args): ?array
  * - unregisterModule(string $name, bool $del_data): bool
- * - registerRequiredModules(): void
+ * - runModulesRegister(): void
+ * - loadModuleReg(string $name): void
  * - moduleExists(string $name): bool
+ * - isActiveModule(string $name): bool
  */
 
 /**
@@ -18,21 +20,12 @@
  *
  * @param string $name -- The module's name.
  * @param array $args (optional) -- The args.
+ * @return null|array
  */
-function registerModule(string $name, array $args = array()): void {
+function registerModule(string $name, array $args = array()): ?array {
 	global $rs_register;
 	
-	$reg = slash(PATH . MODULES) . slash($name) . $name . '.php';
-	
-	if(file_exists($reg)) {
-		requireFile($reg);
-		
-		if(defined(strtoupper($name) . '_VERSION')) {
-			$args['version'] = constant(strtoupper($name) . '_VERSION');
-			
-			$rs_register->registerModule($name, $args);
-		}
-	}
+	return $rs_register->registerModule($name, $args);
 }
 
 /**
@@ -40,7 +33,7 @@ function registerModule(string $name, array $args = array()): void {
  * @since 1.4.0-beta_snap-03
  *
  * @param string $name -- The module's name.
- * @param bool $del_data (optional) -- Whether to delete all data from the database.
+ * @param bool $del_data (optional) -- Whether to delete all associated data.
  * @return bool
  */
 function unregisterModule(string $name, bool $del_data = false): bool {
@@ -50,40 +43,36 @@ function unregisterModule(string $name, bool $del_data = false): bool {
 }
 
 /**
- * Register required modules.
+ * Register all available modules.
  * @since 1.4.0-beta_snap-03
  */
-function registerRequiredModules(): void {
-	global $rs_query, $rs_register, $rs_modules;
+function runModulesRegister(): void {
+	global $rs_register;
 	
-	$active_modules = array();
+	// Required modules
+	$required_modules = $rs_register::REQUIRED_MODULES;
 	
-	// DOMtags
-	registerModule('domtags', array(
-		'label' => 'DOMtags',
-		'author' => array(
-			'name' => 'Jace Fincham',
-			'url' => 'https://jacefincham.com/'
-		),
-		'description' => 'DOMtags are a set of dynamically generated HTML DOM tags created through a series of PHP classes. They are meant for keeping backend code clean in large projects that make use of lots of HTML within the PHP, which can cause unnecessary clutter.'
-	));
+	foreach($required_modules as $module) loadModuleReg($module);
 	
-	// Auto-activate required modules
-	foreach($rs_modules as $module) {
-		if($module['is_required'] === true)
-			$active_modules[] = $module['name'];
-	}
+	// Additional modules
+	$addtl_modules = array_diff(scandir(PATH . MODULES), array_merge($required_modules, array('.', '..', 'backups')));
 	
-	$active_modules = serialize($active_modules);
-	$db_active_modules = getSetting('active_modules');
+	foreach($addtl_modules as $module) loadModuleReg($module);
 	
-	if($active_modules !== $db_active_modules) {
-		$rs_query->update(array('settings', 's_'), array(
-			'value' => $active_modules
-		), array(
-			'name' => 'active_modules'
-		));
-	}
+	// Activate all required modules (non-essential modules can be activated or deactivated from the dashboard)
+	# activateRequiredModules();
+}
+
+/**
+ * Try to load a module's register file.
+ * @since 1.4.0-beta_snap-04
+ *
+ * @param string $name -- The theme's name.
+ */
+function loadModuleReg(string $name): void {
+	$reg = slash(PATH . MODULES) . slash($name) . $name . '.php';
+	
+	if(file_exists($reg)) requireFile($reg);
 }
 
 /**
@@ -96,5 +85,20 @@ function registerRequiredModules(): void {
 function moduleExists(string $name): bool {
 	global $rs_modules;
 	
-	return !empty($rs_modules) && array_key_exists($name, $rs_modules);
+	$installed = array_diff(scandir(PATH . MODULES), array('.', '..', 'backups'));
+	
+	return !empty($rs_modules) && array_key_exists($name, $rs_modules) && in_array($name, $installed, true);
+}
+
+/**
+ * Check whether a specified module is active.
+ * @since 1.4.0-beta_snap-04
+ *
+ * @param string $name -- The module's name.
+ * @return bool
+ */
+function isActiveModule(string $name): bool {
+	$active_modules = unserialize(getSetting('active_modules'));
+	
+	return in_array($name, $active_modules, true);
 }

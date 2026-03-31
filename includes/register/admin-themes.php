@@ -5,10 +5,11 @@
  *
  * @package ReallySimpleCMS
  *
- * ## FUNCTIONS [5] ##
+ * ## FUNCTIONS [6] ##
  * - registerAdminTheme(string $name, array $args): ?array
  * - unregisterAdminTheme(string $name, bool $del_data): bool
- * - registerDefaultAdminThemes(): void
+ * - runAdminThemesRegister(): void
+ * - loadAdminThemeReg(string $name): void
  * - loadAdminTheme(string $stylesheet, string $version): void
  * - adminThemeExists(string $name): bool
  */
@@ -42,20 +43,33 @@ function unregisterAdminTheme(string $name, bool $del_data = false): bool {
 }
 
 /**
- * Register default admin themes.
+ * Register all available admin themes.
  * @since 1.4.0-beta_snap-03
  */
-function registerDefaultAdminThemes(): void {
+function runAdminThemesRegister(): void {
 	global $rs_register;
 	
+	// Default admin themes
 	$default_themes = $rs_register::DEFAULT_ADMIN_THEMES;
 	
-	foreach($default_themes as $theme) {
-		// Try to load the admin theme config file
-		$reg = slash(PATH . ADMIN_THEMES) . slash($theme) . $theme . '.php';
-		
-		if(file_exists($reg)) requireFile($reg);
-	}
+	foreach($default_themes as $theme) loadAdminThemeReg($theme);
+	
+	// Custom admin themes
+	$custom_themes = array_diff(scandir(PATH . ADMIN_THEMES), array_merge($default_themes, array('.', '..', 'backups')));
+	
+	foreach($custom_themes as $theme) loadAdminThemeReg($theme);
+}
+
+/**
+ * Try to load an admin theme's register file.
+ * @since 1.4.0-beta_snap-04
+ *
+ * @param string $name -- The theme's name.
+ */
+function loadAdminThemeReg(string $name): void {
+	$reg = slash(PATH . ADMIN_THEMES) . slash($name) . $name . '.php';
+	
+	if(file_exists($reg)) requireFile($reg);
 }
 
 /**

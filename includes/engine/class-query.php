@@ -7,17 +7,20 @@
  * @package ReallySimpleCMS
  * @subpackage Engine
  *
- * ## VARIABLES ##
- * - private object $conn
+ * ## OBJECT VAR ##
+ * - $rs_query
+ *
+ * ## VARIABLES [6] ##
+ * - private null|object $conn
  * - public bool $conn_status
  * - public string $charset
  * - public string $collate
  * - public string $server_version
  * - public string $client_version
  *
- * ## METHODS ##
+ * ## METHODS [19] ##
  * - public __construct()
- * BASIC QUERIES:
+ * { BASIC QUERIES [7] }
  * - public select(string|array $table, string|array $cols, array $where, array $args): int|array
  * - public selectRow(string|array $table, string|array $cols, array $where, array $args): int|array
  * - public selectField(string|array $table, string $col, array $where, array $args): string
@@ -25,7 +28,7 @@
  * - public update(string|array $table, array $data, array $where, array $args): void
  * - public delete(string|array $table, array $where, array $args): void
  * - public doQuery(string $sql): void
- * ADVANCED QUERIES & ACTIONS:
+ * { ADVANCED QUERIES & ACTIONS [7] }
  * - public showTables(string $table): int|array
  * - public showIndexes(string $table): int|array
  * - public tableExists(string $table): bool
@@ -33,7 +36,7 @@
  * - public createTable(string $table, array $data): void
  * - public dropTable(string $table): void
  * - public dropTables(array $tables): void
- * MISCELLANEOUS:
+ * { MISCELLANEOUS [4] }
  * - private getAttr(string $attr): string
  * - private initCharset(): void
  * - private setCharset(?string $charset, ?string $collate): void
@@ -239,8 +242,8 @@ class Query {
 					}
 					
 					$conditions[] = match($operator) {
-						'BETWEEN', 'NOT BETWEEN' => $field . ' ' . $operator . ' ' . implode(' AND ', $placeholders),
 						'IN', 'NOT IN' => $field . ' ' . $operator . ' (' . implode(', ', $placeholders) . ')',
+						'BETWEEN', 'NOT BETWEEN' => $field . ' ' . $operator . ' ' . implode(' AND ', $placeholders),
 						'IS NULL', 'IS NOT NULL' => $field . ' ' . $operator,
 						default => $field . ' ' . $operator . ' ?'
 					};
@@ -299,15 +302,27 @@ class Query {
 			isset($values) ? $select_query->execute($values) : $select_query->execute();
 			
 			if(str_starts_with(strtoupper($cols), 'COUNT(')) {
-                return $select_query->fetchColumn();
-            } else {
+				return $select_query->fetchColumn();
+			} else {
 				$data = array();
 				
-     			while($row = $select_query->fetch(\PDO::FETCH_ASSOC))
+     			while($row = $select_query->fetch(\PDO::FETCH_ASSOC)) {
+					// Remove prefixes from return values
+					if(isset($px)) {
+						foreach($row as $key => $val) {
+							if(str_starts_with($key, $px)) {
+								$no_px = str_replace($px, '', $key);
+								$row[$no_px] = $row[$key];
+								unset($row[$key]);
+							}
+						}
+					}
+					
      				$data[] = $row;
+				}
 				
-                return $data;
-            }
+				return $data;
+			}
 		} catch(\PDOException $e) {
 			$rs_error->logError($e);
 			

@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin profile page.
+ * Admin profile page. Makes use of the Profile object.
  * @since 2.0.0-alpha
  *
  * @package ReallySimpleCMS
@@ -8,20 +8,21 @@
 
 require_once __DIR__ . '/header.php';
 
+// Query vars
 $action = $_GET['action'] ?? '';
 
-$rs_profile = new \Admin\Profile($rs_session['id'], $action);
+$rs_ad_profile = new \Admin\Profile($rs_session['id'], $action);
 ?>
 <article class="content">
 	<?php
 	switch($action) {
 		case 'reset_password':
-			// Reset password
-			$rs_profile->resetPassword();
+			// Action: Reset Password
+			$rs_ad_profile->resetPassword();
 			break;
 		default:
-			// Edit profile
-			$rs_profile->editProfile();
+			// Action: Edit Profile
+			$rs_ad_profile->editProfile();
 	}
 	?>
 </article>

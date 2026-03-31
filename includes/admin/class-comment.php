@@ -8,7 +8,10 @@
  * @package ReallySimpleCMS
  * @subpackage Admin
  *
- * ## VARIABLES [13] ##
+ * ## OBJECT VAR ##
+ * - $rs_ad_comment
+ *
+ * ## VARIABLES [12] ##
  * - private int $id
  * - private int $post
  * - private int $author
@@ -18,14 +21,13 @@
  * - private int $downvotes
  * - private string $status
  * - private int $parent
+ * - private array $admin_page
  * - private string $action
  * - private array $paged
- * - private string $table
- * - private string $px
  *
- * ## METHODS [19] ##
+ * ## METHODS [20] ##
  * - public __construct(int $id, string $action)
- * LISTS, FORMS, & ACTIONS:
+ * { LISTS, FORMS, & ACTIONS [9] }
  * - public listRecords(): void
  * - public createRecord(): void
  * - public editRecord(): void
@@ -35,17 +37,18 @@
  * - public spamComment(): void
  * - public deleteRecord(): void
  * - public deleteSpamComments(): void
- * VALIDATION:
+ * { VALIDATION [1] }
  * - private validateSubmission(array $data): string
- * MISCELLANEOUS:
+ * { MISCELLANEOUS [9] }
  * - public pageHeading(): void
  * - private exitNotice(string $exit_status, int $status_code): string
  * - private bulkActions(): void
  * - private getPost(int $id): string
  * - private getPostPermalink(int $id): string
  * - private getAuthor(int $id): string
- * - private getResults(string $status, ?string $search): array
+ * - private getResults(string $status, ?string $search, bool $all): array
  * - private getEntryCount(string $status, ?string $search): int
+ * - private getActionLinks(array $comment): string
  */
 namespace Admin;
 
@@ -132,6 +135,15 @@ class Comment implements AdminInterface {
 	private $parent;
 	
 	/**
+	 * The admin page's data.
+	 * @since 1.4.0-beta_snap-04
+	 *
+	 * @access private
+	 * @var array
+	 */
+	private $admin_page = array();
+	
+	/**
 	 * The current action.
 	 * @since 1.3.14-beta
 	 *
@@ -150,24 +162,6 @@ class Comment implements AdminInterface {
 	private $paged = array();
 	
 	/**
-	 * The associated database table.
-	 * @since 1.3.14-beta
-	 *
-	 * @access private
-	 * @var string
-	 */
-	private $table = 'comments';
-	
-	/**
-	 * The table prefix.
-	 * @since 1.3.14-beta
-	 *
-	 * @access private
-	 * @var string
-	 */
-	private $px = 'c_';
-	
-	/**
 	 * Class constructor.
 	 * @since 1.1.0-beta_snap-02
 	 *
@@ -176,23 +170,21 @@ class Comment implements AdminInterface {
 	 * @param string $action -- The current action.
 	 */
 	public function __construct(int $id, string $action) {
-		global $rs_query;
+		global $rs_query, $rs_admin_pages;
 		
 		$this->action = $action;
+		$this->admin_page = $rs_admin_pages[basename($_SERVER['PHP_SELF'], '.php')];
 		
 		if($id > 0) {
 			$cols = array_keys(get_object_vars($this));
-			$exclude = array('action', 'paged', 'table', 'px');
+			$exclude = array('admin_page', 'action', 'paged');
 			$cols = array_diff($cols, $exclude);
 			
-			$comment = $rs_query->selectRow(array($this->table, $this->px), $cols, array(
+			$comment = $rs_query->selectRow(getTable('c'), $cols, array(
 				'id' => $id
 			));
 			
-			foreach($comment as $key => $value) {
-				$col = substr($key, mb_strlen($this->px));
-				$this->$col = $comment[$key];
-			}
+			foreach($comment as $key => $value) $this->$key = $comment[$key];
 		} else {
 			$this->id = 0;
 		}
@@ -209,8 +201,6 @@ class Comment implements AdminInterface {
 	 * @access public
 	 */
 	public function listRecords(): void {
-		global $rs_query;
-		
 		// Query vars
 		$status = $_GET['status'] ?? 'all';
 		$search = $_GET['search'] ?? null;
@@ -248,92 +238,38 @@ class Comment implements AdminInterface {
 				$comments = $this->getResults($status, $search);
 				
 				foreach($comments as $comment) {
-					list($c_id, $c_post, $c_author, $c_created, $c_content,
-						$c_upvotes, $c_downvotes, $c_status, $c_parent
-					) = array(
-						$comment[$this->px . 'id'],
-						$comment[$this->px . 'post'],
-						$comment[$this->px . 'author'],
-						$comment[$this->px . 'created'],
-						$comment[$this->px . 'content'],
-						$comment[$this->px . 'upvotes'],
-						$comment[$this->px . 'downvotes'],
-						$comment[$this->px . 'status'],
-						$comment[$this->px . 'parent']
-					);
-					
-					// Action links
-					$actions = array(
-						// Approve/unapprove
-						userHasPrivilege('can_edit_comments') ? ($c_status === 'approved' ?
-							actionLink('unapprove', array(
-								'caption' => 'Unapprove',
-								'id' => $c_id
-							)) : actionLink('approve', array(
-								'caption' => 'Approve',
-								'id' => $c_id
-							))) : null,
-						// Spam
-						userHasPrivilege('can_edit_comments') ? ($c_status !== 'spam' ?
-							actionLink('spam', array(
-								'caption' => 'Spam',
-								'id' => $c_id
-							)) : null
-							) : null,
-						// Edit
-						userHasPrivilege('can_edit_comments') ? actionLink('edit', array(
-							'caption' => 'Edit',
-							'id' => $c_id
-						)) : null,
-						// Delete
-						userHasPrivilege('can_delete_comments') ? actionLink('delete', array(
-							'classes' => 'modal-launch delete-item',
-							'data_item' => 'comment',
-							'caption' => 'Delete',
-							'id' => $c_id
-						)) : null,
-						// View
-						domTag('a', array(
-							'href' => $this->getPostPermalink($c_post) . '#comment-' . $c_id,
-							'content' => 'View'
-						))
-					);
-					
-					// Filter out any empty actions
-					$actions = array_filter($actions);
-					
 					echo tableRow(
 						// Bulk select
 						tdCell(domTag('input', array(
 							'type' => 'checkbox',
 							'class' => 'checkbox',
-							'value' => $c_id
+							'value' => $comment['id']
 						)), 'bulk-select'),
 						// Comment
-						tdCell(trimWords($c_content) . ($c_status === 'pending' && $status === 'all' ? ' &mdash; ' .
-							domTag('em', array(
+						tdCell(trimWords($comment['content']) . ($comment['status'] === 'pending' && $status === 'all' ?
+							' &mdash; ' . domTag('em', array(
 								'content' => 'pending approval'
 							)) : '') .
 							domTag('div', array(
 								'class' => 'actions',
-								'content' => implode(' &bull; ', $actions)
+								'content' => $this->getActionLinks($comment)
 							)), 'content'
 						),
 						// Post
-						tdCell($this->getPost($c_post), 'post'),
+						tdCell($this->getPost($comment['post']), 'post'),
 						// Author
-						tdCell($this->getAuthor($c_author), 'author'),
+						tdCell($this->getAuthor($comment['author']), 'author'),
 						// Date posted
-						tdCell(formatDate($c_created, 'd M Y @ g:i A'), 'posted-date'),
+						tdCell(formatDate($comment['created'], 'd M Y @ g:i A'), 'posted-date'),
 						// Upvotes
-						tdCell($c_upvotes, 'upvotes'),
+						tdCell($comment['upvotes'], 'upvotes'),
 						// Downvotes
-						tdCell($c_downvotes, 'downvotes')
+						tdCell($comment['downvotes'], 'downvotes')
 					);
 				}
 				
 				if(empty($comments))
-					echo tableRow(tdCell('There are no comments to display.', '', count($header_cols)));
+					echo tableRow(tdCell($this->admin_page['labels']['no_items'], '', count($header_cols)));
 				?>
 			</tbody>
 			<tfoot>
@@ -367,8 +303,6 @@ class Comment implements AdminInterface {
 	 * @access public
 	 */
 	public function editRecord(): void {
-		global $rs_query;
-		
 		if(empty($this->id) || $this->id <= 0)
 			redirect(ADMIN_URI);
 		
@@ -422,7 +356,7 @@ class Comment implements AdminInterface {
 						'type' => 'submit',
 						'class' => 'submit-input button',
 						'name' => 'submit',
-						'value' => 'Update Comment'
+						'value' => $this->admin_page['labels']['update_button']
 					));
 					?>
 				</table>
@@ -447,25 +381,25 @@ class Comment implements AdminInterface {
 		if(empty($this->id) || $this->id <= 0)
 			redirect(ADMIN_URI);
 		
-		$rs_query->update(array($this->table, $this->px), array(
+		$rs_query->update(getTable('c'), array(
 			'status' => $status
 		), array(
 			'id' => $this->id
 		));
 		
 		if(is_null($this->post)) {
-			$this->post = $rs_query->selectField(array($this->table, $this->px), 'post', array(
+			$this->post = $rs_query->selectField(getTable('c'), 'post', array(
 				'id' => $this->id
 			));
 		}
 		
 		// Update the approved comment count for the attached post
-		$count = $rs_query->select(array($this->table, $this->px), 'COUNT(*)', array(
+		$count = $rs_query->select(getTable('c'), 'COUNT(*)', array(
 			'post' => $this->post,
 			'status' => 'approved'
 		));
 		
-		$rs_query->update(array('postmeta', 'pm_'), array(
+		$rs_query->update(getTable('pm'), array(
 			'value' => $count
 		), array(
 			'post' => $this->post,
@@ -521,24 +455,26 @@ class Comment implements AdminInterface {
 		if(empty($this->id) || $this->id <= 0)
 			redirect(ADMIN_URI);
 		
-		$rs_query->delete(array($this->table, $this->px), array(
+		$rs_query->delete(getTable('c'), array(
 			'id' => $this->id
 		));
 		
 		// Update the approved comment count for the attached post
-		$count = $rs_query->select(array($this->table, $this->px), 'COUNT(*)', array(
+		$count = $rs_query->select(getTable('c'), 'COUNT(*)', array(
 			'post' => $this->post,
 			'status' => 'approved'
 		));
 		
-		$rs_query->update(array('postmeta', 'pm_'), array(
+		$rs_query->update(getTable('pm'), array(
 			'value' => $count
 		), array(
 			'post' => $this->post,
 			'key' => 'comment_count'
 		));
 		
-		redirect(ADMIN_URI . '?exit_status=del_success');
+		redirect(ADMIN_URI . getQueryString(array(
+			'exit_status' => 'del_success'
+		)));
 	}
 	
 	/**
@@ -550,11 +486,13 @@ class Comment implements AdminInterface {
 	public function deleteSpamComments(): void {
 		global $rs_query;
 		
-		$rs_query->delete(array($this->table, $this->px), array(
+		$rs_query->delete(getTable('c'), array(
 			'status' => 'spam'
 		));
 		
-		redirect(ADMIN_URI . '?exit_status=del_spam_success');
+		redirect(ADMIN_URI . getQueryString(array(
+			'exit_status' => 'del_spam_success'
+		)));
 	}
 	
 	/*------------------------------------*\
@@ -580,7 +518,7 @@ class Comment implements AdminInterface {
 		if($data['status'] !== 'approved' && $data['status'] !== 'pending')
 			$data['status'] = 'pending';
 		
-		$rs_query->update(array($this->table, $this->px), array(
+		$rs_query->update(getTable('c'), array(
 			'content' => $data['content'],
 			'status' => $data['status']
 		), array(
@@ -589,7 +527,11 @@ class Comment implements AdminInterface {
 		
 		foreach($data as $key => $value) $this->$key = $value;
 		
-		redirect(ADMIN_URI . '?id=' . $this->id . '&action=' . $this->action . '&exit_status=edit_success');
+		redirect(ADMIN_URI . getQueryString(array(
+			'id' => $this->id,
+			'action' => $this->action,
+			'exit_status' => 'edit_success'
+		)));
 	}
 	
 	/*------------------------------------*\
@@ -603,18 +545,20 @@ class Comment implements AdminInterface {
 	 * @access public
 	 */
 	public function pageHeading(): void {
+		$labels = $this->admin_page['labels'];
+		
 		switch($this->action) {
 			case 'create':
 				// unused
 				break;
 			case 'edit':
-				$title = 'Edit Comment: { ' . domTag('em', array(
+				$title = $labels['edit_item'] . ': { by ' . domTag('em', array(
 					'content' => $this->getAuthor($this->author)
 				)) . ' }';
 				$message = isset($_POST['submit']) ? $this->validateSubmission($_POST) : '';
 				break;
 			default:
-				$title = 'Comments';
+				$title = $labels['name'];
 				$status = $_GET['status'] ?? 'all';
 				$search = $_GET['search'] ?? null;
 		}
@@ -622,7 +566,7 @@ class Comment implements AdminInterface {
 		<div class="heading-wrap">
 			<?php
 			// Page title
-			echo domTag('h1', array(
+			domTagPr('h1', array(
 				'content' => $title
 			));
 			
@@ -642,7 +586,7 @@ class Comment implements AdminInterface {
 				// Info
 				adminInfo();
 				
-				echo domTag('hr');
+				domTagPr('hr');
 				
 				// Notices
 				if(!getSetting('enable_comments')) {
@@ -666,7 +610,7 @@ class Comment implements AdminInterface {
 					
 					// Statuses
 					foreach($count as $key => $value) {
-						echo domTag('li', array(
+						domTagPr('li', array(
 							'content' => domTag('a', array(
 								'href' => ADMIN_URI . ($key === 'all' ? '' : '?status=' . $key),
 								'content' => ucfirst($key) . ' ' . domTag('span', array(
@@ -682,7 +626,7 @@ class Comment implements AdminInterface {
 				</ul>
 				<?php
 				// Record count
-				echo domTag('div', array(
+				domTagPr('div', array(
 					'class' => 'entry-count status',
 					'content' => $count[$status] . ' ' . ($count[$status] === 1 ? 'entry' : 'entries')
 				));
@@ -722,12 +666,13 @@ class Comment implements AdminInterface {
 	 * @access private
 	 */
 	private function bulkActions(): void {
+		// Query vars
 		$status = $_GET['status'] ?? '';
 		?>
 		<div class="bulk-actions">
 			<?php
 			if(userHasPrivilege('can_edit_comments')) {
-				echo domTag('select', array(
+				domTagPr('select', array(
 					'class' => 'actions',
 					'content' => domTag('option', array(
 						'value' => 'approved',
@@ -745,7 +690,7 @@ class Comment implements AdminInterface {
 				button(array(
 					'class' => 'bulk-update',
 					'title' => 'Bulk status update',
-					'label' => 'Update'
+					'label' => $this->admin_page['labels']['bulk_update']
 				));
 			}
 			
@@ -754,7 +699,7 @@ class Comment implements AdminInterface {
 				button(array(
 					'class' => 'bulk-delete',
 					'title' => 'Bulk delete',
-					'label' => 'Delete'
+					'label' => $this->admin_page['labels']['bulk_delete']
 				));
 				
 				if($status === 'spam') {
@@ -762,7 +707,7 @@ class Comment implements AdminInterface {
 					button(array(
 						'class' => 'bulk-delete-spam',
 						'title' => 'Delete all spam',
-						'label' => 'Clear spam'
+						'label' => 'Clear Spam'
 					));
 				}
 			}
@@ -782,7 +727,7 @@ class Comment implements AdminInterface {
 	private function getPost(int $id): string {
 		global $rs_query;
 		
-		$title = $rs_query->selectField(array('posts', 'p_'), 'title', array(
+		$title = $rs_query->selectField(getTable('p'), 'title', array(
 			'id' => $id
 		));
 		
@@ -803,11 +748,11 @@ class Comment implements AdminInterface {
 	private function getPostPermalink(int $id): string {
 		global $rs_query;
 		
-		$post = $rs_query->selectRow(array('posts', 'p_'), array('slug', 'parent', 'type'), array(
+		$post = $rs_query->selectRow(getTable('p'), array('slug', 'parent', 'type'), array(
 			'id' => $id
 		));
 		
-		return getPermalink($post['p_type'], $post['p_parent'], $post['p_slug']);
+		return getPermalink($post['type'], $post['parent'], $post['slug']);
 	}
 	 
 	/**
@@ -821,7 +766,7 @@ class Comment implements AdminInterface {
 	private function getAuthor(int $id): string {
 		global $rs_query;
 		
-		$author = $rs_query->selectField(array('usermeta', 'um_'), 'value', array(
+		$author = $rs_query->selectField(getTable('um'), 'value', array(
 			'user' => $id,
 			'key' => 'display_name'
 		));
@@ -831,19 +776,20 @@ class Comment implements AdminInterface {
 	
 	/**
 	 * Fetch all comments based on a specific status.
-	 * @since 1.4.0-beta_snap-03
+	 * @since 1.3.15-beta
 	 *
 	 * @access private
 	 * @param string $status -- The comment's status.
 	 * @param null|string $search -- The search query.
+	 * @param bool $all (optional) -- Whether to return all or set a limit (for pagination).
 	 * @return array
 	 */
-	private function getResults(string $status, ?string $search): array {
+	private function getResults(string $status, ?string $search, bool $all = false): array {
 		global $rs_query;
 		
 		$order_by = 'created';
 		$order = 'DESC';
-		$limit = array($this->paged['start'], $this->paged['per_page']);
+		$limit = $all === false ? array($this->paged['start'], $this->paged['per_page']) : 0;
 		
 		if($status === 'all')
 			$db_status = array('<>', 'spam');
@@ -852,7 +798,7 @@ class Comment implements AdminInterface {
 		
 		if(!is_null($search)) {
 			// Search results
-			return $rs_query->select(array($this->table, $this->px), '*', array(
+			return $rs_query->select(getTable('c'), '*', array(
 				'content' => array('LIKE', '%' . $search . '%'),
 				'status' => $db_status
 			), array(
@@ -862,7 +808,7 @@ class Comment implements AdminInterface {
 			));
 		} else {
 			// All results
-			return $rs_query->select(array($this->table, $this->px), '*', array(
+			return $rs_query->select(getTable('c'), '*', array(
 				'status' => $db_status
 			), array(
 				'order_by' => $order_by,
@@ -882,6 +828,77 @@ class Comment implements AdminInterface {
 	 * @return int
 	 */
 	private function getEntryCount(string $status, ?string $search): int {
-		return count($this->getResults($status, $search));
+		return count($this->getResults($status, $search, true));
+	}
+	
+	/**
+	 * Fetch all associated action links.
+	 * @since 1.4.0-beta_snap-04
+	 *
+	 * @access private
+	 * @param array $comment -- The comment's data.
+	 * @return string
+	 */
+	private function getActionLinks(array $comment): string {
+		$actions = $this->admin_page['actions'];
+		$action_list = array();
+		
+		foreach($actions as $key => $value) {
+			$privileged = match($value) {
+				'edit', 'approve', 'unapprove', 'spam' => userHasPrivilege('can_edit_comments'),
+				'delete' => userHasPrivilege('can_delete_comments'),
+				default => null
+			};
+			
+			$action_list[] = array(
+				'privileged' => $privileged,
+				'link' => $value,
+				'caption' => ucfirst($value)
+			);
+		}
+		
+		list($edit, $delete, $view, $approve, $unapprove, $spam) = $action_list;
+		
+		$action_links = array(
+			// Approve/unapprove
+			$approve['privileged'] && $unapprove['privileged'] ? ($comment['status'] === 'approved' ?
+				actionLink($unapprove['link'], array(
+					'caption' => $unapprove['caption'],
+					'id' => $comment['id']
+				)) : actionLink($approve['link'], array(
+					'caption' => $approve['caption'],
+					'id' => $comment['id']
+				))
+			) : null,
+			// Spam
+			$spam['privileged'] ? ($comment['status'] !== 'spam' ?
+				actionLink($spam['link'], array(
+					'caption' => $spam['caption'],
+					'id' => $comment['id']
+				)) : null
+			) : null,
+			// Edit
+			$edit['privileged'] ? actionLink($edit['link'], array(
+				'caption' => $edit['caption'],
+				'id' => $comment['id']
+			)) : null,
+			// Delete
+			$delete['privileged'] ? actionLink($delete['link'], array(
+				'classes' => 'modal-launch delete-item',
+				'data_item' => 'comment',
+				'caption' => $delete['caption'],
+				'id' => $comment['id']
+			)) : null,
+			// View
+			domTag('a', array(
+				'href' => $this->getPostPermalink($comment['post']) . '#comment-' . $comment['id'],
+				'content' => $view['caption']
+			))
+		);
+		
+		// Filter out any empty actions
+		$action_links = array_filter($action_links);
+		
+		return implode(' &bull; ', $action_links);
 	}
 }

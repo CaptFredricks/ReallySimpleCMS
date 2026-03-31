@@ -8,7 +8,10 @@
  * @package ReallySimpleCMS
  * @subpackage Admin
  *
- * ## VARIABLES [13] ##
+ * ## OBJECT VAR ##
+ * - $rs_ad_login
+ *
+ * ## VARIABLES [11] ##
  * - private int $id
  * - private string $login
  * - private string $ip_address
@@ -20,12 +23,10 @@
  * - private string $action
  * - private array $paged
  * - private string $page
- * - private array $tables
- * - private array $px
  *
  * ## METHODS [20] ##
  * - public __construct(int $id, string $action, string $page)
- * LISTS, FORMS, & ACTIONS:
+ * { LISTS, FORMS, & ACTIONS [11] }
  * - public loginAttempts(): void
  * - public blacklistLogin(): void
  * - public blacklistIPAddress(): void
@@ -37,15 +38,17 @@
  * - public createRule(): void
  * - public editRule(): void
  * - public deleteRule(): void
- * VALIDATION:
+ * { VALIDATION [2] }
  * - private validateBlacklistSubmission(array $data): string
  * - private validateRuleSubmission(array $data): string
- * MISCELLANEOUS:
+ * { MISCELLANEOUS [8] }
  * - public pageHeading(): void
  * - private exitNotice(string $exit_status, int $status_code): string
  * - private blacklistExists(string $name): bool
  * - private formatDuration(int $seconds): string
- * - private getResults(string $status, ?string $search): array
+ * - private getResultsAttempts(string $status, ?string $search, bool $all): array
+ * - private getResultsBlacklist(?string $search, bool $all): array
+ * - private getResultsRules(bool $all): array
  * - private getEntryCount(string $status, ?string $search): int
  */
 namespace Admin;
@@ -151,26 +154,6 @@ class Login {
 	private $page;
 	
 	/**
-	 * The associated database tables.
-	 * 0 => `login_attempts`, 1 => `login_blacklist`, 2 => `login_rules`
-	 * @since 1.3.14-beta
-	 *
-	 * @access private
-	 * @var array
-	 */
-	private $tables = array('login_attempts', 'login_blacklist', 'login_rules');
-	
-	/**
-	 * The table prefixes.
-	 * 0 => `la_`, 1 => `lb_`, 2 => `lr_`
-	 * @since 1.3.14-beta
-	 *
-	 * @access private
-	 * @var array
-	 */
-	private $px = array('la_', 'lb_', 'lr_');
-	
-	/**
 	 * Class constructor.
 	 * @since 1.2.0-beta_snap-01
 	 *
@@ -186,7 +169,7 @@ class Login {
 		$this->page = $page;
 		
 		if(getSetting('delete_old_login_attempts')) {
-			$login_attempts = $rs_query->select(array($this->tables[0], $this->px[0]), array('id', 'date'));
+			$login_attempts = $rs_query->select(getTable('la'), array('id', 'date'));
 			
 			foreach($login_attempts as $login_attempt) {
 				$time = new \DateTime();
@@ -197,9 +180,9 @@ class Login {
 				$threshold = $time->format('Y-m-d H:i:s');
 				
 				// Delete the login attempt if it's expired
-				if($threshold > $login_attempt[$this->px[0] . 'date']) {
-					$rs_query->delete(array($this->tables[0], $this->px[0]), array(
-						'id' => $login_attempt[$this->px[0] . 'id']
+				if($threshold > $login_attempt['date']) {
+					$rs_query->delete(getTable('la'), array(
+						'id' => $login_attempt['id']
 					));
 				}
 			}
@@ -207,45 +190,39 @@ class Login {
 		
 		if($id > 0) {
 			$cols = array_keys(get_object_vars($this));
-			$exclude_all = array('action', 'paged', 'page', 'tables', 'px');
+			$exclude_all = array('action', 'paged', 'page');
 			$cols = array_diff($cols, $exclude_all);
 			
-			if($this->page === 'blacklist') {
-				$exclude = array('login', 'ip_address', 'type', 'attempts');
-				$cols = array_diff($cols, $exclude);
-				
-				$blacklisted_login = $rs_query->selectRow(array($this->tables[1], $this->px[1]), $cols, array(
-					'id' => $id
-				));
-				
-				foreach($blacklisted_login as $key => $value) {
-					$col = substr($key, mb_strlen($this->px[1]));
-					$this->$col = $blacklisted_login[$key];
-				}
-			} elseif($this->page === 'rules') {
-				$exclude = array('login', 'ip_address', 'name', 'reason');
-				$cols = array_diff($cols, $exclude);
-				
-				$login_rule = $rs_query->selectRow(array($this->tables[2], $this->px[2]), $cols, array(
-					'id' => $id
-				));
-				
-				foreach($login_rule as $key => $value) {
-					$col = substr($key, mb_strlen($this->px[2]));
-					$this->$col = $login_rule[$key];
-				}
-			} else {
-				$exclude = array('name', 'duration', 'reason', 'type', 'attempts');
-				$cols = array_diff($cols, $exclude);
-				
-				$login_attempt = $rs_query->selectRow(array($this->tables[0], $this->px[0]), $cols, array(
-					'id' => $id
-				));
-				
-				foreach($login_attempt as $key => $value) {
-					$col = substr($key, mb_strlen($this->px[0]));
-					$this->$col = $login_attempt[$key];
-				}
+			switch($this->page) {
+				case 'blacklist':
+					$exclude = array('login', 'ip_address', 'type', 'attempts');
+					$cols = array_diff($cols, $exclude);
+					
+					$blacklisted_login = $rs_query->selectRow(getTable('lb'), $cols, array(
+						'id' => $id
+					));
+					
+					foreach($blacklisted_login as $key => $value) $this->$key = $blacklisted_login[$key];
+					break;
+				case 'rules':
+					$exclude = array('login', 'ip_address', 'name', 'reason');
+					$cols = array_diff($cols, $exclude);
+					
+					$login_rule = $rs_query->selectRow(getTable('lr'), $cols, array(
+						'id' => $id
+					));
+					
+					foreach($login_rule as $key => $value) $this->$key = $login_rule[$key];
+					break;
+				default:
+					$exclude = array('name', 'duration', 'reason', 'type', 'attempts');
+					$cols = array_diff($cols, $exclude);
+					
+					$login_attempt = $rs_query->selectRow(getTable('la'), $cols, array(
+						'id' => $id
+					));
+					
+					foreach($login_attempt as $key => $value) $this->$key = $login_attempt[$key];
 			}
 		} else {
 			$this->id = 0;
@@ -287,19 +264,19 @@ class Login {
 			</thead>
 			<tbody>
 				<?php
-				$login_attempts = $this->getResults($status, $search);
+				$login_attempts = $this->getResultsAttempts($status, $search);
 				
 				foreach($login_attempts as $login_attempt) {
 					list($la_id, $la_login, $la_ip_address, $la_date, $la_status) = array(
-						$login_attempt[$this->px[0] . 'id'],
-						$login_attempt[$this->px[0] . 'login'],
-						$login_attempt[$this->px[0] . 'ip_address'],
-						$login_attempt[$this->px[0] . 'date'],
-						$login_attempt[$this->px[0] . 'status']
+						$login_attempt['id'],
+						$login_attempt['login'],
+						$login_attempt['ip_address'],
+						$login_attempt['date'],
+						$login_attempt['status']
 					);
 					
 					// Check whether the login or IP address is blacklisted
-					$blacklisted = $rs_query->select(array($this->tables[1], $this->px[1]), 'COUNT(name)', array(
+					$blacklisted = $rs_query->select(getTable('lb'), 'COUNT(name)', array(
 						'name' => array('IN', $la_login, $la_ip_address)
 					)) > 0;
 					
@@ -359,8 +336,6 @@ class Login {
 	 * @access public
 	 */
 	public function blacklistLogin(): void {
-		global $rs_query;
-		
 		if(empty($this->id) || $this->id <= 0)
 			redirect(ADMIN_URI);
 		
@@ -427,8 +402,6 @@ class Login {
 	 * @access public
 	 */
 	public function blacklistIPAddress(): void {
-		global $rs_query;
-		
 		if(empty($this->id) || $this->id <= 0)
 			redirect(ADMIN_URI);
 		
@@ -520,38 +493,18 @@ class Login {
 			</thead>
 			<tbody>
 				<?php
-				$order_by = 'blacklisted';
-				$order = 'DESC';
-				$limit = array($this->paged['start'], $this->paged['per_page']);
-				
-				if(!is_null($search)) {
-					// Search results
-					$blacklisted_logins = $rs_query->select(array($this->tables[1], $this->px[1]), '*', array(
-						'name' => array('LIKE', '%' . $search . '%')
-					), array(
-						'order_by' => $order_by,
-						'order' => $order,
-						'limit' => $limit
-					));
-				} else {
-					// All results
-					$blacklisted_logins = $rs_query->select(array($this->tables[1], $this->px[1]), '*', array(), array(
-						'order_by' => $order_by,
-						'order' => $order,
-						'limit' => $limit
-					));
-				}
+				$blacklisted_logins = $this->getResultsBlacklist($search);
 				
 				foreach($blacklisted_logins as $blacklisted_login) {
 					list($lb_id, $lb_name, $lb_attempts, $lb_blacklisted,
 						$lb_duration, $lb_reason
 					) = array(
-						$blacklisted_login[$this->px[1] . 'id'],
-						$blacklisted_login[$this->px[1] . 'name'],
-						$blacklisted_login[$this->px[1] . 'attempts'],
-						$blacklisted_login[$this->px[1] . 'blacklisted'],
-						$blacklisted_login[$this->px[1] . 'duration'],
-						$blacklisted_login[$this->px[1] . 'reason']
+						$blacklisted_login['id'],
+						$blacklisted_login['name'],
+						$blacklisted_login['attempts'],
+						$blacklisted_login['blacklisted'],
+						$blacklisted_login['duration'],
+						$blacklisted_login['reason']
 					);
 					
 					$time = new \DateTime($lb_blacklisted);
@@ -560,11 +513,11 @@ class Login {
 					
 					// Check whether the blacklist has expired
 					if(date('Y-m-d H:i:s') >= $expiration && $lb_duration !== 0) {
-						$rs_query->delete(array($this->tables[1], $this->px[1]), array(
+						$rs_query->delete(getTable('lb'), array(
 							'name' => $lb_name
 						));
 						
-						$bl_logins = $rs_query->select(array($this->tables[1], $this->px[1]), '*', array(), array(
+						$bl_logins = $rs_query->select(getTable('lb'), '*', array(), array(
 							'order_by' => $order_by,
 							'order' => $order,
 							'limit' => $limit
@@ -707,10 +660,11 @@ class Login {
 	 * @access public
 	 */
 	public function editBlacklist(): void {
-		global $rs_query;
-		
-		if(empty($this->id) || $this->id <= 0)
-			redirect(ADMIN_URI . '?page=' . $this->page);
+		if(empty($this->id) || $this->id <= 0) {
+			redirect(ADMIN_URI . getQueryString(array(
+				'page' => $this->page
+			)));
+		}
 		
 		$this->pageHeading();
 		?>
@@ -777,14 +731,20 @@ class Login {
 	public function whitelistLoginIP(): void {
 		global $rs_query;
 		
-		if(empty($this->id) || $this->id <= 0)
-			redirect(ADMIN_URI . '?page=' . $this->page);
+		if(empty($this->id) || $this->id <= 0) {
+			redirect(ADMIN_URI . getQueryString(array(
+				'page' => $this->page
+			)));
+		}
 		
-		$rs_query->delete(array($this->tables[1], $this->px[1]), array(
+		$rs_query->delete(getTable('lb'), array(
 			'id' => $this->id
 		));
 		
-		redirect(ADMIN_URI . '?page=' . $this->page . '&exit_status=wl_success');
+		redirect(ADMIN_URI . getQueryString(array(
+			'page' => $this->page,
+			'exit_status' => 'wl_success'
+		)));
 	}
 	
 	/**
@@ -794,8 +754,6 @@ class Login {
 	 * @access public
 	 */
 	public function loginRules(): void {
-		global $rs_query;
-		
 		// Query vars
 		$this->paged = paginate((int)($_GET['paged'] ?? 1));
 		
@@ -813,22 +771,14 @@ class Login {
 			</thead>
 			<tbody>
 				<?php
-				$order_by = 'attempts';
-				$order = 'ASC';
-				$limit = array($this->paged['start'], $this->paged['per_page']);
-				
-				$login_rules = $rs_query->select(array($this->tables[2], $this->px[2]), '*', array(), array(
-					'order_by' => $order_by,
-					'order' => $order,
-					'limit' => $limit
-				));
+				$login_rules = $this->getResultsRules();
 				
 				foreach($login_rules as $login_rule) {
 					list($lr_id, $lr_type, $lr_attempts, $lr_duration) = array(
-						$login_rule[$this->px[2] . 'id'],
-						$login_rule[$this->px[2] . 'type'],
-						$login_rule[$this->px[2] . 'attempts'],
-						$login_rule[$this->px[2] . 'duration']
+						$login_rule['id'],
+						$login_rule['type'],
+						$login_rule['attempts'],
+						$login_rule['duration']
 					);
 					
 					// Action links
@@ -957,10 +907,11 @@ class Login {
 	 * @access public
 	 */
 	public function editRule(): void {
-		global $rs_query;
-		
-		if(empty($this->id) || $this->id <= 0)
-			redirect(ADMIN_URI . '?page=' . $this->page);
+		if(empty($this->id) || $this->id <= 0) {
+			redirect(ADMIN_URI . getQueryString(array(
+				'page' => $this->page
+			)));
+		}
 		
 		$this->pageHeading();
 		?>
@@ -1039,14 +990,20 @@ class Login {
 	public function deleteRule(): void {
 		global $rs_query;
 		
-		if(empty($this->id) || $this->id <= 0)
-			redirect(ADMIN_URI . '?page=' . $this->page);
+		if(empty($this->id) || $this->id <= 0) {
+			redirect(ADMIN_URI . getQueryString(array(
+				'page' => $this->page
+			)));
+		}
 		
-		$rs_query->delete(array($this->tables[2], $this->px[2]), array(
+		$rs_query->delete(getTable('lr'), array(
 			'id' => $this->id
 		));
 		
-		redirect(ADMIN_URI . '?page=' . $this->page . '&exit_status=rule_del_success');
+		redirect(ADMIN_URI . getQueryString(array(
+			'page' => $this->page,
+			'exit_status' => 'rule_del_success'
+		)));
 	}
 	
 	/*------------------------------------*\
@@ -1082,11 +1039,11 @@ class Login {
 		
 		switch($this->action) {
 			case 'blacklist_login':
-				$attempts = $rs_query->select(array($this->tables[0], $this->px[0]), 'COUNT(*)', array(
+				$attempts = $rs_query->select(getTable('la'), 'COUNT(*)', array(
 					'login' => $data['name']
 				));
 				
-				$rs_query->insert(array($this->tables[1], $this->px[1]), array(
+				$rs_query->insert(getTable('lb'), array(
 					'name' => $data['name'],
 					'attempts' => $attempts,
 					'blacklisted' => 'NOW()',
@@ -1094,7 +1051,7 @@ class Login {
 					'reason' => $data['reason']
 				));
 				
-				$session = $rs_query->selectField(array('users', 'u_'), 'session', array(
+				$session = $rs_query->selectField(getTable('u'), 'session', array(
 					'logic' => 'OR',
 					'username' => $data['name'],
 					'email' => $data['name']
@@ -1102,7 +1059,7 @@ class Login {
 				
 				// Log the user out if they're logged in
 				if(!is_null($session)) {
-					$rs_query->update(array('users', 'u_'), array(
+					$rs_query->update(getTable('u'), array(
 						'session' => null
 					), array(
 						'session' => $session
@@ -1112,14 +1069,17 @@ class Login {
 						setcookie('session', '', 1, '/');
 				}
 				
-				redirect(ADMIN_URI . '?exit_status=bl_success&blacklist=login');
+				redirect(ADMIN_URI . getQueryString(array(
+					'exit_status' => 'bl_success',
+					'blacklist' => 'login'
+				)));
 				break;
 			case 'blacklist_ip':
-				$attempts = $rs_query->select(array($this->tables[0], $this->px[0]), 'COUNT(*)', array(
+				$attempts = $rs_query->select(getTable('la'), 'COUNT(*)', array(
 					'ip_address' => $data['name']
 				));
 				
-				$rs_query->insert(array($this->tables[1], $this->px[1]), array(
+				$rs_query->insert(getTable('lb'), array(
 					'name' => $data['name'],
 					'attempts' => $attempts,
 					'blacklisted' => 'NOW()',
@@ -1127,12 +1087,12 @@ class Login {
 					'reason' => $data['reason']
 				));
 				
-				$logins = $rs_query->select(array($this->tables[0], $this->px[0]), array('DISTINCT', 'login'), array(
+				$logins = $rs_query->select(getTable('la'), array('DISTINCT', 'login'), array(
 					'ip_address' => $data['name']
 				));
 				
 				foreach($logins as $login) {
-					$session = $rs_query->selectRow(array('users', 'u_'), 'session', array(
+					$session = $rs_query->selectRow(getTable('u'), 'session', array(
 						'logic' => 'OR',
 						'username' => $login['login'],
 						'email' => $login['login']
@@ -1140,7 +1100,7 @@ class Login {
 					
 					// Log the user out if they're logged in
 					if(!is_null($session)) {
-						$rs_query->update(array('users', 'u_'), array(
+						$rs_query->update(getTable('u'), array(
 							'session' => null
 						), array(
 							'session' => $session
@@ -1151,7 +1111,10 @@ class Login {
 					}
 				}
 				
-				redirect(ADMIN_URI . '?exit_status=bl_success&blacklist=ip_address');
+				redirect(ADMIN_URI . getQueryString(array(
+					'exit_status' => 'bl_success',
+					'blacklist' => 'ip_address'
+				)));
 				break;
 			case 'create':
 				if(empty($data['name'])) {
@@ -1159,13 +1122,13 @@ class Login {
 					exit;
 				}
 				
-				$attempts = $rs_query->select(array($this->tables[0], $this->px[0]), 'COUNT(*)', array(
+				$attempts = $rs_query->select(getTable('la'), 'COUNT(*)', array(
 					'logic' => 'OR',
 					'login' => $data['name'],
 					'ip_address' => $data['name']
 				));
 				
-				$insert_id = $rs_query->insert(array($this->tables[1], $this->px[1]), array(
+				$insert_id = $rs_query->insert(getTable('lb'), array(
 					'name' => $data['name'],
 					'attempts' => $attempts,
 					'blacklisted' => 'NOW()',
@@ -1173,7 +1136,7 @@ class Login {
 					'reason' => $data['reason']
 				));
 				
-				$session = $rs_query->selectField(array('users', 'u_'), 'session', array(
+				$session = $rs_query->selectField(getTable('u'), 'session', array(
 					'logic' => 'OR',
 					'username' => $data['name'],
 					'email' => $data['name']
@@ -1181,7 +1144,7 @@ class Login {
 				
 				// Log the user out if they're logged in
 				if(!is_null($session)) {
-					$rs_query->update(array('users', 'u_'), array(
+					$rs_query->update(getTable('u'), array(
 						'session' => null
 					), array(
 						'session' => $session
@@ -1191,10 +1154,15 @@ class Login {
 						setcookie('session', '', 1, '/');
 				}
 				
-				redirect(ADMIN_URI . '?page=' . $this->page . '&id=' . $insert_id . '&action=edit&exit_status=bl_create_success');
+				redirect(ADMIN_URI . getQueryString(array(
+					'page' => $this->page,
+					'id' => $insert_id,
+					'action' => 'edit',
+					'exit_status' => 'bl_create_success'
+				)));
 				break;
 			case 'edit':
-				$rs_query->update(array($this->tables[1], $this->px[1]), array(
+				$rs_query->update(getTable('lb'), array(
 					'duration' => $data['duration'],
 					'reason' => $data['reason']
 				), array(
@@ -1203,8 +1171,12 @@ class Login {
 				
 				foreach($data as $key => $value) $this->$key = $value;
 				
-				redirect(ADMIN_URI . '?page=' . $this->page . '&id=' . $this->id . '&action=' . $this->action .
-					'&exit_status=bl_edit_success');
+				redirect(ADMIN_URI . getQueryString(array(
+					'page' => $this->page,
+					'id' => $this->id,
+					'action' => $this->action,
+					'exit_status' => 'bl_edit_success'
+				)));
 				break;
 		}
 	}
@@ -1230,16 +1202,21 @@ class Login {
 		
 		switch($this->action) {
 			case 'create':
-				$insert_id = $rs_query->insert(array($this->tables[2], $this->px[2]), array(
+				$insert_id = $rs_query->insert(getTable('lr'), array(
 					'type' => $data['type'],
 					'attempts' => $data['attempts'],
 					'duration' => $data['duration']
 				));
 				
-				redirect(ADMIN_URI . '?page=' . $this->page . '&id=' . $insert_id . '&action=edit&exit_status=rule_create_success');
+				redirect(ADMIN_URI . getQueryString(array(
+					'page' => $this->page,
+					'id' => $insert_id,
+					'action' => 'edit',
+					'exit_status' => 'rule_create_success'
+				)));
 				break;
 			case 'edit':
-				$rs_query->update(array($this->tables[2], $this->px[2]), array(
+				$rs_query->update(getTable('lr'), array(
 					'type' => $data['type'],
 					'attempts' => $data['attempts'],
 					'duration' => $data['duration']
@@ -1249,8 +1226,12 @@ class Login {
 				
 				foreach($data as $key => $value) $this->$key = $value;
 				
-				redirect(ADMIN_URI . '?page=' . $this->page . '&id=' . $this->id . '&action=' . $this->action .
-					'&exit_status=rule_edit_success');
+				redirect(ADMIN_URI . getQueryString(array(
+					'page' => $this->page,
+					'id' => $this->id,
+					'action' => $this->action,
+					'exit_status' => 'rule_edit_success'
+				)));
 		}
 	}
 	
@@ -1265,8 +1246,6 @@ class Login {
 	 * @access public
 	 */
 	public function pageHeading(): void {
-		global $rs_query;
-		
 		switch($this->page) {
 			case 'blacklist':
 				switch($this->action) {
@@ -1325,7 +1304,7 @@ class Login {
 		<div class="heading-wrap">
 			<?php
 			// Page title
-			echo domTag('h1', array(
+			domTagPr('h1', array(
 				'content' => $title
 			));
 			
@@ -1373,7 +1352,7 @@ class Login {
 				// Info
 				adminInfo();
 				
-				echo domTag('hr');
+				domTagPr('hr');
 				
 				// Notices
 				if(!getSetting('track_login_attempts')) {
@@ -1393,16 +1372,10 @@ class Login {
 				
 				switch($this->page) {
 					case 'blacklist':
-						if(!is_null($search)) {
-							$count = $rs_query->select(array($this->tables[1], $this->px[1]), 'COUNT(*)', array(
-								'name' => array('LIKE', '%' . $search . '%')
-							));
-						} else {
-							$count = $rs_query->select(array($this->tables[1], $this->px[1]), 'COUNT(*)');
-						}
+						$count = $this->getEntryCount('', $search);
 						
 						// Record count
-						echo domTag('div', array(
+						domTagPr('div', array(
 							'class' => 'entry-count',
 							'content' => $count . ' ' . ($count === 1 ? 'entry' : 'entries')
 						));
@@ -1410,10 +1383,10 @@ class Login {
 						$this->paged['count'] = ceil($count / $this->paged['per_page']);
 						break;
 					case 'rules':
-						$count = $rs_query->select(array($this->tables[2], $this->px[2]), 'COUNT(*)');
+						$count = $this->getEntryCount('', null);
 						
 						// Record count
-						echo domTag('div', array(
+						domTagPr('div', array(
 							'class' => 'entry-count status',
 							'content' => $count . ' ' . ($count === 1 ? 'entry' : 'entries')
 						));
@@ -1432,7 +1405,7 @@ class Login {
 							
 							// Statuses
 							foreach($count as $key => $value) {
-								echo domTag('li', array(
+								domTagPr('li', array(
 									'content' => domTag('a', array(
 										'href' => ADMIN_URI . ($key === 'all' ? '' : '?status=' . $key),
 										'content' => ucfirst($key) . ' ' . domTag('span', array(
@@ -1448,7 +1421,7 @@ class Login {
 						</ul>
 						<?php
 						// Record count
-						echo domTag('div', array(
+						domTagPr('div', array(
 							'class' => 'entry-count status',
 							'content' => $count[$status] . ' ' . ($count[$status] === 1 ? 'entry' : 'entries')
 						));
@@ -1475,20 +1448,28 @@ class Login {
 			'bl_login_success' => 'The login was successfully blacklisted.',
 			'bl_ip_address_success' => 'The IP address was successfully blacklisted.',
 			'bl_create_success' => 'The blacklist was successfully created. ' . domTag('a', array(
-				'href' => ADMIN_URI . '?page=' . $this->page,
+				'href' => ADMIN_URI . getQueryString(array(
+					'page' => $this->page
+				)),
 				'content' => 'Return to list'
 			)) . '?',
 			'bl_edit_success' => 'Blacklist updated! ' . domTag('a', array(
-				'href' => ADMIN_URI . '?page=' . $this->page,
+				'href' => ADMIN_URI . getQueryString(array(
+					'page' => $this->page
+				)),
 				'content' => 'Return to list'
 			)) . '?',
 			'wl_success' => 'The login or IP address was successfully whitelisted.',
 			'rule_create_success' => 'The login rule was successfully created. ' . domTag('a', array(
-				'href' => ADMIN_URI . '?page=' . $this->page,
+				'href' => ADMIN_URI . getQueryString(array(
+					'page' => $this->page
+				)),
 				'content' => 'Return to list'
 			)) . '?',
 			'rule_edit_success' => 'Rule updated! ' . domTag('a', array(
-				'href' => ADMIN_URI . '?page=' . $this->page,
+				'href' => ADMIN_URI . getQueryString(array(
+					'page' => $this->page
+				)),
 				'content' => 'Return to list'
 			)) . '?',
 			'rule_del_success' => 'The rule was successfully deleted.',
@@ -1507,7 +1488,7 @@ class Login {
 	private function blacklistExists(string $name): bool {
 		global $rs_query;
 		
-		return $rs_query->selectRow(array($this->tables[1], $this->px[1]), 'COUNT(name)', array(
+		return $rs_query->selectRow(getTable('lb'), 'COUNT(name)', array(
 			'name' => $name
 		)) > 0;
 	}
@@ -1549,25 +1530,26 @@ class Login {
 	}
 	
 	/**
-	 * Fetch all login attempts based on a specific status.
-	 * @since 1.4.0-beta_snap-03
-	 *
-	 * @access private
-	 * @param string $status -- The login attempt's status.
-	 * @param null|string $search -- The search query.
-	 * @return array
-	 */
-	private function getResults(string $status, ?string $search): array {
+ 	 * Fetch all login attempts based on a specific status.
+ 	 * @since 1.3.15-beta
+ 	 *
+ 	 * @access private
+ 	 * @param string $status -- The login attempt's status.
+ 	 * @param null|string $search -- The search query.
+	 * @param bool $all (optional) -- Whether to return all or set a limit (for pagination).
+ 	 * @return array
+ 	 */
+	private function getResultsAttempts(string $status, ?string $search, bool $all = false): array {
 		global $rs_query;
 		
 		$order_by = 'date';
 		$order = 'DESC';
-		$limit = array($this->paged['start'], $this->paged['per_page']);
+		$limit = $all === false ? array($this->paged['start'], $this->paged['per_page']) : 0;
 		
 		if(!is_null($search)) {
 			// Search results
 			if($status === 'all') {
-				return $rs_query->select(array($this->tables[0], $this->px[0]), '*', array(
+				return $rs_query->select(getTable('la'), '*', array(
 					'login' => array('LIKE', '%' . $search . '%')
 				), array(
 					'order_by' => $order_by,
@@ -1575,7 +1557,7 @@ class Login {
 					'limit' => $limit
 				));
 			} else {
-				return $rs_query->select(array($this->tables[0], $this->px[0]), '*', array(
+				return $rs_query->select(getTable('la'), '*', array(
 					'login' => array('LIKE', '%' . $search . '%'),
 					'status' => $status
 				), array(
@@ -1587,13 +1569,13 @@ class Login {
 		} else {
 			// All results
 			if($status === 'all') {
-				return $rs_query->select(array($this->tables[0], $this->px[0]), '*', array(), array(
+				return $rs_query->select(getTable('la'), '*', array(), array(
 					'order_by' => $order_by,
 					'order' => $order,
 					'limit' => $limit
 				));
 			} else {
-				return $rs_query->select(array($this->tables[0], $this->px[0]), '*', array(
+				return $rs_query->select(getTable('la'), '*', array(
 					'status' => $status
 				), array(
 					'order_by' => $order_by,
@@ -1602,6 +1584,63 @@ class Login {
 				));
 			}
 		}
+	}
+	
+	/**
+ 	 * Fetch all login blacklists based on a specific status.
+ 	 * @since 1.3.15-beta
+ 	 *
+ 	 * @access private
+ 	 * @param null|string $search -- The search query.
+	 * @param bool $all (optional) -- Whether to return all or set a limit (for pagination).
+ 	 * @return array
+ 	 */
+	private function getResultsBlacklist(?string $search, bool $all = false): array {
+		global $rs_query;
+		
+		$order_by = 'blacklisted';
+		$order = 'DESC';
+		$limit = $all === false ? array($this->paged['start'], $this->paged['per_page']) : 0;
+		
+		if(!is_null($search)) {
+			// Search results
+			return $rs_query->select(getTable('lb'), '*', array(
+				'name' => array('LIKE', '%' . $search . '%')
+			), array(
+				'order_by' => $order_by,
+				'order' => $order,
+				'limit' => $limit
+			));
+		} else {
+			// All results
+			return $rs_query->select(getTable('lb'), '*', array(), array(
+				'order_by' => $order_by,
+				'order' => $order,
+				'limit' => $limit
+			));
+		}
+	}
+	
+	/**
+ 	 * Fetch all login rules based on a specific status.
+ 	 * @since 1.3.15-beta
+ 	 *
+ 	 * @access private
+	 * @param bool $all (optional) -- Whether to return all or set a limit (for pagination).
+ 	 * @return array
+ 	 */
+	private function getResultsRules(bool $all = false): array {
+		global $rs_query;
+		
+		$order_by = 'attempts';
+		$order = 'ASC';
+		$limit = $all === false ? array($this->paged['start'], $this->paged['per_page']) : 0;
+		
+		return $rs_query->select(getTable('lr'), '*', array(), array(
+			'order_by' => $order_by,
+			'order' => $order,
+			'limit' => $limit
+		));
 	}
 	
 	/**
@@ -1614,6 +1653,10 @@ class Login {
 	 * @return int
 	 */
 	private function getEntryCount(string $status, ?string $search): int {
-		return count($this->getResults($status, $search));
+		return match($this->page) {
+			'blacklist' => count($this->getResultsBlacklist($search, true)),
+			'rules' => count($this->getResultsRules(true)),
+			default => count($this->getResultsAttempts($status, $search, true))
+		};
 	}
 }

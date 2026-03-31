@@ -1,24 +1,29 @@
 <?php
 /**
  * Core class used to implement the Menu object.
- * This class loads data from the terms, term relationships, posts, and postmeta tables of the database
- *  for use on the front end of the CMS.
+ * This class loads data from the `terms`, `term_relationships`, `posts`, and `postmeta` tables of the database
+ *  for use on the front end.
  * @since 2.2.3-alpha
  *
  * @package ReallySimpleCMS
  * @subpackage Engine
  *
- * ## VARIABLES ##
- * - private array $tables
- * - private array $px
+ * ## OBJECT VAR ##
+ * - $rs_menu
  *
- * ## METHODS ##
- * - public getMenu(string $slug): void
- * - private getMenuItemDescendants(int $id): void
- * GETTER METHODS:
+ * ## VARIABLES [1] ##
+ * - private string $slug
+ *
+ * ## METHODS [10] ##
+ * - public __construct(string $slug)
+ * - public getMenu(): void
+ * - public getSubmenu(int $id): string
+ * { GETTER METHODS [3] }
+ * - public getMenuId(): int
  * - private getMenuItemMeta(int $id): array
  * - private getMenuItemParent(int $id): int
- * MISCELLANEOUS:
+ * { MISCELLANEOUS [4] }
+ * - private getMenuItemTree(int $id, array $items, bool $is_top_level): array
  * - private isCurrentPage(string $uri): bool
  * - private menuItemHasParent(int $id): bool
  * - private menuItemHasChildren(int $id): bool
@@ -27,234 +32,93 @@ namespace Engine;
 
 class Menu {
 	/**
-	 * The associated database tables.
-	 * 0 => `terms`, 1 => `posts`
-	 * @since 1.4.0-beta_snap-02
+	 * The currently queried menu's slug.
+	 * @since 1.4.0-beta_snap-04
 	 *
 	 * @access private
-	 * @var array
+	 * @var string
 	 */
-	private $tables = array('terms', 'posts');
+	private $slug;
 	
 	/**
-	 * The table prefixes.
-	 * @since 1.4.0-beta_snap-02
+	 * Class constructor. Sets the default queried menu slug.
+	 * @since 1.4.0-beta_snap-04
 	 *
-	 * @access private
-	 * @var array
+	 * @access public
+	 * @param string $slug (optional) -- The menu's slug.
 	 */
-	private $px = array('t_', 'p_');
+	public function __construct(string $slug = '') {
+		$this->slug = $slug;
+	}
 	
 	/**
 	 * Construct a nav menu.
 	 * @since 2.2.2-alpha
 	 *
 	 * @access public
-	 * @param string $slug -- The menu's slug.
 	 */
-	public function getMenu(string $slug): void {
-		global $rs_query, $post_types, $taxonomies;
+	public function getMenu(): void {
+		global $rs_query;
 		
-		$id = $rs_query->selectField($this->tables[0], $this->px[0] . 'id', array(
-			$this->px[0] . 'slug' => $slug
+		$id = $this->getMenuId();
+		
+		$relationships = $rs_query->select(getTable('tr'), 'post', array(
+			'term' => $id
 		));
-		?>
-		<nav class="nav-menu menu-id-<?php echo $id; ?>">
-			<ul>
-				<?php
-				$relationships = $rs_query->select('term_relationships', 'tr_post', array(
-					'tr_term' => $id
-				));
-				
-				$itemmeta = array();
-				$i = 0;
-				
-				foreach($relationships as $relationship) {
-					$itemmeta[] = $this->getMenuItemMeta($relationship['tr_post']);
-					$itemmeta[$i] = array_reverse($itemmeta[$i]);
-					$itemmeta[$i]['post'] = $relationship['tr_post'];
-					$i++;
-				}
-				
-				// Sort the array in ascending index order
-				asort($itemmeta);
-				
-				foreach($itemmeta as $meta) {
-					$menu_item = $rs_query->selectRow($this->tables[1], array(
-						$this->px[1] . 'id', $this->px[1] . 'title', $this->px[1] . 'status'
-					), array(
-						$this->px[1] . 'id' => $meta['post']
-					));
-					
-					// Skip over invalid items
-					if($menu_item[$this->px[1] . 'status'] === 'invalid') continue;
-					
-					if(!$this->menuItemHasParent($menu_item[$this->px[1] . 'id'])) {
-						$domain = $_SERVER['HTTP_HOST'];
-						$permalink = '';
-						$external = false;
-						
-						if(isset($meta['post_link'])) {
-							$type = $rs_query->selectField($this->tables[1], $this->px[1] . 'type', array(
-								$this->px[1] . 'id' => $meta['post_link']
-							));
-							
-							if(!empty($type) && $post_types[$type]['show_in_nav_menus']) {
-								$permalink = isHomePage((int)$meta['post_link']) ? '/' :
-									getPermalink($type, $this->getMenuItemParent($meta['post_link']));
-							}
-						} elseif(isset($meta['term_link'])) {
-							$tax_id = $rs_query->selectField($this->tables[0], $this->px[0] . 'taxonomy', array(
-								$this->px[0] . 'id' => $meta['term_link']
-							));
-							
-							$taxonomy = $rs_query->selectField('taxonomies', 'ta_name', array(
-								'ta_id' => $tax_id
-							));
-							
-							if(!empty($taxonomy) && $taxonomies[$taxonomy]['show_in_nav_menus']) {
-								$permalink = getPermalink($taxonomy, $this->getMenuItemParent($meta['term_link']));
-							}
-						} elseif(isset($meta['custom_link'])) {
-							$permalink = $meta['custom_link'];
-							
-							// Set up external links
-							if(!str_contains($permalink, $domain)) $external = true;
-						}
-						
-						if(!empty($permalink)) {
-							$classes = array();
-							
-							if($this->isCurrentPage($permalink)) $classes[] = 'current-menu-item';
-							if($this->menuItemHasChildren($menu_item[$this->px[1] . 'id'])) $classes[] = 'menu-item-has-children';
-							
-							// Sort the classes to make sure they're in alphabetical order
-							asort($classes);
-							
-							$tag_args = array(
-								'href' => $permalink
-							);
-							
-							if($external === true) {
-								$tag_args['target'] = '_blank';
-								$tag_args['rel'] = 'noreferrer noopener';
-							}
-							
-							$tag_args['content'] = $menu_item[$this->px[1] . 'title'];
-							?>
-							<li<?php echo !empty($classes) ? ' class="' . implode(' ', $classes) . '"' : ''; ?>>
-								<?php
-								echo domTag('a', $tag_args);
-								
-								if($this->menuItemHasChildren($menu_item[$this->px[1] . 'id']))
-									$this->getMenuItemDescendants($menu_item[$this->px[1] . 'id']);
-								?>
-							</li>
-							<?php
-						}
-					}
-				}
-				?>
-			</ul>
-		</nav>
-		<?php
+		
+		$relationships = array_map(function($relationship) {
+			return array(
+				'id' => $relationship['post']
+			);
+		}, $relationships);
+		
+		domTagPr('nav', array(
+			'class' => 'nav-menu menu-id-' . $id,
+			'content' => domTag('ul', array(
+				'content' => implode('', $this->getMenuItemTree($id, $relationships, true))
+			))
+		));
 	}
 	
 	/**
-	 * Fetch all descendants of a menu item.
-	 * @since 2.2.2-alpha
+	 * Construct a submenu.
+	 * @since 1.4.0-beta_snap-04
 	 *
-	 * @access private
-	 * @param int $id
+	 * @access public
+	 * @param int $id -- The parent menu item's id.
+	 * @return string
 	 */
-	private function getMenuItemDescendants(int $id): void {
-		global $rs_query, $post_types;
-		?>
-		<ul class="sub-menu">
-			<?php
-			$children = $rs_query->select($this->tables[1], $this->px[1] . 'id', array(
-				$this->px[1] . 'parent' => $id
-			));
-			
-			$itemmeta = array();
-			$i = 0;
-			
-			foreach($children as $child) {
-				$itemmeta[] = $this->getMenuItemMeta($child[$this->px[1] . 'id']);
-				$itemmeta[$i] = array_reverse($itemmeta[$i]);
-				$itemmeta[$i]['post'] = $child[$this->px[1] . 'id'];
-				$i++;
-			}
-			
-			// Sort the array in ascending index order
-			asort($itemmeta);
-			
-			foreach($itemmeta as $meta) {
-				$menu_item = $rs_query->selectRow($this->tables[1], array($this->px[1] . 'id', $this->px[1] . 'title'), array(
-					$this->px[1] . 'id' => $meta['post']
-				));
-				
-				$domain = $_SERVER['HTTP_HOST'];
-				$permalink = '';
-				$external = false;
-				
-				if(isset($meta['post_link'])) {
-					$type = $rs_query->selectField($this->tables[1], $this->px[1] . 'type', array(
-						$this->px[1] . 'id' => $meta['post_link']
-					));
-					
-					if($post_types[$type]['show_in_nav_menus']) {
-						$permalink = isHomePage((int)$meta['post_link']) ? '/' :
-							getPermalink($type, $this->getMenuItemParent($meta['post_link']));
-					}
-				} elseif(isset($meta['term_link'])) {
-					$permalink = getPermalink('category', $this->getMenuItemParent($meta['term_link']));
-				} elseif(isset($meta['custom_link'])) {
-					$permalink = $meta['custom_link'];
-					
-					// Set up external links
-					if(!str_contains($permalink, $domain)) $external = true;
-				}
-				
-				if(!empty($permalink)) {
-					$classes = array();
-					
-					if($this->isCurrentPage($permalink)) $classes[] = 'current-menu-item';
-					if($this->menuItemHasChildren($menu_item[$this->px[1] . 'id'])) $classes[] = 'menu-item-has-children';
-					
-					// Sort the classes to make sure they're in alphabetical order
-					asort($classes);
-					
-					$tag_args = array(
-						'href' => $permalink
-					);
-					
-					if($external === true) {
-						$tag_args['target'] = '_blank';
-						$tag_args['rel'] = 'noreferrer noopener';
-					}
-					
-					$tag_args['content'] = $menu_item[$this->px[1] . 'title'];
-					?>
-					<li<?php echo !empty($classes) ? ' class="' . implode(' ', $classes) . '"' : ''; ?>>
-						<?php
-						echo domTag('a', $tag_args);
-						
-						if($this->menuItemHasChildren($menu_item[$this->px[1] . 'id']))
-							$this->getMenuItemDescendants($menu_item[$this->px[1] . 'id']);
-						?>
-					</li>
-					<?php
-				}
-			}
-			?>
-		</ul>
-		<?php
+	public function getSubmenu(int $id): string {
+		global $rs_query;
+		
+		$children = $rs_query->select(getTable('p'), 'id', array(
+			'parent' => $id
+		));
+		
+		return domTag('ul', array(
+			'class' => 'sub-menu',
+			'content' => implode('', $this->getMenuItemTree($id, $children, false))
+		));
 	}
 	
 	/*------------------------------------*\
 		GETTER METHODS
 	\*------------------------------------*/
+	
+	/**
+	 * Fetch the menu's id.
+	 * @since 1.4.0-beta_snap-04
+	 *
+	 * @access public
+	 * @return int
+	 */
+	public function getMenuId(): int {
+		global $rs_query;
+		
+		return (int)$rs_query->selectField(getTable('t'), 'id', array(
+			'slug' => $this->slug
+		));
+	}
 	
 	/**
 	 * Fetch a menu item's metadata.
@@ -267,8 +131,8 @@ class Menu {
 	private function getMenuItemMeta(int $id): array {
 		global $rs_query;
 		
-		$itemmeta = $rs_query->select('postmeta', array('pm_key', 'pm_value'), array(
-			'pm_post' => $id
+		$itemmeta = $rs_query->select(getTable('pm'), array('key', 'value'), array(
+			'post' => $id
 		));
 		
 		$meta = array();
@@ -288,20 +152,119 @@ class Menu {
 	 * @since 2.2.2-alpha
 	 *
 	 * @access private
-	 * @param int $id
+	 * @param int $id -- The child menu item's id.
 	 * @return int
 	 */
 	private function getMenuItemParent(int $id): int {
 		global $rs_query;
 		
-		return $rs_query->selectField($this->tables[1], $this->px[1] . 'id', array(
-			$this->px[1] . 'id' => $id
+		return (int)$rs_query->selectField(getTable('p'), 'id', array(
+			'id' => $id
 		));
 	}
 	
 	/*------------------------------------*\
 		MISCELLANEOUS
 	\*------------------------------------*/
+	
+	/**
+	 * Fetch all descendants of a menu item.
+	 * @since 2.2.2-alpha
+	 *
+	 * @access private
+	 * @param int $id -- The parent menu item's id.
+	 * @param array $items -- The menu items to loop through.
+	 * @param bool $is_top_level -- Whether the menu item is on the top level (i.e., not a subitem).
+	 * @return array
+	 */
+	private function getMenuItemTree(int $id, array $items, bool $is_top_level): array {
+		global $rs_query, $rs_post_types, $rs_taxonomies;
+		
+		$submenu_content = array();
+		$itemmeta = array();
+		$i = 0;
+		
+		foreach($items as $item) {
+			$itemmeta[] = $this->getMenuItemMeta($item['id']);
+			$itemmeta[$i] = array_reverse($itemmeta[$i]);
+			$itemmeta[$i]['post'] = $item['id'];
+			$i++;
+		}
+		
+		// Sort the array in ascending index order
+		asort($itemmeta);
+		
+		foreach($itemmeta as $meta) {
+			$menu_item = $rs_query->selectRow(getTable('p'), array('id', 'title', 'status'), array(
+				'id' => $meta['post']
+			));
+			
+			// Skip over invalid items
+			if($menu_item['status'] === 'invalid' || ($this->menuItemHasParent($menu_item['id']) && $is_top_level === true))
+				continue;
+			
+			$domain = $_SERVER['HTTP_HOST'];
+			$permalink = '';
+			$external = false;
+			
+			if(isset($meta['post_link'])) {
+				$type = $rs_query->selectField(getTable('p'), 'type', array(
+					'id' => $meta['post_link']
+				));
+				
+				if(!empty($type) && $rs_post_types[$type]['show_in_nav_menus']) {
+					$permalink = isHomePage((int)$meta['post_link']) ? '/' :
+						getPermalink($type, $this->getMenuItemParent($meta['post_link']));
+				}
+			} elseif(isset($meta['term_link'])) {
+				$tax_id = $rs_query->selectField(getTable('t'), 'taxonomy', array(
+					'id' => $meta['term_link']
+				));
+				
+				$taxonomy = $rs_query->selectField(getTable('ta'), 'name', array(
+					'id' => $tax_id
+				));
+				
+				if(!empty($taxonomy) && $rs_taxonomies[$taxonomy]['show_in_nav_menus'])
+					$permalink = getPermalink($taxonomy, $this->getMenuItemParent($meta['term_link']));
+			} elseif(isset($meta['custom_link'])) {
+				$permalink = $meta['custom_link'];
+				
+				// Set up external links
+				if(!str_contains($permalink, $domain)) $external = true;
+			}
+			
+			if(!empty($permalink)) {
+				$classes = array();
+				
+				if($this->isCurrentPage($permalink)) $classes[] = 'current-menu-item';
+				if($this->menuItemHasChildren($menu_item['id'])) $classes[] = 'menu-item-has-children';
+				
+				// Sort the classes to make sure they're in alphabetical order
+				asort($classes);
+				
+				$tag_args = array(
+					'href' => $permalink
+				);
+				
+				if($external === true) {
+					$tag_args['target'] = '_blank';
+					$tag_args['rel'] = 'noreferrer noopener';
+				}
+				
+				$tag_args['content'] = $menu_item['title'];
+				
+				$submenu_content[] = domTag('li', array(
+					'class' => !empty($classes) ? implode(' ', $classes) : '',
+					'content' => domTag('a', $tag_args) . ($this->menuItemHasChildren($menu_item['id']) ?
+						$this->getSubmenu($menu_item['id']) : ''
+					)
+				));
+			}
+		}
+		
+		return $submenu_content;
+	}
 	
 	/**
 	 * Check whether a menu item's URI matches the current page URI.
@@ -312,8 +275,6 @@ class Menu {
 	 * @return bool
 	 */
 	private function isCurrentPage(string $uri): bool {
-		global $rs_query;
-		
 		return $uri === $_SERVER['REQUEST_URI'];
 	}
 	
@@ -328,8 +289,8 @@ class Menu {
 	private function menuItemHasParent(int $id): bool {
 		global $rs_query;
 		
-		return (int)$rs_query->selectField($this->tables[1], $this->px[1] . 'parent', array(
-			$this->px[1] . 'id' => $id
+		return (int)$rs_query->selectField(getTable('p'), 'parent', array(
+			'id' => $id
 		)) !== 0;
 	}
 
@@ -344,8 +305,8 @@ class Menu {
 	private function menuItemHasChildren(int $id): bool {
 		global $rs_query;
 		
-		return $rs_query->select($this->tables[1], 'COUNT(*)', array(
-			$this->px[1] . 'parent' => $id
+		return $rs_query->select(getTable('p'), 'COUNT(*)', array(
+			'parent' => $id
 		)) > 0;
 	}
 }

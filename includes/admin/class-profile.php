@@ -7,17 +7,20 @@
  * @package ReallySimpleCMS
  * @subpackage Admin
  *
+ * ## OBJECT VAR ##
+ * - $rs_ad_profile
+ *
  * ## VARIABLES [0] ##
  * See `User` class for a list of inherited vars
  *
  * ## METHODS [7] ##
  * See `User` class for a list of inherited methods
- * LISTS, FORMS, & ACTIONS:
+ * { LISTS, FORMS, & ACTIONS [2] }
  * - public editProfile(): void
  * - public resetPassword(): void
- * VALIDATION:
+ * { VALIDATION [1] }
  * - private validateSubmission(array $data): string
- * MISCELLANEOUS:
+ * { MISCELLANEOUS [4] }
  * - public pageHeading(): void
  * - private exitNotice(string $exit_status, int $status_code): string
  * - private getDisplayNames(): string
@@ -38,8 +41,6 @@ class Profile extends User {
 	 * @access public
 	 */
 	public function editProfile(): void {
-		global $rs_query;
-		
 		$this->pageHeading();
 		
 		$meta = $this->getUserMeta($this->id);
@@ -58,7 +59,8 @@ class Profile extends User {
 						'id' => 'username-field',
 						'class' => 'text-input required invalid init',
 						'name' => 'username',
-						'value' => $this->username
+						'value' => $this->username,
+						'placeholder' => $this->admin_page['labels']['title_placeholder']
 					));
 					
 					// Email
@@ -147,7 +149,7 @@ class Profile extends User {
 						'type' => 'submit',
 						'class' => 'submit-input button',
 						'name' => 'submit',
-						'value' => 'Update Profile'
+						'value' => $this->admin_page['labels']['update_button']
 					));
 					?>
 				</table>
@@ -281,9 +283,11 @@ class Profile extends User {
 					exit;
 				}
 				
-				$hashed_password = password_hash($data['new_pass'], PASSWORD_BCRYPT, array('cost' => 10));
+				$hashed_password = password_hash($data['new_pass'], PASSWORD_BCRYPT, array(
+					'cost' => 10
+				));
 				
-				$rs_query->update(array($this->tables[0], $this->px[0]), array(
+				$rs_query->update(getTable('u'), array(
 					'password' => $hashed_password,
 					'session' => null
 				), array(
@@ -293,7 +297,10 @@ class Profile extends User {
 				// Delete the session cookie
 				setcookie('session', '', 1, '/');
 				
-				redirect(ADMIN_URI . '?action=' . $this->action . '&exit_status=pw_success');
+				redirect(ADMIN_URI . getQueryString(array(
+					'action' => $this->action,
+					'exit_status' => 'pw_success'
+				)));
 				break;
 			default:
 				if(empty($data['username']) || empty($data['email'])) {
@@ -316,7 +323,7 @@ class Profile extends User {
 					exit;
 				}
 				
-				$username = $rs_query->selectField(array($this->tables[0], $this->px[0]), 'username', array(
+				$username = $rs_query->selectField(getTable('u'), 'username', array(
 					'id' => $rs_session['id']
 				));
 				
@@ -330,7 +337,7 @@ class Profile extends User {
 					'theme' => $data['theme']
 				);
 				
-				$rs_query->update(array($this->tables[0], $this->px[0]), array(
+				$rs_query->update(getTable('u'), array(
 					'username' => $data['username'],
 					'email' => $data['email']
 				), array(
@@ -356,7 +363,7 @@ class Profile extends User {
 						}
 					}
 					
-					$rs_query->update(array($this->tables[1], $this->px[1]), array(
+					$rs_query->update(getTable('um'), array(
 						'value' => $value
 					), array(
 						'user' => $rs_session['id'],
@@ -366,7 +373,9 @@ class Profile extends User {
 				
 				foreach($data as $key => $value) $this->$key = $value;
 				
-				redirect(ADMIN_URI . '?exit_status=edit_success');
+				redirect(ADMIN_URI . getQueryString(array(
+					'exit_status' => 'edit_success'
+				)));
 		}
 	}
 	
@@ -387,14 +396,14 @@ class Profile extends User {
 				$message = isset($_POST['submit']) ? $this->validateSubmission($_POST) : '';
 				break;
 			default:
-				$title = 'Edit Profile';
+				$title = $this->admin_page['labels']['edit_item'];
 				$message = isset($_POST['submit']) ? $this->validateSubmission($_POST) : '';
 		}
 		?>
 		<div class="heading-wrap">
 			<?php
 			// Page title
-			echo domTag('h1', array(
+			domTagPr('h1', array(
 				'content' => $title
 			));
 			
@@ -408,10 +417,17 @@ class Profile extends User {
 				if($this->action === 'reset_password') {
 					// currently, the user is logged out immediately,
 					// revisit in a later update
-					echo '<meta http-equiv="refresh" content="2; url=\'/login.php?redirect=' .
-						urlencode($_SERVER['PHP_SELF']) . '\'">';
+					domTagPr('meta', array(
+						'http-equiv' => 'refresh',
+						'content' => '2; url=\'/login.php' . getQueryString(array(
+							'redirect' => urlencode($_SERVER['PHP_SELF'])
+						)) . '\''
+					));
 				} else {
-					echo '<meta http-equiv="refresh" content="2; url=\'' . ADMIN_URI . '\'">';
+					domTagPr('meta', array(
+						'http-equiv' => 'refresh',
+						'content' => '2; url=\'' . ADMIN_URI . '\''
+					));
 				}
 			}
 			?>
@@ -444,9 +460,6 @@ class Profile extends User {
 	 * @return string
 	 */
 	private function getDisplayNames(): string {
-		global $rs_query;
-		
-		$list = '';
 		$meta = $this->getUserMeta($this->id);
 		
 		$display_names = array(array(
@@ -473,15 +486,17 @@ class Profile extends User {
 			}
 		}
 		
+		$list = array();
+		
 		foreach($display_names as $dname) {
-			$list .= domTag('option', array(
+			$list[] = domTag('option', array(
 				'value' => $dname['name'],
-				'selected' => ($dname['name'] === $meta['display_name']),
+				'selected' => $dname['name'] === $meta['display_name'],
 				'content' => $dname['name'] . ' (' . $dname['extra'] . ')'
 			));
 		}
 		
-		return $list;
+		return implode('', $list);
 	}
 	
 	/**

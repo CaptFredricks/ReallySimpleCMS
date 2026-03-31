@@ -8,38 +8,39 @@
 
 require_once __DIR__ . '/header.php';
 
+// Query vars
 $action = $_GET['action'] ?? '';
 ?>
 <article class="content">
 	<?php
 	switch($action) {
 		case 'unhide_notices':
-			$rs_notice = new \Admin\Notice;
+			$rs_ad_notice = new \Admin\Notice;
 			
-			$rs_notice->unhide($rs_session['id']);
+			$rs_ad_notice->unhide($rs_session['id']);
 			
 			redirect(ADMIN_URI);
 			break;
 		default:
+			domTagPr('section', array(
+				'class' => 'heading-wrap',
+				'content' => domTag('h1', array(
+					'content' => $rs_admin_pages['dashboard']['title']
+				))
+			));
 			?>
-			<section class="heading-wrap">
-				<?php
-				echo domTag('h1', array(
-					'content' => 'Admin Dashboard'
-				));
-				?>
-			</section>
 			<section>
 				<?php
-				echo domTag('p', array(
+				domTagPr('p', array(
 					'class' => 'headline',
-					'content' => 'Welcome to the administrative dashboard for ' . getSetting('site_title') . '.'
+					'content' => 'Welcome to the dashboard for ' . getSetting('site_title') . '! This software is meant to assist you in managing your website needs with clean and simple layout and functionality.'
 				));
 				
 				// Notices
-				$theme_path = slash(PATH . THEMES) . getSetting('theme');
+				$active_theme = getSetting('active_theme');
+				$theme_path = slash(PATH . THEMES) . $active_theme;
 				
-				if(!file_exists($theme_path . '/index.php')) {
+				if(isBrokenTheme($active_theme, $theme_path)) {
 					echo notice('Your current theme is broken. View your themes on the ' . domTag('a', array(
 						'href' => ADMIN . '/themes.php',
 						'content' => 'themes page'
@@ -51,7 +52,9 @@ $action = $_GET['action'] ?? '';
 					
 					$message = 'You have ' . $hidden . ' hidden ' . ($hidden === 1 ? 'notice' : 'notices') .
 						'. ' . domTag('a', array(
-							'href' => ADMIN_URI . '?action=unhide_notices',
+							'href' => ADMIN_URI . getQueryString(array(
+								'action' => 'unhide_notices'
+							)),
 							'content' => 'Click here'
 						)) . ' to unhide ' . ($hidden === 1 ? 'it' : 'them') . '.';
 					
@@ -60,10 +63,15 @@ $action = $_GET['action'] ?? '';
 				
 				if(ctDraft() > 0 || ctDraft('page') > 0) {
 					$message = 'You have ' . ctDraft('page') . ' unpublished ' . domTag('a', array(
-						'href' => '/admin/posts.php?type=page&status=draft',
+						'href' => ADMIN . '/posts.php' . getQueryString(array(
+							'type' => 'page',
+							'status' => 'draft'
+						)),
 						'content' => 'pages'
 					)) . ' and ' . ctDraft() . ' unpublished ' . domTag('a', array(
-						'href' => '/admin/posts.php?status=draft',
+						'href' => ADMIN . '/posts.php' . getQueryString(array(
+							'status' => 'draft'
+						)),
 						'content' => 'posts'
 					)) . '.';
 					

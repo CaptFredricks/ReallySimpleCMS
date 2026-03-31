@@ -1,24 +1,26 @@
 <?php
 /**
- * Core class used to implement the Error object.
+ * Core class used to implement the ErrorHandler object.
+ * All application-level errors are handled by this class, overriding PHP defaults.
  * @since 1.3.14-beta
  *
  * @package ReallySimpleCMS
  * @subpackage Engine
  *
- * All application-level errors are handled by this class, overriding PHP defaults.
+ * ## OBJECT VAR ##
+ * - $rs_error_handler
  *
- * ## VARIABLES ##
+ * ## VARIABLES [2] ##
  * - private array $backtrace
  * - private array $error
  *
- * ## METHODS ##
- * ERROR HANDLING:
+ * ## METHODS [6] ##
+ * { ERROR HANDLING [6] }
  * - public logError(object $exception): void
  * - public triggerError(): void
  * - public generateError(): void
  * - public generateDeprecation(): void
- * - private errorHandler(int $type, string $message): bool
+ * - public static errorHandler(int $type, string $message): bool
  * - private getErrorType(): int
  */
 namespace Engine;
@@ -50,6 +52,7 @@ class ErrorHandler {
 	 * Generate an error log.
 	 * @since 1.0.1-alpha
 	 *
+	 * @access public
 	 * @param object $exception -- The exception.
 	 */
 	public function logError(object $exception): void {
@@ -61,6 +64,8 @@ class ErrorHandler {
 	/**
 	 * Backtrace the problematic code and launch the error page.
 	 * @since 1.3.14-beta
+	 *
+	 * @access public
 	 */
 	public function triggerError(): void {
 		$this->backtrace = debug_backtrace();
@@ -71,7 +76,7 @@ class ErrorHandler {
 		if(isset($this->error['type']) && in_array($this->error['type'], $critical_error_types, true)) {
 			global $rs_error;
 			
-			require_once PATH . INC . '/error.php';
+			require_once PATH . UTILS . '/error.php';
 		} else {
 			if(DEBUG_MODE === true || ini_get('display_errors'))
 				$this->generateError();
@@ -81,9 +86,11 @@ class ErrorHandler {
 	/**
 	 * Display an error message.
 	 * @since 1.3.14-beta
+	 *
+	 * @access public
 	 */
 	public function generateError(): void {
-		set_error_handler('self::errorHandler');
+		set_error_handler(self::class . '::errorHandler');
 		
 		if(DEBUG_MODE === true || ini_get('display_errors')) {
 			$caller = next($this->backtrace);
@@ -102,9 +109,11 @@ class ErrorHandler {
 	/**
 	 * Display a deprecation notice.
 	 * @since 1.3.14-beta
+	 *
+	 * @access public
 	 */
 	public function generateDeprecation(): void {
-		set_error_handler('self::errorHandler');
+		set_error_handler(self::class . '::errorHandler');
 		
 		if(DEBUG_MODE === true || ini_get('display_errors')) {
 			$caller = debug_backtrace()[2];
@@ -120,11 +129,12 @@ class ErrorHandler {
 	 * Create a custom error handler.
 	 * @since 1.3.12-beta
 	 *
+	 * @access public
 	 * @param int $type -- The error type.
 	 * @param string $message -- The error message.
 	 * @return bool
 	 */
-	private function errorHandler(int $type, string $message): bool {
+	public static function errorHandler(int $type, string $message): bool {
 		if(!(error_reporting() & $type)) return false;
 		
 		switch($type) {

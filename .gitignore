@@ -1,11 +1,18 @@
+# Root
 config.php
-content/modules/backups/
-content/themes/
-!content/themes/carbon/
-content/uploads/
-**/error_log
 misc.txt
 robots.txt
 sitemap-*.xml
 sitemap.xml
 todo.txt
+
+# Content
+content/admin-themes/
+content/modules/
+!content/themes/
+content/themes/*
+!content/themes/carbon/
+content/uploads/
+
+# Logs
+**/error_log

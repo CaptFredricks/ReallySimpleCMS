@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin modules page.
+ * Admin modules page. Makes use of the Module object.
  * @since 1.4.0-beta_snap-03
  *
  * @package ReallySimpleCMS
@@ -8,35 +8,46 @@
 
 require_once __DIR__ . '/header.php';
 
+// Query vars
 $name = $_GET['name'] ?? '';
 $action = $_GET['action'] ?? '';
 
-$rs_module = new \Admin\Module($name, $action, $rs_modules[$name] ?? array());
+$rs_ad_module = new \Admin\Module($name, $action, $rs_modules[$name] ?? array());
 ?>
 <article class="content">
 	<?php
 	switch($action) {
 		case 'install':
-			// Install a new module
+			// Action: Install Module
 			/* userHasPrivilege('can_install_modules') ? $rs_media->uploadRecordMedia() :
 				redirect(ADMIN_URI); */
+			$rs_ad_module->installModule();
+			break;
+		case 'activate':
+			// Action: Activate Module
+			$rs_ad_module->activateModule();
+			break;
+		case 'deactivate':
+			// Action: Deactivate Module
+			$rs_ad_module->deactivateModule();
 			break;
 		case 'update':
-			// Update existing module
+			// Action: Update Module
 			/* userHasPrivilege('can_update_modules') ? $rs_media->editRecordMedia() :
 				redirect(ADMIN_URI); */
-			$rs_module->updateModule();
+			$rs_ad_module->updateModule();
 			break;
-		case 'delete':
-			// Delete existing media
+		case 'uninstall':
+			// Action: Delete Module
 			/* userHasPrivilege('can_delete_modules') ? $rs_media->deleteRecordMedia() :
 				redirect(ADMIN_URI); */
+			#$rs_ad_module->uninstallModule();
 			break;
 		default:
-			// List all modules
-			/* userHasPrivilege('can_view_modules') ? $rs_module->listRecords() :
+			// Action: List Modules
+			/* userHasPrivilege('can_view_modules') ? $rs_ad_module->listRecords() :
 				redirect('index.php'); */
-			$rs_module->listRecords();
+			$rs_ad_module->listRecords();
 	}
 	?>
 </article>

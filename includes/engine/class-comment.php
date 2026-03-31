@@ -1,20 +1,21 @@
 <?php
 /**
  * Core class used to implement the Comment object.
- * This class loads data from the comments table of the database for use on the front end of the CMS.
+ * This class loads data from the `comments` table of the database for use on the front end.
  * @since 1.1.0-beta_snap-03
  *
  * @package ReallySimpleCMS
  * @subpackage Engine
  *
- * ## VARIABLES ##
- * - private int $post
- * - private string $table
- * - private string $px
+ * ## OBJECT VAR ##
+ * - $rs_comment
  *
- * ## METHODS ##
+ * ## VARIABLES [1] ##
+ * - private int $post
+ *
+ * ## METHODS [19] ##
  * - public __construct(int $post)
- * GETTER METHODS:
+ * { GETTER METHODS [10] }
  * - public getCommentAuthor(int $id): string
  * - public getCommentAuthorId(int $id): int
  * - public getCommentDate(int $id): string
@@ -25,7 +26,7 @@
  * - public getCommentParent(int $id): int
  * - public getCommentCount(int $post): int
  * - public getCommentPermalink(int $id): string
- * MISCELLANEOUS:
+ * { MISCELLANEOUS [8] }
  * - public getCommentReplyBox(): void
  * - public getCommentFeed(): void
  * - public loadComments(int $offset, int $count): void
@@ -46,24 +47,6 @@ class Comment {
 	 * @var int
 	 */
 	private $post;
-	
-	/**
-	 * The associated database table.
-	 * @since 1.4.0-beta_snap-02
-	 *
-	 * @access private
-	 * @var string
-	 */
-	private $table = 'comments';
-	
-	/**
-	 * The table prefix.
-	 * @since 1.4.0-beta_snap-02
-	 *
-	 * @access private
-	 * @var string
-	 */
-	private $px = 'c_';
 	
 	/**
 	 * Class constructor.
@@ -96,9 +79,9 @@ class Comment {
 		if($author_id === 0) {
 			$author = 'Anonymous';
 		} else {
-			$author = $rs_query->selectField('usermeta', 'um_value', array(
-				'um_user' => $author_id,
-				'um_key' => 'display_name'
+			$author = $rs_query->selectField(getTable('um'), 'value', array(
+				'user' => $author_id,
+				'key' => 'display_name'
 			));
 		}
 		
@@ -116,8 +99,8 @@ class Comment {
 	public function getCommentAuthorId(int $id): int {
 		global $rs_query;
 		
-		return (int)$rs_query->selectField($this->table, $this->px . 'author', array(
-			$this->px . 'id' => $id
+		return (int)$rs_query->selectField(getTable('c'), 'author', array(
+			'id' => $id
 		));
 	}
 	
@@ -132,8 +115,8 @@ class Comment {
 	public function getCommentDate(int $id): string {
 		global $rs_query;
 		
-		$created = $rs_query->selectField($this->table, $this->px . 'created', array(
-			$this->px . 'id' => $id
+		$created = $rs_query->selectField(getTable('c'), 'created', array(
+			'id' => $id
 		));
 		
 		return formatDate($created, 'j M Y @ g:i A');
@@ -150,8 +133,8 @@ class Comment {
 	public function getCommentContent(int $id): string {
 		global $rs_query;
 		
-		return $rs_query->selectField($this->table, $this->px . 'content', array(
-			$this->px . 'id' => $id
+		return $rs_query->selectField(getTable('c'), 'content', array(
+			'id' => $id
 		));
 	}
 	
@@ -166,8 +149,8 @@ class Comment {
 	public function getCommentUpvotes(int $id): int {
 		global $rs_query;
 		
-		return (int)$rs_query->selectField($this->table, $this->px . 'upvotes', array(
-			$this->px . 'id' => $id
+		return (int)$rs_query->selectField(getTable('c'), 'upvotes', array(
+			'id' => $id
 		));
 	}
 	
@@ -182,8 +165,8 @@ class Comment {
 	public function getCommentDownvotes(int $id): int {
 		global $rs_query;
 		
-		return (int)$rs_query->selectField($this->table, $this->px . 'downvotes', array(
-			$this->px . 'id' => $id
+		return (int)$rs_query->selectField(getTable('c'), 'downvotes', array(
+			'id' => $id
 		));
 	}
 	
@@ -198,8 +181,8 @@ class Comment {
 	public function getCommentStatus(int $id): string {
 		global $rs_query;
 		
-		return $rs_query->selectField($this->table, $this->px . 'status', array(
-			$this->px . 'id' => $id
+		return $rs_query->selectField(getTable('c'), 'status', array(
+			'id' => $id
 		));
 	}
 	
@@ -214,8 +197,8 @@ class Comment {
 	public function getCommentParent(int $id): int {
 		global $rs_query;
 		
-		return (int)$rs_query->selectField($this->table, $this->px . 'parent', array(
-			$this->px . 'id' => $id
+		return (int)$rs_query->selectField(getTable('c'), 'parent', array(
+			'id' => $id
 		));
 	}
 	
@@ -230,8 +213,8 @@ class Comment {
 	public function getCommentCount(int $post): int {
 		global $rs_query;
 		
-		return $rs_query->select($this->table, 'COUNT(*)', array(
-			$this->px . 'post' => $post
+		return $rs_query->select(getTable('c'), 'COUNT(*)', array(
+			'post' => $post
 		));
 	}
 	
@@ -246,11 +229,11 @@ class Comment {
 	public function getCommentPermalink(int $id): string {
 		global $rs_query;
 		
-		$post = $rs_query->selectRow('posts', array('p_slug', 'p_parent', 'p_type'), array(
-			'p_id' => $this->post
+		$post = $rs_query->selectRow(getTable('p'), array('slug', 'parent', 'type'), array(
+			'id' => $this->post
 		));
 		
-		return getPermalink($post['p_type'], $post['p_parent'], $post['p_slug']) . '#comment-' . $id;
+		return getPermalink($post['type'], $post['parent'], $post['slug']) . '#comment-' . $id;
 	}
 	
 	/*------------------------------------*\
@@ -264,14 +247,14 @@ class Comment {
 	 * @access public
 	 */
 	public function getCommentReplyBox(): void {
-		global $rs_post, $session, $post_types;
+		global $rs_session, $rs_post_types, $rs_post;
 		
 		// Check whether comments are enabled
-		if(getSetting('enable_comments') && $post_types[$rs_post->getPostType()]['comments'] &&
+		if(getSetting('enable_comments') && $rs_post_types[$rs_post->getPostType()]['comments'] &&
 			$rs_post->getPostMeta('comment_status')
 		) {
-			if(!is_null($session) || (is_null($session) && getSetting('allow_anon_comments'))) {
-				echo domTag('div', array(
+			if(!empty($rs_session) || (empty($rs_session) && getSetting('allow_anon_comments'))) {
+				domTagPr('div', array(
 					'id' => 'comments-reply',
 					'class' => 'textarea-wrap',
 					'content' => domTag('div', array(
@@ -323,159 +306,170 @@ class Comment {
 	 * @param int $count (optional) -- The number of comments to load.
 	 */
 	public function loadComments(int $offset = 0, int $count = 10): void {
-		global $rs_query, $rs_post, $session, $post_types;
+		global $rs_query, $rs_session, $rs_post_types, $rs_post;
 		
 		$per_page = 10;
 		
-		$comments = $rs_query->select($this->table, $this->px . 'id', array(
-			$this->px . 'post' => $this->post,
-			$this->px . 'status' => 'approved'
+		$comments = $rs_query->select(getTable('c'), 'id', array(
+			'post' => $this->post,
+			'status' => 'approved'
 		), array(
-			'order_by' => $this->px . 'created',
+			'order_by' => 'created',
 			'order' => 'DESC',
 			'limit' => array($offset, $count)
 		));
 		
-		$approved = $rs_query->select($this->table, 'COUNT(*)', array(
-			$this->px . 'post' => $this->post,
-			$this->px . 'status' => 'approved'
+		$approved = $rs_query->select(getTable('c'), 'COUNT(*)', array(
+			'post' => $this->post,
+			'status' => 'approved'
 		));
 		
 		if(empty($comments)) {
-			echo domTag('p', array(
+			domTagPr('p', array(
 				'content' => 'No comments to display.'
 			));
 		} else {
-			echo domTag('span', array(
+			domTagPr('span', array(
 				'class' => 'count hidden',
 				'data-comments' => $offset + $count
 			));
 			
 			foreach($comments as $comment) {
-				$id = $comment[$this->px . 'id'];
+				$id = $comment['id'];
 				$parent = $this->getCommentParent($id);
 				?>
 				<div id="comment-<?php echo $id; ?>" class="comment">
-					<p class="meta">
-						<?php
-						// Meta
-						echo domTag('span', array(
-							'class' => 'permalink',
-							'content' => domTag('a', array(
-								'href' => $this->getCommentPermalink($id),
-								'content' => '#' . $id
-							))
-						)) . '&ensp;' . domTag('span', array(
-							'class' => 'author',
-							'content' => $this->getCommentAuthor($id)
-						)) . '&ensp;' . domTag('span', array(
-							'class' => 'created',
-							'content' => $this->getCommentDate($id)
-						));
-						
-						// Reply to
-						if($parent !== 0) {
-							echo domTag('span', array(
-								'class' => 'replyto',
-								'content' => 'replying to ' . domTag('a', array(
-									'href' => $this->getCommentPermalink($parent),
-									'content' => '#' . $parent
-								))
-							));
-						}
-						?>
-					</p>
 					<?php
-					// Content
-					echo domTag('div', array(
+					## META ##
+					$meta = array();
+					
+					// Permalink, author, created
+					$meta[] = domTag('span', array(
+						'class' => 'permalink',
+						'content' => domTag('a', array(
+							'href' => $this->getCommentPermalink($id),
+							'content' => '#' . $id
+						))
+					)) . '&ensp;' . domTag('span', array(
+						'class' => 'author',
+						'content' => $this->getCommentAuthor($id)
+					)) . '&ensp;' . domTag('span', array(
+						'class' => 'created',
+						'content' => $this->getCommentDate($id)
+					));
+					
+					// Reply to
+					if($parent !== 0) {
+						$meta[] = domTag('span', array(
+							'class' => 'replyto',
+							'content' => 'replying to ' . domTag('a', array(
+								'href' => $this->getCommentPermalink($parent),
+								'content' => '#' . $parent
+							))
+						));
+					}
+					
+					domTagPr('p', array(
+						'class' => 'meta',
+						'content' => implode('', $meta)
+					));
+					
+					## CONTENT ##
+					domTagPr('div', array(
 						'class' => 'content',
 						'content' => nl2br($this->getCommentContent($id))
 					));
-					?>
-					<p class="actions">
-						<?php
-						// Actions
-						echo domTag('span', array(
-							// Upvote
-							'class' => 'upvote',
-							'content' => domTag('span', array(
-								'content' => $this->getCommentUpvotes($id)
-							)) . ' ' . domTag('a', array(
-								'href' => '#',
-								'data-id' => $id,
-								'data-vote' => 0,
-								'title' => 'Upvote',
-								'content' => domTag('i', array(
-									'class' => 'fa-solid fa-thumbs-up'
-								))
+					
+					## ACTIONS ##
+					$actions = array();
+					$is_author = !empty($rs_session) && $rs_session['id'] === $this->getCommentAuthorId($id);
+					
+					// Action links
+					$actions[] = domTag('span', array(
+						// Upvote
+						'class' => 'upvote',
+						'content' => domTag('span', array(
+							'content' => $this->getCommentUpvotes($id)
+						)) . ' ' . domTag('a', array(
+							'style' => $is_author ? 'cursor: not-allowed;' : '',
+							'href' => '#',
+							'data-id' => $id,
+							'data-author' => (int)$is_author,
+							'data-vote' => 0,
+							'title' => 'Upvote',
+							'content' => domTag('i', array(
+								'class' => 'fa-solid fa-thumbs-up'
 							))
-						)) . ' &bull; ' . domTag('span', array(
-							// Downvote
-							'class' => 'downvote',
-							'content' => domTag('span', array(
-								'content' => $this->getCommentDownvotes($id)
-							)) . ' ' . domTag('a', array(
+						))
+					)) . ' &bull; ' . domTag('span', array(
+						// Downvote
+						'class' => 'downvote',
+						'content' => domTag('span', array(
+							'content' => $this->getCommentDownvotes($id)
+						)) . ' ' . domTag('a', array(
+							'style' => $is_author ? 'cursor: not-allowed;' : '',
+							'href' => '#',
+							'data-id' => $id,
+							'data-author' => (int)$is_author,
+							'data-vote' => 0,
+							'title' => 'Downvote',
+							'content' => domTag('i', array(
+								'class' => 'fa-solid fa-thumbs-down'
+							))
+						))
+					));
+					
+					// Reply to
+					if(getSetting('enable_comments') && $rs_post_types[$rs_post->getPostType()]['comments'] &&
+						$rs_post->getPostMeta('comment_status')
+					) {
+						if(!empty($rs_session) || (empty($rs_session) && getSetting('allow_anon_comments'))) {
+							$actions[] = domTag('span', array(
+								'class' => 'reply',
+								'content' => domTag('a', array(
+									'href' => '#',
+									'data-replyto' => $id,
+									'content' => 'Reply'
+								))
+							));
+						}
+					}
+					
+					// Edit
+					if($is_author || (!empty($rs_session) && userHasPrivilege('can_edit_comments'))) {
+						$actions[] = domTag('span', array(
+							'class' => 'edit',
+							'content' => domTag('a', array(
 								'href' => '#',
 								'data-id' => $id,
-								'data-vote' => 0,
-								'title' => 'Downvote',
-								'content' => domTag('i', array(
-									'class' => 'fa-solid fa-thumbs-down'
-								))
+								'content' => 'Edit'
 							))
 						));
-						
-						if(getSetting('enable_comments') && $post_types[$rs_post->getPostType()]['comments'] &&
-							$rs_post->getPostMeta('comment_status')
-						) {
-							if(!is_null($session) || (is_null($session) && getSetting('allow_anon_comments'))) {
-								// Reply to
-								echo ' &bull; ' . domTag('span', array(
-									'class' => 'reply',
-									'content' => domTag('a', array(
-										'href' => '#',
-										'data-replyto' => $id,
-										'content' => 'Reply'
-									))
-								));
-							}
-						}
-						
-						if(!is_null($session) && ($session['id'] === $this->getCommentAuthorId($id) ||
-							userHasPrivilege('can_edit_comments'))
-						) {
-							// Edit
-							echo ' &bull; ' . domTag('span', array(
-								'class' => 'edit',
-								'content' => domTag('a', array(
-									'href' => '#',
-									'data-id' => $id,
-									'content' => 'Edit'
-								))
-							));
-						}
-						
-						if(!is_null($session) && ($session['id'] === $this->getCommentAuthorId($id) ||
-							userHasPrivilege('can_delete_comments'))
-						) {
-							// Delete
-							echo ' &bull; ' . domTag('span', array(
-								'class' => 'delete',
-								'content' => domTag('a', array(
-									'href' => '#',
-									'data-id' => $id,
-									'content' => 'Delete'
-								))
-							));
-						}
-						?>
-					</p>
+					}
+					
+					// Delete
+					if($is_author || (!empty($rs_session) && userHasPrivilege('can_delete_comments'))) {
+						$actions[] = domTag('span', array(
+							'class' => 'delete',
+							'content' => domTag('a', array(
+								'href' => '#',
+								'data-id' => $id,
+								'content' => 'Delete'
+							))
+						));
+					}
+					
+					domTagPr('p', array(
+						'class' => 'actions',
+						'content' => implode(' &bull; ', $actions)
+					));
+					?>
 				</div>
 				<?php
 			}
 			
 			if($approved > $per_page && $approved > $offset + $count) {
-				echo domTag('button', array(
+				domTagPr('button', array(
 					'class' => 'load button',
 					'content' => 'Load more'
 				));
@@ -492,28 +486,30 @@ class Comment {
 	 * @return string
 	 */
 	public function createComment(array $data): string {
-		global $rs_query, $session;
+		global $rs_query, $rs_session;
 		
 		if(!empty($data['content'])) {
 			$status = getSetting('auto_approve_comments') ? 'approved' : 'pending';
 			
-			$rs_query->insert($this->table, array(
-				$this->px . 'post' => $data['post'],
-				$this->px . 'author' => ($session['id'] ?? 0),
-				$this->px . 'created' => 'NOW()',
-				$this->px . 'content' => htmlspecialchars($data['content']),
-				$this->px . 'status' => $status,
-				$this->px . 'parent' => $data['replyto']
+			$rs_query->insert(getTable('c'), array(
+				'post' => $data['post'],
+				'author' => ($rs_session['id'] ?? 0),
+				'created' => 'NOW()',
+				'content' => htmlspecialchars($data['content']),
+				'status' => $status,
+				'parent' => $data['replyto']
 			));
 			
-			$approved = $rs_query->select($this->table, 'COUNT(*)', array(
-				$this->px . 'post' => $data['post'],
-				$this->px . 'status' => 'approved'
+			$approved = $rs_query->select(getTable('c'), 'COUNT(*)', array(
+				'post' => $data['post'],
+				'status' => 'approved'
 			));
 			
-			$rs_query->update('postmeta', array('pm_value' => $approved), array(
-				'pm_post' => $data['post'],
-				'pm_key' => 'comment_count'
+			$rs_query->update(getTable('pm'), array(
+				'value' => $approved
+			), array(
+				'post' => $data['post'],
+				'key' => 'comment_count'
 			));
 			
 			return domTag('p', array(
@@ -538,10 +534,10 @@ class Comment {
 	public function updateComment(array $data): void {
 		global $rs_query;
 		
-		$rs_query->update($this->table, array(
-			$this->px . 'content' => $data['content']
+		$rs_query->update(getTable('c'), array(
+			'content' => $data['content']
 		), array(
-			$this->px . 'id' => $data['id']
+			'id' => $data['id']
 		));
 	}
 	
@@ -555,22 +551,24 @@ class Comment {
 	public function deleteComment(int $id): void {
 		global $rs_query;
 		
-		$post = $rs_query->selectField($this->table, $this->px . 'post', array(
-			$this->px . 'id' => $id
+		$post = $rs_query->selectField(getTable('c'), 'post', array(
+			'id' => $id
 		));
 		
-		$rs_query->delete($this->table, array(
-			$this->px . 'id' => $id
+		$rs_query->delete(getTable('c'), array(
+			'id' => $id
 		));
 		
-		$count = $rs_query->select($this->table, 'COUNT(*)', array(
-			$this->px . 'post' => $post,
-			$this->px . 'status' => 'approved'
+		$count = $rs_query->select(getTable('c'), 'COUNT(*)', array(
+			'post' => $post,
+			'status' => 'approved'
 		));
 		
-		$rs_query->update('postmeta', array('pm_value' => $count), array(
-			'pm_post' => $post,
-			'pm_key' => 'comment_count'
+		$rs_query->update(getTable('pm'), array(
+			'value' => $count
+		), array(
+			'post' => $post,
+			'key' => 'comment_count'
 		));
 	}
 	
@@ -586,14 +584,14 @@ class Comment {
 	public function incrementVotes(int $id, string $type): int {
 		global $rs_query;
 		
-		$votes = $rs_query->selectField($this->table, $this->px . $type, array(
-			$this->px . 'id' => $id
+		$votes = $rs_query->selectField(getTable('c'), $type, array(
+			'id' => $id
 		));
 		
-		$rs_query->update($this->table, array(
-			$this->px . $type => ++$votes
+		$rs_query->update(getTable('c'), array(
+			$type => ++$votes
 		), array(
-			$this->px . 'id' => $id
+			'id' => $id
 		));
 		
 		return $votes;
@@ -611,14 +609,14 @@ class Comment {
 	public function decrementVotes(int $id, string $type): int {
 		global $rs_query;
 		
-		$votes = $rs_query->selectField($this->table, $this->px . $type, array(
-			$this->px . 'id' => $id
+		$votes = $rs_query->selectField(getTable('c'), $type, array(
+			'id' => $id
 		));
 		
-		$rs_query->update($this->table, array(
-			$this->px . $type => --$votes
+		$rs_query->update(getTable('c'), array(
+			$type => --$votes
 		), array(
-			$this->px . 'id' => $id
+			'id' => $id
 		));
 		
 		return $votes;

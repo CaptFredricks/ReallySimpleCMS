@@ -8,31 +8,36 @@
  * @package ReallySimpleCMS
  * @subpackage Admin
  *
- * ## VARIABLES [8] ##
+ * ## OBJECT VAR ##
+ * - $rs_ad_user_role
+ *
+ * ## VARIABLES [7] ##
  * - private int $id
  * - private string $name
  * - private int $is_default
  * - private string $action
  * - private array $paged
  * - private string $page
- * - private string $table
- * - private string $px
+ * - private array $admin_page
  *
- * ## METHODS [11] ##
+ * ## METHODS [14] ##
  * - public __construct(int $id, string $action, string $page)
- * LISTS, FORMS, & ACTIONS:
+ * { LISTS, FORMS, & ACTIONS [4] }
  * - public listRecords(): void
  * - public createRecord(): void
  * - public editRecord(): void
  * - public deleteRecord(): void
- * VALIDATION:
+ * { VALIDATION [1] }
  * - private validateSubmission(array $data): string
- * MISCELLANEOUS:
+ * { MISCELLANEOUS [8] }
  * - public pageHeading(): void
  * - private exitNotice(string $exit_status, int $status_code): string
  * - private roleNameExists(string $name): bool
  * - private getPrivileges(int $id, int $is_default): string
  * - private getPrivilegesList(): string
+ * - private getResults(?string $search, bool $all): array
+ * - private getEntryCount(?string $search): int
+ * - private getActionLinks(array $role): string
  */
 namespace Admin;
 
@@ -92,24 +97,13 @@ class UserRole implements AdminInterface {
 	private $page;
 	
 	/**
-	 * The associated database tables.
-	 * 0 => `user_roles`, 1 => `user_privileges`, 2 => `user_relationships`
-	 * @since 1.3.14-beta
+	 * The admin page's data.
+	 * @since 1.4.0-beta_snap-04
 	 *
 	 * @access private
-	 * @var string
+	 * @var array
 	 */
-	private $tables = array('user_roles', 'user_privileges', 'user_relationships');
-	
-	/**
-	 * The table prefixes.
-	 * 0 => `ur_`, 1 => `up_`, 2 => `ue_`
-	 * @since 1.3.14-beta
-	 *
-	 * @access private
-	 * @var string
-	 */
-	private $px = array('ur_', 'up_', 'ue_');
+	private $admin_page = array();
 	
 	/**
 	 * Class constructor.
@@ -121,24 +115,22 @@ class UserRole implements AdminInterface {
 	 * @param string $page -- The current settings page.
 	 */
 	public function __construct(int $id, string $action, string $page) {
-		global $rs_query;
+		global $rs_query, $rs_admin_pages;
 		
 		$this->action = $action;
 		$this->page = $page;
+		$this->admin_page = $rs_admin_pages[basename($_SERVER['PHP_SELF'], '.php')];
 		
 		if($id > 0) {
 			$cols = array_keys(get_object_vars($this));
-			$exclude = array('action', 'paged', 'page', 'tables', 'px');
+			$exclude = array('action', 'paged', 'page', 'admin_page');
 			$cols = array_diff($cols, $exclude);
 			
-			$role = $rs_query->selectRow(array($this->tables[0], $this->px[0]), $cols, array(
+			$role = $rs_query->selectRow(getTable('ur'), $cols, array(
 				'id' => $id
 			));
 			
-			foreach($role as $key => $value) {
-				$col = substr($key, mb_strlen($this->px[0]));
-				$this->$col = $role[$key];
-			}
+			foreach($role as $key => $value) $this->$key = $role[$key];
 		} else {
 			$this->id = 0;
 		}
@@ -177,57 +169,13 @@ class UserRole implements AdminInterface {
 			</thead>
 			<tbody>
 				<?php
-				$order_by = 'id';
-				$order = 'ASC';
-				$limit = array($this->paged['start'], $this->paged['per_page']);
-				
-				if(!is_null($search)) {
-					// Search results
-					$roles = $rs_query->select(array($this->tables[0], $this->px[0]), '*', array(
-						'name' => array('LIKE', '%' . $search . '%'),
-						'is_default' => 0
-					), array(
-						'order_by' => $order_by,
-						'order' => $order,
-						'limit' => $limit
-					));
-				} else {
-					// All results
-					$roles = $rs_query->select(array($this->tables[0], $this->px[0]), '*', array(
-						'is_default' => 0
-					), array(
-						'order_by' => $order_by,
-						'order' => $order,
-						'limit' => $limit
-					));
-				}
+				$roles = $this->getResults($search);
 				
 				foreach($roles as $role) {
 					list($ur_id, $ur_name) = array(
-						$role[$this->px[0] . 'id'],
-						$role[$this->px[0] . 'name']
+						$role['id'],
+						$role['name']
 					);
-					
-					// Action links
-					$actions = array(
-						// Edit
-						userHasPrivilege('can_edit_user_roles') ? actionLink('edit', array(
-							'caption' => 'Edit',
-							'page' => $this->page,
-							'id' => $ur_id
-						)) : null,
-						// Delete
-						userHasPrivilege('can_delete_user_roles') ? actionLink('delete', array(
-							'classes' => 'modal-launch delete-item',
-							'data_item' => 'user role',
-							'caption' => 'Delete',
-							'page' => $this->page,
-							'id' => $ur_id
-						)) : null
-					);
-					
-					// Filter out any empty actions
-					$actions = array_filter($actions);
 					
 					echo tableRow(
 						// Name
@@ -235,7 +183,7 @@ class UserRole implements AdminInterface {
 							'content' => $ur_name
 						)) . domTag('div', array(
 							'class' => 'actions',
-							'content' => implode(' &bull; ', $actions)
+							'content' => $this->getActionLinks($role)
 						)), 'name'),
 						// Default Privileges
 						tdCell($this->getPrivileges($ur_id, 1), 'default-privileges'),
@@ -255,30 +203,29 @@ class UserRole implements AdminInterface {
 		<?php
 		// Set up page navigation
 		echo pagerNav($this->paged['current'], $this->paged['count']);
+		
+		domTagPr('h2', array(
+			'class' => 'subheading',
+			'content' => 'Default User Roles'
+		));
 		?>
-		<h2 class="subheading">Default User Roles</h2>
 		<table class="data-table">
 			<thead>
 				<?php echo tableHeaderRow($header_cols); ?>
 			</thead>
 			<tbody>
 				<?php
-				$roles = $rs_query->select(array($this->tables[0], $this->px[0]), '*', array(
+				$roles = $rs_query->select(getTable('ur'), '*', array(
 					'is_default' => 1
 				), array(
-					'order_by' => $order_by
+					'order_by' => 'id'
 				));
 				
 				foreach($roles as $role) {
-					list($ur_id, $ur_name) = array(
-						$role[$this->px[0] . 'id'],
-						$role[$this->px[0] . 'name']
-					);
-					
 					echo tableRow(
 						// Name
 						tdCell(domTag('strong', array(
-							'content' => $ur_name
+							'content' => $role['name']
 						)) . domTag('div', array(
 							'class' => 'actions',
 							'content' => domTag('em', array(
@@ -286,9 +233,9 @@ class UserRole implements AdminInterface {
 							))
 						)), 'name'),
 						// Default Privileges
-						tdCell($this->getPrivileges($ur_id, 1), 'default-privileges'),
+						tdCell($this->getPrivileges($role['id'], 1), 'default-privileges'),
 						// Custom Privileges
-						tdCell($this->getPrivileges($ur_id, 0), 'custom-privileges')
+						tdCell($this->getPrivileges($role['id'], 0), 'custom-privileges')
 					);
 				}
 				
@@ -318,13 +265,12 @@ class UserRole implements AdminInterface {
 				<table class="form-table">
 					<?php
 					// Name
-					$field = 'name';
 					echo formRow(array('Name', true), array(
 						'tag' => 'input',
 						'id' => 'name-field',
 						'class' => 'text-input required invalid init',
-						'name' => $field,
-						'value' => ($_POST[$field] ?? ''),
+						'name' => 'name',
+						'value' => ($_POST['name'] ?? ''),
 						'autocomplete' => 'off'
 					));
 					
@@ -343,7 +289,7 @@ class UserRole implements AdminInterface {
 						'type' => 'submit',
 						'class' => 'submit-input button',
 						'name' => 'submit',
-						'value' => 'Create User Role'
+						'value' => $this->admin_page['labels']['create_button']
 					));
 					?>
 				</table>
@@ -359,13 +305,11 @@ class UserRole implements AdminInterface {
 	 * @access public
 	 */
 	public function editRecord(): void {
-		global $rs_query;
-		
-		if(empty($this->id) || $this->id <= 0)
-			redirect(ADMIN_URI . '?page=' . $this->page);
-		
-		if($this->is_default === 'yes')
-			redirect(ADMIN_URI . '?page=' . $this->page);
+		if(empty($this->id) || $this->id <= 0 || $this->is_default === 'yes') {
+			redirect(ADMIN_URI . getQueryString(array(
+				'page' => $this->page
+			)));
+		}
 		
 		$this->pageHeading();
 		?>
@@ -374,13 +318,12 @@ class UserRole implements AdminInterface {
 				<table class="form-table">
 					<?php
 					// Name
-					$field = 'name';
 					echo formRow(array('Name', true), array(
 						'tag' => 'input',
 						'id' => 'name-field',
 						'class' => 'text-input required invalid init',
-						'name' => $field,
-						'value' => ($this->$field ?? '')
+						'name' => 'name',
+						'value' => $this->name
 					));
 					
 					// Privileges
@@ -398,7 +341,8 @@ class UserRole implements AdminInterface {
 						'type' => 'submit',
 						'class' => 'submit-input button',
 						'name' => 'submit',
-						'value' => 'Update User Role'
+						'value' => 'Update ' . capitalize((str_ends_with($this->page, 's') ?
+							substr($this->page, 0, -1) : $this->page))
 					));
 					?>
 				</table>
@@ -416,21 +360,24 @@ class UserRole implements AdminInterface {
 	public function deleteRecord(): void {
 		global $rs_query;
 		
-		if(empty($this->id) || $this->id <= 0)
-			redirect(ADMIN_URI . '?page=' . $this->page);
+		if(empty($this->id) || $this->id <= 0 || $this->is_default === 'yes') {
+			redirect(ADMIN_URI . getQueryString(array(
+				'page' => $this->page
+			)));
+		}
 		
-		if($this->is_default === 'yes')
-			redirect(ADMIN_URI . '?page=' . $this->page);
-		
-		$rs_query->delete(array($this->tables[0], $this->px[0]), array(
+		$rs_query->delete(getTable('ur'), array(
 			'id' => $this->id
 		));
 		
-		$rs_query->delete(array($this->tables[2], $this->px[2]), array(
+		$rs_query->delete(getTable('ue'), array(
 			'role' => $this->id
 		));
 		
-		redirect(ADMIN_URI . '?page=' . $this->page . '&exit_status=del_success');
+		redirect(ADMIN_URI . getQueryString(array(
+			'page' => $this->page,
+			'exit_status' => 'del_success'
+		)));
 	}
 	
 	/*------------------------------------*\
@@ -460,44 +407,49 @@ class UserRole implements AdminInterface {
 		
 		switch($this->action) {
 			case 'create':
-				$insert_id = $rs_query->insert(array($this->tables[0], $this->px[0]), array(
+				$insert_id = $rs_query->insert(getTable('ur'), array(
 					'name' => $data['name']
 				));
 				
 				if(!empty($data['privileges'])) {
 					foreach($data['privileges'] as $privilege) {
-						$rs_query->insert(array($this->tables[2], $this->px[2]), array(
+						$rs_query->insert(getTable('ue'), array(
 							'role' => $insert_id,
 							'privilege' => $privilege
 						));
 					}
 				}
 				
-				redirect(ADMIN_URI . '?page=' . $this->page . '&id=' . $insert_id . '&action=edit&exit_status=create_success');
+				redirect(ADMIN_URI . getQueryString(array(
+					'page' => $this->page,
+					'id' => $insert_id,
+					'action' => 'edit',
+					'exit_status' => 'create_success'
+				)));
 				break;
 			case 'edit':
-				$rs_query->update(array($this->tables[0], $this->px[0]), array(
+				$rs_query->update(getTable('ur'), array(
 					'name' => $data['name']
 				), array(
 					'id' => $this->id
 				));
 				
-				$relationships = $rs_query->select(array($this->tables[2], $this->px[2]), '*', array(
+				$relationships = $rs_query->select(getTable('ue'), '*', array(
 					'role' => $this->id
 				));
 				
 				foreach($relationships as $relationship) {
 					// Delete any unused relationships
-					if(empty($data['privileges']) || !in_array($relationship['ue_privilege'], $data['privileges'], true)) {
-						$rs_query->delete(array($this->tables[2], $this->px[2]), array(
-							'id' => $relationship['ue_id']
+					if(empty($data['privileges']) || !in_array($relationship['privilege'], $data['privileges'], true)) {
+						$rs_query->delete(getTable('ue'), array(
+							'id' => $relationship['id']
 						));
 					}
 				}
 				
 				if(!empty($data['privileges'])) {
 					foreach($data['privileges'] as $privilege) {
-						$relationship = $rs_query->selectRow(array($this->tables[2], $this->px[2]), 'COUNT(*)', array(
+						$relationship = $rs_query->selectRow(getTable('ue'), 'COUNT(*)', array(
 							'role' => $this->id,
 							'privilege' => $privilege
 						));
@@ -505,7 +457,7 @@ class UserRole implements AdminInterface {
 						if($relationship) {
 							continue;
 						} else {
-							$rs_query->insert(array($this->tables[2], $this->px[2]), array(
+							$rs_query->insert(getTable('ue'), array(
 								'role' => $this->id,
 								'privilege' => $privilege
 							));
@@ -515,8 +467,12 @@ class UserRole implements AdminInterface {
 				
 				foreach($data as $key => $value) $this->$key = $value;
 				
-				redirect(ADMIN_URI . '?page=' . $this->page . '&id=' . $this->id . '&action=' . $this->action .
-					'&exit_status=edit_success');
+				redirect(ADMIN_URI . getQueryString(array(
+					'page' => $this->page,
+					'id' => $this->id,
+					'action' => $this->action,
+					'exit_status' => 'edit_success'
+				)));
 				break;
 		}
 	}
@@ -532,28 +488,30 @@ class UserRole implements AdminInterface {
 	 * @access public
 	 */
 	public function pageHeading(): void {
-		global $rs_query;
-		
 		switch($this->action) {
 			case 'create':
-				$title = 'Create User Role';
+				$title = capitalize($this->action . ' ' .
+					(str_ends_with($this->page, 's') ? substr($this->page, 0, -1) : $this->page)
+				);
 				$message = isset($_POST['submit']) ? $this->validateSubmission($_POST) : '';
 				break;
 			case 'edit':
-				$title = 'Edit User Role: { ' . domTag('em', array(
+				$title = capitalize($this->action . ' ' .
+					(str_ends_with($this->page, 's') ? substr($this->page, 0, -1) : $this->page)
+				) . ': { ' . domTag('em', array(
 					'content' => $this->name
 				)) . ' }';
 				$message = isset($_POST['submit']) ? $this->validateSubmission($_POST) : '';
 				break;
 			default:
-				$title = 'User Roles';
+				$title = capitalize($this->page);
 				$search = $_GET['search'] ?? null;
 		}
 		?>
 		<div class="heading-wrap">
 			<?php
 			// Page title
-			echo domTag('h1', array(
+			domTagPr('h1', array(
 				'content' => $title
 			));
 			
@@ -567,9 +525,9 @@ class UserRole implements AdminInterface {
 			} else {
 				// Create button
 				if(userHasPrivilege('can_create_user_roles')) {
-					echo actionLink('create', array(
+					echo actionLink($this->admin_page['actions']['create'], array(
 						'classes' => 'button',
-						'caption' => 'Create New',
+						'caption' => $this->admin_page['labels']['create_button'],
 						'page' => $this->page
 					));
 				}
@@ -582,25 +540,16 @@ class UserRole implements AdminInterface {
 				//Info
 				adminInfo();
 				
-				echo domTag('hr');
+				domTagPr('hr');
 				
 				// Exit notices
 				if(isset($_GET['exit_status']))
 					echo $this->exitNotice($_GET['exit_status']);
 				
 				// Record count
-				if(!is_null($search)) {
-					$count = $rs_query->select(array($this->tables[0], $this->px[0]), 'COUNT(*)', array(
-						'name' => array('LIKE', '%' . $search . '%'),
-						'is_default' => 0
-					));
-				} else {
-					$count = $rs_query->select(array($this->tables[0], $this->px[0]), 'COUNT(*)', array(
-						'is_default' => 0
-					));
-				}
+				$count = $this->getEntryCount($search);
 				
-				echo domTag('div', array(
+				domTagPr('div', array(
 					'class' => 'entry-count',
 					'content' => $count . ' ' . ($count === 1 ? 'entry' : 'entries')
 				));
@@ -624,11 +573,15 @@ class UserRole implements AdminInterface {
 	private function exitNotice(string $exit_status, int $status_code = 1): string {
 		return exitNotice(match($exit_status) {
 			'create_success' => 'The user role was successfully created. ' . domTag('a', array(
-				'href' => ADMIN_URI . '?page=' . $this->page,
+				'href' => ADMIN_URI . getQueryString(array(
+					'page' => $this->page
+				)),
 				'content' => 'Return to list'
 			)) . '?',
 			'edit_success' => 'User role updated! ' . domTag('a', array(
-				'href' => ADMIN_URI . '?page=' . $this->page,
+				'href' => ADMIN_URI . getQueryString(array(
+					'page' => $this->page
+				)),
 				'content' => 'Return to list'
 			)) . '?',
 			'del_success' => 'The user role was successfully deleted.',
@@ -648,11 +601,11 @@ class UserRole implements AdminInterface {
 		global $rs_query;
 		
 		if($this->id === 0) {
-			return $rs_query->selectRow(array($this->tables[0], $this->px[0]), 'COUNT(name)', array(
+			return $rs_query->selectRow(getTable('ur'), 'COUNT(name)', array(
 				'name' => $name
 			)) > 0;
 		} else {
-			return $rs_query->selectRow(array($this->tables[0], $this->px[0]), 'COUNT(name)', array(
+			return $rs_query->selectRow(getTable('ur'), 'COUNT(name)', array(
 				'name' => $name,
 				'id' => array('<>', $this->id)
 			)) > 0;
@@ -673,15 +626,15 @@ class UserRole implements AdminInterface {
 		
 		$privileges = array();
 		
-		$relationships = $rs_query->select(array($this->tables[2], $this->px[2]), 'privilege', array(
+		$relationships = $rs_query->select(getTable('ue'), 'privilege', array(
 			'role' => $id
 		), array(
 			'order_by' => 'privilege'
 		));
 		
 		foreach($relationships as $relationship) {
-			$privileges[] = $rs_query->selectField(array($this->tables[1], $this->px[1]), 'name', array(
-				'id' => $relationship['ue_privilege'],
+			$privileges[] = $rs_query->selectField(getTable('up'), 'name', array(
+				'id' => $relationship['privilege'],
 				'is_default' => $is_default
 			));
 		}
@@ -701,13 +654,13 @@ class UserRole implements AdminInterface {
 	private function getPrivilegesList(): string {
 		global $rs_query;
 		
-		$list = '';
-		
-		$privileges = $rs_query->select(array($this->tables[1], $this->px[1]), '*', array(), array(
+		$privileges = $rs_query->select(getTable('up'), '*', array(), array(
 			'order_by' => 'id'
 		));
 		
-		$list .= domTag('li', array(
+		$list = array();
+		
+		$list[] = domTag('li', array(
 			'content' => domTag('input', array(
 				'type' => 'checkbox',
 				'id' => 'select-all',
@@ -721,21 +674,21 @@ class UserRole implements AdminInterface {
 		));
 		
 		foreach($privileges as $privilege) {
-			$relationship = $rs_query->selectRow(array($this->tables[2], $this->px[2]), 'COUNT(*)', array(
+			$relationship = $rs_query->selectRow(getTable('ue'), 'COUNT(*)', array(
 				'role' => $this->id,
-				'privilege' => $privilege['up_id']
+				'privilege' => $privilege['id']
 			));
 			
-			$list .= domTag('li', array(
+			$list[] = domTag('li', array(
 				'content' => domTag('input', array(
 					'type' => 'checkbox',
 					'class' => 'checkbox-input',
 					'name' => 'privileges[]',
-					'value' => $privilege['up_id'],
+					'value' => $privilege['id'],
 					'checked' => $relationship,
 					'label' => array(
 						'content' => domTag('span', array(
-							'content' => $privilege['up_name']
+							'content' => $privilege['name']
 						))
 					)
 				))
@@ -744,7 +697,110 @@ class UserRole implements AdminInterface {
 		
 		return domTag('ul', array(
 			'class' => 'checkbox-list',
-			'content' => $list
+			'content' => implode('', $list)
 		));
+	}
+	
+	/**
+ 	 * Fetch a list of user roles based on a specific status.
+ 	 * @since 1.3.15-beta
+ 	 *
+ 	 * @access private
+ 	 * @param null|string $search -- The search query.
+	 * @param bool $all (optional) -- Whether to return all or set a limit (for pagination).
+ 	 * @return array
+ 	 */
+ 	private function getResults(?string $search, bool $all = false): array {
+		global $rs_query;
+		
+		$order_by = 'id';
+		$order = 'ASC';
+		$limit = $all === false ? array($this->paged['start'], $this->paged['per_page']) : 0;
+		
+		if(!is_null($search)) {
+			// Search results
+			return $rs_query->select(getTable('ur'), '*', array(
+				'name' => array('LIKE', '%' . $search . '%'),
+				'is_default' => 0
+			), array(
+				'order_by' => $order_by,
+				'order' => $order,
+				'limit' => $limit
+			));
+		} else {
+			// All results
+			return $rs_query->select(getTable('ur'), '*', array(
+				'is_default' => 0
+			), array(
+				'order_by' => $order_by,
+				'order' => $order,
+				'limit' => $limit
+			));
+		}
+	}
+	
+	/**
+	 * Fetch the total user role count.
+	 * @since 1.3.14-beta
+	 *
+	 * @access private
+	 * @param null|string $search -- The search query.
+	 * @return int
+	 */
+	private function getEntryCount(?string $search): int {
+		return count($this->getResults($search, true));
+	}
+	
+	/**
+	 * Fetch all associated action links.
+	 * @since 1.4.0-beta_snap-04
+	 *
+	 * @access private
+	 * @param array $role -- The user role's data.
+	 * @return string
+	 */
+	private function getActionLinks(array $role): string {
+		$actions = $this->admin_page['actions'];
+		$action_list = array();
+		
+		foreach($actions as $key => $value) {
+			if($value === 'create') continue;
+			
+			$privileged = match($value) {
+				'edit' => userHasPrivilege('can_edit_user_roles'),
+				'delete' => userHasPrivilege('can_delete_user_roles'),
+				default => null
+			};
+			
+			$action_list[] = array(
+				'privileged' => $privileged,
+				'link' => $value,
+				'caption' => ucfirst($value)
+			);
+		}
+		
+		list($edit, $delete) = $action_list;
+		
+		$action_links = array(
+			// Edit
+			$edit['privileged'] ? actionLink($edit['link'], array(
+				'caption' => $edit['caption'],
+				'page' => $this->page,
+				'id' => $role['id']
+			)) : null,
+			// Delete
+			$delete['privileged'] ? actionLink($delete['link'], array(
+				'classes' => 'modal-launch delete-item',
+				'data_item' => 'user role',
+				'caption' => $delete['caption'],
+				'page' => $this->page,
+				'id' => $role['id']
+			)) : null
+		);
+		
+		// Filter out any empty actions
+		$action_links = array_filter($action_links);
+		
+		return implode(' &bull; ', $action_links);
 	}
 }

@@ -16,7 +16,7 @@ define('ADMIN_URI', $_POST['uri']);
 require_once dirname(dirname(__DIR__)) . '/init.php';
 requireFiles(array(RS_ADMIN_FUNC, RS_FUNC));
 
-$theme_path = slash(PATH . THEMES) . getSetting('theme');
+$theme_path = slash(PATH . THEMES) . getSetting('active_theme');
 
 if(file_exists($theme_path . '/functions.php')) requireFile($theme_path . '/functions.php');
 
@@ -41,7 +41,7 @@ foreach($rs_taxonomies as $key => $value) {
 
 switch($_POST['page']) {
 	case $post_type:
-		$rs_post = new \Admin\Post(0, '', $rs_post_types[$type]);
+		$rs_ad_post = new \Admin\Post(0, '', $rs_post_types[$type]);
 		
 		// Update all selected posts
 		if(!empty($_POST['selected'])) {
@@ -50,19 +50,19 @@ switch($_POST['page']) {
 				
 				if($id === 0) continue;
 				
-				$rs_post->updatePostStatus($_POST['action'], $id);
+				$rs_ad_post->updatePostStatus($_POST['action'], $id);
 			}
 		}
 		
-		echo $rs_post->listRecords();
+		echo $rs_ad_post->listRecords();
 		break;
 	case 'comments':
-		$rs_comment = new \Admin\Comment(0, '');
+		$rs_ad_comment = new \Admin\Comment(0, '');
 		
 		switch($_POST['action']) {
 			case 'delete_spam':
 				// Delete all spam comments
-				$rs_comment->deleteSpamComments();
+				$rs_ad_comment->deleteSpamComments();
 				break;
 			default:
 				// Update all selected comments
@@ -72,15 +72,15 @@ switch($_POST['page']) {
 						
 						if($id === 0) continue;
 						
-						$rs_comment->updateCommentStatus($_POST['action'], $id);
+						$rs_ad_comment->updateCommentStatus($_POST['action'], $id);
 					}
 				}
 		}
 		
-		echo $rs_comment->listRecords();
+		echo $rs_ad_comment->listRecords();
 		break;
 	case 'widgets':
-		$rs_widget = new \Admin\Widget(0, '');
+		$rs_ad_widget = new \Admin\Widget(0, '');
 		
 		// Update all selected widgets
 		if(!empty($_POST['selected'])) {
@@ -89,14 +89,14 @@ switch($_POST['page']) {
 				
 				if($id === 0) continue;
 				
-				$rs_widget->updateWidgetStatus($_POST['action'], $id);
+				$rs_ad_widget->updateWidgetStatus($_POST['action'], $id);
 			}
 		}
 		
-		echo $rs_widget->listRecords();
+		echo $rs_ad_widget->listRecords();
 		break;
 	case 'users':
-		$rs_user = new \Admin\User(0, '');
+		$rs_ad_user = new \Admin\User(0, '');
 		
 		// Update all selected users
 		if(!empty($_POST['selected'])) {
@@ -105,10 +105,10 @@ switch($_POST['page']) {
 				
 				if($id === 0) continue;
 				
-				$rs_user->updateUserRole($_POST['action'], $id);
+				$rs_ad_user->updateUserRole($_POST['action'], $id);
 			}
 		}
 		
-		echo $rs_user->listRecords();
+		echo $rs_ad_user->listRecords();
 		break;
 }

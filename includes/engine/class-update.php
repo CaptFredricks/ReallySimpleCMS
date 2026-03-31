@@ -7,15 +7,19 @@
  * @package ReallySimpleCMS
  * @subpackage Engine
  *
- * ## METHODS [6] ##
+ * ## OBJECT VAR ##
+ * - $rs_update
+ *
+ * ## METHODS [7] ##
  * - public __construct()
- * UPDATERS:
+ * { UPDATERS [2] }
  * - public updateModule(string $name): string
- * MISCELLANEOUS:
+ * - public updateAdminTheme(string $name): string
+ * { MISCELLANEOUS [4] }
  * - public isUpdateAvailable(string $project, string $version): bool
  * - public getCurrentVersion(string $project): string
  * - private zipDir(string $source, string $destination): void
- * - private dirToZip(string $dir, &$zip, $exclude_length): void
+ * - private dirToZip(string $dir, object &$zip, int $exclude_length): void
  */
 namespace Engine;
 
@@ -146,6 +150,116 @@ class Update {
 		return notice('Module successfully updated.', 1, false, true);
 	}
 	
+	/**
+	 * Update an admin theme.
+	 * @since 1.4.0-beta_snap-04
+	 *
+	 * @access public
+	 * @param string $name -- The admin theme's name.
+	 * @return string
+	 */
+	public function updateAdminTheme(string $name): string {
+		global $rs_admin_themes, $rs_doing_update;
+		
+		// Put the system in update mode
+		$rs_doing_update = true;
+		
+		if(!adminThemeExists($name)) {
+			return notice('Admin theme does not exist.', -1, false, true);
+			exit;
+		}
+		
+		// Try to fetch the update package
+		domTagPr('p', array(
+			'content' => 'Fetching latest update package...'
+		));
+		
+		$api_fetch = new \Engine\ApiFetch($name);
+		$download = pathinfo($api_fetch->getDownload());
+		
+		// Create temp dirs
+		domTagPr('p', array(
+			'content' => 'Creating temporary directories...'
+		));
+		
+		$admin_themes_file_path = slash(PATH . ADMIN_THEMES);
+		$temp_file_path = $admin_themes_file_path . slash('update-temp');
+		$filename = strtok($download['basename'], '?');
+		$zip_file = $temp_file_path . $filename;
+		
+		if(!file_exists($temp_file_path)) mkdir($temp_file_path);
+		
+		// Copy over the zip file and unzip
+		domTagPr('p', array(
+			'content' => 'Unzipping package...'
+		));
+		
+		$file = file_put_contents($zip_file, fopen($api_fetch->getDownload(), 'r'), LOCK_EX);
+		
+		if($file !== false) {
+			$zip = new \ZipArchive;
+			$res = $zip->open($zip_file);
+			
+			if($res === true) {
+				$zip->extractTo($temp_file_path);
+				$zip->close();
+			} else {
+				var_dump($res);
+				exit;
+			}
+		}
+		
+		// Install the new package
+		domTagPr('p', array(
+			'content' => 'Installing package...'
+		));
+		
+		if(file_exists($temp_file_path . slash($name)))
+			$temp_file_path_adtheme = $temp_file_path . slash($name);
+		elseif(file_exists($temp_file_path . slash($rs_admin_themes[$name]['label'] . '-master')))
+			$temp_file_path_adtheme = $temp_file_path . slash($rs_admin_themes[$name]['label'] . '-master');
+		
+		if(isset($temp_file_path_adtheme)) {
+			$adtheme_file_path = $admin_themes_file_path . slash($name);
+			
+			if(file_exists($adtheme_file_path))
+				rename($adtheme_file_path, $admin_themes_file_path . slash($name . '-old_temp'));
+			
+			rename($temp_file_path_adtheme, $adtheme_file_path);
+		} else {
+			removeDir($temp_file_path);
+			
+			return notice('New version could not be installed.', -1, false, true);
+			exit;
+		}
+		
+		// Archive the old files
+		domTagPr('p', array(
+			'content' => 'Archiving old files...'
+		));
+		
+		$backups_file_path = $admin_themes_file_path . slash('backups');
+		
+		if(!file_exists($backups_file_path)) mkdir($backups_file_path);
+		if(file_exists($backups_file_path . $name . '.zip')) unlink($backups_file_path . $name . '.zip');
+		
+		// Create zip archive
+		$this->zipDir($admin_themes_file_path . slash($name . '-old_temp'), $backups_file_path . $name . '.zip');
+		
+		// Clean up temp files
+		domTagPr('p', array(
+			'content' => 'Cleaning up...'
+		));
+		
+		removeDir($admin_themes_file_path . slash($name . '-old_temp'));
+		removeDir($temp_file_path);
+		
+		// Take the system out of update mode
+		$rs_doing_update = false;
+		
+		return notice('Admin theme successfully updated.', 1, false, true);
+	}
+	
 	/*------------------------------------*\
 		MISCELLANEOUS
 	\*------------------------------------*/
@@ -207,7 +321,7 @@ class Update {
 	 * @param object $zip -- The zip archive.
 	 * @param int $exclude_length -- Position of text to be excluded from the file path.
 	 */
-	private function dirToZip(string $dir, &$zip, $exclude_length): void {
+	private function dirToZip(string $dir, object &$zip, int $exclude_length): void {
 		if(is_dir($dir)) {
 			$handle = opendir($dir);
 			

@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin posts page.
+ * Admin posts page. Makes use of the Post object.
  * @since 1.4.0-alpha
  *
  * @package ReallySimpleCMS
@@ -8,6 +8,7 @@
 
 require_once __DIR__ . '/header.php';
 
+// Query vars
 $id = (int)($_GET['id'] ?? 0);
 $action = $_GET['action'] ?? '';
 
@@ -21,7 +22,7 @@ if(isset($_GET['type'])) {
 			redirect('posts.php');
 		} else {
 			// Set the type if it exists in the database
-			$type = $rs_query->selectField(array('posts', 'p_'), 'type', array(
+			$type = $rs_query->selectField(getTable('p'), 'type', array(
 				'id' => $id
 			)) ?? 'post';
 		}
@@ -33,48 +34,55 @@ if($type === 'media') redirect('media.php');
 if($type === 'nav_menu_item') redirect('menus.php');
 if($type === 'widget') redirect('widgets.php');
 
-$rs_post = new \Admin\Post($id, $action, $rs_post_types[$type] ?? array());
+$rs_ad_post = new \Admin\Post($id, $action, $rs_post_types[$type] ?? array());
 ?>
 <article class="content">
 	<?php
-	// Create an id from the post type's label
-	$type_id = str_replace(' ', '_', $rs_post_types[$type]['labels']['name_lowercase']);
+	$type_name = str_replace(' ', '_', $rs_post_types[$type]['labels']['name_lowercase']);
+	$menu_link = $rs_post_types[$type]['menu_link'];
 	
 	switch($action) {
 		case 'create':
-			// Create a new post
-			userHasPrivilege('can_create_' . $type_id) ? $rs_post->createRecord() :
-				redirect($rs_post_types[$type]['menu_link']);
+			// Action: Create Post
+			userHasPrivilege('can_create_' . $type_name) ?
+				$rs_ad_post->createRecord() :
+					redirect($menu_link);
 			break;
 		case 'edit':
-			// Edit an existing post
-			userHasPrivilege('can_edit_' . $type_id) ? $rs_post->editRecord() :
-				redirect($rs_post_types[$type]['menu_link']);
+			// Action: Edit Post
+			userHasPrivilege('can_edit_' . $type_name) ?
+				$rs_ad_post->editRecord() :
+					redirect($menu_link);
 			break;
 		case 'duplicate':
-			// Duplicate an existing post
-			userHasPrivilege('can_create_' . $type_id) ? $rs_post->duplicatePost() :
-				redirect($rs_post_types[$type]['menu_link']);
+			// Action: Duplicate Post
+			userHasPrivilege('can_create_' . $type_name) ?
+				$rs_ad_post->duplicatePost() :
+					redirect($menu_link);
 			break;
 		case 'trash':
-			// Send an existing post to the trash
-			userHasPrivilege('can_edit_' . $type_id) ? $rs_post->trashPost() :
-				redirect($rs_post_types[$type]['menu_link']);
+			// Action: Trash Post
+			userHasPrivilege('can_edit_' . $type_name) ?
+				$rs_ad_post->trashPost() :
+					redirect($menu_link);
 			break;
 		case 'restore':
-			// Restore a trashed post
-			userHasPrivilege('can_edit_' . $type_id) ? $rs_post->restorePost() :
-				redirect($rs_post_types[$type]['menu_link']);
+			// Action: Restore Post
+			userHasPrivilege('can_edit_' . $type_name) ?
+				$rs_ad_post->restorePost() :
+					redirect($menu_link);
 			break;
 		case 'delete':
-			// Delete an existing post
-			userHasPrivilege('can_delete_' . $type_id) ? $rs_post->deleteRecord() :
-				redirect($rs_post_types[$type]['menu_link']);
+			// Action: Delete Post
+			userHasPrivilege('can_delete_' . $type_name) ?
+				$rs_ad_post->deleteRecord() :
+					redirect($menu_link);
 			break;
 		default:
-			// List all posts
-			userHasPrivilege('can_view_' . $type_id) ? $rs_post->listRecords() :
-				redirect('index.php');
+			// Action: List Posts
+			userHasPrivilege('can_view_' . $type_name) ?
+				$rs_ad_post->listRecords() :
+					redirect('index.php');
 	}
 	?>
 </article>

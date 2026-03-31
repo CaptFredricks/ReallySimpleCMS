@@ -6,12 +6,15 @@
  * @package ReallySimpleCMS
  * @subpackage Engine
  *
- * ## VARIABLES ##
+ * ## OBJECT VAR ##
+ * - $rs_curl_fetch
+ *
+ * ## VARIABLES [1] ##
  * - private string $endpoint
  *
- * ## METHODS ##
+ * ## METHODS [2] ##
  * - public __construct(string $endpoint)
- * - protected curlGet(string $command, array $get = array(), array $options = array()): string|int
+ * - protected curlGet(string $command, array $get, array $options): string|int
  */
 namespace Engine;
 
@@ -63,19 +66,19 @@ class CurlFetch {
 			curl_setopt_array($ch, ($options + $defaults));
 			
 			if($ch === false)
-				throw new Exception('failed to initialize');
+				throw new \Exception('failed to initialize');
 			
 			$content = curl_exec($ch);
 			
 			// Check the return value of curl_exec(), too
 			if($content === false)
-				throw new Exception(curl_error($ch), curl_errno($ch));
+				throw new \Exception(curl_error($ch), curl_errno($ch));
 			
 			// Check HTTP return code, too; might be something else than 200
 			$httpReturnCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 			
 			return trim($content);
-		} catch(Exception $e) {
+		} catch(\Exception $e) {
 			trigger_error(sprintf(
 				'Curl failed with error #%d: %s',
 				$e->getCode(), $e->getMessage()

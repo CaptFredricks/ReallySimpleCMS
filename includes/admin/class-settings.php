@@ -8,19 +8,21 @@
  * @package ReallySimpleCMS
  * @subpackage Admin
  *
- * ## VARIABLES [3] ##
+ * ## OBJECT VAR ##
+ * - $rs_ad_settings
+ *
+ * ## VARIABLES [2] ##
  * - private string $page
- * - private string $table
- * - private string $px
+ * - private array $admin_page
  *
  * ## METHODS [8] ##
  * - public __construct(string $page)
- * LISTS, FORMS, & ACTIONS:
+ * { LISTS, FORMS, & ACTIONS [2] }
  * - public generalSettings(): void
  * - public designSettings(): void
- * VALIDATION:
+ * { VALIDATION [1] }
  * - private validateSubmission(array $data): string
- * MISCELLANEOUS:
+ * { MISCELLANEOUS [4] }
  * - public pageHeading(): void
  * - private exitNotice(string $exit_status, int $status_code): string
  * - private getUserRoles(int $default): string
@@ -39,22 +41,13 @@ class Settings {
 	private $page;
 	
 	/**
-	 * The associated database table.
-	 * @since 1.3.14-beta
+	 * The admin page's data.
+	 * @since 1.4.0-beta_snap-04
 	 *
 	 * @access private
-	 * @var string
+	 * @var array
 	 */
-	private $table = 'settings';
-	
-	/**
-	 * The table prefix.
-	 * @since 1.3.14-beta
-	 *
-	 * @access private
-	 * @var string
-	 */
-	private $px = 's_';
+	private $admin_page = array();
 	
 	/**
 	 * Class constructor.
@@ -64,7 +57,10 @@ class Settings {
 	 * @param string $page -- The current settings page.
 	 */
 	public function __construct(string $page) {
+		global $rs_admin_pages;
+		
 		$this->page = $page;
+		$this->admin_page = $rs_admin_pages[basename($_SERVER['PHP_SELF'], '.php')];
 	}
 	
 	/*------------------------------------*\
@@ -80,10 +76,10 @@ class Settings {
 	public function generalSettings(): void {
 		global $rs_query;
 		
-		$db_settings = $rs_query->select($this->table, '*');
+		$db_settings = $rs_query->select(getTable('s'));
 		
 		foreach($db_settings as $db_setting)
-			$setting[$db_setting[$this->px . 'name']] = $db_setting[$this->px . 'value'];
+			$setting[$db_setting['name']] = $db_setting['value'];
 		
 		$this->pageHeading();
 		?>
@@ -266,7 +262,7 @@ class Settings {
 						'type' => 'submit',
 						'class' => 'submit-input button',
 						'name' => 'submit',
-						'value' => 'Update Settings'
+						'value' => $this->admin_page['labels']['update_button']
 					));
 					?>
 				</table>
@@ -284,10 +280,10 @@ class Settings {
 	public function designSettings(): void {
 		global $rs_query;
 		
-		$db_settings = $rs_query->select($this->table);
+		$db_settings = $rs_query->select(getTable('s'));
 		
 		foreach($db_settings as $db_setting)
-			$setting[$db_setting[$this->px . 'name']] = $db_setting[$this->px . 'value'];
+			$setting[$db_setting['name']] = $db_setting['value'];
 		
 		$logo_filepath = PATH . getMediaSrc($setting['site_logo']);
 		$icon_filepath = PATH . getMediaSrc($setting['site_icon']);
@@ -384,7 +380,7 @@ class Settings {
 						'type' => 'submit',
 						'class' => 'submit-input button',
 						'name' => 'submit',
-						'value' => 'Update Settings'
+						'value' => $this->admin_page['labels']['update_button']
 					));
 					?>
 				</table>
@@ -431,12 +427,12 @@ class Settings {
 			foreach($settings as $setting)
 				$data[$setting] = isset($data[$setting]) ? 1 : 0;
 			
-			$do_robots = $rs_query->selectField(array($this->table, $this->px), 'value', array(
+			$do_robots = $rs_query->selectField(getTable('s'), 'value', array(
 				'name' => 'do_robots'
 			));
 			
 			foreach($data as $name => $value) {
-				$rs_query->update(array($this->table, $this->px), array(
+				$rs_query->update(getTable('s'), array(
 					'value' => $value
 				), array(
 					'name' => $name
@@ -462,7 +458,7 @@ class Settings {
 			}
 		} else {
 			foreach($data as $name => $value) {
-				$rs_query->update(array($this->table, $this->px), array(
+				$rs_query->update(getTable('s'), array(
 					'value' => $value
 				), array(
 					'name' => $name
@@ -470,7 +466,8 @@ class Settings {
 			}
 		}
 		
-		redirect(ADMIN_URI . '?' . ($this->page !== 'general' ? 'page=' . $this->page . '&' : '') . 'exit_status=edit_success');
+		redirect(ADMIN_URI . '?' . ($this->page !== 'general' ? 'page=' . $this->page . '&' : '') .
+			'exit_status=edit_success');
 	}
 	
 	/*------------------------------------*\
@@ -484,22 +481,27 @@ class Settings {
 	 * @access public
 	 */
 	public function pageHeading(): void {
+		$pages = $this->admin_page['pages'];
+		$labels = $this->admin_page['labels'];
+		$page = array_search($this->page, $pages['subpages'], true);
+		
 		switch($this->page) {
-			case 'general':
-				$title = 'General Settings';
+			case $pages['default']:
+				$title = capitalize($pages['default']) . ' ' . $labels['name'];
 				$message = isset($_POST['submit']) ? $this->validateSubmission($_POST) : '';
 				break;
-			case 'design':
-				$title = 'Design Settings';
+			case $pages['subpages'][$page]:
+				$title = capitalize($pages['subpages'][$page]) . ' ' . $labels['name'];
 				$message = isset($_POST['submit']) ? $this->validateSubmission($_POST) : '';
 				break;
 			default:
+				$title = 'Unregistered Settings Page';
 		}
 		?>
 		<div class="heading-wrap">
 			<?php
 			// Page title
-			echo domTag('h1', array(
+			domTagPr('h1', array(
 				'content' => $title
 			));
 			
@@ -509,8 +511,11 @@ class Settings {
 			// Exit notices
 			if(isset($_GET['exit_status'])) {
 				echo $this->exitNotice($_GET['exit_status']);
-				echo '<meta http-equiv="refresh" content="2; url=\'' .
-					ADMIN_URI . ($this->page !== 'general' ? '?page=' . $this->page : '') . '\'">';
+				
+				domTagPr('meta', array(
+					'http-equiv' => 'refresh',
+					'content' => '2; url=\'' . ADMIN_URI . ($this->page !== 'general' ? '?page=' . $this->page : '') . '\''
+				));
 			}
 			?>
 		</div>
@@ -544,21 +549,21 @@ class Settings {
 	private function getUserRoles(int $default): string {
 		global $rs_query;
 		
-		$list = '';
-		
-		$roles = $rs_query->select(array('user_roles', 'ur_'), '*', array(), array(
+		$roles = $rs_query->select(getTable('ur'), '*', array(), array(
 			'order_by' => 'id'
 		));
 		
+		$list = array();
+		
 		foreach($roles as $role) {
-			$list .= domTag('option', array(
-				'value' => $role['ur_id'],
-				'selected' => ($role['ur_id'] === $default),
-				'content' => $role['ur_name']
+			$list[] = domTag('option', array(
+				'value' => $role['id'],
+				'selected' => $role['id'] === $default,
+				'content' => $role['name']
 			));
 		}
 		
-		return $list;
+		return implode('', $list);
 	}
 	
 	/**
@@ -572,18 +577,18 @@ class Settings {
 	private function getPageList(int $home_page): string {
 		global $rs_query;
 		
-		$list = '';
-		
-		$pages = $rs_query->select(array('posts', 'p_'), array('id', 'title'), array(
+		$pages = $rs_query->select(getTable('p'), array('id', 'title'), array(
 			'status' => 'published',
 			'type' => 'page'
 		), array(
 			'order_by' => 'title'
 		));
 		
+		$list = array();
+		
 		// Check whether the home page exists and add a blank option if not
-		if(array_search($home_page, array_column($pages, 'p_id'), true) === false) {
-			$list .= domTag('option', array(
+		if(array_search($home_page, array_column($pages, 'id'), true) === false) {
+			$list[] = domTag('option', array(
 				'value' => 0,
 				'selected' => 1,
 				'content' => '(none)'
@@ -591,13 +596,13 @@ class Settings {
 		}
 		
 		foreach($pages as $page) {
-			$list .= domTag('option', array(
-				'value' => $page['p_id'],
-				'selected' => ($page['p_id'] === $home_page),
-				'content' => $page['p_title']
+			$list[] = domTag('option', array(
+				'value' => $page['id'],
+				'selected' => $page['id'] === $home_page,
+				'content' => $page['title']
 			));
 		}
 		
-		return $list;
+		return implode('', $list);
 	}
 }

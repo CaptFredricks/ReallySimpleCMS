@@ -1,26 +1,27 @@
 <?php
 /**
  * Core class used to implement the Term object.
- * This class loads data from the terms table of the database for use on the front end of the CMS.
+ * This class loads data from the `terms` table of the database for use on the front end.
  * @since 2.4.0-alpha
  *
  * @package ReallySimpleCMS
  * @subpackage Engine
  *
- * ## VARIABLES ##
- * - private string $slug
- * - private string $table
- * - private string $px
+ * ## OBJECT VAR ##
+ * - $rs_term
  *
- * ## METHODS ##
+ * ## VARIABLES [1] ##
+ * - private string $slug
+ *
+ * ## METHODS [7] ##
  * - public __construct(string $slug)
- * GETTER METHODS:
+ * { GETTER METHODS [5] }
  * - public getTermId(): int
  * - public getTermName(): string
  * - public getTermSlug(int $id): string
  * - public getTermTaxonomy(): string
  * - public getTermParent(): int
- * MISCELLANEOUS:
+ * { MISCELLANEOUS [1] }
  * - public getTermUrl(): string
  */
 namespace Engine;
@@ -36,24 +37,6 @@ class Term {
 	private $slug;
 	
 	/**
-	 * The associated database table.
-	 * @since 1.4.0-beta_snap-02
-	 *
-	 * @access private
-	 * @var string
-	 */
-	private $table = 'terms';
-	
-	/**
-	 * The table prefix.
-	 * @since 1.4.0-beta_snap-02
-	 *
-	 * @access private
-	 * @var string
-	 */
-	private $px = 't_';
-	
-	/**
 	 * Class constructor. Sets the default queried term slug.
 	 * @since 2.4.0-alpha
 	 *
@@ -61,7 +44,7 @@ class Term {
 	 * @param string $slug (optional) -- The term's slug.
 	 */
 	public function __construct(string $slug = '') {
-		global $rs_query, $taxonomies;
+		global $rs_query, $rs_taxonomies;
 		
 		if(!empty($slug)) {
 			$this->slug = $slug;
@@ -88,7 +71,7 @@ class Term {
 			if($raw_uri !== $permalink) redirect($permalink);
 		}
 		
-		if(!array_key_exists($this->getTermTaxonomy(), $taxonomies)) {
+		if(!array_key_exists($this->getTermTaxonomy(), $rs_taxonomies)) {
 			// Unrecognized taxonomy, abort
 			redirect('/404.php');
 		}
@@ -108,8 +91,8 @@ class Term {
 	public function getTermId(): int {
 		global $rs_query;
 		
-		return (int)$rs_query->selectField($this->table, $this->px . 'id', array(
-			$this->px . 'slug' => $this->slug
+		return (int)$rs_query->selectField(getTable('t'), 'id', array(
+			'slug' => $this->slug
 		));
 	}
 	
@@ -123,8 +106,8 @@ class Term {
 	public function getTermName(): string {
 		global $rs_query;
 		
-		return $rs_query->selectField($this->table, $this->px . 'name', array(
-			$this->px . 'slug' => $this->slug
+		return $rs_query->selectField(getTable('t'), 'name', array(
+			'slug' => $this->slug
 		));
     }
 	
@@ -139,8 +122,8 @@ class Term {
     public function getTermSlug(int $id): string {
 		global $rs_query;
 		
-		return $rs_query->selectField($this->table, $this->px . 'slug', array(
-			$this->px . 'id' => $id
+		return $rs_query->selectField(getTable('t'), 'slug', array(
+			'id' => $id
 		));
     }
 	
@@ -154,12 +137,12 @@ class Term {
 	public function getTermTaxonomy(): string {
 		global $rs_query;
 		
-		$taxonomy = $rs_query->selectField($this->table, $this->px . 'taxonomy', array(
-			$this->px . 'slug' => $this->slug
+		$taxonomy = $rs_query->selectField(getTable('t'), 'taxonomy', array(
+			'slug' => $this->slug
 		));
 		
-		return $rs_query->selectField('taxonomies', 'ta_name', array(
-			'ta_id' => $taxonomy
+		return $rs_query->selectField(getTable('ta'), 'name', array(
+			'id' => $taxonomy
 		));
 	}
 	
@@ -173,8 +156,8 @@ class Term {
 	public function getTermParent(): int {
 		global $rs_query;
 		
-		return (int)$rs_query->selectField($this->table, $this->px . 'parent', array(
-			$this->px . 'slug' => $this->slug
+		return (int)$rs_query->selectField(getTable('t'), 'parent', array(
+			'slug' => $this->slug
 		));
     }
 	

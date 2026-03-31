@@ -12,7 +12,6 @@ if(!defined('PATH')) exit('You do not have permission to access this resource.')
 
 getHeader();
 
-// Check whether the post has a featured image
 if(isPost() && postHasFeaturedImage()): ?>
 	<div class="featured-image-wrap">
 		<?php putPostFeaturedImage(); ?>

@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin settings page.
+ * Admin settings page. Makes use of the Settings object.
  * @since 1.2.6-alpha
  *
  * @package ReallySimpleCMS
@@ -8,49 +8,63 @@
 
 require_once __DIR__ . '/header.php';
 
+// Query vars
 $id = (int)($_GET['id'] ?? 0);
 $action = $_GET['action'] ?? '';
 $page = $_GET['page'] ?? 'general';
 
-$rs_settings = new \Admin\Settings($page);
+$rs_ad_settings = new \Admin\Settings($page);
 ?>
 <article class="content">
 	<?php
 	switch($page) {
 		case 'design':
-			// Design settings
-			userHasPrivilege('can_edit_settings') ? $rs_settings->designSettings() :
-				redirect('index.php');
+			// Page: Design Settings
+			userHasPrivilege('can_edit_settings') ?
+				$rs_ad_settings->designSettings() :
+					redirect('index.php');
 			break;
 		case 'user_roles':
-			$rs_user_role = new \Admin\UserRole($id, $action, $page);
+			// Page: User Roles
+			$rs_ad_user_role = new \Admin\UserRole($id, $action, $page);
 			
 			switch($action) {
 				case 'create':
-					// Create a new user role
-					userHasPrivilege('can_create_user_roles') ? $rs_user_role->createRecord() :
-						redirect(ADMIN_URI . '?page=user_roles');
+					// Action: Create User Role
+					userHasPrivilege('can_create_user_roles') ?
+						$rs_ad_user_role->createRecord() :
+							redirect(ADMIN_URI . getQueryString(array(
+								'page' => 'user_roles'
+							)));
 					break;
 				case 'edit':
-					// Edit an existing user role
-					userHasPrivilege('can_edit_user_roles') ? $rs_user_role->editRecord() :
-						redirect(ADMIN_URI . '?page=user_roles');
+					// Action: Edit User Role
+					userHasPrivilege('can_edit_user_roles') ?
+						$rs_ad_user_role->editRecord() :
+							redirect(ADMIN_URI . getQueryString(array(
+								'page' => 'user_roles'
+							)));
 					break;
 				case 'delete':
-					// Delete an existing user role
-					userHasPrivilege('can_delete_user_roles') ? $rs_user_role->deleteRecord() :
-						redirect(ADMIN_URI . '?page=user_roles');
+					// Action: Delete User Role
+					userHasPrivilege('can_delete_user_roles') ?
+						$rs_ad_user_role->deleteRecord() :
+							redirect(ADMIN_URI . getQueryString(array(
+								'page' => 'user_roles'
+							)));
 					break;
 				default:
-					// List all user roles
-					userHasPrivilege('can_view_user_roles') ? $rs_user_role->listRecords() :
-						redirect('index.php');
+					// Action: List User Roles
+					userHasPrivilege('can_view_user_roles') ?
+						$rs_ad_user_role->listRecords() :
+							redirect('index.php');
 			}
 			break;
 		default:
-			// General settings
-			userHasPrivilege('can_edit_settings') ? $rs_settings->generalSettings() :
-				redirect('index.php');
+			// Page: General Settings
+			userHasPrivilege('can_edit_settings') ?
+				$rs_ad_settings->generalSettings() :
+					redirect('index.php');
 	}
 	?>
 </article>

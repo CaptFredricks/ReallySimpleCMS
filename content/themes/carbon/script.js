@@ -1,5 +1,5 @@
 /*!
- * Script file for the Carbon theme.
+ * Scripts for the Carbon theme.
  * @since 2.2.2-alpha
  *
  * @package ReallySimpleCMS
@@ -128,7 +128,7 @@ jQuery(document).ready($ => {
 		$('.comments #comments-reply .textarea-input').show();
 		$('.comments #comments-reply .submit-comment').show();
 		$('.comments #comments-reply p').remove();
-		$('html, body').animate({scrollTop: $('.comments').offset().top - 50}, 0);
+		$('html, body').animate({ scrollTop: $('.comments').offset().top - 50 }, 0);
 		$('.comments #comments-reply input[name="replyto"]').val(reply_to);
 	});
 	
@@ -143,7 +143,7 @@ jQuery(document).ready($ => {
 		let anchor = anchor_link.substring(anchor_link.indexOf('#'));
 		
 		if($(anchor).length)
-			$('html, body').animate({scrollTop: $(anchor).offset().top - 100}, 0);
+			$('html, body').animate({ scrollTop: $(anchor).offset().top - 100 }, 0);
 	});
 	
 	/**
@@ -153,12 +153,12 @@ jQuery(document).ready($ => {
 	$(window).on('hashchange', function() {
 		let anchor = window.location.hash;
 		
-		$('html, body').animate({scrollTop: $(anchor).offset().top - 100}, 0);
+		$('html, body').animate({ scrollTop: $(anchor).offset().top - 100 }, 0);
 	});
 	
 	if(window.location.hash) {
 		let anchor = window.location.hash;
 		
-		$('html, body').animate({scrollTop: $(anchor).offset().top - 100}, 0);
+		$('html, body').animate({ scrollTop: $(anchor).offset().top - 100 }, 0);
 	}
 });

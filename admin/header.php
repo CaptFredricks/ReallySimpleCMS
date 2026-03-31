@@ -9,9 +9,6 @@
 require_once dirname(__DIR__) . '/init.php';
 requireFiles(array(RS_ADMIN_FUNC, RS_FUNC));
 
-if(file_exists(slash(PATH . THEMES) . getSetting('theme') . '/functions.php'))
-	require_once slash(PATH . THEMES) . getSetting('theme') . '/functions.php';
-
 ob_start();
 
 // Verify that the user is logged in
@@ -26,25 +23,53 @@ if(!isset($_COOKIE['session']) || !isValidSession($_COOKIE['session'])) {
 		redirect('/login.php' . (!empty($redirect) ? '?' . $redirect : ''));
 }
 
+// Current page data for nav menu
 $current_page = getCurrentPage();
-$notices = array();
+
+// All registered notices
+$rs_notices = array();
 ?>
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title><?php echo getPageTitle(); ?> ▸ <?php putSetting('site_title'); ?> &mdash; <?php echo RS_ENGINE; ?></title>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<meta name="robots" content="noindex, nofollow">
-		<meta name="theme-color" content="#e0e0e0">
-		<link type="image/x-icon" href="<?php echo getMediaSrc(getSetting('site_icon')); ?>" rel="icon">
-		<?php adminHeaderScripts(); ?>
+		<?php
+		domTagPr('title', array(
+			'content' => getPageTitle() . ' ▸ ' . getSetting('site_title') . ' &mdash; ' . RS_ENGINE
+		));
+		
+		domTagPr('meta', array(
+			'charset' => 'UTF-8'
+		));
+		
+		domTagPr('meta', array(
+			'name' => 'viewport',
+			'content' => 'width=device-width, initial-scale=1.0'
+		));
+		
+		domTagPr('meta', array(
+			'name' => 'robots',
+			'content' => 'noindex, nofollow'
+		));
+		
+		domTagPr('meta', array(
+			'name' => 'theme-color',
+			'content' => '#e0e0e0'
+		));
+		
+		domTagPr('link', array(
+			'type' => 'image/x-icon',
+			'href' => getMediaSrc(getSetting('site_icon')),
+			'rel' => 'icon'
+		));
+		
+		adminHeaderScripts();
+		?>
 	</head>
 	<body class="<?php echo $current_page; ?>">
 		<header id="admin-header">
 			<?php
 			// Site title
-			echo domTag('a', array(
+			domTagPr('a', array(
 				'id' => 'site-title',
 				'href' => '/',
 				'content' => domTag('i', array(
@@ -57,7 +82,7 @@ $notices = array();
 			<div class="user-dropdown">
 				<?php
 				// Display name
-				echo domTag('span', array(
+				domTagPr('span', array(
 					'content' => 'Welcome, ' . $rs_session['display_name']
 				));
 				
@@ -67,33 +92,47 @@ $notices = array();
 					'width' => 20,
 					'height' => 20
 				));
+				
+				$user_dropdown = array();
+				
+				// Large avatar
+				$user_dropdown[] = getMedia($rs_session['avatar'], array(
+					'class' => 'avatar-large',
+					'width' => 100,
+					'height' => 100
+				));
+				
+				// User profile
+				$user_dropdown[] = domTag('li', array(
+					'content' => domTag('a', array(
+						'href' => ADMIN . '/profile.php',
+						'content' => 'My Profile'
+					))
+				));
+				
+				// User stats
+				$user_dropdown[] = domTag('li', array(
+					'content' => domTag('a', array(
+						'href' => ADMIN . '/stats.php',
+						'content' => 'My Stats'
+					))
+				));
+				
+				// Log out
+				$user_dropdown[] = domTag('li', array(
+					'content' => domTag('a', array(
+						'href' => '../login.php' . getQueryString(array(
+							'action' => 'logout'
+						)),
+						'content' => 'Log Out'
+					))
+				));
+				
+				domTagPr('ul', array(
+					'class' => 'user-dropdown-menu',
+					'content' => implode('', $user_dropdown)
+				));
 				?>
-				<ul class="user-dropdown-menu">
-					<?php
-					// Large avatar
-					echo getMedia($rs_session['avatar'], array(
-						'class' => 'avatar-large',
-						'width' => 100,
-						'height' => 100
-					));
-					
-					// User profile
-					echo domTag('li', array(
-						'content' => domTag('a', array(
-							'href' => slash(ADMIN) . 'profile.php',
-							'content' => 'My Profile'
-						))
-					));
-					
-					// Log out
-					echo domTag('li', array(
-						'content' => domTag('a', array(
-							'href' => '../login.php?action=logout',
-							'content' => 'Log Out'
-						))
-					));
-					?>
-				</ul>
 			</div>
 		</header>
 		<div id="admin-nav-wrap"></div>
@@ -102,8 +141,32 @@ $notices = array();
 				<?php registerAdminMenu(); ?>
 			</ul>
 		</nav>
-		<noscript id="no-js" class="header-notice">Warning! Your browser either does not support or is set to disable <a href="https://www.w3schools.com/js/default.asp" target="_blank" rel="noreferrer noopener">JavaScript</a>. Some features may not work as expected.</noscript>
-		<?php if(version_compare(PHP_VERSION, PHP_RECOMMENDED, '<')): ?>
-			<div id="php-deprecation" class="header-notice">Notice: Your server's PHP version, <?php echo PHP_VERSION; ?>, is below the recommended PHP version, <?php echo PHP_RECOMMENDED; ?>. Consider upgrading to the recommended version.</div>
-		<?php endif; ?>
+		<?php
+		// No JavaScript notice
+		domTagPr('noscript', array(
+			'id' => 'no-js',
+			'class' => 'header-notice',
+			'content' => 'Warning! Your browser either does not support or is set to disable ' . domTag('a', array(
+				'href' => 'https://www.w3schools.com/js/default.asp',
+				'target' => '_blank',
+				'rel' => 'noreferrer noopener',
+				'content' => 'JavaScript'
+			)) . '. Some features may not work as expected.'
+		));
+		
+		// PHP deprecation notice
+		if(version_compare(PHP_VERSION, PHP_RECOMMENDED, '<')) {
+			domTagPr('div', array(
+				'id' => 'php-deprecation',
+				'class' => 'header-notice',
+				'content' => domTag('strong', array(
+					'content' => 'Notice'
+				)) . ': Your server\'s PHP version, ' . domTag('strong', array(
+					'content' => PHP_VERSION
+				)) . ', is below the recommended PHP version, ' . domTag('strong', array(
+					'content' => PHP_RECOMMENDED
+				)) . '. Consider upgrading to the recommended version.'
+			));
+		}
+		?>
 		<div class="wrapper clear">

@@ -8,17 +8,18 @@
 
 require_once __DIR__ . '/header.php';
 
+// Query vars
 $active_tab = $_GET['tab'] ?? '';
 ?>
 <article class="content">
-	<section class="heading-wrap">
-		<?php
-		domTagPr('h1', array(
-			'content' => 'About ' . RS_ENGINE
-		));
-		?>
-	</section>
 	<?php
+	domTagPr('section', array(
+		'class' => 'heading-wrap',
+		'content' => domTag('h1', array(
+			'content' => 'About ' . RS_ENGINE
+		))
+	));
+	
 	$tabs = array('stats', 'software', 'credits');
 	$tabber_content = array();
 	$is_active = 'stats';

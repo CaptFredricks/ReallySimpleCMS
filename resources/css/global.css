@@ -1,0 +1,76 @@
+/*!
+ * Global stylesheet (used system-wide).
+ * @since 1.3.15-beta
+ *
+ * @package ReallySimpleCMS
+ */
+
+/*------------------------------------*\
+    CUSTOM PROPERTIES
+\*------------------------------------*/
+
+:root {
+	
+	/* Typography */
+	
+	--rscms__font: 'Segoe UI', Helvetica, sans-serif;
+	
+	/* Text/link colors */
+	
+	--rscms__info-color: #07f;
+	--rscms__success-color: #0d0;
+	--rscms__failure-color: #f00;
+	--rscms__warning-color: #fe0;
+}
+
+/*------------------------------------*\
+    FORMATTING
+\*------------------------------------*/
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+/* Clear content after floating elements */
+
+.clear::before {
+	content: '';
+	display: table;
+}
+
+.clear::after {
+	clear: both;
+	content: '';
+	display: table;
+}
+
+/* Hidden content */
+
+.hidden {
+	display: none;
+}
+
+/*------------------------------------*\
+    NOTICES
+\*------------------------------------*/
+
+/* PHP notices */
+
+.php-error,
+.php-warning,
+.php-notice {
+	background-color: ;
+	color: var(--rscms__failure-color);
+	padding: 1em;
+	text-align: center;
+}
