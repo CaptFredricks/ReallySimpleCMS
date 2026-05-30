@@ -179,7 +179,6 @@ class Login {
 		$this->action = $action;
 		$this->page = $page;
 		$this->admin_page = $rs_admin_pages[basename($_SERVER['PHP_SELF'], '.php')];
-		var_dump($this->admin_page);
 		
 		if(getSetting('delete_old_login_attempts')) {
 			$login_attempts = $rs_query->select(getTable('la'), array('id', 'date'));

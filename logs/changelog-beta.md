@@ -16,6 +16,14 @@
 - \*-alpha (Alpha version)
 - \*-beta (Beta version)
 
+## Version 1.3.16.1-beta (2026-05-29)
+
+**General changes:**
+- Removed a line of code that output debug data
+
+**Modified files:**
+- includes/admin/class-login.php (M)
+
 ## Version 1.3.16-beta (2026-05-29)
 
 **General changes:**
