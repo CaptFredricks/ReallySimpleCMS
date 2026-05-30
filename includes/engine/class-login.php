@@ -266,7 +266,7 @@ class Login {
 			));
 			
 			// Submit button
-			domTag('input', array(
+			domTagPr('input', array(
 				'type' => 'submit',
 				'class' => 'button',
 				'name' => 'submit',

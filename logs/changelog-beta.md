@@ -16,6 +16,18 @@
 - \*-alpha (Alpha version)
 - \*-beta (Beta version)
 
+## Version 1.3.16.2-beta (2026-05-29)
+
+**General changes:**
+- Incremented copyright year in README
+
+**Bug fixes:**
+- The forgot password form is missing the submit button
+
+**Modified files:**
+- README.md (M)
+- includes/engine/class-login.php (M)
+
 ## Version 1.3.16.1-beta (2026-05-29)
 
 **General changes:**
