@@ -71,7 +71,7 @@ define('PHP_RECOMMENDED', '8.2');
  *
  * @var string
  */
-define('RS_VERSION', '1.3.16.2-beta');
+define('RS_VERSION', '1.3.16.3-beta');
 
 /**
  * Current jQuery version (required JavaScript library).

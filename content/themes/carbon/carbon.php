@@ -15,7 +15,7 @@ if(function_exists('registerTheme')) {
 			'name' => 'Jace Fincham',
 			'url' => 'https://jacefincham.com/'
 		),
-		'version' => '1.11.1'
+		'version' => '1.11.2'
 	));
 }
 

@@ -233,7 +233,7 @@ class Menu {
 				// Custom links
 				$permalink = $meta['custom_link'];
 				
-				if(!str_contains($permalink, $domain)) $external = true;
+				if(!str_contains($permalink, $domain) && $permalink !== '#') $external = true;
 			}
 			
 			if(!empty($permalink)) {

@@ -16,6 +16,19 @@
 - \*-alpha (Alpha version)
 - \*-beta (Beta version)
 
+## Version 1.3.16.3-beta (2026-05-30)
+
+**General changes:**
+- n/a
+
+**Bug fixes:**
+- Blank custom links are treated as external links on menus
+- A JavaScript error occurs when blank custom links on a menu are clicked
+
+**Modified files:**
+- content/themes/carbon/script.js (M)
+- includes/engine/class-menu.php (M)
+
 ## Version 1.3.16.2-beta (2026-05-29)
 
 **General changes:**
