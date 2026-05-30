@@ -42,11 +42,10 @@ jQuery(document).ready($ => {
 			},
 			method: 'POST',
 			processData: false,
-			success: result => {
-				result = result.split(';');
-				
-				let error = result[0];
-				let message = result[1];
+			success: response => {
+				let data = response.split(';');
+				let error = data[0];
+				let message = data[1];
 				
 				if(error) {
 					// Reset the page content

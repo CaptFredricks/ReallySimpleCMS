@@ -1,11 +1,14 @@
 <?php
 /**
  * Core class used to implement the Term object.
- * This class loads data from the `terms` table of the database for use on the front end of the CMS.
+ * This class loads data from the `terms` table of the database for use on the front end.
  * @since 2.4.0-alpha
  *
  * @package ReallySimpleCMS
  * @subpackage Engine
+ *
+ * ## OBJECT VAR ##
+ * - $rs_term
  *
  * ## VARIABLES [1] ##
  * - private string $slug

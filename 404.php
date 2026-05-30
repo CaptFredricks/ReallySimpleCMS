@@ -7,7 +7,7 @@
  */
 
 require_once __DIR__ . '/init.php';
-requireFile(RS_FUNC);
+requireFile(RS_FRONT_FUNC);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -22,7 +22,7 @@ requireFile(RS_FUNC);
 	</head>
 	<body class="<?php echo bodyClasses('not-found'); ?>">
 		<?php
-		echo domTag('div', array(
+		domTagPr('div', array(
 			'class' => 'wrapper',
 			'content' => domTag('h1', array(
 				'content' => 'Oops! The requested page could not be found.'
@@ -34,7 +34,7 @@ requireFile(RS_FUNC);
 			))
 		));
 		
-		if($rs_session) adminBar();
+		if(!empty($rs_session)) adminBar();
 		?>
 	</body>
 </html>

@@ -11,8 +11,9 @@
  * ## OBJECT VAR ##
  * - $rs_ad_settings
  *
- * ## VARIABLES [1] ##
+ * ## VARIABLES [2] ##
  * - private string $page
+ * - private array $admin_page
  *
  * ## METHODS [8] ##
  * - public __construct(string $page)
@@ -40,6 +41,15 @@ class Settings {
 	private $page;
 	
 	/**
+	 * The admin page's data.
+	 * @since 1.3.16-beta
+	 *
+	 * @access private
+	 * @var array
+	 */
+	private $admin_page = array();
+	
+	/**
 	 * Class constructor.
 	 * @since 1.3.14-beta
 	 *
@@ -47,11 +57,14 @@ class Settings {
 	 * @param string $page -- The current settings page.
 	 */
 	public function __construct(string $page) {
+		global $rs_admin_pages;
+		
 		$this->page = $page;
+		$this->admin_page = $rs_admin_pages[basename($_SERVER['PHP_SELF'], '.php')];
 	}
 	
 	/*------------------------------------*\
-		LISTS, FORMS, & ACTIONS
+		LISTS & FORMS
 	\*------------------------------------*/
 	
 	/**
@@ -196,6 +209,18 @@ class Settings {
 						)
 					));
 					
+					// Comments per page
+					if($setting['enable_comments']) {
+						echo formRow('Comments Per Page', array(
+							'tag' => 'input',
+							'type' => 'number',
+							'id' => 'comments-per-page-field',
+							'class' => 'text-input',
+							'name' => 'comments_per_page',
+							'value' => $setting['comments_per_page']
+						));
+					}
+					
 					// Logins
 					echo formRow('Logins', array(
 						'tag' => 'input',
@@ -249,7 +274,7 @@ class Settings {
 						'type' => 'submit',
 						'class' => 'submit-input button',
 						'name' => 'submit',
-						'value' => 'Update Settings'
+						'value' => $this->admin_page['labels']['update_button']
 					));
 					?>
 				</table>
@@ -304,6 +329,7 @@ class Settings {
 					), array(
 						'tag' => 'input',
 						'type' => 'hidden',
+						'id' => 'site-logo-field',
 						'name' => 'site_logo',
 						'value' => (int)$setting['site_logo'],
 						'data-field' => 'id'
@@ -332,6 +358,7 @@ class Settings {
 					), array(
 						'tag' => 'input',
 						'type' => 'hidden',
+						'id' => 'site-icon-field',
 						'name' => 'site_icon',
 						'value' => (int)$setting['site_icon'],
 						'data-field' => 'id'
@@ -365,7 +392,7 @@ class Settings {
 						'type' => 'submit',
 						'class' => 'submit-input button',
 						'name' => 'submit',
-						'value' => 'Update Settings'
+						'value' => $this->admin_page['labels']['update_button']
 					));
 					?>
 				</table>
@@ -391,7 +418,8 @@ class Settings {
 		global $rs_query;
 		
 		// Remove the `submit` value from the data array
-		array_pop($data);
+		if(isset($data['submit']))
+			unset($data['submit']);
 		
 		if($this->page === 'general') {
 			if(empty($data['site_title']) || empty($data['site_url']) || empty($data['admin_email'])) {
@@ -466,22 +494,27 @@ class Settings {
 	 * @access public
 	 */
 	public function pageHeading(): void {
+		$pages = $this->admin_page['pages'];
+		$labels = $this->admin_page['labels'];
+		$page = array_search($this->page, $pages['subpages'], true);
+		
 		switch($this->page) {
-			case 'general':
-				$title = 'General Settings';
+			case $pages['default']:
+				$title = capitalize($pages['default']) . ' ' . $labels['name'];
 				$message = isset($_POST['submit']) ? $this->validateSubmission($_POST) : '';
 				break;
-			case 'design':
-				$title = 'Design Settings';
+			case $pages['subpages'][$page]:
+				$title = capitalize($pages['subpages'][$page]) . ' ' . $labels['name'];
 				$message = isset($_POST['submit']) ? $this->validateSubmission($_POST) : '';
 				break;
 			default:
+				$title = 'Unregistered Settings Page';
 		}
 		?>
 		<div class="heading-wrap">
 			<?php
 			// Page title
-			echo domTag('h1', array(
+			domTagPr('h1', array(
 				'content' => $title
 			));
 			
@@ -491,8 +524,11 @@ class Settings {
 			// Exit notices
 			if(isset($_GET['exit_status'])) {
 				echo $this->exitNotice($_GET['exit_status']);
-				echo '<meta http-equiv="refresh" content="2; url=\'' .
-					ADMIN_URI . ($this->page !== 'general' ? '?page=' . $this->page : '') . '\'">';
+				
+				domTagPr('meta', array(
+					'http-equiv' => 'refresh',
+					'content' => '2; url=\'' . ADMIN_URI . ($this->page !== $pages['default'] ? '?page=' . $this->page : '') . '\''
+				));
 			}
 			?>
 		</div>
@@ -503,6 +539,7 @@ class Settings {
 	 * Generate an exit notice.
 	 * @since 1.3.14-beta
 	 *
+	 * @access private
 	 * @param string $exit_status -- The exit status.
 	 * @param int $status_code (optional) -- The type of notice to display.
 	 * @return string

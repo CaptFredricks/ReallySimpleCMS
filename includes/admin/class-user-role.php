@@ -11,15 +11,16 @@
  * ## OBJECT VAR ##
  * - $rs_ad_user_role
  *
- * ## VARIABLES [6] ##
+ * ## VARIABLES [7] ##
  * - private int $id
  * - private string $name
  * - private int $is_default
  * - private string $action
  * - private array $paged
  * - private string $page
+ * - private array $admin_page
  *
- * ## METHODS [13] ##
+ * ## METHODS [14] ##
  * - public __construct(int $id, string $action, string $page)
  * { LISTS, FORMS, & ACTIONS [4] }
  * - public listRecords(): void
@@ -28,7 +29,7 @@
  * - public deleteRecord(): void
  * { VALIDATION [1] }
  * - private validateSubmission(array $data): string
- * { MISCELLANEOUS [7] }
+ * { MISCELLANEOUS [8] }
  * - public pageHeading(): void
  * - private exitNotice(string $exit_status, int $status_code): string
  * - private roleNameExists(string $name): bool
@@ -36,6 +37,7 @@
  * - private getPrivilegesList(): string
  * - private getResults(?string $search, bool $all): array
  * - private getEntryCount(?string $search): int
+ * - private getActionLinks(array $role): string
  */
 namespace Admin;
 
@@ -63,7 +65,7 @@ class UserRole implements AdminInterface {
 	 * @since 1.1.1-beta
 	 *
 	 * @access private
-	 * @var string
+	 * @var int
 	 */
 	private $is_default;
 	
@@ -95,6 +97,15 @@ class UserRole implements AdminInterface {
 	private $page;
 	
 	/**
+	 * The admin page's data.
+	 * @since 1.3.16-beta
+	 *
+	 * @access private
+	 * @var array
+	 */
+	private $admin_page = array();
+	
+	/**
 	 * Class constructor.
 	 * @since 1.1.1-beta
 	 *
@@ -104,14 +115,15 @@ class UserRole implements AdminInterface {
 	 * @param string $page -- The current settings page.
 	 */
 	public function __construct(int $id, string $action, string $page) {
-		global $rs_query;
+		global $rs_query, $rs_admin_pages;
 		
 		$this->action = $action;
 		$this->page = $page;
+		$this->admin_page = $rs_admin_pages[basename($_SERVER['PHP_SELF'], '.php')];
 		
-		if($id !== 0) {
+		if($id > 0) {
 			$cols = array_keys(get_object_vars($this));
-			$exclude = array('action', 'paged', 'page');
+			$exclude = array('action', 'paged', 'page', 'admin_page');
 			$cols = array_diff($cols, $exclude);
 			
 			$role = $rs_query->selectRow(getTable('ur'), $cols, array(
@@ -165,34 +177,13 @@ class UserRole implements AdminInterface {
 						$role['name']
 					);
 					
-					// Action links
-					$actions = array(
-						// Edit
-						userHasPrivilege('can_edit_user_roles') ? actionLink('edit', array(
-							'caption' => 'Edit',
-							'page' => $this->page,
-							'id' => $ur_id
-						)) : null,
-						// Delete
-						userHasPrivilege('can_delete_user_roles') ? actionLink('delete', array(
-							'classes' => 'modal-launch delete-item',
-							'data_item' => 'user role',
-							'caption' => 'Delete',
-							'page' => $this->page,
-							'id' => $ur_id
-						)) : null
-					);
-					
-					// Filter out any empty actions
-					$actions = array_filter($actions);
-					
 					echo tableRow(
 						// Name
 						tdCell(domTag('strong', array(
 							'content' => $ur_name
 						)) . domTag('div', array(
 							'class' => 'actions',
-							'content' => implode(' &bull; ', $actions)
+							'content' => $this->getActionLinks($role)
 						)), 'name'),
 						// Default Privileges
 						tdCell($this->getPrivileges($ur_id, 1), 'default-privileges'),
@@ -213,7 +204,7 @@ class UserRole implements AdminInterface {
 		// Set up page navigation
 		echo pagerNav($this->paged['current'], $this->paged['count']);
 		
-		echo domTag('h2', array(
+		domTagPr('h2', array(
 			'class' => 'subheading',
 			'content' => 'Default User Roles'
 		));
@@ -231,15 +222,10 @@ class UserRole implements AdminInterface {
 				));
 				
 				foreach($roles as $role) {
-					list($ur_id, $ur_name) = array(
-						$role['id'],
-						$role['name']
-					);
-					
 					echo tableRow(
 						// Name
 						tdCell(domTag('strong', array(
-							'content' => $ur_name
+							'content' => $role['name']
 						)) . domTag('div', array(
 							'class' => 'actions',
 							'content' => domTag('em', array(
@@ -247,9 +233,9 @@ class UserRole implements AdminInterface {
 							))
 						)), 'name'),
 						// Default Privileges
-						tdCell($this->getPrivileges($ur_id, 1), 'default-privileges'),
+						tdCell($this->getPrivileges($role['id'], 1), 'default-privileges'),
 						// Custom Privileges
-						tdCell($this->getPrivileges($ur_id, 0), 'custom-privileges')
+						tdCell($this->getPrivileges($role['id'], 0), 'custom-privileges')
 					);
 				}
 				
@@ -303,7 +289,7 @@ class UserRole implements AdminInterface {
 						'type' => 'submit',
 						'class' => 'submit-input button',
 						'name' => 'submit',
-						'value' => 'Create User Role'
+						'value' => $this->admin_page['labels']['create_button']
 					));
 					?>
 				</table>
@@ -319,15 +305,7 @@ class UserRole implements AdminInterface {
 	 * @access public
 	 */
 	public function editRecord(): void {
-		global $rs_query;
-		
-		if(empty($this->id) || $this->id <= 0) {
-			redirect(ADMIN_URI . getQueryString(array(
-				'page' => $this->page
-			)));
-		}
-		
-		if($this->is_default === 'yes') {
+		if(empty($this->id) || $this->id <= 0 || $this->is_default === 1) {
 			redirect(ADMIN_URI . getQueryString(array(
 				'page' => $this->page
 			)));
@@ -363,7 +341,8 @@ class UserRole implements AdminInterface {
 						'type' => 'submit',
 						'class' => 'submit-input button',
 						'name' => 'submit',
-						'value' => 'Update User Role'
+						'value' => 'Update ' . capitalize((str_ends_with($this->page, 's') ?
+							substr($this->page, 0, -1) : $this->page))
 					));
 					?>
 				</table>
@@ -381,13 +360,7 @@ class UserRole implements AdminInterface {
 	public function deleteRecord(): void {
 		global $rs_query;
 		
-		if(empty($this->id) || $this->id <= 0) {
-			redirect(ADMIN_URI . getQueryString(array(
-				'page' => $this->page
-			)));
-		}
-		
-		if($this->is_default === 'yes') {
+		if(empty($this->id) || $this->id <= 0 || $this->is_default === 1) {
 			redirect(ADMIN_URI . getQueryString(array(
 				'page' => $this->page
 			)));
@@ -412,7 +385,7 @@ class UserRole implements AdminInterface {
 	\*------------------------------------*/
 	
 	/**
-	 * Validate the user role form data.
+	 * Validate the form data.
 	 * @since 1.7.2-alpha
 	 *
 	 * @access private
@@ -515,28 +488,30 @@ class UserRole implements AdminInterface {
 	 * @access public
 	 */
 	public function pageHeading(): void {
-		global $rs_query;
-		
 		switch($this->action) {
 			case 'create':
-				$title = 'Create User Role';
+				$title = capitalize($this->action . ' ' .
+					(str_ends_with($this->page, 's') ? substr($this->page, 0, -1) : $this->page)
+				);
 				$message = isset($_POST['submit']) ? $this->validateSubmission($_POST) : '';
 				break;
 			case 'edit':
-				$title = 'Edit User Role: { ' . domTag('em', array(
+				$title = capitalize($this->action . ' ' .
+					(str_ends_with($this->page, 's') ? substr($this->page, 0, -1) : $this->page)
+				) . ': { ' . domTag('em', array(
 					'content' => $this->name
 				)) . ' }';
 				$message = isset($_POST['submit']) ? $this->validateSubmission($_POST) : '';
 				break;
 			default:
-				$title = 'User Roles';
+				$title = capitalize($this->page);
 				$search = $_GET['search'] ?? null;
 		}
 		?>
 		<div class="heading-wrap">
 			<?php
 			// Page title
-			echo domTag('h1', array(
+			domTagPr('h1', array(
 				'content' => $title
 			));
 			
@@ -550,9 +525,9 @@ class UserRole implements AdminInterface {
 			} else {
 				// Create button
 				if(userHasPrivilege('can_create_user_roles')) {
-					echo actionLink('create', array(
+					echo actionLink($this->admin_page['actions']['create'], array(
 						'classes' => 'button',
-						'caption' => 'Create New',
+						'caption' => $this->admin_page['labels']['create_button'],
 						'page' => $this->page
 					));
 				}
@@ -565,7 +540,7 @@ class UserRole implements AdminInterface {
 				//Info
 				adminInfo();
 				
-				echo domTag('hr');
+				domTagPr('hr');
 				
 				// Exit notices
 				if(isset($_GET['exit_status']))
@@ -574,7 +549,7 @@ class UserRole implements AdminInterface {
 				// Record count
 				$count = $this->getEntryCount($search);
 				
-				echo domTag('div', array(
+				domTagPr('div', array(
 					'class' => 'entry-count',
 					'content' => $count . ' ' . ($count === 1 ? 'entry' : 'entries')
 				));
@@ -590,6 +565,7 @@ class UserRole implements AdminInterface {
 	 * Generate an exit notice.
 	 * @since 1.3.14-beta
 	 *
+	 * @access private
 	 * @param string $exit_status -- The exit status.
 	 * @param int $status_code (optional) -- The type of notice to display.
 	 * @return string
@@ -682,7 +658,9 @@ class UserRole implements AdminInterface {
 			'order_by' => 'id'
 		));
 		
-		$list = domTag('li', array(
+		$list = array();
+		
+		$list[] = domTag('li', array(
 			'content' => domTag('input', array(
 				'type' => 'checkbox',
 				'id' => 'select-all',
@@ -701,7 +679,7 @@ class UserRole implements AdminInterface {
 				'privilege' => $privilege['id']
 			));
 			
-			$list .= domTag('li', array(
+			$list[] = domTag('li', array(
 				'content' => domTag('input', array(
 					'type' => 'checkbox',
 					'class' => 'checkbox-input',
@@ -719,7 +697,7 @@ class UserRole implements AdminInterface {
 		
 		return domTag('ul', array(
 			'class' => 'checkbox-list',
-			'content' => $list
+			'content' => implode('', $list)
 		));
 	}
 	
@@ -771,5 +749,58 @@ class UserRole implements AdminInterface {
 	 */
 	private function getEntryCount(?string $search): int {
 		return count($this->getResults($search, true));
+	}
+	
+	/**
+	 * Fetch all associated action links.
+	 * @since 1.3.16-beta
+	 *
+	 * @access private
+	 * @param array $role -- The user role's data.
+	 * @return string
+	 */
+	private function getActionLinks(array $role): string {
+		$actions = $this->admin_page['actions'];
+		$action_list = array();
+		
+		foreach($actions as $key => $value) {
+			if($value === 'create') continue;
+			
+			$privileged = match($value) {
+				'edit' => userHasPrivilege('can_edit_user_roles'),
+				'delete' => userHasPrivilege('can_delete_user_roles'),
+				default => null
+			};
+			
+			$action_list[] = array(
+				'privileged' => $privileged,
+				'link' => $value,
+				'caption' => ucfirst($value)
+			);
+		}
+		
+		list($edit, $delete) = $action_list;
+		
+		$action_links = array(
+			// Edit
+			$edit['privileged'] ? actionLink($edit['link'], array(
+				'caption' => $edit['caption'],
+				'page' => $this->page,
+				'id' => $role['id']
+			)) : null,
+			// Delete
+			$delete['privileged'] ? actionLink($delete['link'], array(
+				'classes' => 'modal-launch delete-item',
+				'data_item' => 'user role',
+				'caption' => $delete['caption'],
+				'page' => $this->page,
+				'id' => $role['id']
+			)) : null
+		);
+		
+		// Filter out any empty actions
+		$action_links = array_filter($action_links);
+		
+		return implode(' &bull; ', $action_links);
 	}
 }

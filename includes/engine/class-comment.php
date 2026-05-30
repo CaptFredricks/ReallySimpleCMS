@@ -1,11 +1,14 @@
 <?php
 /**
  * Core class used to implement the Comment object.
- * This class loads data from the `comments` table of the database for use on the front end of the CMS.
+ * This class loads data from the `comments` table of the database for use on the front end.
  * @since 1.1.0-beta_snap-03
  *
  * @package ReallySimpleCMS
  * @subpackage Engine
+ *
+ * ## OBJECT VAR ##
+ * - $rs_comment
  *
  * ## VARIABLES [1] ##
  * - private int $post
@@ -78,7 +81,7 @@ class Comment {
 		} else {
 			$author = $rs_query->selectField(getTable('um'), 'value', array(
 				'user' => $author_id,
-				'datakey' => 'display_name'
+				'key' => 'display_name'
 			));
 		}
 		
@@ -112,11 +115,11 @@ class Comment {
 	public function getCommentDate(int $id): string {
 		global $rs_query;
 		
-		$date = $rs_query->selectField(getTable('c'), 'date', array(
+		$created = $rs_query->selectField(getTable('c'), 'created', array(
 			'id' => $id
 		));
 		
-		return formatDate($date, 'j M Y @ g:i A');
+		return formatDate($created, 'j M Y @ g:i A');
 	}
 	
 	/**
@@ -211,7 +214,8 @@ class Comment {
 		global $rs_query;
 		
 		return $rs_query->select(getTable('c'), 'COUNT(*)', array(
-			'post' => $post
+			'post' => $post,
+			'status' => 'approved'
 		));
 	}
 	
@@ -244,14 +248,14 @@ class Comment {
 	 * @access public
 	 */
 	public function getCommentReplyBox(): void {
-		global $rs_post, $rs_session, $rs_post_types;
+		global $rs_session, $rs_post_types, $rs_post;
 		
 		// Check whether comments are enabled
 		if(getSetting('enable_comments') && $rs_post_types[$rs_post->getPostType()]['comments'] &&
 			$rs_post->getPostMeta('comment_status')
 		) {
-			if(!is_null($rs_session) || (is_null($rs_session) && getSetting('allow_anon_comments'))) {
-				echo domTag('div', array(
+			if(!empty($rs_session) || (empty($rs_session) && getSetting('allow_anon_comments'))) {
+				domTagPr('div', array(
 					'id' => 'comments-reply',
 					'class' => 'textarea-wrap',
 					'content' => domTag('div', array(
@@ -304,15 +308,13 @@ class Comment {
 	 * @param int $count (optional) -- The number of comments to load.
 	 */
 	public function loadComments(int $offset = 0, int $count = 10): void {
-		global $rs_query, $rs_post, $rs_session, $rs_post_types;
-		
-		$per_page = 10;
+		global $rs_query, $rs_session, $rs_post_types, $rs_post;
 		
 		$comments = $rs_query->select(getTable('c'), 'id', array(
 			'post' => $this->post,
 			'status' => 'approved'
 		), array(
-			'order_by' => 'date',
+			'order_by' => 'created',
 			'order' => 'DESC',
 			'limit' => array($offset, $count)
 		));
@@ -323,13 +325,14 @@ class Comment {
 		));
 		
 		if(empty($comments)) {
-			echo domTag('p', array(
+			domTagPr('p', array(
 				'content' => 'No comments to display.'
 			));
 		} else {
-			echo domTag('span', array(
+			domTagPr('span', array(
 				'class' => 'count hidden',
-				'data-comments' => $offset + $count
+				'data-comments' => $offset + $count,
+				'data-per-page' => getSetting('comments_per_page')
 			));
 			
 			foreach($comments as $comment) {
@@ -337,133 +340,137 @@ class Comment {
 				$parent = $this->getCommentParent($id);
 				?>
 				<div id="comment-<?php echo $id; ?>" class="comment">
-					<p class="meta">
-						<?php
-						// Meta
-						echo domTag('span', array(
-							'class' => 'permalink',
-							'content' => domTag('a', array(
-								'href' => $this->getCommentPermalink($id),
-								'content' => '#' . $id
-							))
-						)) . '&ensp;' . domTag('span', array(
-							'class' => 'author',
-							'content' => $this->getCommentAuthor($id)
-						)) . '&ensp;' . domTag('span', array(
-							'class' => 'created',
-							'content' => $this->getCommentDate($id)
-						));
-						
-						// Reply to
-						if($parent !== 0) {
-							echo domTag('span', array(
-								'class' => 'replyto',
-								'content' => 'replying to ' . domTag('a', array(
-									'href' => $this->getCommentPermalink($parent),
-									'content' => '#' . $parent
-								))
-							));
-						}
-						?>
-					</p>
 					<?php
-					// Content
-					echo domTag('div', array(
+					## META ##
+					$meta = array();
+					
+					// Permalink, author, created
+					$meta[] = domTag('span', array(
+						'class' => 'permalink',
+						'content' => domTag('a', array(
+							'href' => $this->getCommentPermalink($id),
+							'content' => '#' . $id
+						))
+					)) . '&ensp;' . domTag('span', array(
+						'class' => 'author',
+						'content' => $this->getCommentAuthor($id)
+					)) . '&ensp;' . domTag('span', array(
+						'class' => 'created',
+						'content' => $this->getCommentDate($id)
+					));
+					
+					// Reply to
+					if($parent !== 0) {
+						$meta[] = domTag('span', array(
+							'class' => 'replyto',
+							'content' => 'replying to ' . domTag('a', array(
+								'href' => $this->getCommentPermalink($parent),
+								'content' => '#' . $parent
+							))
+						));
+					}
+					
+					domTagPr('p', array(
+						'class' => 'meta',
+						'content' => implode('', $meta)
+					));
+					
+					## CONTENT ##
+					domTagPr('div', array(
 						'class' => 'content',
 						'content' => nl2br($this->getCommentContent($id))
 					));
-					?>
-					<p class="actions">
-						<?php
-						$is_author = !is_null($rs_session) && $rs_session['id'] === $this->getCommentAuthorId($id);
-						
-						// Action links
-						echo domTag('span', array(
-							// Upvote
-							'class' => 'upvote',
-							'content' => domTag('span', array(
-								'content' => $this->getCommentUpvotes($id)
-							)) . ' ' . domTag('a', array(
-								'style' => $is_author ? 'cursor: not-allowed;' : '',
-								'href' => '#',
-								'data-id' => $id,
-								'data-author' => (int)$is_author,
-								'data-vote' => 0,
-								'title' => 'Upvote',
-								'content' => domTag('i', array(
-									'class' => 'fa-solid fa-thumbs-up'
-								))
+					
+					## ACTIONS ##
+					$actions = array();
+					$is_author = !empty($rs_session) && $rs_session['id'] === $this->getCommentAuthorId($id);
+					
+					// Action links
+					$actions[] = domTag('span', array(
+						// Upvote
+						'class' => 'upvote',
+						'content' => domTag('span', array(
+							'content' => $this->getCommentUpvotes($id)
+						)) . ' ' . domTag('a', array(
+							'style' => $is_author ? 'cursor: not-allowed;' : '',
+							'href' => '#',
+							'data-id' => $id,
+							'data-author' => (int)$is_author,
+							'data-vote' => 0,
+							'title' => 'Upvote',
+							'content' => domTag('i', array(
+								'class' => 'fa-solid fa-thumbs-up'
 							))
-						)) . ' &bull; ' . domTag('span', array(
-							// Downvote
-							'class' => 'downvote',
-							'content' => domTag('span', array(
-								'content' => $this->getCommentDownvotes($id)
-							)) . ' ' . domTag('a', array(
-								'style' => $is_author ? 'cursor: not-allowed;' : '',
+						))
+					)) . ' &bull; ' . domTag('span', array(
+						// Downvote
+						'class' => 'downvote',
+						'content' => domTag('span', array(
+							'content' => $this->getCommentDownvotes($id)
+						)) . ' ' . domTag('a', array(
+							'style' => $is_author ? 'cursor: not-allowed;' : '',
+							'href' => '#',
+							'data-id' => $id,
+							'data-author' => (int)$is_author,
+							'data-vote' => 0,
+							'title' => 'Downvote',
+							'content' => domTag('i', array(
+								'class' => 'fa-solid fa-thumbs-down'
+							))
+						))
+					));
+					
+					// Reply to
+					if(getSetting('enable_comments') && $rs_post_types[$rs_post->getPostType()]['comments'] &&
+						$rs_post->getPostMeta('comment_status')
+					) {
+						if(!empty($rs_session) || (empty($rs_session) && getSetting('allow_anon_comments'))) {
+							$actions[] = domTag('span', array(
+								'class' => 'reply',
+								'content' => domTag('a', array(
+									'href' => '#',
+									'data-replyto' => $id,
+									'content' => 'Reply'
+								))
+							));
+						}
+					}
+					
+					// Edit
+					if($is_author || (!empty($rs_session) && userHasPrivilege('can_edit_comments'))) {
+						$actions[] = domTag('span', array(
+							'class' => 'edit',
+							'content' => domTag('a', array(
 								'href' => '#',
 								'data-id' => $id,
-								'data-author' => (int)$is_author,
-								'data-vote' => 0,
-								'title' => 'Downvote',
-								'content' => domTag('i', array(
-									'class' => 'fa-solid fa-thumbs-down'
-								))
+								'content' => 'Edit'
 							))
 						));
-						
-						if(getSetting('enable_comments') && $rs_post_types[$rs_post->getPostType()]['comments'] &&
-							$rs_post->getPostMeta('comment_status')
-						) {
-							if(!is_null($rs_session) || (is_null($rs_session) && getSetting('allow_anon_comments'))) {
-								// Reply to
-								echo ' &bull; ' . domTag('span', array(
-									'class' => 'reply',
-									'content' => domTag('a', array(
-										'href' => '#',
-										'data-replyto' => $id,
-										'content' => 'Reply'
-									))
-								));
-							}
-						}
-						
-						if(!is_null($rs_session) && ($rs_session['id'] === $this->getCommentAuthorId($id) ||
-							userHasPrivilege('can_edit_comments'))
-						) {
-							// Edit
-							echo ' &bull; ' . domTag('span', array(
-								'class' => 'edit',
-								'content' => domTag('a', array(
-									'href' => '#',
-									'data-id' => $id,
-									'content' => 'Edit'
-								))
-							));
-						}
-						
-						// Check whether the user has permission to delete the comment
-						if(!is_null($rs_session) && ($rs_session['id'] === $this->getCommentAuthorId($id) ||
-							userHasPrivilege('can_delete_comments'))
-						) {
-							// Delete
-							echo ' &bull; ' . domTag('span', array(
-								'class' => 'delete',
-								'content' => domTag('a', array(
-									'href' => '#',
-									'data-id' => $id,
-									'content' => 'Delete'
-								))
-							));
-						}
-						?>
-					</p>
+					}
+					
+					// Delete
+					if($is_author || (!empty($rs_session) && userHasPrivilege('can_delete_comments'))) {
+						$actions[] = domTag('span', array(
+							'class' => 'delete',
+							'content' => domTag('a', array(
+								'href' => '#',
+								'data-id' => $id,
+								'content' => 'Delete'
+							))
+						));
+					}
+					
+					domTagPr('p', array(
+						'class' => 'actions',
+						'content' => implode(' &bull; ', $actions)
+					));
+					?>
 				</div>
 				<?php
 			}
 			
-			if($approved > $per_page && $approved > $offset + $count) {
-				echo domTag('button', array(
+			if($approved > getSetting('comments_per_page') && $approved > $offset + $count) {
+				domTagPr('button', array(
 					'class' => 'load button',
 					'content' => 'Load more'
 				));
@@ -488,7 +495,7 @@ class Comment {
 			$rs_query->insert(getTable('c'), array(
 				'post' => $data['post'],
 				'author' => ($rs_session['id'] ?? 0),
-				'date' => 'NOW()',
+				'created' => 'NOW()',
 				'content' => htmlspecialchars($data['content']),
 				'status' => $status,
 				'parent' => $data['replyto']
@@ -503,7 +510,7 @@ class Comment {
 				'value' => $approved
 			), array(
 				'post' => $data['post'],
-				'datakey' => 'comment_count'
+				'key' => 'comment_count'
 			));
 			
 			return domTag('p', array(
@@ -562,7 +569,7 @@ class Comment {
 			'value' => $count
 		), array(
 			'post' => $post,
-			'datakey' => 'comment_count'
+			'key' => 'comment_count'
 		));
 	}
 	

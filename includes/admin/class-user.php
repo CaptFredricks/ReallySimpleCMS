@@ -15,17 +15,18 @@
  * - protected int UN_LENGTH
  * - protected int PW_LENGTH
  *
- * ## VARIABLES [8] ##
+ * ## VARIABLES [9] ##
  * - protected int $id
  * - protected string $username
  * - protected string $email
  * - protected string $registered
  * - protected string $last_login
  * - protected int $role
+ * - protected array $admin_page
  * - protected string $action
  * - protected array $paged
  *
- * ## METHODS [23] ##
+ * ## METHODS [24] ##
  * - public __construct(int $id, string $action)
  * { LISTS, FORMS, & ACTIONS [7] }
  * - public listRecords(): void
@@ -37,7 +38,7 @@
  * - public reassignContent(): void
  * { VALIDATION [1] }
  * - private validateSubmission(array $data): string
- * { MISCELLANEOUS [14] }
+ * { MISCELLANEOUS [15] }
  * - public pageHeading(): void
  * - private exitNotice(string $exit_status, int $status_code): string
  * - private bulkActions(): void
@@ -52,6 +53,7 @@
  * - private getUserList(int $id): string
  * - private getResults(string $status, ?string $search, bool $all): array
  * - private getEntryCount(string $status, ?string $search): int
+ * - private getActionLinks(array $user): string
  */
 namespace Admin;
 
@@ -129,6 +131,15 @@ class User implements AdminInterface {
 	protected $role;
 	
 	/**
+	 * The admin page's data.
+	 * @since 1.3.16-beta
+	 *
+	 * @access protected
+	 * @var array
+	 */
+	protected $admin_page = array();
+	
+	/**
 	 * The current action.
 	 * @since 1.3.14-beta
 	 *
@@ -155,13 +166,14 @@ class User implements AdminInterface {
 	 * @param string $action -- The current action.
 	 */
 	public function __construct(int $id, string $action) {
-		global $rs_query;
+		global $rs_query, $rs_admin_pages;
 		
 		$this->action = $action;
+		$this->admin_page = $rs_admin_pages[basename($_SERVER['PHP_SELF'], '.php')];
 		
 		if($id > 0) {
 			$cols = array_keys(get_object_vars($this));
-			$exclude = array('action', 'paged');
+			$exclude = array('admin_page', 'action', 'paged');
 			$cols = array_diff($cols, $exclude);
 			
 			$user = $rs_query->selectRow(getTable('u'), $cols, array(
@@ -185,7 +197,7 @@ class User implements AdminInterface {
 	 * @access public
 	 */
 	public function listRecords(): void {
-		global $rs_query, $rs_session;
+		global $rs_session;
 		
 		// Query vars
 		$status = $_GET['status'] ?? 'all';
@@ -219,53 +231,14 @@ class User implements AdminInterface {
 				$users = $this->getResults($status, $search);
 				
 				foreach($users as $user) {
-					list($u_id, $u_username, $u_email, $u_registered,
-						$u_last_login, $u_session, $u_role
-					) = array(
-						$user['id'],
-						$user['username'],
-						$user['email'],
-						$user['registered'],
-						$user['last_login'],
-						$user['session'],
-						$user['role']
-					);
-					
-					$meta = $this->getUserMeta($u_id);
-					
-					// Action links
-					$actions = array(
-						// Edit
-						userHasPrivilege('can_edit_users') || $u_id === $rs_session['id'] ?
-							($u_id === $rs_session['id'] ? domTag('a', array(
-								'href' => ADMIN . '/profile.php',
-								'content' => 'Edit'
-							)) : actionLink('edit', array(
-								'caption' => 'Edit',
-								'id' => $u_id
-							))) : null,
-						// Delete
-						userHasPrivilege('can_delete_users') && $u_id !== $rs_session['id'] ?
-							($this->userHasContent($u_id) ? actionLink('reassign_content', array(
-								'caption' => 'Delete',
-								'id' => $u_id
-							)) : actionLink('delete', array(
-								'classes' => 'modal-launch delete-item',
-								'data_item' => 'user',
-								'caption' => 'Delete',
-								'id' => $u_id
-							))) : null
-					);
-					
-					// Filter out any empty actions
-					$actions = array_filter($actions);
+					$meta = $this->getUserMeta($user['id']);
 					
 					echo tableRow(
 						// Bulk select
 						tdCell(domTag('input', array(
 							'type' => 'checkbox',
 							'class' => 'checkbox',
-							'value' => $u_id
+							'value' => $user['id']
 						)), 'bulk-select'),
 						// Username
 						tdCell(getMedia($meta['avatar'], array(
@@ -273,29 +246,29 @@ class User implements AdminInterface {
 							'width' => 32,
 							'height' => 32
 						)) . domTag('strong', array(
-							'content' => $u_username
+							'content' => $user['username']
 						)) . domTag('div', array(
 							'class' => 'actions',
-							'content' => implode(' &bull; ', $actions)
+							'content' => $this->getActionLinks($user)
 						)), 'username'),
 						// Display name
 						tdCell($meta['display_name'], 'display-name'),
 						// Email
-						tdCell($u_email, 'email'),
+						tdCell($user['email'], 'email'),
 						// Registered
-						tdCell(formatDate($u_registered, 'd M Y @ g:i A'), 'registered'),
+						tdCell(formatDate($user['registered'], 'd M Y @ g:i A'), 'registered'),
 						// Role
-						tdCell($this->getRole($u_role), 'role'),
+						tdCell($this->getRole($user['role']), 'role'),
 						// Status
-						tdCell(is_null($u_session) ? 'Offline' : 'Online', 'status'),
+						tdCell(is_null($user['session']) ? 'Offline' : 'Online', 'status'),
 						// Last login
-						tdCell(is_null($u_last_login) ? 'Never' :
-							formatDate($u_last_login, 'd M Y @ g:i A'), 'last-login')
+						tdCell(is_null($user['last_login']) ? 'Never' :
+							formatDate($user['last_login'], 'd M Y @ g:i A'), 'last-login')
 					);
 				}
 				
 				if(empty($users))
-					echo tableRow(tdCell('There are no users to display.', '', count($header_cols)));
+					echo tableRow(tdCell($this->admin_page['labels']['no_items'], '', count($header_cols)));
 				?>
 			</tbody>
 			<tfoot>
@@ -331,7 +304,8 @@ class User implements AdminInterface {
 						'id' => 'username-field',
 						'class' => 'text-input required invalid init',
 						'name' => 'username',
-						'value' => ($_POST['username'] ?? '')
+						'value' => ($_POST['username'] ?? ''),
+						'placeholder' => $this->admin_page['labels']['title_placeholder']
 					));
 					
 					// Email
@@ -438,7 +412,7 @@ class User implements AdminInterface {
 						'type' => 'submit',
 						'class' => 'submit-input button',
 						'name' => 'submit',
-						'value' => 'Create User'
+						'value' => $this->admin_page['labels']['create_button']
 					));
 					?>
 				</table>
@@ -455,7 +429,7 @@ class User implements AdminInterface {
 	 * @access public
 	 */
 	public function editRecord(): void {
-		global $rs_query, $rs_session;
+		global $rs_session;
 		
 		if(empty($this->id) || $this->id <= 0)
 			redirect(ADMIN_URI);
@@ -481,7 +455,8 @@ class User implements AdminInterface {
 						'id' => 'username-field',
 						'class' => 'text-input required invalid init',
 						'name' => 'username',
-						'value' => $this->username
+						'value' => $this->username,
+						'placeholder' => $this->admin_page['labels']['title_placeholder']
 					));
 					
 					// Email
@@ -561,7 +536,7 @@ class User implements AdminInterface {
 						'type' => 'submit',
 						'class' => 'submit-input button',
 						'name' => 'submit',
-						'value' => 'Update User'
+						'value' => $this->admin_page['labels']['update_button']
 					));
 					?>
 				</table>
@@ -796,7 +771,10 @@ class User implements AdminInterface {
 			$usermeta = array(
 				'first_name' => $data['first_name'],
 				'last_name' => $data['last_name'],
-				'avatar' => $data['avatar']
+				'display_name' => $data['username'],
+				'avatar' => $data['avatar'],
+				'theme' => 'bedrock',
+				'dismissed_notices' => ''
 			);
 		}
 		
@@ -817,7 +795,9 @@ class User implements AdminInterface {
 					exit;
 				}
 				
-				$hashed_password = password_hash($data['password'], PASSWORD_BCRYPT, array('cost' => 10));
+				$hashed_password = password_hash($data['password'], PASSWORD_BCRYPT, array(
+					'cost' => 10
+				));
 				
 				$insert_id = $rs_query->insert(getTable('u'), array(
 					'username' => $username,
@@ -827,12 +807,10 @@ class User implements AdminInterface {
 					'role' => $data['role']
 				));
 				
-				$usermeta['theme'] = 'bedrock';
-				
 				foreach($usermeta as $key => $value) {
 					$rs_query->insert(getTable('um'), array(
 						'user' => $insert_id,
-						'datakey' => $key,
+						'key' => $key,
 						'value' => $value
 					));
 				}
@@ -857,7 +835,7 @@ class User implements AdminInterface {
 						'value' => $value
 					), array(
 						'user' => $this->id,
-						'datakey' => $key
+						'key' => $key
 					));
 				}
 				
@@ -895,7 +873,9 @@ class User implements AdminInterface {
 					exit;
 				}
 				
-				$hashed_password = password_hash($data['new_pass'], PASSWORD_BCRYPT, array('cost' => 10));
+				$hashed_password = password_hash($data['new_pass'], PASSWORD_BCRYPT, array(
+					'cost' => 10
+				));
 				
 				$rs_query->update(getTable('u'), array(
 					'password' => $hashed_password
@@ -930,15 +910,15 @@ class User implements AdminInterface {
 				$rs_query->update(getTable('p'), array(
 					'author' => $data['reassign_to']
 				), array(
-					'author' => $id
+					'author' => $this->id
 				));
 				
 				$rs_query->delete(getTable('u'), array(
-					'id' => $id
+					'id' => $this->id
 				));
 				
 				$rs_query->delete(getTable('um'), array(
-					'user' => $id
+					'user' => $this->id
 				));
 				
 				redirect(ADMIN_URI . getQueryString(array(
@@ -960,13 +940,15 @@ class User implements AdminInterface {
 	 * @access public
 	 */
 	public function pageHeading(): void {
+		$labels = $this->admin_page['labels'];
+		
 		switch($this->action) {
 			case 'create':
-				$title = 'Create User';
+				$title = $labels['create_item'];
 				$message = isset($_POST['submit']) ? $this->validateSubmission($_POST) : '';
 				break;
 			case 'edit':
-				$title = 'Edit User: { ' . domTag('em', array(
+				$title = $labels['edit_item'] . ': { ' . domTag('em', array(
 					'content' => $this->username
 				)) . ' }';
 				$message = isset($_POST['submit']) ? $this->validateSubmission($_POST) : '';
@@ -984,7 +966,7 @@ class User implements AdminInterface {
 				$message = isset($_POST['submit']) ? $this->validateSubmission($_POST) : '';
 				break;
 			default:
-				$title = 'Users';
+				$title = $labels['name'];
 				$status = $_GET['status'] ?? 'all';
 				$search = $_GET['search'] ?? null;
 		}
@@ -992,7 +974,7 @@ class User implements AdminInterface {
 		<div class="heading-wrap">
 			<?php
 			// Page title
-			echo domTag('h1', array(
+			domTagPr('h1', array(
 				'content' => $title
 			));
 			
@@ -1006,9 +988,9 @@ class User implements AdminInterface {
 			} else {
 				// Create button
 				if(userHasPrivilege('can_create_users')) {
-					echo actionLink('create', array(
+					echo actionLink($this->admin_page['actions']['create'], array(
 						'classes' => 'button',
-						'caption' => 'Create New'
+						'caption' => $labels['create_button']
 					));
 				}
 				
@@ -1020,7 +1002,7 @@ class User implements AdminInterface {
 				// Info
 				adminInfo();
 				
-				echo domTag('hr');
+				domTagPr('hr');
 				
 				// Exit notices
 				if(isset($_GET['exit_status']))
@@ -1036,7 +1018,7 @@ class User implements AdminInterface {
 					
 					// Statuses
 					foreach($count as $key => $value) {
-						echo domTag('li', array(
+						domTagPr('li', array(
 							'content' => domTag('a', array(
 								'href' => ADMIN_URI . ($key === 'all' ? '' : '?status=' . $key),
 								'content' => ucfirst($key) . ' ' . domTag('span', array(
@@ -1052,7 +1034,7 @@ class User implements AdminInterface {
 				</ul>
 				<?php
 				// Record count
-				echo domTag('div', array(
+				domTagPr('div', array(
 					'class' => 'entry-count status',
 					'content' => $count[$status] . ' ' . ($count[$status] === 1 ? 'entry' : 'entries')
 				));
@@ -1068,6 +1050,7 @@ class User implements AdminInterface {
 	 * Generate an exit notice.
 	 * @since 1.3.14-beta
 	 *
+	 * @access private
 	 * @param string $exit_status -- The exit status.
 	 * @param int $status_code (optional) -- The type of notice to display.
 	 * @return string
@@ -1102,31 +1085,36 @@ class User implements AdminInterface {
 	 */
 	private function bulkActions(): void {
 		global $rs_query;
+		
+		$labels = $this->admin_page['labels'];
 		?>
 		<div class="bulk-actions">
 			<?php
 			if(userHasPrivilege('can_edit_users')) {
-				?>
-				<select class="actions">
-					<?php
-					$roles = $rs_query->select(getTable('ur'), array('id', 'name'), array(), array(
-						'order_by' => 'id'
+				$roles = $rs_query->select(getTable('ur'), array('id', 'name'), array(), array(
+					'order_by' => 'id'
+				));
+				
+				$list = array();
+				
+				foreach($roles as $role) {
+					$list[] = domTag('option', array(
+						'value' => $role['id'],
+						'content' => $role['name']
 					));
-					
-					foreach($roles as $role) {
-						echo domTag('option', array(
-							'value' => $role['id'],
-							'content' => $role['name']
-						));
-					}
-					?>
-				</select>
-				<?php
-				// Update status
+				}
+				
+				domTagPr('select', array(
+					'class' => 'actions',
+					'name' => 'bulk_actions',
+					'content' => implode('', $list)
+				));
+				
+				// Update role
 				button(array(
 					'class' => 'bulk-update',
-					'title' => 'Bulk status update',
-					'label' => 'Update'
+					'title' => 'Bulk role update',
+					'label' => $labels['bulk_update']
 				));
 			}
 			
@@ -1135,7 +1123,7 @@ class User implements AdminInterface {
 				button(array(
 					'class' => 'bulk-delete',
 					'title' => 'Bulk delete',
-					'label' => 'Delete'
+					'label' => $labels['bulk_delete']
 				));
 			}
 			?>
@@ -1234,7 +1222,7 @@ class User implements AdminInterface {
 	protected function getUserMeta(int $id): array {
 		global $rs_query;
 		
-		$usermeta = $rs_query->select(getTable('um'), array('datakey', 'value'), array(
+		$usermeta = $rs_query->select(getTable('um'), array('key', 'value'), array(
 			'user' => $id
 		));
 		
@@ -1277,21 +1265,21 @@ class User implements AdminInterface {
 	private function getRoleList(int $id = 0): string {
 		global $rs_query;
 		
-		$list = '';
+		$list = array();
 		
 		$roles = $rs_query->select(getTable('ur'), '*', array(), array(
 			'order_by' => 'id'
 		));
 		
 		foreach($roles as $role) {
-			$list .= domTag('option', array(
+			$list[] = domTag('option', array(
 				'value' => $role['id'],
 				'selected' => $role['id'] === $id,
 				'content' => $role['name']
 			));
 		}
 		
-		return $list;
+		return implode('', $list);
 	}
 	
 	/**
@@ -1324,7 +1312,7 @@ class User implements AdminInterface {
 	private function getUserList(int $id): string {
 		global $rs_query;
 		
-		$list = '';
+		$list = array();
 		
 		$users = $rs_query->select(getTable('u'), array('id', 'username'), array(
 			'id' => array('<>', $id)
@@ -1333,26 +1321,26 @@ class User implements AdminInterface {
 		));
 		
 		foreach($users as $user) {
-			$list .= domTag('option', array(
+			$list[] = domTag('option', array(
 				'value' => $user['id'],
 				'content' => $user['username']
 			));
 		}
 		
-		return $list;
+		return implode('', $list);
 	}
 	
 	/**
- 	 * Fetch all users based on a specific status.
- 	 * @since 1.3.15-beta
- 	 *
- 	 * @access private
- 	 * @param string $status -- The user's status.
- 	 * @param null|string $search -- The search query.
+	 * Fetch all users based on a specific status.
+	 * @since 1.3.15-beta
+	 *
+	 * @access private
+	 * @param string $status -- The user's status.
+	 * @param null|string $search -- The search query.
 	 * @param bool $all (optional) -- Whether to return all or set a limit (for pagination).
- 	 * @return array
- 	 */
- 	private function getResults(string $status, ?string $search, bool $all = false): array {
+	 * @return array
+	 */
+	private function getResults(string $status, ?string $search, bool $all = false): array {
 		global $rs_query;
 		
 		$order_by = 'username';
@@ -1433,5 +1421,65 @@ class User implements AdminInterface {
 	 */
 	private function getEntryCount(string $status, ?string $search): int {
 		return count($this->getResults($status, $search, true));
+	}
+	
+	/**
+	 * Fetch all associated action links.
+	 * @since 1.3.16-beta
+	 *
+	 * @access private
+	 * @param array $user -- The user's data.
+	 * @return string
+	 */
+	private function getActionLinks(array $user): string {
+		global $rs_session;
+		
+		$actions = $this->admin_page['actions'];
+		$action_list = array();
+		
+		foreach($actions as $key => $value) {
+			if($value === 'create') continue;
+			
+			$privileged = match($value) {
+				'edit' => userHasPrivilege('can_edit_users'),
+				'delete' => userHasPrivilege('can_delete_users'),
+				default => null
+			};
+			
+			$action_list[] = array(
+				'privileged' => $privileged,
+				'link' => $value,
+				'caption' => ucfirst($value)
+			);
+		}
+		
+		list($edit, $delete) = $action_list;
+		
+		$action_links = array(
+			// Edit
+			$edit['privileged'] ? ($user['id'] === $rs_session['id'] ? domTag('a', array(
+					'href' => ADMIN . '/profile.php',
+					'content' => $edit['caption']
+				)) : actionLink($edit['link'], array(
+					'caption' => $edit['caption'],
+					'id' => $user['id']
+				))) : null,
+			// Delete
+			$delete['privileged'] && $user['id'] !== $rs_session['id'] ?
+				($this->userHasContent($user['id']) ? actionLink('reassign_content', array(
+					'caption' => $delete['caption'],
+					'id' => $user['id']
+				)) : actionLink($delete['link'], array(
+					'classes' => 'modal-launch delete-item',
+					'data_item' => 'user',
+					'caption' => $delete['caption'],
+					'id' => $user['id']
+				))) : null
+		);
+		
+		// Filter out any empty actions
+		$action_links = array_filter($action_links);
+		
+		return implode(' &bull; ', $action_links);
 	}
 }

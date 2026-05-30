@@ -1,0 +1,67 @@
+<?php
+/**
+ * Fallback theme used by the system if no valid themes are installed.
+ * @since 2.3.0-alpha
+ *
+ * @package ReallySimpleCMS
+ */
+?>
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title><?php putSetting('site_title'); ?></title>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link type="image/x-icon" href="<?php echo getMediaSrc(getSetting('site_icon')); ?>" rel="icon">
+		<?php headerScripts(array('button', 'jquery')); ?>
+	</head>
+	<body class="fallback-theme">
+		<div class="wrapper">
+			<?php
+			domTagPr('h1', array(
+				'content' => 'Welcome to ' . getSetting('site_title') . '!'
+			));
+			
+			domTagPr('p', array(
+				'content' => 'You\'re seeing this message either because you have no themes installed, or your active theme\'s directory was renamed.'
+			));
+			
+			domTagPr('p', array(
+				'content' => 'You can create a theme by adding a new directory in ' . domTag('code', array(
+					'content' => PATH . '/content/themes'
+				)) . ' or through the admin dashboard.'
+			));
+			
+			domTagPr('hr');
+			?>
+			<article>
+				<?php if(isPost()): ?>
+					<h2><?php putPostTitle(); ?></h2>
+					<?php putPostContent(); ?>
+				<?php else: ?>
+					<h2><?php putTermTaxName(); ?>: <?php putTermName(); ?></h2>
+					<?php putTermPosts(); ?>
+				<?php endif; ?>
+			</article>
+		</div>
+		<?php
+		// Copyright
+		domTagPr('p', array(
+			'class' => 'copyright',
+				'content' => '&copy; ' . date('Y') . ' ' . domTag('a', array(
+				'href' => 'https://github.com/ReallySimpleSystems/ReallySimpleCMS',
+				'target' => '_blank',
+				'rel' => 'noreferrer noopener',
+				'content' => RS_ENGINE
+			)) . ' &ndash; ' . domTag('em', array(
+				'content' => 'powered by ' . RS_DEVELOPER
+			)) . ' &bull; All Rights Reserved.'
+		));
+		
+		if(!empty($rs_session)) adminBar();
+		?>
+	</body>
+</html>
+<?php
+// Prevent further execution of scripts or content output
+exit;

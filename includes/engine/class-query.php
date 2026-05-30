@@ -7,23 +7,26 @@
  * @package ReallySimpleCMS
  * @subpackage Engine
  *
+ * ## OBJECT VAR ##
+ * - $rs_query
+ *
  * ## VARIABLES [6] ##
- * - private object $conn
+ * - private null|object $conn
  * - public bool $conn_status
  * - public string $charset
  * - public string $collate
  * - public string $server_version
  * - public string $client_version
  *
- * ## METHODS [20] ##
+ * ## METHODS [19] ##
  * - public __construct()
  * { BASIC QUERIES [7] }
- * - public select(string $table, string|array $cols, array $where, array $args): int|array
- * - public selectRow(string $table, string|array $cols, array $where, array $args): int|array
- * - public selectField(string $table, string $col, array $where, array $args): string
- * - public insert(string $table, array $data, array $args): int
- * - public update(string $table, array $data, array $where, array $args): void
- * - public delete(string $table, array $where, array $args): void
+ * - public select(string|array $table, string|array $cols, array $where, array $args): int|array
+ * - public selectRow(string|array $table, string|array $cols, array $where, array $args): int|array
+ * - public selectField(string|array $table, string $col, array $where, array $args): string
+ * - public insert(string|array $table, array $data, array $args): int
+ * - public update(string|array $table, array $data, array $where, array $args): void
+ * - public delete(string|array $table, array $where, array $args): void
  * - public doQuery(string $sql): void
  * { ADVANCED QUERIES & ACTIONS [7] }
  * - public showTables(string $table): int|array
@@ -33,7 +36,7 @@
  * - public createTable(string $table, array $data): void
  * - public dropTable(string $table): void
  * - public dropTables(array $tables): void
- * { MISCELLANEOUS [5] }
+ * { MISCELLANEOUS [4] }
  * - private getAttr(string $attr): string
  * - private initCharset(): void
  * - private setCharset(?string $charset, ?string $collate): void
@@ -106,10 +109,23 @@ class Query {
 		global $rs_error;
 		
 		try {
-			// Create a PDO object and plug in the database constant values
-			$this->conn = new \PDO('mysql' .
-				':dbname=' . DB_NAME .
-				';host=' . DB_HOST,
+			// Initialize database connection using PDO (PHP Data Objects).
+			// @see https://www.php.net/manual/en/book.pdo.php
+			$drivers = \PDO::getAvailableDrivers();
+			$supported = 'mysql';
+			$db_driver = null;
+			
+			// Abort if driver is not currently supported
+			if(!in_array($supported, $drivers, true)) {
+				exit('<p><code>ERROR: Database driver is unsupported! Please contact your web host.' .
+					'<br><br>Supported driver(s): `' . $supported . '`</code></p>');
+			}
+			
+			$db_driver = $supported;
+			
+			$this->conn = new \PDO($db_driver .
+				':host=' . DB_HOST .
+				';dbname=' . DB_NAME,
 				DB_USER,
 				DB_PASS
 			);
@@ -130,7 +146,6 @@ class Query {
 			$this->setCharset();
 		} catch(\PDOException $e) {
 			$this->conn_status = false;
-			
 			$rs_error->logError($e);
 			
 			if(isDebugMode())
@@ -240,8 +255,8 @@ class Query {
 					}
 					
 					$conditions[] = match($operator) {
-						'BETWEEN', 'NOT BETWEEN' => $field . ' ' . $operator . ' ' . implode(' AND ', $placeholders),
 						'IN', 'NOT IN' => $field . ' ' . $operator . ' (' . implode(', ', $placeholders) . ')',
+						'BETWEEN', 'NOT BETWEEN' => $field . ' ' . $operator . ' ' . implode(' AND ', $placeholders),
 						'IS NULL', 'IS NOT NULL' => $field . ' ' . $operator,
 						default => $field . ' ' . $operator . ' ?'
 					};
@@ -293,6 +308,7 @@ class Query {
 		}
 		
 		try {
+			// Output SQL statement if using debug mode
 			if($debug) var_dump($sql);
 			
 			$select_query = $this->conn->prepare($sql);
@@ -303,8 +319,20 @@ class Query {
 			} else {
 				$data = array();
 				
-     			while($row = $select_query->fetch(\PDO::FETCH_ASSOC))
+				while($row = $select_query->fetch(\PDO::FETCH_ASSOC)) {
+					// Remove prefixes from return values
+					if(isset($px)) {
+						foreach($row as $key => $val) {
+							if(str_starts_with($key, $px)) {
+								$no_px = str_replace($px, '', $key);
+								$row[$no_px] = $row[$key];
+								unset($row[$key]);
+							}
+						}
+					}
+					
      				$data[] = $row;
+				}
 				
 				return $data;
 			}
@@ -407,6 +435,7 @@ class Query {
 		$sql = 'INSERT INTO `' . $table . '` (' . $fields . ') VALUES (' . $placeholders . ')';
 		
 		try {
+			// Output SQL statement if using debug mode
 			if($debug) var_dump($sql);
 			
 			$insert_query = $this->conn->prepare($sql);
@@ -522,6 +551,7 @@ class Query {
 		}
 		
 		try {
+			// Output SQL statement if using debug mode
 			if($debug) var_dump($sql);
 			
 			$update_query = $this->conn->prepare($sql);
@@ -601,6 +631,7 @@ class Query {
 		}
 		
 		try {
+			// Output SQL statement if using debug mode
 			if($debug) var_dump($sql);
 			
 			$delete_query = $this->conn->prepare($sql);
@@ -768,6 +799,8 @@ class Query {
 	 * @param string $table -- The table name.
 	 */
 	public function dropTable(string $table): void {
+		# Add protections against malicious dropping of tables
+		
 		$this->doQuery('DROP TABLE IF EXISTS `' . $table . '`;');
 	}
 	
@@ -780,6 +813,8 @@ class Query {
 	 */
 	public function dropTables(array $tables): void {
 		if(!is_array($tables)) $tables = (array)$tables;
+		
+		# ditto
 		
 		$sql = 'DROP TABLE IF EXISTS ';
 		

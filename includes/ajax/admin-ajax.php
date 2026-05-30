@@ -13,7 +13,7 @@ if(empty($_POST)) exit('You do not have permission to access this resource.');
 define('BASE_INIT', true);
 
 require_once dirname(dirname(__DIR__)) . '/init.php';
-requireFiles(array(RS_ADMIN_FUNC, RS_FUNC));
+requireFiles(array(RS_ADMIN_FUNC, RS_FRONT_FUNC));
 
 if(isset($_POST)) {
 	// Dismiss an admin notice
@@ -29,7 +29,7 @@ if(isset($_POST)) {
 			'value' => $dismissed
 		), array(
 			'user' => $rs_session['id'],
-			'datakey' => 'dismissed_notices'
+			'key' => 'dismissed_notices'
 		));
 	}
 }

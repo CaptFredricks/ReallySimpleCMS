@@ -7,7 +7,7 @@
  */
 
 require_once __DIR__ . '/init.php';
-require_once RS_FUNC;
+requireFile(RS_FRONT_FUNC);
 
 ob_start();
 session_start();
@@ -18,34 +18,58 @@ $action = $_GET['action'] ?? '';
 <!DOCTYPE html>
 <html>
 	<head>
-		<title><?php echo empty($action) ? 'Log In' : capitalize($action); ?> ▸ <?php putSetting('site_title'); ?></title>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<meta name="robots" content="noindex, nofollow">
-		<meta name="theme-color" content="<?php putSetting('theme_color'); ?>">
-		<link type="image/x-icon" href="<?php echo getMediaSrc(getSetting('site_icon')); ?>" rel="icon">
-		<?php headerScripts(); ?>
+		<?php
+		domTagPr('title', array(
+			'content' => (empty($action) ? 'Log In' : capitalize($action)) . ' ▸ ' . getSetting('site_title')
+		));
+		
+		domTagPr('meta', array(
+			'charset' => 'UTF-8'
+		));
+		
+		domTagPr('meta', array(
+			'name' => 'viewport',
+			'content' => 'width=device-width, initial-scale=1.0'
+		));
+		
+		domTagPr('meta', array(
+			'name' => 'robots',
+			'content' => 'noindex, nofollow'
+		));
+		
+		domTagPr('meta', array(
+			'name' => 'theme-color',
+			'content' => getSetting('theme_color')
+		));
+		
+		domTagPr('link', array(
+			'type'=> 'image/x-icon',
+			'href' => getMediaSrc(getSetting('site_icon')),
+			'rel' => 'icon'
+		));
+		
+		headerScripts();
+		?>
 	</head>
 	<body class="login">
 		<div class="wrapper">
-			<h1>
-				<a href="/">
-					<?php
-					// Title/logo
-					if(!empty(getSetting('site_logo'))) {
-						echo domTag('img', array(
+			<?php
+			// Title/logo
+			domTagPr('h1', array(
+				'content' => domTag('a', array(
+					'href' => '/',
+					'content' => (!empty(getSetting('site_logo')) ?
+						domTag('img', array(
 							'src' => getMediaSrc(getSetting('site_logo')),
 							'title' => getSetting('site_title')
-						));
-					} else {
-						putSetting('site_title');
-					}
-					?>
-				</a>
-			</h1>
-			<?php
+						)) : getSetting('site_title')
+					)
+				))
+			));
+			
 			switch($action) {
 				case 'logout':
+					// Action: Log Out
 					$login_slug = getSetting('login_slug');
 					
 					// Log the user out if the session cookie is set
@@ -54,12 +78,15 @@ $action = $_GET['action'] ?? '';
 						redirect('/login.php' . (!empty($login_slug) ? '?secure_login=' . $login_slug : ''));
 					break;
 				case 'forgot_password':
+					// Action: Forgot Password
 					$rs_login->forgotPasswordForm();
 					break;
 				case 'reset_password':
+					// Action: Reset Password
 					$rs_login->resetPasswordForm();
 					break;
 				default:
+					// Action: Log In
 					$rs_login->logInForm();
 			}
 			?>

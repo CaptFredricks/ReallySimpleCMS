@@ -11,11 +11,12 @@
  * ## OBJECT VAR ##
  * - $rs_ad_widget
  *
- * ## VARIABLES [1] ##
+ * ## VARIABLES [2] ##
  * See `Post` class for a list of inherited vars
  * - private string $post_type
+ * - private array $admin_page
  *
- * ## METHODS [11] ##
+ * ## METHODS [13] ##
  * See `Post` class for a list of inherited methods
  * - public __construct(int $id, string $action)
  * { LISTS, FORMS, & ACTIONS [5] }
@@ -26,12 +27,13 @@
  * - public deleteRecord(): void
  * { VALIDATION [1] }
  * - private validateSubmission(array $data): string
- * { MISCELLANEOUS [5] }
+ * { MISCELLANEOUS [6] }
  * - public pageHeading(): void
  * - private exitNotice(string $exit_status, int $status_code): string
  * - private bulkActions(): void
  * - private getResults(?string $search, bool $all): array
  * - private getEntryCount(?string $search): int
+ * - private getActionLinks(array $widget): string
  */
 namespace Admin;
 
@@ -46,6 +48,15 @@ class Widget extends Post implements AdminInterface {
 	private $post_type = 'widget';
 	
 	/**
+	 * The admin page's data.
+	 * @since 1.3.16-beta
+	 *
+	 * @access private
+	 * @var array
+	 */
+	private $admin_page = array();
+	
+	/**
 	 * Class constructor.
 	 * @since 1.1.1-beta
 	 *
@@ -54,13 +65,14 @@ class Widget extends Post implements AdminInterface {
 	 * @param string $action -- The current action.
 	 */
 	public function __construct(int $id, string $action) {
-		global $rs_query;
+		global $rs_query, $rs_admin_pages;
 		
 		$this->action = $action;
+		$this->admin_page = $rs_admin_pages[basename($_SERVER['PHP_SELF'], '.php')];
 		
 		if($id > 0) {
 			$cols = array_keys(get_object_vars($this));
-			$exclude = array('action', 'paged', 'post_type');
+			$exclude = array('action', 'paged', 'post_type', 'admin_page');
 			$cols = array_diff($cols, $exclude);
 			
 			$widget = $rs_query->selectRow(getTable('p'), $cols, array(
@@ -79,14 +91,12 @@ class Widget extends Post implements AdminInterface {
 	\*------------------------------------*/
 	
 	/**
-	 * Construct a list of all widgets.
+	 * Construct a list of all widgets in the database.
 	 * @since 1.6.0-alpha
 	 *
 	 * @access public
 	 */
 	public function listRecords(): void {
-		global $rs_query;
-		
 		// Query vars
 		$search = $_GET['search'] ?? null;
 		$this->paged = paginate((int)($_GET['paged'] ?? 1));
@@ -114,55 +124,29 @@ class Widget extends Post implements AdminInterface {
 				$widgets = $this->getResults($search);
 				
 				foreach($widgets as $widget) {
-					list($w_id, $w_title, $w_status, $w_slug) = array(
-						$widget['id'],
-						$widget['title'],
-						$widget['status'],
-						$widget['slug']
-					);
-					
-					// Action links
-					$actions = array(
-						// Edit
-						userHasPrivilege('can_edit_widgets') ? actionLink('edit', array(
-							'caption' => 'Edit',
-							'id' => $w_id
-						)) : null,
-						// Delete
-						userHasPrivilege('can_delete_widgets') ? actionLink('delete', array(
-							'classes' => 'modal-launch delete-item',
-							'data_item' => 'widget',
-							'caption' => 'Delete',
-							'id' => $w_id
-						)) : null
-					);
-					
-					// Filter out any empty actions
-					$actions = array_filter($actions);
-					
 					echo tableRow(
 						// Bulk select
 						tdCell(domTag('input', array(
 							'type' => 'checkbox',
 							'class' => 'checkbox',
-							'value' => $w_id
+							'value' => $widget['id']
 						)), 'bulk-select'),
 						// Title
 						tdCell(domTag('strong', array(
-							'content' => $w_title
+							'content' => $widget['title']
 						)) . domTag('div', array(
 							'class' => 'actions',
-							'content' => implode(' &bull; ', $actions)
+							'content' => $this->getActionLinks($widget)
 						)), 'title'),
 						// Slug
-						tdCell($w_slug, 'slug'),
+						tdCell($widget['slug'], 'slug'),
 						// Status
-						tdCell(ucfirst($w_status), 'status')
+						tdCell(ucfirst($widget['status']), 'status')
 					);
 				}
 				
 				if(empty($widgets))
-					echo tableRow(tdCell('There are no widgets to display.', '', count($header_cols)));
+					echo tableRow(tdCell($this->admin_page['labels']['no_items'], '', count($header_cols)));
 				?>
 			</tbody>
 			<tfoot>
@@ -198,7 +182,8 @@ class Widget extends Post implements AdminInterface {
 						'id' => 'title-field',
 						'class' => 'text-input required invalid init',
 						'name' => 'title',
-						'value' => ($_POST['title'] ?? '')
+						'value' => ($_POST['title'] ?? ''),
+						'placeholder' => $this->admin_page['labels']['title_placeholder']
 					));
 					
 					// Slug
@@ -248,7 +233,7 @@ class Widget extends Post implements AdminInterface {
 						'type' => 'submit',
 						'class' => 'submit-input button',
 						'name' => 'submit',
-						'value' => 'Create Widget'
+						'value' => $this->admin_page['labels']['create_button']
 					));
 					?>
 				</table>
@@ -264,8 +249,6 @@ class Widget extends Post implements AdminInterface {
 	 * @access public
 	 */
 	public function editRecord(): void {
-		global $rs_query;
-		
 		if(empty($this->id) || $this->id <= 0)
 			redirect(ADMIN_URI);
 		
@@ -281,7 +264,8 @@ class Widget extends Post implements AdminInterface {
 						'id' => 'title-field',
 						'class' => 'text-input required invalid init',
 						'name' => 'title',
-						'value' => $this->title
+						'value' => $this->title,
+						'placeholder' => $this->admin_page['labels']['title_placeholder']
 					));
 					
 					// Slug
@@ -333,7 +317,7 @@ class Widget extends Post implements AdminInterface {
 						'type' => 'submit',
 						'class' => 'submit-input button',
 						'name' => 'submit',
-						'value' => 'Update Widget'
+						'value' => $this->admin_page['labels']['update_button']
 					));
 					?>
 				</table>
@@ -421,7 +405,7 @@ class Widget extends Post implements AdminInterface {
 			case 'create':
 				$insert_id = $rs_query->insert(getTable('p'), array(
 					'title' => $data['title'],
-					'date' => 'NOW()',
+					'created' => 'NOW()',
 					'modified' => 'NOW()',
 					'content' => $data['content'],
 					'status' => $data['status'],
@@ -468,28 +452,28 @@ class Widget extends Post implements AdminInterface {
 	 * @access public
 	 */
 	public function pageHeading(): void {
-		global $rs_query;
+		$labels = $this->admin_page['labels'];
 		
 		switch($this->action) {
 			case 'create':
-				$title = 'Create Widget';
+				$title = $labels['create_item'];
 				$message = isset($_POST['submit']) ? $this->validateSubmission($_POST) : '';
 				break;
 			case 'edit':
-				$title = 'Edit Widget: { ' . domTag('em', array(
+				$title = $labels['edit_item'] . ': { ' . domTag('em', array(
 					'content' => $this->title
 				)) . ' }';
 				$message = isset($_POST['submit']) ? $this->validateSubmission($_POST) : '';
 				break;
 			default:
-				$title = 'Widgets';
+				$title = $labels['name'];
 				$search = $_GET['search'] ?? null;
 		}
 		?>
 		<div class="heading-wrap">
 			<?php
 			// Page title
-			echo domTag('h1', array(
+			domTagPr('h1', array(
 				'content' => $title
 			));
 			
@@ -503,9 +487,9 @@ class Widget extends Post implements AdminInterface {
 			} else {
 				// Create button
 				if(userHasPrivilege('can_create_widgets')) {
-					echo actionLink('create', array(
+					echo actionLink($this->admin_page['actions']['create'], array(
 						'classes' => 'button',
-						'caption' => 'Create New'
+						'caption' => $labels['create_button']
 					));
 				}
 				
@@ -515,7 +499,7 @@ class Widget extends Post implements AdminInterface {
 				//Info
 				adminInfo();
 				
-				echo domTag('hr');
+				domTagPr('hr');
 				
 				// Exit notices
 				if(isset($_GET['exit_status']))
@@ -524,7 +508,7 @@ class Widget extends Post implements AdminInterface {
 				// Record count
 				$count = $this->getEntryCount($search);
 				
-				echo domTag('div', array(
+				domTagPr('div', array(
 					'class' => 'entry-count',
 					'content' => $count . ' ' . ($count === 1 ? 'entry' : 'entries')
 				));
@@ -540,6 +524,7 @@ class Widget extends Post implements AdminInterface {
 	 * Generate an exit notice.
 	 * @since 1.3.14-beta
 	 *
+	 * @access private
 	 * @param string $exit_status -- The exit status.
 	 * @param int $status_code (optional) -- The type of notice to display.
 	 * @return string
@@ -566,11 +551,12 @@ class Widget extends Post implements AdminInterface {
 	 * @access private
 	 */
 	private function bulkActions(): void {
+		$labels = $this->admin_page['labels'];
 		?>
 		<div class="bulk-actions">
 			<?php
 			if(userHasPrivilege('can_edit_widgets')) {
-				echo domTag('select', array(
+				domTagPr('select', array(
 					'class' => 'actions',
 					'content' => domTag('option', array(
 						'value' => 'active',
@@ -585,7 +571,7 @@ class Widget extends Post implements AdminInterface {
 				button(array(
 					'class' => 'bulk-update',
 					'title' => 'Bulk status update',
-					'label' => 'Update'
+					'label' => $labels['bulk_update']
 				));
 			}
 			
@@ -594,7 +580,7 @@ class Widget extends Post implements AdminInterface {
 				button(array(
 					'class' => 'bulk-delete',
 					'title' => 'Bulk delete',
-					'label' => 'Delete'
+					'label' => $labels['bulk_delete']
 				));
 			}
 			?>
@@ -650,5 +636,62 @@ class Widget extends Post implements AdminInterface {
 	 */
 	private function getEntryCount(?string $search): int {
 		return count($this->getResults($search, true));
+	}
+	
+	/**
+	 * Fetch all associated action links.
+	 * @since 1.3.16-beta
+	 *
+	 * @access private
+	 * @param array $widget -- The widget's data.
+	 * @return string
+	 */
+	private function getActionLinks(array $widget): string {
+		$actions = $this->admin_page['actions'];
+		$action_list = array();
+		
+		foreach($actions as $key => $value) {
+			$continue = match($value) {
+				'create', 'view', 'preview',
+				'duplicate', 'replace', 'trash', 'restore' => true,
+				default => false
+			};
+			
+			if($continue) continue;
+			
+			$privileged = match($value) {
+				'edit' => userHasPrivilege('can_edit_widgets'),
+				'delete' => userHasPrivilege('can_delete_widgets'),
+				default => null
+			};
+			
+			$action_list[] = array(
+				'privileged' => $privileged,
+				'link' => $value,
+				'caption' => ucfirst($value)
+			);
+		}
+		
+		list($edit, $delete) = $action_list;
+		
+		$action_links = array(
+			// Edit
+			$edit['privileged'] ? actionLink($edit['link'], array(
+				'caption' => $edit['caption'],
+				'id' => $widget['id']
+			)) : null,
+			// Delete
+			$delete['privileged'] ? actionLink($delete['link'], array(
+				'classes' => 'modal-launch delete-item',
+				'data_item' => 'widget',
+				'caption' => $delete['caption'],
+				'id' => $widget['id']
+			)) : null
+		);
+		
+		// Filter out any empty actions
+		$action_links = array_filter($action_links);
+		
+		return implode(' &bull; ', $action_links);
 	}
 }

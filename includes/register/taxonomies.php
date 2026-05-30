@@ -8,7 +8,7 @@
  * ## FUNCTIONS [5] ##
  * - registerTaxonomy(string $name, string $post_type, array $args): ?array
  * - unregisterTaxonomy(string $name, bool $del_terms): bool
- * - registerDefaultTaxonomies(): void
+ * - runTaxonomiesRegister(): void
  * - taxonomyExists(string $name): bool
  * - getTaxonomyId(string $name): int
  */
@@ -43,13 +43,17 @@ function unregisterTaxonomy(string $name, bool $del_terms = false): bool {
 }
 
 /**
- * Register default taxonomies.
+ * Register all available taxonomies.
  * @since 1.0.4-beta
  */
-function registerDefaultTaxonomies(): void {
+function runTaxonomiesRegister(): void {
 	// Category
 	registerTaxonomy('category', 'post', array(
-		'menu_link' => 'categories.php',
+		'actions' => array('_defaults_'),
+		'menu_item' => array(
+			'link' => 'categories.php'
+		),
+		'menu_link' => 'categories.php', # deprecated
 		'default_term' => array(
 			'name' => 'Uncategorized',
 			'slug' => 'uncategorized'
@@ -68,7 +72,10 @@ function registerDefaultTaxonomies(): void {
 		),
 		'public' => false,
 		'create_privileges' => false,
-		'menu_link' => 'menus.php'
+		'menu_item' => array(
+			'link' => 'menus.php'
+		),
+		'menu_link' => 'menus.php' # deprecated
 	));
 }
 

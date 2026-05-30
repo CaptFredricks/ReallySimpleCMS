@@ -12,14 +12,14 @@ require_once __DIR__ . '/header.php';
 $active_tab = $_GET['tab'] ?? '';
 ?>
 <article class="content">
-	<section class="heading-wrap">
-		<?php
-		echo domTag('h1', array(
-			'content' => 'About ' . RS_ENGINE
-		));
-		?>
-	</section>
 	<?php
+	domTagPr('section', array(
+		'class' => 'heading-wrap',
+		'content' => domTag('h1', array(
+			'content' => $rs_admin_pages['about']['title']
+		))
+	));
+	
 	$tabs = array('stats', 'software', 'credits');
 	$tabber_content = array();
 	$is_active = 'stats';
@@ -32,7 +32,7 @@ $active_tab = $_GET['tab'] ?? '';
 		));
 	}
 	
-	echo domTag('div', array(
+	domTagPr('div', array(
 		'class' => 'tabber-nav',
 		'content' => domTag('ul', array(
 			'class' => 'tabber',

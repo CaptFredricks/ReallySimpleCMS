@@ -1,7 +1,6 @@
 <?php
 /**
- * Upload to the media library via the upload modal.
- * Submits via AJAX.
+ * Upload to the media library via the upload modal. Uses AJAX to submit data.
  * @since 2.1.6-alpha
  *
  * @package ReallySimpleCMS

@@ -8,8 +8,8 @@
  * ## FUNCTIONS [4] ##
  * - registerPostType(string $name, array $args): ?array
  * - unregisterPostType(string $name, bool $del_posts): bool
- * - registerDefaultPostTypes(): void
- * - postTypeExists(string $type): bool
+ * - runPostTypesRegister(): void
+ * - postTypeExists(string $name): bool
  */
 
 /**
@@ -41,20 +41,33 @@ function unregisterPostType(string $name, bool $del_posts = false): bool {
 }
 
 /**
- * Register default post types.
+ * Register all available post types.
  * @since 1.0.1-beta
  */
-function registerDefaultPostTypes(): void {
+function runPostTypesRegister(): void {
 	// Page
 	registerPostType('page', array(
+		'actions' => array('_defaults_'),
 		'hierarchical' => true,
-		'menu_icon' => array('copy', 'regular')
+		'menu_item' => array(
+			'icon' => array('copy', 'regular'),
+			'submenu' => array('list_items', 'create_item'),
+			'index' => 15
+		),
+		'menu_icon' => array('copy', 'regular') # deprecated
 	));
 	
 	// Post
 	registerPostType('post', array(
-		'menu_link' => 'posts.php',
-		'menu_icon' => 'newspaper',
+		'actions' => array('_defaults_'),
+		'menu_item' => array(
+			'link' => 'posts.php',
+			'icon' => 'newspaper',
+			'submenu' => array('list_items', 'create_item', 'categories'),
+			'index' => 16
+		),
+		'menu_link' => 'posts.php', # deprecated
+		'menu_icon' => 'newspaper', # deprecated
 		'comments' => true,
 		'taxonomies' => array(
 			'category'
@@ -64,11 +77,21 @@ function registerDefaultPostTypes(): void {
 	// Media
 	registerPostType('media', array(
 		'labels' => array(
-			'create_item' => 'Upload Media'
+			'create_item' => 'Upload Media',
+			'create_button' => 'Upload New',
+			'duplicate_item' => 'Replace Media',
+			'exclude' => array('bulk_update', 'bulk_delete')
 		),
+		'actions' => array('upload', 'edit', 'delete', 'view', 'replace'),
 		'show_in_nav_menus' => false,
-		'menu_link' => 'media.php',
-		'menu_icon' => 'images'
+		'menu_item' => array(
+			'link' => 'media.php',
+			'icon' => 'images',
+			'submenu' => array('list_items', 'create_item'),
+			'index' => 17
+		),
+		'menu_link' => 'media.php', # deprecated
+		'menu_icon' => 'images' # deprecated
 	));
 	
 	// Nav_menu_item
@@ -83,8 +106,13 @@ function registerDefaultPostTypes(): void {
 	
 	// Widget
 	registerPostType('widget', array(
+		'actions' => array('create', 'edit', 'delete'),
 		'public' => false,
-		'menu_link' => 'widgets.php'
+		'menu_item' => array(
+			'link' => 'widgets.php',
+			'index' => 2
+		),
+		'menu_link' => 'widgets.php' # deprecated
 	));
 }
 
@@ -92,11 +120,11 @@ function registerDefaultPostTypes(): void {
  * Check whether a post type exists.
  * @since 1.0.5-beta
  *
- * @param string $type -- The post's type.
+ * @param string $name -- The post type's name.
  * @return bool
  */
-function postTypeExists(string $type): bool {
+function postTypeExists(string $name): bool {
 	global $rs_post_types;
 	
-	return !empty($rs_post_types) && array_key_exists($type, $rs_post_types);
+	return !empty($rs_post_types) && array_key_exists($name, $rs_post_types);
 }

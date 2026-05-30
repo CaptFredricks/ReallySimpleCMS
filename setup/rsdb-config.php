@@ -9,7 +9,7 @@
 require_once dirname(__DIR__) . '/includes/constants.php';
 require_once RS_CRIT_FUNC;
 
-checkPHPVersion();
+checkPHPSetup();
 checkDBConfig(); // Hiding this will bypass config checks, allowing for debugging
 
 $step = (int)($_GET['step'] ?? 0);

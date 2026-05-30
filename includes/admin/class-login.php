@@ -11,7 +11,7 @@
  * ## OBJECT VAR ##
  * - $rs_ad_login
  *
- * ## VARIABLES [11] ##
+ * ## VARIABLES [12] ##
  * - private int $id
  * - private string $login
  * - private string $ip_address
@@ -20,11 +20,12 @@
  * - private string $reason
  * - private string $type
  * - private int $attempts
+ * - private array $admin_page
  * - private string $action
  * - private array $paged
  * - private string $page
  *
- * ## METHODS [22] ##
+ * ## METHODS [23] ##
  * - public __construct(int $id, string $action, string $page)
  * { LISTS, FORMS, & ACTIONS [11] }
  * - public loginAttempts(): void
@@ -41,7 +42,7 @@
  * { VALIDATION [2] }
  * - private validateBlacklistSubmission(array $data): string
  * - private validateRuleSubmission(array $data): string
- * { MISCELLANEOUS [8] }
+ * { MISCELLANEOUS [9] }
  * - public pageHeading(): void
  * - private exitNotice(string $exit_status, int $status_code): string
  * - private blacklistExists(string $name): bool
@@ -50,6 +51,7 @@
  * - private getResultsBlacklist(?string $search, bool $all): array
  * - private getResultsRules(bool $all): array
  * - private getEntryCount(string $status, ?string $search): int
+ * - private getActionLinks(array $login): string
  */
 namespace Admin;
 
@@ -127,6 +129,15 @@ class Login {
 	private $attempts;
 	
 	/**
+	 * The admin page's data.
+	 * @since 1.3.16-beta
+	 *
+	 * @access private
+	 * @var array
+	 */
+	private $admin_page = array();
+	
+	/**
 	 * The current action.
 	 * @since 1.3.14-beta
 	 *
@@ -163,10 +174,12 @@ class Login {
 	 * @param string $page -- The current login settings page.
 	 */
 	public function __construct(int $id, string $action, string $page) {
-		global $rs_query;
+		global $rs_query, $rs_admin_pages;
 		
 		$this->action = $action;
 		$this->page = $page;
+		$this->admin_page = $rs_admin_pages[basename($_SERVER['PHP_SELF'], '.php')];
+		var_dump($this->admin_page);
 		
 		if(getSetting('delete_old_login_attempts')) {
 			$login_attempts = $rs_query->select(getTable('la'), array('id', 'date'));
@@ -190,7 +203,7 @@ class Login {
 		
 		if($id > 0) {
 			$cols = array_keys(get_object_vars($this));
-			$exclude_all = array('action', 'paged', 'page');
+			$exclude_all = array('admin_page', 'action', 'paged', 'page');
 			$cols = array_diff($cols, $exclude_all);
 			
 			switch($this->page) {
@@ -267,35 +280,15 @@ class Login {
 				$login_attempts = $this->getResultsAttempts($status, $search);
 				
 				foreach($login_attempts as $login_attempt) {
-					list($la_id, $la_login, $la_ip_address, $la_date, $la_status) = array(
-						$login_attempt['id'],
+					list($la_login, $la_ip_address) = array(
 						$login_attempt['login'],
-						$login_attempt['ip_address'],
-						$login_attempt['date'],
-						$login_attempt['status']
+						$login_attempt['ip_address']
 					);
 					
 					// Check whether the login or IP address is blacklisted
 					$blacklisted = $rs_query->select(getTable('lb'), 'COUNT(name)', array(
 						'name' => array('IN', $la_login, $la_ip_address)
 					)) > 0;
-					
-					// Action links
-					$actions = array(
-						// Blacklist login
-						userHasPrivilege('can_create_login_blacklist') ? actionLink('blacklist_login', array(
-							'caption' => 'Blacklist Login',
-							'id' => $la_id
-						)) : null,
-						// Blacklist IP
-						userHasPrivilege('can_create_login_blacklist') ? actionLink('blacklist_ip', array(
-							'caption' => 'Blacklist IP',
-							'id' => $la_id
-						)) : null
-					);
-					
-					// Filter out any empty actions
-					$actions = array_filter($actions);
 					
 					echo tableRow(
 						// Login
@@ -305,14 +298,14 @@ class Login {
 							'content' => 'blacklisted'
 						)) : '') . domTag('div', array(
 							'class' => 'actions',
-							'content' => implode(' &bull; ', $actions)
+							'content' => $this->getActionLinks($login_attempt)
 						)), 'login'),
 						// IP address
 						tdCell($la_ip_address, 'ip-address'),
 						// Date
-						tdCell(formatDate($la_date, 'd M Y @ g:i A'), 'date'),
+						tdCell(formatDate($login_attempt['date'], 'd M Y @ g:i A'), 'date'),
 						// Status
-						tdCell(ucfirst($la_status), 'status')
+						tdCell(ucfirst($login_attempt['status']), 'status')
 					);
 				}
 				
@@ -386,7 +379,7 @@ class Login {
 						'type' => 'submit',
 						'class' => 'submit-input button',
 						'name' => 'submit',
-						'value' => 'Create Blacklist'
+						'value' => $this->admin_page['labels']['create_button']
 					));
 					?>
 				</table>
@@ -452,7 +445,7 @@ class Login {
 						'type' => 'submit',
 						'class' => 'submit-input button',
 						'name' => 'submit',
-						'value' => 'Create Blacklist'
+						'value' => $this->admin_page['labels']['create_button']
 					));
 					?>
 				</table>
@@ -496,15 +489,10 @@ class Login {
 				$blacklisted_logins = $this->getResultsBlacklist($search);
 				
 				foreach($blacklisted_logins as $blacklisted_login) {
-					list($lb_id, $lb_name, $lb_attempts, $lb_blacklisted,
-						$lb_duration, $lb_reason
-					) = array(
-						$blacklisted_login['id'],
+					list($lb_name, $lb_blacklisted, $lb_duration) = array(
 						$blacklisted_login['name'],
-						$blacklisted_login['attempts'],
 						$blacklisted_login['blacklisted'],
-						$blacklisted_login['duration'],
-						$blacklisted_login['reason']
+						$blacklisted_login['duration']
 					);
 					
 					$time = new \DateTime($lb_blacklisted);
@@ -518,9 +506,9 @@ class Login {
 						));
 						
 						$bl_logins = $rs_query->select(getTable('lb'), '*', array(), array(
-							'order_by' => $order_by,
-							'order' => $order,
-							'limit' => $limit
+							'order_by' => 'blacklisted',
+							'order' => 'DESC',
+							'limit' => array($this->paged['start'], $this->paged['per_page'])
 						));
 						
 						if(empty($bl_logins)) {
@@ -534,41 +522,22 @@ class Login {
 						}
 					}
 					
-					// Action links
-					$actions = array(
-						// Edit
-						userHasPrivilege('can_edit_login_blacklist') ? actionLink('edit', array(
-							'caption' => 'Edit',
-							'page' => 'blacklist',
-							'id' => $lb_id
-						)) : null,
-						// Whitelist
-						userHasPrivilege('can_delete_login_blacklist') ? actionLink('whitelist', array(
-							'caption' => 'Whitelist',
-							'page' => 'blacklist',
-							'id' => $lb_id
-						)) : null
-					);
-					
-					// Filter out any empty actions
-					$actions = array_filter($actions);
-					
 					echo tableRow(
 						// Name
 						tdCell(domTag('strong', array(
 							'content' => $lb_name
 						)) . domTag('div', array(
 							'class' => 'actions',
-							'content' => implode(' &bull; ', $actions)
+							'content' => $this->getActionLinks($blacklisted_login)
 						)), 'name'),
 						// Attempts
-						tdCell($lb_attempts, 'attempts'),
+						tdCell($blacklisted_login['attempts'], 'attempts'),
 						// Blacklisted
 						tdCell(formatDate($lb_blacklisted, 'd M Y @ g:i A'), 'blacklisted'),
 						// Expiration
 						tdCell($lb_duration === 0 ? 'Indefinite' : formatDate($expiration, 'd M Y @ g:i A'), 'expiration'),
 						// Reason
-						tdCell($lb_reason, 'reason')
+						tdCell($blacklisted_login['reason'], 'reason')
 					);
 				}
 				
@@ -644,7 +613,7 @@ class Login {
 						'type' => 'submit',
 						'class' => 'submit-input button',
 						'name' => 'submit',
-						'value' => 'Create Blacklist'
+						'value' => $this->admin_page['labels']['create_button']
 					));
 					?>
 				</table>
@@ -713,7 +682,7 @@ class Login {
 						'type' => 'submit',
 						'class' => 'submit-input button',
 						'name' => 'submit',
-						'value' => 'Update Blacklist'
+						'value' => 'Update ' . ucfirst($this->page)
 					));
 					?>
 				</table>
@@ -781,27 +750,6 @@ class Login {
 						$login_rule['duration']
 					);
 					
-					// Action links
-					$actions = array(
-						// Edit
-						userHasPrivilege('can_edit_login_rules') ? actionLink('edit', array(
-							'caption' => 'Edit',
-							'page' => 'rules',
-							'id' => $lr_id
-						)) : null,
-						// Delete
-						userHasPrivilege('can_delete_login_rules') ? actionLink('delete', array(
-							'classes' => 'modal-launch delete-item',
-							'data_item' => 'login rule',
-							'caption' => 'Delete',
-							'page' => 'rules',
-							'id' => $lr_id
-						)) : null
-					);
-					
-					// Filter out any empty actions
-					$actions = array_filter($actions);
-					
 					echo tableRow(
 						tdCell('If failed login attempts exceed ' . domTag('strong', array(
 							'content' => $lr_attempts
@@ -811,7 +759,7 @@ class Login {
 							'content' => $this->formatDuration($lr_duration)
 						)) . '.' . domTag('div', array(
 							'class' => 'actions',
-							'content' => implode(' &bull; ', $actions)
+							'content' => $this->getActionLinks($login_rule)
 						)), 'rule')
 					);
 				}
@@ -891,7 +839,7 @@ class Login {
 						'type' => 'submit',
 						'class' => 'submit-input button',
 						'name' => 'submit',
-						'value' => 'Create Rule'
+						'value' => $this->admin_page['labels']['create_button']
 					));
 					?>
 				</table>
@@ -972,7 +920,7 @@ class Login {
 						'type' => 'submit',
 						'class' => 'submit-input button',
 						'name' => 'submit',
-						'value' => 'Update Rule'
+						'value' => 'Update ' . ucfirst(substr($this->page, 0, strpos($this->page, 's')))
 					));
 					?>
 				</table>
@@ -1246,56 +1194,61 @@ class Login {
 	 * @access public
 	 */
 	public function pageHeading(): void {
+		$labels = $this->admin_page['labels'];
+		
 		switch($this->page) {
 			case 'blacklist':
 				switch($this->action) {
 					case 'create':
-						$title = 'Create Login Blacklist';
+						$title = $labels['create_item'] . ' ' . ucfirst($this->page);
 						$message = isset($_POST['submit']) ? $this->validateBlacklistSubmission($_POST) : '';
 						break;
 					case 'edit':
-						$title = 'Edit Login Blacklist: { ' . domTag('em', array(
+						$title = $labels['edit_item'] . ' ' . ucfirst($this->page) . ': { ' . domTag('em', array(
 							'content' => $this->name
 						)) . ' }';
 						$message = isset($_POST['submit']) ? $this->validateBlacklistSubmission($_POST) : '';
 						break;
 					default:
-						$title = 'Login Blacklist';
+						$title = $labels['name_singular'] . ' ' . ucfirst($this->page);
 						$search = $_GET['search'] ?? null;
 				}
 				break;
 			case 'rules':
 				switch($this->action) {
 					case 'create':
-						$title = 'Create Login Rule';
+						$title = $labels['create_item'] . ' ' . ucfirst(substr($this->page, 0, strpos($this->page, 's')));
 						$message = isset($_POST['submit']) ? $this->validateRuleSubmission($_POST) : '';
 						break;
 					case 'edit':
-						$title = 'Edit Login Rule: { ' . domTag('em', array(
-							'content' => $this->type
-						)) . ' }';
+						$title = $labels['edit_item'] . ' ' . ucfirst(substr($this->page, 0, strpos($this->page, 's'))) .
+							': { ' . domTag('em', array(
+								'content' => $this->type
+							)) . ' }';
 						$message = isset($_POST['submit']) ? $this->validateRuleSubmission($_POST) : '';
 						break;
 					default:
-						$title = 'Login Rules';
+						$title = $labels['name_singular'] . ' ' . ucfirst($this->page);
 				}
 				break;
 			default:
 				switch($this->action) {
 					case 'blacklist_login':
-						$title = 'Blacklist Login: { ' . domTag('em', array(
+						$title = capitalize($this->action) . ': { ' . domTag('em', array(
 							'content' => $this->login
 						)) . ' }';
 						$message = isset($_POST['submit']) ? $this->validateBlacklistSubmission($_POST) : '';
 						break;
 					case 'blacklist_ip':
-						$title = 'Blacklist IP Address: { ' . domTag('em', array(
-							'content' => $this->ip_address
-						)) . ' }';
+						$title = capitalize(substr($this->action, 0, strpos($this->action, 'ip')) .
+							strtoupper(substr($this->action, strpos($this->action, 'ip')))) .
+							' Address: { ' . domTag('em', array(
+								'content' => $this->ip_address
+							)) . ' }';
 						$message = isset($_POST['submit']) ? $this->validateBlacklistSubmission($_POST) : '';
 						break;
 					default:
-						$title = 'Login Attempts';
+						$title = $labels['name_singular'] . ' ' . ucfirst($this->admin_page['pages']['default']);
 						$status = $_GET['status'] ?? 'all';
 						$search = $_GET['search'] ?? null;
 				}
@@ -1304,7 +1257,7 @@ class Login {
 		<div class="heading-wrap">
 			<?php
 			// Page title
-			echo domTag('h1', array(
+			domTagPr('h1', array(
 				'content' => $title
 			));
 			
@@ -1317,18 +1270,12 @@ class Login {
 					echo $this->exitNotice($_GET['exit_status']);
 			} else {
 				// Create button
-				if($this->page === 'blacklist' && userHasPrivilege('can_create_login_blacklist')) {
-					echo actionLink('create', array(
+				if($this->page === 'blacklist' && userHasPrivilege('can_create_login_blacklist') ||
+					$this->page === 'rules' && userHasPrivilege('can_create_login_rules')
+				) {
+					echo actionLink($this->admin_page['actions']['create'], array(
 						'classes' => 'button',
-						'caption' => 'Create New',
-						'page' => $this->page
-					));
-				}
-				
-				if($this->page === 'rules' && userHasPrivilege('can_create_login_rules')) {
-					echo actionLink('create', array(
-						'classes' => 'button',
-						'caption' => 'Create New',
+						'caption' => $labels['create_button'],
 						'page' => $this->page
 					));
 				}
@@ -1352,7 +1299,7 @@ class Login {
 				// Info
 				adminInfo();
 				
-				echo domTag('hr');
+				domTagPr('hr');
 				
 				// Notices
 				if(!getSetting('track_login_attempts')) {
@@ -1375,7 +1322,7 @@ class Login {
 						$count = $this->getEntryCount('', $search);
 						
 						// Record count
-						echo domTag('div', array(
+						domTagPr('div', array(
 							'class' => 'entry-count',
 							'content' => $count . ' ' . ($count === 1 ? 'entry' : 'entries')
 						));
@@ -1386,7 +1333,7 @@ class Login {
 						$count = $this->getEntryCount('', null);
 						
 						// Record count
-						echo domTag('div', array(
+						domTagPr('div', array(
 							'class' => 'entry-count status',
 							'content' => $count . ' ' . ($count === 1 ? 'entry' : 'entries')
 						));
@@ -1401,11 +1348,11 @@ class Login {
 							$count = array();
 							
 							foreach($keys as $key)
- 								$count[$key] = $this->getEntryCount($key, $search);
+								$count[$key] = $this->getEntryCount($key, $search);
 							
 							// Statuses
 							foreach($count as $key => $value) {
-								echo domTag('li', array(
+								domTagPr('li', array(
 									'content' => domTag('a', array(
 										'href' => ADMIN_URI . ($key === 'all' ? '' : '?status=' . $key),
 										'content' => ucfirst($key) . ' ' . domTag('span', array(
@@ -1421,7 +1368,7 @@ class Login {
 						</ul>
 						<?php
 						// Record count
-						echo domTag('div', array(
+						domTagPr('div', array(
 							'class' => 'entry-count status',
 							'content' => $count[$status] . ' ' . ($count[$status] === 1 ? 'entry' : 'entries')
 						));
@@ -1438,6 +1385,7 @@ class Login {
 	 * Generate an exit notice.
 	 * @since 1.3.14-beta
 	 *
+	 * @access private
 	 * @param string $exit_status -- The exit status.
 	 * @param int $status_code (optional) -- The type of notice to display.
 	 * @return string
@@ -1643,12 +1591,12 @@ class Login {
 	}
 	
 	/**
-	 * Fetch the login count based on a specific status.
+	 * Fetch the login attempt count based on a specific status.
 	 * @since 1.3.2-beta
 	 *
 	 * @access private
-	 * @param string $status -- The login's status.
- 	 * @param null|string $search -- The search query.
+	 * @param string $status -- The login attempt's status.
+	 * @param null|string $search -- The search query.
 	 * @return int
 	 */
 	private function getEntryCount(string $status, ?string $search): int {
@@ -1657,5 +1605,142 @@ class Login {
 			'rules' => count($this->getResultsRules(true)),
 			default => count($this->getResultsAttempts($status, $search, true))
 		};
- 	}
+	}
+	
+	/**
+	 * Fetch all associated action links.
+	 * @since 1.3.16-beta
+	 *
+	 * @access private
+	 * @param array $login -- The login's data.
+	 * @return string
+	 */
+	private function getActionLinks(array $login): string {
+		global $rs_session;
+		
+		$actions = $this->admin_page['actions'];
+		$action_list = array();
+		
+		foreach($actions as $key => $value) {
+			switch($this->page) {
+				// Login Attempts
+				case $this->admin_page['pages']['default']:
+					$continue = match($value) {
+						'create', 'edit', 'whitelist', 'delete' => true,
+						default => false
+					};
+					
+					if($continue) continue 2;
+					
+					$privileged = match($value) {
+						'blacklist_login' => userHasPrivilege('can_create_login_blacklist'),
+						'blacklist_ip' => userHasPrivilege('can_create_login_blacklist'),
+						default => null
+					};
+					break;
+				// Login Blacklist
+				case $this->admin_page['pages']['subpages'][0]:
+					$continue = match($value) {
+						'create', 'blacklist_login', 'blacklist_ip', 'delete' => true,
+						default => false
+					};
+					
+					if($continue) continue 2;
+					
+					$privileged = match($value) {
+						'edit' => userHasPrivilege('can_edit_login_blacklist'),
+						'whitelist' => userHasPrivilege('can_delete_login_blacklist'),
+						default => null
+					};
+					break;
+				// Login Rules
+				case $this->admin_page['pages']['subpages'][1]:
+					$continue = match($value) {
+						'create', 'blacklist_login', 'blacklist_ip', 'whitelist' => true,
+						default => false
+					};
+					
+					if($continue) continue 2;
+					
+					$privileged = match($value) {
+						'edit' => userHasPrivilege('can_edit_login_rules'),
+						'delete' => userHasPrivilege('can_delete_login_rules'),
+						default => null
+					};
+					break;
+			}
+			
+			$caption = capitalize($value);
+			
+			$action_list[] = array(
+				'privileged' => $privileged,
+				'link' => $value,
+				'caption' => str_contains($caption, 'Ip') ?
+					substr($caption, 0, strpos($caption, 'Ip')) . 
+					strtoupper(substr($caption, strpos($caption, 'Ip'))) : $caption
+			);
+		}
+		
+		switch($this->page) {
+			case $this->admin_page['pages']['default']:
+				list($blacklist_login, $blacklist_ip) = $action_list;
+				
+				$action_links = array(
+					// Blacklist Login
+					$blacklist_login['privileged'] ? actionLink($blacklist_login['link'], array(
+						'caption' => $blacklist_login['caption'],
+						'id' => $login['id']
+					)) : null,
+					// Blacklist IP
+					$blacklist_ip['privileged'] ? actionLink($blacklist_ip['link'], array(
+						'caption' => $blacklist_ip['caption'],
+						'id' => $login['id']
+					)) : null
+				);
+				break;
+			case $this->admin_page['pages']['subpages'][0]:
+				list($edit, $whitelist) = $action_list;
+				
+				$action_links = array(
+					// Edit
+					$edit['privileged'] ? actionLink($edit['link'], array(
+						'caption' => $edit['caption'],
+						'page' => 'blacklist',
+						'id' => $login['id']
+					)) : null,
+					// Whitelist
+					$whitelist['privileged'] ? actionLink($whitelist['link'], array(
+						'caption' => $whitelist['caption'],
+						'page' => 'blacklist',
+						'id' => $login['id']
+					)) : null
+				);
+				break;
+			case $this->admin_page['pages']['subpages'][1]:
+				list($edit, $delete) = $action_list;
+				
+				$action_links = array(
+					// Edit
+					$edit['privileged'] ? actionLink($edit['link'], array(
+						'caption' => $edit['caption'],
+						'page' => 'rules',
+						'id' => $login['id']
+					)) : null,
+					// Delete
+					$delete['privileged'] ? actionLink($delete['link'], array(
+						'classes' => 'modal-launch delete-item',
+						'data_item' => 'login rule',
+						'caption' => $delete['caption'],
+						'page' => 'rules',
+						'id' => $login['id']
+					)) : null
+				);
+				break;
+		}
+		
+		// Filter out any empty actions
+		$action_links = array_filter($action_links);
+		
+		return implode(' &bull; ', $action_links);
+	}
 }

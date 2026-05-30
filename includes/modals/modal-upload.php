@@ -12,7 +12,7 @@
 			<ul class="tabber">
 				<?php
 				// Upload tab
-				echo domTag('li', array(
+				domTagPr('li', array(
 					'id' => 'upload',
 					'class' => 'tab active',
 					'content' => domTag('a', array(
@@ -22,7 +22,7 @@
 				));
 				
 				// Media tab
-				echo domTag('li', array(
+				domTagPr('li', array(
 					'id' => 'media',
 					'class' => 'tab',
 					'content' => domTag('a', array(

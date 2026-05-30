@@ -7,6 +7,9 @@
  * @package ReallySimpleCMS
  * @subpackage Engine
  *
+ * ## OBJECT VAR ##
+ * - $rs_login
+ *
  * ## CONSTANTS [1] ##
  * - private int PW_LENGTH
  *
@@ -87,13 +90,15 @@ class Login {
 	public function __construct() {
 		$this->https = isSecureConnection() ? true : false;
 		$this->ip_address = $_SERVER['REMOTE_ADDR'];
+		$this->login_uri = '/login.php';
 		
 		$login_slug = getSetting('login_slug');
 		
-		if($login_slug !== '')
-			$this->login_uri = '/login.php?secure_login=' . $login_slug;
-		else
-			$this->login_uri = '/login.php';
+		if(!empty($login_slug)) {
+			$this->login_uri .= getQueryString(array(
+				'secure_login' => $login_slug
+			));
+		}
 	}
 	
 	/*------------------------------------*\
@@ -121,7 +126,7 @@ class Login {
 		<form class="data-form" action="" method="post">
 			<?php
 			// Login
-			echo domTag('p', array(
+			domTagPr('p', array(
 				'class' => 'login-field',
 				'content' => domTag('label', array(
 					'for' => 'login',
@@ -134,7 +139,7 @@ class Login {
 			));
 			
 			// Password
-			echo domTag('p', array(
+			domTagPr('p', array(
 				'class' => 'password-field',
 				'content' => domTag('label', array(
 					'for' => 'password',
@@ -155,7 +160,7 @@ class Login {
 			));
 			
 			// Captcha
-			echo domTag('p', array(
+			domTagPr('p', array(
 				'class' => 'captcha-field',
 				'content' => domTag('label', array(
 					'for' => 'captcha',
@@ -165,13 +170,13 @@ class Login {
 						'autocomplete' => 'off'
 					)) . domTag('img', array(
 						'id' => 'captcha-image',
-						'src' => INC . '/captcha.php'
+						'src' => UTILS . '/captcha.php'
 					))
 				))
 			));
 			
 			// Remember login
-			echo domTag('p', array(
+			domTagPr('p', array(
 				'class' => 'remember-field',
 				'content' => domTag('label', array(
 					'class' => 'checkbox-label',
@@ -189,7 +194,7 @@ class Login {
 			
 			// Redirect
 			if(isset($_GET['redirect'])) {
-				echo domTag('input', array(
+				domTagPr('input', array(
 					'type' => 'hidden',
 					'name' => 'redirect',
 					'value' => $_GET['redirect']
@@ -197,7 +202,7 @@ class Login {
 			}
 			
 			// Submit button
-			echo domTag('input', array(
+			domTagPr('input', array(
 				'type' => 'submit',
 				'class' => 'button',
 				'name' => 'submit',
@@ -207,8 +212,10 @@ class Login {
 		</form>
 		<?php
 		if(!isset($_GET['pw_forgot'])) {
-			echo domTag('a', array(
-				'href' => '?action=forgot_password',
+			domTagPr('a', array(
+				'href' => getQueryString(array(
+					'action' => 'forgot_password'
+				)),
 				'content' => 'Forgot your password?'
 			));
 		}
@@ -235,25 +242,31 @@ class Login {
 		?>
 		<form class="data-form" action="" method="post">
 			<?php
-			echo domTag('p', array(
+			domTagPr('p', array(
 				'content' => 'Enter your username or email below and you will receive a link to reset your password in an email.'
-			)) . domTag('p', array(
-				'content' => 'Remembered your password? ' .
-					domTag('a', array(
-						'href' => $this->login_uri,
-						'content' => 'Log in'
-					)) . ' instead.'
-			)) . domTag('p', array(
+			));
+			
+			domTagPr('p', array(
+				'content' => 'Remembered your password? ' . domTag('a', array(
+					'href' => $this->login_uri,
+					'content' => 'Log in'
+				)) . ' instead.'
+			));
+			
+			// Username or email
+			domTagPr('p', array(
 				'content' => domTag('label', array(
 					'for' => 'login',
-					'content' => 'Username or Email' . domTag('br') .
-						domTag('input', array(
-							'type' => 'text',
-							'name' => 'login',
-							'autofocus' => 1
-						))
+					'content' => 'Username or Email' . domTag('br') . domTag('input', array(
+						'id' => 'login',
+						'name' => 'login',
+						'autofocus' => 1
+					))
 				))
-			)) . domTag('input', array(
+			));
+			
+			// Submit button
+			domTag('input', array(
 				'type' => 'submit',
 				'class' => 'button',
 				'name' => 'submit',
@@ -283,7 +296,9 @@ class Login {
 				'samesite' => 'Strict'
 			));
 			
-			redirect('/login.php?action=reset_password');
+			redirect('/login.php' . getQueryString(array(
+				'action' => 'reset_password'
+			)));
 		}
 		
 		if(isset($_COOKIE[$cookie_name])) {
@@ -293,10 +308,16 @@ class Login {
 				// Delete the cookie
 				setcookie($cookie_name, '', 1, '/login.php');
 				
-				redirect('/login.php?action=forgot_password&error=invalid_key');
+				redirect('/login.php' . getQueryString(array(
+					'action' => 'forgot_password',
+					'error' => 'invalid_key'
+				)));
 			}
 		} else {
-			redirect('/login.php?action=forgot_password&error=expired_key');
+			redirect('/login.php' . getQueryString(array(
+				'action' => 'forgot_password',
+				'error' => 'expired_key'
+			)));
 		}
 		
 		// Validate the form data
@@ -305,7 +326,7 @@ class Login {
 		<form class="data-form" action="" method="post">
 			<?php
 			// Password
-			echo domTag('p', array(
+			domTagPr('p', array(
 				'content' => domTag('label', array(
 					'for' => 'password',
 					'content' => 'New Password' . domTag('br') . domTag('input', array(
@@ -318,21 +339,21 @@ class Login {
 			));
 			
 			// Login
-			echo domTag('input', array(
+			domTagPr('input', array(
 				'type' => 'hidden',
 				'name' => 'login',
 				'value' => $login
 			));
 			
 			// Key
-			echo domTag('input', array(
+			domTagPr('input', array(
 				'type' => 'hidden',
 				'name' => 'key',
 				'value' => $key
 			));
 			
 			// Submit button
-			echo domTag('input', array(
+			domTagPr('input', array(
 				'type' => 'submit',
 				'class' => 'button',
 				'name' => 'submit',
@@ -548,8 +569,11 @@ class Login {
 		
 		$subject = getSetting('site_title') . ' – Password Reset';
 		
-		$pw_reset_link = $site_url . '/login.php?login=' . $username . '&key=' . $key .
-			'&action=reset_password';
+		$pw_reset_link = $site_url . '/login.php' . getQueryString(array(
+			'login' => $username,
+			'key' => $key,
+			'action' => 'reset_password'
+		));
 		
 		$message = 'A request has been made to reset the password for the user ' .
 			domTag('strong', array(
@@ -574,12 +598,14 @@ class Login {
 		// Make sure the email can be sent
 		if(mail($email, $subject, $content, implode("\r\n", $headers))) {
 			$rs_query->update(getTable('u'), array(
-				'security_key' => $key
+				'token' => $key
 			), array(
 				'id' => $id
 			));
 			
-			redirect('/login.php?pw_forgot=confirm');
+			redirect('/login.php' . getQueryString(array(
+				'pw_forgot' => 'confirm'
+			)));
 		} else {
 			return $this->statusMsg(RS_ENGINE . ' encountered an error and could not send an email. Please contact this website\'s administrator or web host.');
 			exit;
@@ -608,11 +634,13 @@ class Login {
 		}
 		
 		if($this->isValidCookie($data['login'], $data['key'])) {
-			$hashed_password = password_hash($data['password'], PASSWORD_BCRYPT, array('cost' => 10));
+			$hashed_password = password_hash($data['password'], PASSWORD_BCRYPT, array(
+				'cost' => 10
+			));
 			
 			$rs_query->update(getTable('u'), array(
 				'password' => $hashed_password,
-				'security_key' => null
+				'token' => null
 			), array(
 				'username' => $data['login']
 			));
@@ -620,9 +648,14 @@ class Login {
 			// Delete the cookie
 			setcookie('pw-reset-' . COOKIE_HASH, '', 1, '/login.php');
 			
-			redirect('/login.php?pw_reset=confirm');
+			redirect('/login.php' . getQueryString(array(
+				'pw_reset' => 'confirm'
+			)));
 		} else {
-			redirect('/login.php?action=forgot_password&error=invalid_key');
+			redirect('/login.php' . getQueryString(array(
+				'action' => 'forgot_password',
+				'error' => 'invalid_key'
+			)));
 		}
 	}
 	
@@ -690,15 +723,14 @@ class Login {
 	private function isValidPassword(string $login, string $password): bool {
 		global $rs_query;
 		
-		if(str_contains($login, '@')) {
-			$db_password = $rs_query->selectField(getTable('u'), 'password', array(
-				'email' => $login
-			));
-		} else {
-			$db_password = $rs_query->selectField(getTable('u'), 'password', array(
-				'username' => $login
-			));
-		}
+		if(str_contains($login, '@'))
+			$col = 'email';
+		else
+			$col = 'username';
+		
+		$db_password = $rs_query->selectField(getTable('u'), 'password', array(
+			$col => $login
+		));
 		
 		return !empty($db_password) && password_verify($password, $db_password);
 	}
@@ -729,7 +761,7 @@ class Login {
 		
 		return $rs_query->selectRow(getTable('u'), 'COUNT(*)', array(
 			'username' => $login,
-			'security_key' => $key
+			'token' => $key
 		)) > 0;
 	}
 	

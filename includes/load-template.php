@@ -13,7 +13,7 @@ if(is_null($rs_theme_path) || !file_exists($rs_theme_path . '/index.php'))
 
 if($is_broken_theme === true) {
 	// Theme is broken, use fallback theme
-	requireFile(PATH . INC . '/fallback-theme.php');
+	requireFile(PATH . UTILS . '/fallback-theme.php');
 } else {
 	if(isPost()) {
 		if(getPostType() === 'page') {
@@ -66,6 +66,6 @@ if($is_broken_theme === true) {
 		}
 	} else {
 		// Unrecognized page type
-		requireFile(PATH . INC . '/fallback-theme.php');
+		requireFile(PATH . UTILS . '/fallback-theme.php');
 	}
 }

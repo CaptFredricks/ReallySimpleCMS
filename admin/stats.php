@@ -11,8 +11,8 @@ require_once __DIR__ . '/header.php';
 <article class="content">
 	<section class="heading-wrap">
 		<?php
- 		echo domTag('h1', array(
- 			'content' => 'User Stats: { ' . domTag('em', array(
+ 		domTagPr('h1', array(
+ 			'content' => $rs_admin_pages['stats']['labels']['list_items'] . ': { ' . domTag('em', array(
 				'content' => $rs_session['username']
 			)) . ' }'
  		));

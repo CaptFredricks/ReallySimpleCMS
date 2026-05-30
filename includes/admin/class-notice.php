@@ -44,12 +44,12 @@ class Notice {
 	 * @return string
 	 */
 	public function msg(string $text, int $status = 2, bool $can_dismiss = true, bool $is_exit = false): string {
-		global $notices;
+		global $rs_notices;
 		
 		if(!$is_exit) {
 			$this->id = md5(strip_tags($text));
 			
-			if(!in_array($this->id, $notices, true)) $notices[] = $this->id;
+			if(!in_array($this->id, $rs_notices, true)) $rs_notices[] = $this->id;
 		}
 		
 		if(!is_null($this->defaultMsg($text))) $text = $this->defaultMsg($text);
@@ -119,7 +119,7 @@ class Notice {
 			'value' => ''
 		), array(
 			'user' => $user_id,
-			'datakey' => 'dismissed_notices'
+			'key' => 'dismissed_notices'
 		));
 	}
 	

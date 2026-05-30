@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin categories page.
+ * Admin categories page. Makes use of the Term object.
  * @since 1.5.0-alpha
  *
  * @package ReallySimpleCMS

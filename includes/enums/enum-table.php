@@ -5,7 +5,7 @@
  *
  * ## METHODS [3] ##
  * { GETTER METHODS [3] }
- * - public static getTable(string $key): string
+ * - public static getTable(string $key): string|array
  * - public static getTableName(string $key): string
  * - public static getTablePrefix(string $key): string
  */
@@ -48,11 +48,10 @@ enum Table: string {
 	 *
 	 * @access public
 	 * @param string $key -- The table key.
-	 * @return string
+	 * @return string|array
 	 */
-	public static function getTable(string $key): string {
-		return Table::getTableName($key);
-		# return array(Table::getTableName($key), Table::getTablePrefix($key));
+	public static function getTable(string $key): string|array {
+		return array(Table::getTableName($key), Table::getTablePrefix($key));
 	}
 	
 	/**

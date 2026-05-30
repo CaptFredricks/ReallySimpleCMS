@@ -33,19 +33,25 @@ $rs_ad_settings = new \Admin\Settings($page);
 					// Action: Create User Role
 					userHasPrivilege('can_create_user_roles') ?
 						$rs_ad_user_role->createRecord() :
-							redirect(ADMIN_URI . '?page=user_roles');
+							redirect(ADMIN_URI . getQueryString(array(
+								'page' => 'user_roles'
+							)));
 					break;
 				case 'edit':
 					// Action: Edit User Role
 					userHasPrivilege('can_edit_user_roles') ?
 						$rs_ad_user_role->editRecord() :
-							redirect(ADMIN_URI . '?page=user_roles');
+							redirect(ADMIN_URI . getQueryString(array(
+								'page' => 'user_roles'
+							)));
 					break;
 				case 'delete':
 					// Action: Delete User Role
 					userHasPrivilege('can_delete_user_roles') ?
 						$rs_ad_user_role->deleteRecord() :
-							redirect(ADMIN_URI . '?page=user_roles');
+							redirect(ADMIN_URI . getQueryString(array(
+								'page' => 'user_roles'
+							)));
 					break;
 				default:
 					// Action: List User Roles

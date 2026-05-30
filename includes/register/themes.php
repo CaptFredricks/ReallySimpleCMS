@@ -5,10 +5,10 @@
  *
  * @package ReallySimpleCMS
  *
- * ## FUNCTIONS [8] ##
+ * ## FUNCTIONS [9] ##
  * - registerTheme(string $name, array $args): ?array
  * - unregisterTheme(string $name, bool $del_data): bool
- * - registerThemes(): void
+ * - runThemesRegister(): void
  * - loadThemeReg(string $theme): void
  * - themeExists(string $name): bool
  * - isBrokenTheme(string $path): bool
@@ -49,7 +49,7 @@ function unregisterTheme(string $name, bool $del_data = false): bool {
  * Register all available themes.
  * @since 1.3.15-beta
  */
-function registerThemes(): void {
+function runThemesRegister(): void {
 	global $rs_register;
 	
 	// Default themes
@@ -159,7 +159,7 @@ function registerWidget(string $title, string $slug): void {
 	if(empty($widget)) {
 		$rs_query->insert(getTable('p'), array(
 			'title' => $title,
-			'date' => 'NOW()',
+			'created' => 'NOW()',
 			'content' => '',
 			'status' => 'active',
 			'slug' => $slug,

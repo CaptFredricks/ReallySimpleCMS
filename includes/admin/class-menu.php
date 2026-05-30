@@ -11,13 +11,14 @@
  * ## OBJECT VAR ##
  * - $rs_ad_menu
  *
- * ## VARIABLES [3] ##
+ * ## VARIABLES [4] ##
  * See `Term` class for a list of inherited vars
  * - private string $tax_name
  * - private string $item_post_type
  * - private int $members
+ * - private array $admin_page
  *
- * ## METHODS [36] ##
+ * ## METHODS [37] ##
  * See `Term` class for a list of inherited methods
  * - public __construct(int $id, string $action)
  * { LISTS, FORMS, & ACTIONS [9] }
@@ -33,7 +34,7 @@
  * { VALIDATION [2] }
  * - private validateMenuSubmission(array $data): string
  * - private validateMenuItemSubmission(array $data, int $id): string
- * { MISCELLANEOUS [24] }
+ * { MISCELLANEOUS [25] }
  * - public pageHeading(): void
  * - private exitNotice(string $exit_status, int $status_code): string
  * - private slugExists(string $slug): bool
@@ -58,6 +59,7 @@
  * - private getDescendants(int $id): void
  * - private getResults(?string $search, bool $all): array
  * - private getEntryCount(?string $search): int
+ * - private getActionLinks(array $menu): string
  */
 namespace Admin;
 
@@ -90,6 +92,15 @@ class Menu extends Term implements AdminInterface {
 	private $members = 0;
 	
 	/**
+	 * The admin page's data.
+	 * @since 1.3.16-beta
+	 *
+	 * @access private
+	 * @var array
+	 */
+	private $admin_page = array();
+	
+	/**
 	 * Class constructor.
 	 * @since 1.1.1-beta
 	 *
@@ -98,13 +109,14 @@ class Menu extends Term implements AdminInterface {
 	 * @param string $action -- The current action.
 	 */
 	public function __construct(int $id, string $action) {
-		global $rs_query;
+		global $rs_query, $rs_admin_pages;
 		
 		$this->action = $action;
+		$this->admin_page = $rs_admin_pages[basename($_SERVER['PHP_SELF'], '.php')];
 		
 		if($id > 0) {
 			$cols = array_keys(get_object_vars($this));
-			$exclude = array('action', 'paged', 'tax_name', 'item_post_type', 'members');
+			$exclude = array('action', 'paged', 'tax_name', 'item_post_type', 'members', 'admin_page');
 			$cols = array_diff($cols, $exclude);
 			
 			$menu = $rs_query->selectRow(getTable('t'), $cols, array(
@@ -152,48 +164,23 @@ class Menu extends Term implements AdminInterface {
 				$menus = $this->getResults($search);
 				
 				foreach($menus as $menu) {
-					list($m_id, $m_name, $m_slug, $m_count) = array(
-						$menu['id'],
-						$menu['name'],
-						$menu['slug'],
-						$menu['count']
-					);
-					
-					$actions = array(
-						// Edit
-						userHasPrivilege('can_edit_menus') ? actionLink('edit', array(
-							'caption' => 'Edit',
-							'id' => $m_id
-						)) : null,
-						// Delete
-						userHasPrivilege('can_delete_menus') ? actionLink('delete', array(
-							'classes' => 'modal-launch delete-item',
-							'data_item' => 'menu',
-							'caption' => 'Delete',
-							'id' => $m_id
-						)) : null
-					);
-					
-					// Filter out any empty actions
-					$actions = array_filter($actions);
-					
 					echo tableRow(
 						// Name
 						tdCell(domTag('strong', array(
-							'content' => $m_name
+							'content' => $menu['name']
 						)) . domTag('div', array(
 							'class' => 'actions',
-							'content' => implode(' &bull; ', $actions)
+							'content' => $this->getActionLinks($menu)
 						)), 'name'),
 						// Slug
-						tdCell($m_slug, 'slug'),
+						tdCell($menu['slug'], 'slug'),
 						// Item count
-						tdCell($m_count, 'count')
+						tdCell($menu['count'], 'count')
 					);
 				}
 				
 				if(empty($menus))
-					echo tableRow(tdCell('There are no menus to display.', '', count($header_cols)));
+					echo tableRow(tdCell($this->admin_page['labels']['no_items'], '', count($header_cols)));
 				?>
 			</tbody>
 			<tfoot>
@@ -221,17 +208,17 @@ class Menu extends Term implements AdminInterface {
 				<div class="content">
 					<?php
 					// Name
-					echo domTag('input', array(
+					domTagPr('input', array(
 						'id' => 'name-field',
 						'class' => 'text-input required invalid init',
 						'name' => 'name',
 						'value' => ($_POST['name'] ?? ''),
-						'placeholder' => 'Menu name',
+						'placeholder' => $this->admin_page['labels']['title_placeholder'],
 						'autocomplete' => 'off'
 					));
 					
 					// Slug
-					echo domTag('input', array(
+					domTagPr('input', array(
 						'id' => 'slug-field',
 						'class' => 'text-input required invalid init',
 						'name' => 'slug',
@@ -243,7 +230,7 @@ class Menu extends Term implements AdminInterface {
 				<div class="sidebar">
 					<div class="block">
 						<?php
-						echo domTag('h2', array(
+						domTagPr('h2', array(
 							'content' => 'Add Menu Items'
 						));
 						?>
@@ -256,11 +243,11 @@ class Menu extends Term implements AdminInterface {
 						<div id="submit" class="row">
 							<?php
 							// Submit button
-							echo domTag('input', array(
+							domTagPr('input', array(
 								'type' => 'submit',
 								'class' => 'submit-input button',
 								'name' => 'submit',
-								'value' => 'Create'
+								'value' => $this->admin_page['labels']['create_button']
 							));
 							?>
 						</div>
@@ -319,17 +306,17 @@ class Menu extends Term implements AdminInterface {
 				<div class="content">
 					<?php
 					// Name
-					echo domTag('input', array(
+					domTagPr('input', array(
 						'id' => 'name-field',
 						'class' => 'text-input required invalid init',
 						'name' => 'name',
 						'value' => $this->name,
-						'placeholder' => 'Menu name',
+						'placeholder' => $this->admin_page['labels']['title_placeholder'],
 						'autocomplete' => 'off'
 					));
 					
 					// Slug
-					echo domTag('input', array(
+					domTagPr('input', array(
 						'id' => 'slug-field',
 						'class' => 'text-input required invalid init',
 						'name' => 'slug',
@@ -341,7 +328,7 @@ class Menu extends Term implements AdminInterface {
 				<div class="sidebar">
 					<div class="block">
 						<?php
-						echo domTag('h2', array(
+						domTagPr('h2', array(
 							'content' => 'Add Menu Items'
 						));
 						?>
@@ -354,11 +341,11 @@ class Menu extends Term implements AdminInterface {
 						<div id="submit" class="row">
 							<?php
 							// Submit button
-							echo domTag('input', array(
+							domTagPr('input', array(
 								'type' => 'submit',
 								'class' => 'submit-input button',
 								'name' => 'submit',
-								'value' => 'Update'
+								'value' => $this->admin_page['labels']['update_button']
 							));
 							?>
 						</div>
@@ -436,7 +423,7 @@ class Menu extends Term implements AdminInterface {
 			
 			$menu_item_id = $rs_query->insert(getTable('p'), array(
 				'title' => $post['title'],
-				'date' => 'NOW()',
+				'created' => 'NOW()',
 				'modified' => 'NOW()',
 				'content' => '',
 				'slug' => '',
@@ -461,7 +448,7 @@ class Menu extends Term implements AdminInterface {
 			
 			$menu_item_id = $rs_query->insert(getTable('p'), array(
 				'title' => $term['name'],
-				'date' => 'NOW()',
+				'created' => 'NOW()',
 				'modified' => 'NOW()',
 				'content' => '',
 				'slug' => '',
@@ -504,25 +491,29 @@ class Menu extends Term implements AdminInterface {
 		$type = isset($meta['post_link']) ? 'post' : (isset($meta['term_link']) ? 'term' :
 			(isset($meta['custom_link']) ? 'custom' : ''));
 		
-		echo domTag('hr', array(
+		domTagPr('hr', array(
 			'class' => 'separator'
 		));
 		
 		// Status messages
 		echo $message;
 		
-		if(isset($_POST['item_submit']))
-			echo '<meta http-equiv="refresh" content="0">';
+		if(isset($_POST['item_submit'])) {
+			domTagPr('meta', array(
+				'http-equiv' => 'refresh',
+				'content' => '0'
+			));
+		}
 		?>
 		<form class="data-form" action="" method="post" autocomplete="off">
 			<table class="form-table">
 				<?php
-				// Title
-				echo formRow(array('Title', true), array(
+				// Caption
+				echo formRow(array('Caption', true), array(
 					'tag' => 'input',
-					'id' => 'title-field',
+					'id' => 'caption-field',
 					'class' => 'text-input required invalid init',
-					'name' => 'title',
+					'name' => 'caption',
 					'value' => $menu_item['title']
 				));
 				
@@ -554,6 +545,7 @@ class Menu extends Term implements AdminInterface {
 							'name' => 'custom_link',
 							'value' => $meta['custom_link']
 						));
+						break;
 				}
 				
 				// Parent
@@ -614,19 +606,19 @@ class Menu extends Term implements AdminInterface {
 		if($this->hasSiblings($id) && !$this->isFirstSibling($id)) {
 			$current_index = (int)$rs_query->selectField(getTable('pm'), 'value', array(
 				'post' => $id,
-				'datakey' => 'menu_index'
+				'key' => 'menu_index'
 			));
 			
 			$previous_index = (int)$rs_query->selectField(getTable('pm'), 'value', array(
 				'post' => $this->getPreviousSibling($id),
-				'datakey' => 'menu_index'
+				'key' => 'menu_index'
 			));
 			
 			$rs_query->update(getTable('pm'), array(
 				'value' => $previous_index
 			), array(
 				'post' => $id,
-				'datakey' => 'menu_index'
+				'key' => 'menu_index'
 			));
 			
 			$relationships = $rs_query->select(getTable('tr'), 'post', array(
@@ -636,7 +628,7 @@ class Menu extends Term implements AdminInterface {
 			foreach($relationships as $relationship) {
 				$indexes[] = $rs_query->selectRow(getTable('pm'), array('value', 'post'), array(
 					'post' => $relationship['post'],
-					'datakey' => 'menu_index'
+					'key' => 'menu_index'
 				));
 			}
 			
@@ -657,16 +649,17 @@ class Menu extends Term implements AdminInterface {
 						'value' => $previous_index + $i
 					), array(
 						'post' => $index['post'],
-						'datakey' => 'menu_index'
+						'key' => 'menu_index'
 					));
 					
 					$i++;
 				} else {
+					// Update each menu item's index
 					$rs_query->update(getTable('pm'), array(
 						'value' => (int)$index['value'] + $this->getFamilyTree($id)
 					), array(
 						'post' => $index['post'],
-						'datakey' => 'menu_index'
+						'key' => 'menu_index'
 					));
 				}
 			}
@@ -700,19 +693,19 @@ class Menu extends Term implements AdminInterface {
 			
 			$current_index = (int)$rs_query->selectField(getTable('pm'), 'value', array(
 				'post' => $id,
-				'datakey' => 'menu_index'
+				'key' => 'menu_index'
 			));
 			
 			$next_index = (int)$rs_query->selectField(getTable('pm'), 'value', array(
 				'post' => $next_sibling,
-				'datakey' => 'menu_index'
+				'key' => 'menu_index'
 			));
 			
 			$rs_query->update(getTable('pm'), array(
 				'value' => $current_index + $this->getFamilyTree($next_sibling)
 			), array(
 				'post' => $id,
-				'datakey' => 'menu_index'
+				'key' => 'menu_index'
 			));
 			
 			$relationships = $rs_query->select(getTable('tr'), 'post', array(
@@ -722,7 +715,7 @@ class Menu extends Term implements AdminInterface {
 			foreach($relationships as $relationship) {
 				$indexes[] = $rs_query->selectRow(getTable('pm'), array('value', 'post'), array(
 					'post' => $relationship['post'],
-					'datakey' => 'menu_index'
+					'key' => 'menu_index'
 				));
 			}
 			
@@ -740,10 +733,10 @@ class Menu extends Term implements AdminInterface {
 				// Update each menu item's index
 				if($this->isDescendant($index['post'], $id)) {
 					$rs_query->update(getTable('pm'), array(
-						'value' => $current_index + $this->getFamilyTree($this->getNextSibling($id, $menu)) + $i
+						'value' => $current_index + $this->getFamilyTree($this->getNextSibling($id)) + $i
 					), array(
 						'post' => $index['post'],
-						'datakey' => 'menu_index'
+						'key' => 'menu_index'
 					));
 					
 					$i++;
@@ -752,7 +745,7 @@ class Menu extends Term implements AdminInterface {
 						'value' => (int)$index['value'] - $this->getFamilyTree($id)
 					), array(
 						'post' => $index['post'],
-						'datakey' => 'menu_index'
+						'key' => 'menu_index'
 					));
 				}
 			}
@@ -775,10 +768,10 @@ class Menu extends Term implements AdminInterface {
 	 * Delete a menu item.
 	 * @since 1.8.1-alpha
 	 *
-	 * @access public
+	 * @access private
 	 * @param int $id -- The menu item's id.
 	 */
-	public function deleteMenuItem(int $id): void {
+	private function deleteMenuItem(int $id): void {
 		global $rs_query;
 		
 		$parent = (int)$rs_query->selectField(getTable('p'), 'parent', array(
@@ -797,7 +790,7 @@ class Menu extends Term implements AdminInterface {
 		
 		$current_index = (int)$rs_query->selectField(getTable('pm'), 'value', array(
 			'post' => $id,
-			'datakey' => 'menu_index'
+			'key' => 'menu_index'
 		));
 		
 		$rs_query->delete(getTable('p'), array(
@@ -822,7 +815,7 @@ class Menu extends Term implements AdminInterface {
 			foreach($relationships as $relationship) {
 				$index = (int)$rs_query->selectField(getTable('pm'), 'value', array(
 					'post' => $relationship['post'],
-					'datakey' => 'menu_index'
+					'key' => 'menu_index'
 				));
 				
 				if($index < $current_index) {
@@ -832,7 +825,7 @@ class Menu extends Term implements AdminInterface {
 						'value' => $index - 1
 					), array(
 						'post' => $relationship['post'],
-						'datakey' => 'menu_index'
+						'key' => 'menu_index'
 					));
 				}
 			}
@@ -888,6 +881,7 @@ class Menu extends Term implements AdminInterface {
 					'taxonomy' => getTaxonomyId($this->tax_name)
 				));
 				
+				// Menu items created from posts or terms
 				if(!empty($data['menu_items'])) {
 					$menu_items = $data['menu_items'];
 					
@@ -900,7 +894,7 @@ class Menu extends Term implements AdminInterface {
 						foreach($itemmeta as $key => $value) {
 							$rs_query->insert(getTable('pm'), array(
 								'post' => $menu_item_id,
-								'datakey' => $key,
+								'key' => $key,
 								'value' => $value
 							));
 						}
@@ -918,10 +912,11 @@ class Menu extends Term implements AdminInterface {
 					));
 				}
 				
-				if(!empty($data['custom_title']) && !empty($data['custom_link'])) {
+				// Menu items created from custom links
+				if(!empty($data['custom_caption']) && !empty($data['custom_link'])) {
 					$menu_item_id = $rs_query->insert(getTable('p'), array(
-						'title' => $data['custom_title'],
-						'date' => 'NOW()',
+						'title' => $data['custom_caption'],
+						'created' => 'NOW()',
 						'modified' => 'NOW()',
 						'content' => '',
 						'slug' => '',
@@ -946,7 +941,7 @@ class Menu extends Term implements AdminInterface {
 					foreach($itemmeta as $key => $value) {
 						$rs_query->insert(getTable('pm'), array(
 							'post' => $menu_item_id,
-							'datakey' => $key,
+							'key' => $key,
 							'value' => $value
 						));
 					}
@@ -977,6 +972,7 @@ class Menu extends Term implements AdminInterface {
 					'id' => $this->id
 				));
 				
+				// Menu items created from posts or terms
 				if(!empty($data['menu_items'])) {
 					$menu_items = $data['menu_items'];
 					
@@ -993,7 +989,7 @@ class Menu extends Term implements AdminInterface {
 						foreach($itemmeta as $key => $value) {
 							$rs_query->insert(getTable('pm'), array(
 								'post' => $menu_item_id,
-								'datakey' => $key,
+								'key' => $key,
 								'value' => $value
 							));
 						}
@@ -1015,10 +1011,11 @@ class Menu extends Term implements AdminInterface {
 					));
 				}
 				
-				if(!empty($data['custom_title']) && !empty($data['custom_link'])) {
+				// Menu items created from custom links
+				if(!empty($data['custom_caption']) && !empty($data['custom_link'])) {
 					$menu_item_id = $rs_query->insert(getTable('p'), array(
-						'title' => $data['custom_title'],
-						'date' => 'NOW()',
+						'title' => $data['custom_caption'],
+						'created' => 'NOW()',
 						'modified' => 'NOW()',
 						'content' => '',
 						'slug' => '',
@@ -1043,7 +1040,7 @@ class Menu extends Term implements AdminInterface {
 					foreach($itemmeta as $key => $value) {
 						$rs_query->insert(getTable('pm'), array(
 							'post' => $menu_item_id,
-							'datakey' => $key,
+							'key' => $key,
 							'value' => $value
 						));
 					}
@@ -1083,7 +1080,7 @@ class Menu extends Term implements AdminInterface {
 	private function validateMenuItemSubmission(array $data, int $id): string {
 		global $rs_query;
 		
-		if(empty($data['title'])) {
+		if(empty($data['caption'])) {
 			return exitNotice('REQ', -1);
 			exit;
 		}
@@ -1093,7 +1090,7 @@ class Menu extends Term implements AdminInterface {
 		));
 		
 		$rs_query->update(getTable('p'), array(
-			'title' => $data['title'],
+			'title' => $data['caption'],
 			'modified' => 'NOW()',
 			'parent' => $data['parent']
 		), array(
@@ -1105,21 +1102,21 @@ class Menu extends Term implements AdminInterface {
 				'value' => $data['post_link']
 			), array(
 				'post' => $id,
-				'datakey' => 'post_link'
+				'key' => 'post_link'
 			));
 		} elseif(!empty($data['term_link'])) {
 			$rs_query->update(getTable('pm'), array(
 				'value' => $data['term_link']
 			), array(
 				'post' => $id,
-				'datakey' => 'term_link'
+				'key' => 'term_link'
 			));
 		} elseif(!empty($data['custom_link'])) {
 			$rs_query->update(getTable('pm'), array(
 				'value' => $data['custom_link']
 			), array(
 				'post' => $id,
-				'datakey' => 'custom_link'
+				'key' => 'custom_link'
 			));
 		}
 		
@@ -1136,13 +1133,13 @@ class Menu extends Term implements AdminInterface {
 		foreach($relationships as $relationship) {
 			$indexes[] = $rs_query->selectRow(getTable('pm'), array('post', 'value'), array(
 				'post' => $relationship['post'],
-				'datakey' => 'menu_index'
+				'key' => 'menu_index'
 			));
 		}
 		
 		$current_index = (int)$rs_query->selectField(getTable('pm'), 'value', array(
 			'post' => $id,
-			'datakey' => 'menu_index'
+			'key' => 'menu_index'
 		));
 		
 		if((int)$data['parent'] === 0 && $parent !== 0) {
@@ -1154,7 +1151,7 @@ class Menu extends Term implements AdminInterface {
 				'value' => $count - $this->getFamilyTree($id)
 			), array(
 				'post' => $id,
-				'datakey' => 'menu_index'
+				'key' => 'menu_index'
 			));
 			
 			$i = 1;
@@ -1169,7 +1166,7 @@ class Menu extends Term implements AdminInterface {
 						'value' => $count - $this->getFamilyTree($id) + $i
 					), array(
 						'post' => $index['post'],
-						'datakey' => 'menu_index'
+						'key' => 'menu_index'
 					));
 					
 					$i++;
@@ -1178,14 +1175,14 @@ class Menu extends Term implements AdminInterface {
 						'value' => (int)$index['value'] - $this->getFamilyTree($id)
 					), array(
 						'post' => $index['post'],
-						'datakey' => 'menu_index'
+						'key' => 'menu_index'
 					));
 				}
 			}
 		} elseif((int)$data['parent'] !== 0) {
 			$parent_index = (int)$rs_query->selectField(getTable('pm'), 'value', array(
 				'post' => $data['parent'],
-				'datakey' => 'menu_index'
+				'key' => 'menu_index'
 			));
 			
 			if($current_index > $parent_index) {
@@ -1193,7 +1190,7 @@ class Menu extends Term implements AdminInterface {
 					'value' => $parent_index + 1
 				), array(
 					'post' => $id,
-					'datakey' => 'menu_index'
+					'key' => 'menu_index'
 				));
 				
 				$i = 1;
@@ -1210,7 +1207,7 @@ class Menu extends Term implements AdminInterface {
 							'value' => $parent_index + 1 + $i
 						), array(
 							'post' => $index['post'],
-							'datakey' => 'menu_index'
+							'key' => 'menu_index'
 						));
 						
 						$i++;
@@ -1219,7 +1216,7 @@ class Menu extends Term implements AdminInterface {
 							'value' => (int)$index['value'] + $this->getFamilyTree($id)
 						), array(
 							'post' => $index['post'],
-							'datakey' => 'menu_index'
+							'key' => 'menu_index'
 						));
 					}
 				}
@@ -1232,7 +1229,7 @@ class Menu extends Term implements AdminInterface {
 					'value' => $new_index
 				), array(
 					'post' => $id,
-					'datakey' => 'menu_index'
+					'key' => 'menu_index'
 				));
 				
 				$i = 1;
@@ -1249,7 +1246,7 @@ class Menu extends Term implements AdminInterface {
 							'value' => $new_index + $i
 						), array(
 							'post' => $index['post'],
-							'datakey' => 'menu_index'
+							'key' => 'menu_index'
 						));
 						
 						$i++;
@@ -1258,7 +1255,7 @@ class Menu extends Term implements AdminInterface {
 							'value' => (int)$index['value'] - $this->getFamilyTree($id)
 						), array(
 							'post' => $index['post'],
-							'datakey' => 'menu_index'
+							'key' => 'menu_index'
 						));
 					}
 				}
@@ -1285,26 +1282,28 @@ class Menu extends Term implements AdminInterface {
 	 * @access public
 	 */
 	public function pageHeading(): void {
+		$labels = $this->admin_page['labels'];
+		
 		switch($this->action) {
 			case 'create':
-				$title = 'Create Menu';
+				$title = $labels['create_item'];
 				$message = isset($_POST['submit']) ? $this->validateMenuSubmission($_POST) : '';
 				break;
 			case 'edit':
-				$title = 'Edit Menu: { ' . domTag('em', array(
+				$title = $labels['edit_item'] . ': { ' . domTag('em', array(
 					'content' => $this->name
 				)) . ' }';
 				$message = isset($_POST['submit']) ? $this->validateMenuSubmission($_POST) : '';
 				break;
 			default:
-				$title = 'Menus';
+				$title = $labels['name'];
 				$search = $_GET['search'] ?? null;
 		}
 		?>
 		<div class="heading-wrap">
 			<?php
 			// Page title
-			echo domTag('h1', array(
+			domTagPr('h1', array(
 				'content' => $title
 			));
 			
@@ -1329,7 +1328,7 @@ class Menu extends Term implements AdminInterface {
 				if(userHasPrivilege('can_create_menus')) {
 					echo actionLink('create', array(
 						'classes' => 'button',
-						'caption' => 'Create New'
+						'caption' => $labels['create_button']
 					));
 				}
 				
@@ -1339,7 +1338,7 @@ class Menu extends Term implements AdminInterface {
 				//Info
 				adminInfo();
 				
-				echo domTag('hr');
+				domTagPr('hr');
 				
 				// Exit notices
 				if(isset($_GET['exit_status']))
@@ -1348,7 +1347,7 @@ class Menu extends Term implements AdminInterface {
 				// Record count
 				$count = $this->getEntryCount($search);
 				
-				echo domTag('div', array(
+				domTagPr('div', array(
 					'class' => 'entry-count',
 					'content' => $count . ' ' . ($count === 1 ? 'entry' : 'entries')
 				));
@@ -1364,6 +1363,7 @@ class Menu extends Term implements AdminInterface {
 	 * Generate an exit notice.
 	 * @since 1.3.14-beta
 	 *
+	 * @access private
 	 * @param string $exit_status -- The exit status.
 	 * @param int $status_code (optional) -- The type of notice to display.
 	 * @return string
@@ -1434,7 +1434,7 @@ class Menu extends Term implements AdminInterface {
 		
 		$current_index = (int)$rs_query->selectField(getTable('pm'), 'value', array(
 			'post' => $id,
-			'datakey' => 'menu_index'
+			'key' => 'menu_index'
 		));
 		
 		$siblings = $this->getSiblings($id);
@@ -1442,7 +1442,7 @@ class Menu extends Term implements AdminInterface {
 		foreach($siblings as $sibling) {
 			$index = (int)$rs_query->selectField(getTable('pm'), 'value', array(
 				'post' => $sibling,
-				'datakey' => 'menu_index'
+				'key' => 'menu_index'
 			));
 			
 			if($index < $current_index) return false;
@@ -1464,7 +1464,7 @@ class Menu extends Term implements AdminInterface {
 		
 		$current_index = (int)$rs_query->selectField(getTable('pm'), 'value', array(
 			'post' => $id,
-			'datakey' => 'menu_index'
+			'key' => 'menu_index'
 		));
 		
 		$siblings = $this->getSiblings($id);
@@ -1472,7 +1472,7 @@ class Menu extends Term implements AdminInterface {
 		foreach($siblings as $sibling) {
 			$index = (int)$rs_query->selectField(getTable('pm'), 'value', array(
 				'post' => $sibling,
-				'datakey' => 'menu_index'
+				'key' => 'menu_index'
 			));
 			
 			if($index > $current_index) return false;
@@ -1498,19 +1498,19 @@ class Menu extends Term implements AdminInterface {
 		if(in_array($previous, $siblings, true)) {
 			$previous_index = (int)$rs_query->selectField(getTable('pm'), 'value', array(
 				'post' => $previous,
-				'datakey' => 'menu_index'
+				'key' => 'menu_index'
 			));
 			
 			$current_index = (int)$rs_query->selectField(getTable('pm'), 'value', array(
 				'post' => $id,
-				'datakey' => 'menu_index'
+				'key' => 'menu_index'
 			));
 			
 			if($previous_index < $current_index) {
 				foreach($siblings as $sibling) {
 					$index = (int)$rs_query->selectField(getTable('pm'), 'value', array(
 						'post' => $sibling,
-						'datakey' => 'menu_index'
+						'key' => 'menu_index'
 					));
 					
 					// Check whether the sibling's index falls in between the previous index and the current index
@@ -1541,19 +1541,19 @@ class Menu extends Term implements AdminInterface {
 		if(in_array($next, $siblings, true)) {
 			$next_index = (int)$rs_query->selectField(getTable('pm'), 'value', array(
 				'post' => $next,
-				'datakey' => 'menu_index'
+				'key' => 'menu_index'
 			));
 			
 			$current_index = (int)$rs_query->selectField(getTable('pm'), 'value', array(
 				'post' => $id,
-				'datakey' => 'menu_index'
+				'key' => 'menu_index'
 			));
 			
 			if($next_index > $current_index) {
 				foreach($siblings as $sibling) {
 					$index = (int)$rs_query->selectField(getTable('pm'), 'value', array(
 						'post' => $sibling,
-						'datakey' => 'menu_index'
+						'key' => 'menu_index'
 					));
 					
 					// Check whether the sibling's index falls in between the current index and the next index
@@ -1605,7 +1605,7 @@ class Menu extends Term implements AdminInterface {
 	}
 	
 	/**
-	 * Fetch a menu's menu items.
+	 * Fetch a menu's items.
 	 * @since 1.8.0-alpha
 	 *
 	 * @access private
@@ -1653,7 +1653,7 @@ class Menu extends Term implements AdminInterface {
 				?>">
 					<?php
 					// Title
-					echo domTag('strong', array(
+					domTagPr('strong', array(
 						'content' => $menu_item['title']
 					)) . ' &mdash; ' . domTag('small', array(
 						'content' => domTag('em', array(
@@ -1673,7 +1673,7 @@ class Menu extends Term implements AdminInterface {
 									break;
 								case 'edit':
 									// Cancel button
-									echo domTag('div', array(
+									domTagPr('div', array(
 										'class' => 'actions',
 										'content' => actionLink('edit', array(
 											'caption' => 'Cancel',
@@ -1690,7 +1690,7 @@ class Menu extends Term implements AdminInterface {
 						}
 					} else {
 						// Action links
-						echo domTag('div', array(
+						domTagPr('div', array(
 							'class' => 'actions',
 							'content' => // Move up
 								actionLink('edit', array(
@@ -1724,7 +1724,7 @@ class Menu extends Term implements AdminInterface {
 			}
 			
 			if(empty($relationships)) {
-				echo domTag('li', array(
+				domTagPr('li', array(
 					'class' => 'menu-item',
 					'content' => 'This menu is empty!'
 				));
@@ -1746,116 +1746,118 @@ class Menu extends Term implements AdminInterface {
 		$order_by = 'id';
 		$order = 'DESC';
 		
+		// Post types
 		foreach($rs_post_types as $post_type) {
 			if(!$post_type['show_in_nav_menus']) continue;
-			?>
-			<fieldset>
-				<legend><?php echo $post_type['label']; ?></legend>
-				<ul class="checkbox-list">
-					<?php
-					$posts = $rs_query->select(getTable('p'), array('id', 'title'), array(
-						'status' => 'published',
-						'type' => $post_type['name']
-					), array(
-						'order_by' => $order_by,
-						'order' => $order
-					));
-					
-					foreach($posts as $post) {
-						echo domTag('li', array(
-							'content' => domTag('input', array(
-								'type' => 'checkbox',
-								'class' => 'checkbox-input',
-								'name' => 'menu_items[]',
-								'value' => 'post-' . $post['id'],
-								'label' => array(
-									'class' => 'checkbox-label',
-									'content' => domTag('span', array(
-										'title' => $post['title'],
-										'content' => trimWords($post['title'], 5)
-									))
-								)
+			
+			$post_list_content = array();
+			
+			$posts = $rs_query->select(getTable('p'), array('id', 'title'), array(
+				'status' => 'published',
+				'type' => $post_type['name']
+			), array(
+				'order_by' => $order_by,
+				'order' => $order
+			));
+			
+			foreach($posts as $post) {
+				$post_list_content[] = domTag('li', array(
+					'content' => domTag('input', array(
+						'type' => 'checkbox',
+						'class' => 'checkbox-input',
+						'name' => 'menu_items[]',
+						'value' => 'post-' . $post['id'],
+						'label' => array(
+							'class' => 'checkbox-label',
+							'content' => domTag('span', array(
+								'title' => $post['title'],
+								'content' => trimWords($post['title'], 5)
 							))
-						));
-					}
-					?>
-				</ul>
-			</fieldset>
-			<?php
+						)
+					))
+				));
+			}
+			
+			domTagPr('fieldset', array(
+				'name' => 'post-type__' . $post_type['name'],
+				'content' => domTag('legend', array(
+					'content' => $post_type['label']
+				)) . domTag('ul', array(
+					'class' => 'checkbox-list',
+					'content' => implode('', $post_list_content)
+				))
+			));
 		}
 		
+		// Taxonomies
 		foreach($rs_taxonomies as $taxonomy) {
 			if(!$taxonomy['show_in_nav_menus']) continue;
-			?>
-			<fieldset>
-				<legend><?php echo $taxonomy['label']; ?></legend>
-				<ul class="checkbox-list">
-					<?php
-					$terms = $rs_query->select(getTable('t'), array('id', 'name'), array(
-						'taxonomy' => getTaxonomyId($taxonomy['name'])
-					), array(
-						'order_by' => $order_by,
-						'order' => $order
-					));
-					
-					foreach($terms as $term) {
-						echo domTag('li', array(
-							'content' => domTag('input', array(
-								'type' => 'checkbox',
-								'class' => 'checkbox-input',
-								'name' => 'menu_items[]',
-								'value' => 'term-' . $term['id'],
-								'label' => array(
-									'class' => 'checkbox-label',
-									'content' => domTag('span', array(
-										'title' => $term['name'],
-										'content' => trimWords($term['name'], 5)
-									))
-								)
+			
+			$term_list_content = array();
+			
+			$terms = $rs_query->select(getTable('t'), array('id', 'name'), array(
+				'taxonomy' => getTaxonomyId($taxonomy['name'])
+			), array(
+				'order_by' => $order_by,
+				'order' => $order
+			));
+			
+			foreach($terms as $term) {
+				$term_list_content[] = domTag('li', array(
+					'content' => domTag('input', array(
+						'type' => 'checkbox',
+						'class' => 'checkbox-input',
+						'name' => 'menu_items[]',
+						'value' => 'term-' . $term['id'],
+						'label' => array(
+							'class' => 'checkbox-label',
+							'content' => domTag('span', array(
+								'title' => $term['name'],
+								'content' => trimWords($term['name'], 5)
 							))
-						));
-					}
-					?>
-				</ul>
-			</fieldset>
-			<?php
+						)
+					))
+				));
+			}
+			
+			domTagPr('fieldset', array(
+				'name' => 'taxonomy__' . $taxonomy['name'],
+				'content' => domTag('legend', array(
+					'content' => $taxonomy['label']
+				)) . domTag('ul', array(
+					'class' => 'checkbox-list',
+					'content' => implode('', $term_list_content)
+				))
+			));
 		}
-		?>
-		<fieldset>
-			<legend>Custom</legend>
-			<?php
-			// Custom menu item title
-			echo domTag('label', array(
-				'for' => 'custom-title-field',
-				'content' => 'Title'
-			));
-			
-			echo domTag('input', array(
-				'id' => 'custom-title-field',
+		
+		// Custom link
+		domTagPr('fieldset', array(
+			'name' => 'custom-link',
+			'content' => domTag('legend', array(
+				'content' => 'Custom Link'
+			)) . // Caption
+			domTag('label', array(
+				'for' => 'custom-caption-field',
+				'content' => 'Caption'
+			)) . domTag('input', array(
+				'id' => 'custom-caption-field',
 				'class' => 'text-input',
-				'name' => 'custom_title'
-			));
-			
-			// Separator
-			echo domTag('div', array(
+				'name' => 'custom_caption'
+			)) . // Separator
+			domTag('div', array(
 				'class' => 'clear',
 				'style' => 'height: 2px;'
-			));
-			
-			// Custom menu item link
-			echo domTag('label', array(
+			)) . // Link
+			domTag('label', array(
 				'for' => 'custom-link-field',
 				'content' => 'Link'
-			));
-			
-			echo domTag('input', array(
+			)) . domTag('input', array(
 				'id' => 'custom-link-field',
 				'class' => 'text-input',
 				'name' => 'custom_link'
-			));
-			?>
-		</fieldset>
-		<?php
+			))
+		));
 	}
 	
 	/**
@@ -1870,7 +1872,7 @@ class Menu extends Term implements AdminInterface {
 	private function getMenuItemsList(int $id, string $type): string {
 		global $rs_query;
 		
-		$list = '';
+		$list = array();
 		
 		if($type === 'post') {
 			$post_type = $rs_query->selectField(getTable('p'), 'type', array(
@@ -1883,7 +1885,7 @@ class Menu extends Term implements AdminInterface {
 			));
 			
 			foreach($posts as $post) {
-				$list .= domTag('option', array(
+				$list[] = domTag('option', array(
 					'value' => $post['id'],
 					'selected' => $post['id'] === $id,
 					'content' => $post['title']
@@ -1899,7 +1901,7 @@ class Menu extends Term implements AdminInterface {
 			));
 			
 			foreach($terms as $term) {
-				$list .= domTag('option', array(
+				$list[] = domTag('option', array(
 					'value' => $term['id'],
 					'selected' => $term['id'] === $id,
 					'content' => $term['name']
@@ -1907,7 +1909,7 @@ class Menu extends Term implements AdminInterface {
 			}
 		}
 		
-		return $list;
+		return implode('', $list);
 	}
 	
 	/**
@@ -1946,7 +1948,7 @@ class Menu extends Term implements AdminInterface {
 	private function getMenuItemMeta(int $id): array {
 		global $rs_query;
 		
-		$itemmeta = $rs_query->select(getTable('pm'), array('datakey', 'value'), array(
+		$itemmeta = $rs_query->select(getTable('pm'), array('key', 'value'), array(
 			'post' => $id
 		));
 		
@@ -2027,8 +2029,7 @@ class Menu extends Term implements AdminInterface {
 	private function getParentList(int $parent, int $id): string {
 		global $rs_query;
 		
-		$list = '';
-		$menu_items = array();
+		$list = $menu_items = array();
 		$i = 0;
 		
 		$menu = $rs_query->selectField(getTable('tr'), 'term', array(
@@ -2047,7 +2048,7 @@ class Menu extends Term implements AdminInterface {
 			
 			$menu_items[$i]['menu_index'] = $rs_query->selectField(getTable('pm'), 'value', array(
 				'post' => $relationship['post'],
-				'datakey' => 'menu_index'
+				'key' => 'menu_index'
 			));
 			
 			$menu_items[$i] = array_reverse($menu_items[$i]);
@@ -2064,14 +2065,14 @@ class Menu extends Term implements AdminInterface {
 			// Skip all descendant menu items
 			if($this->isDescendant($menu_item['id'], $id)) continue;
 			
-			$list .= domTag('option', array(
+			$list[] = domTag('option', array(
 				'value' => $menu_item['id'],
 				'selected' => $menu_item['id'] === $parent,
 				'content' => $menu_item['title']
 			));
 		}
 		
-		return $list;
+		return implode('', $list);
 	}
 	
 	/**
@@ -2223,5 +2224,56 @@ class Menu extends Term implements AdminInterface {
 	 */
 	private function getEntryCount(?string $search): int {
 		return count($this->getResults($search, true));
+	}
+	
+	/**
+	 * Fetch all associated action links.
+	 * @since 1.3.16-beta
+	 *
+	 * @access private
+	 * @param array $menu -- The menu's data.
+	 * @return string
+	 */
+	private function getActionLinks(array $menu): string {
+		$actions = $this->admin_page['actions'];
+		$action_list = array();
+		
+		foreach($actions as $key => $value) {
+			if($value === 'create') continue;
+			
+			$privileged = match($value) {
+				'edit' => userHasPrivilege('can_edit_menus'),
+				'delete' => userHasPrivilege('can_delete_menus'),
+				default => null
+			};
+			
+			$action_list[] = array(
+				'privileged' => $privileged,
+				'link' => $value,
+				'caption' => ucfirst($value)
+			);
+		}
+		
+		list($edit, $delete) = $action_list;
+		
+		$action_links = array(
+			// Edit
+			$edit['privileged'] ? actionLink($edit['link'], array(
+				'caption' => $edit['caption'],
+				'id' => $menu['id']
+			)) : null,
+			// Delete
+			$delete['privileged'] ? actionLink($delete['link'], array(
+				'classes' => 'modal-launch delete-item',
+				'data_item' => 'menu',
+				'caption' => $delete['caption'],
+				'id' => $menu['id']
+			)) : null
+		);
+		
+		// Filter out any empty actions
+		$action_links = array_filter($action_links);
+		
+		return implode(' &bull; ', $action_links);
 	}
 }

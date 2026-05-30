@@ -6,35 +6,54 @@
  * @package ReallySimpleCMS
  * @subpackage Engine
  *
- * ## CONSTANTS [5] ##
- * - public array REQUIRED_MODULES
- * - public array DEFAULT_THEMES
- * - public array DEFAULT_ADMIN_THEMES
+ * ## OBJECT VAR ##
+ * - $rs_register
+ *
+ * ## CONSTANTS [4] ##
  * - public array DEFAULT_POST_TYPES
  * - public array DEFAULT_TAXONOMIES
+ * - public array REQUIRED_MODULES
+ * - public array DEFAULT_THEMES
  *
  * ## METHODS [12] ##
- * MODULES:
- * - public registerModule(string $name, array $args): ?array
- * - public unregisterModule(string $name, bool $del_data = false): bool
- * THEMES:
- * - public registerTheme(string $name, array $args): ?array
- * - public unregisterTheme(string $name, bool $del_data): bool
- * ADMIN THEMES:
- * - public registerAdminTheme(string $name, array $args): ?array
- * - public unregisterAdminTheme(string $name, bool $del_data): bool
- * POST TYPES:
+ * { POST TYPES [4] }
  * - public registerPostType(string $name, array $args): ?array
  * - public unregisterPostType(string $name, bool $del_posts): bool
- * - private getPostTypeLabels(string $name, array $labels): array
- * TAXONOMIES:
+ * - private setPostTypeLabels(string $name, array $labels): array
+ * - private setPostTypeActions(array $actions): array
+ * { TAXONOMIES [4] }
  * - public registerTaxonomy(string $name, string $post_type, array $args): ?array
  * - public unregisterTaxonomy(string $name, bool $del_terms): bool
- * - private getTaxonomyLabels(string $name, array $labels): array
+ * - private setTaxonomyLabels(string $name, array $labels): array
+ * - private setTaxonomyActions(array $actions): array
+ * { MODULES [2] }
+ * - public registerModule(string $name, array $args): ?array
+ * - public unregisterModule(string $name, bool $del_data): bool
+ * { THEMES [2] }
+ * - public registerTheme(string $name, array $args): ?array
+ * - public unregisterTheme(string $name, bool $del_data): bool
  */
 namespace Engine;
 
 class Register {
+	/**
+	 * Default post types (included with fresh installs).
+	 * These cannot be unregistered as they are required by core functionality.
+	 * @since 1.3.15-beta
+	 *
+	 * @var array
+	 */
+	public const DEFAULT_POST_TYPES = array('page', 'post', 'media', 'nav_menu_item', 'widget');
+	
+	/**
+	 * Default taxonomies (included with fresh installs).
+	 * These cannot be unregistered as they are required by core functionality.
+	 * @since 1.3.15-beta
+	 *
+	 * @var array
+	 */
+	public const DEFAULT_TAXONOMIES = array('category', 'nav_menu');
+	
 	/**
 	 * Required modules (included with fresh installs).
 	 * These cannot be unregistered as they are required by core functionality.
@@ -52,262 +71,6 @@ class Register {
 	 * @var array
 	 */
 	public const DEFAULT_THEMES = array('carbon');
-	
-	/**
-	 * Default admin themes (included with fresh installs).
-	 * Bedrock theme cannot be unregistered as it is considered the primary default.
-	 * @since 1.3.15-beta
-	 *
-	 * @var array
-	 */
-	public const DEFAULT_ADMIN_THEMES = array('bedrock', 'sky', 'forest', 'ocean', 'sunset', 'harvest');
-	
-	/**
-	 * Default post types (included with fresh installs).
-	 * These cannot be unregistered as they are required by core functionality.
-	 * @since 1.3.15-beta
-	 *
-	 * @var array
-	 */
-	public const DEFAULT_POST_TYPES = array('page', 'media', 'post', 'nav_menu_item', 'widget');
-	
-	/**
-	 * Default taxonomies (included with fresh installs).
-	 * These cannot be unregistered as they are required by core functionality.
-	 * @since 1.3.15-beta
-	 *
-	 * @var array
-	 */
-	public const DEFAULT_TAXONOMIES = array('category', 'nav_menu');
-	
-	/*------------------------------------*\
-		MODULES
-	\*------------------------------------*/
-	
-	/**
-	 * Register a module.
-	 * @since 1.3.15-beta
-	 *
-	 * @access public
-	 * @param string $name -- The module's name.
-	 * @param array $args (optional) -- The args.
-	 * @return null|array
-	 */
-	public function registerModule(string $name, array $args = array()): ?array {
-		global $rs_modules;
-		
-		if(!is_array($rs_modules)) $rs_modules = array();
-		
-		$name = sanitize($name);
-		
-		if(empty($name) || strlen($name) > 20)
-			exit('A module\'s name must be between 1 and 20 characters long.');
-		
-		// If the name is already registered, abort
-		if(moduleExists($name)) return null;
-		
-		$defaults = array(
-			'label' => $name,
-			'author' => array(),
-			'version' => null,
-			'description' => ''
-			#'slug' => $name,
-			#'labels' => array(),
-			#'public' => true,
-		);
-		
-		$args = array_merge($defaults, $args);
-		
-		// Remove any unrecognized args
-		foreach($args as $key => $value)
-			if(!array_key_exists($key, $defaults)) unset($args[$key]);
-		
-		$args['is_required'] = in_array($name, self::REQUIRED_MODULES, true) ? true : false;
-		$args['name'] = $name;
-		
-		// Add the module to the global array
-		$rs_modules[$name] = $args;
-		
-		return $rs_modules[$name];
-	}
-
-	/**
-	 * Unregister a module.
-	 * @since 1.3.15-beta
-	 *
-	 * @access public
-	 * @param string $name -- The module's name.
-	 * @param bool $del_data (optional) -- Whether to delete all associated data.
-	 * @return bool
-	 */
-	public function unregisterModule(string $name, bool $del_data = false): bool {
-		global $rs_modules;
-		
-		$name = sanitize($name);
-		
-		if(moduleExists($name) && !$rs_modules[$name]['is_required']) {
-			$file_path = slash(PATH . MODULES) . slash($name);
-			
-			if($del_data) removeDir($file_path);
-			
-			unset($rs_modules[$name]);
-			return true;
-		}
-		
-		return false;
-	}
-	
-	/*------------------------------------*\
-		THEMES
-	\*------------------------------------*/
-	
-	/**
-	 * Register a theme.
-	 * @since 1.3.15-beta
-	 *
-	 * @access public
-	 * @param string $name -- The theme's name.
-	 * @param array $args (optional) -- The args.
-	 * @return null|array
-	 */
-	public function registerTheme(string $name, array $args = array()): ?array {
-		global $rs_themes;
-		
-		if(!is_array($rs_themes)) $rs_themes = array();
-		
-		$name = sanitize($name);
-		
-		if(empty($name) || strlen($name) > 20)
-			exit('A theme\'s name must be between 1 and 20 characters long.');
-		
-		// If the name is already registered, abort
-		if(themeExists($name)) return null;
-		
-		$defaults = array(
-			'label' => capitalize($name),
-			'author' => array(),
-			'version' => null,
-			'stylesheet' => null
-			#'labels' => array()
-		);
-		
-		$args = array_merge($defaults, $args);
-		
-		// Remove any unrecognized args
-		foreach($args as $key => $value)
-			if(!array_key_exists($key, $defaults)) unset($args[$key]);
-		
-		$args['stylesheet'] = slash(PATH . THEMES) . slash($name) . 'style.css';
-		$args['is_default'] = in_array($name, self::DEFAULT_THEMES, true) ? true : false;
-		$args['name'] = $name;
-		
-		// Add the admin theme to the global array
-		$rs_themes[$name] = $args;
-		
-		return $rs_themes[$name];
-	}
-	
-	/**
-	 * Unregister a theme.
-	 * @since 1.3.15-beta
-	 *
-	 * @access public
-	 * @param string $name -- The theme's name.
-	 * @param bool $del_data (optional) -- Whether to delete all associated data.
-	 * @return bool
-	 */
-	public function unregisterTheme(string $name, bool $del_data = false): bool {
-		global $rs_themes;
-		
-		$name = sanitize($name);
-		
-		if(themeExists($name) && $name !== 'carbon') {
-			$file_path = slash(PATH . THEMES) . slash($name);
-			
-			if($del_data) removeDir($file_path);
-			
-			unset($rs_admin_themes[$name]);
-			return true;
-		}
-		
-		return false;
-	}
-	
-	/*------------------------------------*\
-		ADMIN THEMES
-	\*------------------------------------*/
-	
-	/**
-	 * Register an admin theme.
-	 * @since 1.3.15-beta
-	 *
-	 * @access public
-	 * @param string $name -- The theme's name.
-	 * @param array $args (optional) -- The args.
-	 * @return null|array
-	 */
-	public function registerAdminTheme(string $name, array $args = array()): ?array {
-		global $rs_admin_themes;
-		
-		if(!is_array($rs_admin_themes)) $rs_admin_themes = array();
-		
-		$name = sanitize($name);
-		
-		if(empty($name) || strlen($name) > 20)
-			exit('An admin theme\'s name must be between 1 and 20 characters long.');
-		
-		// If the name is already registered, abort
-		if(adminThemeExists($name)) return null;
-		
-		$defaults = array(
-			'label' => capitalize($name),
-			'author' => array(),
-			'version' => null,
-			'path' => null
-			#'labels' => array()
-		);
-		
-		$args = array_merge($defaults, $args);
-		
-		// Remove any unrecognized args
-		foreach($args as $key => $value)
-			if(!array_key_exists($key, $defaults)) unset($args[$key]);
-		
-		$args['path'] = slash(PATH . ADMIN_THEMES) . slash($name) . $name . '.css';
-		$args['is_default'] = in_array($name, self::DEFAULT_ADMIN_THEMES, true) ? true : false;
-		$args['name'] = $name;
-		
-		// Add the admin theme to the global array
-		$rs_admin_themes[$name] = $args;
-		
-		return $rs_admin_themes[$name];
-	}
-	
-	/**
-	 * Unregister an admin theme.
-	 * @since 1.3.15-beta
-	 *
-	 * @access public
-	 * @param string $name -- The theme's name.
-	 * @param bool $del_data (optional) -- Whether to delete all associated data.
-	 * @return bool
-	 */
-	public function unregisterAdminTheme(string $name, bool $del_data = false): bool {
-		global $rs_admin_themes;
-		
-		$name = sanitize($name);
-		
-		if(adminThemeExists($name) && $name !== 'bedrock') {
-			$file_path = slash(PATH . ADMIN_THEMES) . slash($name);
-			
-			if($del_data) removeDir($file_path);
-			
-			unset($rs_admin_themes[$name]);
-			return true;
-		}
-		
-		return false;
-	}
 	
 	/*------------------------------------*\
 		POST TYPES
@@ -337,7 +100,9 @@ class Register {
 		
 		$defaults = array(
 			'slug' => $name,
+			'title' => null,
 			'labels' => array(),
+			'actions' => array(),
 			'public' => true,
 			'hierarchical' => false,
 			'create_privileges' => true,
@@ -345,11 +110,23 @@ class Register {
 			'show_in_admin_menu' => null,
 			'show_in_admin_bar' => null,
 			'show_in_nav_menus' => null,
-			'menu_link' => 'posts.php?type=' . $name,
-			'menu_icon' => null,
+			'menu_item' => array(
+				'link' => 'posts.php?type=' . $name,
+				'icon' => null,
+				'caption' => null,
+				'submenu' => null,
+				'index' => null,
+				'privileges' => null
+			),
+			'menu_link' => 'posts.php?type=' . $name, # deprecated
+			'menu_icon' => null, # deprecated
 			'comments' => false,
 			'taxonomies' => array()
 		);
+		
+		// Merge all provided args with the defaults
+		if(isset($args['menu_item']))
+			$args['menu_item'] = array_merge($defaults['menu_item'], $args['menu_item']);
 		
 		$args = array_merge($defaults, $args);
 		
@@ -363,9 +140,18 @@ class Register {
 		if(is_null($args['show_in_nav_menus'])) $args['show_in_nav_menus'] = $args['public'];
 		
 		$args['is_default'] = in_array($name, self::DEFAULT_POST_TYPES, true) ? true : false;
+		
+		// Name, labels, actions, etc.
 		$args['name'] = $name;
-		$args['labels'] = $this->getPostTypeLabels($name, $args['labels']);
-		$args['label'] = $args['labels']['name'];
+		$args['labels'] = $this->setPostTypeLabels($name, $args['labels']);
+		$args['label'] = $args['labels']['name']; # deprecated
+		$args['actions'] = $this->setPostTypeActions($args['actions']);
+		
+		if(is_null($args['title']))
+			$args['title'] = $args['labels']['name'];
+		
+		$caption = $args['menu_item']['caption'];
+		$args['menu_item']['caption'] = $args['labels'][$caption] ?? ($caption ?? $args['title']);
 		
 		// Add the post type to the global array
 		$rs_post_types[$name] = $args;
@@ -381,7 +167,7 @@ class Register {
 			);
 			
 			$db_privileges = $rs_query->select(getTable('up'), '*', array(
-				'name' => array('IN', $privileges[0], $privileges[1], $privileges[2], $privileges[3]),
+				'name' => array_merge(array('IN'), $privileges),
 				'is_default' => ($args['is_default'] ? 1 : 0)
 			));
 			
@@ -500,26 +286,69 @@ class Register {
 	 * @param array $labels (optional) -- Any predefined labels.
 	 * @return array
 	 */
-	private function getPostTypeLabels(string $name, array $labels = array()): array {
+	private function setPostTypeLabels(string $name, array $labels = array()): array {
 		$name_default = capitalize(($name === 'media' ? $name : $name . 's'));
 		$name_lowercase = strtolower($name_default);
 		$name_singular = capitalize($name);
 		
 		$defaults = array(
+			// Name
 			'name' => $name_default,
 			'name_lowercase' => $name_lowercase,
 			'name_singular' => $name_singular,
+			// Headings/captions
 			'list_items' => 'List ' . $name_default,
 			'create_item' => 'Create ' . $name_singular,
+			'create_button' => 'Create New',
+			'publish_button' => 'Publish New',
 			'edit_item' => 'Edit ' . $name_singular,
+			'update_button' => 'Update ' . $name_singular,
 			'duplicate_item' => 'Duplicate ' . $name_singular,
+			'bulk_update' => 'Bulk Update',
+			'bulk_delete' => 'Bulk Delete',
+			// Notices/placeholders
 			'no_items' => 'There are no ' . $name_lowercase . ' to display.',
-			'title_placeholder' => $name_singular . ' title'
+			'title_placeholder' => 'My New ' . $name_singular,
+			// Exclude from final array
+			'exclude' => array()
 		);
 		
 		$labels = array_merge($defaults, $labels);
 		
+		$required = array('name', 'name_lowercase', 'name_singular', 'exclude');
+		
+		foreach($labels as $key => $val) {
+			if(($labels['exclude'] === 'all' || in_array($key, $labels['exclude'], true)) && !in_array($key, $required, true))
+				unset($labels[$key]);
+		}
+		
 		return $labels;
+	}
+	
+	/**
+	 * Set all post type actions.
+	 * @since 1.3.16-beta
+	 *
+	 * @access private
+	 * @param array $actions (optional) -- Any predefined actions.
+	 * @return array
+	 */
+	private function setPostTypeActions(array $actions = array()): array {
+		$defaults = array(
+			'create', 'edit', 'delete', 'view', 'preview',
+			'upload', 'duplicate', 'replace', 'trash', 'restore'
+		);
+		
+		$set_actions = array();
+		
+		foreach($defaults as $action) {
+			if(in_array($action, $actions, true) || in_array('_defaults_', $actions, true))
+				$set_actions[$action] = $action;
+			else
+				continue;
+		}
+		
+		return $set_actions;
 	}
 	
 	/*------------------------------------*\
@@ -560,7 +389,9 @@ class Register {
 		
 		$defaults = array(
 			'slug' => $name,
+			'title' => null,
 			'labels' => array(),
+			'actions' => array(),
 			'public' => true,
 			'hierarchical' => false,
 			'create_privileges' => true,
@@ -568,12 +399,24 @@ class Register {
 			'show_in_admin_menu' => null,
 			'show_in_admin_bar' => null,
 			'show_in_nav_menus' => null,
-			'menu_link' => 'terms.php?taxonomy=' . $name,
+			'menu_item' => array(
+				'link' => 'terms.php?taxonomy=' . $name,
+				'icon' => null,
+				'caption' => null,
+				'submenu' => null,
+				'index' => null,
+				'privileges' => null
+			),
+			'menu_link' => 'terms.php?taxonomy=' . $name, # deprecated
 			'default_term' => array(
 				'name' => '',
 				'slug' => ''
 			)
 		);
+		
+		// Merge all provided args with the defaults
+		if(isset($args['menu_item']))
+			$args['menu_item'] = array_merge($defaults['menu_item'], $args['menu_item']);
 		
 		$args = array_merge($defaults, $args);
 		
@@ -588,9 +431,18 @@ class Register {
 		
 		$args['is_default'] = in_array($name, self::DEFAULT_TAXONOMIES, true) ? true : false;
 		$args['post_type'] = $post_type;
+		
+		// Name, labels, actions, etc.
 		$args['name'] = $name;
-		$args['labels'] = $this->getTaxonomyLabels($name, $args['labels']);
-		$args['label'] = $args['labels']['name'];
+		$args['labels'] = $this->setTaxonomyLabels($name, $args['labels']);
+		$args['label'] = $args['labels']['name']; # deprecated
+		$args['actions'] = $this->setTaxonomyActions($args['actions']);
+		
+		if(is_null($args['title']))
+			$args['title'] = $args['labels']['name'];
+		
+		$caption = $args['menu_item']['caption'];
+		$args['menu_item']['caption'] = $args['labels'][$caption] ?? ($caption ?? $args['title']);
 		
 		// Add the taxonomy to the global array
 		$rs_taxonomies[$name] = $args;
@@ -606,7 +458,7 @@ class Register {
 			);
 			
 			$db_privileges = $rs_query->select(getTable('up'), '*', array(
-				'name' => array('IN', $privileges[0], $privileges[1], $privileges[2], $privileges[3]),
+				'name' => array_merge(array('IN'), $privileges),
 				'is_default' => ($args['is_default'] ? 1 : 0)
 			));
 			
@@ -742,23 +594,217 @@ class Register {
 	 * @param array $labels (optional) -- Any predefined labels.
 	 * @return array
 	 */
-	private function getTaxonomyLabels(string $name, array $labels = array()): array {
+	private function setTaxonomyLabels(string $name, array $labels = array()): array {
 		$name_default = capitalize(($name === 'category' ? 'Categories' : $name . 's'));
 		$name_lowercase = strtolower($name_default);
 		$name_singular = capitalize($name);
 		
 		$defaults = array(
+			// Name
 			'name' => $name_default,
 			'name_lowercase' => $name_lowercase,
 			'name_singular' => $name_singular,
+			// Headings/captions
 			'list_items' => 'List ' . $name_default,
 			'create_item' => 'Create ' . $name_singular,
+			'create_button' => 'Create New',
 			'edit_item' => 'Edit ' . $name_singular,
-			'no_items' => 'There are no ' . $name_lowercase . ' to display.'
+			'update_button' => 'Update ' . $name_singular,
+			// Notices/placeholders
+			'no_items' => 'There are no ' . $name_lowercase . ' to display.',
+			'title_placeholder' => 'My New ' . $name_singular,
+			// Exclude from final array
+			'exclude' => array()
 		);
 		
 		$labels = array_merge($defaults, $labels);
 		
+		$required = array('name', 'name_lowercase', 'name_singular', 'exclude');
+		
+		foreach($labels as $key => $val) {
+			if(($labels['exclude'] === 'all' || in_array($key, $labels['exclude'], true)) && !in_array($key, $required, true))
+				unset($labels[$key]);
+		}
+		
 		return $labels;
+	}
+	
+	/**
+	 * Set all taxonomy actions.
+	 * @since 1.3.16-beta
+	 *
+	 * @access private
+	 * @param array $actions (optional) -- Any predefined actions.
+	 * @return array
+	 */
+	private function setTaxonomyActions(array $actions = array()): array {
+		$defaults = array(
+			'create', 'edit', 'delete', 'view'
+		);
+		
+		$set_actions = array();
+		
+		foreach($defaults as $action) {
+			if(in_array($action, $actions, true) || in_array('_defaults_', $actions, true))
+				$set_actions[$action] = $action;
+			else
+				continue;
+		}
+		
+		return $set_actions;
+	}
+	
+	/*------------------------------------*\
+		MODULES
+	\*------------------------------------*/
+	
+	/**
+	 * Register a module.
+	 * @since 1.3.15-beta
+	 *
+	 * @access public
+	 * @param string $name -- The module's name.
+	 * @param array $args (optional) -- The args.
+	 * @return null|array
+	 */
+	public function registerModule(string $name, array $args = array()): ?array {
+		global $rs_modules;
+		
+		if(!is_array($rs_modules)) $rs_modules = array();
+		
+		$name = sanitize($name);
+		
+		if(empty($name) || strlen($name) > 20)
+			exit('A module\'s name must be between 1 and 20 characters long.');
+		
+		// If the name is already registered, abort
+		if(moduleExists($name)) return null;
+		
+		$defaults = array(
+			'label' => capitalize($name),
+			'author' => array(),
+			'version' => null,
+			'description' => ''
+			#'slug' => $name,
+			#'labels' => array(),
+			#'public' => true,
+		);
+		
+		$args = array_merge($defaults, $args);
+		
+		// Remove any unrecognized args
+		foreach($args as $key => $value)
+			if(!array_key_exists($key, $defaults)) unset($args[$key]);
+		
+		$args['is_required'] = in_array($name, self::REQUIRED_MODULES, true) ? true : false;
+		$args['name'] = $name;
+		
+		// Add the module to the global array
+		$rs_modules[$name] = $args;
+		
+		return $rs_modules[$name];
+	}
+
+	/**
+	 * Unregister a module.
+	 * @since 1.3.15-beta
+	 *
+	 * @access public
+	 * @param string $name -- The module's name.
+	 * @param bool $del_data (optional) -- Whether to delete all associated data.
+	 * @return bool
+	 */
+	public function unregisterModule(string $name, bool $del_data = false): bool {
+		global $rs_modules;
+		
+		$name = sanitize($name);
+		
+		if(moduleExists($name) && !$rs_modules[$name]['is_required']) {
+			$file_path = slash(PATH . MODULES) . slash($name);
+			
+			if($del_data) removeDir($file_path);
+			
+			unset($rs_modules[$name]);
+			return true;
+		}
+		
+		return false;
+	}
+	
+	/*------------------------------------*\
+		THEMES
+	\*------------------------------------*/
+	
+	/**
+	 * Register a theme.
+	 * @since 1.3.15-beta
+	 *
+	 * @access public
+	 * @param string $name -- The theme's name.
+	 * @param array $args (optional) -- The args.
+	 * @return null|array
+	 */
+	public function registerTheme(string $name, array $args = array()): ?array {
+		global $rs_themes;
+		
+		if(!is_array($rs_themes)) $rs_themes = array();
+		
+		$name = sanitize($name);
+		
+		if(empty($name) || strlen($name) > 20)
+			exit('A theme\'s name must be between 1 and 20 characters long.');
+		
+		// If the name is already registered, abort
+		if(themeExists($name)) return null;
+		
+		$defaults = array(
+			'label' => capitalize($name),
+			'author' => array(),
+			'version' => null,
+			'stylesheet' => null,
+			'description' => ''
+			#'labels' => array()
+		);
+		
+		$args = array_merge($defaults, $args);
+		
+		// Remove any unrecognized args
+		foreach($args as $key => $value)
+			if(!array_key_exists($key, $defaults)) unset($args[$key]);
+		
+		$args['stylesheet'] = slash(PATH . THEMES) . slash($name) . 'style.css';
+		$args['is_default'] = in_array($name, self::DEFAULT_THEMES, true) ? true : false;
+		$args['name'] = $name;
+		
+		// Add the admin theme to the global array
+		$rs_themes[$name] = $args;
+		
+		return $rs_themes[$name];
+	}
+	
+	/**
+	 * Unregister a theme.
+	 * @since 1.3.15-beta
+	 *
+	 * @access public
+	 * @param string $name -- The theme's name.
+	 * @param bool $del_data (optional) -- Whether to delete all associated data.
+	 * @return bool
+	 */
+	public function unregisterTheme(string $name, bool $del_data = false): bool {
+		global $rs_themes;
+		
+		$name = sanitize($name);
+		
+		if(themeExists($name) && $name !== 'carbon') {
+			$file_path = slash(PATH . THEMES) . slash($name);
+			
+			if($del_data) removeDir($file_path);
+			
+			unset($rs_admin_themes[$name]);
+			return true;
+		}
+		
+		return false;
 	}
 }

@@ -14,7 +14,7 @@ define('BASE_INIT', true);
 define('ADMIN_URI', $_POST['uri']);
 
 require_once dirname(dirname(__DIR__)) . '/init.php';
-requireFiles(array(RS_ADMIN_FUNC, RS_FUNC));
+requireFiles(array(RS_ADMIN_FUNC, RS_FRONT_FUNC));
 
 $rs_theme_path = slash(PATH . THEMES) . getSetting('active_theme');
 

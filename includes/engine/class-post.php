@@ -1,11 +1,14 @@
 <?php
 /**
  * Core class used to implement the Post object.
- * This class loads data from the `posts` table of the database for use on the front end of the CMS.
+ * This class loads data from the `posts` table of the database for use on the front end.
  * @since 1.0.2-alpha
  *
  * @package ReallySimpleCMS
  * @subpackage Engine
+ *
+ * ## OBJECT VAR ##
+ * - $rs_post
  *
  * ## VARIABLES [3] ##
  * - private string $slug
@@ -100,13 +103,13 @@ class Post {
 						break;
 				}
 				
-				if(!$is_published) {
-					if($status === 'draft' && isset($rs_session))
+				if($is_published === false) {
+					if($status === 'draft' && !empty($rs_session))
 						redirect('/?id=' . $home_page . '&preview=true');
 					else
 						redirect('/404.php');
 				} else {
-					if($status === 'private' && !isset($rs_session))
+					if($status === 'private' && empty($rs_session))
 						redirect('/404.php');
 				}
 			} // All other pages
@@ -128,7 +131,7 @@ class Post {
 					}
 					
 					if($status !== 'draft') {
-						if($is_published) {
+						if($is_published === true) {
 							// Redirect to the proper URL
 							redirect($this->getPostPermalink(
 								$this->getPostType(),
@@ -140,7 +143,7 @@ class Post {
 						}
 					}
 					
-					if(!isset($rs_session)) redirect('/404.php');
+					if(empty($rs_session)) redirect('/404.php');
 				} else {
 					$uri = explode('/', $raw_uri);
 					
@@ -167,13 +170,13 @@ class Post {
 							break;
 					}
 					
-					if(!$is_published) {
-						if($status === 'draft' && isset($rs_session) && !empty($id))
+					if($is_published === false) {
+						if($status === 'draft' && !empty($rs_session) && !empty($id))
 							redirect('/?id=' . $id . '&preview=true');
 						else
 							redirect('/404.php');
 					} else {
-						if($status === 'private' && !isset($rs_session))
+						if($status === 'private' && empty($rs_session))
 							redirect('/404.php');
 						
 						if(isHomePage($id)) {
@@ -259,12 +262,12 @@ class Post {
 		
 		return $rs_query->selectField(getTable('um'), 'value', array(
 			'user' => $author,
-			'datakey' => 'display_name'
+			'key' => 'display_name'
 		));
 	}
 	
 	/**
-	 * Fetch the post's publish date.
+	 * Fetch the post's creation (publish) date.
 	 * @since 2.2.0-alpha
 	 *
 	 * @access public
@@ -273,17 +276,17 @@ class Post {
 	public function getPostDate(): string {
 		global $rs_query;
 		
-		$date = $rs_query->selectField(getTable('p'), 'date', array(
+		$created = $rs_query->selectField(getTable('p'), 'created', array(
 			'slug' => $this->slug
 		));
 		
-		if(empty($date)) {
-			$date = $rs_query->selectField(getTable('p'), 'modified', array(
+		if(empty($created)) {
+			$created = $rs_query->selectField(getTable('p'), 'modified', array(
 				'slug' => $this->slug
 			));
 		}
 		
-		return formatDate($date, 'j M Y @ g:i A');
+		return formatDate($created, 'j M Y @ g:i A');
     }
 	
 	/**
@@ -389,12 +392,12 @@ class Post {
 	public function getPostFeaturedImage(): string {
 		global $rs_query;
 		
-		$featured_image = (int)$rs_query->selectField(getTable('pm'), 'value', array(
+		$feat_image = (int)$rs_query->selectField(getTable('pm'), 'value', array(
 			'post' => $this->getPostId(),
-			'datakey' => 'feat_image'
+			'key' => 'feat_image'
 		));
 		
-		return getMedia($featured_image, array(
+		return getMedia($feat_image, array(
 			'class' => 'featured-image'
 		));
     }
@@ -412,7 +415,7 @@ class Post {
 		
 		$field = $rs_query->selectField(getTable('pm'), 'value', array(
 			'post' => $this->getPostId(),
-			'datakey' => $key
+			'key' => $key
 		));
 		
 		// Escape double quotes in meta descriptions
@@ -521,7 +524,7 @@ class Post {
 		
 		return (int)$rs_query->selectField(getTable('pm'), 'value', array(
 			'post' => $this->getPostId(),
-			'datakey' => 'feat_image'
+			'key' => 'feat_image'
 		)) !== 0;
 	}
 }

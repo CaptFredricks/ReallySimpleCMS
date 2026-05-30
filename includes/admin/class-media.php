@@ -11,11 +11,12 @@
  * ## OBJECT VAR ##
  * - $rs_ad_media
  *
- * ## VARIABLES [1] ##
+ * ## VARIABLES [2] ##
  * See `Post` class for a list of inherited vars
  * - private string $post_type
+ * - private array $admin_page
  *
- * ## METHODS [11] ##
+ * ## METHODS [12] ##
  * See `Post` class for a list of inherited methods
  * - public __construct(int $id, string $action)
  * { LISTS, FORMS, & ACTIONS [5] }
@@ -26,11 +27,12 @@
  * - public deleteRecordMedia(): void
  * { VALIDATION [1] }
  * - private validateSubmission(array $data): string
- * { MISCELLANEOUS [4] }
+ * { MISCELLANEOUS [5] }
  * - public pageHeading(): void
  * - private exitNotice(string $exit_status, int $status_code): string
  * - private getResults(?string $search, bool $all): array
  * - private getEntryCount(?string $search): int
+ * - private getActionLinks(array $media): string
  */
 namespace Admin;
 
@@ -45,6 +47,15 @@ class Media extends Post {
 	private $post_type = 'media';
 	
 	/**
+	 * The admin page's data.
+	 * @since 1.3.16-beta
+	 *
+	 * @access private
+	 * @var array
+	 */
+	private $admin_page = array();
+	
+	/**
 	 * Class constructor.
 	 * @since 1.1.1-beta
 	 *
@@ -53,13 +64,14 @@ class Media extends Post {
 	 * @param string $action -- The current action.
 	 */
 	public function __construct(int $id, string $action) {
-		global $rs_query;
+		global $rs_query, $rs_admin_pages;
 		
 		$this->action = $action;
+		$this->admin_page = $rs_admin_pages[basename($_SERVER['PHP_SELF'], '.php')];
 		
 		if($id > 0) {
 			$cols = array_keys(get_object_vars($this));
-			$exclude = array('action', 'paged', 'post_type');
+			$exclude = array('action', 'paged', 'post_type', 'admin_page');
 			$cols = array_diff($cols, $exclude);
 			
 			$media = $rs_query->selectRow(getTable('p'), $cols, array(
@@ -111,43 +123,7 @@ class Media extends Post {
 				$mediaa = $this->getResults($search);
 				
 				foreach($mediaa as $media) {
-					list($m_id, $m_title, $m_author, $m_date) = array(
-						$media['id'],
-						$media['title'],
-						$media['author'],
-						$media['date']
-					);
-					
-					$meta = $this->getPostMeta($m_id);
-					
-					// Action links
-					$actions = array(
-						// Edit
-						userHasPrivilege('can_edit_media') ? actionLink('edit', array(
-							'caption' => 'Edit',
-							'id' => $m_id
-						)) : null,
-						// Replace
-						userHasPrivilege('can_edit_media') ? actionLink('replace', array(
-							'caption' => 'Replace',
-							'id' => $m_id
-						)) : null,
-						// Delete
-						userHasPrivilege('can_delete_media') ? actionLink('delete', array(
-							'classes' => 'modal-launch delete-item',
-							'data_item' => 'media',
-							'caption' => 'Delete',
-							'id' => $m_id
-						)) : null,
-						// View
-						mediaLink($m_id, array(
-							'link_text' => 'View',
-							'newtab' => 1
-						))
-					);
-					
-					// Filter out any empty actions
-					$actions = array_filter($actions);
+					$meta = $this->getPostMeta($media['id']);
 					
 					// Get the media's filepath
 					$file_path = slash(PATH . UPLOADS) . $meta['filepath'];
@@ -171,20 +147,20 @@ class Media extends Post {
 					
 					echo tableRow(
 						// Thumbnail
-						tdCell(getMedia($m_id), 'thumbnail'),
+						tdCell(getMedia($media['id']), 'thumbnail'),
 						// File
 						tdCell(domTag('strong', array(
-							'content' => $m_title
+							'content' => $media['title']
 						)) . domTag('br') . domTag('em', array(
 							'content' => !empty($path) ? $path['basename'] : 'file does not exist'
 						)) . domTag('div', array(
 							'class' => 'actions',
-							'content' => implode(' &bull; ', $actions)
+							'content' => $this->getActionLinks($media)
 						)), 'file'),
 						// Author
-						tdCell($this->getAuthor($m_author), 'author'),
+						tdCell($this->getAuthor($media['author']), 'author'),
 						// Upload date
-						tdCell(formatDate($m_date, 'd M Y @ g:i A'), 'upload-date'),
+						tdCell(formatDate($media['created'], 'd M Y @ g:i A'), 'upload-date'),
 						// Size
 						tdCell($size ?? '0 B', 'size'),
 						// Dimensions
@@ -195,7 +171,7 @@ class Media extends Post {
 				}
 				
 				if(empty($mediaa))
-					echo tableRow(tdCell('There are no media to display.', '', count($header_cols)));
+					echo tableRow(tdCell($this->admin_page['labels']['no_items'], '', count($header_cols)));
 				?>
 			</tbody>
 			<tfoot>
@@ -228,7 +204,8 @@ class Media extends Post {
 						'id' => 'title-field',
 						'class' => 'text-input required invalid init',
 						'name' => 'title',
-						'value' => ($_POST['title'] ?? '')
+						'value' => ($_POST['title'] ?? ''),
+						'placeholder' => $this->admin_page['labels']['title_placeholder']
 					));
 					
 					// File
@@ -272,7 +249,7 @@ class Media extends Post {
 						'type' => 'submit',
 						'class' => 'submit-input button',
 						'name' => 'submit',
-						'value' => 'Upload Media'
+						'value' => $this->admin_page['labels']['create_button']
 					));
 					?>
 				</table>
@@ -314,7 +291,8 @@ class Media extends Post {
 						'id' => 'title-field',
 						'class' => 'text-input required invalid init',
 						'name' => 'title',
-						'value' => $this->title
+						'value' => $this->title,
+						'placeholder' => $this->admin_page['labels']['title_placeholder']
 					));
 					
 					// Alt text
@@ -349,14 +327,14 @@ class Media extends Post {
 						'type' => 'submit',
 						'class' => 'submit-input button',
 						'name' => 'submit',
-						'value' => 'Update Media'
+						'value' => $this->admin_page['labels']['update_button']
 					));
 					?>
 				</table>
 			</form>
-			<?php echo actionLink('replace', array(
+			<?php echo actionLink($this->admin_page['actions']['replace'], array(
 				'classes' => 'replace-media button',
-				'caption' => 'Replace Media',
+				'caption' => $this->admin_page['labels']['duplicate_item'],
 				'id' => $this->id
 			)); ?>
 		</div>
@@ -396,7 +374,8 @@ class Media extends Post {
 						'id' => 'title-field',
 						'class' => 'text-input required invalid init',
 						'name' => 'title',
-						'value' => $this->title
+						'value' => $this->title,
+						'placeholder' => $this->admin_page['labels']['title_placeholder']
 					));
 					
 					// File
@@ -437,7 +416,7 @@ class Media extends Post {
 						'type' => 'submit',
 						'class' => 'submit-input button',
 						'name' => 'submit',
-						'value' => 'Replace Media'
+						'value' => $this->admin_page['labels']['duplicate_item']
 					));
 					?>
 				</table>
@@ -459,7 +438,7 @@ class Media extends Post {
 		
 		// Check if the media is used as an avatar
 		$count = $rs_query->select(getTable('um'), 'COUNT(*)', array(
-			'datakey' => 'avatar',
+			'key' => 'avatar',
 			'value' => $this->id
 		));
 		
@@ -467,7 +446,7 @@ class Media extends Post {
 		
 		// Check if the media is used as a post featured image
 		$count = $rs_query->select(getTable('pm'), 'COUNT(*)', array(
-			'datakey' => 'feat_image',
+			'key' => 'feat_image',
 			'value' => $this->id
 		));
 		
@@ -483,7 +462,7 @@ class Media extends Post {
 		
 		$filename = $rs_query->selectField(getTable('pm'), 'value', array(
 			'post' => $this->id,
-			'datakey' => 'filepath'
+			'key' => 'filepath'
 		));
 		
 		// If the file exists, delete it
@@ -578,7 +557,7 @@ class Media extends Post {
 				$insert_id = $rs_query->insert(getTable('p'), array(
 					'title' => $data['title'],
 					'author' => $rs_session['id'],
-					'date' => 'NOW()',
+					'created' => 'NOW()',
 					'modified' => 'NOW()',
 					'content' => $data['description'],
 					'slug' => $slug,
@@ -594,7 +573,7 @@ class Media extends Post {
 				foreach($mediameta as $key => $value) {
 					$rs_query->insert(getTable('pm'), array(
 						'post' => $insert_id,
-						'datakey' => $key,
+						'key' => $key,
 						'value' => $value
 					));
 				}
@@ -623,7 +602,7 @@ class Media extends Post {
 						'value' => $value
 					), array(
 						'post' => $this->id,
-						'datakey' => $key
+						'key' => $key
 					));
 				}
 				
@@ -692,14 +671,14 @@ class Media extends Post {
 					
 					$rs_query->update(getTable('p'), array(
 						'title' => $data['title'],
-						'date' => 'NOW()',
+						'created' => 'NOW()',
 						'modified' => 'NOW()',
 						'slug' => $slug
 					), array(
 						'id' => $this->id
 					));
 				} else {
-					$year = formatDate($rs_query->selectField(getTable('p'), 'date', array(
+					$year = formatDate($rs_query->selectField(getTable('p'), 'created', array(
 						'id' => $this->id
 					)), 'Y');
 					
@@ -711,7 +690,6 @@ class Media extends Post {
 						$filepath = $meta['filepath'];
 					} else {
 						$old_filename = pathinfo($meta['filepath']);
-						
 						$filepath = slash($year) . $old_filename['filename'] . '.' . $file['extension'];
 					}
 					
@@ -739,7 +717,7 @@ class Media extends Post {
 						'value' => $value
 					), array(
 						'post' => $this->id,
-						'datakey' => $key
+						'key' => $key
 					));
 				}
 				
@@ -765,11 +743,12 @@ class Media extends Post {
 	 * @access public
 	 */
 	public function pageHeading(): void {
+		$labels = $this->admin_page['labels'];
 		$meta = $this->getPostMeta($this->id);
 		
 		switch($this->action) {
 			case 'upload':
-				$title = 'Upload Media';
+				$title = $labels['create_item'];
 				
 				if(isset($_POST['submit'])) {
 					$data = array_merge($_POST, $_FILES);
@@ -779,13 +758,13 @@ class Media extends Post {
 				}
 				break;
 			case 'edit':
-				$title = 'Edit Media: { ' . domTag('em', array(
+				$title = $labels['edit_item'] . ': { ' . domTag('em', array(
 					'content' => substr($meta['filepath'], strpos($meta['filepath'], '/') + 1)
 				)) . ' }';
 				$message = isset($_POST['submit']) ? $this->validateSubmission($_POST) : '';
 				break;
 			case 'replace':
-				$title = 'Replace Media: { ' . domTag('em', array(
+				$title = $labels['duplicate_item'] . ': { ' . domTag('em', array(
 					'content' => substr($meta['filepath'], strpos($meta['filepath'], '/') + 1)
 				)) . ' }';
 				
@@ -797,14 +776,14 @@ class Media extends Post {
 				}
 				break;
 			default:
-				$title = 'Media';
+				$title = $labels['name'];
 				$search = $_GET['search'] ?? null;
 		}
 		?>
 		<div class="heading-wrap">
 			<?php
 			// Page title
-			echo domTag('h1', array(
+			domTagPr('h1', array(
 				'content' => $title
 			));
 			
@@ -820,7 +799,7 @@ class Media extends Post {
 				if(userHasPrivilege('can_upload_media')) {
 					echo actionLink('upload', array(
 						'classes' => 'button',
-						'caption' => 'Upload New'
+						'caption' => $labels['create_button']
 					));
 				}
 				
@@ -830,7 +809,7 @@ class Media extends Post {
 				// Info
 				adminInfo();
 				
-				echo domTag('hr');
+				domTagPr('hr');
 				
 				// Exit notices
 				if(isset($_GET['exit_status'])) {
@@ -862,7 +841,7 @@ class Media extends Post {
 				// Record count
 				$count = $this->getEntryCount($search);
 				
-				echo domTag('div', array(
+				domTagPr('div', array(
 					'class' => 'entry-count',
 					'content' => $count . ' ' . ($count === 1 ? 'entry' : 'entries')
 				));
@@ -878,6 +857,7 @@ class Media extends Post {
 	 * Generate an exit notice.
 	 * @since 1.3.14-beta
 	 *
+	 * @access private
 	 * @param string $exit_status -- The exit status.
 	 * @param int $status_code (optional) -- The type of notice to display.
 	 * @return string
@@ -918,18 +898,18 @@ class Media extends Post {
 	}
 	
 	/**
- 	 * Fetch all media based on a specific status.
- 	 * @since 1.3.15-beta
- 	 *
- 	 * @access private
- 	 * @param null|string $search -- The search query.
+	 * Fetch all media based on a specific status.
+	 * @since 1.3.15-beta
+	 *
+	 * @access private
+	 * @param null|string $search -- The search query.
 	 * @param bool $all (optional) -- Whether to return all or set a limit (for pagination).
- 	 * @return array
- 	 */
- 	private function getResults(?string $search, bool $all = false): array {
+	 * @return array
+	 */
+	private function getResults(?string $search, bool $all = false): array {
 		global $rs_query;
 		
-		$order_by = 'date';
+		$order_by = 'created';
 		$order = 'DESC';
 		$limit = $all === false ? array($this->paged['start'], $this->paged['per_page']) : 0;
 		
@@ -956,14 +936,75 @@ class Media extends Post {
 	}
 	
 	/**
- 	 * Fetch the media count based on a specific status.
- 	 * @since 1.3.15-beta
- 	 *
- 	 * @access private
- 	 * @param null|string $search -- The search query.
- 	 * @return int
- 	 */
- 	private function getEntryCount(?string $search): int {
- 		return count($this->getResults($search, true));
- 	}
+	 * Fetch the media count based on a specific status.
+	 * @since 1.3.15-beta
+	 *
+	 * @access private
+	 * @param null|string $search -- The search query.
+	 * @return int
+	 */
+	private function getEntryCount(?string $search): int {
+		return count($this->getResults($search, true));
+	}
+	
+	/**
+	 * Fetch all associated action links.
+	 * @since 1.3.16-beta
+	 *
+	 * @access private
+	 * @param array $media -- The media's data.
+	 * @return string
+	 */
+	private function getActionLinks(array $media): string {
+		$actions = $this->admin_page['actions'];
+		$action_list = array();
+		
+		foreach($actions as $key => $value) {
+			if($value === 'upload') continue;
+			
+			$privileged = match($value) {
+				'edit', 'replace' => userHasPrivilege('can_edit_media'),
+				'delete' => userHasPrivilege('can_delete_media'),
+				default => null
+			};
+			
+			$action_list[] = array(
+				'privileged' => $privileged,
+				'link' => $value,
+				'caption' => ucfirst($value)
+			);
+		}
+		
+		list($edit, $delete, $view, $replace) = $action_list;
+		
+		$action_links = array(
+			// Edit
+			$edit['privileged'] ? actionLink($edit['link'], array(
+				'caption' => $edit['caption'],
+				'id' => $media['id']
+			)) : null,
+			// Replace
+			$replace['privileged'] ? actionLink($replace['link'], array(
+				'caption' => $replace['caption'],
+				'id' => $media['id']
+			)) : null,
+			// Delete
+			$delete['privileged'] ? actionLink($delete['link'], array(
+				'classes' => 'modal-launch delete-item',
+				'data_item' => 'media',
+				'caption' => $delete['caption'],
+				'id' => $media['id']
+			)) : null,
+			// View
+			mediaLink($media['id'], array(
+				'link_text' => $view['caption'],
+				'newtab' => 1
+			))
+		);
+		
+		// Filter out any empty actions
+		$action_links = array_filter($action_links);
+		
+		return implode(' &bull; ', $action_links);
+	}
 }

@@ -5,33 +5,39 @@
  *
  * @package ReallySimpleCMS
  *
- * ## CONSTANTS [27] ##
+ * ## CONSTANTS [33] ##
  * { SOFTWARE VERSIONS [5] }
  * - string PHP_MINIMUM
  * - string PHP_RECOMMENDED
  * - string RS_VERSION
  * - string JQUERY_VERSION
  * - string ICONS_VERSION
- * { DIRECTORIES [11] }
+ * { DIRECTORIES [16] }
  * - string PATH
  * - string INC
  * - string RES
  * - string ADMIN
  * - string CONT
  * - string SETUP
+ * - string AJAX
+ * - string MODALS
+ * - string REGISTER
+ * - string UTILS
  * - string STYLES
  * - string SCRIPTS
+ * - string MODULES
  * - string THEMES
  * - string ADMIN_THEMES
  * - string UPLOADS
- * { CORE FILES [7] }
+ * { CORE FILES [8] }
  * - string RS_CONFIG
  * - string RS_SCHEMA
- * - string RS_FUNC
  * - string RS_DEBUG_FUNC
  * - string RS_CRIT_FUNC
- * - string GLOBAL_FUNC
+ * - string RS_GLOBAL_FUNC
+ * - string RS_FRONT_FUNC
  * - string RS_ADMIN_FUNC
+ * - string RS_THEME_FUNC
  * { MISCELLANEOUS [4] }
  * - string RS_ENGINE
  * - string RS_DEVELOPER
@@ -65,7 +71,7 @@ define('PHP_RECOMMENDED', '8.2');
  *
  * @var string
  */
-define('RS_VERSION', '1.3.15-beta');
+define('RS_VERSION', '1.3.16-beta');
 
 /**
  * Current jQuery version (required JavaScript library).
@@ -160,6 +166,14 @@ define('MODALS', INC . '/modals');
 define('REGISTER', INC . '/register');
 
 /**
+ * Path to the `utilities` directory.
+ * @since 1.3.16-beta
+ *
+ * @var string
+ */
+define('UTILS', INC . '/utilities');
+
+/**
  * Path to the `css` (stylesheets) directory.
  * @since 1.3.0-alpha
  *
@@ -174,6 +188,14 @@ define('STYLES', RES . '/css');
  * @var string
  */
 define('SCRIPTS', RES . '/js');
+
+/**
+ * Path to the `modules` directory.
+ * @since 1.3.16-beta
+ *
+ * @var string
+ */
+define('MODULES', CONT . '/modules');
 
 /**
  * Path to the `themes` directory.
@@ -217,15 +239,7 @@ define('RS_CONFIG', PATH . '/config.php');
  *
  * @var string
  */
-define('RS_SCHEMA', PATH . INC . '/schema.php');
-
-/**
- * Path to the primary functions file.
- * @since 1.3.0-beta
- *
- * @var string
- */
-define('RS_FUNC', PATH . INC . '/functions.php');
+define('RS_SCHEMA', PATH . UTILS . '/schema.php');
 
 /**
  * Path to the debugging functions file.
@@ -233,7 +247,7 @@ define('RS_FUNC', PATH . INC . '/functions.php');
  *
  * @var string
  */
-define('RS_DEBUG_FUNC', PATH . INC . '/debug.php');
+define('RS_DEBUG_FUNC', PATH . UTILS . '/debug.php');
 
 /**
  * Path to the critical functions file.
@@ -241,7 +255,7 @@ define('RS_DEBUG_FUNC', PATH . INC . '/debug.php');
  *
  * @var string
  */
-define('RS_CRIT_FUNC', PATH . INC . '/critical-functions.php');
+define('RS_CRIT_FUNC', PATH . INC . '/functions-critical.php');
 
 /**
  * Path to the global functions file.
@@ -249,7 +263,15 @@ define('RS_CRIT_FUNC', PATH . INC . '/critical-functions.php');
  *
  * @var string
  */
-define('GLOBAL_FUNC', PATH . INC . '/global-functions.php');
+define('RS_GLOBAL_FUNC', PATH . INC . '/functions-global.php');
+
+/**
+ * Path to the front end functions file.
+ * @since 1.3.0-beta
+ *
+ * @var string
+ */
+define('RS_FRONT_FUNC', PATH . INC . '/functions-front.php');
 
 /**
  * Path to the admin functions file.
@@ -257,7 +279,15 @@ define('GLOBAL_FUNC', PATH . INC . '/global-functions.php');
  *
  * @var string
  */
-define('RS_ADMIN_FUNC', PATH . INC . '/admin-functions.php');
+define('RS_ADMIN_FUNC', PATH . INC . '/functions-admin.php');
+
+/**
+ * Path to the theme functions file.
+ * @since 1.3.16-beta
+ *
+ * @var string
+ */
+define('RS_THEME_FUNC', PATH . INC . '/functions-theme.php');
 
 /*------------------------------------*\
     MISCELLANEOUS

@@ -1,7 +1,6 @@
 <?php
 /**
  * Load the media library in the upload modal.
- * Submits via AJAX.
  * @since 2.1.2-alpha
  *
  * @package ReallySimpleCMS

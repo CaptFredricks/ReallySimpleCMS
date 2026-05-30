@@ -16,6 +16,200 @@
 - \*-alpha (Alpha version)
 - \*-beta (Beta version)
 
+## Version 1.3.16-beta (2026-05-29)
+
+**General changes:**
+- Database
+  - Table columns are now prefixed by default
+  - Added a new column to the `user_roles` table that determines the permission level
+- Overhauled the setup process, adding a new class that handles the database installation
+- The backward compatibility file is now loaded in the debug functions file to allow inclusion of deprecated constants
+- Added new setting: `comments_per_page`, to hold how many comments should be displayed at a time on the front end
+  - Front end counts are now calculated dynamically
+- Added check for supported database drivers in the `Engine\Query` class
+  - The system will now throw a fatal error if no supported drivers are installed
+- The `getSetting` function now returns `false` if the supplied setting name doesn't exist
+- Corrected versioning in several minified resource files
+- Registered/installed modules are now displayed on the admin about page
+- On initialization, the system now checks for missing required PHP modules in addition to the PHP version
+  - Required modules: `mod_rewrite`
+- Admin themes are now registered in the `Admin\Register` class
+- Changes from `v1.4.0-beta_snap_04`:
+  - Improved directives in the `.gitignore` file
+  - Moved the `registerAdminMenuItem` and `registerAdminMenu` functions to `register/admin-pages.php`
+  - Updated the broken theme message on the List Themes page
+  - Created a `Register` class for admin registries
+    - The admin menu is now registered dynamically based on registered admin pages
+    - Each menu item has an index to determine placement
+    - Relabeled "Your Profile" to "My Profile" on menu for consistency
+    - Moved the "Customization" menu item up below the dashboard and renamed it "Customize"
+    - Tweaked other sub-labels
+  - Various labels throughout the admin dashboard are now dynamically populated based on labels from registered admin pages, post types, and taxonomies
+  - Moved some core files to a new utilities subdirectory
+    - This includes the captcha generator, backward compatibility functions, debugging functions, polyfills, database schema, and updater files
+    - `polyfill-functions.php` renamed to `polyfills.php`
+  - Renamed a param in the `postTypeExists` function for consistency
+  - Tweaked styling of admin nav menu items
+  - Improved logic for determining whether a post or term is being viewed (previously, a term with the same slug as a post would redirect to the post)
+  - Favicon now displays on the following utility screens:
+    - Error screen
+    - Fallback theme screen
+    - Maintenance screen
+  - All sitemap generator code has been moved to the `/utilities` subdirectory
+  - Overhauled the way menus are constructed in the `Engine\Menu` class
+  - The `Engine\Query::select` method now returns unprefixed versions of database columns; this is to simplify their use in the code
+  - Theme and admin theme registries can now include a description
+  - Tweaked labels for custom links on the menu admin page
+    - "Custom" is now "Custom Link"
+    - "Title" field is now "Caption"
+  - The themes page now displays author and version info
+  - Updated admin copyright link
+  - Standardized core functions filenames
+  - Added the following default parameters to the post type and taxonomy registries:
+    - `title` - what to display in the `<title>` tag
+	- `actions` - an array of available actions
+	- `menu_item` - an associative array of all menu item parameters:
+	  - `link`, `icon`, `caption`, `submenu`, `index`, `privileges`
+  - Deprecated the following default parameters:
+    - `menu_link`
+	- `menu_icon`
+
+**Programmatic changes:**
+- New constants/global vars:
+  - `MODULES`, `RS_THEME_FUNC`, `UTILS`
+  - `$rs_ad_register`, `$rs_admin_pages`, `$rs_modules`
+- Renamed constants/global vars:
+  - `GLOBAL_FUNC` -> `RS_GLOBAL_FUNC`, `RS_FUNC` -> `RS_FRONT_FUNC`
+  - `$notices` -> `$rs_notices`
+- New classes:
+  - `Admin\Register`
+  - `Engine\Install`
+- New functions/methods:
+  - `Admin\Comment` class (`getActionLinks`)
+  - `Admin\Login` class (`getActionLinks`)
+  - `Admin\Media` class (`getActionLinks`)
+  - `Admin\Menu` class (`getActionLinks`)
+  - `Admin\Post` class (`getActionLinks`)
+  - `Admin\Register` class (`registerAdminPage`, `setAdminPageActions`, `setAdminPageLabels`)
+  - `Admin\Term` class (`getActionLinks`)
+  - `Admin\Theme` class (`getActionLinks`)
+  - `Admin\User` class (`getActionLinks`)
+  - `Admin\UserRole` class (`getActionLinks`)
+  - `Admin\Widget` class (`getActionLinks`)
+  - `Engine\Menu` class (`__construct`, `getMenuId`, `getSubmenu`)
+  - `Engine\Register` class (`setPostTypeActions`, `setTaxonomyActions`)
+  - `register/admin-pages.php` (`adminPageExists`, `registerAdminPage`, `runAdminPagesRegister`)
+  - `register/modules.php` (`isActiveModule`, `loadModuleReg`, `moduleExists`, `registerModule`, `runModulesRegister`, `unregisterModule`)
+  - `utilities/sitemaps.php` (`genPostSitemaps`, `genSitemaps`, `genTermSitemaps`)
+- Renamed functions/methods:
+  - `Engine\Menu` class (`getMenuItemDescendants` -> `getMenuItemTree`)
+  - `Engine\Register` class (`getPostTypeLabels` -> `setPostTypeLabels`, `getTaxonomyLabels` -> `setTaxonomyLabels`)
+  - `functions-critical.php` (`checkPHPVersion` -> `checkPHPSetup`)
+  - `register/admin-themes.php` (`registerAdminThemes` -> `runAdminThemesRegister`)
+  - `register/post-types.php` (`registerDefaultPostTypes` -> `runPostTypesRegister`)
+  - `register/taxonomies.php` (`registerDefaultTaxonomies` -> `runTaxonomiesRegister`)
+  - `register/themes.php` (`registerThemes` -> `runThemesRegister`)
+
+**Bug fixes:**
+- Some user metadata is not created when submitting the Create User form
+- Some admin class methods are still using `$id` instead of `$this->id` for class vars, preventing proper data submission
+- A method call in the `Admin\Menu` class contains a previously removed parameter
+- The `Engine\Comment::getCommentCount` method returns the wrong comment count
+- Changes from `v1.4.0-beta_snap_04`:
+  - In PHP 8.2 or higher, a line of code in the `Engine\ErrorHandler` class triggers a deprecation notice
+  - Errors can occur during sitemap generation due to improperly scoped variables
+
+**Modified files:**
+- .gitignore
+- 404.php (M)
+- admin/about.php
+- admin/categories.php (M)
+- admin/header.php
+- admin/index.php
+- admin/settings.php
+- admin/stats.php (M)
+- content/themes/carbon/carbon.php (N)
+- content/themes/carbon/footer.php (M)
+- content/themes/carbon/functions.php
+- content/themes/carbon/index.php (M)
+- content/themes/carbon/style.css (M)
+- includes/admin/class-comment.php
+- includes/admin/class-login.php
+- includes/admin/class-media.php
+- includes/admin/class-menu.php
+- includes/admin/class-notice.php (M)
+- includes/admin/class-post.php
+- includes/admin/class-profile.php
+- includes/admin/class-register.php (N)
+- includes/admin/class-settings.php
+- includes/admin/class-term.php
+- includes/admin/class-theme.php
+- includes/admin/class-user-role.php
+- includes/admin/class-user.php
+- includes/admin/class-widget.php
+- includes/ajax/admin-ajax.php (M)
+- includes/ajax/ajax.php (M)
+- includes/ajax/bulk-actions.php (M)
+- includes/ajax/file-upload.php (M)
+- includes/ajax/load-media.php (M)
+- includes/class-dom-tags.php (X)
+- includes/constants.php
+- includes/dom-tags/\*.php (X)
+- includes/domtags.php (X)
+- includes/engine/class-comment.php
+- includes/engine/class-error-handler.php
+- includes/engine/class-install.php (N)
+- includes/engine/class-login.php
+- includes/engine/class-menu.php
+- includes/engine/class-post.php
+- includes/engine/class-query.php
+- includes/engine/class-register.php
+- includes/engine/class-term.php (M)
+- includes/enums/enum-table.php (M)
+- includes/functions-admin.php (R)
+- includes/functions-critical.php (R)
+- includes/functions-front.php (R)
+- includes/functions-global.php (R)
+- includes/functions-theme.php (R)
+- includes/load-template.php (M)
+- includes/modals/modal-upload.php (M)
+- includes/register/admin-pages.php (N)
+- includes/register/admin-themes.php (M)
+- includes/register/modules.php (N)
+- includes/register/post-types.php
+- includes/register/taxonomies.php
+- includes/register/themes.php (M)
+- includes/sitemap-index.php (X)
+- includes/sitemap-posts.php (X)
+- includes/sitemap-terms.php (X)
+- includes/utilities/backward-compat.php
+- includes/utilities/debug.php (M)
+- includes/utilities/error.php
+- includes/utilities/fallback-theme.php
+- includes/utilities/maintenance.php (M)
+- includes/utilities/polyfills.php (R)
+- includes/utilities/schema.php
+- includes/utilities/sitemaps.php (N)
+- includes/utilities/update-db.php
+- includes/utilities/update.php (M)
+- init.php
+- login.php
+- resources/css/admin.css
+- resources/css/admin.min.css
+- resources/css/button.min.css (M)
+- resources/css/front.css (M)
+- resources/css/front.min.css (M)
+- resources/css/global.css (M)
+- resources/css/global.min.css (M)
+- resources/css/setup.min.css (M)
+- resources/js/front.js
+- resources/js/front.min.js
+- resources/js/setup.js
+- resources/js/setup.min.js
+- setup/rsdb-config.php (M)
+- setup/rsdb-install.php
+- setup/run-install.php
+
 ## Version 1.3.15-beta (2025-11-03)
 
 **General changes:**

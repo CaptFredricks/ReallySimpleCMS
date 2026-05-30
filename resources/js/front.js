@@ -1,5 +1,5 @@
 /*!
- * Scripts for the front end of the CMS.
+ * Scripts for the front end of the system.
  * @since 2.2.1-alpha
  *
  * @package ReallySimpleCMS
@@ -27,8 +27,8 @@ jQuery(document).ready($ => {
 	\*------------------------------*/
 	
 	let ajax_dir = '/includes/ajax';
-	let feed_start = 10;
-	let feed_count = 10;
+	let feed_start, feed_per_page;
+	feed_start = feed_per_page = $('.comments .count').data('per-page');
 	
 	/**
 	 * Reply to a comment on a comment feed.
@@ -288,7 +288,7 @@ jQuery(document).ready($ => {
 			'data_submit': 'load',
 			'post_slug': $('body').attr('class').split(' ')[1],
 			'start': feed_start,
-			'count': feed_count
+			'count': feed_per_page
 		};
 		
 		$.ajax({
@@ -299,7 +299,7 @@ jQuery(document).ready($ => {
 				$('.comments .load.button').remove();
 				$(result).appendTo('.comments-wrap');
 				
-				feed_start += 10;
+				feed_start += feed_per_page;
 			},
 			url: ajax_dir + '/ajax.php'
 		});
@@ -337,7 +337,7 @@ jQuery(document).ready($ => {
 	 * Check for feed updates every 15 seconds.
 	 * @since 1.1.0-beta_snap-04
 	 */
-	if($('.comments').length) {
+	if($('.comments-wrap').children().length - 1 > 0) {
 		let comment_count = 0;
 		
 		setInterval(function() {

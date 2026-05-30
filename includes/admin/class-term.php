@@ -24,7 +24,7 @@
  * - protected string $action
  * - protected array $paged
  *
- * ## METHODS [15] ##
+ * ## METHODS [16] ##
  * - public __construct(int $id, string $action, array $tax_data)
  * { LISTS, FORMS, & ACTIONS [4] }
  * - public listRecords(): void
@@ -33,7 +33,7 @@
  * - public deleteRecord(): void
  * { VALIDATION [1] }
  * - private validateSubmission(array $data): string
- * { MISCELLANEOUS [9] }
+ * { MISCELLANEOUS [10] }
  * - public pageHeading(): void
  * - private exitNotice(string $exit_status, int $status_code): string
  * - private slugExists(string $slug): bool
@@ -43,6 +43,7 @@
  * - private getParentList(int $parent, int $id): string
  * - private getResults(?string $search, bool $all): array
  * - private getEntryCount(?string $search): int
+ * - private getActionLinks(array $term): string
  */
 namespace Admin;
 
@@ -185,8 +186,6 @@ class Term implements AdminInterface {
 	 * @access public
 	 */
 	public function listRecords(): void {
-		global $rs_query;
-		
 		// Query vars
 		$search = $_GET['search'] ?? null;
 		$this->paged = paginate((int)($_GET['paged'] ?? 1));
@@ -211,59 +210,25 @@ class Term implements AdminInterface {
 				$terms = $this->getResults($search);
 				
 				foreach($terms as $term) {
-					list($t_id, $t_name, $t_slug, $t_parent, $t_count) = array(
-						$term['id'],
-						$term['name'],
-						$term['slug'],
-						$term['parent'],
-						$term['count']
-					);
-					
-					$tax_name = str_replace(' ', '_', $this->tax_data['labels']['name_lowercase']);
-					
-					// Action links
-					$actions = array(
-						// Edit
-						userHasPrivilege('can_edit_' . $tax_name) ? actionLink('edit', array(
-							'caption' => 'Edit',
-							'id' => $t_id
-						)) : null,
-						// Delete
-						userHasPrivilege('can_delete_' . $tax_name) ? actionLink('delete', array(
-							'classes' => 'modal-launch delete-item',
-							'data_item' => strtolower($this->tax_data['labels']['name_singular']),
-							'caption' => 'Delete',
-							'id' => $t_id
-						)) : null,
-						// View
-						domTag('a', array(
-							'href' => getPermalink($this->tax_data['name'], $t_parent, $t_slug),
-							'content' => 'View'
-						))
-					);
-					
-					// Filter out any empty actions
-					$actions = array_filter($actions);
-					
 					echo tableRow(
 						// Name
 						tdCell(domTag('strong', array(
-							'content' => $t_name
+							'content' => $term['name']
 						)) . domTag('div', array(
 							'class' => 'actions',
-							'content' => implode(' &bull; ', $actions)
+							'content' => $this->getActionLinks($term)
 						)), 'name'),
 						// Slug
-						tdCell($t_slug, 'slug'),
+						tdCell($term['slug'], 'slug'),
 						// Parent
-						tdCell($this->getParent($t_parent), 'parent'),
+						tdCell($this->getParent($term['parent']), 'parent'),
 						// Count
 						tdCell((empty($this->tax_data['post_type']) ||
-							$this->tax_data['post_type'] !== $this->type_data['name'] ? $t_count :
+							$this->tax_data['post_type'] !== $this->type_data['name'] ? $term['count'] :
 							domTag('a', array(
 								'href' => ADMIN . '/posts.php?' . ($this->tax_data['post_type'] !== 'post' ?
-									'type=' . $this->tax_data['post_type'] . '&' : '') . 'term=' . $t_slug,
-								'content' => $t_count
+									'type=' . $this->tax_data['post_type'] . '&' : '') . 'term=' . $term['slug'],
+								'content' => $term['count']
 							))
 						), 'count')
 					);
@@ -303,7 +268,9 @@ class Term implements AdminInterface {
 						'id' => 'name-field',
 						'class' => 'text-input required invalid init',
 						'name' => 'name',
-						'value' => ($_POST['name'] ?? '')
+						'value' => ($_POST['name'] ?? ''),
+						'placeholder' => $this->tax_data['labels']['title_placeholder'],
+						'autocomplete' => 'off'
 					));
 					
 					// Slug
@@ -339,7 +306,7 @@ class Term implements AdminInterface {
 						'type' => 'submit',
 						'class' => 'submit-input button',
 						'name' => 'submit',
-						'value' => 'Create Category'
+						'value' => $this->tax_data['labels']['create_button']
 					));
 					?>
 				</table>
@@ -355,8 +322,6 @@ class Term implements AdminInterface {
 	 * @access public
 	 */
 	public function editRecord(): void {
-		global $rs_query;
-		
 		if(empty($this->id) || $this->id <= 0 || empty($this->taxonomy))
 			redirect('categories.php');
 		
@@ -386,7 +351,9 @@ class Term implements AdminInterface {
 						'id' => 'name-field',
 						'class' => 'text-input required invalid init',
 						'name' => 'name',
-						'value' => $this->name
+						'value' => $this->name,
+						'placeholder' => $this->tax_data['labels']['title_placeholder'],
+						'autocomplete' => 'off'
 					));
 					
 					// Slug
@@ -422,7 +389,7 @@ class Term implements AdminInterface {
 						'type' => 'submit',
 						'class' => 'submit-input button',
 						'name' => 'submit',
-						'value' => 'Update ' . $this->tax_data['labels']['name_singular']
+						'value' => $this->tax_data['labels']['update_button']
 					));
 					?>
 				</table>
@@ -527,21 +494,21 @@ class Term implements AdminInterface {
 	 * @access public
 	 */
 	public function pageHeading(): void {
-		global $rs_query;
+		$labels = $this->tax_data['labels'];
 		
 		switch($this->action) {
 			case 'create':
-				$title = $this->tax_data['labels']['create_item'];
+				$title = $labels['create_item'];
 				$message = isset($_POST['submit']) ? $this->validateSubmission($_POST) : '';
 				break;
 			case 'edit':
-				$title = $this->tax_data['labels']['edit_item'] . ': { ' . domTag('em', array(
+				$title = $labels['edit_item'] . ': { ' . domTag('em', array(
 					'content' => $this->name
 				)) . ' }';
-				$message = isset($_POST['submit']) ? $this->validateSubmission($_POST, $this->id) : '';
+				$message = isset($_POST['submit']) ? $this->validateSubmission($_POST) : '';
 				break;
 			default:
-				$title = $this->tax_data['label'];
+				$title = $labels['name'];
 				$tax = $this->tax_data['name'];
 				$search = $_GET['search'] ?? null;
 		}
@@ -549,7 +516,7 @@ class Term implements AdminInterface {
 		<div class="heading-wrap">
 			<?php
 			// Page title
-			echo domTag('h1', array(
+			domTagPr('h1', array(
 				'content' => $title
 			));
 			
@@ -563,10 +530,10 @@ class Term implements AdminInterface {
 			} else {
 				// Create button
 				if(userHasPrivilege('can_create_' . str_replace(' ', '_', $this->tax_data['labels']['name_lowercase']))) {
-					echo actionLink('create', array(
+					echo actionLink($this->tax_data['actions']['create'], array(
 						'taxonomy' => ($tax === 'category' ? null : $tax),
 						'classes' => 'button',
-						'caption' => 'Create New'
+						'caption' => $labels['create_button']
 					));
 				}
 				
@@ -578,7 +545,7 @@ class Term implements AdminInterface {
 				// Info
 				adminInfo();
 				
-				echo domTag('hr');
+				domTagPr('hr');
 				
 				// Exit notices
 				if(isset($_GET['exit_status']))
@@ -587,7 +554,7 @@ class Term implements AdminInterface {
 				// Record count
 				$count = $this->getEntryCount($search);
 				
-				echo domTag('div', array(
+				domTagPr('div', array(
 					'class' => 'entry-count',
 					'content' => $count . ' ' . ($count === 1 ? 'entry' : 'entries')
 				));
@@ -603,6 +570,7 @@ class Term implements AdminInterface {
 	 * Generate an exit notice.
 	 * @since 1.3.14-beta
 	 *
+	 * @access private
 	 * @param string $exit_status -- The exit status.
 	 * @param int $status_code (optional) -- The type of notice to display.
 	 * @return string
@@ -673,7 +641,7 @@ class Term implements AdminInterface {
 	}
 	
 	/**
-	 * Fetch a term's taxonomy.
+	 * Fetch a term's taxonomy name.
 	 * @since 1.0.5-beta
 	 *
 	 * @access private
@@ -718,17 +686,14 @@ class Term implements AdminInterface {
 	private function getParentList(int $parent = 0, int $id = 0): string {
 		global $rs_query;
 		
-		$list = '';
+		$list = array();
 		
 		$terms = $rs_query->select(getTable('t'), array('id', 'name'), array(
 			'taxonomy' => getTaxonomyId($this->tax_data['name'])
 		));
 		
 		foreach($terms as $term) {
-			list($t_id, $t_name) = array(
-				$term['id'],
-				$term['name']
-			);
+			$t_id = $term['id'];
 			
 			if($id !== 0) {
 				// Skip the current term
@@ -738,14 +703,14 @@ class Term implements AdminInterface {
 				if($this->isDescendant($t_id, $id)) continue;
 			}
 			
-			$list .= domTag('option', array(
+			$list[] = domTag('option', array(
 				'value' => $t_id,
-				'selected' => ($t_id === $parent),
-				'content' => $t_name
+				'selected' => $t_id === $parent,
+				'content' => $term['name']
 			));
 		}
 		
-		return $list;
+		return implode('', $list);
 	}
 	
 	/**
@@ -796,5 +761,62 @@ class Term implements AdminInterface {
 	 */
 	private function getEntryCount(?string $search): int {
 		return count($this->getResults($search, true));
+	}
+	
+	/**
+	 * Fetch all associated action links.
+	 * @since 1.3.16-beta
+	 *
+	 * @access private
+	 * @param array $term -- The term's data.
+	 * @return string
+	 */
+	private function getActionLinks(array $term): string {
+		$tax_name = str_replace(' ', '_', $this->tax_data['labels']['name_lowercase']);
+		$actions = $this->tax_data['actions'];
+		$action_list = array();
+		
+		foreach($actions as $key => $value) {
+			if($value === 'create') continue;
+			
+			$privileged = match($value) {
+				'edit' => userHasPrivilege('can_edit_' . $tax_name),
+				'delete' => userHasPrivilege('can_delete_' . $tax_name),
+				default => null
+			};
+			
+			$action_list[] = array(
+				'privileged' => $privileged,
+				'link' => $value,
+				'caption' => ucfirst($value)
+			);
+		}
+		
+		list($edit, $delete, $view) = $action_list;
+		
+		$action_links = array(
+			// Edit
+			$edit['privileged'] ? actionLink($edit['link'], array(
+				'caption' => $edit['caption'],
+				'id' => $term['id']
+			)) : null,
+			// Delete
+			$delete['privileged'] ? actionLink($delete['link'], array(
+				'classes' => 'modal-launch delete-item',
+				'data_item' => strtolower($this->tax_data['labels']['name_singular']),
+				'caption' => $delete['caption'],
+				'id' => $term['id']
+			)) : null,
+			// View
+			domTag('a', array(
+				'href' => getPermalink($this->tax_data['name'], $term['parent'], $term['slug']),
+				'content' => $view['caption']
+			))
+		);
+		
+		// Filter out any empty actions
+		$action_links = array_filter($action_links);
+		
+		return implode(' &bull; ', $action_links);
 	}
 }

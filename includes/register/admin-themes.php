@@ -8,7 +8,7 @@
  * ## FUNCTIONS [6] ##
  * - registerAdminTheme(string $name, array $args): ?array
  * - unregisterAdminTheme(string $name, bool $del_data): bool
- * - registerAdminThemes(): void
+ * - runAdminThemesRegister(): void
  * - loadAdminThemeReg(string $theme): void
  * - loadAdminTheme(string $stylesheet, string $version): void
  * - adminThemeExists(string $name): bool
@@ -23,9 +23,9 @@
  * @return null|array
  */
 function registerAdminTheme(string $name, array $args = array()): ?array {
-	global $rs_register;
+	global $rs_ad_register;
 	
-	return $rs_register->registerAdminTheme($name, $args);
+	return $rs_ad_register->registerAdminTheme($name, $args);
 }
 
 /**
@@ -37,37 +37,37 @@ function registerAdminTheme(string $name, array $args = array()): ?array {
  * @return bool
  */
 function unregisterAdminTheme(string $name, bool $del_data = false): bool {
-	global $rs_register;
+	global $rs_ad_register;
 	
-	return $rs_register->unregisterAdminTheme($name, $del_data);
+	return $rs_ad_register->unregisterAdminTheme($name, $del_data);
 }
 
 /**
  * Register all available admin themes.
  * @since 1.3.15-beta
  */
-function registerAdminThemes(): void {
-	global $rs_register;
+function runAdminThemesRegister(): void {
+	global $rs_ad_register;
 	
-	// Default themes
-	$default_themes = $rs_register::DEFAULT_ADMIN_THEMES;
+	// Default admin themes
+	$default_themes = $rs_ad_register::DEFAULT_ADMIN_THEMES;
 	
 	foreach($default_themes as $theme) loadAdminThemeReg($theme);
 	
-	// Custom themes
+	// Custom admin themes
 	$custom_themes = array_diff(scandir(PATH . ADMIN_THEMES), array_merge($default_themes, array('.', '..', 'backups')));
 	
 	foreach($custom_themes as $theme) loadAdminThemeReg($theme);
 }
 
 /**
- * Try to load an admin theme's registry file.
+ * Try to load an admin theme's register file.
  * @since 1.3.15-beta
  *
- * @param string $theme -- The theme's name.
+ * @param string $name -- The theme's name.
  */
-function loadAdminThemeReg(string $theme): void {
-	$reg = slash(PATH . ADMIN_THEMES) . slash($theme) . $theme . '.php';
+function loadAdminThemeReg(string $name): void {
+	$reg = slash(PATH . ADMIN_THEMES) . slash($name) . $name . '.php';
 	
 	if(file_exists($reg)) requireFile($reg);
 }
@@ -80,8 +80,10 @@ function loadAdminThemeReg(string $theme): void {
  * @param string $version (optional) -- The stylesheet's version.
  */
 function loadAdminTheme(string $path, string $version = RS_VERSION): void {
-	echo '<link href="' . $path . (!empty($version) ? '?v=' .
-		$version : '') . '" rel="stylesheet">';
+	domTagPr('link', array(
+		'href' => $path . (!empty($version) ? '?v=' . $version : ''),
+		'rel' => 'stylesheet'
+	));
 }
 
 /**

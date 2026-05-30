@@ -59,7 +59,8 @@ class Profile extends User {
 						'id' => 'username-field',
 						'class' => 'text-input required invalid init',
 						'name' => 'username',
-						'value' => $this->username
+						'value' => $this->username,
+						'placeholder' => $this->admin_page['labels']['title_placeholder']
 					));
 					
 					// Email
@@ -148,7 +149,7 @@ class Profile extends User {
 						'type' => 'submit',
 						'class' => 'submit-input button',
 						'name' => 'submit',
-						'value' => 'Update Profile'
+						'value' => $this->admin_page['labels']['update_button']
 					));
 					?>
 				</table>
@@ -282,13 +283,15 @@ class Profile extends User {
 					exit;
 				}
 				
-				$hashed_password = password_hash($data['new_pass'], PASSWORD_BCRYPT, array('cost' => 10));
+				$hashed_password = password_hash($data['new_pass'], PASSWORD_BCRYPT, array(
+					'cost' => 10
+				));
 				
 				$rs_query->update(getTable('u'), array(
 					'password' => $hashed_password,
 					'session' => null
 				), array(
-					'id' => $id
+					'id' => $this->id
 				));
 				
 				// Delete the session cookie
@@ -364,7 +367,7 @@ class Profile extends User {
 						'value' => $value
 					), array(
 						'user' => $rs_session['id'],
-						'datakey' => $key
+						'key' => $key
 					));
 				}
 				
@@ -393,14 +396,14 @@ class Profile extends User {
 				$message = isset($_POST['submit']) ? $this->validateSubmission($_POST) : '';
 				break;
 			default:
-				$title = 'Edit Profile';
+				$title = $this->admin_page['labels']['edit_item'];
 				$message = isset($_POST['submit']) ? $this->validateSubmission($_POST) : '';
 		}
 		?>
 		<div class="heading-wrap">
 			<?php
 			// Page title
-			echo domTag('h1', array(
+			domTagPr('h1', array(
 				'content' => $title
 			));
 			
@@ -412,12 +415,18 @@ class Profile extends User {
 				echo $this->exitNotice($_GET['exit_status']);
 				
 				if($this->action === 'reset_password') {
-					// Currently, the user is logged out immediately;
-					//  revisit in a later update
-					echo '<meta http-equiv="refresh" content="2; url=\'/login.php?redirect=' .
-						urlencode($_SERVER['PHP_SELF']) . '\'">';
+					// Currently, the user is logged out immediately; revisit in a later update
+					domTagPr('meta', array(
+						'http-equiv' => 'refresh',
+						'content' => '2; url=\'/login.php' . getQueryString(array(
+							'redirect' => urlencode($_SERVER['PHP_SELF'])
+						)) . '\''
+					));
 				} else {
-					echo '<meta http-equiv="refresh" content="2; url=\'' . ADMIN_URI . '\'">';
+					domTagPr('meta', array(
+						'http-equiv' => 'refresh',
+						'content' => '2; url=\'' . ADMIN_URI . '\''
+					));
 				}
 			}
 			?>
@@ -429,6 +438,7 @@ class Profile extends User {
 	 * Generate an exit notice.
 	 * @since 1.3.14-beta
 	 *
+	 * @access private
 	 * @param string $exit_status -- The exit status.
 	 * @param int $status_code (optional) -- The type of notice to display.
 	 * @return string
