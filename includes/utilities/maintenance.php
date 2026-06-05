@@ -7,6 +7,8 @@
  *
  * @package ReallySimpleCMS
  */
+
+requireFile(RS_FRONT_FUNC);
 ?>
 <!DOCTYPE html>
 <html lang="en">

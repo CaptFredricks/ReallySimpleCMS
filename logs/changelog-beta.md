@@ -16,6 +16,18 @@
 - \*-alpha (Alpha version)
 - \*-beta (Beta version)
 
+## Version 1.3.16.4-beta (2026-06-05)
+
+**General changes:**
+- n/a
+
+**Bug fixes:**
+- The `functions-front.php` file is not included on some utility screens, causing undefined function errors
+
+**Modified files:**
+- includes/utilities/error.php (M)
+- includes/utilities/maintenance.php (M)
+
 ## Version 1.3.16.3-beta (2026-05-30)
 
 **General changes:**
